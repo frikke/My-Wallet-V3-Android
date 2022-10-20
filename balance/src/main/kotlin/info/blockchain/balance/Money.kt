@@ -18,8 +18,10 @@ abstract class Money : Serializable, Comparable<Money> {
 
     abstract val isZero: Boolean
     abstract val isPositive: Boolean
-
     abstract val maxDecimalPlaces: Int
+
+    // Dust is defined as a positive balance with a fiat value of under 1 cent/penny (eg: < $0.01)
+    abstract fun isDust(): Boolean
 
     /**
      * Where a Money type can store more decimal places than is necessary,

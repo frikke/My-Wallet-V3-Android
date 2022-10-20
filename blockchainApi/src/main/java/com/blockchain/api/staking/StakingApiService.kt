@@ -15,6 +15,8 @@ class StakingApiService internal constructor(
     suspend fun getStakingEligibility(): Outcome<Exception, Map<String, StakingEligibilityDto>> =
         stakingApi.getStakingEligibility()
 
+    // Response here can return a 204 (No-Content), in which case, the success of the Outcome would be null;
+    // so we catch it and return an empty map if this is the case
     suspend fun getStakingBalances(): Outcome<Exception, Map<String, StakingBalanceDto>> =
         stakingApi.getAccountBalances().map { response ->
             response ?: emptyMap()

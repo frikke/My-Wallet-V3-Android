@@ -64,6 +64,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -118,7 +119,8 @@ class DashboardActionInteractor(
     private val cowboysDataProvider: CowboysPromoDataProvider,
     private val referralService: ReferralService,
     private val cowboysPrefs: CowboysPrefs,
-    private val stakingFeatureFlag: FeatureFlag
+    private val stakingFeatureFlag: FeatureFlag,
+    private val shouldAssetShowUseCase: ShouldAssetShowUseCase
 ) {
 
     private val defFilter: AssetFilter
@@ -129,24 +131,28 @@ class DashboardActionInteractor(
             model.process(DashboardIntent.ClearAnnouncement)
         }.flatMapLatest {
             coincore.activeAssets(it)
-        }.distinctUntilChangedBy { c -> c.map { it.currency } }.asObservable().subscribeBy(
-            onNext = { activeAssets ->
-                Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
-                model.process(
-                    DashboardIntent.UpdateActiveAssets(
-                        activeAssets
-                    )
-                )
-            },
-            onError = {
-                Timber.e("Error fetching active assets - $it")
-                throw it
-            }
-        ).also {
-            compositeDisposable.clear()
-        }.also {
-            compositeDisposable.add(it)
+        }.distinctUntilChangedBy { assetList ->
+            assetList.map { it.currency }
         }
+            .asObservable()
+            .subscribeBy(
+                onNext = { activeAssets ->
+                    Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
+                    model.process(
+                        DashboardIntent.UpdateActiveAssets(
+                            activeAssets
+                        )
+                    )
+                },
+                onError = {
+                    Timber.e("Error fetching active assets - $it")
+                    throw it
+                }
+            ).also {
+                compositeDisposable.clear()
+            }.also {
+                compositeDisposable.add(it)
+            }
 
     fun fetchAccounts(assets: List<Asset>, model: DashboardModel) {
         return model.process(
@@ -167,7 +173,7 @@ class DashboardActionInteractor(
             }
             is FiatAsset -> when (walletMode) {
                 WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> BrokearageFiatAsset(
+                WalletMode.CUSTODIAL_ONLY -> BrokerageFiatAsset(
                     currency = this.currency,
                     fiatAccount = this.custodialAccount
                 )
@@ -272,8 +278,10 @@ class DashboardActionInteractor(
         coincore[currency].accountGroup(defFilter)
             .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
-                group.balanceRx
-                    .logBalanceLoadError(currency, defFilter)
+                Observables.zip(
+                    group.balanceRx.logBalanceLoadError(currency, defFilter),
+                    shouldAssetShowUseCase.invoke(currency, group).asObservable()
+                )
             }
             .doOnSubscribe {
                 Timber.i("Fetching balance for asset ${currency.displayTicker}")
@@ -283,13 +291,19 @@ class DashboardActionInteractor(
                 Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
                 model.process(DashboardIntent.BalanceUpdateError(currency))
             }
-            .doOnNext { accountBalance ->
+            .doOnNext { (accountBalance, shouldAssetShow) ->
                 Timber.d("Got balance for ${currency.displayTicker}")
-                model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
+                model.process(
+                    DashboardIntent.BalanceUpdate(
+                        asset = currency,
+                        newBalance = accountBalance,
+                        shouldAssetShow = shouldAssetShow
+                    )
+                )
             }
             .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
-            .map {
-                it.total
+            .map { (accountBalance, _) ->
+                accountBalance.total
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
@@ -307,7 +321,7 @@ class DashboardActionInteractor(
     fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
         when (asset) {
             is BrokerageCryptoAsset -> refreshPricesWith24HDelta(model, asset.currency as AssetInfo)
-            is BrokearageFiatAsset,
+            is BrokerageFiatAsset,
             is DefiAsset -> refreshPrice(model, asset.currency)
         }.also {
             compositeDisposable += it

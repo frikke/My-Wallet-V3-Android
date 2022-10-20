@@ -14,7 +14,10 @@ class ReferralApiService(private val api: ReferralApi) {
 
     suspend fun validateReferralCode(
         referralCode: String
-    ) = api.validateReferralCode(referralCode)
+    ) = api.validateReferralCode(
+        code = referralCode,
+        platform = WALLET
+    )
 
     suspend fun associateReferralCode(
         referralCode: String

@@ -76,7 +76,7 @@ interface DashboardItem {
 }
 
 data class FiatBalanceInfo(
-    val funds: List<BrokearageFiatAsset>,
+    val funds: List<BrokerageFiatAsset>,
 ) : DashboardItem {
     override val index: Int
         get() = DASHBOARD_FIAT_ASSETS
@@ -181,20 +181,27 @@ data class DashboardState(
         .mapNotNull { it.fiatBalance }
         .ifEmpty { null }?.total()
 
-    val fiatDashboardAssets: List<BrokearageFiatAsset>
-        get() = activeAssets.values.filterIsInstance<BrokearageFiatAsset>()
+    val fiatDashboardAssets: List<BrokerageFiatAsset>
+        get() = activeAssets.values.filterIsInstance<BrokerageFiatAsset>()
 
     /**
      * The idea here is that
-     * - When in Defi mode we display all the non custodial coins regardless the balance
-     * - When in Brokerage or Universal we display only assets with balances
+     * - When in Defi mode:
+     *      - Display all L1 non-custodial coins regardless of balance
+     *      - Honour the Dust hiding setting (balance <$0.01)
+     * - When in Brokerage or Universal:
+     *      - Display all L1 assets regardless of balance
+     *      - For other assets - show accounts with balances
+     *      - Honour the Dust hiding setting (balance <$0.01)
      */
     val displayableAssets: List<DashboardAsset>
         get() {
             if (activeAssets.isEmpty()) return emptyList()
-            if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.toList()
+            if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.filter {
+                it.currency.isLayer1Asset() || it.shouldAssetShow
+            }
             if (activeAssets.all { it.value is BrokerageDashboardAsset }) return activeAssets.values.filter {
-                it.accountBalance?.total?.isPositive ?: false
+                it.currency.isLayer1Asset() || (it.accountBalance?.total?.isPositive ?: false && it.shouldAssetShow)
             }
             throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
         }
@@ -233,6 +240,12 @@ data class DashboardState(
             it.fiatBalance?.isPositive == true
         } ?: false
     }
+
+    private fun Currency.isLayer1Asset(): Boolean =
+        (this as? AssetInfo)?.let {
+            // Timber.e("checking l1 for ${it.networkTicker} - ${this.l1chainTicker == null}")
+            this.l1chainTicker == null
+        } ?: false
 }
 
 enum class DashboardUIState {

@@ -59,7 +59,6 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -193,7 +192,6 @@ class SimpleBuyCryptoFragment :
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
         compositeDisposable += binding.inputAmount.amount
-            .throttleFirst(1000L, TimeUnit.MILLISECONDS)
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
                     model.process(SimpleBuyIntent.AmountUpdated(amount))

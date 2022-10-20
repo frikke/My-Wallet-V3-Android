@@ -12,7 +12,7 @@ import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
+import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 
@@ -89,7 +89,7 @@ private class MultipleFundsAdapter(
     private val selectedFiat: Currency
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var items = listOf<BrokearageFiatAsset>()
+    var items = listOf<BrokerageFiatAsset>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -115,7 +115,7 @@ private class MultipleFundsAdapter(
         private val selectedFiat: Currency
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: BrokearageFiatAsset) {
+        fun bind(item: BrokerageFiatAsset) {
             val currency = item.currency as FiatCurrency
             binding.apply {
                 borderedFundsBalanceOtherFiat.visibleIf { selectedFiat != currency }

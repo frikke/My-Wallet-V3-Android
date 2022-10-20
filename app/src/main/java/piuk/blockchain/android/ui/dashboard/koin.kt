@@ -4,6 +4,7 @@ import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.stakingAccountFeatureFlag
@@ -24,6 +25,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyMo
 import piuk.blockchain.android.ui.dashboard.model.DashboardActionInteractor
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
+import piuk.blockchain.android.ui.dashboard.model.ShouldAssetShowUseCase
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -77,7 +79,16 @@ val dashboardModule = module {
                 referralService = get(),
                 cowboysPrefs = get(),
                 productsEligibilityStore = get(),
-                stakingFeatureFlag = get(stakingAccountFeatureFlag)
+                stakingFeatureFlag = get(stakingAccountFeatureFlag),
+                shouldAssetShowUseCase = get()
+            )
+        }
+
+        factory {
+            ShouldAssetShowUseCase(
+                hideDustFeatureFlag = get(hideDustFeatureFlag),
+                localSettingsPrefs = get(),
+                watchlistService = get()
             )
         }
 

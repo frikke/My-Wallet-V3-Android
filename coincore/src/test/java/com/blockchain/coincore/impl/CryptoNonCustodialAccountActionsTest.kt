@@ -344,7 +344,7 @@ private class NonCustodialTestAccount(
         get() = 1
 
     override suspend fun publicKey(): String {
-        TODO("Not yet implemented")
+        return ""
     }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine = mock()

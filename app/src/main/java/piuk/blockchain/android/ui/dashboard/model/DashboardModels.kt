@@ -35,7 +35,7 @@ data class DefiBalanceState(
 
 sealed interface DashboardAsset : DashboardItem {
     fun updateBalance(accountBalance: AccountBalance): DashboardAsset
-
+    fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset
     fun toErrorState(): DashboardAsset
     fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset
 
@@ -46,7 +46,7 @@ sealed interface DashboardAsset : DashboardItem {
     fun reset(): DashboardAsset
 
     val currency: Currency
-
+    val shouldAssetShow: Boolean
     val isUILoading: Boolean
     val isFetchingBalance: Boolean
     val accountBalance: AccountBalance?
@@ -68,10 +68,14 @@ data class DefiAsset(
     override val accountBalance: AccountBalance? = null,
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
-    override val currentRate: ExchangeRate? = null
+    override val currentRate: ExchangeRate? = null,
+    override val shouldAssetShow: Boolean = false
 ) : DashboardAsset {
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
+
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow)
 
     override fun toErrorState(): DashboardAsset = this.copy(hasBalanceError = true)
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
@@ -105,6 +109,7 @@ data class BrokerageCryptoAsset(
     val priceTrend: List<Float> = emptyList(),
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
+    override val shouldAssetShow: Boolean = false
 ) : BrokerageDashboardAsset {
 
     override val currentRate: ExchangeRate?
@@ -120,6 +125,7 @@ data class BrokerageCryptoAsset(
 
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
+
     override val isUILoading: Boolean by unsafeLazy {
         if (hasBalanceError)
             false
@@ -128,6 +134,9 @@ data class BrokerageCryptoAsset(
 
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
+
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow)
 
     override fun toErrorState(): DashboardAsset = this.copy(hasBalanceError = true, isFetchingBalance = false)
 
@@ -148,13 +157,14 @@ data class BrokerageCryptoAsset(
     override fun reset(): BrokerageCryptoAsset = BrokerageCryptoAsset(currency)
 }
 
-data class BrokearageFiatAsset(
+data class BrokerageFiatAsset(
     override val currency: Currency,
     override val accountBalance: AccountBalance? = null,
     override val currentRate: ExchangeRate? = null,
     override val isUILoading: Boolean = false,
     override val isFetchingBalance: Boolean = false,
     override val hasBalanceError: Boolean = false,
+    override val shouldAssetShow: Boolean = false,
     /**
      * unfortunately, we need to know this cause click is coupled with this.
      */
@@ -168,6 +178,9 @@ data class BrokearageFiatAsset(
 
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
+
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow)
 
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
@@ -186,5 +199,5 @@ data class BrokearageFiatAsset(
         throw IllegalStateException("Action not supported")
     }
 
-    override fun reset(): DashboardAsset = BrokearageFiatAsset(currency = currency, fiatAccount = fiatAccount)
+    override fun reset(): DashboardAsset = BrokerageFiatAsset(currency = currency, fiatAccount = fiatAccount)
 }
