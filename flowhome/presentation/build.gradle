@@ -33,6 +33,7 @@ dependencies {
     implementation project(':balance')
     implementation project(':core')
     implementation project(':componentlib')
+    implementation project(':chrome:common')
 
     // android
     implementation Libraries.design

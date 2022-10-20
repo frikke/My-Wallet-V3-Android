@@ -5,6 +5,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService
+import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -19,6 +20,7 @@ import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.walletmode.SuperAppWalletModeRepository
+import piuk.blockchain.android.walletmode.WalletModeBalanceRepository
 import piuk.blockchain.android.walletmode.WalletModePrefStore
 import piuk.blockchain.android.walletmode.WalletModeRepository
 import piuk.blockchain.android.walletmode.WalletModeTraitsRepository
@@ -82,6 +84,20 @@ val mainModule = module {
                 cache = get(),
                 payloadManager = get(),
                 walletStatusPrefs = get()
+            )
+        }
+
+        scoped<WalletModeBalanceService>(superAppModeService) {
+            WalletModeBalanceRepository(
+                walletModeService = get(superAppModeService),
+                balanceStore = get()
+            )
+        }
+
+        scoped<WalletModeBalanceService> {
+            WalletModeBalanceRepository(
+                walletModeService = get(),
+                balanceStore = get()
             )
         }
     }
