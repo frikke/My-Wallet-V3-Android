@@ -121,7 +121,7 @@ internal class FiatCryptoConversionModel(
         input: Currency,
         output: Currency
     ): Single<ExchangeRate> {
-        return exchangeRates.exchangeRate(
+        return exchangeRates.exchangeRateLegacy(
             input, output
         ).firstOrError()
     }

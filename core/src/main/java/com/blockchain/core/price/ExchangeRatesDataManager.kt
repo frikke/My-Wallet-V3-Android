@@ -60,7 +60,15 @@ interface ExchangeRates {
 interface ExchangeRatesDataManager : ExchangeRates {
     fun init(): Completable
 
-    fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
+    @Deprecated("Use the reactive flow exchangeRate")
+    fun exchangeRateLegacy(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
+
+    fun exchangeRate(
+        fromAsset: Currency,
+        toAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<ExchangeRate>>
+
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
     fun exchangeRateToUserFiatFlow(
         fromAsset: Currency,

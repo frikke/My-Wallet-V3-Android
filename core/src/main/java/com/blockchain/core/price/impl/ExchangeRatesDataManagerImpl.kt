@@ -56,7 +56,29 @@ internal class ExchangeRatesDataManagerImpl(
             priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Fresh).firstOutcome()
         }
 
-    override fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
+    override fun exchangeRate(
+        fromAsset: Currency,
+        toAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<ExchangeRate>> {
+        val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
+        val base = if (shouldInverse) toAsset else fromAsset
+        val quote = if (shouldInverse) fromAsset else toAsset
+        return priceStore.getCurrentPriceForAsset(base, quote, freshnessStrategy)
+            .mapData {
+                ExchangeRate(
+                    from = base,
+                    to = quote,
+                    rate = it.rate
+                ).apply {
+                    if (shouldInverse) {
+                        inverse()
+                    }
+                }
+            }
+    }
+
+    override fun exchangeRateLegacy(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset

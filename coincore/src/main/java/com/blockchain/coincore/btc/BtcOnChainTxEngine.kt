@@ -312,7 +312,7 @@ class BtcOnChainTxEngine(
     //  * the Tx size is over 1kB AND
     //  * the ratio of fee/amount is over 1%
     private fun isLargeTransaction(pendingTx: PendingTx): Single<Boolean> =
-        exchangeRates.exchangeRate(pendingTx.feeAmount.currency, Dollars)
+        exchangeRates.exchangeRateLegacy(pendingTx.feeAmount.currency, Dollars)
             .firstOrError()
             .map { exchangeRate ->
                 val fiatValue = exchangeRate.convert(pendingTx.feeAmount)
