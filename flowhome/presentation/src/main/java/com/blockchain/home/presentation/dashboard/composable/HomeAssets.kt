@@ -37,7 +37,7 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CryptoAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
-import com.blockchain.home.presentation.allassets.SectionSize
+import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
 import com.blockchain.koin.payloadScope

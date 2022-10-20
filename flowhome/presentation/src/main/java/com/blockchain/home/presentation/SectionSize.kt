@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.allassets
+package com.blockchain.home.presentation
 
 // todo move to be available for other modules: activities and other dashboard stuff
 sealed class SectionSize(open val size: Int) {

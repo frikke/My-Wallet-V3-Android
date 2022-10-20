@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -52,7 +51,7 @@ import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CryptoAssetState
-import com.blockchain.home.presentation.allassets.SectionSize
+import com.blockchain.home.presentation.SectionSize
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -127,10 +126,6 @@ fun CryptoAssetsScreen(
                 .fillMaxSize()
                 .background(color = Color(0XFFF1F2F7))
         ) {
-            // todo(othman) make this a generic screen with composable {contents}
-            //  to make it easier for gradient tops and navigation
-
-            // todo(othman) header stuff - need to create superapp header - checking with Ethan
             NavigationBar(
                 title = stringResource(R.string.ma_home_assets_title),
                 onBackButtonClick = { },
@@ -146,7 +141,6 @@ fun CryptoAssetsScreen(
                 )
             )
 
-            // content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,8 +161,6 @@ fun CryptoAssetsScreen(
                     }
                 }
             }
-
-            // todo(othman) footer stuff
         }
     }
 }
@@ -190,7 +182,6 @@ fun CryptoAssetsLoading() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<CryptoAssetState>,
@@ -199,7 +190,6 @@ fun CryptoAssetsData(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // todo(othman) create superapp search compose
         CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
             placeholder = stringResource(R.string.search)

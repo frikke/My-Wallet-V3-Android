@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.allassets
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
 import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.presentation.SectionSize
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
     data class LoadAccounts(val sectionSize: SectionSize) : AssetsIntent

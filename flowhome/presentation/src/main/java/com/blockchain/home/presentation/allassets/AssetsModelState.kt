@@ -5,6 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.presentation.SectionSize
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 
