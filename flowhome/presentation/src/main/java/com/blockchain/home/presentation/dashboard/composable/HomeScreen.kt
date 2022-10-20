@@ -16,7 +16,8 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun HomeScreen(
     listState: LazyListState,
-    openCryptoAssets: () -> Unit
+    openCryptoAssets: () -> Unit,
+    openActivity: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -30,6 +31,12 @@ fun HomeScreen(
         item {
             HomeAssets(
                 openAllAssets = openCryptoAssets
+            )
+        }
+
+        item {
+            HomeActivity(
+                openAllActivity = openActivity
             )
         }
 

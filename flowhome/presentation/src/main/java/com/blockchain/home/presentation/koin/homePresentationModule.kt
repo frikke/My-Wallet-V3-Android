@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.koin
 
+import com.blockchain.home.presentation.activity.ActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -13,6 +14,11 @@ val homePresentationModule = module {
                 currencyPrefs = get(),
                 exchangeRates = get(),
                 filterService = get()
+            )
+        }
+
+        viewModel {
+            ActivityViewModel(
             )
         }
     }

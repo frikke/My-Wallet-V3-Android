@@ -83,7 +83,8 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 @Composable
 fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
-    openCryptoAssets: () -> Unit
+    openCryptoAssets: () -> Unit,
+    openActivity: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -113,6 +114,7 @@ fun MultiAppChrome(
                     viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
                 },
                 openCryptoAssets = openCryptoAssets,
+                openActivity = openActivity,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
                 }
@@ -133,6 +135,7 @@ fun MultiAppChromeScreen(
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
+    openActivity: () -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
@@ -622,7 +625,8 @@ fun MultiAppChromeScreen(
                 refreshComplete = {
                     stopRefresh()
                 },
-                openCryptoAssets = openCryptoAssets
+                openCryptoAssets = openCryptoAssets,
+                openActivity = openActivity,
             )
         }
 
@@ -700,6 +704,7 @@ fun PreviewMultiAppContainer() {
         ),
         onModeSelected = {},
         openCryptoAssets = {},
+        openActivity = {},
         onBalanceRevealed = {}
     )
 }

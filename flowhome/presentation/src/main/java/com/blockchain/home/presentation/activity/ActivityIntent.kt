@@ -6,5 +6,4 @@ import com.blockchain.home.presentation.SectionSize
 
 sealed interface ActivityIntent : Intent<ActivityModelState> {
     data class LoadActivity(val sectionSize: SectionSize) : ActivityIntent
-
 }

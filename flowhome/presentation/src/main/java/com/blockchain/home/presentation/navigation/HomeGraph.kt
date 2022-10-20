@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.navigation
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.MultiAppSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.home.presentation.activity.composable.Acitivity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 
 fun NavGraphBuilder.homeGraph() {
@@ -10,6 +11,14 @@ fun NavGraphBuilder.homeGraph() {
         MultiAppSingleScreen(
             content = {
                 CryptoAssets()
+            }
+        )
+    }
+
+    composable(navigationEvent = HomeDestination.Activity) {
+        MultiAppSingleScreen(
+            content = {
+                Acitivity()
             }
         )
     }

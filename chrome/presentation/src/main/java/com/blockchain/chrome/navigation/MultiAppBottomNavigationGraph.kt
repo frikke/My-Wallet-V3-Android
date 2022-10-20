@@ -20,7 +20,8 @@ fun MultiAppBottomNavigationHost(
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openCryptoAssets: () -> Unit
+    openCryptoAssets: () -> Unit,
+    openActivity: () -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
@@ -32,7 +33,8 @@ fun MultiAppBottomNavigationHost(
                 content = {
                     HomeScreen(
                         listState = listState,
-                        openCryptoAssets = openCryptoAssets
+                        openCryptoAssets = openCryptoAssets,
+                            openActivity = openActivity
                     )
                 },
                 listState = listState,

@@ -20,6 +20,10 @@ data class TransactionState(
 sealed interface TransactionGroup {
     val name: String
 
+    object Combined : TransactionGroup {
+        override val name get() = error("not allowed")
+    }
+
     object Pending : TransactionGroup {
         override val name = "Pending"
     }

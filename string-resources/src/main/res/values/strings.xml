@@ -3327,6 +3327,7 @@
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+    <string name="ma_home_activity_title">Activity</string>
     <string name="view">View</string>
 
     <string name="assets_no_result">😞 No results</string>
