@@ -248,7 +248,6 @@ class AssetsViewModel(
                         }
                     }
                     merge(usdRate, balances, exchangeRates)
-
                 }.collect()
         }
     }
