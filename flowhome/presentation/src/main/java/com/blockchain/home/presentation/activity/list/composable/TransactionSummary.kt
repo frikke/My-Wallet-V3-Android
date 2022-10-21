@@ -24,38 +24,41 @@ import com.blockchain.home.presentation.activity.list.TransactionStatus
 @Composable
 fun TransactionSummary(
     status: TransactionStatus,
-    iconUrl: String,
+    iconUrl: String?,
     coinIconUrl: String?,
     valueTopStart: String,
     valueTopEnd: String,
     valueBottomStart: String?,
     valueBottomEnd: String?,
+    onClick: () -> Unit
 ) {
     FlexibleTableRow(
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         contentStart = {
-            val stackedIconPadding = 2.dp
+            iconUrl?.let {
+                val stackedIconPadding = 2.dp
 
-            Box(
-                modifier = Modifier
-                    .size(
-                        AppTheme.dimensions.standardSpacing + stackedIconPadding // 2 extra to account for verified icon
-                    )
-            ) {
-                Image(
-                    imageResource = ImageResource.Remote(
-                        url = iconUrl,
-                        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
-                        size = AppTheme.dimensions.standardSpacing
-                    )
-                )
-
-                coinIconUrl?.let {
+                Box(
+                    modifier = Modifier
+                        .size(
+                            AppTheme.dimensions.standardSpacing + stackedIconPadding // 2 extra to account for verified icon
+                        )
+                ) {
                     Image(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        imageResource = ImageResource.Remote(coinIconUrl)
+                        imageResource = ImageResource.Remote(
+                            url = iconUrl,
+                            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
+                            size = AppTheme.dimensions.standardSpacing
+                        )
                     )
+
+                    coinIconUrl?.let {
+                        Image(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd),
+                            imageResource = ImageResource.Remote(coinIconUrl)
+                        )
+                    }
                 }
             }
         },
@@ -103,7 +106,8 @@ fun TransactionSummary(
                     )
                 }
             }
-        }
+        },
+        onContentClicked = onClick
     )
 }
 
@@ -164,6 +168,7 @@ fun PreviewTransactionState() {
         valueTopStart = "Sent Ethereum",
         valueTopEnd = "-10.00",
         valueBottomStart = "June 14",
-        valueBottomEnd = "-0.00893208 ETH"
+        valueBottomEnd = "-0.00893208 ETH",
+        onClick = {}
     )
 }

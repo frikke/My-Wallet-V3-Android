@@ -98,7 +98,10 @@ fun HomeActivityScreen(
             }
             is DataResource.Data -> {
                 if (activity.data.isNotEmpty()) {
-                    ActivityList(transactions = activity.data)
+                    ActivityList(
+                        transactions = activity.data,
+                        onActivityClick = {}
+                    )
                 }
             }
         }

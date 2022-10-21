@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.activity.list.composable
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,15 +14,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +44,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
@@ -44,6 +52,7 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.TransactionState
 import com.blockchain.home.presentation.activity.list.TransactionStatus
 import com.blockchain.koin.payloadScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -68,36 +77,62 @@ fun Acitivity(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ActivityScreen(
     activity: DataResource<Map<TransactionGroup, List<TransactionState>>>
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color(0XFFF1F2F7))
-    ) {
-        NavigationBar(
-            title = stringResource(R.string.ma_home_activity_title),
-            onBackButtonClick = { },
-        )
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
+    val coroutineScope = rememberCoroutineScope()
 
+    val focusManager = LocalFocusManager.current
+
+    BackHandler(sheetState.isVisible) {
+        coroutineScope.launch { sheetState.hide() }
+    }
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            ActivityDetail()
+        },
+        modifier = Modifier.fillMaxSize()
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+                .fillMaxSize()
+                .background(color = Color(0XFFF1F2F7))
         ) {
-            when (activity) {
-                is DataResource.Loading -> {
-                    ShimmerLoadingCard()
-                }
-                is DataResource.Error -> {
-                    // todo
-                }
-                is DataResource.Data -> {
-                    ActivityData(
-                        transactions = activity.data,
-                    )
+            NavigationBar(
+                title = stringResource(R.string.ma_home_activity_title),
+                onBackButtonClick = { },
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                when (activity) {
+                    is DataResource.Loading -> {
+                        ShimmerLoadingCard()
+                    }
+                    is DataResource.Error -> {
+                        // todo
+                    }
+                    is DataResource.Data -> {
+                        ActivityData(
+                            transactions = activity.data,
+                            onActivityClick = {
+                                focusManager.clearFocus(true)
+                                coroutineScope.launch { sheetState.show() }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -106,7 +141,8 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityData(
-    transactions: Map<TransactionGroup, List<TransactionState>>
+    transactions: Map<TransactionGroup, List<TransactionState>>,
+    onActivityClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -120,7 +156,8 @@ fun ActivityData(
 
         ActivityGroups(
             modifier = Modifier.verticalScroll(rememberScrollState()),
-            transactions = transactions
+            transactions = transactions,
+            onActivityClick = onActivityClick
         )
     }
 }
@@ -128,7 +165,8 @@ fun ActivityData(
 @Composable
 fun ActivityGroups(
     modifier: Modifier = Modifier,
-    transactions: Map<TransactionGroup, List<TransactionState>>
+    transactions: Map<TransactionGroup, List<TransactionState>>,
+    onActivityClick: () -> Unit
 ) {
     transactions.keys.forEachIndexed { index, group ->
         val transactionsList = transactions[group]!!
@@ -150,7 +188,10 @@ fun ActivityGroups(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        ActivityList(transactions = transactionsList)
+        ActivityList(
+            transactions = transactionsList,
+            onActivityClick = onActivityClick
+        )
 
         if (index < transactionsList.toList().lastIndex) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -161,7 +202,8 @@ fun ActivityGroups(
 @Composable
 fun ActivityList(
     modifier: Modifier = Modifier,
-    transactions: List<TransactionState>
+    transactions: List<TransactionState>,
+    onActivityClick: () -> Unit
 ) {
     if (transactions.isNotEmpty()) {
         Card(
@@ -178,7 +220,8 @@ fun ActivityList(
                         valueTopStart = transaction.valueTopStart,
                         valueTopEnd = transaction.valueTopEnd,
                         valueBottomStart = transaction.valueBottomStart,
-                        valueBottomEnd = transaction.valueBottomEnd
+                        valueBottomEnd = transaction.valueBottomEnd,
+                        onClick = onActivityClick
                     )
 
                     if (index < transactions.lastIndex) {
