@@ -47,7 +47,7 @@ class ActivityViewModel(
                     it.copy(
                         activity = DataResource.Data(
                             mapOf(
-                                TransactionGroup.Pending to listOf(
+                                TransactionGroup.Group("Pending") to listOf(
                                     TransactionState(
                                         transactionTypeIcon = "transactionTypeIcon",
                                         transactionCoinIcon = "transactionCoinIcon",
@@ -67,7 +67,7 @@ class ActivityViewModel(
                                         valueBottomEnd = "valueBottomEnd"
                                     )
                                 ),
-                                TransactionGroup.Date("June") to listOf(
+                                TransactionGroup.Group("June") to listOf(
                                     TransactionState(
                                         transactionTypeIcon = "transactionTypeIcon",
                                         transactionCoinIcon = "transactionCoinIcon",
@@ -96,7 +96,7 @@ class ActivityViewModel(
                                         valueBottomEnd = "0.00025 BTC"
                                     )
                                 ),
-                                TransactionGroup.Date("July") to listOf(
+                                TransactionGroup.Group("July") to listOf(
                                     TransactionState(
                                         transactionTypeIcon = "transactionTypeIcon",
                                         transactionCoinIcon = "transactionCoinIcon",

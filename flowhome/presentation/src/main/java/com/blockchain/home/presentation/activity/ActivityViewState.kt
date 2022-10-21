@@ -24,11 +24,7 @@ sealed interface TransactionGroup {
         override val name get() = error("not allowed")
     }
 
-    object Pending : TransactionGroup {
-        override val name = "Pending"
-    }
-
-    data class Date(override val name: String) : TransactionGroup
+    data class Group(override val name: String) : TransactionGroup
 }
 
 sealed interface TransactionStatus {

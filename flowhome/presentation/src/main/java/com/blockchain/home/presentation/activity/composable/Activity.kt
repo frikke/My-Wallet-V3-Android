@@ -141,7 +141,7 @@ fun ActivityGroups(
                 color = AppTheme.colors.muted
             )
 
-            if (group is TransactionGroup.Pending) {
+            if (group is TransactionGroup.Group /*todo waiting for how to know it's pending*/) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
                 Image(ImageResource.Local(R.drawable.ic_question))
@@ -196,7 +196,7 @@ fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DataResource.Data(
             mapOf(
-                TransactionGroup.Pending to listOf(
+                TransactionGroup.Group("Pending") to listOf(
                     TransactionState(
                         transactionTypeIcon = "transactionTypeIcon",
                         transactionCoinIcon = "transactionCoinIcon",
@@ -216,7 +216,7 @@ fun PreviewActivityScreen() {
                         valueBottomEnd = "valueBottomEnd"
                     )
                 ),
-                TransactionGroup.Date("June") to listOf(
+                TransactionGroup.Group("June") to listOf(
                     TransactionState(
                         transactionTypeIcon = "transactionTypeIcon",
                         transactionCoinIcon = "transactionCoinIcon",
@@ -245,7 +245,7 @@ fun PreviewActivityScreen() {
                         valueBottomEnd = "0.00025 BTC"
                     )
                 ),
-                TransactionGroup.Date("July") to listOf(
+                TransactionGroup.Group("July") to listOf(
                     TransactionState(
                         transactionTypeIcon = "transactionTypeIcon",
                         transactionCoinIcon = "transactionCoinIcon",
