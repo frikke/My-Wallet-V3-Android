@@ -26,13 +26,13 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.activity.ActivityIntent
-import com.blockchain.home.presentation.activity.ActivityViewModel
-import com.blockchain.home.presentation.activity.ActivityViewState
-import com.blockchain.home.presentation.activity.TransactionGroup
-import com.blockchain.home.presentation.activity.TransactionState
-import com.blockchain.home.presentation.activity.TransactionStatus
-import com.blockchain.home.presentation.activity.composable.ActivityList
+import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityViewModel
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.TransactionState
+import com.blockchain.home.presentation.activity.list.TransactionStatus
+import com.blockchain.home.presentation.activity.list.composable.ActivityList
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 

@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.composable
+package com.blockchain.home.presentation.activity.list.composable
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.home.presentation.activity.TransactionStatus
+import com.blockchain.home.presentation.activity.list.TransactionStatus
 
 @Composable
 fun TransactionSummary(
