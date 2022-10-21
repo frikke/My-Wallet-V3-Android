@@ -32,9 +32,6 @@ sealed interface TransactionGroup {
 }
 
 sealed interface TransactionStatus {
-    /**
-     * @property isRbfTransaction RBF = Replace-By-Fee
-     */
     data class Pending(val isRbfTransaction: Boolean = false) : TransactionStatus
     object Settled : TransactionStatus
     object Canceled : TransactionStatus

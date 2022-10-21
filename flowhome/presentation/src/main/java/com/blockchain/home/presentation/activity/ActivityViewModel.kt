@@ -37,6 +37,8 @@ class ActivityViewModel(
     override suspend fun handleIntent(modelState: ActivityModelState, intent: ActivityIntent) {
         when (intent) {
             is ActivityIntent.LoadActivity -> {
+                updateState { it.copy(sectionSize = intent.sectionSize) }
+
                 updateState {
                     it.copy(
                         activity = DataResource.Data(
