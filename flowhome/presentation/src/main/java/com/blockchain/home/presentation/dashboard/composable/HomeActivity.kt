@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -32,7 +33,6 @@ import com.blockchain.home.presentation.activity.TransactionGroup
 import com.blockchain.home.presentation.activity.TransactionState
 import com.blockchain.home.presentation.activity.TransactionStatus
 import com.blockchain.home.presentation.activity.composable.ActivityList
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -91,7 +91,7 @@ fun HomeActivityScreen(
 
         when (activity) {
             DataResource.Loading -> {
-                CryptoAssetsLoading()
+                ShimmerLoadingCard()
             }
             is DataResource.Error -> {
                 // todo

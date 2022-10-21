@@ -22,9 +22,10 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.activity.TransactionStatus
 
 @Composable
-fun TransactionState(
+fun TransactionSummary(
     status: TransactionStatus,
     iconUrl: String,
+    coinIconUrl: String?,
     valueTopStart: String,
     valueTopEnd: String,
     valueBottomStart: String?,
@@ -49,13 +50,13 @@ fun TransactionState(
                     )
                 )
 
-                //            if (creator.isVerified) {
-                //                Image(
-                //                    modifier = Modifier
-                //                        .align(Alignment.BottomEnd),
-                //                    imageResource = ImageResource.Local(R.drawable.ic_verified)
-                //                )
-                //            }
+                coinIconUrl?.let {
+                    Image(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd),
+                        imageResource = ImageResource.Remote(coinIconUrl)
+                    )
+                }
             }
         },
         content = {
@@ -156,10 +157,10 @@ fun TransactionStatus.bottomStartTextColor(): Color = when (this) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewTransactionState() {
-    com.blockchain.home.presentation.activity.TransactionState(
-        transactionTypeIcon = "Sent Ethereum",
-        transactionCoinIcon = "transactionCoinIcon",
-        TransactionStatus.Settled,
+    TransactionSummary(
+        iconUrl = "Sent Ethereum",
+        coinIconUrl = "transactionCoinIcon",
+        status = TransactionStatus.Settled,
         valueTopStart = "Sent Ethereum",
         valueTopEnd = "-10.00",
         valueBottomStart = "June 14",

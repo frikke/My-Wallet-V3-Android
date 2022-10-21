@@ -8,9 +8,13 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 
 class ActivityViewModel(
-) : MviViewModel<ActivityIntent, ActivityViewState, ActivityModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    ActivityModelState()
-) {
+    // todo
+) : MviViewModel<
+    ActivityIntent,
+    ActivityViewState,
+    ActivityModelState,
+    HomeNavEvent,
+    ModelConfigArgs.NoArgs>(ActivityModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }

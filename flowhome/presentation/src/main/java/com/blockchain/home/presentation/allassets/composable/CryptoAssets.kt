@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.allassets.composable
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +38,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
@@ -47,11 +46,11 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CryptoAssetState
-import com.blockchain.home.presentation.SectionSize
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -148,7 +147,7 @@ fun CryptoAssetsScreen(
             ) {
                 when (cryptoAssets) {
                     is DataResource.Loading -> {
-                        CryptoAssetsLoading()
+                        ShimmerLoadingCard()
                     }
                     is DataResource.Error -> {
                         // todo
@@ -161,23 +160,6 @@ fun CryptoAssetsScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun CryptoAssetsLoading() {
-    Card(
-        backgroundColor = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-        elevation = 0.dp
-    ) {
-        Column {
-            ShimmerLoadingTableRow()
-
-            Divider(color = Color(0XFFF1F2F7))
-
-            ShimmerLoadingTableRow()
         }
     }
 }

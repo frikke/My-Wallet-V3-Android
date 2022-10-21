@@ -34,7 +34,7 @@ fun MultiAppBottomNavigationHost(
                     HomeScreen(
                         listState = listState,
                         openCryptoAssets = openCryptoAssets,
-                            openActivity = openActivity
+                        openActivity = openActivity
                     )
                 },
                 listState = listState,

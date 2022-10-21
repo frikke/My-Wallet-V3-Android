@@ -18,8 +18,7 @@ val homePresentationModule = module {
         }
 
         viewModel {
-            ActivityViewModel(
-            )
+            ActivityViewModel()
         }
     }
 }

@@ -32,6 +32,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
@@ -42,7 +43,6 @@ import com.blockchain.home.presentation.activity.ActivityViewState
 import com.blockchain.home.presentation.activity.TransactionGroup
 import com.blockchain.home.presentation.activity.TransactionState
 import com.blockchain.home.presentation.activity.TransactionStatus
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -78,7 +78,7 @@ fun ActivityScreen(
             .background(color = Color(0XFFF1F2F7))
     ) {
         NavigationBar(
-            title = "//todo// Activity",
+            title = stringResource(R.string.ma_home_activity_title),
             onBackButtonClick = { },
         )
 
@@ -89,7 +89,7 @@ fun ActivityScreen(
         ) {
             when (activity) {
                 is DataResource.Loading -> {
-                    CryptoAssetsLoading()
+                    ShimmerLoadingCard()
                 }
                 is DataResource.Error -> {
                     // todo
@@ -171,9 +171,10 @@ fun ActivityList(
         ) {
             Column(modifier = modifier) {
                 transactions.forEachIndexed { index, transaction ->
-                    TransactionState(
+                    TransactionSummary(
                         status = transaction.status,
                         iconUrl = transaction.transactionTypeIcon,
+                        coinIconUrl = transaction.transactionCoinIcon,
                         valueTopStart = transaction.valueTopStart,
                         valueTopEnd = transaction.valueTopEnd,
                         valueBottomStart = transaction.valueBottomStart,
