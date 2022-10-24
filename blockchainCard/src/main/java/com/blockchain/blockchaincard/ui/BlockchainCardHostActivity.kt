@@ -55,4 +55,6 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
     abstract fun orderCardFlowComplete(blockchainCard: BlockchainCard)
 
     abstract fun startManageCardFlow(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?)
+
+    abstract fun openUrl(url: String)
 }

@@ -206,6 +206,14 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             is BlockchainCardNavigationEvent.ActivateCardSuccess -> {
                 destination = BlockchainCardDestination.CardActivationSuccessDestination
             }
+
+            is BlockchainCardNavigationEvent.SeeDocuments -> {
+                destination = BlockchainCardDestination.DocumentsDestination
+            }
+
+            is BlockchainCardNavigationEvent.OpenDocumentUrl -> {
+                (navController.context as? BlockchainCardHostActivity)?.openUrl(navigationEvent.url)
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -300,6 +308,10 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object SeeCardActivationPage : BlockchainCardNavigationEvent()
 
     object ActivateCardSuccess : BlockchainCardNavigationEvent()
+
+    object SeeDocuments : BlockchainCardNavigationEvent()
+
+    data class OpenDocumentUrl(val url: String) : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -372,4 +384,6 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object CardActivationDestination : BlockchainCardDestination(route = "card_activation")
 
     object CardActivationSuccessDestination : BlockchainCardDestination(route = "card_activation_success")
+
+    object DocumentsDestination : BlockchainCardDestination(route = "documents")
 }

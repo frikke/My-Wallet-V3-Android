@@ -217,3 +217,8 @@ enum class BlockchainCardOrderStatus {
         }
     }
 }
+
+data class BlockchainCardStatement(
+    val id: String,
+    val date: String,
+)

@@ -3320,6 +3320,13 @@
     <string name="bc_card_shipped_subtitle">Already delivered? Tap here to activate</string>
     <string name="bc_card_processing_title">Processing Order</string>
     <string name="bc_card_processing_subtitle">Confirming your details</string>
+    <string name="basic_info">Basic Info</string>
+    <string name="bc_card_freeze">Freeze Card</string>
+    <string name="legal_documents">Legal Documents</string>
+    <string name="bc_card_statements">Statements</string>
+    <string name="account">Account</string>
+    <string name="documents">Documents</string>
+    <string name="actions">Actions</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
