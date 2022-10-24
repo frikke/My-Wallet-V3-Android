@@ -79,7 +79,6 @@ class KycNavHostActivity :
         setupBackPress()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.identity_verification),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         analytics.logEvent(
@@ -101,8 +100,8 @@ class KycNavHostActivity :
         onViewReady()
     }
 
-    override fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton>) {
-        updateToolbarTitle(getString(title))
+    override fun setupHostToolbar(@StringRes title: Int?, navigationBarButtons: List<NavigationBarButton>) {
+        updateToolbarTitle(title?.let { getString(title) }.orEmpty())
         updateToolbarMenuItems(navigationBarButtons)
     }
 
@@ -124,6 +123,9 @@ class KycNavHostActivity :
     }
 
     override fun navigate(directions: NavDirections) {
+        if (directions.actionId != R.id.action_startTierCurrentState) {
+            updateToolbarTitle(getString(R.string.identity_verification))
+        }
         navController.navigate(directions)
         navInitialDestination = navController.currentDestination
     }
@@ -139,9 +141,7 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        updateToolbarTitle(
-            title = getString(R.string.identity_verification)
-        )
+        updateToolbarBackAction(null)
     }
 
     override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
@@ -279,7 +279,7 @@ interface KycProgressListener {
 
     val campaignType: CampaignType
 
-    fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton> = emptyList())
+    fun setupHostToolbar(@StringRes title: Int?, navigationBarButtons: List<NavigationBarButton> = emptyList())
 
     fun hideBackButton()
 }

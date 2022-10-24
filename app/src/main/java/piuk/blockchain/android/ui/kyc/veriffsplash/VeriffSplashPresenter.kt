@@ -2,13 +2,18 @@ package piuk.blockchain.android.ui.kyc.veriffsplash
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
+import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -19,6 +24,8 @@ import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import timber.log.Timber
 
 class VeriffSplashPresenter(
+    private val userService: UserService,
+    private val custodialWalletManager: CustodialWalletManager,
     private val nabuDataManager: NabuDataManager,
     private val kycTiersStore: KycTiersStore,
     private val prefs: SessionPrefs,
@@ -38,7 +45,7 @@ class VeriffSplashPresenter(
                     @Suppress("ConstantConditionIf")
                     // In some DEBUG builds - but ONLY in DEBUG builds - it can be useful to skip the veriff kyc steps:
                     if (BuildConfig.DEBUG && BuildConfig.SKIP_VERIFF_KYC) {
-                        view.continueToCompletion()
+                        view.continueToCompletion(KycState.Verified, false)
                     } else {
                         view.continueToVeriff(applicantToken!!)
                     }
@@ -103,15 +110,22 @@ class VeriffSplashPresenter(
     internal fun submitVerification() {
         compositeDisposable +=
             nabuDataManager.submitVeriffVerification()
+                .andThen(
+                    Singles.zip(
+                        userService.getUser().map { it.kycState },
+                        custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map { it.isVerified }
+                    )
+                )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.showProgressDialog(false) }
                 .doOnTerminate { view.dismissProgressDialog() }
                 .doOnError(Timber::e)
                 .subscribeBy(
-                    onComplete = {
+                    onSuccess = { (kycState, isSddVerified) ->
+                        analytics.logEvent(KYCAnalyticsEvents.VeriffInfoSubmitted)
                         kycTiersStore.markAsStale()
-                        view.continueToCompletion()
+                        view.continueToCompletion(kycState, isSddVerified)
                     },
                     onError = {
                         view.showError(R.string.kyc_veriff_splash_verification_error)

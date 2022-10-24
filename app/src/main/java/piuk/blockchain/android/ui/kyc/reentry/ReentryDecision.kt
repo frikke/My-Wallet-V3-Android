@@ -65,5 +65,9 @@ class ReentryDecisionKycNavigator(
                 val countryCode = user.requireCountryCode()
                 KycNavXmlDirections.actionStartVeriff(countryCode)
             }
+            is ReentryPoint.TierCurrentState -> KycNavXmlDirections.actionStartTierCurrentState(
+                reentryPoint.kycState,
+                reentryPoint.isSddVerified,
+            )
         }
 }

@@ -5,7 +5,11 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
+import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.preferences.SessionPrefs
@@ -15,18 +19,29 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertEquals
 import okhttp3.ResponseBody
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import retrofit2.HttpException
 import retrofit2.Response
 
 class VeriffSplashPresenterTest {
 
+    private val custodialWalletManager: CustodialWalletManager = mockk {
+        every { fetchSimplifiedDueDiligenceUserState() } returns Single.just(
+            SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true)
+        )
+    }
+    private val userService: UserService = mockk {
+        every { getUser() } returns Single.just(getBlankNabuUser(KycState.Pending))
+    }
     private val nabuDataManager: NabuDataManager = mock()
     private val kycTiersStore: KycTiersStore = mock()
     private val view: VeriffSplashView = mock()
@@ -34,6 +49,8 @@ class VeriffSplashPresenterTest {
     private val prefs: SessionPrefs = mock()
 
     private val subject = VeriffSplashPresenter(
+        custodialWalletManager = custodialWalletManager,
+        userService = userService,
         nabuDataManager = nabuDataManager,
         kycTiersStore = kycTiersStore,
         analytics = analytics,

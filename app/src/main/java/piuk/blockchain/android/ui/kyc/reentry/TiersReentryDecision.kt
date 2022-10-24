@@ -3,11 +3,14 @@ package piuk.blockchain.android.ui.kyc.reentry
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.utils.rxMaybeOutcome
 import io.reactivex.rxjava3.core.Single
 
 class TiersReentryDecision(
+    private val custodialWalletManager: CustodialWalletManager,
     private val dataRemediationService: DataRemediationService,
     private val loqateFeatureFlag: FeatureFlag,
 ) : ReentryDecision {
@@ -18,6 +21,15 @@ class TiersReentryDecision(
     }
 
     override fun findReentryPoint(user: NabuUser): Single<ReentryPoint> {
+        if (user.kycState != KycState.None) {
+            return custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
+                ReentryPoint.TierCurrentState(
+                    kycState = user.kycState,
+                    isSddVerified = it.isVerified,
+                )
+            }
+        }
+
         nabuUser = user
         val entryPoint = when {
             tier0UnverifiedEmail() -> ReentryPoint.EmailEntry

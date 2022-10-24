@@ -1131,6 +1131,25 @@
     <string name="kyc_help_dialog_need_some_help">Need some help?</string>
     <string name="kyc_help_dialog_need_some_help_body">Our Blockchain Support Team has written Help Guides explaining why we need to verify your identity.</string>
 
+    <string name="kyc_tier_current_state_underreview_title">Application submitted</string>
+    <string name="kyc_tier_current_state_underreview_subtitle">You’ve successfully submitted your application. A Blockchain.com Support Member is reviewing it now.</string>
+    <string name="kyc_tier_current_state_underreview_nextstep_title">What happens next?</string>
+    <string name="kyc_tier_current_state_underreview_nextstep_subtitle">We’ll notify you via email about the status of your application.</string>
+    <string name="kyc_tier_current_state_underreview_nextstep_subtitle_sdd">We’ll notify you via email about the status of your application.
+
+While you wait, you can make your first trade and move currency up to your current limit.</string>
+    <string name="kyc_tier_current_state_underreview_cta">Go to dashboard</string>
+
+    <string name="kyc_tier_current_state_verified_title">You’ve been verified</string>
+    <string name="kyc_tier_current_state_verified_subtitle">Now you’re all set to buy crypto.</string>
+    <string name="kyc_tier_current_state_verified_cta">Let’s get started!</string>
+
+    <string name="kyc_tier_current_state_rejected_title">Full Access Unavailable at this time</string>
+    <string name="kyc_tier_current_state_rejected_subtitle">We’re sorry we can’t verify you for Full Access. This can be for a number of reasons, for example your country might not be supported right now.
+
+If you want to know more about our verification process visit our <annotation link="gold_error">Support Center</annotation>.</string>
+    <string name="kyc_tier_current_state_rejected_cta">Got it</string>
+
     <!-- Help -->
     <string name="kyc_help_dialog_read_now">Read Now</string>
     <string name="kyc_help_dialog_read_now_url">https://blockchain.zendesk.com/hc/en-us/categories/360001135512-Identity-Verification</string>
