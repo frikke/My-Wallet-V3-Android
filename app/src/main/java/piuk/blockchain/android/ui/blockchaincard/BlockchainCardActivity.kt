@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.blockchaincard
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
@@ -170,5 +171,11 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
             .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
             .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
             .commitAllowingStateLoss()
+    }
+
+    override fun openUrl(url: String) {
+        startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        )
     }
 }

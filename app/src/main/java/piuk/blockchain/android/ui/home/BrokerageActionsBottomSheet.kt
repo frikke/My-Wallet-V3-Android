@@ -11,12 +11,12 @@ import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.home.models.ActionsSheetIntent
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.FlowToLaunch
 import piuk.blockchain.android.ui.home.models.SplitButtonCtaOrdering
-import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
     fun launchSwapScreen()

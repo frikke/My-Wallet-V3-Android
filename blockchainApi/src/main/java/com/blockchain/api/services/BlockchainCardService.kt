@@ -8,6 +8,8 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisio
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -154,4 +156,10 @@ class BlockchainCardService internal constructor(
 
     suspend fun getCardActivationUrl(): Outcome<Exception, BlockchainCardActivationUrlResponseDto> =
         api.getCardActivationUrl()
+
+    suspend fun getCardStatements(): Outcome<Exception, List<BlockchainCardStatementsResponseDto>> =
+        api.getCardStatements()
+
+    suspend fun getCardStatementUrl(statementId: String): Outcome<Exception, BlockchainCardStatementUrlResponseDto> =
+        api.getCardStatementUrl(statementId = statementId)
 }

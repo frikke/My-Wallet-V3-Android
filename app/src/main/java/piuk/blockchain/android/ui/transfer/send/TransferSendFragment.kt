@@ -15,13 +15,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.BuySellClicked
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.home.ActionActivity
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity

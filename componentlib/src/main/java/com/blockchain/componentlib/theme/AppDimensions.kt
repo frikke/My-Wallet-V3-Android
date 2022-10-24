@@ -106,7 +106,7 @@ fun TinyVerticalSpacer() {
 
 @Composable
 fun VerySmallVerticalSpacer() {
-    Spacer(modifier = Modifier.height(AppTheme.dimensions.smallestSpacing))
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.verySmallSpacing))
 }
 
 @Composable
@@ -157,7 +157,7 @@ fun TinyHorizontalSpacer() {
 
 @Composable
 fun VerySmallHorizontalSpacer() {
-    Spacer(modifier = Modifier.width(AppTheme.dimensions.smallestSpacing))
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.verySmallSpacing))
 }
 
 @Composable

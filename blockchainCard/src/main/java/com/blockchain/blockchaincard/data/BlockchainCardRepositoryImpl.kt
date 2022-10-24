@@ -8,6 +8,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisio
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
@@ -27,6 +28,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -312,6 +314,18 @@ internal class BlockchainCardRepositoryImpl(
             it.url
         }.wrapBlockchainCardError()
 
+    override suspend fun getCardStatements(): Outcome<BlockchainCardError, List<BlockchainCardStatement>> =
+        blockchainCardService.getCardStatements().map { response ->
+            response.map {
+                it.toDomainModel()
+            }
+        }.wrapBlockchainCardError()
+
+    override suspend fun getCardStatementUrl(statementId: String): Outcome<BlockchainCardError, String> =
+        blockchainCardService.getCardStatementUrl(statementId).map { response ->
+            response.url
+        }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -457,6 +471,12 @@ internal class BlockchainCardRepositoryImpl(
                     country = it.country
                 )
             }
+        )
+
+    private fun BlockchainCardStatementsResponseDto.toDomainModel(): BlockchainCardStatement =
+        BlockchainCardStatement(
+            id = statementId,
+            date = "$month/$year"
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

@@ -6,6 +6,8 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisio
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -118,4 +120,12 @@ internal interface BlockchainCardApi {
 
     @GET("card-issuing/cards/activate-widget-url")
     suspend fun getCardActivationUrl(): Outcome<Exception, BlockchainCardActivationUrlResponseDto>
+
+    @GET("card-issuing/statements")
+    suspend fun getCardStatements(): Outcome<Exception, List<BlockchainCardStatementsResponseDto>>
+
+    @GET("card-issuing/statements/{statementId}")
+    suspend fun getCardStatementUrl(
+        @Path("statementId") statementId: String,
+    ): Outcome<Exception, BlockchainCardStatementUrlResponseDto>
 }

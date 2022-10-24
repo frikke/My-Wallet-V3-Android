@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -155,7 +156,6 @@ fun ActivityData(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         ActivityGroups(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
             transactions = transactions,
             onActivityClick = onActivityClick
         )
@@ -164,38 +164,43 @@ fun ActivityData(
 
 @Composable
 fun ActivityGroups(
-    modifier: Modifier = Modifier,
     transactions: Map<TransactionGroup, List<TransactionState>>,
     onActivityClick: () -> Unit
 ) {
-    transactions.keys.forEachIndexed { index, group ->
-        val transactionsList = transactions[group]!!
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = group.name,
-                style = AppTheme.typography.body2,
-                color = AppTheme.colors.muted
-            )
+    LazyColumn {
+        itemsIndexed(
+            items = transactions.keys.toList(),
+            itemContent = { index, group ->
+                val transactionsList = transactions[group]!!
 
-            if (group is TransactionGroup.Group /*todo waiting for how to know it's pending*/) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = group.name,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.muted
+                    )
 
-                Image(ImageResource.Local(R.drawable.ic_question))
+                    if (group is TransactionGroup.Group /*todo waiting for how to know it's pending*/) {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                        Image(ImageResource.Local(R.drawable.ic_question))
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                ActivityList(
+                    transactions = transactionsList,
+                    onActivityClick = onActivityClick
+                )
+
+                if (index < transactionsList.toList().lastIndex) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+                }
             }
-        }
-
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-        ActivityList(
-            transactions = transactionsList,
-            onActivityClick = onActivityClick
         )
-
-        if (index < transactionsList.toList().lastIndex) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-        }
     }
 }
 
@@ -263,7 +268,7 @@ fun PreviewActivityScreen() {
                     TransactionState(
                         transactionTypeIcon = "transactionTypeIcon",
                         transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Settled,
+                        TransactionStatus.Confirmed,
                         valueTopStart = "Sent Bitcoin",
                         valueTopEnd = "-10.00",
                         valueBottomStart = "June 14",

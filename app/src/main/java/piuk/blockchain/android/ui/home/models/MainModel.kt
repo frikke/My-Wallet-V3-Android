@@ -42,9 +42,9 @@ import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import timber.log.Timber
 

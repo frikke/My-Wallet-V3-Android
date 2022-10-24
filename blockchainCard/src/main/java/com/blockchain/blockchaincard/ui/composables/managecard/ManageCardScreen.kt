@@ -70,8 +70,10 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -109,6 +111,9 @@ import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
 import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.eligibility.model.Region
@@ -117,6 +122,7 @@ import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toFormattedDateTime
 import com.blockchain.utils.toFormattedExpirationDate
 import com.blockchain.utils.toLocalTime
+import com.blockchain.utils.toShortMonthYearDate
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import info.blockchain.balance.CryptoValue
@@ -966,12 +972,14 @@ fun ManageCardDetails(
     onSeePersonalDetails: () -> Unit,
     onSeeTransactionControls: () -> Unit,
     onSeeSupport: () -> Unit,
+    onSeeDocuments: () -> Unit,
+    onTerminateCard: () -> Unit,
     onCloseBottomSheet: () -> Unit,
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
 
         // Header
@@ -991,37 +999,94 @@ fun ManageCardDetails(
             )
         )
 
-        // Lock card
-        ToggleTableRow(
-            onCheckedChange = onToggleLockCard,
-            isChecked = cardStatus == BlockchainCardStatus.LOCKED,
-            primaryText = stringResource(R.string.lock_card),
-            secondaryText = stringResource(R.string.temporarily_lock_card)
-        )
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        SmallVerticalSpacer()
 
-        // Personal Details
-        DefaultTableRow(
-            primaryText = stringResource(R.string.personal_details),
-            secondaryText = stringResource(R.string.view_account_information),
-            onClick = onSeePersonalDetails,
+        SimpleText(
+            text = stringResource(R.string.account),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
         )
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        // Support
-        DefaultTableRow(
-            primaryText = stringResource(R.string.support),
-            secondaryText = stringResource(R.string.get_help_with_card_issues),
-            onClick = onSeeSupport,
+        SmallestVerticalSpacer()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            elevation = 0.dp,
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Basic Info
+                DefaultTableRow(
+                    primaryText = stringResource(R.string.basic_info),
+                    onClick = onSeePersonalDetails,
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Basic Info
+                DefaultTableRow(
+                    primaryText = stringResource(R.string.documents),
+                    onClick = onSeeDocuments,
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
+        }
+
+        TinyVerticalSpacer()
+
+        // Actions
+        SimpleText(
+            text = stringResource(R.string.actions),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
         )
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        SmallestVerticalSpacer()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            elevation = 0.dp,
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Lock card
+                ToggleTableRow(
+                    onCheckedChange = onToggleLockCard,
+                    isChecked = cardStatus == BlockchainCardStatus.LOCKED,
+                    primaryText = stringResource(R.string.bc_card_freeze),
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Support
+                DefaultTableRow(
+                    primaryText = stringResource(R.string.support),
+                    onClick = onSeeSupport,
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Terminate Card
+                DefaultTableRow(
+                    primaryText = stringResource(R.string.terminate_card),
+                    onClick = onTerminateCard,
+                )
+            }
+        }
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {}, {})
+    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {}, {}, {}, {})
 }
 
 @Composable
@@ -2159,7 +2224,6 @@ private fun PreviewBillingAddressUpdatedError() {
 
 @Composable
 fun Support(
-    onCloseCard: () -> Unit,
     onClickCardLost: () -> Unit,
     onClickFAQ: () -> Unit,
     onClickContactSupport: () -> Unit,
@@ -2201,29 +2265,146 @@ fun Support(
             secondaryText = stringResource(R.string.contact_support_description),
             onClick = onClickContactSupport,
         )
-
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
-
-        // Close card
-        DestructivePrimaryButton(
-            text = stringResource(id = R.string.terminate_card),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    top = AppTheme.dimensions.tinySpacing,
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    bottom = dimensionResource(id = R.dimen.standard_spacing)
-                ),
-            onClick = onCloseCard,
-        )
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewSupport() {
-    Support({}, {}, {}, {}, {})
+    Support({}, {}, {}, {})
+}
+
+@Composable
+fun Documents(
+    cardStatements: List<BlockchainCardStatement>?,
+    legalDocuments: List<BlockchainCardLegalDocument>?,
+    onViewStatement: (BlockchainCardStatement) -> Unit,
+    onViewLegalDocument: (BlockchainCardLegalDocument) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+    ) {
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_statements),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+
+        SmallestVerticalSpacer()
+
+        if (cardStatements != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                elevation = 0.dp,
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                LazyColumn {
+                    itemsIndexed(cardStatements) { index, statement ->
+                        DefaultTableRow(
+                            primaryText = statement.date.toShortMonthYearDate(),
+                            onClick = { onViewStatement(statement) },
+                        )
+
+                        if (index < cardStatements.lastIndex)
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            }
+        } else {
+            CircularProgressBar()
+        }
+
+        SmallVerticalSpacer()
+
+        SimpleText(
+            text = stringResource(R.string.legal_documents),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+
+        SmallestVerticalSpacer()
+
+        if (legalDocuments != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                elevation = 0.dp,
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                LazyColumn {
+                    itemsIndexed(legalDocuments) { index, document ->
+                        DefaultTableRow(
+                            primaryText = document.displayName,
+                            onClick = { onViewLegalDocument(document) },
+                        )
+
+                        if (index < legalDocuments.lastIndex)
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            }
+        } else {
+            CircularProgressBar()
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDocuments() {
+    Documents(
+        cardStatements = listOf(
+            BlockchainCardStatement(
+                date = "09/2022",
+                id = "1111"
+            ),
+            BlockchainCardStatement(
+                date = "08/2022",
+                id = "1111"
+            ),
+            BlockchainCardStatement(
+                date = "07/2022",
+                id = "1111"
+            ),
+        ),
+        legalDocuments = listOf(
+            BlockchainCardLegalDocument(
+                displayName = "Terms and Conditions",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+            BlockchainCardLegalDocument(
+                displayName = "Privacy Policy",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+            BlockchainCardLegalDocument(
+                displayName = "Fees and Limits",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+        ),
+        onViewStatement = {},
+        onViewLegalDocument = {}
+    )
 }
 
 @Composable

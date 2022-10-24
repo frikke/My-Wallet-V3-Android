@@ -8,6 +8,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
@@ -110,4 +111,8 @@ interface BlockchainCardRepository {
     suspend fun getCardOrderState(cardId: String): Outcome<BlockchainCardError, BlockchainCardOrderState>
 
     suspend fun getCardActivationUrl(): Outcome<BlockchainCardError, String>
+
+    suspend fun getCardStatements(): Outcome<BlockchainCardError, List<BlockchainCardStatement>>
+
+    suspend fun getCardStatementUrl(statementId: String): Outcome<BlockchainCardError, String>
 }

@@ -57,7 +57,7 @@ object Versions {
     const val googleServicesBasement = "18.1.0"
     const val googleServicesTasks = "18.0.2"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "30.5.0"
+    const val firebaseBom = "31.0.1"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"

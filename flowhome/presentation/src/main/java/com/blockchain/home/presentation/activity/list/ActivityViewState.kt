@@ -29,7 +29,7 @@ sealed interface TransactionGroup {
 
 sealed interface TransactionStatus {
     data class Pending(val isRbfTransaction: Boolean = false) : TransactionStatus
-    object Settled : TransactionStatus
+    object Confirmed : TransactionStatus
     object Canceled : TransactionStatus
     object Declined : TransactionStatus
     object Failed : TransactionStatus

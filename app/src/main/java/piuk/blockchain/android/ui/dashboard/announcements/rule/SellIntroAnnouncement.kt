@@ -10,12 +10,12 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.brokerage.sell.SellAnalytics
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.android.ui.sell.SellAnalytics
 
 class SellIntroAnnouncement(
     dismissRecorder: DismissRecorder,

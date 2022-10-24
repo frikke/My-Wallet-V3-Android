@@ -150,3 +150,15 @@ data class BlockchainCardOrderStateResponseDto(
 data class BlockchainCardActivationUrlResponseDto(
     val url: String
 )
+
+@Serializable
+data class BlockchainCardStatementsResponseDto(
+    val statementId: String,
+    val year: String,
+    val month: String,
+)
+
+@Serializable
+data class BlockchainCardStatementUrlResponseDto(
+    val url: String
+)

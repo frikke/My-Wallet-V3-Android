@@ -10,7 +10,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
-import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 
 enum class SimpleBuyAnalytics(override val event: String, override val params: Map<String, String> = emptyMap()) :
     AnalyticsEvent {

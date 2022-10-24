@@ -132,7 +132,7 @@ fun ActivityDetailSection(
             Column {
                 sectionItems.forEachIndexed { index, item ->
                     TransactionSummary(
-                        status = TransactionStatus.Settled,
+                        status = TransactionStatus.Confirmed,
                         iconUrl = null,
                         coinIconUrl = null,
                         valueTopStart = item.key,
