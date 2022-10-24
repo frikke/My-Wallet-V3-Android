@@ -83,7 +83,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         countryStateList = state.countryStateList,
         googleWalletStatus = state.googleWalletStatus,
         cardOrderState = state.cardOrderState,
-        cardActivationUrl = state.cardActivationUrl
+        cardActivationUrl = state.cardActivationUrl,
+        cardStatements = state.cardStatements,
+        legalDocuments = state.legalDocuments
     )
 
     override suspend fun handleIntent(
@@ -680,6 +682,52 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.OnFinishCardActivation -> {
                 navigate(BlockchainCardNavigationEvent.ManageCard)
+            }
+
+            is BlockchainCardIntent.SeeDocuments -> {
+                onIntent(BlockchainCardIntent.LoadCardStatements)
+                onIntent(BlockchainCardIntent.LoadLegalDocuments)
+                navigate(BlockchainCardNavigationEvent.SeeDocuments)
+            }
+
+            is BlockchainCardIntent.LoadCardStatements -> {
+                blockchainCardRepository.getCardStatements().fold(
+                    onSuccess = { statements ->
+                        updateState { it.copy(cardStatements = statements) }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to fetch card statements")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.LoadCardStatementUrl -> {
+                blockchainCardRepository.getCardStatementUrl(intent.statementId).fold(
+                    onSuccess = { url ->
+                        onIntent(BlockchainCardIntent.OpenDocumentUrl(url))
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to fetch card statement URL")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.LoadLegalDocuments -> {
+                blockchainCardRepository.getLegalDocuments()
+                    .doOnSuccess { documents ->
+                        Timber.d("Legal documents loaded: $documents")
+                        updateState { it.copy(legalDocuments = documents) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to get legal documents: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+            }
+
+            is BlockchainCardIntent.OpenDocumentUrl -> {
+                navigate(BlockchainCardNavigationEvent.OpenDocumentUrl(intent.url))
             }
 
             else -> {

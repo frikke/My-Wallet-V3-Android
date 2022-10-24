@@ -82,6 +82,7 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
@@ -116,7 +117,6 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity

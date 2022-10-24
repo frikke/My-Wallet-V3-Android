@@ -155,3 +155,18 @@ fun String.toFormattedExpirationDate(locale: Locale = Locale.getDefault()): Stri
 
     return expDateFinalFormat.format(expDateOriginal)
 }
+
+/**
+ * Takes a date string in "MM/yy" format and formats it to UI-ready "Jun, 2022" format
+ *
+ * @param locale The current [Locale].
+ * @return the formatted date string.
+ */
+fun String.toShortMonthYearDate(locale: Locale = Locale.getDefault()): String {
+    val originalFormat = SimpleDateFormat("MM/yyyy", locale)
+    val finalFormat = SimpleDateFormat("MMM, yyyy", locale)
+
+    val originalDate = originalFormat.parse(this)
+
+    return finalFormat.format(originalDate)
+}

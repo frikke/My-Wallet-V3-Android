@@ -39,7 +39,7 @@ class LocalSettingsViewModel(
                         localSettings = DataResource.Data(
                             LocalSettings(
                                 isChartVibrationEnabled = localSettingsPrefs.isChartVibrationEnabled,
-                                areSmallBalancesEnabled = localSettingsPrefs.areSmallBalancesEnabled
+                                areSmallBalancesEnabled = localSettingsPrefs.hideSmallBalancesEnabled
                             )
                         )
                     )
@@ -62,7 +62,7 @@ class LocalSettingsViewModel(
                 }
             }
             is LocalSettingsIntent.ToggleSmallBalances -> {
-                localSettingsPrefs.areSmallBalancesEnabled = intent.areSmallBalancesEnabled
+                localSettingsPrefs.hideSmallBalancesEnabled = intent.areSmallBalancesEnabled
 
                 updateState { state ->
                     if (state.localSettings is DataResource.Data) {

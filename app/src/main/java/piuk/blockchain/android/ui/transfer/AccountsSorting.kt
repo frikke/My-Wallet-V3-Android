@@ -23,8 +23,8 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.sell.PriceHistory
-import piuk.blockchain.android.ui.sell.PricedAsset
+import piuk.blockchain.android.ui.brokerage.buy.PriceHistory
+import piuk.blockchain.android.ui.brokerage.buy.PricedAsset
 
 interface AccountsSorting {
     fun sorter(): AccountsSorter

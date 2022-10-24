@@ -677,7 +677,7 @@ class PrefsUtil(
         get() = getValue(CHART_VIBRATION_ENABLED, true)
         set(value) = setValue(CHART_VIBRATION_ENABLED, value)
 
-    override var areSmallBalancesEnabled: Boolean
+    override var hideSmallBalancesEnabled: Boolean
         get() = getValue(SMALL_BALANCES, true)
         set(value) = setValue(SMALL_BALANCES, value)
 

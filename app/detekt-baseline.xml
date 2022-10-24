@@ -444,8 +444,8 @@
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.launcher.loader.LoaderInteractor.kt:151</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment.kt:317</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet.kt:103</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.sell.BuySellFlowNavigator.kt:24</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.sell.BuySellFlowNavigator.kt:52</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator.kt:24</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator.kt:52</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.SettingsFragment.kt:366</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.account.AccountInteractor.kt:66</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.account.AccountInteractor.kt:68</ID>

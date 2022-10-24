@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.sell
+package piuk.blockchain.android.ui.brokerage
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -34,6 +34,8 @@ import piuk.blockchain.android.databinding.FragmentBuySellBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.ui.brokerage.buy.BuyIntroFragment
+import piuk.blockchain.android.ui.brokerage.sell.SellIntroFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics

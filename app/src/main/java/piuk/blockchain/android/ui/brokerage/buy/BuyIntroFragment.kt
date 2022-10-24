@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.sell
+package piuk.blockchain.android.ui.brokerage.buy
 
 import android.content.Context
 import android.os.Bundle
@@ -161,7 +161,7 @@ class BuyIntroFragment :
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
             .subscribeBy(
-                onSuccess = { items ->
+                onSuccess = { items: List<PricedAsset> ->
                     renderBuyIntro(items)
                 },
                 onError = { renderErrorState() },

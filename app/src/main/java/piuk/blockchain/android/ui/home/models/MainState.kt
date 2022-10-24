@@ -17,8 +17,8 @@ import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class MainState(

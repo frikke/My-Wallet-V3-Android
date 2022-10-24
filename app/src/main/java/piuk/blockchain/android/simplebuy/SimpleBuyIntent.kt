@@ -85,6 +85,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class AmountUpdated(val amount: FiatValue) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(amount = amount)
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return oldState.amount != amount
+        }
     }
 
     class GetPrefillAndQuickFillAmounts(

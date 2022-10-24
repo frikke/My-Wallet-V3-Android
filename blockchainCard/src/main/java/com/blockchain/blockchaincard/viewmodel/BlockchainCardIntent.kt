@@ -80,4 +80,8 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ActivateCard : BlockchainCardIntent()
     object OnCardActivated : BlockchainCardIntent()
     object OnFinishCardActivation : BlockchainCardIntent()
+    object SeeDocuments : BlockchainCardIntent()
+    object LoadCardStatements : BlockchainCardIntent()
+    data class LoadCardStatementUrl(val statementId: String) : BlockchainCardIntent()
+    data class OpenDocumentUrl(val url: String) : BlockchainCardIntent()
 }

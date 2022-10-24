@@ -126,6 +126,8 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
+import piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator
+import piuk.blockchain.android.ui.brokerage.sell.SellViewModel
 import piuk.blockchain.android.ui.createwallet.CreateWalletViewModel
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
@@ -151,7 +153,6 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
-import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -777,6 +778,12 @@ val applicationModule = module {
                 remoteLogger = get()
             )
         }.bind(DataWiper::class)
+
+        viewModel {
+            SellViewModel(
+                sellService = get()
+            )
+        }
     }
 
     factory {

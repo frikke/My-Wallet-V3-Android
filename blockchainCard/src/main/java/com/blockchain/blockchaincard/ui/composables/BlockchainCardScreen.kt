@@ -25,6 +25,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.CardActivationSuc
 import com.blockchain.blockchaincard.ui.composables.managecard.CardSelector
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
+import com.blockchain.blockchaincard.ui.composables.managecard.Documents
 import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
@@ -329,6 +330,8 @@ fun BlockchainCardNavHost(
                         onSeePersonalDetails = { viewModel.onIntent(BlockchainCardIntent.SeePersonalDetails) },
                         onSeeTransactionControls = { viewModel.onIntent(BlockchainCardIntent.SeeTransactionControls) },
                         onSeeSupport = { viewModel.onIntent(BlockchainCardIntent.SeeSupport) },
+                        onSeeDocuments = { viewModel.onIntent(BlockchainCardIntent.SeeDocuments) },
+                        onTerminateCard = { viewModel.onIntent(BlockchainCardIntent.CloseCard) },
                         onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                     )
                 }
@@ -422,9 +425,6 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.SupportDestination) {
                 Support(
-                    onCloseCard = {
-                        viewModel.onIntent(BlockchainCardIntent.CloseCard)
-                    },
                     onCloseBottomSheet = {
                         viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                     },
@@ -516,6 +516,25 @@ fun BlockchainCardNavHost(
                 CardActivationSuccess(
                     onFinish = { viewModel.onIntent(BlockchainCardIntent.OnFinishCardActivation) }
                 )
+            }
+
+            composable(BlockchainCardDestination.DocumentsDestination) {
+                state?.let { state ->
+                    Documents(
+                        cardStatements = state.cardStatements,
+                        legalDocuments = state.legalDocuments,
+                        onViewStatement = { statement ->
+                            viewModel.onIntent(
+                                BlockchainCardIntent.LoadCardStatementUrl(statement.id)
+                            )
+                        },
+                        onViewLegalDocument = { legalDocument ->
+                            viewModel.onIntent(
+                                BlockchainCardIntent.OpenDocumentUrl(legalDocument.url)
+                            )
+                        }
+                    )
+                }
             }
         }
     }
