@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.sell
+package piuk.blockchain.android.ui.brokerage
 
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity

@@ -80,6 +80,8 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
+import com.blockchain.core.sell.SellRepository
+import com.blockchain.core.sell.domain.SellService
 import com.blockchain.core.settings.EmailSyncUpdater
 import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.core.settings.SettingsDataManager
@@ -614,6 +616,16 @@ val coreModule = module {
                 assetCatalogue = get(),
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 paymentTransactionHistoryStore = get()
+            )
+        }
+
+        scoped<SellService> {
+            SellRepository(
+                userFeaturePermissionService = get(),
+                kycService = get(),
+                simpleBuyService = get(),
+                custodialWalletManager = get(),
+                currencyPrefs = get()
             )
         }
     }

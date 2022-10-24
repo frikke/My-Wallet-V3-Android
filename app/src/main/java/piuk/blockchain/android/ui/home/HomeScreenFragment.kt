@@ -12,8 +12,8 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
-import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface HomeScreenFragment {
     fun navigator(): HomeNavigator

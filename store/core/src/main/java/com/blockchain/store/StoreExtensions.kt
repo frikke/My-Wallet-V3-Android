@@ -4,9 +4,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.rx3.asObservable
@@ -85,3 +88,13 @@ fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
 
 fun <T> Flow<DataResource<T>>.filterNotLoading(): Flow<DataResource<T>> =
     filterNot { it is DataResource.Loading }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
+    flatMapLatest {
+        when (it) {
+            is DataResource.Data -> mapper(it.data)
+            is DataResource.Error -> flowOf(it)
+            is DataResource.Loading -> flowOf(it)
+        }
+    }

@@ -24,7 +24,7 @@ class ShouldAssetShowUseCase(
             ).getDataOrThrow(),
             account.balance
         ) { isInWatchlist, balance ->
-            if (hideDustFeatureFlag.coEnabled() && localSettingsPrefs.areSmallBalancesEnabled) {
+            if (hideDustFeatureFlag.coEnabled() && localSettingsPrefs.hideSmallBalancesEnabled) {
                 if (isInWatchlist) {
                     true
                 } else {

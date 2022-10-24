@@ -243,7 +243,6 @@ data class DashboardState(
 
     private fun Currency.isLayer1Asset(): Boolean =
         (this as? AssetInfo)?.let {
-            // Timber.e("checking l1 for ${it.networkTicker} - ${this.l1chainTicker == null}")
             this.l1chainTicker == null
         } ?: false
 }

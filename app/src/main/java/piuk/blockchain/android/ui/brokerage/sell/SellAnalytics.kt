@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.sell
+package piuk.blockchain.android.ui.brokerage.sell
 
 import com.blockchain.analytics.AnalyticsEvent
 

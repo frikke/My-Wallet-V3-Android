@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.sell
+package piuk.blockchain.android.ui.brokerage.buy
 
 import android.view.LayoutInflater
 import android.view.View

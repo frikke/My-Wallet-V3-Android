@@ -16,8 +16,8 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
-import piuk.blockchain.android.ui.sell.BuySellIntroAction
+import piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator
+import piuk.blockchain.android.ui.brokerage.BuySellIntroAction
 
 class BuySellFlowNavigatorTest {
 
