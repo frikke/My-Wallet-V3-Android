@@ -9,7 +9,6 @@ import com.blockchain.store.getDataOrThrow
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 
 class ShouldAssetShowUseCase(
     private val hideDustFeatureFlag: FeatureFlag,
@@ -19,15 +18,13 @@ class ShouldAssetShowUseCase(
 
     operator fun invoke(currency: Currency, account: BlockchainAccount): Flow<Boolean> =
         combine(
-            flowOf(hideDustFeatureFlag.enabled.blockingGet()),
-            flowOf(localSettingsPrefs.areSmallBalancesEnabled),
             watchlistService.isAssetInWatchlist(
                 asset = currency,
                 freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
             ).getDataOrThrow(),
             account.balance
-        ) { isFeatureEnabled, isPreferenceEnabled, isInWatchlist, balance ->
-            if (isFeatureEnabled && isPreferenceEnabled) {
+        ) { isInWatchlist, balance ->
+            if (hideDustFeatureFlag.coEnabled() && localSettingsPrefs.areSmallBalancesEnabled) {
                 if (isInWatchlist) {
                     true
                 } else {
