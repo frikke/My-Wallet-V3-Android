@@ -7,15 +7,16 @@ data class ActivityDetailViewState(
     val activity: DataResource<List<List<ActivityDetailItemState>>>
 ) : ViewState
 
-data class ActivityDetailItemState(
-    val type: ViewType,
-    val key: String,
-    val value: String,
-    val valueStyle: ValueStyle
-)
+sealed interface ActivityDetailItemState{
+    data class KeyValue(
+        val key: String,
+        val value: String,
+        val valueStyle: ValueStyle
+    ): ActivityDetailItemState
 
-enum class ViewType {
-    KeyValue, Button
+    data class Button(
+        val value: String
+    ): ActivityDetailItemState
 }
 
 enum class ValueStyle {

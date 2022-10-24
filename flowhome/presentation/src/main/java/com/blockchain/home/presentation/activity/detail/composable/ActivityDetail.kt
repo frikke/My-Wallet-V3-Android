@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,9 +34,6 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailItemState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.activity.detail.ValueStyle
-import com.blockchain.home.presentation.activity.detail.ViewType
-import com.blockchain.home.presentation.activity.list.TransactionStatus
-import com.blockchain.home.presentation.activity.list.composable.TransactionSummary
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -131,16 +127,14 @@ fun ActivityDetailSection(
         ) {
             Column {
                 sectionItems.forEachIndexed { index, item ->
-                    TransactionSummary(
-                        status = TransactionStatus.Confirmed,
-                        iconUrl = null,
-                        coinIconUrl = null,
-                        valueTopStart = item.key,
-                        valueTopEnd = item.value,
-                        valueBottomStart = null,
-                        valueBottomEnd = null,
-                        onClick = {}
-                    )
+                    when(item){
+                        is ActivityDetailItemState.Button -> {
+
+                        }
+                        is ActivityDetailItemState.KeyValue -> {
+                            ActivityDetailKeyValue(data = item)
+                        }
+                    }
 
                     if (index < sectionItems.lastIndex) {
                         Divider(color = Color(0XFFF1F2F7))
@@ -158,34 +152,29 @@ fun PreviewActivityScreen() {
         activity = DataResource.Data(
             listOf(
                 listOf(
-                    ActivityDetailItemState(
-                        ViewType.KeyValue,
+                    ActivityDetailItemState.KeyValue(
                         "Purchase",
                         "100.00",
                         ValueStyle.Text
                     ),
-                    ActivityDetailItemState(
-                        ViewType.KeyValue,
+                    ActivityDetailItemState.KeyValue(
                         "BTC Price",
                         "34,183.91",
                         ValueStyle.Text
                     ),
-                    ActivityDetailItemState(
-                        ViewType.KeyValue,
+                    ActivityDetailItemState.KeyValue(
                         "Fees",
                         "Free",
                         ValueStyle.GreenText
                     )
                 ),
                 listOf(
-                    ActivityDetailItemState(
-                        ViewType.KeyValue,
+                    ActivityDetailItemState.KeyValue(
                         "Status",
                         "Complete",
                         ValueStyle.SuccessBadge
                     ),
-                    ActivityDetailItemState(
-                        ViewType.KeyValue,
+                    ActivityDetailItemState.KeyValue(
                         "Type",
                         "Easy Bank Transfer",
                         ValueStyle.Text

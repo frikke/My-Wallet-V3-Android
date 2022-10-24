@@ -346,6 +346,24 @@ fun KeyValueStyledTableRow(
 }
 
 @Composable
+fun KeyTagStyledTableRow(
+    keyText: String,
+    keyTextStyle: StyledTableRowField = StyledTableRowField.Muted(),
+    tag: TagViewState,
+    endImageResource: ImageResource = ImageResource.None,
+    onClick: (() -> Unit)? = null
+) {
+    StyledTableRow(
+        topStartText = keyText,
+        topStartTextStyle = keyTextStyle,
+        tag = tag,
+        endImageResource = endImageResource,
+        onClick = onClick
+    )
+}
+
+
+@Composable
 fun KeyValuesStyledTableRow(
     keyText: String,
     keyTextStyle: StyledTableRowField = StyledTableRowField.Muted(),
@@ -486,6 +504,20 @@ private fun KeyValueStyledTableRow_default_chevron() {
                 keyText = "Note",
                 valueText = "No notes",
                 valueTextStyle = StyledTableRowField.Muted(),
+                endImageResource = ImageResource.Local(R.drawable.ic_chevron_end)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun KeyTagStyledTableRow_success() {
+    AppTheme {
+        AppSurface {
+            KeyTagStyledTableRow(
+                keyText = "Note",
+                tag = TagViewState("Complete", TagType.Success()),
                 endImageResource = ImageResource.Local(R.drawable.ic_chevron_end)
             )
         }

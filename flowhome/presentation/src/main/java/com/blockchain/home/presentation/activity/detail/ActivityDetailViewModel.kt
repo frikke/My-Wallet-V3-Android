@@ -31,34 +31,29 @@ class ActivityDetailViewModel(
                         activity = DataResource.Data(
                             listOf(
                                 listOf(
-                                    ActivityDetailItemState(
-                                        ViewType.KeyValue,
+                                    ActivityDetailItemState.KeyValue(
                                         "Purchase",
                                         "100.00",
                                         ValueStyle.Text
                                     ),
-                                    ActivityDetailItemState(
-                                        ViewType.KeyValue,
+                                    ActivityDetailItemState.KeyValue(
                                         "BTC Price",
                                         "34,183.91",
                                         ValueStyle.Text
                                     ),
-                                    ActivityDetailItemState(
-                                        ViewType.KeyValue,
+                                    ActivityDetailItemState.KeyValue(
                                         "Fees",
                                         "Free",
                                         ValueStyle.GreenText
                                     )
                                 ),
                                 listOf(
-                                    ActivityDetailItemState(
-                                        ViewType.KeyValue,
+                                    ActivityDetailItemState.KeyValue(
                                         "Status",
                                         "Complete",
                                         ValueStyle.SuccessBadge
                                     ),
-                                    ActivityDetailItemState(
-                                        ViewType.KeyValue,
+                                    ActivityDetailItemState.KeyValue(
                                         "Type",
                                         "Easy Bank Transfer",
                                         ValueStyle.Text
