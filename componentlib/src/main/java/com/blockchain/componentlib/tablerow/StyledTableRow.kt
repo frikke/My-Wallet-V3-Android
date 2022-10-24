@@ -60,11 +60,6 @@ sealed interface StyledTableRowField {
         override val color @Composable get() = AppTheme.colors.success
         override val strikeThrough = false
     }
-
-    data class Custom(
-        override val color: Color,
-        override val strikeThrough: Boolean
-    ) : StyledTableRowField
 }
 
 private fun StyledTableRowField.textDecoration(): TextDecoration {
