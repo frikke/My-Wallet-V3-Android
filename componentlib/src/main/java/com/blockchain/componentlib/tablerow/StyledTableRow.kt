@@ -370,7 +370,7 @@ fun KeyValuesStyledTableRow(
 
 @Preview
 @Composable
-fun StyledTableRow_All4_default_mainicon() {
+private fun StyledTableRow_All4_default_mainicon() {
     AppTheme {
         AppSurface {
             StyledTableRow(
@@ -389,7 +389,7 @@ fun StyledTableRow_All4_default_mainicon() {
 
 @Preview
 @Composable
-fun StyledTableRow_All4_default_stackedicon() {
+private fun StyledTableRow_All4_default_stackedicon() {
     AppTheme {
         AppSurface {
             StyledTableRow(
@@ -409,7 +409,7 @@ fun StyledTableRow_All4_default_stackedicon() {
 
 @Preview
 @Composable
-fun StyledTableRow_All4_default() {
+private fun StyledTableRow_All4_default() {
     AppTheme {
         AppSurface {
             StyledTableRow(
@@ -427,7 +427,7 @@ fun StyledTableRow_All4_default() {
 
 @Preview
 @Composable
-fun StyledTableRow_All4_warning() {
+private fun StyledTableRow_All4_warning() {
     AppTheme {
         AppSurface {
             StyledTableRow(
@@ -446,7 +446,7 @@ fun StyledTableRow_All4_warning() {
 
 @Preview
 @Composable
-fun StyledTableRow_All4_muted() {
+private fun StyledTableRow_All4_muted() {
     AppTheme {
         AppSurface {
             StyledTableRow(
@@ -466,7 +466,7 @@ fun StyledTableRow_All4_muted() {
 
 @Preview
 @Composable
-fun KeyValueStyledTableRow_default() {
+private fun KeyValueStyledTableRow_default() {
     AppTheme {
         AppSurface {
             KeyValueStyledTableRow(
@@ -479,7 +479,7 @@ fun KeyValueStyledTableRow_default() {
 
 @Preview
 @Composable
-fun KeyValueStyledTableRow_default_chevron() {
+private fun KeyValueStyledTableRow_default_chevron() {
     AppTheme {
         AppSurface {
             KeyValueStyledTableRow(
@@ -494,7 +494,7 @@ fun KeyValueStyledTableRow_default_chevron() {
 
 @Preview
 @Composable
-fun KeyValueStyledTableRow_success() {
+private fun KeyValueStyledTableRow_success() {
     AppTheme {
         AppSurface {
             KeyValueStyledTableRow(
@@ -508,7 +508,7 @@ fun KeyValueStyledTableRow_success() {
 
 @Preview
 @Composable
-fun KeyValuesStyledTableRow_default() {
+private fun KeyValuesStyledTableRow_default() {
     AppTheme {
         AppSurface {
             KeyValuesStyledTableRow(
@@ -522,7 +522,7 @@ fun KeyValuesStyledTableRow_default() {
 
 @Preview
 @Composable
-fun StyledTableRow_ValueTag() {
+private fun StyledTableRow_ValueTag() {
     AppTheme {
         AppSurface {
             StyledTableRow(

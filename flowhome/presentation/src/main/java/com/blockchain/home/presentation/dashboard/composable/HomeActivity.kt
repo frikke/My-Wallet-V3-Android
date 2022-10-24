@@ -132,7 +132,7 @@ fun PreviewHomeActivityScreen() {
                 TransactionState(
                     transactionTypeIcon = "transactionTypeIcon",
                     transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Settled,
+                    TransactionStatus.Confirmed,
                     valueTopStart = "Sent Bitcoin",
                     valueTopEnd = "-10.00",
                     valueBottomStart = "June 14",
