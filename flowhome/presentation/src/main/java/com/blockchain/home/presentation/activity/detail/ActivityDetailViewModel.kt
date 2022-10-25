@@ -19,7 +19,7 @@ class ActivityDetailViewModel(
 
     override fun reduce(state: ActivityDetailModelState): ActivityDetailViewState = state.run {
         ActivityDetailViewState(
-            activity = activity
+            activityDetailItems = activity
         )
     }
 
@@ -29,42 +29,58 @@ class ActivityDetailViewModel(
                 updateState {
                     it.copy(
                         activity = DataResource.Data(
-                            listOf(
-                                listOf(
-                                    ActivityDetailItemState.KeyValue(
-                                        "Purchase",
-                                        "100.00",
-                                        ValueStyle.Text
+                            ActivityDetail(
+                                itemGroups = listOf(
+                                    listOf(
+                                        ActivityDetailItemState.KeyValue(
+                                            "Purchase",
+                                            "100.00",
+                                            ValueStyle.Text
+                                        ),
+                                        ActivityDetailItemState.KeyValue(
+                                            "BTC Price",
+                                            "34,183.91",
+                                            ValueStyle.Text
+                                        ),
+                                        ActivityDetailItemState.KeyValue(
+                                            "Fees",
+                                            "Free",
+                                            ValueStyle.GreenText
+                                        ),
+                                        ActivityDetailItemState.Button(
+                                            "Copy Transaction ID",
+                                            ButtonStyle.Primary
+                                        )
                                     ),
-                                    ActivityDetailItemState.KeyValue(
-                                        "BTC Price",
-                                        "34,183.91",
-                                        ValueStyle.Text
+                                    listOf(
+                                        ActivityDetailItemState.KeyValue(
+                                            "Status",
+                                            "Complete",
+                                            ValueStyle.SuccessBadge
+                                        ),
+                                        ActivityDetailItemState.KeyValue(
+                                            "Type",
+                                            "Easy Bank Transfer",
+                                            ValueStyle.Text
+                                        ),
+                                        ActivityDetailItemState.Button(
+                                            "Copy Transaction ID",
+                                            ButtonStyle.Tertiary
+                                        )
                                     ),
-                                    ActivityDetailItemState.KeyValue(
-                                        "Fees",
-                                        "Free",
-                                        ValueStyle.GreenText
-                                    ),
-                                    ActivityDetailItemState.Button(
-                                        "Copy Transaction ID",
-                                        ButtonStyle.Primary
-                                    )
                                 ),
-                                listOf(
-                                    ActivityDetailItemState.KeyValue(
-                                        "Status",
-                                        "Complete",
-                                        ValueStyle.SuccessBadge
-                                    ),
-                                    ActivityDetailItemState.KeyValue(
-                                        "Type",
-                                        "Easy Bank Transfer",
-                                        ValueStyle.Text
+                                floatingActions = listOf(
+                                    ActivityDetailItemState.Button(
+                                        "View on Etherscan",
+                                        ButtonStyle.Primary
                                     ),
                                     ActivityDetailItemState.Button(
-                                        "Copy Transaction ID",
+                                        "Speed Up",
                                         ButtonStyle.Secondary
+                                    ),
+                                    ActivityDetailItemState.Button(
+                                        "Cancel",
+                                        ButtonStyle.Tertiary
                                     )
                                 ),
                             )

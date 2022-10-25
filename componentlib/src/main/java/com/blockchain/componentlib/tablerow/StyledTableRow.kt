@@ -362,7 +362,6 @@ fun KeyTagStyledTableRow(
     )
 }
 
-
 @Composable
 fun KeyValuesStyledTableRow(
     keyText: String,

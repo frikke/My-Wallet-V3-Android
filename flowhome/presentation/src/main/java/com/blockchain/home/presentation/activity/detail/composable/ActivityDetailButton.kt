@@ -16,7 +16,7 @@ fun ActivityDetailButton(
 ) {
     val text = data.value
     val action: (() -> Unit) = {
-
+        /*todo*/
     }
     val modifier = Modifier.fillMaxWidth()
 
@@ -29,6 +29,13 @@ fun ActivityDetailButton(
             )
         }
         ButtonStyle.Secondary -> {
+            SecondaryButton(
+                modifier = modifier,
+                text = text,
+                onClick = action
+            )
+        }
+        ButtonStyle.Tertiary -> {
             TertiaryButton(
                 modifier = modifier,
                 text = text,
@@ -43,7 +50,7 @@ fun ActivityDetailButton(
 fun PreviewActivityDetailButton_Primary() {
     ActivityDetailButton(
         data = ActivityDetailItemState.Button(
-            value = "primary",
+            value = "Primary",
             style = ButtonStyle.Primary
         )
     )
@@ -54,8 +61,19 @@ fun PreviewActivityDetailButton_Primary() {
 fun PreviewActivityDetailButton_Secondary() {
     ActivityDetailButton(
         data = ActivityDetailItemState.Button(
-            value = "primary",
+            value = "Secondary",
             style = ButtonStyle.Secondary
+        )
+    )
+}
+
+@Preview
+@Composable
+fun PreviewActivityDetailButton_Tertiary() {
+    ActivityDetailButton(
+        data = ActivityDetailItemState.Button(
+            value = "Tertiary",
+            style = ButtonStyle.Tertiary
         )
     )
 }

@@ -4,8 +4,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 
 data class ActivityDetailViewState(
-    val activity: DataResource<List<List<ActivityDetailItemState>>>
+    val activityDetailItems: DataResource<ActivityDetail>
 ) : ViewState
+
+data class ActivityDetail(
+    val itemGroups: List<List<ActivityDetailItemState>>,
+    val floatingActions: List<ActivityDetailItemState>
+)
 
 sealed interface ActivityDetailItemState {
     data class KeyValue(
@@ -28,5 +33,6 @@ enum class ValueStyle {
 
 enum class ButtonStyle {
     Primary,
-    Secondary
+    Secondary,
+    Tertiary
 }

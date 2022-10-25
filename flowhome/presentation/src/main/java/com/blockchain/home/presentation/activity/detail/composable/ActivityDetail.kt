@@ -29,10 +29,12 @@ import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailItemState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
+import com.blockchain.home.presentation.activity.detail.ButtonStyle
 import com.blockchain.home.presentation.activity.detail.ValueStyle
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
@@ -53,13 +55,13 @@ fun ActivityDetail(
     }
 
     ActivityScreen(
-        activity = viewState?.activity ?: DataResource.Loading
+        activity = viewState?.activityDetailItems ?: DataResource.Loading
     )
 }
 
 @Composable
 fun ActivityScreen(
-    activity: DataResource<List<List<ActivityDetailItemState>>>
+    activity: DataResource<ActivityDetail>
 ) {
     Column(
         modifier = Modifier
@@ -95,28 +97,44 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityDetailData(
-    activity: List<List<ActivityDetailItemState>>
+    activity: ActivityDetail
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        activity.forEach { sectionItems ->
+        activity.itemGroups.forEach { sectionItems ->
             item {
-                ActivityDetailSection(sectionItems)
+                ActivityItemGroupSection(sectionItems)
             }
 
-            if (sectionItems.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+            }
+        }
+
+        activity.floatingActions.forEach { item ->
+            item {
+                when (item) {
+                    is ActivityDetailItemState.Button -> {
+                        ActivityDetailButton(data = item)
+                    }
+
+                    is ActivityDetailItemState.KeyValue -> {
+                        ActivityDetailKeyValue(data = item)
+                    }
                 }
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }
         }
     }
 }
 
 @Composable
-fun ActivityDetailSection(
+fun ActivityItemGroupSection(
     sectionItems: List<ActivityDetailItemState>
 ) {
     if (sectionItems.isNotEmpty()) {
@@ -150,34 +168,48 @@ fun ActivityDetailSection(
 fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DataResource.Data(
-            listOf(
-                listOf(
-                    ActivityDetailItemState.KeyValue(
-                        "Purchase",
-                        "100.00",
-                        ValueStyle.Text
+            ActivityDetail(
+                itemGroups = listOf(
+                    listOf(
+                        ActivityDetailItemState.KeyValue(
+                            "BTC Price",
+                            "34,183.91",
+                            ValueStyle.Text
+                        ),
+                        ActivityDetailItemState.KeyValue(
+                            "Fees",
+                            "Free",
+                            ValueStyle.GreenText
+                        ),
+                        ActivityDetailItemState.Button(
+                            "Copy Transaction ID",
+                            ButtonStyle.Primary
+                        )
                     ),
-                    ActivityDetailItemState.KeyValue(
-                        "BTC Price",
-                        "34,183.91",
-                        ValueStyle.Text
+                    listOf(
+                        ActivityDetailItemState.KeyValue(
+                            "Status",
+                            "Complete",
+                            ValueStyle.SuccessBadge
+                        ),
+                        ActivityDetailItemState.Button(
+                            "Copy Transaction ID",
+                            ButtonStyle.Tertiary
+                        )
                     ),
-                    ActivityDetailItemState.KeyValue(
-                        "Fees",
-                        "Free",
-                        ValueStyle.GreenText
-                    )
                 ),
-                listOf(
-                    ActivityDetailItemState.KeyValue(
-                        "Status",
-                        "Complete",
-                        ValueStyle.SuccessBadge
+                floatingActions = listOf(
+                    ActivityDetailItemState.Button(
+                        "View on Etherscan",
+                        ButtonStyle.Primary
                     ),
-                    ActivityDetailItemState.KeyValue(
-                        "Type",
-                        "Easy Bank Transfer",
-                        ValueStyle.Text
+                    ActivityDetailItemState.Button(
+                        "Speed Up",
+                        ButtonStyle.Secondary
+                    ),
+                    ActivityDetailItemState.Button(
+                        "Cancel",
+                        ButtonStyle.Tertiary
                     )
                 ),
             )
