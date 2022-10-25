@@ -7,20 +7,26 @@ data class ActivityDetailViewState(
     val activity: DataResource<List<List<ActivityDetailItemState>>>
 ) : ViewState
 
-sealed interface ActivityDetailItemState{
+sealed interface ActivityDetailItemState {
     data class KeyValue(
         val key: String,
         val value: String,
-        val valueStyle: ValueStyle
-    ): ActivityDetailItemState
+        val style: ValueStyle
+    ) : ActivityDetailItemState
 
     data class Button(
-        val value: String
-    ): ActivityDetailItemState
+        val value: String,
+        val style: ButtonStyle
+    ) : ActivityDetailItemState
 }
 
 enum class ValueStyle {
     SuccessBadge,
     GreenText,
     Text
+}
+
+enum class ButtonStyle {
+    Primary,
+    Secondary
 }

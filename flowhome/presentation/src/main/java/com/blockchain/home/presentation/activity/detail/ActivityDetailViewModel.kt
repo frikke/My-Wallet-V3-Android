@@ -45,6 +45,10 @@ class ActivityDetailViewModel(
                                         "Fees",
                                         "Free",
                                         ValueStyle.GreenText
+                                    ),
+                                    ActivityDetailItemState.Button(
+                                        "Copy Transaction ID",
+                                        ButtonStyle.Primary
                                     )
                                 ),
                                 listOf(
@@ -57,6 +61,10 @@ class ActivityDetailViewModel(
                                         "Type",
                                         "Easy Bank Transfer",
                                         ValueStyle.Text
+                                    ),
+                                    ActivityDetailItemState.Button(
+                                        "Copy Transaction ID",
+                                        ButtonStyle.Secondary
                                     )
                                 ),
                             )

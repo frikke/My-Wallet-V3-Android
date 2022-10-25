@@ -13,7 +13,7 @@ import com.blockchain.home.presentation.activity.detail.ValueStyle
 fun ActivityDetailKeyValue(
     data: ActivityDetailItemState.KeyValue
 ) {
-    when (data.valueStyle) {
+    when (data.style) {
         ValueStyle.SuccessBadge -> {
             KeyTagStyledTableRow(
                 keyText = data.key,
@@ -26,14 +26,14 @@ fun ActivityDetailKeyValue(
             KeyValueStyledTableRow(
                 keyText = data.key,
                 valueText = data.value,
-                valueTextStyle = data.valueStyle.valueStyle(),
+                valueTextStyle = data.style.styledTableRowField(),
                 onClick = {}
             )
         }
     }
 }
 
-private fun ValueStyle.valueStyle(): StyledTableRowField = when (this) {
+private fun ValueStyle.styledTableRowField(): StyledTableRowField = when (this) {
     ValueStyle.SuccessBadge -> {
         error("success badge should be handled by tags")
     }

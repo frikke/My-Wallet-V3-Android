@@ -127,9 +127,9 @@ fun ActivityDetailSection(
         ) {
             Column {
                 sectionItems.forEachIndexed { index, item ->
-                    when(item){
+                    when (item) {
                         is ActivityDetailItemState.Button -> {
-
+                            ActivityDetailButton(data = item)
                         }
                         is ActivityDetailItemState.KeyValue -> {
                             ActivityDetailKeyValue(data = item)
