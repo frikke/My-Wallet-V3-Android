@@ -25,6 +25,7 @@ import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.rx3.await
 
 internal class XlmCryptoWalletAccount(
@@ -54,6 +55,11 @@ internal class XlmCryptoWalletAccount(
             XlmAddress(_address = address, _label = label)
         )
 
+    override val isFunded: Boolean
+        get() = hasFunds.get()
+
+    private val hasFunds = AtomicBoolean(false)
+
     override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             getMinBalance(),
@@ -65,6 +71,8 @@ internal class XlmCryptoWalletAccount(
                 pending = Money.zero(currency),
                 exchangeRate = rate
             )
+        }.doOnNext {
+            hasFunds.set(it.total.isPositive)
         }
 
     override fun getOnChainBalance(): Observable<Money> =
