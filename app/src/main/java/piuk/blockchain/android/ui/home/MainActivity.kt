@@ -118,6 +118,7 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
+import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
@@ -853,7 +854,7 @@ class MainActivity :
                         startActivity(
                             SettingsActivity.newIntent(
                                 context = this,
-                                startForCardLinking = true
+                                deeplinkToScreen = SettingsDestination.CardLinking
                             )
                         )
                     } ?: Timber.e(
@@ -1138,7 +1139,12 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(SettingsActivity.newIntent(this, true))
+        startActivity(
+            SettingsActivity.newIntent(
+                context = this,
+                deeplinkToScreen = SettingsDestination.Security
+            )
+        )
     }
 
     override fun launchOpenExternalEmailApp() {

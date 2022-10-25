@@ -963,6 +963,12 @@
     <string name="gpay_announcement_description">Enjoy frictionless crypto purchases with Google Pay.</string>
     <string name="gpay_announcement_action">Buy Crypto</string>
 
+    <!-- Hide Dust announcement -->
+    <string name="hide_dust_announcement_title">New Feature</string>
+    <string name="hide_dust_announcement_description">Do you have balances under $0.01 filling up your dashboard? You can now hide small balances from Settings.</string>
+    <string name="hide_dust_announcement_action">Hide Small Balances</string>
+
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
