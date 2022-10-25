@@ -244,12 +244,14 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
                 onListLoaded = { isEmpty ->
                     hideLoading()
 
-                    if (isEmpty) {
-                        if (hasEnteredSearchTerm) {
+                    when {
+                        isEmpty && hasEnteredSearchTerm -> {
                             sellSearchEmpty.visible()
                             accountsList.gone()
-                        } else {
-                            renderSellEmpty()
+                        }
+                        isEmpty -> renderSellEmpty()
+                        else -> {
+                            // Do Nothing
                         }
                     }
                 }

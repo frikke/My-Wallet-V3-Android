@@ -35,10 +35,10 @@ class SellRepository(
     private val currencyPrefs: CurrencyPrefs
 ) : SellService {
 
-    override fun loadSellAssets(): Flow<DataResource<SellEligibility>> =
+    override fun loadSellAssets(freshnessStrategy: FreshnessStrategy): Flow<DataResource<SellEligibility>> =
         userFeaturePermissionService.getAccessForFeature(
             feature = Feature.Sell,
-            freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+            freshnessStrategy = freshnessStrategy
         ).flatMapData { data ->
             checkUserEligibilityStatus(data)
         }

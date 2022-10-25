@@ -107,7 +107,10 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<AccountListViewItem>> =
-        coincore.walletsWithActions(actions = setOf(fragmentAction), sorter = accountsSorting.sorter()).map {
+        coincore.walletsWithActions(
+            actions = setOf(fragmentAction),
+            sorter = accountsSorting.sorter()
+        ).map {
             it.map(AccountListViewItem.Companion::create)
         }
 

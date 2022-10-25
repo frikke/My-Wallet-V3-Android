@@ -33,7 +33,9 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.utils.mapList
+import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -78,7 +80,9 @@ class TransactionInteractor(
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val swapSellQuickFillFF: FeatureFlag,
-    private val quickFillRoundingService: QuickFillRoundingService
+    private val quickFillRoundingService: QuickFillRoundingService,
+    private val hideDustFF: FeatureFlag,
+    private val localSettingsPrefs: LocalSettingsPrefs
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -185,8 +189,11 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
-                    .zipWith(
+                hideDustFF.enabled.flatMap { flagEnabled ->
+                    coincore.walletsWithActions(
+                        actions = setOf(action),
+                        sorter = swapSourceAccountsSorting.sorter()
+                    ).zipWith(
                         custodialRepository.getSwapAvailablePairs()
                     ).map { (accounts, pairs) ->
                         accounts.filter { account ->
@@ -194,7 +201,24 @@ class TransactionInteractor(
                         }
                     }.map {
                         it.map { account -> account as CryptoAccount }
+                    }.flatMap { accountList ->
+                        if (flagEnabled && localSettingsPrefs.hideSmallBalancesEnabled) {
+                            accountList.map { account ->
+                                account.balanceRx
+                            }.zipObservables().map {
+                                accountList.mapIndexedNotNull { index, singleAccount ->
+                                    if (!it[index].totalFiat.isDust()) {
+                                        singleAccount
+                                    } else {
+                                        null
+                                    }
+                                }
+                            }.firstOrError()
+                        } else {
+                            Single.just(accountList)
+                        }
                     }
+                }
             }
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
