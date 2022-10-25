@@ -222,3 +222,8 @@ data class BlockchainCardStatement(
     val id: String,
     val date: String,
 )
+
+enum class BlockchainCardPostMessageType {
+    MANAGE,
+    VIEW
+}

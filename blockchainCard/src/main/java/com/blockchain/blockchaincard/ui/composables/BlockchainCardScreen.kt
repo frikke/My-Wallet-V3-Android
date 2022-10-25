@@ -312,7 +312,10 @@ fun BlockchainCardNavHost(
                             },
                             onActivateCard = {
                                 viewModel.onIntent(BlockchainCardIntent.ActivateCard)
-                            }
+                            },
+                            onWebMessageReceived = { message ->
+                                viewModel.onIntent(BlockchainCardIntent.WebMessageReceived(message))
+                            },
                         )
                     }
                 }

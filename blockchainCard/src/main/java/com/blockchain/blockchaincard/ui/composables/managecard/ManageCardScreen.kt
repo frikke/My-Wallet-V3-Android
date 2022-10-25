@@ -150,7 +150,8 @@ fun ManageCard(
     onRefreshCardWidgetUrl: () -> Unit,
     onAddFunds: () -> Unit,
     onAddToGoogleWallet: () -> Unit,
-    onActivateCard: () -> Unit
+    onActivateCard: () -> Unit,
+    onWebMessageReceived: (String) -> Unit,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -211,7 +212,7 @@ fun ManageCard(
                 )
             }
 
-            if (card?.status != BlockchainCardStatus.TERMINATED) {
+            if (card?.status == BlockchainCardStatus.ACTIVE || card?.status == BlockchainCardStatus.LOCKED) {
                 when (cardWidgetUrl) {
                     null -> {
                         CircularProgressIndicator(
@@ -248,15 +249,17 @@ fun ManageCard(
                     }
 
                     else -> {
+
                         Webview(
                             url = cardWidgetUrl,
                             disableScrolling = true,
+                            onWebMessageReceived = onWebMessageReceived,
                             modifier = Modifier
                                 .padding(
                                     top = AppTheme.dimensions.smallSpacing
                                 )
                                 .requiredHeight(355.dp)
-                                .requiredWidth(300.dp)
+                                .requiredWidth(400.dp),
                         )
                     }
                 }
@@ -536,7 +539,8 @@ private fun PreviewManageCard() {
         onRefreshCardWidgetUrl = {},
         onAddFunds = {},
         onAddToGoogleWallet = {},
-        onActivateCard = {}
+        onActivateCard = {},
+        onWebMessageReceived = {},
     )
 }
 
@@ -2879,7 +2883,7 @@ fun CardActivationPage(cardActivationUrl: String?, onCardActivated: () -> Unit) 
         Webview(
             url = url,
             urlRedirectHandler = { redirectUrl ->
-                if (redirectUrl == "https://blockchain.com/en/app/card-issuing/activated") {
+                if (redirectUrl == "https://blockchain.com/app/card-issuing/activated") {
                     onCardActivated()
                     true // don't load the URL
                 } else {

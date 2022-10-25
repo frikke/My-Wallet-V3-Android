@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel.managecard
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
@@ -728,6 +729,21 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.OpenDocumentUrl -> {
                 navigate(BlockchainCardNavigationEvent.OpenDocumentUrl(intent.url))
+            }
+
+            is BlockchainCardIntent.WebMessageReceived -> {
+                blockchainCardRepository.decodePostMessageType(intent.message).fold(
+                    onSuccess = { postMessageType ->
+                        if (postMessageType == BlockchainCardPostMessageType.MANAGE) {
+                            modelState.currentCard?.let {
+                                onIntent(BlockchainCardIntent.ManageCardDetails(modelState.currentCard))
+                            }
+                        }
+                    },
+                    onFailure = { error ->
+                        Timber.i("Unable to decode post message type: $error")
+                    }
+                )
             }
 
             else -> {

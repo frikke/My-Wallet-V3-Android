@@ -10,6 +10,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardWebViewPostMessage
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
@@ -27,6 +28,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUse
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
@@ -58,6 +60,8 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 private const val DEFAULT_CARD_ID = "DEFAULT_CARD_ID"
 
@@ -325,6 +329,17 @@ internal class BlockchainCardRepositoryImpl(
         blockchainCardService.getCardStatementUrl(statementId).map { response ->
             response.url
         }.wrapBlockchainCardError()
+
+    override suspend fun decodePostMessageType(
+        postMessage: String
+    ): Outcome<BlockchainCardError, BlockchainCardPostMessageType> {
+        return try {
+            val message = Json.decodeFromString<BlockchainCardWebViewPostMessage>(postMessage)
+            Outcome.Success(BlockchainCardPostMessageType.valueOf(message.type))
+        } catch (exception: Exception) {
+            Outcome.Failure(BlockchainCardError.LocalCopyBlockchainCardError)
+        }
+    }
 
     //
     // Domain Model Conversion
