@@ -148,8 +148,8 @@ fun GenericTableRow(
  */
 @Composable
 fun GenericTableRow(
-    @DrawableRes leadingImageMainUrl: String,
-    @DrawableRes leadingImageIconUrl: String? = null,
+    leadingImageMainUrl: String,
+    leadingImageIconUrl: String? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
