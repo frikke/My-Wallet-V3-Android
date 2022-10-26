@@ -84,31 +84,31 @@ class CardPaymentDelegate(
                                     onRejectableCardSelected(state)
                                 }
                             }
+                        }
 
-                            if (cardRejectionFFEnabled) {
-                                tags = when (val cardState = it.cardRejectionState) {
-                                    is CardRejectionState.AlwaysRejected -> {
-                                        listOf(
-                                            TagViewState(
-                                                value = cardState.title ?: context.getString(
-                                                    R.string.card_issuer_always_rejects_title
-                                                ),
-                                                type = TagType.Error(),
-                                            )
+                        if (cardRejectionFFEnabled) {
+                            tags = when (val cardState = it.cardRejectionState) {
+                                is CardRejectionState.AlwaysRejected -> {
+                                    listOf(
+                                        TagViewState(
+                                            value = cardState.title ?: context.getString(
+                                                R.string.card_issuer_always_rejects_title
+                                            ),
+                                            type = TagType.Error(),
                                         )
-                                    }
-                                    is CardRejectionState.MaybeRejected -> {
-                                        listOf(
-                                            TagViewState(
-                                                value = cardState.title ?: context.getString(
-                                                    R.string.card_issuer_sometimes_rejects_title
-                                                ),
-                                                type = TagType.Warning(),
-                                            )
-                                        )
-                                    }
-                                    else -> null
+                                    )
                                 }
+                                is CardRejectionState.MaybeRejected -> {
+                                    listOf(
+                                        TagViewState(
+                                            value = cardState.title ?: context.getString(
+                                                R.string.card_issuer_sometimes_rejects_title
+                                            ),
+                                            type = TagType.Warning(),
+                                        )
+                                    )
+                                }
+                                else -> null
                             }
                         }
                     }
