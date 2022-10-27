@@ -47,15 +47,13 @@ fun ActivityTagStyle.toTagType() = when (this) {
 }
 
 sealed interface ActivityStackViewComponent {
-    val value: String
-
     data class Text(
-        override val value: String,
+        val value: String,
         val style: ActivityTextStyle
     ) : ActivityStackViewComponent
 
     data class Tag(
-        override val value: String,
+        val value: String,
         val style: ActivityTagStyle
     ) : ActivityStackViewComponent
 }
