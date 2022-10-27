@@ -72,7 +72,6 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.util.checkValidUrlAndOpen
-import timber.log.Timber
 
 class SimpleBuyActivity :
     BlockchainActivity(),
@@ -191,8 +190,7 @@ class SimpleBuyActivity :
                 if (!isUpdatingCurrency) subscribeForNavigation(true)
             }
             is ErrorSlidingBottomDialog -> {
-                // do nothing for now
-                Timber.e("----- ErrorSlidingBottomDialog sheet closed")
+                // do nothing
             }
             else -> subscribeForNavigation(true)
         }

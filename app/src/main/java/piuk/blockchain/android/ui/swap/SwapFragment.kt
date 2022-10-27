@@ -181,14 +181,12 @@ class SwapFragment :
                 coincore.walletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap)
-            ) {
-                tiers: KycTiers,
+            ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility,
-                ->
+                eligibility ->
                 SwapComposite(
                     tiers,
                     pairs,
@@ -399,33 +397,48 @@ class SwapFragment :
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapViewFlipper.visible()
-        binding.swapError.gone()
-        binding.swapCta.visible()
-        binding.swapCta.isEnabled = hasAtLeastOneAccountToSwapFrom
-        binding.swapTrending.visibleIf { !hasPendingOrder }
-        binding.pendingSwaps.container.visibleIf { hasPendingOrder }
-        binding.pendingSwaps.pendingList.apply {
-            adapter =
-                PendingSwapsAdapter(
-                    pendingOrders
-                ) { money: Money ->
-                    money.toUserFiat(exchangeRateDataManager)
+
+        with(binding) {
+            swapViewFlipper.visible()
+            swapError.gone()
+            swapTrending.visibleIf { !hasPendingOrder }
+
+            with(swapCta) {
+                visible()
+                isEnabled = hasAtLeastOneAccountToSwapFrom
+            }
+
+            with(pendingSwaps) {
+                container.visibleIf { hasPendingOrder }
+                pendingList.apply {
+                    adapter =
+                        PendingSwapsAdapter(
+                            pendingOrders
+                        ) { money: Money ->
+                            money.toUserFiat(exchangeRateDataManager)
+                        }
+                    layoutManager = LinearLayoutManager(activity)
                 }
-            layoutManager = LinearLayoutManager(activity)
+            }
         }
     }
 
     private fun showLoading() {
-        binding.progress.visible()
-        binding.progress.playAnimation()
-        binding.swapViewFlipper.gone()
-        binding.swapError.gone()
+        with(binding) {
+            with(progress) {
+                visible()
+                playAnimation()
+            }
+            swapViewFlipper.gone()
+            swapError.gone()
+        }
     }
 
     private fun hideLoading() {
-        binding.progress.gone()
-        binding.progress.pauseAnimation()
+        with(binding.progress) {
+            gone()
+            pauseAnimation()
+        }
     }
 
     companion object {
