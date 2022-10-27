@@ -43,7 +43,7 @@ private fun GenericTableRow(
     leadingImageSecondary: ImageResource = ImageResource.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
     FlexibleTableRow(
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
@@ -152,7 +152,7 @@ fun GenericTableRow(
     leadingImageSecondaryUrl: String? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
     GenericTableRow(
         leadingImagePrimary = leadingImagePrimaryUrl?.let {

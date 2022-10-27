@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.components
+package com.blockchain.home.presentation.activity.common
 
 import androidx.compose.runtime.Composable
 import com.blockchain.componentlib.tablerow.generic.ViewStyle
@@ -39,34 +39,36 @@ data class ActivityTextStyle(
 
 // tag
 enum class ActivityTagStyle {
-    Success
+    Success, Warning
 }
 
 fun ActivityTagStyle.toTagType() = when (this) {
     ActivityTagStyle.Success -> TagType.Success()
+    ActivityTagStyle.Warning -> TagType.Warning()
 }
 
-sealed interface ActivityStackViewComponent {
+// component
+sealed interface ActivityStackView {
     data class Text(
         val value: String,
         val style: ActivityTextStyle
-    ) : ActivityStackViewComponent
+    ) : ActivityStackView
 
     data class Tag(
         val value: String,
         val style: ActivityTagStyle
-    ) : ActivityStackViewComponent
+    ) : ActivityStackView
 }
 
 @Composable
-fun ActivityStackViewComponent.toViewType() = when (this) {
-    is ActivityStackViewComponent.Tag -> {
+fun ActivityStackView.toViewType() = when (this) {
+    is ActivityStackView.Tag -> {
         ViewType.Tag(
             value = value,
             style = style.toTagType()
         )
     }
-    is ActivityStackViewComponent.Text -> {
+    is ActivityStackView.Text -> {
         ViewType.Text(
             value = value,
             style = ViewStyle.TextStyle(
@@ -77,11 +79,3 @@ fun ActivityStackViewComponent.toViewType() = when (this) {
         )
     }
 }
-
-// main
-data class ActivityStackView(
-    val leadingImagePrimaryUrl: String?,
-    val leadingImageImageSecondaryUrl: String?,
-    val leading: List<ActivityStackViewComponent>,
-    val trailing: List<ActivityStackViewComponent>,
-)

@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.detail.composable
+package com.blockchain.home.presentation.activity.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -7,39 +7,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.button.TertiaryButton
-import com.blockchain.home.presentation.activity.detail.ActivityDetailItemState
-import com.blockchain.home.presentation.activity.detail.ButtonStyle
+
+// button
+enum class ActivityButtonStyle {
+    Primary,
+    Secondary,
+    Tertiary
+}
 
 @Composable
 fun ActivityDetailButton(
-    data: ActivityDetailItemState.Button
+    data: ActivityComponent.Button,
+    onClick: (() -> Unit)? = null
 ) {
     val text = data.value
-    val action: (() -> Unit) = {
-        /*todo*/
-    }
     val modifier = Modifier.fillMaxWidth()
+    val onClick: () -> Unit = { onClick?.invoke() }
 
     when (data.style) {
-        ButtonStyle.Primary -> {
+        ActivityButtonStyle.Primary -> {
             PrimaryButton(
                 modifier = modifier,
                 text = text,
-                onClick = action
+                onClick = onClick
             )
         }
-        ButtonStyle.Secondary -> {
+        ActivityButtonStyle.Secondary -> {
             SecondaryButton(
                 modifier = modifier,
                 text = text,
-                onClick = action
+                onClick = onClick
             )
         }
-        ButtonStyle.Tertiary -> {
+        ActivityButtonStyle.Tertiary -> {
             TertiaryButton(
                 modifier = modifier,
                 text = text,
-                onClick = action
+                onClick = onClick
             )
         }
     }
@@ -49,10 +53,11 @@ fun ActivityDetailButton(
 @Composable
 fun PreviewActivityDetailButton_Primary() {
     ActivityDetailButton(
-        data = ActivityDetailItemState.Button(
+        data = ActivityComponent.Button(
             value = "Primary",
-            style = ButtonStyle.Primary
-        )
+            style = ActivityButtonStyle.Primary
+        ),
+        onClick = {}
     )
 }
 
@@ -60,10 +65,11 @@ fun PreviewActivityDetailButton_Primary() {
 @Composable
 fun PreviewActivityDetailButton_Secondary() {
     ActivityDetailButton(
-        data = ActivityDetailItemState.Button(
+        data = ActivityComponent.Button(
             value = "Secondary",
-            style = ButtonStyle.Secondary
-        )
+            style = ActivityButtonStyle.Secondary
+        ),
+        onClick = {}
     )
 }
 
@@ -71,9 +77,10 @@ fun PreviewActivityDetailButton_Secondary() {
 @Composable
 fun PreviewActivityDetailButton_Tertiary() {
     ActivityDetailButton(
-        data = ActivityDetailItemState.Button(
+        data = ActivityComponent.Button(
             value = "Tertiary",
-            style = ButtonStyle.Tertiary
-        )
+            style = ActivityButtonStyle.Tertiary
+        ),
+        onClick = {}
     )
 }

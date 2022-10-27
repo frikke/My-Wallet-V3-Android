@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -32,7 +29,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
@@ -40,13 +36,12 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingCard
-import com.blockchain.componentlib.tablerow.generic.GenericTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.activity.components.ActivityStackView
-import com.blockchain.home.presentation.activity.components.toViewType
+import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
@@ -81,7 +76,7 @@ fun Acitivity(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ActivityScreen(
-    activity: DataResource<Map<TransactionGroup, List<ActivityStackView>>>
+    activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -142,7 +137,7 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityData(
-    transactions: Map<TransactionGroup, List<ActivityStackView>>,
+    transactions: Map<TransactionGroup, List<ActivityComponent>>,
     onActivityClick: () -> Unit
 ) {
     Column(
@@ -164,7 +159,7 @@ fun ActivityData(
 
 @Composable
 fun ActivityGroups(
-    transactions: Map<TransactionGroup, List<ActivityStackView>>,
+    transactions: Map<TransactionGroup, List<ActivityComponent>>,
     onActivityClick: () -> Unit
 ) {
     LazyColumn {
@@ -191,9 +186,9 @@ fun ActivityGroups(
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-                ActivityList(
-                    transactions = transactionsList,
-                    onActivityClick = onActivityClick
+                ActivitySectionCard(
+                    components = transactionsList,
+                    onClick = onActivityClick
                 )
 
                 if (index < transactions.keys.toList().lastIndex) {
@@ -201,37 +196,6 @@ fun ActivityGroups(
                 }
             }
         )
-    }
-}
-
-@Composable
-fun ActivityList(
-    modifier: Modifier = Modifier,
-    transactions: List<ActivityStackView>,
-    onActivityClick: () -> Unit
-) {
-    if (transactions.isNotEmpty()) {
-        Card(
-            backgroundColor = AppTheme.colors.background,
-            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp
-        ) {
-            Column(modifier = modifier) {
-                transactions.forEachIndexed { index, transaction ->
-                    GenericTableRow(
-                        leadingImagePrimaryUrl = transaction.leadingImagePrimaryUrl,
-                        leadingImageSecondaryUrl = transaction.leadingImageImageSecondaryUrl,
-                        leadingComponents = transaction.leading.map { it.toViewType() },
-                        trailingComponents = transaction.trailing.map { it.toViewType() },
-                        onClick = onActivityClick
-                    )
-
-                    if (index < transactions.lastIndex) {
-                        Divider(color = Color(0XFFF1F2F7))
-                    }
-                }
-            }
-        }
     }
 }
 
