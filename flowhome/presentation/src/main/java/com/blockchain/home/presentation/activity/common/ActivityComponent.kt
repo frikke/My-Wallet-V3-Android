@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.tablerow.generic.GenericTableRow
+import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.theme.AppTheme
 
 sealed interface ActivityComponent {
@@ -35,7 +35,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: (() -> Unit)? =
             )
         }
         is ActivityComponent.StackView -> {
-            GenericTableRow(
+            CustomTableRow(
                 leadingImagePrimaryUrl = component.leadingImagePrimaryUrl,
                 leadingImageSecondaryUrl = component.leadingImageImageSecondaryUrl,
                 leadingComponents = component.leading.map { it.toViewType() },

@@ -1,8 +1,8 @@
 package com.blockchain.home.presentation.activity.common
 
 import androidx.compose.runtime.Composable
-import com.blockchain.componentlib.tablerow.generic.ViewStyle
-import com.blockchain.componentlib.tablerow.generic.ViewType
+import com.blockchain.componentlib.tablerow.custom.ViewStyle
+import com.blockchain.componentlib.tablerow.custom.ViewType
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.theme.AppTheme
 

@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.tablerow.generic
+package com.blockchain.componentlib.tablerow.custom
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration

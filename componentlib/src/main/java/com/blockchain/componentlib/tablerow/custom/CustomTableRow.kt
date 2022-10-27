@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.tablerow.generic
+package com.blockchain.componentlib.tablerow.custom
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -38,7 +38,7 @@ private fun StyledText(
 }
 
 @Composable
-private fun GenericTableRow(
+private fun CustomTableRow(
     leadingImagePrimary: ImageResource = ImageResource.None,
     leadingImageSecondary: ImageResource = ImageResource.None,
     leadingComponents: List<ViewType>,
@@ -117,14 +117,14 @@ private fun GenericTableRow(
  * for drawable res images
  */
 @Composable
-fun GenericTableRow(
+fun CustomTableRow(
     @DrawableRes leadingImagePrimaryRes: Int,
     @DrawableRes leadingImageSecondaryRes: Int? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
 ) {
-    GenericTableRow(
+    CustomTableRow(
         leadingImagePrimary = ImageResource.Local(
             id = leadingImagePrimaryRes,
             shape = CircleShape,
@@ -147,14 +147,14 @@ fun GenericTableRow(
  * for remote url images
  */
 @Composable
-fun GenericTableRow(
+fun CustomTableRow(
     leadingImagePrimaryUrl: String? = null,
     leadingImageSecondaryUrl: String? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: (() -> Unit)? = null
 ) {
-    GenericTableRow(
+    CustomTableRow(
         leadingImagePrimary = leadingImagePrimaryUrl?.let {
             ImageResource.Remote(
                 url = leadingImagePrimaryUrl,
@@ -176,12 +176,12 @@ fun GenericTableRow(
 }
 
 @Composable
-fun GenericTableRow(
+fun CustomTableRow(
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
 ) {
-    GenericTableRow(
+    CustomTableRow(
         leadingImagePrimary = ImageResource.None,
         leadingImageSecondary = ImageResource.None,
         leadingComponents = leadingComponents,
@@ -218,8 +218,8 @@ private fun SingleComponent(viewType: ViewType) {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow_Summary_SingleIcon() {
-    GenericTableRow(
+private fun PreviewCustomTableRow_Summary_SingleIcon() {
+    CustomTableRow(
         leadingImagePrimaryRes = R.drawable.ic_two_circle,
         leadingComponents = listOf(
             ViewType.Text(
@@ -259,8 +259,8 @@ private fun PreviewGenericTableRow_Summary_SingleIcon() {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow_Summary_StackedIcon() {
-    GenericTableRow(
+private fun PreviewCustomTableRow_Summary_StackedIcon() {
+    CustomTableRow(
         leadingImagePrimaryRes = R.drawable.ic_two_circle,
         leadingImageSecondaryRes = R.drawable.ic_eth,
         leadingComponents = listOf(
@@ -301,8 +301,8 @@ private fun PreviewGenericTableRow_Summary_StackedIcon() {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow() {
-    GenericTableRow(
+private fun PreviewCustomTableRow() {
+    CustomTableRow(
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Merchant Name",
@@ -355,8 +355,8 @@ private fun PreviewGenericTableRow() {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow_Key_MultiValue() {
-    GenericTableRow(
+private fun PreviewCustomTableRow_Key_MultiValue() {
+    CustomTableRow(
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Sale price",
@@ -388,8 +388,8 @@ private fun PreviewGenericTableRow_Key_MultiValue() {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow_KeyValue() {
-    GenericTableRow(
+private fun PreviewCustomTableRow_KeyValue() {
+    CustomTableRow(
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Fees",
@@ -414,8 +414,8 @@ private fun PreviewGenericTableRow_KeyValue() {
 
 @Preview
 @Composable
-private fun PreviewGenericTableRow_Tag() {
-    GenericTableRow(
+private fun PreviewCustomTableRow_Tag() {
+    CustomTableRow(
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Status",
