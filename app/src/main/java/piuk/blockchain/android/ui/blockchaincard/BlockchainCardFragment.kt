@@ -44,20 +44,25 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
     }
 
     companion object {
-        fun newInstance(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?):
+        fun newInstance(
+            blockchainCards: List<BlockchainCard>,
+            preselectedCard: BlockchainCard?,
+            blockchainCardProducts: List<BlockchainCardProduct>
+        ):
             BlockchainCardHostFragment =
             BlockchainCardFragment().apply {
                 arguments = Bundle().apply {
                     putParcelableArray(BLOCKCHAIN_CARD_LIST, blockchainCards.toTypedArray())
+                    putParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts.toTypedArray())
                     preselectedCard?.let { putParcelable(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard) }
                 }
             }
 
-        fun newInstance(blockchainCardProduct: BlockchainCardProduct):
+        fun newInstance(blockchainCardProducts: List<BlockchainCardProduct>):
             BlockchainCardHostFragment =
             BlockchainCardFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+                    putParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts.toTypedArray())
                 }
             }
     }

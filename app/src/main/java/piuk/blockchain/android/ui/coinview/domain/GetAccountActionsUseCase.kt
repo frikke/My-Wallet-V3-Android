@@ -65,6 +65,9 @@ data class GetAccountActionsUseCase(
                     AssetFilter.NonCustodial -> {
                         Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
                     }
+                    AssetFilter.Staking -> {
+                        Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
+                    }
                     else -> error("account type not supported")
                 }
             }

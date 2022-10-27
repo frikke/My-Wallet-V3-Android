@@ -13,6 +13,7 @@ import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
@@ -166,7 +167,6 @@ class BlockchainCardRepositoryImplTest {
     )
 
     private val residentialAddressRequestDto = ResidentialAddressRequestDto(
-        userId = "userId",
         address = ResidentialAddressDto(
             line1 = "line1",
             line2 = "line2",
@@ -183,7 +183,8 @@ class BlockchainCardRepositoryImplTest {
         postCode = "postCode",
         city = "city",
         state = "state",
-        country = "country"
+        country = "country",
+        addressType = BlockchainCardAddressType.BILLING
     )
 
     private val usStateListDto = listOf(
@@ -242,11 +243,12 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN createCard gets called, THEN request body is correctly constructed AND response is correctly constructed into a domain object`() =
         runTest {
-            coEvery { blockchainCardService.createCard(any(), any()) } returns Outcome.Success(cardResponseDto)
+            coEvery { blockchainCardService.createCard(any(), any(), any()) } returns Outcome.Success(cardResponseDto)
 
             val cardUnderTest = blockchainCardRepository.createCard(
                 productCode = "productCode",
-                ssn = "123456789"
+                ssn = "123456789",
+                null
             )
 
             assertEquals(cardUnderTest, Outcome.Success(cardResponseDomainModel))

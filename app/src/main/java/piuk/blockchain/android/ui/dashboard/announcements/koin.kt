@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -12,6 +13,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnoun
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.HideDustAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
@@ -71,7 +73,8 @@ val dashboardAnnouncementsModule = module {
                 paymentMethodsService = get(),
                 fiatCurrenciesService = get(),
                 exchangeRatesDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                hideDustFF = get(hideDustFeatureFlag)
             )
         }
 
@@ -260,6 +263,13 @@ val dashboardAnnouncementsModule = module {
             NftAnnouncement(
                 dismissRecorder = get(),
                 nftAnnouncementPrefs = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            HideDustAnnouncement(
+                dismissRecorder = get(),
+                announcementQueries = get()
             )
         }.bind(AnnouncementRule::class)
     }

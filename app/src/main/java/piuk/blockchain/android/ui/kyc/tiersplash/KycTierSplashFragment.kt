@@ -11,8 +11,6 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycTierSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
@@ -49,17 +47,6 @@ class KycTierSplashFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycTiers)
-
-        val title = when (progressListener.campaignType) {
-            CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.SimpleBuy,
-            CampaignType.Resubmission,
-            CampaignType.None,
-            CampaignType.FiatFunds,
-            CampaignType.Interest -> R.string.identity_verification
-        }
-        progressListener.setupHostToolbar(title)
-
         onViewReady()
     }
 

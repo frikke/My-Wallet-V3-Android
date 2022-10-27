@@ -5,6 +5,8 @@ import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -23,6 +25,11 @@ import piuk.blockchain.android.ui.dataremediation.TreeNode
 
 class ReentryDecisionTest {
 
+    private val custodialWalletManager: CustodialWalletManager = mockk {
+        every { fetchSimplifiedDueDiligenceUserState() } returns Single.just(
+            SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true)
+        )
+    }
     private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
     }
@@ -244,7 +251,11 @@ class ReentryDecisionTest {
     }
 
     private fun whereNext(user: NabuUser) =
-        TiersReentryDecision(dataRemediationService, loqateFeatureFlag).findReentryPoint(user).blockingGet()
+        TiersReentryDecision(
+            custodialWalletManager,
+            dataRemediationService,
+            loqateFeatureFlag
+        ).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(
         selected: Int = 1,

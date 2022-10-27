@@ -64,7 +64,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQUEST_CODE
-import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -543,9 +542,9 @@ class SimpleBuyCryptoFragment :
             newState.featureFlagSet.cardRejectionFF &&
                 newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
-                    (newState.selectedPaymentMethodDetails as PaymentMethod.Card).cardRejectionState
-                        as CardRejectionState.AlwaysRejected
-                    ).renderAlwaysRejectedCardError()
+                    (newState.selectedPaymentMethodDetails as? PaymentMethod.Card)?.cardRejectionState
+                        as? CardRejectionState.AlwaysRejected
+                    )?.renderAlwaysRejectedCardError()
             }
             newState.errorStateShouldBeIndicated() -> showError(newState)
             else -> showCta()

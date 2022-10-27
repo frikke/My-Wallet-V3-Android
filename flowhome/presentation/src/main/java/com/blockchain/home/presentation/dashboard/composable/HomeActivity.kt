@@ -26,13 +26,13 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.activity.components.ActivityStackView
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.TransactionState
-import com.blockchain.home.presentation.activity.list.TransactionStatus
 import com.blockchain.home.presentation.activity.list.composable.ActivityList
+import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -62,7 +62,7 @@ fun HomeActivity(
 
 @Composable
 fun HomeActivityScreen(
-    activity: DataResource<List<TransactionState>>,
+    activity: DataResource<List<ActivityStackView>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
 ) {
     Column(
@@ -112,55 +112,7 @@ fun HomeActivityScreen(
 @Composable
 fun PreviewHomeActivityScreen() {
     HomeActivityScreen(
-        activity = DataResource.Data(
-            listOf(
-                TransactionState(
-                    transactionTypeIcon = "transactionTypeIcon",
-                    transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Pending(),
-                    valueTopStart = "Sent Bitcoin",
-                    valueTopEnd = "-10.00",
-                    valueBottomStart = "85% confirmed",
-                    valueBottomEnd = "-0.00893208 ETH"
-                ),
-                TransactionState(
-                    transactionTypeIcon = "Cashed Out USD",
-                    transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Pending(isRbfTransaction = true),
-                    valueTopStart = "Sent Bitcoin",
-                    valueTopEnd = "-25.00",
-                    valueBottomStart = "RBF transaction",
-                    valueBottomEnd = "valueBottomEnd"
-                ),
-                TransactionState(
-                    transactionTypeIcon = "transactionTypeIcon",
-                    transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Confirmed,
-                    valueTopStart = "Sent Bitcoin",
-                    valueTopEnd = "-10.00",
-                    valueBottomStart = "June 14",
-                    valueBottomEnd = "-0.00893208 ETH"
-                ),
-                TransactionState(
-                    transactionTypeIcon = "Cashed Out USD",
-                    transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Canceled,
-                    valueTopStart = "Sent Bitcoin",
-                    valueTopEnd = "-25.00",
-                    valueBottomStart = "Canceled",
-                    valueBottomEnd = "valueBottomEnd"
-                ),
-                TransactionState(
-                    transactionTypeIcon = "transactionTypeIcon",
-                    transactionCoinIcon = "transactionCoinIcon",
-                    TransactionStatus.Canceled,
-                    valueTopStart = "Sent Bitcoin",
-                    valueTopEnd = "100.00",
-                    valueBottomStart = "Canceled",
-                    valueBottomEnd = "0.00025 BTC"
-                )
-            )
-        ),
+        activity = DUMMY_DATA.map { it[it.keys.first()]!! },
         onSeeAllCryptoAssetsClick = {},
     )
 }

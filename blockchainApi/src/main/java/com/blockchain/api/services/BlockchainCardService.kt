@@ -34,11 +34,13 @@ class BlockchainCardService internal constructor(
 
     suspend fun createCard(
         productCode: String,
-        ssn: String
+        ssn: String,
+        shippingAddress: ResidentialAddressDto?
     ): Outcome<Exception, CardDto> = api.createCard(
         cardCreationRequest = CardCreationRequestBodyDto(
             productCode = productCode,
-            ssn = ssn
+            ssn = ssn,
+            shippingAddress = shippingAddress
         )
     )
 

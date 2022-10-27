@@ -6,11 +6,11 @@ import android.net.Uri
 import android.os.Bundle
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
@@ -41,8 +41,8 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
 
     private val googleWalletManager: GoogleWalletManager by scopedInject()
 
-    private val blockchainCardProduct by lazy {
-        intent?.getParcelableExtra(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct
+    private val blockchainCardProducts by lazy {
+        intent?.getSerializableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST) as? List<BlockchainCardProduct>
     }
 
     private val blockchainCardList by lazy {
@@ -63,8 +63,12 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
         )
 
         blockchainCardList?.let { cards ->
-            startManageCardFlow(cards, preselectedCard)
-        } ?: blockchainCardProduct?.let { product ->
+            startManageCardFlow(
+                blockchainCardProducts = blockchainCardProducts ?: emptyList(),
+                blockchainCards = cards,
+                preselectedCard = preselectedCard,
+            )
+        } ?: blockchainCardProducts?.let { _ ->
             startOrderCardFlow()
         } ?: throw IllegalStateException("Missing card or product data")
     }
@@ -72,20 +76,20 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     companion object {
         fun newIntent(
             context: Context,
-            blockchainCardProduct: BlockchainCardProduct,
+            blockchainCardProducts: List<BlockchainCardProduct>,
             blockchainCards: List<BlockchainCard>,
             preselectedCard: BlockchainCard? = null
         ): Intent =
             Intent(context, BlockchainCardActivity::class.java).apply {
-                putExtra(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+                putExtra(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts as Serializable)
                 putExtra(BLOCKCHAIN_CARD_LIST, blockchainCards as Serializable)
                 preselectedCard?.let {
                     putExtra(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard)
                 }
             }
-        fun newIntent(context: Context, blockchainCardProduct: BlockchainCardProduct): Intent =
+        fun newIntent(context: Context, blockchainCardProducts: List<BlockchainCardProduct>): Intent =
             Intent(context, BlockchainCardActivity::class.java).apply {
-                putExtra(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+                putExtra(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts as Serializable)
             }
     }
 
@@ -119,10 +123,12 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     }
 
     override fun updateKycAddress(address: BlockchainCardAddress) {
-        if (modelArgs is BlockchainCardArgs.CardArgs) {
-            manageCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
+        // For billing address, update both viewmodels
+        if (address.addressType == BlockchainCardAddressType.BILLING) {
+            orderCardViewModel.onIntent(BlockchainCardIntent.UpdateAddress(address))
+            manageCardViewModel.onIntent(BlockchainCardIntent.UpdateAddress(address))
         } else {
-            orderCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
+            orderCardViewModel.onIntent(BlockchainCardIntent.UpdateAddress(address))
         }
     }
 
@@ -147,8 +153,8 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     }
 
     override fun startOrderCardFlow() {
-        blockchainCardProduct?.let { product ->
-            val fragment = BlockchainCardFragment.newInstance(blockchainCardProduct = product)
+        blockchainCardProducts?.let { products ->
+            val fragment = BlockchainCardFragment.newInstance(blockchainCardProducts = products)
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
                 .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
@@ -159,11 +165,16 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     override fun orderCardFlowComplete(blockchainCard: BlockchainCard) {
         val cards = blockchainCardList ?: emptyList()
         supportFragmentManager.popBackStack()
-        startManageCardFlow(cards, blockchainCard)
+        startManageCardFlow(blockchainCardProducts ?: emptyList(), cards, blockchainCard)
     }
 
-    override fun startManageCardFlow(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?) {
+    override fun startManageCardFlow(
+        blockchainCardProducts: List<BlockchainCardProduct>,
+        blockchainCards: List<BlockchainCard>,
+        preselectedCard: BlockchainCard?
+    ) {
         val fragment = BlockchainCardFragment.newInstance(
+            blockchainCardProducts = blockchainCardProducts,
             blockchainCards = blockchainCards,
             preselectedCard = preselectedCard
         )

@@ -18,6 +18,11 @@ class SearchView @JvmOverloads constructor(
 
     var label by mutableStateOf("")
     var onValueChange by mutableStateOf({ _: String -> })
+    private var shouldClearInput by mutableStateOf(false)
+
+    fun clearInput() {
+        shouldClearInput = true
+    }
 
     @Composable
     override fun Content() {
@@ -25,7 +30,11 @@ class SearchView @JvmOverloads constructor(
             AppSurface {
                 Search(
                     label = label,
-                    onValueChange = onValueChange
+                    onValueChange = onValueChange,
+                    clearInput = if (shouldClearInput) {
+                        shouldClearInput = false
+                        true
+                    } else false
                 )
             }
         }

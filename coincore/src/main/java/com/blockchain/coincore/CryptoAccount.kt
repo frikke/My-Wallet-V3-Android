@@ -208,6 +208,11 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
             else
                 Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
                     account.balanceRx.firstOrError()
+                        // if an account fails to load the balance will return an error
+                        // this ignores the errors and helps return the sum of the valid accounts
+                        .onErrorReturn {
+                            AccountBalance.zero(baseCurrency)
+                        }
                 }.reduce { a, v ->
                     AccountBalance(
                         total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),

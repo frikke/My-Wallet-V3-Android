@@ -23,18 +23,25 @@ abstract class BlockchainCardHostFragment : Fragment(), AndroidScopeComponent {
         (arguments?.getParcelableArray(BLOCKCHAIN_CARD_LIST) as? Array<BlockchainCard>)?.toList()?.let { cards ->
             BlockchainCardArgs.CardArgs(
                 cards = cards,
+                cardProducts = (
+                    arguments?.getParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST)
+                        as? Array<BlockchainCardProduct>
+                    )?.toList() ?: emptyList(),
                 preselectedCard = (
                     arguments?.getParcelable(BlockchainCardHostActivity.PRESELECTED_BLOCKCHAIN_CARD) as? BlockchainCard
                     )
             )
-        } ?: (arguments?.getParcelable(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct)?.let { product ->
-            BlockchainCardArgs.ProductArgs(product)
+        } ?: (
+            arguments?.getParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST)
+                as? Array<BlockchainCardProduct>
+            )?.toList()?.let { products ->
+            BlockchainCardArgs.ProductArgs(products)
         } ?: throw IllegalStateException("Missing card or product data")
     }
 
     companion object {
         const val PRESELECTED_BLOCKCHAIN_CARD = "PRESELECTED_BLOCKCHAIN_CARD"
         const val BLOCKCHAIN_CARD_LIST = "BLOCKCHAIN_CARD_LIST"
-        const val BLOCKCHAIN_PRODUCT = "BLOCKCHAIN_PRODUCT"
+        const val BLOCKCHAIN_CARD_PRODUCT_LIST = "BLOCKCHAIN_CARD_PRODUCT_LIST"
     }
 }

@@ -6,6 +6,7 @@ import info.blockchain.balance.Money
 import java.io.Serializable
 import java.util.Date
 import java.util.Locale
+import kotlinx.serialization.Contextual
 
 sealed class PaymentMethod(
     val id: String,
@@ -142,6 +143,7 @@ sealed class PaymentMethod(
         val status: CardStatus,
         val mobilePaymentType: MobilePaymentType? = null,
         override val isEligible: Boolean,
+        @Contextual
         val cardRejectionState: CardRejectionState? = null,
         val serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),

@@ -31,7 +31,8 @@ data class PriceDto(
 @Serializable
 data class CardCreationRequestBodyDto(
     val productCode: String,
-    val ssn: String
+    val ssn: String,
+    val shippingAddress: ResidentialAddressDto?
 )
 
 @Serializable
@@ -51,7 +52,6 @@ data class CardAccountLinkDto(
 
 @Serializable
 data class ResidentialAddressRequestDto(
-    val userId: String,
     val address: ResidentialAddressDto
 )
 
@@ -161,4 +161,9 @@ data class BlockchainCardStatementsResponseDto(
 @Serializable
 data class BlockchainCardStatementUrlResponseDto(
     val url: String
+)
+
+@Serializable
+data class BlockchainCardWebViewPostMessage(
+    val type: String,
 )

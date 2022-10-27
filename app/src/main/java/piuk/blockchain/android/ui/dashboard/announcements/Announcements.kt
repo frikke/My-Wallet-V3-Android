@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import timber.log.Timber
 
 interface AnnouncementHost {
@@ -39,6 +40,7 @@ interface AnnouncementHost {
     fun startSell()
     fun startSend()
     fun startRecurringBuyUpsell()
+    fun startSettings(destination: SettingsDestination = SettingsDestination.Home)
 
     fun showFiatFundsKyc()
     fun showBankLinking()

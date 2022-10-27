@@ -3,7 +3,9 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -19,6 +21,7 @@ import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -50,7 +53,8 @@ class AnnouncementQueries(
     private val paymentMethodsService: PaymentMethodsService,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val hideDustFF: FeatureFlag
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
@@ -161,6 +165,26 @@ class AnnouncementQueries(
 
     fun getAssetPrice(asset: Currency) =
         exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, currencyPrefs.selectedFiatCurrency)
+
+    fun hasDustBalances(): Single<Boolean> =
+        hideDustFF.enabled.flatMap { enabled ->
+            if (!enabled) {
+                Single.just(false)
+            } else {
+                coincore.allWallets(
+                    includeArchived = false
+                ).flatMapObservable { group ->
+                    group.accounts
+                        .filterIsInstance<CryptoAccount>()
+                        .map { account ->
+                            account.balanceRx.onErrorReturn { AccountBalance.zero(account.currency) }
+                        }.zipObservables()
+                        .map { balances ->
+                            balances.any { it.totalFiat.isDust() }
+                        }
+                }.firstOrError()
+            }
+        }
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

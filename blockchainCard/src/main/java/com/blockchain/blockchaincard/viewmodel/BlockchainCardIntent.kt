@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TradingAccount
@@ -33,8 +34,9 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object OnSeeLegalDocuments : BlockchainCardIntent()
     data class OnLegalDocSeen(val name: String) : BlockchainCardIntent()
     object OnFinishLegalDocReview : BlockchainCardIntent()
-    object OnOrderCardConfirm : BlockchainCardIntent()
+    data class OnOrderCardConfirm(val selectedProduct: BlockchainCardProduct) : BlockchainCardIntent()
     object OnOrderCardFlowComplete : BlockchainCardIntent()
+    object OnChooseProduct : BlockchainCardIntent()
 
     // ManageCard
     object SelectCard : BlockchainCardIntent()
@@ -54,7 +56,8 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object SeePersonalDetails : BlockchainCardIntent()
     object LoadResidentialAddress : BlockchainCardIntent()
     object SeeBillingAddress : BlockchainCardIntent()
-    data class UpdateBillingAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
+    object OnChangeShippingAddress : BlockchainCardIntent()
+    data class UpdateAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
     object SeeAllTransactions : BlockchainCardIntent()
     data class SeeTransactionDetails(val transaction: BlockchainCardTransaction) : BlockchainCardIntent()
     object DismissBillingAddressUpdateResult : BlockchainCardIntent()
@@ -84,4 +87,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadCardStatements : BlockchainCardIntent()
     data class LoadCardStatementUrl(val statementId: String) : BlockchainCardIntent()
     data class OpenDocumentUrl(val url: String) : BlockchainCardIntent()
+    data class WebMessageReceived(val message: String) : BlockchainCardIntent()
 }

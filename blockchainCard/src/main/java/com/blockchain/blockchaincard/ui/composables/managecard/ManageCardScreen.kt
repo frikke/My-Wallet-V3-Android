@@ -67,6 +67,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
@@ -150,7 +151,8 @@ fun ManageCard(
     onRefreshCardWidgetUrl: () -> Unit,
     onAddFunds: () -> Unit,
     onAddToGoogleWallet: () -> Unit,
-    onActivateCard: () -> Unit
+    onActivateCard: () -> Unit,
+    onWebMessageReceived: (String) -> Unit,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -211,7 +213,7 @@ fun ManageCard(
                 )
             }
 
-            if (card?.status != BlockchainCardStatus.TERMINATED) {
+            if (card?.status == BlockchainCardStatus.ACTIVE || card?.status == BlockchainCardStatus.LOCKED) {
                 when (cardWidgetUrl) {
                     null -> {
                         CircularProgressIndicator(
@@ -248,15 +250,17 @@ fun ManageCard(
                     }
 
                     else -> {
+
                         Webview(
                             url = cardWidgetUrl,
                             disableScrolling = true,
+                            onWebMessageReceived = onWebMessageReceived,
                             modifier = Modifier
                                 .padding(
                                     top = AppTheme.dimensions.smallSpacing
                                 )
                                 .requiredHeight(355.dp)
-                                .requiredWidth(300.dp)
+                                .requiredWidth(400.dp),
                         )
                     }
                 }
@@ -523,7 +527,13 @@ private fun PreviewManageCard() {
         cardOrderState = BlockchainCardOrderState(
             status = BlockchainCardOrderStatus.PROCESSING,
             address = BlockchainCardAddress(
-                line1 = "", line2 = "", postCode = "", city = "", state = "", country = ""
+                line1 = "",
+                line2 = "",
+                postCode = "",
+                city = "",
+                state = "",
+                country = "",
+                BlockchainCardAddressType.SHIPPING
             )
         ),
         onViewCardSelector = {},
@@ -536,7 +546,8 @@ private fun PreviewManageCard() {
         onRefreshCardWidgetUrl = {},
         onAddFunds = {},
         onAddToGoogleWallet = {},
-        onActivateCard = {}
+        onActivateCard = {},
+        onWebMessageReceived = {},
     )
 }
 
@@ -2059,7 +2070,8 @@ fun BillingAddress(
                         postCode = postalCode,
                         city = city,
                         state = stateList?.find { it.name == selectedState }?.stateCode.orEmpty(),
-                        country = country
+                        country = country,
+                        addressType = BlockchainCardAddressType.BILLING
                     )
                 )
             },
@@ -2077,7 +2089,8 @@ private fun PreviewBillingAddress() {
             postCode = "94592",
             city = "Walnut Creek",
             state = "CA",
-            country = "USA"
+            country = "USA",
+            addressType = BlockchainCardAddressType.BILLING
         ),
         stateList = emptyList(),
         onUpdateAddress = {},
@@ -2879,7 +2892,7 @@ fun CardActivationPage(cardActivationUrl: String?, onCardActivated: () -> Unit) 
         Webview(
             url = url,
             urlRedirectHandler = { redirectUrl ->
-                if (redirectUrl == "https://blockchain.com/en/app/card-issuing/activated") {
+                if (redirectUrl == "https://blockchain.com/app/card-issuing/activated") {
                     onCardActivated()
                     true // don't load the URL
                 } else {

@@ -24,8 +24,11 @@ abstract class MVIViewPagerFragment<TViewState : ViewState> : MVIFragment<TViewS
 
         val blockchainActivity = activity as? BlockchainActivity
 
+        if (!isFirstLoad) {
+            onResumeFragment()
+        }
+
         isFirstLoad = false
-        if (!isFirstLoad) onResumeFragment()
 
         if (blockchainActivity == null) return
         disposable += activityIndicator.loading

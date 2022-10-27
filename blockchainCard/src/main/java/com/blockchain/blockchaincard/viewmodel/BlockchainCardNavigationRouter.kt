@@ -34,7 +34,15 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ChooseCardProduct -> {
-                destination = BlockchainCardDestination.ChooseCardProductDestination
+                val wasPopped = navController.popBackStack(
+                    BlockchainCardDestination.ChooseCardProductDestination.route,
+                    false
+                )
+                if (wasPopped) {
+                    destination = BlockchainCardDestination.NoDestination
+                } else {
+                    destination = BlockchainCardDestination.ChooseCardProductDestination
+                }
             }
 
             is BlockchainCardNavigationEvent.ReviewAndSubmitCard -> {
@@ -84,7 +92,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
             is BlockchainCardNavigationEvent.ManageCard -> {
                 navController.popBackStack(
-                    route = BlockchainCardDestination.CardActivationSuccessDestination.route,
+                    route = BlockchainCardDestination.ManageCardDestination.route,
                     inclusive = true
                 )
                 destination = BlockchainCardDestination.ManageCardDestination
@@ -132,7 +140,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.PersonalDetailsDestination
             }
 
-            is BlockchainCardNavigationEvent.SeeBillingAddress -> {
+            is BlockchainCardNavigationEvent.SeeAddress -> {
                 (navController.context as? BlockchainCardHostActivity)?.startKycAddressVerification(
                     address = navigationEvent.address
                 )
@@ -204,6 +212,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ActivateCardSuccess -> {
+                navController.popBackStack(
+                    route = BlockchainCardDestination.CardActivationDestination.route,
+                    inclusive = true
+                )
                 destination = BlockchainCardDestination.CardActivationSuccessDestination
             }
 
@@ -275,7 +287,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeePersonalDetails : BlockchainCardNavigationEvent()
 
-    data class SeeBillingAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
+    data class SeeAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
 
     object SeeSupport : BlockchainCardNavigationEvent()
 

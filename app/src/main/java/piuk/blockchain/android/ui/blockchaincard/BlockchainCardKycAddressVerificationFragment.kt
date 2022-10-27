@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.addressverification.ui.AddressDetails
 import com.blockchain.addressverification.ui.AddressVerificationFragment
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewFragmentContainerBinding
 import piuk.blockchain.android.support.SupportCentreActivity
@@ -36,7 +37,7 @@ class BlockchainCardKycAddressVerificationFragment : Fragment(), AddressVerifica
                     R.id.fragment_container,
                     AddressVerificationFragment.newInstanceEditMode(
                         address.toAddressVerificationModel(),
-                        allowManualOverride = false
+                        allowManualOverride = true
                     )
                 ).commitAllowingStateLoss()
         }
@@ -47,7 +48,9 @@ class BlockchainCardKycAddressVerificationFragment : Fragment(), AddressVerifica
     }
 
     override fun addressVerifiedSuccessfully(address: AddressDetails) {
-        (requireActivity() as BlockchainCardActivity).updateKycAddress(address.toBlockchainCardAddress())
+        (requireActivity() as BlockchainCardActivity).updateKycAddress(
+            address.toBlockchainCardAddress(this.address.addressType)
+        )
         requireActivity().supportFragmentManager.popBackStack()
     }
 
@@ -72,13 +75,14 @@ class BlockchainCardKycAddressVerificationFragment : Fragment(), AddressVerifica
             stateIso = state
         )
 
-    private fun AddressDetails.toBlockchainCardAddress(): BlockchainCardAddress =
+    private fun AddressDetails.toBlockchainCardAddress(addressType: BlockchainCardAddressType): BlockchainCardAddress =
         BlockchainCardAddress(
             line1 = firstLine,
             line2 = secondLine ?: "",
             postCode = postCode,
             city = city,
             state = stateIso ?: "",
-            country = countryIso
+            country = countryIso,
+            addressType = addressType
         )
 }

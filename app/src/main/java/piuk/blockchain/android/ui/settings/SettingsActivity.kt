@@ -57,12 +57,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val startFor2Fa by lazy {
-        intent.getBooleanExtra(START_FOR_2FA, false)
-    }
-
-    private val startForCardLinking by lazy {
-        intent.getBooleanExtra(START_FOR_CARD_LINKING, false)
+    private val deeplinkToScreen by lazy {
+        (intent.getSerializableExtra(DEEPLINK_TO_SCREEN) as? SettingsDestination) ?: SettingsDestination.Home
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,12 +73,16 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             )
             .commitNowAllowingStateLoss()
 
-        if (startFor2Fa) {
-            goToSecurity()
-        }
-
-        if (startForCardLinking) {
-            startActivity(CardDetailsActivity.newIntent(this))
+        when (deeplinkToScreen) {
+            SettingsDestination.Home -> {
+                // do nothing
+            }
+            SettingsDestination.Account -> goToAccount()
+            SettingsDestination.Notifications -> goToNotifications()
+            SettingsDestination.Security -> goToSecurity()
+            SettingsDestination.General -> goToGeneralSettings()
+            SettingsDestination.About -> goToAboutApp()
+            SettingsDestination.CardLinking -> startActivity(CardDetailsActivity.newIntent(this))
         }
     }
 
@@ -188,19 +188,19 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct) {
-        startActivity(BlockchainCardActivity.newIntent(this, cardProduct))
+    override fun goToOrderBlockchainCard(cardProducts: List<BlockchainCardProduct>) {
+        startActivity(BlockchainCardActivity.newIntent(this, cardProducts))
     }
 
     override fun goToManageBlockchainCard(
-        product: BlockchainCardProduct,
+        products: List<BlockchainCardProduct>,
         cards: List<BlockchainCard>,
         defaultCard: BlockchainCard?
     ) {
         startActivity(
             BlockchainCardActivity.newIntent(
                 context = this,
-                blockchainCardProduct = product,
+                blockchainCardProducts = products,
                 blockchainCards = cards,
                 preselectedCard = defaultCard
             )
@@ -230,7 +230,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         const val BASIC_INFO = "basic_info_user"
         const val USER_TIER = "user_tier"
         private const val START_FOR_2FA = "START_FOR_2FA"
-        private const val START_FOR_CARD_LINKING = "START_FOR_CARD_LINKING"
+        private const val DEEPLINK_TO_SCREEN = "DEEPLINK_TO_SCREEN"
 
         const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
 
@@ -243,13 +243,21 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
         fun newIntent(
             context: Context,
-            startFor2Fa: Boolean = false,
-            startForCardLinking: Boolean = false
+            deeplinkToScreen: SettingsDestination = SettingsDestination.Home
         ): Intent =
             Intent(context, SettingsActivity::class.java).apply {
-                putExtra(START_FOR_2FA, startFor2Fa)
-                putExtra(START_FOR_CARD_LINKING, startForCardLinking)
+                putExtra(DEEPLINK_TO_SCREEN, deeplinkToScreen)
             }
+
+        enum class SettingsDestination {
+            Home,
+            Account,
+            Notifications,
+            Security,
+            General,
+            About,
+            CardLinking
+        }
     }
 }
 
@@ -268,12 +276,13 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
+    fun goToOrderBlockchainCard(cardProducts: List<BlockchainCardProduct>)
     fun goToManageBlockchainCard(
-        product: BlockchainCardProduct,
+        products: List<BlockchainCardProduct>,
         cards: List<BlockchainCard>,
         defaultCard: BlockchainCard? = null
     )
+
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
     fun goToReferralCode(referral: ReferralInfo.Data)
     fun goToGeneralSettings()

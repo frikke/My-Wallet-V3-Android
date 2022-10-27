@@ -37,12 +37,12 @@ import com.blockchain.blockchaincard.ui.composables.managecard.TransactionContro
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
+import com.blockchain.blockchaincard.ui.composables.ordercard.CardProductPicker
 import com.blockchain.blockchaincard.ui.composables.ordercard.HowToOrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocumentsViewer
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
-import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardSsnKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
@@ -127,32 +127,37 @@ fun BlockchainCardNavHost(
             }
 
             composable(BlockchainCardDestination.ChooseCardProductDestination) {
-                OrderCardContent(
-                    onContinue = {
-                        viewModel.onIntent(BlockchainCardIntent.OnOrderCardConfirm)
-                    },
-                    onSeeProductDetails = {
-                        viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
-                    }
-                )
+                state?.cardProductList?.let { blockchainCardProducts ->
+                    CardProductPicker(
+                        cardProducts = blockchainCardProducts,
+                        onContinue = { cardProduct ->
+                            viewModel.onIntent(BlockchainCardIntent.OnOrderCardConfirm(cardProduct))
+                        },
+                        onSeeProductDetails = {
+                            viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                        }
+                    )
+                }
             }
 
             composable(BlockchainCardDestination.ReviewAndSubmitCardDestination) {
                 state?.let { state ->
                     ReviewAndSubmit(
                         firstAndLastName = state.userFirstAndLastName,
-                        line1 = state.residentialAddress?.line1,
-                        city = state.residentialAddress?.city,
-                        postalCode = state.residentialAddress?.postCode,
+                        shippingAddress = state.shippingAddress,
+                        cardProductType = state.selectedCardProduct?.type,
                         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
-                        onCheckBillingAddress = {
-                            viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress)
+                        onChangeShippingAddress = {
+                            viewModel.onIntent(BlockchainCardIntent.OnChangeShippingAddress)
                         },
                         onSeeLegalDocuments = {
                             viewModel.onIntent(BlockchainCardIntent.OnSeeLegalDocuments)
                         },
                         onCreateCard = {
                             viewModel.onIntent(BlockchainCardIntent.CreateCard)
+                        },
+                        onChangeSelectedProduct = {
+                            viewModel.onIntent(BlockchainCardIntent.OnChooseProduct)
                         }
                     )
                 }
@@ -312,7 +317,10 @@ fun BlockchainCardNavHost(
                             },
                             onActivateCard = {
                                 viewModel.onIntent(BlockchainCardIntent.ActivateCard)
-                            }
+                            },
+                            onWebMessageReceived = { message ->
+                                viewModel.onIntent(BlockchainCardIntent.WebMessageReceived(message))
+                            },
                         )
                     }
                 }
@@ -380,7 +388,7 @@ fun BlockchainCardNavHost(
                             address = residentialAddress,
                             stateList = state.countryStateList,
                             onUpdateAddress = { newAddress ->
-                                viewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(newAddress = newAddress))
+                                viewModel.onIntent(BlockchainCardIntent.UpdateAddress(newAddress = newAddress))
                             },
                             onCloseBottomSheet = {
                                 viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)

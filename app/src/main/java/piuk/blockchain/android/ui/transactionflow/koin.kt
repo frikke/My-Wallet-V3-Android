@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
 import com.blockchain.koin.defaultOrder
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.swapSourceOrder
@@ -215,7 +216,9 @@ val transactionModule = module {
                 dismissRecorder = payloadScope.get(),
                 fiatCurrenciesService = payloadScope.get(),
                 swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag),
-                quickFillRoundingService = get()
+                quickFillRoundingService = get(),
+                hideDustFF = payloadScope.get(hideDustFeatureFlag),
+                localSettingsPrefs = get()
             )
         }
 

@@ -27,9 +27,16 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
         (intent?.getSerializableExtra(BLOCKCHAIN_CARD_LIST) as? List<BlockchainCard>)?.let { cards ->
             BlockchainCardArgs.CardArgs(
                 cards = cards,
+                cardProducts = (
+                    intent?.getSerializableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST)
+                        as? List<BlockchainCardProduct>
+                    ) ?: emptyList(),
                 preselectedCard = (intent?.getParcelableExtra(PRESELECTED_BLOCKCHAIN_CARD) as? BlockchainCard)
             )
-        } ?: (intent?.getParcelableExtra(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct)?.let { product ->
+        } ?: (
+            intent?.getParcelableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST)
+                as? List<BlockchainCardProduct>
+            )?.let { product ->
             BlockchainCardArgs.ProductArgs(product)
         } ?: throw IllegalStateException("Missing card or product data")
     }
@@ -37,7 +44,7 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
     companion object {
         const val PRESELECTED_BLOCKCHAIN_CARD = "PRESELECTED_BLOCKCHAIN_CARD"
         const val BLOCKCHAIN_CARD_LIST = "BLOCKCHAIN_CARD_LIST"
-        const val BLOCKCHAIN_PRODUCT = "BLOCKCHAIN_PRODUCT"
+        const val BLOCKCHAIN_CARD_PRODUCT_LIST = "BLOCKCHAIN_CARD_PRODUCT_LIST"
     }
 
     abstract fun startBuy(asset: AssetInfo)
@@ -54,7 +61,11 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
 
     abstract fun orderCardFlowComplete(blockchainCard: BlockchainCard)
 
-    abstract fun startManageCardFlow(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?)
+    abstract fun startManageCardFlow(
+        blockchainCardProducts: List<BlockchainCardProduct>,
+        blockchainCards: List<BlockchainCard>,
+        preselectedCard: BlockchainCard?
+    )
 
     abstract fun openUrl(url: String)
 }

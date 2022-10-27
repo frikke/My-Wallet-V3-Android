@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel.managecard
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
@@ -39,8 +40,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     updateState {
                         it.copy(
                             cardList = args.cards,
+                            cardProductList = args.cardProducts,
                             currentCard = args.preselectedCard,
-                            defaultCardId = args.preselectedCard.id
+                            defaultCardId = args.preselectedCard.id,
                         )
                     }
 
@@ -53,7 +55,12 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     onIntent(BlockchainCardIntent.LoadLinkedAccount)
                     onIntent(BlockchainCardIntent.LoadTransactions)
                 } else {
-                    updateState { it.copy(cardList = args.cards) }
+                    updateState {
+                        it.copy(
+                            cardList = args.cards,
+                            cardProductList = args.cardProducts,
+                        )
+                    }
                 }
             }
 
@@ -373,11 +380,11 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
-                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
+                    navigate(BlockchainCardNavigationEvent.SeeAddress(address))
                 }
             }
 
-            is BlockchainCardIntent.UpdateBillingAddress -> {
+            is BlockchainCardIntent.UpdateAddress -> {
                 blockchainCardRepository.updateResidentialAddress(
                     intent.newAddress
                 ).fold(
@@ -728,6 +735,21 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.OpenDocumentUrl -> {
                 navigate(BlockchainCardNavigationEvent.OpenDocumentUrl(intent.url))
+            }
+
+            is BlockchainCardIntent.WebMessageReceived -> {
+                blockchainCardRepository.decodePostMessageType(intent.message).fold(
+                    onSuccess = { postMessageType ->
+                        if (postMessageType == BlockchainCardPostMessageType.MANAGE) {
+                            modelState.currentCard?.let {
+                                onIntent(BlockchainCardIntent.ManageCardDetails(modelState.currentCard))
+                            }
+                        }
+                    },
+                    onFailure = { error ->
+                        Timber.i("Unable to decode post message type: $error")
+                    }
+                )
             }
 
             else -> {
