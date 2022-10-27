@@ -39,8 +39,8 @@ private fun StyledText(
 
 @Composable
 private fun GenericTableRow(
-    leadingImageMain: ImageResource = ImageResource.None,
-    leadingImageIcon: ImageResource = ImageResource.None,
+    leadingImagePrimary: ImageResource = ImageResource.None,
+    leadingImageSecondary: ImageResource = ImageResource.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
@@ -48,8 +48,8 @@ private fun GenericTableRow(
     FlexibleTableRow(
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         contentStart = {
-            if (leadingImageMain != ImageResource.None) {
-                val stackedIconPadding = if (leadingImageIcon != ImageResource.None) {
+            if (leadingImagePrimary != ImageResource.None) {
+                val stackedIconPadding = if (leadingImageSecondary != ImageResource.None) {
                     2.dp // 2 extra to account for secondary icon
                 } else {
                     AppTheme.dimensions.noSpacing
@@ -61,9 +61,9 @@ private fun GenericTableRow(
                             AppTheme.dimensions.standardSpacing + stackedIconPadding
                         )
                 ) {
-                    Image(imageResource = leadingImageMain)
+                    Image(imageResource = leadingImagePrimary)
 
-                    if (leadingImageIcon != ImageResource.None) {
+                    if (leadingImageSecondary != ImageResource.None) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -75,7 +75,7 @@ private fun GenericTableRow(
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
-                                imageResource = leadingImageIcon
+                                imageResource = leadingImageSecondary
                             )
                         }
                     }
@@ -83,7 +83,7 @@ private fun GenericTableRow(
             }
         },
         content = {
-            if (leadingImageMain != ImageResource.None) {
+            if (leadingImagePrimary != ImageResource.None) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
             }
 
@@ -118,21 +118,21 @@ private fun GenericTableRow(
  */
 @Composable
 fun GenericTableRow(
-    @DrawableRes leadingImageMainRes: Int,
-    @DrawableRes leadingImageIconRes: Int? = null,
+    @DrawableRes leadingImagePrimaryRes: Int,
+    @DrawableRes leadingImageSecondaryRes: Int? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
 ) {
     GenericTableRow(
-        leadingImageMain = ImageResource.Local(
-            id = leadingImageMainRes,
+        leadingImagePrimary = ImageResource.Local(
+            id = leadingImagePrimaryRes,
             shape = CircleShape,
             size = AppTheme.dimensions.standardSpacing
         ),
-        leadingImageIcon = leadingImageIconRes?.let {
+        leadingImageSecondary = leadingImageSecondaryRes?.let {
             ImageResource.Local(
-                id = leadingImageIconRes,
+                id = leadingImageSecondaryRes,
                 shape = CircleShape,
                 size = AppTheme.dimensions.verySmallSpacing
             )
@@ -148,21 +148,23 @@ fun GenericTableRow(
  */
 @Composable
 fun GenericTableRow(
-    leadingImageMainUrl: String,
-    leadingImageIconUrl: String? = null,
+    leadingImagePrimaryUrl: String? = null,
+    leadingImageSecondaryUrl: String? = null,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: () -> Unit
 ) {
     GenericTableRow(
-        leadingImageMain = ImageResource.Remote(
-            url = leadingImageMainUrl,
-            shape = CircleShape,
-            size = AppTheme.dimensions.standardSpacing
-        ),
-        leadingImageIcon = leadingImageIconUrl?.let {
+        leadingImagePrimary = leadingImagePrimaryUrl?.let {
             ImageResource.Remote(
-                url = leadingImageIconUrl,
+                url = leadingImagePrimaryUrl,
+                shape = CircleShape,
+                size = AppTheme.dimensions.standardSpacing
+            )
+        } ?: ImageResource.None,
+        leadingImageSecondary = leadingImageSecondaryUrl?.let {
+            ImageResource.Remote(
+                url = leadingImageSecondaryUrl,
                 shape = CircleShape,
                 size = AppTheme.dimensions.verySmallSpacing
             )
@@ -180,8 +182,8 @@ fun GenericTableRow(
     onClick: () -> Unit
 ) {
     GenericTableRow(
-        leadingImageMain = ImageResource.None,
-        leadingImageIcon = ImageResource.None,
+        leadingImagePrimary = ImageResource.None,
+        leadingImageSecondary = ImageResource.None,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
         onClick = onClick
@@ -198,7 +200,7 @@ private fun SingleComponent(viewType: ViewType) {
             )
         }
 
-        is ViewType.Badge -> {
+        is ViewType.Tag -> {
             TagsRow(
                 listOf(
                     TagViewState(
@@ -216,9 +218,9 @@ private fun SingleComponent(viewType: ViewType) {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow_Summary_SingleIcon() {
+private fun PreviewGenericTableRow_Summary_SingleIcon() {
     GenericTableRow(
-        leadingImageMainRes = R.drawable.ic_two_circle,
+        leadingImagePrimaryRes = R.drawable.ic_two_circle,
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Sent Ethereum",
@@ -257,10 +259,10 @@ fun PreviewGenericTableRow_Summary_SingleIcon() {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow_Summary_StackedIcon() {
+private fun PreviewGenericTableRow_Summary_StackedIcon() {
     GenericTableRow(
-        leadingImageMainRes = R.drawable.ic_two_circle,
-        leadingImageIconRes = R.drawable.ic_eth,
+        leadingImagePrimaryRes = R.drawable.ic_two_circle,
+        leadingImageSecondaryRes = R.drawable.ic_eth,
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Sent Ethereum",
@@ -299,7 +301,7 @@ fun PreviewGenericTableRow_Summary_StackedIcon() {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow() {
+private fun PreviewGenericTableRow() {
     GenericTableRow(
         leadingComponents = listOf(
             ViewType.Text(
@@ -353,7 +355,7 @@ fun PreviewGenericTableRow() {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow_Key_MultiValue() {
+private fun PreviewGenericTableRow_Key_MultiValue() {
     GenericTableRow(
         leadingComponents = listOf(
             ViewType.Text(
@@ -386,7 +388,7 @@ fun PreviewGenericTableRow_Key_MultiValue() {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow_KeyValue() {
+private fun PreviewGenericTableRow_KeyValue() {
     GenericTableRow(
         leadingComponents = listOf(
             ViewType.Text(
@@ -412,7 +414,7 @@ fun PreviewGenericTableRow_KeyValue() {
 
 @Preview
 @Composable
-fun PreviewGenericTableRow_Tag() {
+private fun PreviewGenericTableRow_Tag() {
     GenericTableRow(
         leadingComponents = listOf(
             ViewType.Text(
@@ -431,7 +433,7 @@ fun PreviewGenericTableRow_Tag() {
             )
         ),
         trailingComponents = listOf(
-            ViewType.Badge(
+            ViewType.Tag(
                 value = "Pending",
                 style = TagType.InfoAlt()
             )

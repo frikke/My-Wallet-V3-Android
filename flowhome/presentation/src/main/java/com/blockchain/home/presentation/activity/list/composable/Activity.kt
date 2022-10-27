@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -34,16 +33,17 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.tablerow.generic.GenericTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.activity.components.ActivityStackView
+import com.blockchain.home.presentation.activity.components.toViewType
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.TransactionState
-import com.blockchain.home.presentation.activity.list.TransactionStatus
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -71,7 +71,7 @@ fun Acitivity(
 
 @Composable
 fun ActivityScreen(
-    activity: DataResource<Map<TransactionGroup, List<TransactionState>>>
+    activity: DataResource<Map<TransactionGroup, List<ActivityStackView>>>
 ) {
     Column(
         modifier = Modifier
@@ -107,7 +107,7 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityData(
-    transactions: Map<TransactionGroup, List<TransactionState>>
+    transactions: Map<TransactionGroup, List<ActivityStackView>>
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -127,7 +127,7 @@ fun ActivityData(
 
 @Composable
 fun ActivityGroups(
-    transactions: Map<TransactionGroup, List<TransactionState>>
+    transactions: Map<TransactionGroup, List<ActivityStackView>>
 ) {
     LazyColumn {
         itemsIndexed(
@@ -155,7 +155,7 @@ fun ActivityGroups(
 
                 ActivityList(transactions = transactionsList)
 
-                if (index < transactionsList.toList().lastIndex) {
+                if (index < transactions.keys.toList().lastIndex) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                 }
             }
@@ -166,7 +166,7 @@ fun ActivityGroups(
 @Composable
 fun ActivityList(
     modifier: Modifier = Modifier,
-    transactions: List<TransactionState>
+    transactions: List<ActivityStackView>
 ) {
     if (transactions.isNotEmpty()) {
         Card(
@@ -176,14 +176,12 @@ fun ActivityList(
         ) {
             Column(modifier = modifier) {
                 transactions.forEachIndexed { index, transaction ->
-                    TransactionSummary(
-                        status = transaction.status,
-                        iconUrl = transaction.transactionTypeIcon,
-                        coinIconUrl = transaction.transactionCoinIcon,
-                        valueTopStart = transaction.valueTopStart,
-                        valueTopEnd = transaction.valueTopEnd,
-                        valueBottomStart = transaction.valueBottomStart,
-                        valueBottomEnd = transaction.valueBottomEnd
+                    GenericTableRow(
+                        leadingImagePrimaryUrl = transaction.leadingImagePrimaryUrl,
+                        leadingImageSecondaryUrl = transaction.leadingImageImageSecondaryUrl,
+                        leadingComponents = transaction.leading.map { it.toViewType() },
+                        trailingComponents = transaction.trailing.map { it.toViewType() },
+                        onClick = {}
                     )
 
                     if (index < transactions.lastIndex) {
@@ -199,78 +197,6 @@ fun ActivityList(
 @Composable
 fun PreviewActivityScreen() {
     ActivityScreen(
-        activity = DataResource.Data(
-            mapOf(
-                TransactionGroup.Group("Pending") to listOf(
-                    TransactionState(
-                        transactionTypeIcon = "transactionTypeIcon",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Pending(),
-                        valueTopStart = "Sent Bitcoin",
-                        valueTopEnd = "-10.00",
-                        valueBottomStart = "85% confirmed",
-                        valueBottomEnd = "-0.00893208 ETH"
-                    ),
-                    TransactionState(
-                        transactionTypeIcon = "Cashed Out USD",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Pending(isRbfTransaction = true),
-                        valueTopStart = "Sent Bitcoin",
-                        valueTopEnd = "-25.00",
-                        valueBottomStart = "RBF transaction",
-                        valueBottomEnd = "valueBottomEnd"
-                    )
-                ),
-                TransactionGroup.Group("June") to listOf(
-                    TransactionState(
-                        transactionTypeIcon = "transactionTypeIcon",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Confirmed,
-                        valueTopStart = "Sent Bitcoin",
-                        valueTopEnd = "-10.00",
-                        valueBottomStart = "June 14",
-                        valueBottomEnd = "-0.00893208 ETH"
-                    ),
-                    TransactionState(
-                        transactionTypeIcon = "Cashed Out USD",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Canceled,
-                        valueTopStart = "Sent Bitcoin",
-                        valueTopEnd = "-25.00",
-                        valueBottomStart = "Canceled",
-                        valueBottomEnd = "valueBottomEnd"
-                    ),
-                    TransactionState(
-                        transactionTypeIcon = "transactionTypeIcon",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Canceled,
-                        valueTopStart = "Sent Bitcoin",
-                        valueTopEnd = "100.00",
-                        valueBottomStart = "Canceled",
-                        valueBottomEnd = "0.00025 BTC"
-                    )
-                ),
-                TransactionGroup.Group("July") to listOf(
-                    TransactionState(
-                        transactionTypeIcon = "transactionTypeIcon",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Declined,
-                        valueTopStart = "Added USD",
-                        valueTopEnd = "-25.00",
-                        valueBottomStart = "Declined",
-                        valueBottomEnd = "valueBottomEnd"
-                    ),
-                    TransactionState(
-                        transactionTypeIcon = "transactionTypeIcon",
-                        transactionCoinIcon = "transactionCoinIcon",
-                        TransactionStatus.Failed,
-                        valueTopStart = "Added USD",
-                        valueTopEnd = "-25.00",
-                        valueBottomStart = "Failed",
-                        valueBottomEnd = "valueBottomEnd"
-                    )
-                )
-            )
-        )
+        activity = DUMMY_DATA
     )
 }

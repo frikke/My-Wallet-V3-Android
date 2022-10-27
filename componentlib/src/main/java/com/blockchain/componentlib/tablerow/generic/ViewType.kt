@@ -24,7 +24,7 @@ sealed interface ViewType {
         val style: ViewStyle.TextStyle
     ) : ViewType
 
-    data class Badge(
+    data class Tag(
         val value: String,
         val style: TagType
     ) : ViewType
