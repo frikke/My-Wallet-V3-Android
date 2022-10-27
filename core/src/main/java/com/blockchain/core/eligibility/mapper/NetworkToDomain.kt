@@ -69,7 +69,8 @@ fun ReasonNotEligibleResponse.toDomain(): ProductNotEligibleReason {
             else -> ProductNotEligibleReason.InsufficientTier.Unknown(message)
         }
         ReasonNotEligibleTypeResponse.SANCTIONS -> when (reason) {
-            ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5
+            ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5(message)
+            ReasonNotEligibleReasonResponse.EU_8_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU8(message)
             else -> ProductNotEligibleReason.Sanctions.Unknown(message)
         }
         null -> ProductNotEligibleReason.Unknown(message)

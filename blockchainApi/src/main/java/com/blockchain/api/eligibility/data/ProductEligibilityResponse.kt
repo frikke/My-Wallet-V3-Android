@@ -35,7 +35,8 @@ enum class ReasonNotEligibleReasonResponse {
     TIER_1_TRADE_LIMIT,
 
     // SANCTIONS:
-    EU_5_SANCTION
+    EU_5_SANCTION,
+    EU_8_SANCTION,
 }
 
 @Serializable

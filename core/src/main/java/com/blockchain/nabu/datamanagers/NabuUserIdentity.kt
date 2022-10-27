@@ -185,8 +185,10 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
                 BlockedReason.InsufficientTier.Tier2Required
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
                 BlockedReason.InsufficientTier.Unknown(reason.message)
-            ProductNotEligibleReason.Sanctions.RussiaEU5 ->
-                BlockedReason.Sanctions.RussiaEU5
+            is ProductNotEligibleReason.Sanctions.RussiaEU5 ->
+                BlockedReason.Sanctions.RussiaEU5(reason.message)
+            is ProductNotEligibleReason.Sanctions.RussiaEU8 ->
+                BlockedReason.Sanctions.RussiaEU8(reason.message)
             is ProductNotEligibleReason.Sanctions.Unknown ->
                 BlockedReason.Sanctions.Unknown(reason.message)
             is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible(reason.message)

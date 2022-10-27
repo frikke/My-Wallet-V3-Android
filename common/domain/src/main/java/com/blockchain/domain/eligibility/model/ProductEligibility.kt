@@ -35,10 +35,14 @@ sealed class ProductNotEligibleReason {
     }
     @Serializable
     sealed class Sanctions : ProductNotEligibleReason() {
+        abstract val message: String
+
         @Serializable
-        object RussiaEU5 : Sanctions()
+        data class RussiaEU5(override val message: String) : Sanctions()
         @Serializable
-        data class Unknown(val message: String) : Sanctions()
+        data class RussiaEU8(override val message: String) : Sanctions()
+        @Serializable
+        data class Unknown(override val message: String) : Sanctions()
     }
     @Serializable
     data class Unknown(val message: String) : ProductNotEligibleReason()

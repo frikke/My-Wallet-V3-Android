@@ -123,12 +123,12 @@ import org.junit.Test
             userFeaturePermissionService.getAccessForFeature(
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
-        } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5)))
+        } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason"))))
 
         subject.loadSellAssets().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
-                this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.Sanctions.RussiaEU5)
+                this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.Sanctions.RussiaEU5("reason"))
             }
         }
 
