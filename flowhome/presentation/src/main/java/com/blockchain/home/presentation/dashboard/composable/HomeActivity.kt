@@ -1,0 +1,115 @@
+package com.blockchain.home.presentation.dashboard.composable
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.utils.clickableNoEffect
+import com.blockchain.data.DataResource
+import com.blockchain.data.map
+import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.activity.components.ActivityStackView
+import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityViewModel
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.composable.ActivityList
+import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.getViewModel
+
+@Composable
+fun HomeActivity(
+    viewModel: ActivityViewModel = getViewModel(scope = payloadScope),
+    openAllActivity: () -> Unit
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
+        onDispose { }
+    }
+
+    viewState?.let { state ->
+        HomeActivityScreen(
+            activity = state.activity.map { it[TransactionGroup.Combined] ?: listOf() },
+            onSeeAllCryptoAssetsClick = openAllActivity,
+        )
+    }
+}
+
+@Composable
+fun HomeActivityScreen(
+    activity: DataResource<List<ActivityStackView>>,
+    onSeeAllCryptoAssetsClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(R.string.ma_home_activity_title),
+                style = AppTheme.typography.body2,
+                color = Grey700
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
+                text = stringResource(R.string.see_all),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.primary,
+            )
+        }
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        when (activity) {
+            DataResource.Loading -> {
+                ShimmerLoadingCard()
+            }
+            is DataResource.Error -> {
+                // todo
+            }
+            is DataResource.Data -> {
+                if (activity.data.isNotEmpty()) {
+                    ActivityList(transactions = activity.data)
+                }
+            }
+        }
+    }
+}
+
+@Preview(backgroundColor = 0xFF272727)
+@Composable
+fun PreviewHomeActivityScreen() {
+    HomeActivityScreen(
+        activity = DUMMY_DATA.map { it[it.keys.first()]!! },
+        onSeeAllCryptoAssetsClick = {},
+    )
+}

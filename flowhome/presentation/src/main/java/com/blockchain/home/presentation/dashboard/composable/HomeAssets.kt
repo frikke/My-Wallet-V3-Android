@@ -24,6 +24,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
@@ -32,14 +33,13 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CryptoAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
-import com.blockchain.home.presentation.allassets.SectionSize
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
@@ -119,7 +119,7 @@ fun HomeAssetsScreen(
 
         when (cryptoAssets) {
             DataResource.Loading -> {
-                CryptoAssetsLoading()
+                ShimmerLoadingCard()
             }
             is DataResource.Error -> {
                 // todo

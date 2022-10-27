@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.allassets.composable
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -40,7 +38,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
@@ -48,11 +46,11 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CryptoAssetState
-import com.blockchain.home.presentation.allassets.SectionSize
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -127,10 +125,6 @@ fun CryptoAssetsScreen(
                 .fillMaxSize()
                 .background(color = Color(0XFFF1F2F7))
         ) {
-            // todo(othman) make this a generic screen with composable {contents}
-            //  to make it easier for gradient tops and navigation
-
-            // todo(othman) header stuff - need to create superapp header - checking with Ethan
             NavigationBar(
                 title = stringResource(R.string.ma_home_assets_title),
                 onBackButtonClick = { },
@@ -146,7 +140,6 @@ fun CryptoAssetsScreen(
                 )
             )
 
-            // content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,7 +147,7 @@ fun CryptoAssetsScreen(
             ) {
                 when (cryptoAssets) {
                     is DataResource.Loading -> {
-                        CryptoAssetsLoading()
+                        ShimmerLoadingCard()
                     }
                     is DataResource.Error -> {
                         // todo
@@ -167,30 +160,10 @@ fun CryptoAssetsScreen(
                     }
                 }
             }
-
-            // todo(othman) footer stuff
         }
     }
 }
 
-@Composable
-fun CryptoAssetsLoading() {
-    Card(
-        backgroundColor = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-        elevation = 0.dp
-    ) {
-        Column {
-            ShimmerLoadingTableRow()
-
-            Divider(color = Color(0XFFF1F2F7))
-
-            ShimmerLoadingTableRow()
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<CryptoAssetState>,
@@ -199,7 +172,6 @@ fun CryptoAssetsData(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // todo(othman) create superapp search compose
         CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
             placeholder = stringResource(R.string.search)

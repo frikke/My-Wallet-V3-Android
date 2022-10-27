@@ -6,4 +6,5 @@ sealed class HomeDestination(
     override val route: String
 ) : ComposeNavigationDestination {
     object CryptoAssets : HomeDestination("AllAssets")
+    object Activity : HomeDestination("Activity")
 }

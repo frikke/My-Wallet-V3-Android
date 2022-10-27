@@ -31,6 +31,9 @@ private fun NavGraphBuilder.chrome(navController: NavHostController) {
         MultiAppChrome(
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
+            },
+            openActivity = {
+                navController.navigate(HomeDestination.Activity)
             }
         )
     }
