@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.activity.detail
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.detail.composable.DETAIL_DUMMY_DATA
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 
