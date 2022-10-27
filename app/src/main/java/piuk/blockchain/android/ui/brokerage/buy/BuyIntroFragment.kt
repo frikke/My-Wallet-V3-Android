@@ -174,6 +174,8 @@ class BuyIntroFragment :
             if (blockedReason is BlockedReason.TooManyInFlightTransactions) {
                 showPendingOrdersBottomSheet(blockedReason.maxTransactions)
             } else {
+                binding.buyIntroSearch.clearInput()
+
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         activity as Context,

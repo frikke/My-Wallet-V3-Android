@@ -84,7 +84,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
             is BlockchainCardNavigationEvent.ManageCard -> {
                 navController.popBackStack(
-                    route = BlockchainCardDestination.CardActivationSuccessDestination.route,
+                    route = BlockchainCardDestination.ManageCardDestination.route,
                     inclusive = true
                 )
                 destination = BlockchainCardDestination.ManageCardDestination
@@ -204,6 +204,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ActivateCardSuccess -> {
+                navController.popBackStack(
+                    route = BlockchainCardDestination.CardActivationDestination.route,
+                    inclusive = true
+                )
                 destination = BlockchainCardDestination.CardActivationSuccessDestination
             }
 

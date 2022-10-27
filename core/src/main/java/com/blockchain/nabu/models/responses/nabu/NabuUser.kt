@@ -159,13 +159,13 @@ data class AddAddressRequest(
 }
 
 @Serializable(with = KycStateSerializer::class)
-sealed class KycState {
-    object None : KycState()
-    object Pending : KycState()
-    object UnderReview : KycState()
-    object Rejected : KycState()
-    object Expired : KycState()
-    object Verified : KycState()
+enum class KycState {
+    None,
+    Pending,
+    UnderReview,
+    Rejected,
+    Expired,
+    Verified,
 }
 
 @Serializable(with = UserStateSerializer::class)

@@ -32,6 +32,7 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
+                custodialWalletManager = get(),
                 dataRemediationService = get(),
                 loqateFeatureFlag = get(loqateFeatureFlag),
             )
@@ -111,6 +112,8 @@ val kycUiModule = module {
 
         factory {
             VeriffSplashPresenter(
+                userService = get(),
+                custodialWalletManager = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),

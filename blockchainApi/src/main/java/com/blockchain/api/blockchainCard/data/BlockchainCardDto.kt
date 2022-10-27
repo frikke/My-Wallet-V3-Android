@@ -162,3 +162,8 @@ data class BlockchainCardStatementsResponseDto(
 data class BlockchainCardStatementUrlResponseDto(
     val url: String
 )
+
+@Serializable
+data class BlockchainCardWebViewPostMessage(
+    val type: String,
+)

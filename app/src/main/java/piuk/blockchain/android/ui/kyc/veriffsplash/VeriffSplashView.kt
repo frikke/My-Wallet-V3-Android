@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Observable
@@ -16,7 +17,7 @@ interface VeriffSplashView : View {
 
     fun continueToVeriff(applicant: VeriffApplicantAndToken)
 
-    fun continueToCompletion()
+    fun continueToCompletion(kycState: KycState, isSddVerified: Boolean)
 
     fun continueToSwap()
 

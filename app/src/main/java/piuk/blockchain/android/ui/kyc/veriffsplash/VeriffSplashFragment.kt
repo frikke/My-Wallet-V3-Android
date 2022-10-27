@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.data.logEvent
@@ -28,6 +27,7 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
@@ -37,6 +37,7 @@ import com.blockchain.veriff.VeriffResultHandler
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
@@ -222,13 +223,18 @@ class VeriffSplashFragment :
             type = SnackbarType.Error
         ).show()
 
-    override fun continueToCompletion() {
+    override fun continueToCompletion(
+        kycState: KycState,
+        isSddVerified: Boolean,
+    ) {
         fraudService.endFlow(FraudFlow.KYC)
 
-        val navOptions = NavOptions.Builder()
-            .setPopUpTo(R.id.kyc_nav_xml, true)
-            .build()
-        findNavController(this).navigate(R.id.applicationCompleteFragment, null, navOptions)
+        findNavController(this).navigate(
+            KycNavXmlDirections.actionStartTierCurrentState(
+                kycState,
+                isSddVerified,
+            )
+        )
     }
 
     override fun continueToSwap() =

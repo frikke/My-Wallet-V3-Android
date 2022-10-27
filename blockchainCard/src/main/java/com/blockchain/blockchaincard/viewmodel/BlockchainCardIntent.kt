@@ -84,4 +84,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadCardStatements : BlockchainCardIntent()
     data class LoadCardStatementUrl(val statementId: String) : BlockchainCardIntent()
     data class OpenDocumentUrl(val url: String) : BlockchainCardIntent()
+    data class WebMessageReceived(val message: String) : BlockchainCardIntent()
 }

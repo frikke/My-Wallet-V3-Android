@@ -33,7 +33,9 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.utils.mapList
+import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -78,7 +80,9 @@ class TransactionInteractor(
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val swapSellQuickFillFF: FeatureFlag,
-    private val quickFillRoundingService: QuickFillRoundingService
+    private val quickFillRoundingService: QuickFillRoundingService,
+    private val hideDustFF: FeatureFlag,
+    private val localSettingsPrefs: LocalSettingsPrefs
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -185,16 +189,15 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
-                    .zipWith(
-                        custodialRepository.getSwapAvailablePairs()
-                    ).map { (accounts, pairs) ->
-                        accounts.filter { account ->
-                            (account as? CryptoAccount)?.isAvailableToSwapFrom(pairs) ?: false
+                hideDustFF.enabled.flatMap { flagEnabled ->
+                    getAvailableSwapAccounts().flatMap { accountList ->
+                        if (flagEnabled && localSettingsPrefs.hideSmallBalancesEnabled) {
+                            filterDustBalances(accountList)
+                        } else {
+                            Single.just(accountList)
                         }
-                    }.map {
-                        it.map { account -> account as CryptoAccount }
                     }
+                }
             }
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
@@ -214,6 +217,32 @@ class TransactionInteractor(
             AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    private fun filterDustBalances(accountList: List<CryptoAccount>) =
+        accountList.map { account ->
+            account.balanceRx
+        }.zipObservables().map {
+            accountList.mapIndexedNotNull { index, singleAccount ->
+                if (!it[index].totalFiat.isDust()) {
+                    singleAccount
+                } else {
+                    null
+                }
+            }
+        }.firstOrError()
+
+    private fun getAvailableSwapAccounts() = coincore.walletsWithActions(
+        actions = setOf(AssetAction.Swap),
+        sorter = swapSourceAccountsSorting.sorter()
+    ).zipWith(
+        custodialRepository.getSwapAvailablePairs()
+    ).map { (accounts, pairs) ->
+        accounts.filter { account ->
+            (account as? CryptoAccount)?.isAvailableToSwapFrom(pairs) ?: false
+        }
+    }.map {
+        it.map { account -> account as CryptoAccount }
+    }
 
     private fun sellSourceAccounts(): Single<List<SingleAccount>> {
         return supportedCryptoCurrencies().zipWith(

@@ -134,23 +134,22 @@
         android:name="piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashFragment"
         android:label="VeriffSplashFragment"
         tools:layout="@layout/fragment_kyc_veriff_splash">
-        <action
-            android:id="@+id/action_veriffSplashFragment_to_applicationCompleteFragment"
-            app:destination="@id/applicationCompleteFragment" />
         <argument
             android:name="countryCode"
             app:argType="string" />
     </fragment>
     <fragment
-        android:id="@+id/applicationCompleteFragment"
-        android:name="piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment"
-        android:label="ApplicationCompleteFragment"
-        tools:layout="@layout/fragment_kyc_complete">
-        <action
-            android:id="@+id/action_tier2Complete"
-            app:destination="@id/kycTierSplashFragment"
-            app:popUpTo="@id/kyc_nav.xml"
-            app:popUpToInclusive="true" />
+        android:id="@+id/tierCurrentState"
+        android:name="piuk.blockchain.android.ui.kyc.tiercurrentstate.TierCurrentStateFragment"
+        android:label="Tier Current State">
+        <argument
+            android:name="kycState"
+            app:argType="com.blockchain.nabu.models.responses.nabu.KycState"
+            />
+        <argument
+            android:name="isSddVerified"
+            app:argType="boolean"
+            />
     </fragment>
     <fragment
         android:id="@+id/kycTierSplashFragment"
@@ -264,6 +263,11 @@
     <action
         android:id="@+id/action_startQuestionnaireEntry"
         app:destination="@id/kycQuestionnaireFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_startTierCurrentState"
+        app:destination="@id/tierCurrentState"
         app:popUpTo="@id/kyc_nav.xml"
         app:popUpToInclusive="true" />
 

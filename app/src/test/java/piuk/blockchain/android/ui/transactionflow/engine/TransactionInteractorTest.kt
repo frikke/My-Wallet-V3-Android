@@ -15,6 +15,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
@@ -55,6 +56,8 @@ class TransactionInteractorTest {
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val quickfillSwapSellFF: FeatureFlag = mock()
     private val quickFillRoundingService: QuickFillRoundingService = mock()
+    private val hideDustFF: FeatureFlag = mock()
+    private val localSettingsPrefs: LocalSettingsPrefs = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -77,7 +80,9 @@ class TransactionInteractorTest {
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
             swapSellQuickFillFF = quickfillSwapSellFF,
-            quickFillRoundingService = quickFillRoundingService
+            quickFillRoundingService = quickFillRoundingService,
+            hideDustFF = hideDustFF,
+            localSettingsPrefs = localSettingsPrefs
         )
     }
 

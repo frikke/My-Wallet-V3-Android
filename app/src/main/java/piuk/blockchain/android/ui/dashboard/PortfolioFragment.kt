@@ -104,6 +104,8 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.BankLinkingHost
+import piuk.blockchain.android.ui.settings.SettingsActivity
+import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -860,6 +862,15 @@ class PortfolioFragment :
 
         override fun startRecurringBuyUpsell() {
             startActivity(RecurringBuyOnboardingActivity.newInstance(requireActivity(), false))
+        }
+
+        override fun startSettings(destination: SettingsDestination) {
+            startActivity(
+                SettingsActivity.newIntent(
+                    context = requireContext(),
+                    deeplinkToScreen = destination
+                )
+            )
         }
 
         override fun joinNftWaitlist() {

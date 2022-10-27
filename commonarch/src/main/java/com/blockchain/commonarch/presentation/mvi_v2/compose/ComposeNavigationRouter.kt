@@ -36,6 +36,7 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRouter<TNavEvent> {
     val navController: NavHostController
@@ -175,6 +176,13 @@ fun NavHostController.navigate(destination: ComposeNavigationDestination) {
 
 fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
     navigate(destination.routeWithArgs(args))
+}
+
+fun NavHostController.printBackStackToConsole() {
+    Timber.d("NavHostController Backstack:")
+    this.backQueue.forEach {
+        Timber.d("\n\t ${it.destination.route}")
+    }
 }
 
 @ExperimentalMaterialNavigationApi

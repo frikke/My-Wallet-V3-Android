@@ -146,7 +146,7 @@ class SimpleBuyModel(
                 interactor.getBrokerageQuote(
                     cryptoAsset = previousState.selectedCryptoAsset,
                     amount = previousState.amount,
-                    paymentMethodId = previousState.selectedPaymentMethod.id,
+                    paymentMethodId = previousState.selectedPaymentMethod.concreteId(),
                     paymentMethod = previousState.selectedPaymentMethod.paymentMethodType
                 ).firstOrError().subscribeBy(
                     onSuccess = { brokerageQuote ->
@@ -169,7 +169,7 @@ class SimpleBuyModel(
                 interactor.startPollingBrokerageQuote(
                     cryptoAsset = previousState.selectedCryptoAsset,
                     amount = previousState.amount,
-                    paymentMethodId = previousState.selectedPaymentMethod.id,
+                    paymentMethodId = previousState.selectedPaymentMethod.concreteId(),
                     paymentMethod = previousState.selectedPaymentMethod.paymentMethodType,
                     brokerageQuote = intent.brokerageQuote
                 ).subscribeBy(
@@ -1170,7 +1170,7 @@ class SimpleBuyModel(
         require(quote != null) { "Missing BuyQuote" }
         return interactor.createOrder(
             cryptoAsset = selectedCryptoAsset,
-            paymentMethodId = selectedPaymentMethod.id,
+            paymentMethodId = selectedPaymentMethod.concreteId(),
             paymentMethodType = selectedPaymentMethod.paymentMethodType,
             amount = amount,
             recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME },
