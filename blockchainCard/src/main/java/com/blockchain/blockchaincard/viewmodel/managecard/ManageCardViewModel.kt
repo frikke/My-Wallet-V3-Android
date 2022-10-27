@@ -40,8 +40,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     updateState {
                         it.copy(
                             cardList = args.cards,
+                            cardProductList = args.cardProducts,
                             currentCard = args.preselectedCard,
-                            defaultCardId = args.preselectedCard.id
+                            defaultCardId = args.preselectedCard.id,
                         )
                     }
 
@@ -54,7 +55,12 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     onIntent(BlockchainCardIntent.LoadLinkedAccount)
                     onIntent(BlockchainCardIntent.LoadTransactions)
                 } else {
-                    updateState { it.copy(cardList = args.cards) }
+                    updateState {
+                        it.copy(
+                            cardList = args.cards,
+                            cardProductList = args.cardProducts,
+                        )
+                    }
                 }
             }
 
@@ -374,11 +380,11 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
-                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
+                    navigate(BlockchainCardNavigationEvent.SeeAddress(address))
                 }
             }
 
-            is BlockchainCardIntent.UpdateBillingAddress -> {
+            is BlockchainCardIntent.UpdateAddress -> {
                 blockchainCardRepository.updateResidentialAddress(
                     intent.newAddress
                 ).fold(

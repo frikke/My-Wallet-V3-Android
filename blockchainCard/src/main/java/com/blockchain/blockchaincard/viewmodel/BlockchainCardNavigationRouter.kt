@@ -34,7 +34,15 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ChooseCardProduct -> {
-                destination = BlockchainCardDestination.ChooseCardProductDestination
+                val wasPopped = navController.popBackStack(
+                    BlockchainCardDestination.ChooseCardProductDestination.route,
+                    false
+                )
+                if (wasPopped) {
+                    destination = BlockchainCardDestination.NoDestination
+                } else {
+                    destination = BlockchainCardDestination.ChooseCardProductDestination
+                }
             }
 
             is BlockchainCardNavigationEvent.ReviewAndSubmitCard -> {
@@ -132,7 +140,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.PersonalDetailsDestination
             }
 
-            is BlockchainCardNavigationEvent.SeeBillingAddress -> {
+            is BlockchainCardNavigationEvent.SeeAddress -> {
                 (navController.context as? BlockchainCardHostActivity)?.startKycAddressVerification(
                     address = navigationEvent.address
                 )
@@ -279,7 +287,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeePersonalDetails : BlockchainCardNavigationEvent()
 
-    data class SeeBillingAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
+    data class SeeAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
 
     object SeeSupport : BlockchainCardNavigationEvent()
 

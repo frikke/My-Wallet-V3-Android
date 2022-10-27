@@ -20,6 +20,7 @@ import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
@@ -94,11 +95,13 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun createCard(
         productCode: String,
-        ssn: String
+        ssn: String,
+        shippingAddress: BlockchainCardAddress?
     ): Outcome<BlockchainCardError, BlockchainCard> =
         blockchainCardService.createCard(
             productCode = productCode,
-            ssn = ssn
+            ssn = ssn,
+            shippingAddress = shippingAddress?.toDto()
         ).map { card ->
             card.toDomainModel()
         }.wrapBlockchainCardError()
@@ -233,7 +236,7 @@ internal class BlockchainCardRepositoryImpl(
         address: BlockchainCardAddress
     ): Outcome<BlockchainCardError, BlockchainCardAddress> =
         blockchainCardService.updateResidentialAddress(
-            residentialAddress = address.toDto(address)
+            residentialAddress = address.toDto()
         ).map { response ->
             response.address.toDomainModel()
         }.wrapBlockchainCardError()
@@ -374,17 +377,18 @@ internal class BlockchainCardRepositoryImpl(
             postCode = postCode,
             city = city,
             state = state,
-            country = country
+            country = country,
+            addressType = BlockchainCardAddressType.BILLING
         )
 
-    private fun BlockchainCardAddress.toDto(address: BlockchainCardAddress): ResidentialAddressDto =
+    private fun BlockchainCardAddress.toDto(): ResidentialAddressDto =
         ResidentialAddressDto(
-            line1 = address.line1,
-            line2 = address.line2,
-            postCode = address.postCode,
-            city = address.city,
-            state = address.state,
-            country = address.country
+            line1 = this.line1,
+            line2 = this.line2,
+            postCode = this.postCode,
+            city = this.city,
+            state = this.state,
+            country = this.country
         )
 
     private fun BlockchainCardTransactionDto.toDomainModel(): BlockchainCardTransaction =
@@ -483,7 +487,8 @@ internal class BlockchainCardRepositoryImpl(
                     postCode = it.postCode,
                     city = it.city,
                     state = it.state,
-                    country = it.country
+                    country = it.country,
+                    addressType = BlockchainCardAddressType.SHIPPING
                 )
             }
         )

@@ -67,6 +67,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
@@ -526,7 +527,13 @@ private fun PreviewManageCard() {
         cardOrderState = BlockchainCardOrderState(
             status = BlockchainCardOrderStatus.PROCESSING,
             address = BlockchainCardAddress(
-                line1 = "", line2 = "", postCode = "", city = "", state = "", country = ""
+                line1 = "",
+                line2 = "",
+                postCode = "",
+                city = "",
+                state = "",
+                country = "",
+                BlockchainCardAddressType.SHIPPING
             )
         ),
         onViewCardSelector = {},
@@ -2063,7 +2070,8 @@ fun BillingAddress(
                         postCode = postalCode,
                         city = city,
                         state = stateList?.find { it.name == selectedState }?.stateCode.orEmpty(),
-                        country = country
+                        country = country,
+                        addressType = BlockchainCardAddressType.BILLING
                     )
                 )
             },
@@ -2081,7 +2089,8 @@ private fun PreviewBillingAddress() {
             postCode = "94592",
             city = "Walnut Creek",
             state = "CA",
-            country = "USA"
+            country = "USA",
+            addressType = BlockchainCardAddressType.BILLING
         ),
         stateList = emptyList(),
         onUpdateAddress = {},

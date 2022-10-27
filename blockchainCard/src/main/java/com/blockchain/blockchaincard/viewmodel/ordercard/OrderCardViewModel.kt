@@ -1,6 +1,9 @@
 package com.blockchain.blockchaincard.viewmodel.ordercard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -20,7 +23,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
     override fun viewCreated(args: ModelConfigArgs) {
         when (args) {
             is BlockchainCardArgs.ProductArgs -> {
-                updateState { it.copy(selectedCardProduct = args.product) }
+                updateState { it.copy(cardProductList = args.products) }
             }
 
             else -> {
@@ -32,6 +35,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         errorState = state.errorState,
         currentCard = state.currentCard,
+        cardProductList = state.cardProductList,
         selectedCardProduct = state.selectedCardProduct,
         residentialAddress = state.residentialAddress,
         ssn = state.ssn,
@@ -40,7 +44,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
         singleLegalDocumentToSee = state.singleLegalDocumentToSee,
         isAddressLoading = state.isAddressLoading,
-        userFirstAndLastName = state.userFirstAndLastName
+        userFirstAndLastName = state.userFirstAndLastName,
+        shippingAddress = state.shippingAddress
     )
 
     override suspend fun handleIntent(
@@ -96,32 +101,46 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
-                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
+                    navigate(BlockchainCardNavigationEvent.SeeAddress(address))
                 }
             }
 
-            is BlockchainCardIntent.UpdateBillingAddress -> {
+            is BlockchainCardIntent.OnChangeShippingAddress -> {
+                modelState.shippingAddress?.let { address ->
+                    navigate(BlockchainCardNavigationEvent.SeeAddress(address))
+                }
+            }
 
-                updateState { it.copy(isAddressLoading = true) }
+            is BlockchainCardIntent.UpdateAddress -> {
 
-                blockchainCardRepository.updateResidentialAddress(
-                    intent.newAddress
-                ).fold(
-                    onSuccess = { newAddress ->
-                        updateState { it.copy(residentialAddress = newAddress, isAddressLoading = false) }
-                        navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
-                    },
-                    onFailure = { error ->
-                        Timber.e("Unable to update residential address: $error")
-                        updateState {
-                            it.copy(
-                                errorState = BlockchainCardErrorState.ScreenErrorState(error),
-                                isAddressLoading = false
-                            )
-                        }
-                        navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
+                when (intent.newAddress.addressType) {
+                    BlockchainCardAddressType.BILLING -> {
+                        updateState { it.copy(isAddressLoading = true) }
+
+                        blockchainCardRepository.updateResidentialAddress(
+                            intent.newAddress
+                        ).fold(
+                            onSuccess = { newAddress ->
+                                updateState { it.copy(residentialAddress = newAddress, isAddressLoading = false) }
+                                navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
+                            },
+                            onFailure = { error ->
+                                Timber.e("Unable to update residential address: $error")
+                                updateState {
+                                    it.copy(
+                                        errorState = BlockchainCardErrorState.ScreenErrorState(error),
+                                        isAddressLoading = false
+                                    )
+                                }
+                                navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
+                            }
+                        )
                     }
-                )
+
+                    BlockchainCardAddressType.SHIPPING -> {
+                        updateState { it.copy(shippingAddress = intent.newAddress) }
+                    }
+                }
             }
 
             is BlockchainCardIntent.DismissBillingAddressUpdateResult -> {
@@ -141,34 +160,47 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.OnOrderCardConfirm -> {
-                onIntent(BlockchainCardIntent.LoadLegalDocuments)
-                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
-                navigate(BlockchainCardNavigationEvent.ReviewAndSubmitCard)
+                modelState.residentialAddress?.let { residentialAddress ->
+                    val shippingAddress = when (intent.selectedProduct.type) {
+                        BlockchainCardType.PHYSICAL -> BlockchainCardAddress(
+                            line1 = residentialAddress.line1,
+                            line2 = residentialAddress.line2,
+                            postCode = residentialAddress.postCode,
+                            city = residentialAddress.city,
+                            state = residentialAddress.state,
+                            country = residentialAddress.country,
+                            addressType = BlockchainCardAddressType.SHIPPING
+                        )
+                        else -> null
+                    }
+
+                    updateState {
+                        it.copy(
+                            selectedCardProduct = intent.selectedProduct,
+                            shippingAddress = shippingAddress
+                        )
+                    }
+                    onIntent(BlockchainCardIntent.LoadLegalDocuments)
+                    onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                    navigate(BlockchainCardNavigationEvent.ReviewAndSubmitCard)
+                }
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                modelState.selectedCardProduct?.let { product ->
-                    modelState.ssn?.let { ssn ->
-                        modelState.legalDocuments?.let { documents ->
-                            navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
-                            blockchainCardRepository.acceptLegalDocuments(
-                                documents
-                            ).flatMap {
-                                blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
-                                    .doOnFailure { error ->
-                                        updateState {
-                                            it.copy(
-                                                errorState = BlockchainCardErrorState.ScreenErrorState(error)
-                                            )
-                                        }
-                                        navigate(BlockchainCardNavigationEvent.CreateCardFailed)
-                                    }
-                                    .doOnSuccess { card ->
-                                        updateState { it.copy(currentCard = card) }
-                                        navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
-                                    }
-                            }.doOnFailure { error ->
-                                Timber.e("Unable to update legal documents: $error")
+                if (modelState.selectedCardProduct != null &&
+                    modelState.ssn != null &&
+                    modelState.legalDocuments != null
+                ) {
+                    navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
+                    blockchainCardRepository.acceptLegalDocuments(
+                        modelState.legalDocuments
+                    ).flatMap {
+                        blockchainCardRepository.createCard(
+                            productCode = modelState.selectedCardProduct.productCode,
+                            ssn = modelState.ssn,
+                            shippingAddress = modelState.shippingAddress
+                        )
+                            .doOnFailure { error ->
                                 updateState {
                                     it.copy(
                                         errorState = BlockchainCardErrorState.ScreenErrorState(error)
@@ -176,7 +208,18 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                                 }
                                 navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                             }
+                            .doOnSuccess { card ->
+                                updateState { it.copy(currentCard = card) }
+                                navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
+                            }
+                    }.doOnFailure { error ->
+                        Timber.e("Unable to update legal documents: $error")
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.ScreenErrorState(error)
+                            )
                         }
+                        navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                     }
                 }
             }
@@ -243,6 +286,10 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                 modelState.currentCard?.let { createdCard ->
                     navigate(BlockchainCardNavigationEvent.FinishOrderCardFlow(createdCard))
                 }
+            }
+
+            is BlockchainCardIntent.OnChooseProduct -> {
+                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
             }
 
             else -> {

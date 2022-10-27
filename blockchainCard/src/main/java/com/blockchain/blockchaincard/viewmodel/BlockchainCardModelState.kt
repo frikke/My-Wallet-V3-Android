@@ -17,6 +17,7 @@ data class BlockchainCardModelState(
     val currentCard: BlockchainCard? = null,
     val defaultCardId: String = "",
     val cardList: List<BlockchainCard>? = emptyList(),
+    val cardProductList: List<BlockchainCardProduct>? = emptyList(),
     val selectedCardProduct: BlockchainCardProduct? = null,
     val cardWidgetUrl: String? = null,
     val isLinkedAccountBalanceLoading: Boolean = false,
@@ -43,6 +44,7 @@ data class BlockchainCardModelState(
     val cardOrderState: BlockchainCardOrderState? = null,
     val cardActivationUrl: String? = null,
     val cardStatements: List<BlockchainCardStatement>? = null,
+    val shippingAddress: BlockchainCardAddress? = null,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

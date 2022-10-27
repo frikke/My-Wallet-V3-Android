@@ -45,7 +45,8 @@ data class BlockchainCardAddress(
     val postCode: String,
     val city: String,
     val state: String,
-    val country: String
+    val country: String,
+    val addressType: BlockchainCardAddressType
 ) : Parcelable {
     fun getShortAddress(): String {
         return "$line1, $city"
@@ -226,4 +227,9 @@ data class BlockchainCardStatement(
 enum class BlockchainCardPostMessageType {
     MANAGE,
     VIEW
+}
+
+enum class BlockchainCardAddressType {
+    BILLING,
+    SHIPPING
 }

@@ -3193,6 +3193,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_transaction_refund_title">Refund by %1$s</string>
     <string name="bc_card_out_of_funds_top_up">Your card is out of funds, top up</string>
     <string name="bc_card_kyc_address_input_title">Home Address</string>
+    <string name="bc_card_shipping_address_input_title">Shipping Address</string>
     <string name="bc_card_kyc_commercial_address_not_accepted">PO Box or commercial address will not be accepted</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">Information secured with 256-bit encryption</string>
 
@@ -3352,6 +3353,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="account">Account</string>
     <string name="documents">Documents</string>
     <string name="actions">Actions</string>
+    <string name="bc_card_virtual_card_description">A digital card you can use instantly for online payments.</string>
+    <string name="bc_card_physical_card_description">A durable plastic card to make contactless crypto payments.</string>
+    <string name="bc_card_physical">Physical Card</string>
+    <string name="bc_card_virtual">Virtual Card</string>
+    <string name="bc_card_visa_title">Blockchain.com Visa Card</string>
+    <string name="bc_card_selected_input_title">Card Selected</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>

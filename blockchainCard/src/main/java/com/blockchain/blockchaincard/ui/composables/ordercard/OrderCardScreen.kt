@@ -1,5 +1,12 @@
 package com.blockchain.blockchaincard.ui.composables.ordercard
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,10 +33,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -43,7 +52,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
+import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.componentlib.basic.ComposeColors
@@ -72,8 +86,16 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun OrderCard(
@@ -514,54 +536,114 @@ private fun OrderCardSsnKYCPreview() {
     OrderCardSsnKYC(onContinue = {})
 }
 
+@OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun OrderCardContent(
-    onContinue: () -> Unit,
+fun CardProductPicker(
+    cardProducts: List<BlockchainCardProduct>,
+    onContinue: (BlockchainCardProduct) -> Unit,
     onSeeProductDetails: () -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        var selectedProduct by remember { mutableStateOf(cardProducts.first()) }
+
         Column(
             horizontalAlignment = CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    start = AppTheme.dimensions.standardSpacing,
-                    end = AppTheme.dimensions.standardSpacing,
-                    bottom = AppTheme.dimensions.standardSpacing
-                )
+                .padding(horizontal = AppTheme.dimensions.standardSpacing)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.card_front),
-                contentDescription = stringResource(id = R.string.blockchain_card)
-            )
 
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.virtual),
-                style = ComposeTypographies.Title2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
+            val pagerState = rememberPagerState()
 
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.order_card_intro),
-                style = ComposeTypographies.Paragraph1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre
-            )
+            LaunchedEffect(pagerState) {
+                // Collect from the pager state a snapshotFlow reading the currentPage
+                snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect { page ->
+                    selectedProduct = cardProducts[page]
+                }
+            }
 
-            MinimalButton(
-                text = stringResource(R.string.see_card_benefits),
-                onClick = onSeeProductDetails,
-                state = ButtonState.Enabled,
-                modifier = Modifier
-                    .padding(
-                        vertical = AppTheme.dimensions.standardSpacing
+            HorizontalPager(count = cardProducts.size, state = pagerState) { page ->
+                val productImage = when (cardProducts[page].type) {
+                    BlockchainCardType.VIRTUAL -> R.drawable.card_front_virtual_big
+                    BlockchainCardType.PHYSICAL -> R.drawable.card_front_physical_big
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = productImage),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = stringResource(id = R.string.blockchain_card),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = AppTheme.dimensions.epicSpacing)
                     )
-                    .wrapContentWidth(),
-                shape = AppTheme.shapes.extraLarge
+                }
+            }
+
+            AnimatedContent(
+                targetState = selectedProduct,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(150, delayMillis = 90)) +
+                        scaleIn(initialScale = 0.96f, animationSpec = tween(150, delayMillis = 90)) with
+                        fadeOut(animationSpec = tween(90))
+                }
+            ) { selectedProduct ->
+                val productTitle = when (selectedProduct.type) {
+                    BlockchainCardType.VIRTUAL -> stringResource(R.string.virtual)
+                    BlockchainCardType.PHYSICAL -> stringResource(R.string.physical)
+                }
+
+                val productDescription = when (selectedProduct.type) {
+                    BlockchainCardType.VIRTUAL -> stringResource(R.string.bc_card_virtual_card_description)
+                    BlockchainCardType.PHYSICAL -> stringResource(R.string.bc_card_physical_card_description)
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = CenterHorizontally
+                ) {
+                    SimpleText(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = productTitle,
+                        style = ComposeTypographies.Title2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Centre
+                    )
+
+                    SmallVerticalSpacer()
+
+                    SimpleText(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = productDescription,
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Centre
+                    )
+
+                    SmallVerticalSpacer()
+
+                    MinimalButton(
+                        text = stringResource(R.string.see_card_benefits),
+                        onClick = onSeeProductDetails,
+                        state = ButtonState.Enabled,
+                        modifier = Modifier.wrapContentWidth(),
+                        shape = AppTheme.shapes.extraLarge
+                    )
+                }
+            }
+
+            SmallVerticalSpacer()
+
+            HorizontalPagerIndicator(
+                pagerState = pagerState,
+                activeColor = ComposeColors.Primary.toComposeColor(),
+                modifier = Modifier
+                    .align(CenterHorizontally),
             )
         }
 
@@ -584,7 +666,9 @@ fun OrderCardContent(
 
             PrimaryButton(
                 text = stringResource(id = R.string.common_continue),
-                onClick = onContinue,
+                onClick = {
+                    onContinue(selectedProduct)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -593,10 +677,27 @@ fun OrderCardContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewOrderCardContent() {
+private fun PreviewCardProductPicker() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            OrderCardContent({}, {})
+            CardProductPicker(
+                cardProducts = listOf(
+                    BlockchainCardProduct(
+                        productCode = "PHYSICAL",
+                        price = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+                        brand = BlockchainCardBrand.VISA,
+                        type = BlockchainCardType.PHYSICAL
+                    ),
+                    BlockchainCardProduct(
+                        productCode = "VIRTUAL",
+                        price = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+                        brand = BlockchainCardBrand.VISA,
+                        type = BlockchainCardType.VIRTUAL
+                    )
+                ),
+                onContinue = {},
+                onSeeProductDetails = {}
+            )
         }
     }
 }
@@ -843,20 +944,20 @@ fun PreviewProductDetails() {
 @Composable
 fun ReviewAndSubmit(
     firstAndLastName: String?,
-    line1: String?,
-    city: String?,
-    postalCode: String?,
+    shippingAddress: BlockchainCardAddress?,
+    cardProductType: BlockchainCardType?,
     isLegalDocReviewComplete: Boolean = false,
-    onCheckBillingAddress: () -> Unit,
+    onChangeShippingAddress: () -> Unit,
     onSeeLegalDocuments: () -> Unit,
     onCreateCard: () -> Unit,
+    onChangeSelectedProduct: () -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.standardSpacing)
+                .padding(vertical = AppTheme.dimensions.smallSpacing, horizontal = AppTheme.dimensions.standardSpacing)
         ) {
 
             SimpleText(
@@ -906,11 +1007,48 @@ fun ReviewAndSubmit(
                 }
             }
 
+            if (cardProductType == BlockchainCardType.PHYSICAL) {
+
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+                // Shipping Address
+                SimpleText(
+                    text = stringResource(R.string.bc_card_shipping_address_input_title),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    border = BorderStroke(1.dp, Grey000),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = 0.dp
+                ) {
+                    shippingAddress?.let {
+                        DefaultTableRow(
+                            primaryText = shippingAddress.line1,
+                            secondaryText = "${shippingAddress.city}, ${shippingAddress.postCode}",
+                            onClick = onChangeShippingAddress,
+                            endImageResource = ImageResource.Local(
+                                R.drawable.ic_edit,
+                                colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Card Selected
             Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
-            // Home Address
             SimpleText(
-                text = stringResource(R.string.bc_card_kyc_address_input_title),
+                text = stringResource(R.string.bc_card_selected_input_title),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
@@ -927,11 +1065,22 @@ fun ReviewAndSubmit(
                 shape = RoundedCornerShape(16.dp),
                 elevation = 0.dp
             ) {
-                line1?.let {
+                cardProductType?.let {
+                    val productName = when (cardProductType) {
+                        BlockchainCardType.VIRTUAL -> stringResource(R.string.bc_card_virtual)
+                        BlockchainCardType.PHYSICAL -> stringResource(R.string.bc_card_physical)
+                    }
+
+                    val productImage = when (cardProductType) {
+                        BlockchainCardType.VIRTUAL -> ImageResource.Local(R.drawable.card_front_virtual)
+                        BlockchainCardType.PHYSICAL -> ImageResource.Local(R.drawable.card_front_physical)
+                    }
+
                     DefaultTableRow(
-                        primaryText = line1,
-                        secondaryText = "$city, $postalCode",
-                        onClick = onCheckBillingAddress,
+                        primaryText = productName,
+                        secondaryText = stringResource(R.string.bc_card_visa_title),
+                        onClick = onChangeSelectedProduct,
+                        startImageResource = productImage,
                         endImageResource = ImageResource.Local(
                             R.drawable.ic_edit,
                             colorFilter = ColorFilter.tint(AppTheme.colors.primary)
@@ -1003,12 +1152,20 @@ fun ReviewAndSubmit(
 fun PreviewReviewAndSubmit() {
     ReviewAndSubmit(
         firstAndLastName = "Jason Bourne",
-        line1 = "1330 Rivera Court Apt 204...",
-        city = "Sacramento",
-        postalCode = "CA 93401",
-        onCheckBillingAddress = { /*TODO*/ },
+        shippingAddress = BlockchainCardAddress(
+            line1 = "123 Main St",
+            line2 = "Apt 1",
+            city = "New York",
+            state = "NY",
+            postCode = "4444",
+            country = "US",
+            addressType = BlockchainCardAddressType.SHIPPING
+        ),
+        cardProductType = BlockchainCardType.PHYSICAL,
+        onChangeShippingAddress = { /*TODO*/ },
         onSeeLegalDocuments = { /*TODO*/ },
-        onCreateCard = { /*TODO*/ }
+        onCreateCard = { /*TODO*/ },
+        onChangeSelectedProduct = { /*TODO*/ },
     )
 }
 

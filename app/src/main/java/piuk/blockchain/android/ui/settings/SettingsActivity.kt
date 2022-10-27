@@ -188,19 +188,19 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct) {
-        startActivity(BlockchainCardActivity.newIntent(this, cardProduct))
+    override fun goToOrderBlockchainCard(cardProducts: List<BlockchainCardProduct>) {
+        startActivity(BlockchainCardActivity.newIntent(this, cardProducts))
     }
 
     override fun goToManageBlockchainCard(
-        product: BlockchainCardProduct,
+        products: List<BlockchainCardProduct>,
         cards: List<BlockchainCard>,
         defaultCard: BlockchainCard?
     ) {
         startActivity(
             BlockchainCardActivity.newIntent(
                 context = this,
-                blockchainCardProduct = product,
+                blockchainCardProducts = products,
                 blockchainCards = cards,
                 preselectedCard = defaultCard
             )
@@ -276,9 +276,9 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
+    fun goToOrderBlockchainCard(cardProducts: List<BlockchainCardProduct>)
     fun goToManageBlockchainCard(
-        product: BlockchainCardProduct,
+        products: List<BlockchainCardProduct>,
         cards: List<BlockchainCard>,
         defaultCard: BlockchainCard? = null
     )

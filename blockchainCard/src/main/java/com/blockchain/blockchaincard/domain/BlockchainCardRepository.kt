@@ -26,7 +26,8 @@ interface BlockchainCardRepository {
 
     suspend fun createCard(
         productCode: String,
-        ssn: String
+        ssn: String,
+        shippingAddress: BlockchainCardAddress?
     ): Outcome<BlockchainCardError, BlockchainCard>
 
     suspend fun getCard(
