@@ -49,14 +49,14 @@ fun ActivityDetail(
         onDispose { }
     }
 
-    ActivityScreen(
-        activity = viewState?.activityDetailItems ?: DataResource.Loading
+    ActivityDetailScreen(
+        activityDetail = viewState?.activityDetailItems ?: DataResource.Loading
     )
 }
 
 @Composable
-fun ActivityScreen(
-    activity: DataResource<ActivityDetail>
+fun ActivityDetailScreen(
+    activityDetail: DataResource<ActivityDetail>
 ) {
     Column(
         modifier = Modifier
@@ -73,7 +73,7 @@ fun ActivityScreen(
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
-            when (activity) {
+            when (activityDetail) {
                 is DataResource.Loading -> {
                     ShimmerLoadingCard()
                 }
@@ -82,7 +82,7 @@ fun ActivityScreen(
                 }
                 is DataResource.Data -> {
                     ActivityDetailData(
-                        activity = activity.data,
+                        activityDetail = activityDetail.data,
                     )
                 }
             }
@@ -92,13 +92,13 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityDetailData(
-    activity: ActivityDetail
+    activityDetail: ActivityDetail
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        activity.itemGroups.forEach { sectionItems ->
+        activityDetail.itemGroups.forEach { sectionItems ->
             item {
                 ActivitySectionCard(components = sectionItems)
             }
@@ -108,7 +108,7 @@ fun ActivityDetailData(
             }
         }
 
-        activity.floatingActions.forEach { item ->
+        activityDetail.floatingActions.forEach { item ->
             item {
                 ActivityComponentItem(component = item, onClick = { })
             }
@@ -123,7 +123,7 @@ fun ActivityDetailData(
 @Preview
 @Composable
 fun PreviewActivityScreen() {
-    ActivityScreen(
-        activity = DETAIL_DUMMY_DATA
+    ActivityDetailScreen(
+        activityDetail = DETAIL_DUMMY_DATA
     )
 }
