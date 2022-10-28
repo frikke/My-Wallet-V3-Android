@@ -193,16 +193,25 @@ class CustodialTradingAccount(
     private fun sellEligibility(balance: AccountBalance): Single<StateAwareAction> {
         val accountsFiat = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
             .onErrorReturn { emptyList() }
+
         val sellEligibility = identity.userAccessForFeature(Feature.Sell)
-        return sellEligibility.zipWith(accountsFiat) { sellEligible, fiatAccounts ->
+
+        val isAvailableForTrading = custodialWalletManager.isCurrencyAvailableForTradingLegacy(assetInfo = currency)
+
+        return Single.zip(
+            sellEligibility,
+            accountsFiat,
+            isAvailableForTrading
+        ) { sellEligible, fiatAccounts, isAvailableForTrading ->
             StateAwareAction(
-                when {
+                state = when {
                     sellEligible is FeatureAccess.Blocked -> sellEligible.toActionState()
                     fiatAccounts.isEmpty() -> ActionState.LockedForTier
                     balance.total.isPositive.not() -> ActionState.LockedForBalance
+                    isAvailableForTrading.not() -> ActionState.LockedDueToAvailability
                     else -> ActionState.Available
                 },
-                AssetAction.Sell
+                action = AssetAction.Sell
             )
         }
     }
