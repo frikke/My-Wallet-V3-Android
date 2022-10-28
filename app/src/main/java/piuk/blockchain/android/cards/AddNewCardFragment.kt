@@ -159,6 +159,8 @@ class AddNewCardFragment :
                     if (cardHasAlreadyBeenAdded()) {
                         showError()
                     } else {
+                        fraudService.startFlow(FraudFlow.CARD_LINK)
+
                         cardDetailsPersistence.setCardData(
                             CardData(
                                 fullName = cardName.text.toString(),

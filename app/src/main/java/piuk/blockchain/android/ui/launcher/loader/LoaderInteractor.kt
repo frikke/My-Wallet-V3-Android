@@ -32,6 +32,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.Serializable
 import kotlinx.coroutines.rx3.rxCompletable
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 
@@ -53,7 +55,8 @@ class LoaderInteractor(
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
     private val kycService: KycService,
-    private val experimentsStore: ExperimentsStore
+    private val experimentsStore: ExperimentsStore,
+    private val fraudService: FraudService
 ) {
 
     private val wallet: Wallet
@@ -189,6 +192,7 @@ class LoaderInteractor(
     private fun saveInitialCountry(): Completable {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
         return if (countrySelected.isNotEmpty()) {
+            fraudService.endFlow(FraudFlow.SIGNUP)
             val stateSelected = walletPrefs.stateSelectedOnSignUp
             nabuUserDataManager.saveUserInitialLocation(
                 countrySelected,

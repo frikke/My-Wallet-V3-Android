@@ -83,6 +83,8 @@ class KycAddressVerificationFragment :
             analytics.logEvent(CowboysAnalytics.KycAddressConfirmed)
         }
 
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         presenter.onContinueClicked(progressListener.campaignType, address)
         analytics.logEvent(KYCAnalyticsEvents.AddressChanged)
     }

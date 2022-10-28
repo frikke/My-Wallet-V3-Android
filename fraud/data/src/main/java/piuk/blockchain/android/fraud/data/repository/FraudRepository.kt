@@ -110,6 +110,9 @@ internal class FraudRepository(
                                     setEnvironment(Options.ENV_PRODUCTION)
                                 }
                             }
+                            .setFlow("STARTUP")
+                            .setSessionKey(sessionInfo.getSessionId()?.hash() ?: "STARTUP_SESSION")
+                            .setShouldAutoSubmitOnInit(true)
                             .build()
                         MobileIntelligence.init(application, option)
                     } else {
@@ -124,8 +127,9 @@ internal class FraudRepository(
         coroutineScope.launch(dispatcher) {
             if (sardineFeatureFlag.coEnabled()) {
                 withContext(Dispatchers.Main) {
-                    if (fraudFlows.getAllFlows().contains(flow) && currentFlow.get() != flow) {
+                    if (fraudFlows.getAllFlows().contains(flow)) {
                         currentFlow.set(flow)
+                        Timber.i("Start tracking fraud flow: ${flow.name}.")
                         val options: UpdateOptions = UpdateOptions.Builder()
                             .setFlow(flow.name)
                             .apply {
@@ -134,7 +138,7 @@ internal class FraudRepository(
                             }
                             .build()
 
-                        MobileIntelligence.updateOptions(options)
+                        MobileIntelligence.updateOptions(options, onDataSubmittedCallback(flow))
                     }
                 }
             }
@@ -165,18 +169,29 @@ internal class FraudRepository(
         if (currentFlow.get() == flow || flow == null) {
             currentFlow.set(null)
 
-            MobileIntelligence.submitData(object : MobileIntelligence.Callback<SubmitResponse> {
-                override fun onSuccess(response: SubmitResponse) {
-                    onDataSubmitted?.invoke()
-                }
+            Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.options.flow}].")
 
-                override fun onError(exception: Exception) {
-                    Timber.e(exception)
-                    onDataSubmitted?.invoke()
-                }
-            })
+            if (!MobileIntelligence.options.flow.isNullOrEmpty()) {
+                MobileIntelligence.submitData(onDataSubmittedCallback(flow, onDataSubmitted))
+            }
         }
     }
+
+    private fun onDataSubmittedCallback(flow: FraudFlow?, onDataSubmitted: (() -> Unit)? = null) =
+        object : MobileIntelligence.Callback<SubmitResponse> {
+            override fun onSuccess(response: SubmitResponse) {
+                onDataSubmitted?.invoke()
+                Timber.i("Fraud data sent for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}].")
+            }
+
+            override fun onError(exception: Exception) {
+                onDataSubmitted?.invoke()
+                Timber.e(
+                    exception,
+                    "Error sending fraud data for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}]."
+                )
+            }
+        }
 
     private fun String.toFraudFlow(): FraudFlow? =
         when {

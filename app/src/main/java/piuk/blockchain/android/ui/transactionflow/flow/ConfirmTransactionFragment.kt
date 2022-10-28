@@ -17,6 +17,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxFlowConfirmBinding
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -32,6 +33,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     private val prefs: CurrencyPrefs by scopedInject()
     private val mapper: TxConfirmReadOnlyMapperCheckout by scopedInject()
     private val customiser: TransactionConfirmationCustomisations by inject()
+    private val fraudService: FraudService by inject()
 
     private var headerSlot: TxFlowWidget? = null
     private val assetAction: AssetAction? by lazy {
@@ -124,6 +126,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     }
 
     private fun onCtaClick(state: TransactionState) {
+        fraudService.endFlow()
         analyticsHooks.onConfirmationCtaClick(state)
         model.process(TransactionIntent.ExecuteTransaction)
     }

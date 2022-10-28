@@ -60,7 +60,7 @@ open class BlockchainApplication : Application() {
     private val fraudService: FraudService by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger, fraudService)
+        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
     }
 
     override fun onCreate() {
@@ -200,9 +200,9 @@ open class BlockchainApplication : Application() {
 
     private fun initFraudService() {
         with(fraudService) {
-            initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
             updateSessionId()
             updateUnauthenticatedUserFlows()
+            initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
         }
     }
 

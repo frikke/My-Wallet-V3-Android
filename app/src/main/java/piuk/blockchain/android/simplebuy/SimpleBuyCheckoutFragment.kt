@@ -58,6 +58,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
@@ -89,6 +91,7 @@ class SimpleBuyCheckoutFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val googlePayViewUtils: GooglePayViewUtils by inject()
+    private val fraudService: FraudService by inject()
     private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
@@ -606,6 +609,7 @@ class SimpleBuyCheckoutFragment :
                         }
                     )
                     setOnClickListener {
+                        trackFraudFlow()
                         when (
                             getSettlementReason(
                                 plaidFFEnabled = state.featureFlagSet.plaidFF,
@@ -670,6 +674,7 @@ class SimpleBuyCheckoutFragment :
                         getString(R.string.common_ok)
                     }
                     setOnClickListener {
+                        trackFraudFlow()
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
                         } else {
@@ -695,11 +700,18 @@ class SimpleBuyCheckoutFragment :
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
                 setOnClickListener {
+                    trackFraudFlow()
                     buttonGooglePay.showLoading()
                     model.process(SimpleBuyIntent.GooglePayInfoRequested)
                 }
             }
         }
+    }
+
+    private fun trackFraudFlow() {
+        fraudService.endFlows(
+            FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.CARD_DEPOSIT, FraudFlow.MOBILE_WALLET_DEPOSIT
+        )
     }
 
     private fun showErrorState(errorState: ErrorState) {
