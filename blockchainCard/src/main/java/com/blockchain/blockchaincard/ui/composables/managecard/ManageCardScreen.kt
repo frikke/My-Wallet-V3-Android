@@ -250,11 +250,11 @@ fun ManageCard(
                     }
 
                     else -> {
-
                         Webview(
                             url = cardWidgetUrl,
                             disableScrolling = true,
                             onWebMessageReceived = onWebMessageReceived,
+                            overrideTextZoom = true,
                             modifier = Modifier
                                 .padding(
                                     top = AppTheme.dimensions.smallSpacing

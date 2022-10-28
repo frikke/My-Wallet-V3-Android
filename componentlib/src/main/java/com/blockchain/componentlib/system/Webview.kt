@@ -28,6 +28,7 @@ fun Webview(
     useWideViewPort: Boolean = true,
     loadWithOverviewMode: Boolean = true,
     disableScrolling: Boolean = false,
+    overrideTextZoom: Boolean = false,
     modifier: Modifier = Modifier,
     onPageLoaded: () -> Unit = {},
     urlRedirectHandler: (String?) -> Boolean = { false },
@@ -44,6 +45,9 @@ fun Webview(
                 settings.javaScriptEnabled = javaScriptEnabled
                 settings.useWideViewPort = useWideViewPort
                 settings.loadWithOverviewMode = loadWithOverviewMode
+                if (overrideTextZoom) {
+                    settings.textZoom = 100
+                }
 
                 if (disableScrolling) {
                     isVerticalScrollBarEnabled = false
