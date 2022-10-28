@@ -183,7 +183,7 @@ data class SimpleBuyState constructor(
                         lastState?.selectedPaymentMethod != null &&
                         lastState.selectedPaymentMethod != this.selectedPaymentMethod
                     ) ||
-                    (lastState?.amount != this.amount)
+                    (lastState?.amount != null && lastState.amount != this.amount)
                 )
     }
 
