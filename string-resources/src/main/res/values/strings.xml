@@ -3332,6 +3332,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_status_locked">Locked</string>
     <string name="bc_card_status_terminated">Terminated</string>
     <string name="bc_card_order_processing">Processing</string>
+    <string name="bc_card_order_processed">Processed</string>
     <string name="bc_card_order_shipped">Shipped</string>
     <string name="bc_card_order_delivered">Delivered</string>
     <string name="bc_card_order_complete">Complete</string>
@@ -3342,10 +3343,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_activation_success_subtitle">Use your card everywhere Visa is accepted.</string>
     <string name="bc_card_delivered_title">Card Delivered</string>
     <string name="bc_card_delivered_subtitle">Activate your card</string>
-    <string name="bc_card_shipped_title">Card Shipped</string>
-    <string name="bc_card_shipped_subtitle">Already delivered? Tap here to activate</string>
-    <string name="bc_card_processing_title">Processing Order</string>
-    <string name="bc_card_processing_subtitle">Confirming your details</string>
+    <string name="bc_card_shipped_title">Card Delivered?</string>
+    <string name="bc_card_shipped_subtitle">Activate your card</string>
+    <string name="bc_card_processing_title">Card Ordered</string>
+    <string name="bc_card_processing_subtitle">Should arrive in 3-5 days</string>
     <string name="basic_info">Basic Info</string>
     <string name="bc_card_freeze">Freeze Card</string>
     <string name="legal_documents">Legal Documents</string>
