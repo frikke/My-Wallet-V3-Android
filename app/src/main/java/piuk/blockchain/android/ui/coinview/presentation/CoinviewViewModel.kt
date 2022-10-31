@@ -859,7 +859,9 @@ class CoinviewViewModel(
                 check(modelState.accounts != null) { "AccountExplainerAcknowledged accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
-                if (cvAccount is CoinviewAccount.Custodial.Staking) {
+                if ((cvAccount is CoinviewAccount.Universal && cvAccount.filter == AssetFilter.Staking) ||
+                    cvAccount is CoinviewAccount.Custodial.Staking
+                ) {
                     navigate(
                         CoinviewNavigationEvent.ShowStakingAccountInterstitial(
                             assetIconUrl = modelState.asset?.currency?.logo
