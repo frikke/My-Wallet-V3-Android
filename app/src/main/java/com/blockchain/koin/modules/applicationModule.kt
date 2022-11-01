@@ -29,6 +29,7 @@ import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.gbp
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
@@ -36,6 +37,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.sellOrder
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -781,7 +783,11 @@ val applicationModule = module {
 
         viewModel {
             SellViewModel(
-                sellService = get()
+                sellService = get(),
+                coincore = get(),
+                accountsSorting = get(sellOrder),
+                localSettingsPrefs = get(),
+                hideDustFlag = get(hideDustFeatureFlag)
             )
         }
     }
