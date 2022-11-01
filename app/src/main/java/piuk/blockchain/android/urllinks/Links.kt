@@ -79,3 +79,5 @@ const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/ar
 
 const val STAKING_LEARN_MORE = "https://support.blockchain.com/hc/en-us/sections/5954708914460-Staking"
 const val STAKING_WEB_APP = "https://login.blockchain.com/en/#/open/earn"
+
+const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"

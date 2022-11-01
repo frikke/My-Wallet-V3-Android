@@ -39,7 +39,7 @@ import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
 import piuk.blockchain.android.urllinks.STAKING_WEB_APP
 import piuk.blockchain.android.util.openUrl
@@ -158,7 +158,11 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToReceive -> {
-                showBottomSheet(ReceiveDetailSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+                startActivity(
+                    ReceiveDetailActivity.newIntent(
+                        context = this, account = navigationEvent.cvAccount.account as CryptoAccount
+                    )
+                )
             }
 
             is CoinviewNavigationEvent.NavigateToSwap -> {

@@ -88,7 +88,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewAccountSellC
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.putAccount
 
@@ -823,7 +823,7 @@ class CoinViewActivity :
     }
 
     private fun startReceive(account: BlockchainAccount) {
-        showBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
+        startActivity(ReceiveDetailActivity.newIntent(this, account as CryptoAccount))
     }
 
     private fun startViewSummary(account: BlockchainAccount) {

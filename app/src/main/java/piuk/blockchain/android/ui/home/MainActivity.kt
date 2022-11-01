@@ -121,7 +121,7 @@ import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
@@ -943,7 +943,7 @@ class MainActivity :
         action: AssetAction,
         account: BlockchainAccount?,
     ) = when (action) {
-        AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
+        AssetAction.Receive -> startActivity(ReceiveDetailActivity.newIntent(this, account as CryptoAccount))
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
         AssetAction.ViewActivity -> startActivitiesFragment(account)
         else -> {

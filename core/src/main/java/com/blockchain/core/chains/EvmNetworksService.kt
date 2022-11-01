@@ -1,6 +1,9 @@
 package com.blockchain.core.chains
 
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.outcome.map
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,6 +37,16 @@ class EvmNetworksService(
         return remoteConfig.getRawJson(LAYER_TWO_NETWORKS).map { json ->
             jsonBuilder.decodeFromString<EvmNetworkList>(json).networks
         }
+    }
+
+    fun getSupportedNetworkForCurrency(currency: String): Maybe<EvmNetwork> {
+        return remoteConfig.getRawJson(LAYER_TWO_NETWORKS).map {
+            it.plus(EthDataManager.ethChain)
+        }
+            .map { json ->
+                jsonBuilder.decodeFromString<EvmNetworkList>(json).networks
+                    .first { it.networkTicker == currency }
+            }.toMaybe()
     }
 
     companion object {

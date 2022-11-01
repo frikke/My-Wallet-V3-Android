@@ -18,8 +18,10 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
@@ -57,6 +59,7 @@ import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
+import piuk.blockchain.android.ui.transfer.receive.detail.SetNetworkName
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
@@ -147,7 +150,8 @@ data class TransactionState(
     val ffSwapSellQuickFillsEnabled: Boolean = false,
     val canFilterOutTradingAccounts: Boolean = false,
     val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val networkName: String? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -254,6 +258,19 @@ class TransactionModel(
         Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
         return when (intent) {
+            is TransactionIntent.GetNetworkName -> {
+                when {
+                    intent.fromAccount is MultiChainAccount -> { // PKW
+                        process(TransactionIntent.SetNetworkName(intent.fromAccount.l1Network.networkName))
+                        null
+                    }
+                    intent.fromAccount is CustodialTradingAccount &&
+                        intent.fromAccount.currency.l1chainTicker != null -> { // Trading Accounts
+                        getNetworkNameForTradingAccount(intent.fromAccount.currency.networkTicker)
+                    }
+                    else -> null
+                }
+            }
             is TransactionIntent.InitialiseWithSourceAccount -> processAccountsListUpdate(
                 selectedTarget = previousState.selectedTarget,
                 fromAccount = intent.fromAccount,
@@ -382,9 +399,21 @@ class TransactionModel(
             is TransactionIntent.FiatDepositOptionSelected,
             is TransactionIntent.UpdatePrefillAmount,
             is TransactionIntent.UpdateTradingAccountsFilterState,
-            is TransactionIntent.ResetPrefillAmount -> null
+            is TransactionIntent.ResetPrefillAmount,
+            is TransactionIntent.SetNetworkName -> null
         }
     }
+
+    private fun getNetworkNameForTradingAccount(currency: String): Disposable =
+        interactor.getEvmNetworkForCurrency(currency)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SetNetworkName(it.networkName))
+                },
+                onError = {
+                    Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")
+                }
+            )
 
     private fun getInitialAmountFromTarget(
         intent: TransactionIntent.InitialiseWithSourceAndTargetAccount

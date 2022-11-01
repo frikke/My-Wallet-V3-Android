@@ -7,6 +7,7 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.outcome.map
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class UniversalDynamicAssetRepository(
@@ -53,6 +54,9 @@ class UniversalDynamicAssetRepository(
 
     // Returns the list of EvmNetworks from the coin networks service including Ethereum
     override fun allEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.allEvmNetworks()
+
+    override fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> =
+        l2sDynamicAssetRepository.getEvmNetworkForCurrency(currency)
 
     // Returns the list of EvmNetworks from the coin networks service except Ethereum
     override fun otherEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.otherEvmNetworks()

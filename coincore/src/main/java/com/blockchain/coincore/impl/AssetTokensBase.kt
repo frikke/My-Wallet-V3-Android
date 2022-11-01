@@ -103,7 +103,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             loadNonCustodialAccounts(
                 labels
             ),
-            loadTradingAccounts(),
+            loadCustodialAccounts(),
             loadInterestAccounts(),
             loadStakingAccounts().asSingle(),
             stakingEnabledFlag.enabled
@@ -130,7 +130,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         activeAccounts.setForceRefresh()
     }
 
-    private fun loadTradingAccounts(): Single<SingleAccountList> =
+    private fun loadCustodialAccounts(): Single<SingleAccountList> =
         if (currency.isCustodial) {
             Single.just(
                 listOf(

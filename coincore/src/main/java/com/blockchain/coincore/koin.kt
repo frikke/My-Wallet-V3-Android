@@ -129,7 +129,9 @@ val coincoreModule = module {
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stakingService = get(),
                 unifiedBalancesFeatureFlag = get(unifiedBalancesFlag),
-                coinNetworksEnabledFlag = get(coinNetworksFeatureFlag)
+                coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
+                kycService = get(),
+                walletModeService = get()
             )
         }.bind(AssetLoader::class)
 

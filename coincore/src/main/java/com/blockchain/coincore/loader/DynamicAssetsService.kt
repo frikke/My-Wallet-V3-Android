@@ -7,6 +7,7 @@ import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 interface DynamicAssetsService {
@@ -14,6 +15,7 @@ interface DynamicAssetsService {
     fun availableL1Assets(): Single<List<AssetInfo>>
     fun otherEvmAssets(): Single<List<AssetInfo>>
     fun allEvmNetworks(): Single<List<EvmNetwork>>
+    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
     fun otherEvmNetworks(): Single<List<EvmNetwork>>
 }
 

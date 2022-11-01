@@ -122,7 +122,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(
                 R.string.send_address_warning,
                 state.sendingAsset.displayTicker,
-                state.sendingAsset.name
+                state.networkName
             )
             else -> ""
         }

@@ -126,7 +126,6 @@ class TransactionFlowIntentMapper(
 
     private fun handleSend(passwordRequired: Boolean): TransactionIntent {
         check(sourceAccount.isDefinedCryptoAccount()) { "Can't start send without a source account" }
-
         return if (target.isDefinedTarget()) {
             TransactionIntent.InitialiseWithSourceAndTargetAccount(
                 action,
