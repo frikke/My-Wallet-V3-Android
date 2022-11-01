@@ -166,14 +166,17 @@ internal class FraudRepository(
     }
 
     private fun submitData(flow: FraudFlow?, onDataSubmitted: (() -> Unit)? = null) {
-        if (currentFlow.get() == flow || flow == null) {
-            currentFlow.set(null)
+        try {
+            if (currentFlow.get() == flow || flow == null) {
+                currentFlow.set(null)
 
-            Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.options.flow}].")
-
-            if (!MobileIntelligence.options.flow.isNullOrEmpty()) {
-                MobileIntelligence.submitData(onDataSubmittedCallback(flow, onDataSubmitted))
+                if (!MobileIntelligence.options.flow.isNullOrEmpty()) {
+                    Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.options.flow}].")
+                    MobileIntelligence.submitData(onDataSubmittedCallback(flow, onDataSubmitted))
+                }
             }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
     }
 
