@@ -110,7 +110,7 @@ class NonCustodialL2sDynamicAssetRepository(
     }
 
     private fun getL2sForSupportedL1s(): Single<DynamicAssetList> {
-        return otherEvmAssets()
+        return otherEvmNetworks()
             .flatMap { evmAssets ->
                 rxSingle {
                     l2Store.stream(

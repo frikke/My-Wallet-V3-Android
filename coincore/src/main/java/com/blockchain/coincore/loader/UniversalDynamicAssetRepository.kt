@@ -26,7 +26,7 @@ class UniversalDynamicAssetRepository(
                 .toSet() // Remove dups
                 .asSequence()
                 .filter { it.supportsAnyCustodialOrNonCustodialProducts() }
-                .map { it.toAssetInfo(evmCoins.map { it.displayTicker }) }
+                .mapNotNull { it.toAssetInfo(evmCoins.map { it.displayTicker }) }
                 .filterNot { it.networkTicker in dominantL1Assets.map { l1 -> l1.networkTicker } }
                 .plus(dominantL1Assets)
                 .toList()
@@ -42,13 +42,13 @@ class UniversalDynamicAssetRepository(
                     )
                 }
             }
-            .map { assets -> assets.map { it.toAssetInfo() } }
+            .map { assets -> assets.mapNotNull { it.toAssetInfo() } }
     }
 
     // Returns the AssetInfo for every Coin from coin definitions with the network type EVM except Ethereum
     override fun otherEvmAssets(): Single<List<AssetInfo>> {
         return l2sDynamicAssetRepository.otherEvmAssets()
-            .map { it.map { asset -> asset.toAssetInfo() } }
+            .map { it.mapNotNull { asset -> asset.toAssetInfo() } }
     }
 
     // Returns the list of EvmNetworks from the coin networks service including Ethereum
