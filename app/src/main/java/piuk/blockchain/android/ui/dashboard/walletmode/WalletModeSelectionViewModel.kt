@@ -14,17 +14,17 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,
-    private val cache: WalletModeBalanceCache,
+    private val walletModeBalanceService: WalletModeBalanceService,
     private val payloadManager: PayloadDataManager,
     walletStatusPrefs: WalletStatusPrefs,
 ) :
@@ -89,14 +89,14 @@ class WalletModeSelectionViewModel(
                     it.copy(brokerageBalance = null, defiBalance = null)
                 }
 
-                val nonCustodialBalance = cache.getBalanceWithFailureState(
+                val nonCustodialBalance = walletModeBalanceService.getBalanceWithFailureState(
                     WalletMode.NON_CUSTODIAL_ONLY,
                     FreshnessStrategy.Cached(forceRefresh = true)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {
                             it.copy(
-                                defiBalance = response.data.first.total,
+                                defiBalance = response.data.first,
                                 anyDefiBalanceFailed = response.data.second
                             )
                         }
@@ -108,14 +108,14 @@ class WalletModeSelectionViewModel(
                     }
                 }
 
-                val custodialBalance = cache.getBalanceWithFailureState(
+                val custodialBalance = walletModeBalanceService.getBalanceWithFailureState(
                     WalletMode.CUSTODIAL_ONLY,
                     FreshnessStrategy.Cached(forceRefresh = true)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {
                             it.copy(
-                                brokerageBalance = response.data.first.total,
+                                brokerageBalance = response.data.first,
                                 anyBrokerageBalanceFailed = response.data.second
                             )
                         }

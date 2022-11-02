@@ -81,8 +81,8 @@ val mainModule = module {
         viewModel {
             WalletModeSelectionViewModel(
                 walletModeService = get(),
-                cache = get(),
                 payloadManager = get(),
+                walletModeBalanceService = get(),
                 walletStatusPrefs = get()
             )
         }
@@ -90,14 +90,16 @@ val mainModule = module {
         scoped<WalletModeBalanceService>(superAppModeService) {
             WalletModeBalanceRepository(
                 walletModeService = get(superAppModeService),
-                balanceStore = get()
+                balanceStore = get(),
+                currencyPrefs = get()
             )
         }
 
         scoped<WalletModeBalanceService> {
             WalletModeBalanceRepository(
                 walletModeService = get(),
-                balanceStore = get()
+                balanceStore = get(),
+                currencyPrefs = get()
             )
         }
     }

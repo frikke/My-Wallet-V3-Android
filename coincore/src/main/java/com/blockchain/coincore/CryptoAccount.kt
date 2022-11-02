@@ -74,7 +74,7 @@ data class AccountBalance internal constructor(
     }
 }
 
-fun List<AccountBalance>.total(): AccountBalance = reduce { a, v ->
+fun List<AccountBalance>.total(currency: Currency): AccountBalance = fold(AccountBalance.zero(currency)) { a, v ->
     AccountBalance(
         total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
         withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
