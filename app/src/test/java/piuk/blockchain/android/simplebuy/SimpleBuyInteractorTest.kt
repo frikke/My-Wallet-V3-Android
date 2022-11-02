@@ -80,6 +80,7 @@ class SimpleBuyInteractorTest {
     private val cardPaymentAsyncFF: FeatureFlag = mock()
     private val feynmanEnterAmountScreenFF: FeatureFlag = mock()
     private val feynmanCheckoutScreenFF: FeatureFlag = mock()
+    private val improvedPaymentUxFF: FeatureFlag = mock()
     private val brokerageDataManager: BrokerageDataManager = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
@@ -131,7 +132,8 @@ class SimpleBuyInteractorTest {
             feynmanEnterAmountFF = feynmanEnterAmountScreenFF,
             feynmanCheckoutFF = feynmanCheckoutScreenFF,
             quickFillRoundingService = quickFillRoundingService,
-            brokerageDataManager = brokerageDataManager
+            brokerageDataManager = brokerageDataManager,
+            improvedPaymentUxFF = improvedPaymentUxFF
         )
 
         whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(

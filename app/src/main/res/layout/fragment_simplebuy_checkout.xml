@@ -9,12 +9,12 @@
 
     <com.blockchain.componentlib.system.CircularProgressBarView
         android:id="@+id/quote_expiration"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacing"
         android:visibility="gone"
-        tools:text="Quote: X seconds"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Quote: X seconds" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/amount"
@@ -68,9 +68,11 @@
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fadeScrollbars="true"
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_spacing"
         android:requiresFadingEdge="vertical"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/separator_bottom"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/separator_top"
@@ -138,7 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="top"
-        app:constraint_referenced_ids="button_google_pay, button_action"/>
+        app:constraint_referenced_ids="button_google_pay, button_action" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_action"

@@ -170,3 +170,9 @@ fun String.toShortMonthYearDate(locale: Locale = Locale.getDefault()): String {
 
     return finalFormat.format(originalDate)
 }
+
+fun Date.toDayAndMonth(locale: Locale = Locale.getDefault()): String {
+    val defaultDateTimeFormat = SimpleDateFormat("dd MMMM", locale)
+    val usDateTimeFormat = SimpleDateFormat("MMMM dd", locale)
+    return if (locale == Locale.US) usDateTimeFormat.format(this) else defaultDateTimeFormat.format(this)
+}

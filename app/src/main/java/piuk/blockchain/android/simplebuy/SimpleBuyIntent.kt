@@ -660,6 +660,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    class ToggleRecurringBuy(private val isRecurringBuyToggled: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                isRecurringBuyToggled = isRecurringBuyToggled
+            )
+    }
+
     class TxLimitsUpdated(private val limits: TxLimits) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(

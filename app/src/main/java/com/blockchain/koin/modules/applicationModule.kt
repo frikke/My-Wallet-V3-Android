@@ -30,6 +30,7 @@ import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.gbp
 import com.blockchain.koin.hideDustFeatureFlag
+import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
@@ -454,6 +455,7 @@ val applicationModule = module {
                 rbExperimentFF = get(rbExperimentFeatureFlag),
                 feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
+                improvedPaymentUxFF = get(improvedPaymentUxFeatureFlag),
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get()
             )
