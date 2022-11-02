@@ -47,7 +47,7 @@ fun OverlapIcons(
             modifier = Modifier
                 .size(iconSize + borderSize * 2)
                 .background(color = borderColor, shape = CircleShape)
-                .border(width =borderSize, borderColor, CircleShape)
+                .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
             imageResource = front
         )

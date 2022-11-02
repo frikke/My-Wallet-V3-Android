@@ -12,8 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
@@ -88,7 +86,7 @@ fun SheetFloatingHeader(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             Image(
-                imageResource = ImageResource.Local(   R.drawable.ic_close_circle_white  )
+                imageResource = ImageResource.Local(R.drawable.ic_close_circle_white)
             )
         }
     }
