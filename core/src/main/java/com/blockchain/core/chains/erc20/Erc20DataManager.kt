@@ -179,31 +179,47 @@ internal class Erc20DataManagerImpl(
 
         if (ethLayerTwoFeatureFlag.coEnabled()) {
             val erc20L2ActiveAssets = getSupportedNetworks().await().let { evmNetworks ->
-                val evmNetworksWithBalances = evmNetworks.map { evmNetwork ->
-                    l1BalanceStore.stream(refreshStrategy.withKey(L1BalanceStore.Key(evmNetwork.nodeUrl)))
-                        .catch { emit(DataResource.Data(BigInteger.ZERO)) }
-                        .mapData { balance -> Pair(evmNetwork, balance) }
-                        .getDataOrThrow()
-                }
-
-                combine(evmNetworksWithBalances) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
-                    pairsEvmNetworkWithBalance
-                        .filter { (_, balance) ->
-                            shouldShow || balance > BigInteger.ZERO
-                        }
-                        .map { (evmNetwork, _) -> evmNetwork }
-                }.map {
-                    it.map { evmNetwork ->
+                if (shouldShow) {
+                    val erc20L2ActiveAssetLists = evmNetworks.map { evmNetwork ->
                         erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                             .catch { emit(emptySet()) }
                     }
-                }.flatMapMerge {
-                    if (it.isNotEmpty()) {
-                        combine(it) { assets ->
+                    if (erc20L2ActiveAssetLists.isNotEmpty()) {
+                        combine(erc20L2ActiveAssetLists) { assets ->
                             assets.reduce { acc, set -> acc.plus(set).toSet() }
                         }
                     } else {
                         flowOf(emptySet())
+                    }
+                } else {
+                    val evmNetworksWithBalances = evmNetworks.map { evmNetwork ->
+                        l1BalanceStore.stream(refreshStrategy.withKey(L1BalanceStore.Key(evmNetwork.nodeUrl)))
+                            .catch { emit(DataResource.Data(BigInteger.ZERO)) }
+                            .mapData { balance -> Pair(evmNetwork, balance) }
+                            .getDataOrThrow()
+                    }
+
+                    combine(
+                        evmNetworksWithBalances
+                    ) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
+                        pairsEvmNetworkWithBalance
+                            .filter { (_, balance) ->
+                                shouldShow || balance > BigInteger.ZERO
+                            }
+                            .map { (evmNetwork, _) -> evmNetwork }
+                    }.map {
+                        it.map { evmNetwork ->
+                            erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
+                                .catch { emit(emptySet()) }
+                        }
+                    }.flatMapMerge {
+                        if (it.isNotEmpty()) {
+                            combine(it) { assets ->
+                                assets.reduce { acc, set -> acc.plus(set).toSet() }
+                            }
+                        } else {
+                            flowOf(emptySet())
+                        }
                     }
                 }
             }
