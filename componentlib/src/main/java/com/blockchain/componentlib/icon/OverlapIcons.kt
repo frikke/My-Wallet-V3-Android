@@ -19,9 +19,9 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun OverlapIcons(
-    leadingImagePrimary: ImageResource,
-    leadingImageSecondary: ImageResource,
-    borderColor: Color = AppTheme.colors.background
+    front: ImageResource,
+    back: ImageResource,
+    borderColor: Color = AppTheme.colors.light
 ) {
     val borderSize = 2.dp
     val iconSize = 18.dp
@@ -40,7 +40,7 @@ fun OverlapIcons(
                 .size(iconSize)
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = leadingImageSecondary
+            imageResource = back
         )
 
         Image(
@@ -49,7 +49,7 @@ fun OverlapIcons(
                 .background(color = borderColor, shape = CircleShape)
                 .border(width =borderSize, borderColor, CircleShape)
                 .padding(borderSize),
-            imageResource = leadingImagePrimary
+            imageResource = front
         )
     }
 }
@@ -58,8 +58,8 @@ fun OverlapIcons(
 @Composable
 fun PreviewOverlapIcons() {
     OverlapIcons(
-        leadingImagePrimary = ImageResource.Local(R.drawable.ic_close_circle_dark),
-        leadingImageSecondary = ImageResource.Local(R.drawable.ic_close_circle),
-        borderColor = AppTheme.colors.background
+        front = ImageResource.Local(R.drawable.ic_close_circle_dark),
+        back = ImageResource.Local(R.drawable.ic_close_circle),
+        borderColor = AppTheme.colors.light
     )
 }

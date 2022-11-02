@@ -19,9 +19,9 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SmallTagIcons(
-    leadingImagePrimary: ImageResource,
-    leadingImageSecondary: ImageResource,
-    borderColor: Color = AppTheme.colors.background
+    main: ImageResource,
+    tag: ImageResource,
+    borderColor: Color = AppTheme.colors.light
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
     val mainIconSize = AppTheme.dimensions.standardSpacing
@@ -38,7 +38,7 @@ fun SmallTagIcons(
                 .size(mainIconSize)
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = leadingImagePrimary
+            imageResource = main
         )
 
         Image(
@@ -48,7 +48,7 @@ fun SmallTagIcons(
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
-            imageResource = leadingImageSecondary
+            imageResource = tag
         )
     }
 }
@@ -57,8 +57,8 @@ fun SmallTagIcons(
 @Composable
 fun PreviewSmallTagIcons() {
     SmallTagIcons(
-        leadingImagePrimary = ImageResource.Local(R.drawable.ic_close_circle_dark),
-        leadingImageSecondary = ImageResource.Local(R.drawable.ic_close_circle),
-        borderColor = AppTheme.colors.background
+        main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+        tag = ImageResource.Local(R.drawable.ic_close_circle),
+        borderColor = AppTheme.colors.light
     )
 }
