@@ -23,7 +23,7 @@ fun OverlapIcons(
     back: ImageResource,
     borderColor: Color = AppTheme.colors.light
 ) {
-    val borderSize = 2.dp
+    val borderSize = AppTheme.dimensions.composeSmallestSpacing
     val iconSize = 18.dp
     val overlap = 6.dp
 
