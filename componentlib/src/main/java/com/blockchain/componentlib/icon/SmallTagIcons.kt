@@ -53,7 +53,7 @@ fun SmallTagIcons(
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
+@Preview(backgroundColor = 0XFFF0F2F7, showBackground = true)
 @Composable
 fun PreviewSmallTagIcons() {
     SmallTagIcons(
