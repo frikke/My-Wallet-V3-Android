@@ -2,7 +2,6 @@ package piuk.blockchain.android.walletmode
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.combineDataResources
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -21,7 +20,7 @@ class WalletModeBalanceRepository(
 
     override fun balanceFor(walletMode: WalletMode): Flow<DataResource<Money>> {
         return balanceStore
-            .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(walletMode))
+            .getBalance(walletMode, FreshnessStrategy.Cached(forceRefresh = true))
             .mapData { it.total }
     }
 

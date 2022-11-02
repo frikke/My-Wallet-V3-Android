@@ -12,6 +12,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 
 data class AccountBalance internal constructor(
@@ -71,6 +72,15 @@ data class AccountBalance internal constructor(
                 exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
             )
     }
+}
+
+fun List<AccountBalance>.total(): AccountBalance = reduce { a, v ->
+    AccountBalance(
+        total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+        withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+        pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+        exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+    )
 }
 
 interface BlockchainAccount {
@@ -199,7 +209,8 @@ interface SameCurrencyAccountGroup : AccountGroup {
 
 interface MultipleCurrenciesAccountGroup : AccountGroup {
     /**
-     * Balance is calculated in the selected fiat currency
+     * @return the list of accounts and their balances
+     * balance will be null if failed to load
      */
     override val balanceRx: Observable<AccountBalance>
         get() =
@@ -208,11 +219,6 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
             else
                 Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
                     account.balanceRx.firstOrError()
-                        // if an account fails to load the balance will return an error
-                        // this ignores the errors and helps return the sum of the valid accounts
-                        .onErrorReturn {
-                            AccountBalance.zero(baseCurrency)
-                        }
                 }.reduce { a, v ->
                     AccountBalance(
                         total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
@@ -222,6 +228,9 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
                     )
                 }.toObservable()
 
+    /**
+     * Balance is calculated in the selected fiat currency
+     */
     val baseCurrency: Currency
 }
 
