@@ -84,6 +84,7 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -195,7 +196,7 @@ class MainActivity :
 
     private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+            (it.data?.getAccount(ACCOUNT_FOR_ACTIVITY))?.let { account ->
                 startActivitiesFragment(account)
             }
         }
@@ -1400,11 +1401,19 @@ class MainActivity :
         when (navigationEvent) {
             is PricesNavigationEvent.CoinView -> {
                 activityResultsContract.launch(
-                    CoinViewActivity.newIntent(
-                        context = this,
-                        asset = navigationEvent.assetInfo,
-                        originScreen = LaunchOrigin.PRICES.name,
-                    )
+                    if (isStakingAccountEnabled) {
+                        CoinViewActivityV2.newIntent(
+                            context = this,
+                            asset = navigationEvent.assetInfo,
+                            originScreen = LaunchOrigin.PRICES.name,
+                        )
+                    } else {
+                        CoinViewActivity.newIntent(
+                            context = this,
+                            asset = navigationEvent.assetInfo,
+                            originScreen = LaunchOrigin.PRICES.name,
+                        )
+                    }
                 )
             }
         }.exhaustive

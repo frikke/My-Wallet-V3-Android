@@ -71,6 +71,7 @@ import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
@@ -1210,7 +1211,6 @@ class CoinViewActivity :
         private const val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
         private const val PATTERN_DAY_MONTH_YEAR = "d MMM YYYY"
         private const val SUPPORT_SUBJECT_NO_ASSET = "UNKNOWN ASSET"
-        const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
         private const val VISIBLE_LINES_DESCRIPTION = 6
 
         fun newIntent(

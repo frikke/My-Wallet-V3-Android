@@ -28,7 +28,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
@@ -311,7 +310,7 @@ class CoinViewActivityV2 :
 
     override fun goToActivityFor(account: BlockchainAccount) {
         val intent = Intent().apply {
-            putAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY, account)
+            putAccount(ACCOUNT_FOR_ACTIVITY, account)
         }
 
         setResult(RESULT_OK, intent)
@@ -359,6 +358,7 @@ class CoinViewActivityV2 :
 
     companion object {
         private const val ORIGIN_NAME = "ORIGIN_NAME"
+        const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
 
         fun newIntent(
             context: Context,

@@ -12,7 +12,7 @@ interface StakingService {
 
     fun getAvailabilityForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(false)
     ): Flow<DataResource<Boolean>>
 
     fun getActiveAssets(
@@ -21,12 +21,12 @@ interface StakingService {
 
     fun getBalanceForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(false)
     ): Flow<DataResource<StakingAccountBalance>>
 
     fun getRateForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(false)
     ): Flow<DataResource<Double>>
 
     fun getEligibilityForAsset(
