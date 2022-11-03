@@ -30,6 +30,7 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -104,7 +105,9 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
         sheetShape = RoundedCornerShape(
             topEnd = dimensionResource(R.dimen.small_spacing),
             topStart = dimensionResource(R.dimen.small_spacing)
-        )
+        ),
+        sheetBackgroundColor = AppTheme.colors.background,
+        scrimColor = AppTheme.colors.overlay
     ) {
         NavHost(
             navigationRouter.navController,

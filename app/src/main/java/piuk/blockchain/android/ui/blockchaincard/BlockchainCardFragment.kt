@@ -12,6 +12,7 @@ import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.commonarch.presentation.base.updateToolbar
+import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 
 class BlockchainCardFragment : BlockchainCardHostFragment() {
@@ -37,8 +38,10 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
                 else orderCardViewModel
 
             setContent {
-                viewModel.viewCreated(modelArgs)
-                BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
+                AppTheme {
+                    viewModel.viewCreated(modelArgs)
+                    BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
+                }
             }
         }
     }

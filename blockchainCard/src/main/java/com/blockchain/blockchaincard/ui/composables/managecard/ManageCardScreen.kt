@@ -830,7 +830,8 @@ fun CardSelectorItem(
             modifier = modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, Grey000),
             elevation = if (isSelected) 2.dp else 0.dp,
-            shape = AppTheme.shapes.medium
+            shape = AppTheme.shapes.medium,
+            backgroundColor = AppTheme.colors.background
         ) {
             Row(
                 modifier = Modifier
