@@ -259,14 +259,15 @@ class TransactionModel(
 
         return when (intent) {
             is TransactionIntent.GetNetworkName -> {
-                when {
-                    intent.fromAccount is MultiChainAccount -> { // PKW
-                        process(TransactionIntent.SetNetworkName(intent.fromAccount.l1Network.networkName))
+                when (val account = intent.fromAccount) {
+                    is MultiChainAccount -> { // PKW
+                        process(TransactionIntent.SetNetworkName(account.l1Network.networkName))
                         null
                     }
-                    intent.fromAccount is CustodialTradingAccount &&
-                        intent.fromAccount.currency.l1chainTicker != null -> { // Trading Accounts
-                        getNetworkNameForTradingAccount(intent.fromAccount.currency.networkTicker)
+                    is CustodialTradingAccount -> { // Trading Accounts
+                        account.currency.l1chainTicker?.let { l1Ticker ->
+                            getNetworkNameForTradingAccount(l1Ticker)
+                        }
                     }
                     else -> null
                 }

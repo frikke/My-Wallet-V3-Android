@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.NullCryptoAddress
 import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviIntent
@@ -89,11 +90,14 @@ class ReceiveDetailModel(
     override fun performAction(previousState: ReceiveDetailState, intent: ReceiveDetailIntent): Disposable? =
         when (intent) {
             is InitWithAccount -> {
-                if (intent.cryptoAccount is MultiChainAccount) { // PKW
-                    process(SetNetworkName(intent.cryptoAccount.l1Network.networkName))
-                } else if (intent.cryptoAccount.currency.l1chainTicker != null) { // Trading Accounts
-                    intent.cryptoAccount.currency.l1chainTicker?.let {
-                        getNetworkNameForTradingAccount(it)
+                when (val account = intent.cryptoAccount) {
+                    is MultiChainAccount -> { // PKW
+                        process(SetNetworkName(account.l1Network.networkName))
+                    }
+                    is CustodialTradingAccount -> { // Trading Accounts
+                        account.currency.l1chainTicker?.let {
+                            getNetworkNameForTradingAccount(it)
+                        }
                     }
                 }
                 handleInit(intent.cryptoAccount)
