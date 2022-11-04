@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import java.util.Calendar
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 
 interface KycProfileView : View {
@@ -22,8 +21,6 @@ interface KycProfileView : View {
     fun setButtonEnabled(enabled: Boolean)
 
     fun navigateToAddressVerification(profileModel: ProfileModel)
-
-    fun navigateToOldAddressVerification(oldProfileModel: OldProfileModel)
 
     fun showErrorSnackbar(message: String)
 

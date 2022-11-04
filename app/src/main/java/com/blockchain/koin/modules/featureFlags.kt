@@ -21,7 +21,6 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
-import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
@@ -63,15 +62,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_intercom",
                 "Show intercom chat"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(loqateFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_loqate",
-                "Loqate"
             )
         )
     }.bind(FeatureFlag::class)

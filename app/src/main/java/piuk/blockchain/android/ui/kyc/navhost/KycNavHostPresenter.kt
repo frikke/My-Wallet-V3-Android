@@ -17,7 +17,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
@@ -113,12 +112,4 @@ internal fun NabuUser.toProfileModel(): ProfileModel = ProfileModel(
     lastName = lastName ?: throw IllegalStateException("Last Name is null"),
     countryCode = address?.countryCode ?: throw IllegalStateException("Country Code is null"),
     stateCode = address?.stateIso
-)
-
-internal fun NabuUser.toOldProfileModel(): OldProfileModel = OldProfileModel(
-    firstName = firstName ?: throw IllegalStateException("First Name is null"),
-    lastName = lastName ?: throw IllegalStateException("Last Name is null"),
-    countryCode = address?.countryCode ?: throw IllegalStateException("Country Code is null"),
-    stateCode = address?.stateIso,
-    stateName = address?.stateIso
 )
