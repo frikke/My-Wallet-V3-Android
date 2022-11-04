@@ -22,6 +22,14 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
     }
 }
 
+fun <T, R> DataResource<T>.flatMap(transform: (T) -> DataResource<R>): DataResource<R> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> transform(data)
+    }
+}
+
 fun <T> DataResource<T>.doOnLoading(f: () -> Unit): DataResource<T> {
     return also {
         if (this is DataResource.Loading) f()
