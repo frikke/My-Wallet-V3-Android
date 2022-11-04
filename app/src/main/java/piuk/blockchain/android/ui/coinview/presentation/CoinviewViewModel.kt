@@ -942,7 +942,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Sell -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSell(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }
@@ -950,7 +950,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Send -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSend(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }
@@ -958,7 +958,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Receive -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToReceive(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false)
                             )
                         )
                     }
@@ -966,7 +966,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Swap -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSwap(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }

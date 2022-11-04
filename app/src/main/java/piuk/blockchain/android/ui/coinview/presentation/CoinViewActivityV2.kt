@@ -51,6 +51,7 @@ class CoinViewActivityV2 :
     NavigationRouter<CoinviewNavigationEvent>,
     HostedBottomSheet.Host,
     AccountExplainerBottomSheet.Host,
+    NoBalanceActionBottomSheet.Host,
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,

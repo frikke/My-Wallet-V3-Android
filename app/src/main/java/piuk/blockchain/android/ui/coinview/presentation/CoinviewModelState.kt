@@ -75,27 +75,31 @@ data class CoinviewModelState(
      *
      * * has a positive balance
      */
-    val actionableAccount: CoinviewAccount
-        get() {
-            check(assetDetail is DataResource.Data) {
-                "accounts not initialized"
-            }
-            check(assetDetail.data is CoinviewAssetDetail.Tradeable) {
-                "asset is not tradeable"
-            }
-
-            return with((assetDetail.data as CoinviewAssetDetail.Tradeable).accounts) {
-                accounts.firstOrNull { account ->
-                    val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
-                        (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
-                    val isTradingAccount = account is CoinviewAccount.Custodial.Trading
-                    val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
-                    val hasPositiveBalance = account.cryptoBalance.isPositive
-
-                    (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && hasPositiveBalance
-                } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
-            }
+    fun actionableAccount(isPositiveBalanceRequired: Boolean = true): CoinviewAccount {
+        check(assetDetail is DataResource.Data) {
+            "accounts not initialized"
         }
+        check(assetDetail.data is CoinviewAssetDetail.Tradeable) {
+            "asset is not tradeable"
+        }
+
+        return with((assetDetail.data as CoinviewAssetDetail.Tradeable).accounts) {
+            accounts.firstOrNull { account ->
+                val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
+                    (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
+                val isTradingAccount = account is CoinviewAccount.Custodial.Trading
+                val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
+
+                val isValidBalance = if (isPositiveBalanceRequired) {
+                    account.cryptoBalance.isPositive
+                } else {
+                    true
+                }
+
+                (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && isValidBalance
+            } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+        }
+    }
 }
 
 sealed interface CoinviewError {
