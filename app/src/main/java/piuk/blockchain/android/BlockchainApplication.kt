@@ -200,9 +200,10 @@ open class BlockchainApplication : Application() {
 
     private fun initFraudService() {
         with(fraudService) {
-            updateSessionId()
-            updateUnauthenticatedUserFlows()
-            initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
+            updateSessionId {
+                updateUnauthenticatedUserFlows()
+                initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
+            }
         }
     }
 

@@ -508,7 +508,7 @@ class EnterAmountFragment :
 
     private fun trackFraudFlow() {
         selectedFraudFlow?.let {
-            fraudService.startFlow(it)
+            fraudService.trackFlow(it)
         }
     }
 

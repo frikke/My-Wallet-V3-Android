@@ -3,8 +3,6 @@ package piuk.blockchain.android.fraud.data.repository
 import com.blockchain.api.fraud.data.FraudFlowsResponse
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.services.FraudRemoteService
-import com.blockchain.api.services.SessionService
-import com.blockchain.api.session.data.GenerateSessionResponse
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
@@ -24,7 +22,6 @@ import piuk.blockchain.android.fraud.domain.service.FraudService
 @OptIn(ExperimentalCoroutinesApi::class)
 class FraudRepositoryTest {
 
-    private val sessionService = mockk<SessionService>(relaxed = true)
     private val fraudService = mockk<FraudRemoteService>(relaxed = true)
     private val sessionInfo = mockk<SessionInfo>(relaxed = true)
     private val fraudFlows = mockk<FraudFlows>(relaxed = true)
@@ -32,7 +29,6 @@ class FraudRepositoryTest {
     private val sessionIdFeatureFlag = mockk<FeatureFlag>(relaxed = true)
     private val sardineFeatureFlag = mockk<FeatureFlag>(relaxed = true)
 
-    private val generateSessionResponse = GenerateSessionResponse("id")
     private val fraudFlowsResponse = mockk<FraudFlowsResponse>(relaxed = true)
 
     private lateinit var subject: FraudService
@@ -42,7 +38,6 @@ class FraudRepositoryTest {
         subject = FraudRepository(
             coroutineScope = TestScope(),
             dispatcher = UnconfinedTestDispatcher(),
-            sessionService = sessionService,
             fraudService = fraudService,
             sessionInfo = sessionInfo,
             fraudFlows = fraudFlows,
@@ -53,10 +48,9 @@ class FraudRepositoryTest {
     }
 
     @Test
-    fun `GIVEN xSessionId is VALID, WHEN updateSessionId() is called, THEN sessionId should be set`() = runTest {
+    fun `GIVEN FeatureFlag is on, WHEN updateSessionId() is called, THEN sessionId should be updated`() = runTest {
         // Arrange
         coEvery { sessionIdFeatureFlag.coEnabled() } returns true
-        coEvery { sessionService.getSessionId() } returns Outcome.Success(generateSessionResponse)
 
         // Act
         subject.updateSessionId()
@@ -64,24 +58,6 @@ class FraudRepositoryTest {
         // Assert
         coVerify {
             sessionInfo.clearSessionId()
-            sessionInfo.setSessionId(generateSessionResponse.xSessionId)
-        }
-    }
-
-    @Test
-    fun `GIVEN xSessionId is INVALID, WHEN updateSessionId() is called, THEN sessionId should be cleared`() = runTest {
-        // Arrange
-        coEvery { sessionIdFeatureFlag.coEnabled() } returns true
-        coEvery { sessionService.getSessionId() } returns Outcome.Failure(Exception())
-
-        // Act
-        subject.updateSessionId()
-
-        // Assert
-        coVerify {
-            sessionInfo.clearSessionId()
-        }
-        coVerify(exactly = 0) {
             sessionInfo.setSessionId(any())
         }
     }

@@ -48,7 +48,7 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheet.Host {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fraudService.startFlow(FraudFlow.KYC)
+        fraudService.trackFlow(FraudFlow.KYC)
 
         val hostNavBarButtons = if (!questionnaire.isMandatory) {
             listOf(

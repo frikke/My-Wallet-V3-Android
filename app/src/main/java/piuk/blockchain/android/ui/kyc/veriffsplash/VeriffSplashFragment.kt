@@ -117,7 +117,7 @@ class VeriffSplashFragment :
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycVerifyIdentity)
         analytics.logEvent(KYCAnalyticsEvents.MoreInfoViewed)
-        fraudService.startFlow(FraudFlow.KYC)
+        fraudService.trackFlow(FraudFlow.KYC)
 
         checkCameraPermissions()
         setupTextLinks()

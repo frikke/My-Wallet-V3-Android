@@ -206,7 +206,7 @@ class SimpleBuyCryptoFragment :
             }
 
         binding.btnContinue.setOnClickListener {
-            currentFraudFlow?.let { fraudService.startFlow(it) }
+            currentFraudFlow?.let { fraudService.trackFlow(it) }
             startBuy()
         }
 
@@ -1340,7 +1340,7 @@ class SimpleBuyCryptoFragment :
 
     private fun trackFraudFlow(flow: FraudFlow) {
         if (currentFraudFlow != flow) {
-            fraudService.startFlow(flow)
+            fraudService.trackFlow(flow)
         }
         currentFraudFlow = flow
     }

@@ -152,7 +152,7 @@ class BankAuthActivity :
         get() = false
 
     override fun launchYapilyBankSelection(attributes: YapilyAttributes) {
-        fraudService.startFlow(FraudFlow.OB_LINK)
+        fraudService.trackFlow(FraudFlow.OB_LINK)
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, YapilyBankSelectionFragment.newInstance(attributes, authSource))
             .commitAllowingStateLoss()
@@ -179,7 +179,7 @@ class BankAuthActivity :
     }
 
     override fun launchPlaidLink(attributes: PlaidAttributes, id: String) {
-        fraudService.startFlow(FraudFlow.ACH_LINK)
+        fraudService.trackFlow(FraudFlow.ACH_LINK)
         plaidResultLauncher.launch(
             linkTokenConfiguration {
                 token = attributes.linkToken

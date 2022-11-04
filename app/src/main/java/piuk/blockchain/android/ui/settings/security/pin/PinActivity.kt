@@ -301,14 +301,14 @@ class PinActivity :
 
     private fun trackFraud() {
         when (originScreen) {
-            OriginScreenToPin.CREATE_WALLET -> fraudService.startFlow(FraudFlow.SIGNUP)
+            OriginScreenToPin.CREATE_WALLET -> fraudService.trackFlow(FraudFlow.SIGNUP)
             OriginScreenToPin.LAUNCHER_SCREEN,
             OriginScreenToPin.LOADER_SCREEN,
             OriginScreenToPin.LOGIN_SCREEN,
             OriginScreenToPin.PIN_SCREEN,
             OriginScreenToPin.MANUAL_PAIRING_SCREEN,
             OriginScreenToPin.LOGIN_AUTH_SCREEN,
-            OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> fraudService.startFlow(FraudFlow.LOGIN)
+            OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> fraudService.trackFlow(FraudFlow.LOGIN)
             else -> {
                 /*NO-OP*/
             }

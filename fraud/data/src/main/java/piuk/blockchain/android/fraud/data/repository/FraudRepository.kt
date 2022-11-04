@@ -3,7 +3,6 @@ package piuk.blockchain.android.fraud.data.repository
 import android.app.Application
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.services.FraudRemoteService
-import com.blockchain.api.services.SessionService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.fold
@@ -12,6 +11,7 @@ import com.sardine.ai.mdisdk.MobileIntelligence.SubmitResponse
 import com.sardine.ai.mdisdk.Options
 import com.sardine.ai.mdisdk.UpdateOptions
 import java.security.MessageDigest
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.text.Charsets.UTF_8
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,7 +27,6 @@ import timber.log.Timber
 internal class FraudRepository(
     private val coroutineScope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
-    private val sessionService: SessionService,
     private val fraudService: FraudRemoteService,
     private val sessionInfo: SessionInfo,
     private val fraudFlows: FraudFlows,
@@ -38,20 +37,15 @@ internal class FraudRepository(
 
     private val currentFlow = AtomicReference<FraudFlow?>(null)
 
-    override fun updateSessionId() {
-        coroutineScope.launch(dispatcher) {
-            sessionInfo.clearSessionId()
+    override fun updateSessionId(onSessionIdGenerated: (() -> Unit)?) {
+        sessionInfo.clearSessionId()
 
+        coroutineScope.launch(dispatcher) {
             if (sessionIdFeatureFlag.coEnabled()) {
-                sessionService.getSessionId()
-                    .fold(
-                        onSuccess = {
-                            sessionInfo.setSessionId(it.xSessionId)
-                        },
-                        onFailure = {
-                            sessionInfo.clearSessionId()
-                        }
-                    )
+                sessionInfo.setSessionId(UUID.randomUUID().toString())
+                withContext(Dispatchers.Main) {
+                    onSessionIdGenerated?.invoke()
+                }
             }
         }
     }
@@ -99,6 +93,8 @@ internal class FraudRepository(
             if (sardineFeatureFlag.coEnabled()) {
                 withContext(Dispatchers.Main) {
                     if (application is Application) {
+                        val sessionId = sessionInfo.getSessionId() ?: UUID.randomUUID().toString()
+
                         val option: Options = Options.Builder()
                             .setClientID(clientId)
                             .enableBehaviorBiometrics(true)
@@ -111,7 +107,7 @@ internal class FraudRepository(
                                 }
                             }
                             .setFlow("STARTUP")
-                            .setSessionKey(sessionInfo.getSessionId()?.hash() ?: "STARTUP_SESSION")
+                            .setSessionKey(sessionId.hash())
                             .setShouldAutoSubmitOnInit(true)
                             .build()
                         MobileIntelligence.init(application, option)
@@ -123,7 +119,7 @@ internal class FraudRepository(
         }
     }
 
-    override fun startFlow(flow: FraudFlow) {
+    override fun trackFlow(flow: FraudFlow) {
         coroutineScope.launch(dispatcher) {
             if (sardineFeatureFlag.coEnabled()) {
                 withContext(Dispatchers.Main) {

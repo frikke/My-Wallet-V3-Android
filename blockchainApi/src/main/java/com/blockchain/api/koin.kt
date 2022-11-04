@@ -64,12 +64,10 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ReferralApiService
-import com.blockchain.api.services.SessionService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistApiService
-import com.blockchain.api.session.SessionApi
 import com.blockchain.api.staking.StakingApi
 import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.trade.TradeApi
@@ -405,11 +403,6 @@ val blockchainApiModule = module {
             api,
             get()
         )
-    }
-
-    factory {
-        val api = get<Retrofit>(nabuApi).create(SessionApi::class.java)
-        SessionService(api)
     }
 
     factory {

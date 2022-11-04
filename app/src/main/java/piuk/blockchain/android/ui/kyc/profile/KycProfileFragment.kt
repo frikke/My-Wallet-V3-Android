@@ -96,7 +96,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycProfile)
-        fraudService.startFlow(FraudFlow.ONBOARDING)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_profile_title)
 

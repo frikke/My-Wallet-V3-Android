@@ -103,7 +103,7 @@ class KycOldHomeAddressFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycAddress)
-        fraudService.startFlow(FraudFlow.ONBOARDING)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         binding.editTextKycAddressZipCode.addTextChangedListener(textWatcher)

@@ -59,7 +59,7 @@ class KycAddressVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         logEvent(AnalyticsEvents.KycAddress)
-        fraudService.startFlow(FraudFlow.ONBOARDING)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         if (addressVerificationFragment == null) {
