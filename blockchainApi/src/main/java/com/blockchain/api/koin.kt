@@ -188,6 +188,7 @@ val blockchainApiModule = module {
             ignoreUnknownKeys = true
             isLenient = true
             encodeDefaults = true
+            allowSpecialFloatingPointValues = true
             serializersModule = SerializersModule {
                 contextual(BigDecimalSerializer)
                 contextual(BigIntSerializer)
