@@ -187,7 +187,7 @@ class MainActivity :
     private val actionsResultContract = registerForActivityResult(ActionActivity.BlockchainActivityResultContract()) {
         when (it) {
             ActionActivity.ActivityResult.StartKyc -> launchKyc(CampaignType.None)
-            ActionActivity.ActivityResult.StartReceive -> launchReceive()
+            is ActionActivity.ActivityResult.StartReceive -> launchReceive(cryptoTicker = it.cryptoTicker)
             ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
             null -> {
             }
@@ -664,7 +664,7 @@ class MainActivity :
                     )
                 )
             }
-            is ViewToLaunch.LaunchReceive -> launchReceive()
+            is ViewToLaunch.LaunchReceive -> launchReceive(cryptoTicker = null)
             is ViewToLaunch.LaunchSend -> launchSend()
             is ViewToLaunch.LaunchSetupBiometricLogin -> launchSetupFingerprintLogin()
             is ViewToLaunch.LaunchSimpleBuy -> launchSimpleBuy(view.asset)
@@ -801,7 +801,8 @@ class MainActivity :
                         SimpleBuyActivity.newIntent(
                             context = this,
                             asset = assetInfo,
-                            preselectedAmount = destination.amount
+                            preselectedAmount = destination.amount,
+                            preselectedFiatTicker = destination.fiatTicker
                         )
                     )
                 } ?: run {
@@ -885,6 +886,13 @@ class MainActivity :
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
             is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
+            is Destination.AssetReceiveDestination -> launchReceive(destination.networkTicker)
+            is Destination.AssetSellDestination -> {
+                // next PR
+            }
+            is Destination.AssetSwapDestination -> {
+                // next PR
+            }
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -1109,7 +1117,7 @@ class MainActivity :
         targetAccount: CryptoAccount?,
     ) {
         if (sourceAccount == null && targetAccount == null) {
-            actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
+            actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap, null))
         } else if (sourceAccount != null) {
             startActivity(
                 TransactionFlowActivity.newIntent(
@@ -1160,8 +1168,8 @@ class MainActivity :
         OnboardingActivity.launchForFingerprints(this)
     }
 
-    override fun launchReceive() {
-        actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Receive))
+    override fun launchReceive(cryptoTicker: String?) {
+        actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = cryptoTicker))
     }
 
     override fun launchSend() {
@@ -1371,6 +1379,7 @@ class MainActivity :
 
         fun newIntent(context: Context, pendingDestination: Destination): Intent =
             Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(PENDING_DESTINATION, pendingDestination)
             }
 

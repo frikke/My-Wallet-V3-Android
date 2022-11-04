@@ -17,4 +17,5 @@ data class ReceiveState(
     val loadAccountsForAsset: (AssetInfo) -> Single<List<CryptoAccount>> = { Single.just(emptyList()) },
     val allReceivableAccountsSource: List<SingleAccount> = emptyList(),
     val input: String = "",
+    val showReceiveForAccount: CryptoAccount? = null
 ) : MviState

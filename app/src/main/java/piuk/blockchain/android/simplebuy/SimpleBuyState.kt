@@ -97,6 +97,7 @@ data class SimpleBuyState constructor(
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
     @Transient val showAppRating: Boolean = false,
     @Transient val sideEventsChecked: Boolean = false,
+    @Transient val hasAmountComeFromDeeplink: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     val order: SimpleBuyOrder by unsafeLazy {

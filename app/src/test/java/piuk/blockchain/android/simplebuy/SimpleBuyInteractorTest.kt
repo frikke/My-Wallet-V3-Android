@@ -39,6 +39,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import org.junit.Before
@@ -158,7 +159,9 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == defaultAmount &&
                 it.second?.maxAmount == maxAmount &&
@@ -183,7 +186,9 @@ class SimpleBuyInteractorTest {
 
         val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.maxAmount == maxAmount &&
@@ -207,7 +212,9 @@ class SimpleBuyInteractorTest {
 
         val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.maxAmount == maxAmount
@@ -226,7 +233,9 @@ class SimpleBuyInteractorTest {
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
                 it.second?.maxAmount == limits.maxAmount &&
@@ -248,7 +257,9 @@ class SimpleBuyInteractorTest {
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == maxAmount &&
                 it.second?.maxAmount == maxAmount &&
@@ -268,7 +279,9 @@ class SimpleBuyInteractorTest {
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == minAmount &&
                 it.second?.maxAmount == maxAmount &&
@@ -289,13 +302,42 @@ class SimpleBuyInteractorTest {
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+        ).test()
         test.assertValue {
             it.first == limits.minAmount &&
                 it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
+        }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
+    }
+
+    @Test
+    fun `when amount comes from deeplink given previous amount then it is respected`() {
+        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
+        val fiatCurrency = FiatCurrency.Dollars
+        val assetCode = "BTC"
+        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(2000))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(20))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
+
+        val prepopulatedAmount = Money.fromMajor(FiatCurrency.Dollars, BigDecimal(50))
+        val test = subject.getPrefillAndQuickFillAmounts(
+            limits, assetCode, fiatCurrency, true, prepopulatedAmount
+        ).test()
+
+        test.assertValue {
+            it.first == prepopulatedAmount &&
+                it.second?.maxAmount == limits.maxAmount &&
+                it.second!!.quickFillButtons.size == 3 &&
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
+                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
+                it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
         verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)

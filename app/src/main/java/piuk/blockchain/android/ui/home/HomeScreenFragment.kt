@@ -30,8 +30,8 @@ interface HomeNavigator {
     fun launchSetup2Fa()
     fun launchOpenExternalEmailApp()
     fun launchSetupFingerprintLogin()
-    fun launchReceive()
-    fun launchSend()
+    fun launchReceive(cryptoTicker: String?)
+    fun launchSend(/*cryptoTicker: String? = null*/)
     fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
         asset: AssetInfo? = null,

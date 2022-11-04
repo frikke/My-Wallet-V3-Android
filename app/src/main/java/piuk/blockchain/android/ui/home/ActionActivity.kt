@@ -33,6 +33,10 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         intent.getSerializableExtra(ACTION) as AssetAction
     }
 
+    private val cryptoTicker: String? by lazy {
+        intent.getStringExtra(CRYPTO_TICKER)
+    }
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
@@ -62,7 +66,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
             }
             AssetAction.Receive -> {
                 updateToolbarTitle(getString(R.string.toolbar_receive))
-                ReceiveFragment.newInstance()
+                ReceiveFragment.newInstance(cryptoTicker = cryptoTicker)
             }
             else -> {
                 throw IllegalStateException("$action is not supported")
@@ -89,7 +93,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
     }
 
     override fun navigateToReceive() {
-        finishWithResult(ActivityResult.StartReceive)
+        finishWithResult(ActivityResult.StartReceive(cryptoTicker))
     }
 
     override fun navigateToBuy() {
@@ -104,7 +108,10 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         val intent = Intent()
         when (result) {
             ActivityResult.StartKyc -> intent.putExtra(RESULT_START_KYC, true)
-            ActivityResult.StartReceive -> intent.putExtra(RESULT_START_RECEIVE, true)
+            is ActivityResult.StartReceive -> {
+                intent.putExtra(RESULT_START_RECEIVE, true)
+                intent.putExtra(CRYPTO_TICKER, cryptoTicker)
+            }
             ActivityResult.StartBuyIntro -> intent.putExtra(RESULT_START_BUY_INTRO, true)
         }
         setResult(RESULT_OK, intent)
@@ -116,23 +123,28 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         private const val RESULT_START_KYC = "RESULT_START_KYC"
         private const val RESULT_START_RECEIVE = "RESULT_START_RECEIVE"
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
+        private const val CRYPTO_TICKER = "CRYPTO_TICKER"
 
-        private fun newIntent(context: Context, action: AssetAction): Intent =
+        private fun newIntent(context: Context, action: AssetAction, cryptoTicker: String? = null): Intent =
             Intent(context, ActionActivity::class.java).apply {
                 putExtra(ACTION, action)
+                cryptoTicker?.let {
+                    putExtra(CRYPTO_TICKER, it)
+                }
             }
     }
 
-    data class ActivityArgs(val action: AssetAction)
+    data class ActivityArgs(val action: AssetAction, val cryptoTicker: String? = null)
+
     sealed class ActivityResult {
         object StartKyc : ActivityResult()
-        object StartReceive : ActivityResult()
+        class StartReceive(val cryptoTicker: String? = null) : ActivityResult()
         object StartBuyIntro : ActivityResult()
     }
 
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent =
-            newIntent(context, input.action)
+            newIntent(context, input.action, input.cryptoTicker)
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
             val startKyc = intent?.getBooleanExtra(RESULT_START_KYC, false) ?: false
@@ -142,7 +154,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
             return when {
                 resultCode != Activity.RESULT_OK -> null
                 startKyc -> ActivityResult.StartKyc
-                startReceive -> ActivityResult.StartReceive
+                startReceive -> ActivityResult.StartReceive(intent?.getStringExtra(CRYPTO_TICKER))
                 startBuyIntro -> ActivityResult.StartBuyIntro
                 else -> null
             }

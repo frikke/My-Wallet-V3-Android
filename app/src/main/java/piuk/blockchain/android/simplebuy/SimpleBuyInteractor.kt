@@ -744,6 +744,8 @@ class SimpleBuyInteractor(
         limits: TxLimits,
         assetCode: String,
         fiatCurrency: FiatCurrency,
+        prepopulatedAmountFromDeeplink: Boolean,
+        prepopulatedAmount: Money
     ): Single<Pair<Money, QuickFillButtonData?>> =
         quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy).map { roundingInfo ->
 
@@ -751,6 +753,7 @@ class SimpleBuyInteractor(
             val listOfAmounts = mutableListOf<Money>()
 
             var prefilledAmount = when {
+                prepopulatedAmountFromDeeplink -> prepopulatedAmount
                 amountString.isEmpty() -> {
                     Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
                 }

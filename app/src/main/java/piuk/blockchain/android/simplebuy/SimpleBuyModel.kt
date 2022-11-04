@@ -551,6 +551,8 @@ class SimpleBuyModel(
                     limits = intent.limits,
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
+                    prepopulatedAmountFromDeeplink = previousState.hasAmountComeFromDeeplink,
+                    prepopulatedAmount = previousState.amount
                 ).subscribeBy(
                     onSuccess = { (amountToPrepopulate, quickFillData) ->
                         quickFillData?.let {

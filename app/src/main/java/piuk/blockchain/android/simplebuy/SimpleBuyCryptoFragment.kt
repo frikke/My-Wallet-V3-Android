@@ -123,6 +123,12 @@ class SimpleBuyCryptoFragment :
 
     private var infoActionCallback: () -> Unit = {}
 
+    private val preselectedFiatCurrency: FiatCurrency? by lazy {
+        arguments?.getString(ARG_FIAT_CURRENCY)?.let { code ->
+            FiatCurrency.fromCurrencyCode(code)
+        }
+    }
+
     private val fiatCurrency: FiatCurrency
         get() = fiatCurrenciesService.selectedTradingCurrency
 
@@ -138,10 +144,17 @@ class SimpleBuyCryptoFragment :
     private val preselectedMethodId: String?
         get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
 
-    private val preselectedAmount: FiatValue?
-        get() = arguments?.getString(ARG_AMOUNT)?.let { amount ->
-            FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+    private val preselectedAmount: FiatValue? by lazy {
+        arguments?.getString(ARG_AMOUNT)?.let { amount ->
+            preselectedFiatCurrency?.let { currency ->
+                if (currency.networkTicker == fiatCurrency.networkTicker) {
+                    FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+                } else {
+                    FiatValue.zero(fiatCurrency)
+                }
+            } ?: FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
         }
+    }
 
     private val launchLinkCard: Boolean by lazy {
         arguments?.getBoolean(ARG_LINK_NEW_CARD, false) ?: false
@@ -195,7 +208,7 @@ class SimpleBuyCryptoFragment :
         compositeDisposable += binding.inputAmount.amount
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
-                    model.process(SimpleBuyIntent.AmountUpdated(amount))
+                    model.process(SimpleBuyIntent.PreselectedAmountUpdated(amount))
                 }
             }
             .subscribe { amount ->
@@ -1351,6 +1364,7 @@ class SimpleBuyCryptoFragment :
         private const val ARG_AMOUNT = "AMOUNT"
         private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
         private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
+        private const val ARG_FIAT_CURRENCY = "ARG_FIAT_CURRENCY"
 
         fun newInstance(
             asset: AssetInfo,
@@ -1358,12 +1372,14 @@ class SimpleBuyCryptoFragment :
             preselectedAmount: String? = null,
             launchLinkCard: Boolean = false,
             launchPaymentMethodSelection: Boolean = false,
+            preselectedFiatTicker: String? = null
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_CRYPTO_ASSET, asset.networkTicker)
-                    preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
-                    preselectedAmount?.let { putString(ARG_AMOUNT, preselectedAmount) }
+                    preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, it) }
+                    preselectedAmount?.let { putString(ARG_AMOUNT, it) }
+                    preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }
                     putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
                     putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
                 }

@@ -91,6 +91,15 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
+    class PreselectedAmountUpdated(val amount: FiatValue) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(amount = amount, hasAmountComeFromDeeplink = true)
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return oldState.amount != amount
+        }
+    }
+
     class GetPrefillAndQuickFillAmounts(
         val limits: TxLimits,
         val assetCode: String,
