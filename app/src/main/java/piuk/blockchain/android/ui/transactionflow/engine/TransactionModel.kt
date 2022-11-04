@@ -194,10 +194,15 @@ data class TransactionState(
         get() {
             return pendingTx?.let {
                 val available = availableToAmountCurrency(it.availableBalance, amount)
-                Money.min(
+                val maxSpendableWithoutFees = Money.min(
                     available,
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
-                ).minus(it.feeAmount)
+                )
+                if (it.feeAmount.currencyCode == maxSpendableWithoutFees.currencyCode) {
+                    maxSpendableWithoutFees.minus(it.feeAmount)
+                } else {
+                    maxSpendableWithoutFees
+                }
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
