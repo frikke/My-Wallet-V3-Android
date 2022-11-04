@@ -72,8 +72,12 @@ const val URL_FAQ = "https://support.blockchain.com/hc/en-us/articles/4592150619
 const val URL_OPEN_BANKING_PRIVACY_POLICY = "https://www.yapily.com/legal/privacy-policy/"
 
 const val URL_RUSSIA_SANCTIONS_EU5 = "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_2332"
+const val URL_RUSSIA_SANCTIONS_EU8 =
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L:2022:259I:FULL&from=EN"
 
 const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
 
 const val STAKING_LEARN_MORE = "https://support.blockchain.com/hc/en-us/sections/5954708914460-Staking"
 const val STAKING_WEB_APP = "https://login.blockchain.com/en/#/open/earn"
+
+const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"

@@ -14,6 +14,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.common.model.StateIso
@@ -69,7 +70,9 @@ class AddressVerificationFragment :
 
         return ComposeView(requireContext()).apply {
             setContent {
-                AddressVerificationScreen(viewState = viewModel.viewState, onIntent = viewModel::onIntent)
+                AppTheme {
+                    AddressVerificationScreen(viewState = viewModel.viewState, onIntent = viewModel::onIntent)
+                }
             }
         }
     }

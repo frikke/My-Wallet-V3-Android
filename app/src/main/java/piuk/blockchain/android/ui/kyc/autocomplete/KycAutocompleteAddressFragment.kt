@@ -52,7 +52,7 @@ class KycAutocompleteAddressFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fraudService.startFlow(FraudFlow.ONBOARDING)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         setupRecyclerView()

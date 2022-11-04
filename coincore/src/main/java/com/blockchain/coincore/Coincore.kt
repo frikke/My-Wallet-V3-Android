@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
@@ -151,9 +152,13 @@ class Coincore internal constructor(
             AllNonCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun getDefaultWalletModeFilter() =
+        walletModeService.enabledWalletMode().defaultFilter()
+
     fun walletsWithActions(
         actions: Set<AssetAction>,
-        filter: AssetFilter = walletModeService.enabledWalletMode().defaultFilter(),
+        filter: AssetFilter = getDefaultWalletModeFilter(),
         sorter: AccountsSorter = { Single.just(it) },
     ): Single<SingleAccountList> =
         walletsWithFilter(filter = filter)

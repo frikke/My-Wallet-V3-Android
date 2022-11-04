@@ -218,7 +218,8 @@ val transactionModule = module {
                 swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag),
                 quickFillRoundingService = get(),
                 hideDustFF = payloadScope.get(hideDustFeatureFlag),
-                localSettingsPrefs = get()
+                localSettingsPrefs = get(),
+                dynamicAssetRepository = payloadScope.get()
             )
         }
 

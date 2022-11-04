@@ -63,6 +63,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
@@ -181,14 +182,12 @@ class SwapFragment :
                 coincore.walletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap)
-            ) {
-                tiers: KycTiers,
+            ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility,
-                ->
+                eligibility ->
                 SwapComposite(
                     tiers,
                     pairs,
@@ -288,16 +287,21 @@ class SwapFragment :
     }
 
     private fun showBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        val action = {
+            when (reason) {
+                is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
+                is BlockedReason.Sanctions.Unknown -> {}
+            }
+        }
+
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
             title = R.string.account_restricted
-            descriptionText = when (reason) {
-                BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
-                is BlockedReason.Sanctions.Unknown -> reason.message
-            }
+            descriptionText = reason.message
             icon = R.drawable.ic_wallet_intro_image
             ctaText = R.string.common_learn_more
-            ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+            ctaAction = action
             visible()
         }
     }
@@ -399,33 +403,48 @@ class SwapFragment :
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapViewFlipper.visible()
-        binding.swapError.gone()
-        binding.swapCta.visible()
-        binding.swapCta.isEnabled = hasAtLeastOneAccountToSwapFrom
-        binding.swapTrending.visibleIf { !hasPendingOrder }
-        binding.pendingSwaps.container.visibleIf { hasPendingOrder }
-        binding.pendingSwaps.pendingList.apply {
-            adapter =
-                PendingSwapsAdapter(
-                    pendingOrders
-                ) { money: Money ->
-                    money.toUserFiat(exchangeRateDataManager)
+
+        with(binding) {
+            swapViewFlipper.visible()
+            swapError.gone()
+            swapTrending.visibleIf { !hasPendingOrder }
+
+            with(swapCta) {
+                visible()
+                isEnabled = hasAtLeastOneAccountToSwapFrom
+            }
+
+            with(pendingSwaps) {
+                container.visibleIf { hasPendingOrder }
+                pendingList.apply {
+                    adapter =
+                        PendingSwapsAdapter(
+                            pendingOrders
+                        ) { money: Money ->
+                            money.toUserFiat(exchangeRateDataManager)
+                        }
+                    layoutManager = LinearLayoutManager(activity)
                 }
-            layoutManager = LinearLayoutManager(activity)
+            }
         }
     }
 
     private fun showLoading() {
-        binding.progress.visible()
-        binding.progress.playAnimation()
-        binding.swapViewFlipper.gone()
-        binding.swapError.gone()
+        with(binding) {
+            with(progress) {
+                visible()
+                playAnimation()
+            }
+            swapViewFlipper.gone()
+            swapError.gone()
+        }
     }
 
     private fun hideLoading() {
-        binding.progress.gone()
-        binding.progress.pauseAnimation()
+        with(binding.progress) {
+            gone()
+            pauseAnimation()
+        }
     }
 
     companion object {

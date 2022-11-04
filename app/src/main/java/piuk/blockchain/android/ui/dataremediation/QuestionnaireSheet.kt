@@ -16,10 +16,14 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.koin.payloadScope
+import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
+import org.koin.java.KoinJavaComponent.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 
 class QuestionnaireSheet() :
     MVIBottomSheet<QuestionnaireState>(),
@@ -40,6 +44,7 @@ class QuestionnaireSheet() :
     override val scope: Scope = payloadScope
 
     private val model: QuestionnaireModel by viewModel()
+    private val fraudService: FraudService by inject()
 
     private val navigator: NavigationRouter<Navigation> = object : NavigationRouter<Navigation> {
         override fun route(navigationEvent: Navigation) {
@@ -96,6 +101,7 @@ class QuestionnaireSheet() :
                         model.onIntent(QuestionnaireIntent.OpenEndedInputChanged(node, newInput))
                     },
                     onContinueClicked = {
+                        fraudService.endFlow(FraudFlow.KYC)
                         model.onIntent(QuestionnaireIntent.ContinueClicked)
                     },
                     onSkipClicked = {

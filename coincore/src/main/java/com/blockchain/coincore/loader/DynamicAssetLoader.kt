@@ -20,6 +20,7 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
@@ -36,6 +37,7 @@ import com.blockchain.utils.mapList
 import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -82,7 +84,9 @@ internal class DynamicAssetLoader(
     private val layerTwoFeatureFlag: FeatureFlag,
     private val unifiedBalancesFeatureFlag: FeatureFlag,
     private val stakingService: StakingService,
-    private val coinNetworksEnabledFlag: FeatureFlag
+    private val coinNetworksEnabledFlag: FeatureFlag,
+    private val kycService: KycService,
+    private val walletModeService: WalletModeService
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -398,7 +402,10 @@ internal class DynamicAssetLoader(
             addressResolver = ethHotWalletAddressResolver,
             layerTwoFeatureFlag = layerTwoFeatureFlag,
             coinNetworksFeatureFlag = coinNetworksEnabledFlag,
-            evmNetworks = assetCatalogue.allEvmNetworks()
+            evmNetworks = assetCatalogue.allEvmNetworks(),
+            kycService = kycService,
+            tradingService = tradingService,
+            walletModeService = walletModeService,
         )
     }
 

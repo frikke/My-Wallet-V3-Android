@@ -390,7 +390,7 @@ class DashboardActionInteractorTest {
             )
         )
         whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
-            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5)))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("error message"))))
         whenever(dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT))
             .thenReturn(Outcome.Success(null))
 

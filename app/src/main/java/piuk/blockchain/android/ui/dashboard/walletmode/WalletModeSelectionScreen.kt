@@ -18,6 +18,8 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.walletmode.WalletMode
@@ -37,7 +39,9 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
         WalletModesDialogContent(
             totalBalance = state.totalBalance,
             portfolioBalanceState = state.brokerageBalance,
+            showBrokerageBalanceWarning = state.showBrokerageBalanceWarning,
             defiWalletBalance = state.defiWalletBalance,
+            showDefiBalanceWarning = state.showDefiBalanceWarning,
             selectedMode = state.enabledWalletMode,
             onItemClicked = {
                 viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletModeRequested(it))
@@ -50,7 +54,9 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
 fun WalletModesDialogContent(
     totalBalance: BalanceState,
     portfolioBalanceState: BalanceState,
+    showBrokerageBalanceWarning: Boolean,
     defiWalletBalance: BalanceState,
+    showDefiBalanceWarning: Boolean,
     selectedMode: WalletMode,
     onItemClicked: (WalletMode) -> Unit,
 ) {
@@ -82,12 +88,14 @@ fun WalletModesDialogContent(
 
         BrokerageWalletModeSelection(
             brokerageWalletBalance = portfolioBalanceState,
+            showBalanceWarning = showBrokerageBalanceWarning,
             selectedWalletMode = selectedMode,
             onClick = { onItemClicked(WalletMode.CUSTODIAL_ONLY) }
         )
 
         DefiWalletModeSelection(
             defiWalletBalance = defiWalletBalance,
+            showBalanceWarning = showDefiBalanceWarning,
             selectedWalletMode = selectedMode,
             onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) }
         )
@@ -97,11 +105,13 @@ fun WalletModesDialogContent(
 @Composable
 fun BrokerageWalletModeSelection(
     brokerageWalletBalance: BalanceState,
+    showBalanceWarning: Boolean,
     selectedWalletMode: WalletMode,
     onClick: () -> Unit
 ) {
     WalletModeSelection(
         balanceState = brokerageWalletBalance,
+        showBalanceWarning = showBalanceWarning,
         requestedWalletMode = WalletMode.CUSTODIAL_ONLY,
         selectedWalletMode = selectedWalletMode,
         walletName = stringResource(id = R.string.brokerage_wallet_name),
@@ -113,11 +123,13 @@ fun BrokerageWalletModeSelection(
 @Composable
 fun DefiWalletModeSelection(
     defiWalletBalance: BalanceState,
+    showBalanceWarning: Boolean,
     selectedWalletMode: WalletMode,
     onClick: () -> Unit
 ) {
     WalletModeSelection(
         balanceState = defiWalletBalance,
+        showBalanceWarning = showBalanceWarning,
         requestedWalletMode = WalletMode.NON_CUSTODIAL_ONLY,
         selectedWalletMode = selectedWalletMode,
         walletName = stringResource(id = R.string.defi_wallet_name),
@@ -129,6 +141,7 @@ fun DefiWalletModeSelection(
 @Composable
 fun WalletModeSelection(
     balanceState: BalanceState,
+    showBalanceWarning: Boolean,
     requestedWalletMode: WalletMode,
     selectedWalletMode: WalletMode,
     walletName: String,
@@ -144,6 +157,11 @@ fun WalletModeSelection(
         paragraphText = when (balanceState) {
             BalanceState.ActivationRequired -> stringResource(R.string.defi_onboarding_enable_wallet_description)
             else -> null
+        },
+        tags = if (showBalanceWarning) {
+            listOf(TagViewState(stringResource(R.string.error_loading_balance), TagType.Warning()))
+        } else {
+            null
         },
         startImageResource = walletIcon,
         endImageResource = when (selectedWalletMode) {
@@ -165,7 +183,9 @@ private fun WalletModePreview() {
             WalletModesDialogContent(
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
+                showBrokerageBalanceWarning = false,
                 defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
+                showDefiBalanceWarning = true,
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
                 onItemClicked = {}
             )
@@ -181,7 +201,9 @@ private fun WalletModePreviewEnableWallet() {
             WalletModesDialogContent(
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
+                showBrokerageBalanceWarning = false,
                 defiWalletBalance = BalanceState.ActivationRequired,
+                showDefiBalanceWarning = false,
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
                 onItemClicked = {}
             )

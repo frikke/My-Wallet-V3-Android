@@ -205,6 +205,7 @@ data class BlockchainCardOrderState(
 
 enum class BlockchainCardOrderStatus {
     PROCESSING,
+    PROCESSED,
     SHIPPED,
     DELIVERED,
     COMPLETE;
@@ -212,6 +213,7 @@ enum class BlockchainCardOrderStatus {
     fun getStringResource(): Int {
         return when (this) {
             PROCESSING -> R.string.bc_card_order_processing
+            PROCESSED -> R.string.bc_card_order_processed
             SHIPPED -> R.string.bc_card_order_shipped
             DELIVERED -> R.string.bc_card_order_delivered
             COMPLETE -> R.string.bc_card_order_complete

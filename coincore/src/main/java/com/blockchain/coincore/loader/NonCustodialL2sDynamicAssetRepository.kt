@@ -14,6 +14,7 @@ import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
 import com.blockchain.utils.rxSingleOutcome
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -97,6 +98,16 @@ class NonCustodialL2sDynamicAssetRepository(
         }
     }
 
+    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> {
+        return coinNetworksFeatureFlag.value.enabled.flatMapMaybe { isEnabled ->
+            if (isEnabled) {
+                discoveryService.getEvmNetworkForCurrency(currency).map { network -> network?.toEvmNetwork() }
+            } else {
+                evmNetworksService.value.getSupportedNetworkForCurrency(currency)
+            }
+        }
+    }
+
     fun otherEvmNetworks(): Single<List<EvmNetwork>> {
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
@@ -110,7 +121,7 @@ class NonCustodialL2sDynamicAssetRepository(
     }
 
     private fun getL2sForSupportedL1s(): Single<DynamicAssetList> {
-        return otherEvmAssets()
+        return otherEvmNetworks()
             .flatMap { evmAssets ->
                 rxSingle {
                     l2Store.stream(

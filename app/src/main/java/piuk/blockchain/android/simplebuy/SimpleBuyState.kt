@@ -11,6 +11,7 @@ import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.Partner
@@ -70,6 +71,7 @@ data class SimpleBuyState constructor(
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
+    val isRecurringBuyToggled: Boolean = false,
     val googlePayDetails: GooglePayDetails? = null,
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     val quotePrice: QuotePrice? = null,
@@ -156,6 +158,8 @@ data class SimpleBuyState constructor(
 
     fun isOpenBankingTransfer() = selectedPaymentMethod?.isBank() == true && fiatCurrency.isOpenBankingCurrency()
 
+    fun isAchTransfer() = selectedPaymentMethod?.isBank() == true && fiatCurrency.networkTicker.equals("USD", true)
+
     override val action: AssetAction
         get() = AssetAction.Buy
 
@@ -183,7 +187,7 @@ data class SimpleBuyState constructor(
                         lastState?.selectedPaymentMethod != null &&
                         lastState.selectedPaymentMethod != this.selectedPaymentMethod
                     ) ||
-                    (lastState?.amount != this.amount)
+                    (lastState?.amount != null && lastState.amount != this.amount)
                 )
     }
 
@@ -231,6 +235,7 @@ data class FeatureFlagsSet(
     val rbExperimentFF: Boolean = false,
     val feynmanEnterAmountFF: Boolean = false,
     val feynmanCheckoutFF: Boolean = false,
+    val improvedPaymentUxFF: Boolean = false
 )
 
 enum class FlowScreen {
@@ -304,7 +309,8 @@ data class BuyQuote(
     val createdAt: @Contextual ZonedDateTime,
     val expiresAt: @Contextual ZonedDateTime,
     val remainingTime: Long,
-    val chunksTimeCounter: MutableList<Int> = mutableListOf()
+    val chunksTimeCounter: MutableList<Int> = mutableListOf(),
+    val depositTerms: DepositTerms?
 ) {
 
     companion object {
@@ -326,7 +332,8 @@ data class BuyQuote(
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
                 remainingTime = brokerageQuote.secondsToExpire.toLong(),
-                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble())
+                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble()),
+                depositTerms = brokerageQuote.depositTerms
             )
 
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency) =
@@ -345,7 +352,8 @@ data class BuyQuote(
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
                 remainingTime = brokerageQuote.secondsToExpire.toLong(),
-                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble())
+                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble()),
+                depositTerms = brokerageQuote.depositTerms
             )
 
         private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {

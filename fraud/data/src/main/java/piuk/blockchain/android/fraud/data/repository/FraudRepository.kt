@@ -3,7 +3,6 @@ package piuk.blockchain.android.fraud.data.repository
 import android.app.Application
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.services.FraudRemoteService
-import com.blockchain.api.services.SessionService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.fold
@@ -12,6 +11,7 @@ import com.sardine.ai.mdisdk.MobileIntelligence.SubmitResponse
 import com.sardine.ai.mdisdk.Options
 import com.sardine.ai.mdisdk.UpdateOptions
 import java.security.MessageDigest
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.text.Charsets.UTF_8
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,7 +27,6 @@ import timber.log.Timber
 internal class FraudRepository(
     private val coroutineScope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
-    private val sessionService: SessionService,
     private val fraudService: FraudRemoteService,
     private val sessionInfo: SessionInfo,
     private val fraudFlows: FraudFlows,
@@ -38,20 +37,15 @@ internal class FraudRepository(
 
     private val currentFlow = AtomicReference<FraudFlow?>(null)
 
-    override fun updateSessionId() {
-        coroutineScope.launch(dispatcher) {
-            sessionInfo.clearSessionId()
+    override fun updateSessionId(onSessionIdGenerated: (() -> Unit)?) {
+        sessionInfo.clearSessionId()
 
+        coroutineScope.launch(dispatcher) {
             if (sessionIdFeatureFlag.coEnabled()) {
-                sessionService.getSessionId()
-                    .fold(
-                        onSuccess = {
-                            sessionInfo.setSessionId(it.xSessionId)
-                        },
-                        onFailure = {
-                            sessionInfo.clearSessionId()
-                        }
-                    )
+                sessionInfo.setSessionId(UUID.randomUUID().toString())
+                withContext(Dispatchers.Main) {
+                    onSessionIdGenerated?.invoke()
+                }
             }
         }
     }
@@ -99,6 +93,8 @@ internal class FraudRepository(
             if (sardineFeatureFlag.coEnabled()) {
                 withContext(Dispatchers.Main) {
                     if (application is Application) {
+                        val sessionId = sessionInfo.getSessionId() ?: UUID.randomUUID().toString()
+
                         val option: Options = Options.Builder()
                             .setClientID(clientId)
                             .enableBehaviorBiometrics(true)
@@ -110,6 +106,9 @@ internal class FraudRepository(
                                     setEnvironment(Options.ENV_PRODUCTION)
                                 }
                             }
+                            .setFlow("STARTUP")
+                            .setSessionKey(sessionId.hash())
+                            .setShouldAutoSubmitOnInit(true)
                             .build()
                         MobileIntelligence.init(application, option)
                     } else {
@@ -120,12 +119,13 @@ internal class FraudRepository(
         }
     }
 
-    override fun startFlow(flow: FraudFlow) {
+    override fun trackFlow(flow: FraudFlow) {
         coroutineScope.launch(dispatcher) {
             if (sardineFeatureFlag.coEnabled()) {
                 withContext(Dispatchers.Main) {
-                    if (fraudFlows.getAllFlows().contains(flow) && currentFlow.get() != flow) {
+                    if (fraudFlows.getAllFlows().contains(flow)) {
                         currentFlow.set(flow)
+                        Timber.i("Start tracking fraud flow: ${flow.name}.")
                         val options: UpdateOptions = UpdateOptions.Builder()
                             .setFlow(flow.name)
                             .apply {
@@ -134,7 +134,7 @@ internal class FraudRepository(
                             }
                             .build()
 
-                        MobileIntelligence.updateOptions(options)
+                        MobileIntelligence.updateOptions(options, onDataSubmittedCallback(flow))
                     }
                 }
             }
@@ -162,21 +162,35 @@ internal class FraudRepository(
     }
 
     private fun submitData(flow: FraudFlow?, onDataSubmitted: (() -> Unit)? = null) {
-        if (currentFlow.get() == flow || flow == null) {
-            currentFlow.set(null)
+        try {
+            if (currentFlow.get() == flow || flow == null) {
+                currentFlow.set(null)
 
-            MobileIntelligence.submitData(object : MobileIntelligence.Callback<SubmitResponse> {
-                override fun onSuccess(response: SubmitResponse) {
-                    onDataSubmitted?.invoke()
+                if (!MobileIntelligence.options.flow.isNullOrEmpty()) {
+                    Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.options.flow}].")
+                    MobileIntelligence.submitData(onDataSubmittedCallback(flow, onDataSubmitted))
                 }
-
-                override fun onError(exception: Exception) {
-                    Timber.e(exception)
-                    onDataSubmitted?.invoke()
-                }
-            })
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
     }
+
+    private fun onDataSubmittedCallback(flow: FraudFlow?, onDataSubmitted: (() -> Unit)? = null) =
+        object : MobileIntelligence.Callback<SubmitResponse> {
+            override fun onSuccess(response: SubmitResponse) {
+                onDataSubmitted?.invoke()
+                Timber.i("Fraud data sent for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}].")
+            }
+
+            override fun onError(exception: Exception) {
+                onDataSubmitted?.invoke()
+                Timber.e(
+                    exception,
+                    "Error sending fraud data for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}]."
+                )
+            }
+        }
 
     private fun String.toFraudFlow(): FraudFlow? =
         when {

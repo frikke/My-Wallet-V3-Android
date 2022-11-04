@@ -10,21 +10,21 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
-import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,
-    private val cache: WalletModeBalanceCache,
+    private val walletModeBalanceService: WalletModeBalanceService,
     private val payloadManager: PayloadDataManager,
     walletStatusPrefs: WalletStatusPrefs,
 ) :
@@ -38,7 +38,9 @@ class WalletModeSelectionViewModel(
             isWalletBackedUp = false,
             isWalletBackUpSkipped = walletStatusPrefs.isWalletBackUpSkipped,
             brokerageBalance = null,
+            anyBrokerageBalanceFailed = false,
             defiBalance = null,
+            anyDefiBalanceFailed = false,
             enabledWalletMode = walletModeService.enabledWalletMode()
         )
     ) {
@@ -51,6 +53,7 @@ class WalletModeSelectionViewModel(
                 brokerageBalance = brokerageBalance?.let {
                     BalanceState.Data(it)
                 } ?: BalanceState.Loading,
+                showBrokerageBalanceWarning = anyBrokerageBalanceFailed,
                 defiWalletBalance = defiBalance?.let {
                     if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
                         BalanceState.ActivationRequired
@@ -58,6 +61,7 @@ class WalletModeSelectionViewModel(
                         BalanceState.Data(it)
                     }
                 } ?: BalanceState.Loading,
+                showDefiBalanceWarning = anyDefiBalanceFailed,
                 defiWalletAvailable = true,
                 enabledWalletMode = enabledWalletMode,
             )
@@ -85,16 +89,15 @@ class WalletModeSelectionViewModel(
                     it.copy(brokerageBalance = null, defiBalance = null)
                 }
 
-                val nonCustodialBalance = cache.stream(
-                    KeyedFreshnessStrategy.Cached(
-                        key = WalletMode.NON_CUSTODIAL_ONLY,
-                        forceRefresh = true
-                    )
+                val nonCustodialBalance = walletModeBalanceService.getBalanceWithFailureState(
+                    WalletMode.NON_CUSTODIAL_ONLY,
+                    FreshnessStrategy.Cached(forceRefresh = true)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {
                             it.copy(
-                                defiBalance = response.data.total
+                                defiBalance = response.data.first,
+                                anyDefiBalanceFailed = response.data.second
                             )
                         }
                         is DataResource.Error,
@@ -105,16 +108,15 @@ class WalletModeSelectionViewModel(
                     }
                 }
 
-                val custodialBalance = cache.stream(
-                    KeyedFreshnessStrategy.Cached(
-                        key = WalletMode.CUSTODIAL_ONLY,
-                        forceRefresh = true
-                    )
+                val custodialBalance = walletModeBalanceService.getBalanceWithFailureState(
+                    WalletMode.CUSTODIAL_ONLY,
+                    FreshnessStrategy.Cached(forceRefresh = true)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {
                             it.copy(
-                                brokerageBalance = response.data.total
+                                brokerageBalance = response.data.first,
+                                anyBrokerageBalanceFailed = response.data.second
                             )
                         }
                         is DataResource.Error,
@@ -186,7 +188,9 @@ sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
 data class WalletModeSelectionViewState(
     val totalBalance: BalanceState,
     val brokerageBalance: BalanceState,
+    val showBrokerageBalanceWarning: Boolean,
     val defiWalletBalance: BalanceState,
+    val showDefiBalanceWarning: Boolean,
     val defiWalletAvailable: Boolean,
     val enabledWalletMode: WalletMode,
 ) : ViewState
@@ -195,7 +199,9 @@ data class WalletModeSelectionModelState(
     val isWalletBackedUp: Boolean,
     val isWalletBackUpSkipped: Boolean,
     val brokerageBalance: Money?,
+    val anyBrokerageBalanceFailed: Boolean,
     val defiBalance: Money?,
+    val anyDefiBalanceFailed: Boolean,
     val enabledWalletMode: WalletMode,
 ) : ModelState
 

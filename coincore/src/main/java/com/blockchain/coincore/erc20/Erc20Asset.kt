@@ -12,10 +12,13 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -36,7 +39,10 @@ internal class Erc20Asset(
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
     private val coinNetworksFeatureFlag: FeatureFlag,
-    private val evmNetworks: Single<List<EvmNetwork>>
+    private val evmNetworks: Single<List<EvmNetwork>>,
+    private val tradingService: TradingService,
+    private val kycService: KycService,
+    private val walletModeService: WalletModeService
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash

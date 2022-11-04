@@ -129,18 +129,22 @@
                         android:inputType="textNoSuggestions"
                         android:maxLines="1" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/warning_message"
-                        style="@style/Text.Semibold.12"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bkgd_orange_100_rounded"
+                        android:drawableStart="@drawable/ic_information"
+                        android:drawableEnd="@drawable/ic_arrow_right"
+                        android:drawablePadding="@dimen/minuscule_spacing"
+                        android:drawableTint="@color/orange_300"
                         android:layout_marginStart="@dimen/tiny_spacing"
                         android:layout_marginTop="@dimen/minuscule_spacing"
-                        android:text="@string/send_address_warning"
-                        android:visibility="visible"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/address_entry"
+                        android:padding="@dimen/tiny_spacing"
+                        tools:text="Text"
+                        android:textColor="@color/orange_600"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/qrImage"
                         tools:visibility="visible" />
 
                 </com.google.android.material.textfield.TextInputLayout>

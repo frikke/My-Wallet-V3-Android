@@ -250,11 +250,11 @@ fun ManageCard(
                     }
 
                     else -> {
-
                         Webview(
                             url = cardWidgetUrl,
                             disableScrolling = true,
                             onWebMessageReceived = onWebMessageReceived,
+                            overrideTextZoom = true,
                             modifier = Modifier
                                 .padding(
                                     top = AppTheme.dimensions.smallSpacing
@@ -263,6 +263,74 @@ fun ManageCard(
                                 .requiredWidth(400.dp),
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
+
+            card?.let {
+                if (card.status == BlockchainCardStatus.UNACTIVATED) {
+                    Box(
+                        modifier = Modifier.border(
+                            width = 1.dp,
+                            color = AppTheme.colors.light,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    ) {
+                        when (cardOrderState?.status) {
+                            BlockchainCardOrderStatus.PROCESSED,
+                            BlockchainCardOrderStatus.PROCESSING -> {
+                                DefaultTableRow(
+                                    primaryText = buildAnnotatedString {
+                                        append(
+                                            stringResource(R.string.bc_card_processing_title)
+                                        )
+                                    },
+                                    onClick = {},
+                                    secondaryText = buildAnnotatedString {
+                                        append(stringResource(R.string.bc_card_processing_subtitle))
+                                    },
+                                    startImageResource = ImageResource.Local(id = R.drawable.ic_send),
+                                    endImageResource = ImageResource.None
+                                )
+                            }
+
+                            BlockchainCardOrderStatus.SHIPPED -> {
+                                DefaultTableRow(
+                                    primaryText = buildAnnotatedString {
+                                        append(
+                                            stringResource(R.string.bc_card_shipped_title)
+                                        )
+                                    },
+                                    onClick = onActivateCard,
+                                    secondaryText = buildAnnotatedString {
+                                        append(stringResource(R.string.bc_card_shipped_subtitle))
+                                    },
+                                    startImageResource = ImageResource.Local(id = R.drawable.credit_card),
+                                )
+                            }
+
+                            BlockchainCardOrderStatus.DELIVERED -> {
+                                DefaultTableRow(
+                                    primaryText = buildAnnotatedString {
+                                        append(
+                                            stringResource(R.string.bc_card_delivered_title)
+                                        )
+                                    },
+                                    onClick = {},
+                                    secondaryText = buildAnnotatedString {
+                                        append(
+                                            stringResource(R.string.bc_card_delivered_subtitle)
+                                        )
+                                    },
+                                    startImageResource = ImageResource.Local(id = R.drawable.credit_card),
+                                )
+                            }
+                            else -> {}
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
                 }
             }
 
@@ -281,76 +349,6 @@ fun ManageCard(
                             is FiatValue -> linkedAccountBalance.totalFiat.isPositive
                             is CryptoValue -> linkedAccountBalance.total.isPositive
                             else -> false
-                        }
-
-                        card?.let {
-                            if (card.status == BlockchainCardStatus.UNACTIVATED) {
-                                Box(
-                                    modifier = Modifier.border(
-                                        width = 1.dp,
-                                        color = AppTheme.colors.light,
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                ) {
-                                    when (cardOrderState?.status) {
-                                        BlockchainCardOrderStatus.PROCESSING -> {
-                                            DefaultTableRow(
-                                                primaryText = buildAnnotatedString {
-                                                    append(
-                                                        stringResource(R.string.bc_card_processing_title)
-                                                    )
-                                                },
-                                                onClick = {},
-                                                secondaryText = buildAnnotatedString {
-                                                    append(stringResource(R.string.bc_card_processing_subtitle))
-                                                },
-                                                contentStart = {
-                                                    CircularProgressBar(
-                                                        modifier = Modifier
-                                                            .align(Alignment.CenterVertically)
-                                                            .size(dimensionResource(R.dimen.standard_spacing))
-                                                    )
-                                                },
-                                            )
-                                        }
-
-                                        BlockchainCardOrderStatus.SHIPPED -> {
-                                            DefaultTableRow(
-                                                primaryText = buildAnnotatedString {
-                                                    append(
-                                                        stringResource(R.string.bc_card_shipped_title)
-                                                    )
-                                                },
-                                                onClick = onActivateCard,
-                                                secondaryText = buildAnnotatedString {
-                                                    append(stringResource(R.string.bc_card_shipped_subtitle))
-                                                },
-                                                startImageResource = ImageResource.Local(id = R.drawable.ic_send),
-                                            )
-                                        }
-
-                                        BlockchainCardOrderStatus.DELIVERED -> {
-                                            DefaultTableRow(
-                                                primaryText = buildAnnotatedString {
-                                                    append(
-                                                        stringResource(R.string.bc_card_delivered_title)
-                                                    )
-                                                },
-                                                onClick = {},
-                                                secondaryText = buildAnnotatedString {
-                                                    append(
-                                                        stringResource(R.string.bc_card_delivered_subtitle)
-                                                    )
-                                                },
-                                                startImageResource = ImageResource.Local(id = R.drawable.credit_card),
-                                            )
-                                        }
-                                        else -> {}
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
-                            }
                         }
 
                         if (!hasFunds) {
@@ -517,7 +515,16 @@ fun ManageCard(
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
     ManageCard(
-        card = null,
+        card = BlockchainCard(
+            id = "",
+            type = BlockchainCardType.PHYSICAL,
+            last4 = "",
+            expiry = "",
+            brand = BlockchainCardBrand.VISA,
+            status = BlockchainCardStatus.UNACTIVATED,
+            orderStatus = null,
+            createdAt = ""
+        ),
         cardWidgetUrl = null,
         linkedAccountBalance = null,
         isBalanceLoading = false,
@@ -823,7 +830,8 @@ fun CardSelectorItem(
             modifier = modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, Grey000),
             elevation = if (isSelected) 2.dp else 0.dp,
-            shape = AppTheme.shapes.medium
+            shape = AppTheme.shapes.medium,
+            backgroundColor = AppTheme.colors.background
         ) {
             Row(
                 modifier = Modifier

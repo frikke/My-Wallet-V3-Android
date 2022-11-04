@@ -64,8 +64,11 @@ sealed class BlockedReason : Serializable {
         data class Unknown(val message: String) : InsufficientTier()
     }
     sealed class Sanctions : BlockedReason() {
-        object RussiaEU5 : Sanctions()
-        data class Unknown(val message: String) : Sanctions()
+        abstract val message: String
+
+        data class RussiaEU5(override val message: String) : Sanctions()
+        data class RussiaEU8(override val message: String) : Sanctions()
+        data class Unknown(override val message: String) : Sanctions()
     }
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
 }

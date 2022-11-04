@@ -114,7 +114,7 @@ internal class InterestRepository(
 
     override fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean> {
         return getAvailableAssetsForInterest()
-            .map { assets -> assets.contains(asset) }
+            .map { assets -> asset.networkTicker in assets.map { it.networkTicker } }
             .onErrorResumeNext { Single.just(false) }
     }
 

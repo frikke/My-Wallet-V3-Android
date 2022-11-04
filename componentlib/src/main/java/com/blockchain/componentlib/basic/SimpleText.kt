@@ -1,6 +1,9 @@
 package com.blockchain.componentlib.basic
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
@@ -10,15 +13,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 
 @Composable
 fun SimpleText(
@@ -126,16 +133,52 @@ fun ExpandableSimpleText(
 
     var expanded by remember { mutableStateOf(false) }
 
-    ClickableText(
-        modifier = modifier,
-        text = buildAnnotatedString { append(text) },
-        style = mergedStyle,
-        maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
-        overflow = overflow,
-        onClick = {
-            expanded = !expanded
+    Row(modifier = modifier) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = buildAnnotatedString { append(text) },
+            style = mergedStyle,
+            maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
+            overflow = overflow,
+        )
+
+        SmallHorizontalSpacer()
+
+        val expandIcon = when (expanded) {
+            true -> ImageResource.Local(R.drawable.ic_chevron_up)
+            false -> ImageResource.Local(R.drawable.ic_chevron_down)
         }
-    )
+
+        Image(
+            imageResource = expandIcon,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .size(dimensionResource(R.dimen.standard_spacing))
+                .clickable { expanded = !expanded }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewExpandableSimpleText() {
+    AppTheme {
+        AppSurface {
+            ExpandableSimpleText(
+                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc sit amet aliquam" +
+                    " luctus, nisi nisl aliquam nisl, nec aliquam nunc nisl sit amet nisl. Sed euismod," +
+                    " nunc sit amet aliquam luctus, nisi nisl aliquam nisl, nec aliquam nunc nisl sit amet nisl. " +
+                    "Sed euismod, nunc sit",
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { },
+                maxLinesWhenCollapsed = 3
+            )
+        }
+    }
 }
 
 @Preview

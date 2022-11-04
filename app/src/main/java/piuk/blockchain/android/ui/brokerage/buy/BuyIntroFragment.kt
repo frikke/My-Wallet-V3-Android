@@ -46,6 +46,7 @@ import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
@@ -222,17 +223,21 @@ class BuyIntroFragment :
     }
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        val action = {
+            when (reason) {
+                is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
+                is BlockedReason.Sanctions.Unknown -> {}
+            }
+        }
         with(binding) {
             viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
             customEmptyState.apply {
                 title = R.string.account_restricted
-                descriptionText = when (reason) {
-                    BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
-                    is BlockedReason.Sanctions.Unknown -> reason.message
-                }
+                descriptionText = reason.message
                 icon = R.drawable.ic_wallet_intro_image
                 ctaText = R.string.common_learn_more
-                ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+                ctaAction = action
             }
         }
     }

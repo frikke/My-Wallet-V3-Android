@@ -117,7 +117,7 @@ class AddNewCardFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        fraudService.startFlow(FraudFlow.CARD_LINK)
+        fraudService.trackFlow(FraudFlow.CARD_LINK)
 
         model.process(CardIntent.LoadLinkedCards)
 
@@ -159,6 +159,8 @@ class AddNewCardFragment :
                     if (cardHasAlreadyBeenAdded()) {
                         showError()
                     } else {
+                        fraudService.trackFlow(FraudFlow.CARD_LINK)
+
                         cardDetailsPersistence.setCardData(
                             CardData(
                                 fullName = cardName.text.toString(),

@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ItemCheckoutClickableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
+import piuk.blockchain.android.databinding.ItemCheckoutCtaInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleExpandableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutToggleInfoBinding
@@ -23,7 +25,7 @@ import piuk.blockchain.android.util.getResolvedColor
 
 class CheckoutAdapterDelegate(
     onToggleChanged: (Boolean) -> Unit,
-    onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+    onAction: (ActionType) -> Unit,
 ) :
     DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
 
@@ -39,8 +41,10 @@ class CheckoutAdapterDelegate(
         with(delegatesManager) {
             addAdapterDelegate(SimpleCheckoutItemDelegate())
             addAdapterDelegate(ComplexCheckoutItemDelegate())
-            addAdapterDelegate(ExpandableCheckoutItemDelegate(onTooltipClicked))
+            addAdapterDelegate(ExpandableCheckoutItemDelegate(onAction))
             addAdapterDelegate(ToggleCheckoutItemDelegate(onToggleChanged))
+            addAdapterDelegate(ClickableCheckoutItemDelegate(onAction))
+            addAdapterDelegate(ReadMoreDisclaimerCheckoutItemDelegate(onAction))
         }
     }
 }
@@ -61,6 +65,20 @@ class SimpleBuyCheckoutItemDiffUtil(
     }
 }
 
+sealed class ActionType {
+    object Price : ActionType()
+    object Fee : ActionType()
+    object WithdrawalHold : ActionType()
+    data class TermsAndConditions(
+        val bankLabel: String,
+        val amount: String,
+        val withdrawalLock: String,
+        val isRecurringBuyEnabled: Boolean
+    ) : ActionType()
+
+    object Unknown : ActionType()
+}
+
 sealed class SimpleBuyCheckoutItem {
     data class SimpleCheckoutItem(
         val label: String,
@@ -75,9 +93,17 @@ sealed class SimpleBuyCheckoutItem {
 
     data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
 
-    enum class ExpandableType {
-        PRICE, FEE, UNKNOWN
-    }
+    data class ClickableCheckoutItem(
+        val label: String,
+        val title: String,
+        val actionType: ActionType
+    ) : SimpleBuyCheckoutItem()
+
+    data class ReadMoreCheckoutItem(
+        val text: String,
+        val cta: String,
+        val actionType: ActionType
+    ) : SimpleBuyCheckoutItem()
 
     data class ExpandableCheckoutItem(
         val label: String,
@@ -85,7 +111,7 @@ sealed class SimpleBuyCheckoutItem {
         val expandableContent: CharSequence,
         val promoLayout: View? = null,
         val hasChanged: Boolean,
-        val expandableType: ExpandableType
+        val actionType: ActionType
     ) : SimpleBuyCheckoutItem() {
         override fun equals(other: Any?) =
             (other as? ExpandableCheckoutItem)?.let { EssentialData(this) == EssentialData(it) } ?: false
@@ -235,8 +261,88 @@ private class ToggleCheckoutItemItemViewHolder(
     }
 }
 
+class ClickableCheckoutItemDelegate(
+    private val onTooltipClicked: (ActionType) -> Unit
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ClickableCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ClickableCheckoutItemViewHolder(
+            ItemCheckoutClickableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ClickableCheckoutItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ClickableCheckoutItem,
+        onTooltipClicked
+    )
+}
+
+private class ClickableCheckoutItemViewHolder(
+    val binding: ItemCheckoutClickableInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ClickableCheckoutItem,
+        onTooltipClicked: (ActionType) -> Unit
+    ) {
+        with(binding) {
+            clickableItemTitle.text = item.title
+            clickableItemLabel.text = item.label
+            clickableItemLabel.setOnClickListener {
+                onTooltipClicked(item.actionType)
+            }
+        }
+    }
+}
+
+class ReadMoreDisclaimerCheckoutItemDelegate(
+    private val onCtaClicked: (ActionType) -> Unit
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ReadMoreCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ReadMoreDisclaimerCheckoutItemViewHolder(
+            ItemCheckoutCtaInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ReadMoreDisclaimerCheckoutItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
+        onCtaClicked
+    )
+}
+
+private class ReadMoreDisclaimerCheckoutItemViewHolder(
+    val binding: ItemCheckoutCtaInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
+        onCtaClicked: (ActionType) -> Unit
+    ) {
+        with(binding) {
+            infoText.text = item.text
+            ctaButton.apply {
+                text = item.cta
+                onClick = { onCtaClicked(item.actionType) }
+            }
+        }
+    }
+}
+
 class ExpandableCheckoutItemDelegate(
-    private val onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+    private val onTooltipClicked: (ActionType) -> Unit,
 ) : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
         items[position] is SimpleBuyCheckoutItem.ExpandableCheckoutItem
@@ -269,7 +375,7 @@ private class ExpandableCheckoutItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ExpandableCheckoutItem,
-        onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+        onTooltipClicked: (ActionType) -> Unit,
     ) {
         with(binding) {
             expandableItemLabel.text = item.label
@@ -290,7 +396,7 @@ private class ExpandableCheckoutItemViewHolder(
                 )
             }
             expandableItemLabel.setOnClickListener {
-                onTooltipClicked(item.expandableType)
+                onTooltipClicked(item.actionType)
                 isExpanded = !isExpanded
                 expandableItemExpansion.visibleIf { isExpanded }
                 if (isExpanded) {

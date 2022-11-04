@@ -1,6 +1,9 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.selfcustody.AccountInfo
+import com.blockchain.api.selfcustody.ActivityPubKeyInfo
+import com.blockchain.api.selfcustody.ActivityRequest
+import com.blockchain.api.selfcustody.ActivityRequestParams
 import com.blockchain.api.selfcustody.AddSubscriptionRequest
 import com.blockchain.api.selfcustody.AddressesRequest
 import com.blockchain.api.selfcustody.AuthInfo
@@ -20,6 +23,7 @@ import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import kotlinx.serialization.json.JsonObject
@@ -56,7 +60,7 @@ class DynamicSelfCustodyService(
                             index = 0,
                             name = accountName
                         ),
-                        pubKeys = addresses.map { address -> PubKeyInfo(address, "SINGLE") }
+                        pubKeys = addresses.map { address -> PubKeyInfo(address, PubKeyStyle.SINGLE) }
                     )
                 )
             )
@@ -128,6 +132,31 @@ class DynamicSelfCustodyService(
             auth = authInfo,
             currency = currency,
             contractAddress = contractAddress
+        )
+    )
+
+    suspend fun getActivity(
+        fiatCurrency: String,
+        currency: String,
+        pubKey: String,
+        acceptLanguage: String,
+        timeZone: String,
+        nextPage: String?
+    ) = selfCustodyApi.getActivity(
+        request = ActivityRequest(
+            auth = authInfo,
+            params = ActivityRequestParams(
+                timezone = timeZone,
+                fiatCurrency = fiatCurrency,
+                acceptLanguage = acceptLanguage, // "en-GB;q=1.0, en"
+                networkTicker = currency,
+                pubKeyInfo = ActivityPubKeyInfo(
+                    pubKey = pubKey,
+                    style = PubKeyStyle.SINGLE,
+                    descriptor = "legacy" // TODO(dtverdota): what values are acceptable here?
+                )
+            ),
+            nextPage = nextPage
         )
     )
 

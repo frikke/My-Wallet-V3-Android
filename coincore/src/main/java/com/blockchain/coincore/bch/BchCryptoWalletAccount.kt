@@ -17,9 +17,9 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -83,8 +83,8 @@ import org.bitcoinj.core.LegacyAddress
     override val index: Int
         get() = addressIndex
 
-    override val style: String
-        get() = NetworkWallet.EXTENDED_PUB_KEY_STYLE
+    override val style: PubKeyStyle
+        get() = PubKeyStyle.EXTENDED
 
     override val activity: Single<ActivitySummaryList>
         get() = bchManager.getAddressTransactions(

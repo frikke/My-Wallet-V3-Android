@@ -54,7 +54,7 @@ class CreateWalletActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fraudService.startFlow(FraudFlow.SIGNUP)
+        fraudService.trackFlow(FraudFlow.SIGNUP)
 
         recaptchaClient.initReCaptcha()
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)

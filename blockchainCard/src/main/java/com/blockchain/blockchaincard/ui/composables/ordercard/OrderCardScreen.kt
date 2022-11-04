@@ -42,6 +42,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -87,6 +88,8 @@ import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -956,6 +959,7 @@ fun ReviewAndSubmit(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
                 .padding(vertical = AppTheme.dimensions.smallSpacing, horizontal = AppTheme.dimensions.standardSpacing)
         ) {
@@ -1088,17 +1092,13 @@ fun ReviewAndSubmit(
                     )
                 }
             }
-        }
 
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.standardSpacing)
-                .align(Alignment.BottomCenter),
-            horizontalAlignment = CenterHorizontally
-        ) {
+            StandardVerticalSpacer()
 
-            val termsAndConditionsCheckboxState = remember { mutableStateOf(CheckboxState.Unchecked) }
+            var termsAndConditionsCheckboxState by remember(isLegalDocReviewComplete) {
+                if (isLegalDocReviewComplete) mutableStateOf(CheckboxState.Checked)
+                else mutableStateOf(CheckboxState.Unchecked)
+            }
             Row(
                 modifier = Modifier
                     .wrapContentHeight()
@@ -1108,16 +1108,16 @@ fun ReviewAndSubmit(
 
                 Checkbox(
                     modifier = Modifier.padding(AppTheme.dimensions.tinySpacing),
-                    state = termsAndConditionsCheckboxState.value,
+                    state = termsAndConditionsCheckboxState,
                     onCheckChanged = { checked ->
                         if (checked) {
                             if (isLegalDocReviewComplete) {
-                                termsAndConditionsCheckboxState.value = CheckboxState.Checked
+                                termsAndConditionsCheckboxState = CheckboxState.Checked
                             } else {
                                 onSeeLegalDocuments()
                             }
                         } else {
-                            termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
+                            termsAndConditionsCheckboxState = CheckboxState.Unchecked
                         }
                     },
                 )
@@ -1138,7 +1138,7 @@ fun ReviewAndSubmit(
                 text = stringResource(id = R.string.create_card),
                 onClick = onCreateCard,
                 modifier = Modifier.fillMaxWidth(),
-                state = when (termsAndConditionsCheckboxState.value) {
+                state = when (termsAndConditionsCheckboxState) {
                     CheckboxState.Checked -> ButtonState.Enabled
                     else -> ButtonState.Disabled
                 }
@@ -1393,6 +1393,29 @@ fun LegalDocumentsViewer(
 
         val currentDocument = legalDocuments[currentDocumentIndex]
 
+        Row(
+            modifier = Modifier
+                .padding(AppTheme.dimensions.smallSpacing)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LinearProgressBar(
+                progress = (currentDocumentIndex + 1) / legalDocuments.size.toFloat(),
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(AppTheme.shapes.small)
+            )
+
+            TinyHorizontalSpacer()
+
+            SimpleText(
+                text = "(${currentDocumentIndex + 1}/${legalDocuments.size})",
+                style = ComposeTypographies.Caption2,
+                color = ComposeColors.Muted,
+                gravity = ComposeGravities.Start
+            )
+        }
+
         Webview(
             url = currentDocument.url,
             modifier = Modifier
@@ -1403,8 +1426,7 @@ fun LegalDocumentsViewer(
 
         if (currentDocumentIndex < legalDocuments.size - 1) {
             MinimalButton(
-                text = stringResource(id = R.string.common_next) +
-                    " (${currentDocumentIndex + 1}/${legalDocuments.size})",
+                text = stringResource(id = R.string.common_next),
                 state = ButtonState.Enabled,
                 onClick = { currentDocumentIndex++ },
                 modifier = Modifier
@@ -1423,11 +1445,46 @@ fun LegalDocumentsViewer(
                     .weight(0.1f)
             )
         }
-
-        LinearProgressBar(
-            progress = (currentDocumentIndex + 1) / legalDocuments.size.toFloat(),
-        )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLegalDocumentsViewer() {
+    LegalDocumentsViewer(
+        legalDocuments = listOf(
+            BlockchainCardLegalDocument(
+                name = "Terms and Conditions",
+                url = "https://www.google.com",
+                displayName = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+            BlockchainCardLegalDocument(
+                name = "Privacy Policy",
+                url = "https://www.google.com",
+                displayName = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+
+            ),
+            BlockchainCardLegalDocument(
+                name = "Cardholder Agreement",
+                url = "https://www.google.com",
+                displayName = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false
+            )
+        ),
+        onLegalDocSeen = {},
+        onFinish = {}
+    )
 }
 
 @Composable

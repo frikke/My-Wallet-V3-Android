@@ -19,6 +19,7 @@ import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
+import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -296,6 +297,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_google_wallet",
                 "Google Wallet"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(improvedPaymentUxFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_improved_payment_ux",
+                "Improved Payment UX"
             )
         )
     }.bind(FeatureFlag::class)

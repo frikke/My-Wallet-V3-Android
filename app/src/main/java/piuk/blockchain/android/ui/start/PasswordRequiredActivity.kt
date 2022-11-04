@@ -67,7 +67,7 @@ class PasswordRequiredActivity :
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
             params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
         )
-        fraudService.startFlow(FraudFlow.LOGIN)
+        fraudService.trackFlow(FraudFlow.LOGIN)
 
         with(binding) {
             walletIdentifier.apply {

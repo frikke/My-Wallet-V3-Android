@@ -190,7 +190,6 @@ data class DashboardState(
      *      - Display all L1 non-custodial coins regardless of balance
      *      - Honour the Dust hiding setting (balance <$0.01)
      * - When in Brokerage or Universal:
-     *      - Display all L1 assets regardless of balance
      *      - For other assets - show accounts with balances
      *      - Honour the Dust hiding setting (balance <$0.01)
      */
@@ -201,7 +200,7 @@ data class DashboardState(
                 it.currency.isLayer1Asset() || it.shouldAssetShow
             }
             if (activeAssets.all { it.value is BrokerageDashboardAsset }) return activeAssets.values.filter {
-                it.currency.isLayer1Asset() || (it.accountBalance?.total?.isPositive ?: false && it.shouldAssetShow)
+                it.accountBalance?.total?.isPositive ?: false && it.shouldAssetShow
             }
             throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
         }

@@ -10,9 +10,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.SingleAccountList
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -20,18 +18,15 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.hideDustFeatureFlag
+import com.blockchain.data.doOnData
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.sellOrder
 import com.blockchain.nabu.BlockedReason
-import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -55,8 +50,8 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetScreenViewedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetSelectedEvent
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
@@ -88,34 +83,10 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     private val binding: SellIntroFragmentBinding
         get() = _binding!!
 
-    private val coincore: Coincore by scopedInject()
     private val analytics: Analytics by inject()
-    private val accountsSorting: AccountsSorting by scopedInject(sellOrder)
 
-    private val localSettingsPrefs: LocalSettingsPrefs by inject()
-    private val hideDustFlag: FeatureFlag by scopedInject(hideDustFeatureFlag)
-
-    private var supportedSellCryptos: List<AssetInfo> = emptyList()
     private var hasEnteredSearchTerm: Boolean = false
-
-    private val listOfSellAccounts: Single<List<CryptoAccount>>
-        get() = hideDustFlag.enabled.flatMap { flagEnabled ->
-            if (flagEnabled && localSettingsPrefs.hideSmallBalancesEnabled) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountsSorting.sorter()
-                ).flatMap { accountList ->
-                    filterAccountsList(accountList)
-                }.cache()
-            } else {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountsSorting.sorter()
-                ).map {
-                    it.filterIsInstance<CryptoAccount>()
-                }.cache()
-            }
-        }
+    private var isAccountsFirstLoad: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -149,13 +120,13 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     }
 
     override fun onStateUpdated(state: SellViewState) {
-        when (state.data) {
+        when (state.sellEligibility) {
             is DataResource.Data -> {
                 hideLoading()
 
-                when (val eligibilityData = state.data.data) {
+                when (val eligibilityData = state.sellEligibility.data) {
                     is SellEligibility.Eligible -> {
-                        renderEligibleUser(eligibilityData)
+                        renderEligibleUser(eligibilityData.sellAssets)
                     }
                     is SellEligibility.KycBlocked -> {
                         when (eligibilityData.reason) {
@@ -183,14 +154,14 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
 
                 renderSellError()
                 logErrorAnalytics(
-                    nabuApiException = (state.data.error as? HttpException)?.let {
+                    nabuApiException = (state.sellEligibility.error as? HttpException)?.let {
                         NabuApiExceptionFactory.fromResponseBody(it)
                     },
-                    errorDescription = state.data.error.message,
-                    error = if (state.data.error is HttpException) {
+                    errorDescription = state.sellEligibility.error.message,
+                    error = if (state.sellEligibility.error is HttpException) {
                         ClientErrorAnalytics.NABU_ERROR
                     } else ClientErrorAnalytics.UNKNOWN_ERROR,
-                    source = if (state.data.error is HttpException) {
+                    source = if (state.sellEligibility.error is HttpException) {
                         ClientErrorAnalytics.Companion.Source.NABU
                     } else {
                         ClientErrorAnalytics.Companion.Source.CLIENT
@@ -203,38 +174,40 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
                 showLoading()
             }
         }
+
+        state.supportedAccountList.doOnData { supportedAccounts ->
+            with(binding.accountsList) {
+                if (isAccountsFirstLoad) {
+                    initialise(
+                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
+                        status = ::statusDecorator,
+                    )
+                    isAccountsFirstLoad = false
+                } else {
+                    loadItems(
+                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
+                        accountsLocksSource = Single.just(emptyList())
+                    )
+                }
+            }
+        }
     }
 
-    private fun filterAccountsList(accountList: SingleAccountList): Single<List<CryptoAccount>> =
-        accountList.map { account ->
-            account.balanceRx
-        }.zipObservables().map {
-            accountList.mapIndexedNotNull { index, singleAccount ->
-                if (!it[index].totalFiat.isDust()) {
-                    singleAccount
-                } else {
-                    null
-                }
-            }.filterIsInstance<CryptoAccount>()
-        }.firstOrError()
-
-    private fun renderEligibleUser(eligible: SellEligibility.Eligible) {
-        supportedSellCryptos = eligible.sellAssets
-
+    private fun renderEligibleUser(supportedAssets: List<AssetInfo>) {
         with(binding) {
             kycBenefits.gone()
             sellAccountsContainer.visible()
             sellIntroSearch.apply {
                 label = getString(R.string.search_coins_hint)
-                onValueChange = { searchedText ->
-                    this@with.onSearchTermUpdated(searchedText)
+                onValueChange = { searchTerm ->
+                    hasEnteredSearchTerm = searchTerm.isNotEmpty()
+                    viewModel.onIntent(SellIntent.FilterAccounts(searchTerm))
                 }
             }
+
+            viewModel.onIntent(SellIntent.LoadSupportedAccounts(supportedAssets))
+
             with(accountsList) {
-                initialise(
-                    filteredAccountList(supportedSellCryptos),
-                    status = ::statusDecorator,
-                )
                 onAccountSelected = { account ->
                     analytics.logEvent(SellAssetSelectedEvent(type = account.label))
                     (account as? CryptoAccount)?.let {
@@ -244,15 +217,11 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
                 onListLoaded = { isEmpty ->
                     hideLoading()
 
-                    when {
-                        isEmpty && hasEnteredSearchTerm -> {
-                            sellSearchEmpty.visible()
-                            accountsList.gone()
-                        }
-                        isEmpty -> renderSellEmpty()
-                        else -> {
-                            // Do Nothing
-                        }
+                    sellSearchEmpty.visibleIf { isEmpty && hasEnteredSearchTerm }
+                    accountsList.goneIf { isEmpty }
+
+                    if (isEmpty && !hasEnteredSearchTerm) {
+                        renderSellEmpty()
                     }
                 }
             }
@@ -306,18 +275,23 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     }
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        val action = {
+            when (reason) {
+                is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
+                is BlockedReason.Sanctions.Unknown -> {}
+            }
+        }
+
         with(binding) {
             sellAccountsContainer.gone()
 
             customEmptyState.apply {
                 title = R.string.account_restricted
-                descriptionText = when (reason) {
-                    BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
-                    is BlockedReason.Sanctions.Unknown -> reason.message
-                }
+                descriptionText = reason.message
                 icon = R.drawable.ic_wallet_intro_image
                 ctaText = R.string.common_learn_more
-                ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+                ctaAction = action
                 visible()
             }
         }
@@ -387,45 +361,6 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
             )
         }
     }
-
-    private fun SellIntroFragmentBinding.onSearchTermUpdated(searchTerm: String) {
-        with(accountsList) {
-            visible()
-            loadItems(
-                filteredAccountList(
-                    supportedSellCryptos = supportedSellCryptos,
-                    searchTerm = searchTerm
-                ),
-                accountsLocksSource = Single.just(emptyList())
-            )
-        }
-
-        hasEnteredSearchTerm = searchTerm.isNotEmpty()
-        sellSearchEmpty.gone()
-        sellIntroSearch.visible()
-    }
-
-    private fun filteredAccountList(
-        supportedSellCryptos: List<AssetInfo>,
-        searchTerm: String = ""
-    ): Single<List<AccountListViewItem>> =
-        listOfSellAccounts
-            .doOnSubscribe {
-                showLoading()
-            }
-            .map { list ->
-                list.filter { account ->
-                    if (searchTerm.isNotEmpty()) {
-                        supportedSellCryptos.contains(account.currency) &&
-                            (
-                                account.currency.name.contains(searchTerm, true) ||
-                                    account.currency.networkTicker.contains(searchTerm, true)
-                                )
-                    } else {
-                        true
-                    }
-                }.map(AccountListViewItem.Companion::create)
-            }
 
     private fun statusDecorator(account: BlockchainAccount): CellDecorator = SellCellDecorator(account)
 

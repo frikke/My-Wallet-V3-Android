@@ -7,6 +7,7 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.outcome.map
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class UniversalDynamicAssetRepository(
@@ -26,7 +27,7 @@ class UniversalDynamicAssetRepository(
                 .toSet() // Remove dups
                 .asSequence()
                 .filter { it.supportsAnyCustodialOrNonCustodialProducts() }
-                .map { it.toAssetInfo(evmCoins.map { it.displayTicker }) }
+                .mapNotNull { it.toAssetInfo(evmCoins.map { it.displayTicker }) }
                 .filterNot { it.networkTicker in dominantL1Assets.map { l1 -> l1.networkTicker } }
                 .plus(dominantL1Assets)
                 .toList()
@@ -42,17 +43,20 @@ class UniversalDynamicAssetRepository(
                     )
                 }
             }
-            .map { assets -> assets.map { it.toAssetInfo() } }
+            .map { assets -> assets.mapNotNull { it.toAssetInfo() } }
     }
 
     // Returns the AssetInfo for every Coin from coin definitions with the network type EVM except Ethereum
     override fun otherEvmAssets(): Single<List<AssetInfo>> {
         return l2sDynamicAssetRepository.otherEvmAssets()
-            .map { it.map { asset -> asset.toAssetInfo() } }
+            .map { it.mapNotNull { asset -> asset.toAssetInfo() } }
     }
 
     // Returns the list of EvmNetworks from the coin networks service including Ethereum
     override fun allEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.allEvmNetworks()
+
+    override fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> =
+        l2sDynamicAssetRepository.getEvmNetworkForCurrency(currency)
 
     // Returns the list of EvmNetworks from the coin networks service except Ethereum
     override fun otherEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.otherEvmNetworks()

@@ -119,6 +119,8 @@ class SimpleBuyCryptoFragment :
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val fraudService: FraudService by inject()
 
+    private var currentFraudFlow: FraudFlow? = null
+
     private var infoActionCallback: () -> Unit = {}
 
     private val fiatCurrency: FiatCurrency
@@ -203,7 +205,10 @@ class SimpleBuyCryptoFragment :
                 }
             }
 
-        binding.btnContinue.setOnClickListener { startBuy() }
+        binding.btnContinue.setOnClickListener {
+            currentFraudFlow?.let { fraudService.trackFlow(it) }
+            startBuy()
+        }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
@@ -811,11 +816,8 @@ class SimpleBuyCryptoFragment :
                 ImageResource.Local((R.drawable.ic_bank_icon))
             }
         }
-        fraudService.endFlow {
-            fraudService.startFlow(
-                if (fiatCurrency.isOpenBankingCurrency()) FraudFlow.OB_DEPOSIT else FraudFlow.ACH_DEPOSIT
-            )
-        }
+
+        trackFraudFlow(if (fiatCurrency.isOpenBankingCurrency()) FraudFlow.OB_DEPOSIT else FraudFlow.ACH_DEPOSIT)
     }
 
     private fun renderUndefinedCardPayment(selectedPaymentMethod: PaymentMethod.UndefinedCard) {
@@ -900,9 +902,8 @@ class SimpleBuyCryptoFragment :
                 }
             }
         }
-        fraudService.endFlow {
-            fraudService.startFlow(FraudFlow.CARD_DEPOSIT)
-        }
+
+        trackFraudFlow(FraudFlow.CARD_DEPOSIT)
     }
 
     private fun DefaultTableRowView.showErrorColours() {
@@ -925,7 +926,8 @@ class SimpleBuyCryptoFragment :
             )
         }
         disableRecurringBuyCta(false)
-        fraudService.endFlow { fraudService.startFlow(FraudFlow.MOBILE_WALLET_DEPOSIT) }
+
+        trackFraudFlow(FraudFlow.MOBILE_WALLET_DEPOSIT)
     }
 
     private fun PaymentMethod?.isCardAndAlwaysRejected(): Boolean =
@@ -1334,6 +1336,13 @@ class SimpleBuyCryptoFragment :
             }
         }
         return true
+    }
+
+    private fun trackFraudFlow(flow: FraudFlow) {
+        if (currentFraudFlow != flow) {
+            fraudService.trackFlow(flow)
+        }
+        currentFraudFlow = flow
     }
 
     companion object {

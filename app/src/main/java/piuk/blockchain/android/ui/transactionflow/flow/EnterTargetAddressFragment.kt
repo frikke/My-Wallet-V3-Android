@@ -132,7 +132,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
             customiser.issueFlashMessage(newState, null).takeIf { it.isNotEmpty() }?.let { errorMsg ->
                 addressEntry.setErrorState(errorMsg)
-                warningMessage.gone()
             } ?: hideErrorState()
 
             ctaButton.apply {
@@ -183,7 +182,10 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             titleTo.title = customiser.selectTargetDestinationLabel(state)
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
-            warningMessage.text = customiser.selectTargetAddressInputWarning(state)
+            warningMessage.apply {
+                visibleIf { state.networkName != null }
+                text = customiser.selectTargetAddressInputWarning(state)
+            }
             titlePick.apply {
                 visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }
                 title = customiser.selectTargetAddressTitlePick(state)
@@ -193,7 +195,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun hideErrorState() {
         binding.addressEntry.clearErrorState()
-        binding.warningMessage.visible()
     }
 
     private fun showSendNetworkWarning(state: TransactionState) {

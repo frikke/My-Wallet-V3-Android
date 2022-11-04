@@ -7,6 +7,7 @@ import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 interface DynamicAssetsService {
@@ -14,34 +15,55 @@ interface DynamicAssetsService {
     fun availableL1Assets(): Single<List<AssetInfo>>
     fun otherEvmAssets(): Single<List<AssetInfo>>
     fun allEvmNetworks(): Single<List<EvmNetwork>>
+    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
     fun otherEvmNetworks(): Single<List<EvmNetwork>>
 }
 
-internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
-    CryptoCurrency(
-        displayTicker = displayTicker,
-        networkTicker = networkTicker,
-        name = parentChain?.let {
-            assetName.forParentTicker(it)
-        } ?: assetName,
-        categories = mapCategories(products),
-        precisionDp = precision,
-        l1chainTicker = parentChain?.let { chain ->
-            evmChains.find { it == chain } ?: kotlin.run {
-                when (chain) {
-                    AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
-                    else -> throw IllegalStateException("Unknown l1 chain: $chain")
-                }
+internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo? =
+    parentChain?.let { chain ->
+        val pChain = evmChains.find { it == chain } ?: kotlin.run {
+            when (chain) {
+                AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
+                else -> null
             }
-        },
-        l2identifier = chainIdentifier,
-        requiredConfirmations = minConfirmations,
-        startDate = BTC_START_DATE,
-        colour = mapColour(),
-        logo = logoUrl ?: "", // TODO: Um?
-        isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
-        txExplorerUrlBase = explorerUrl
-    )
+        }
+        pChain?.let {
+            CryptoCurrency(
+                displayTicker = displayTicker,
+                networkTicker = networkTicker,
+                name = parentChain?.let {
+                    assetName.forParentTicker(it)
+                } ?: assetName,
+                categories = mapCategories(products),
+                precisionDp = precision,
+                l1chainTicker = pChain,
+                l2identifier = chainIdentifier,
+                requiredConfirmations = minConfirmations,
+                startDate = BTC_START_DATE,
+                colour = mapColour(),
+                logo = logoUrl ?: "", // TODO: Um?
+                isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
+                txExplorerUrlBase = explorerUrl
+            )
+        }
+    } ?: kotlin.run {
+        // if the asset is a native/L1 token
+        CryptoCurrency(
+            displayTicker = displayTicker,
+            networkTicker = networkTicker,
+            name = assetName,
+            categories = mapCategories(products),
+            precisionDp = precision,
+            l1chainTicker = null,
+            l2identifier = chainIdentifier,
+            requiredConfirmations = minConfirmations,
+            startDate = BTC_START_DATE,
+            colour = mapColour(),
+            logo = logoUrl ?: "", // TODO: Um?
+            isErc20 = false,
+            txExplorerUrlBase = explorerUrl
+        )
+    }
 
 private const val BTC_START_DATE = 1282089600L
 

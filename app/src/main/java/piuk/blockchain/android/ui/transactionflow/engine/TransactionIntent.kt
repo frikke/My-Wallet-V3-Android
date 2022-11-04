@@ -156,6 +156,22 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             }
     }
 
+    data class GetNetworkName(
+        val fromAccount: SingleAccount
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class SetNetworkName(
+        private val networkName: String
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState {
+            return oldState.copy(
+                networkName = networkName
+            )
+        }
+    }
+
     object ClearBackStack : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
             stepsBackStack = Stack()

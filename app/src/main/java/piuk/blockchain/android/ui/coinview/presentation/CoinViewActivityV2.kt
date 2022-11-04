@@ -28,7 +28,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
@@ -39,7 +38,7 @@ import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
 import piuk.blockchain.android.urllinks.STAKING_WEB_APP
 import piuk.blockchain.android.util.openUrl
@@ -52,6 +51,7 @@ class CoinViewActivityV2 :
     NavigationRouter<CoinviewNavigationEvent>,
     HostedBottomSheet.Host,
     AccountExplainerBottomSheet.Host,
+    NoBalanceActionBottomSheet.Host,
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
@@ -158,7 +158,11 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToReceive -> {
-                showBottomSheet(ReceiveDetailSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+                startActivity(
+                    ReceiveDetailActivity.newIntent(
+                        context = this, account = navigationEvent.cvAccount.account as CryptoAccount
+                    )
+                )
             }
 
             is CoinviewNavigationEvent.NavigateToSwap -> {
@@ -307,7 +311,7 @@ class CoinViewActivityV2 :
 
     override fun goToActivityFor(account: BlockchainAccount) {
         val intent = Intent().apply {
-            putAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY, account)
+            putAccount(ACCOUNT_FOR_ACTIVITY, account)
         }
 
         setResult(RESULT_OK, intent)
@@ -355,6 +359,7 @@ class CoinViewActivityV2 :
 
     companion object {
         private const val ORIGIN_NAME = "ORIGIN_NAME"
+        const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
 
         fun newIntent(
             context: Context,

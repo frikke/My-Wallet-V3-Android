@@ -31,7 +31,7 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class ReceiveFragment :
@@ -164,7 +164,7 @@ class ReceiveFragment :
             .subscribe { stateAwareActions ->
                 val receiveAction = stateAwareActions.find { it.action == AssetAction.Receive }
                 if (receiveAction?.state == ActionState.Available) {
-                    ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
+                    context?.let { startActivity(ReceiveDetailActivity.newIntent(it, account)) }
                 } else {
                     showBottomSheet(KycUpgradeNowSheet.newInstance())
                 }

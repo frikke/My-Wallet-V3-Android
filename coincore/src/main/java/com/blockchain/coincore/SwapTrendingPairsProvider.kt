@@ -29,9 +29,11 @@ internal class SwapTrendingPairsProvider(
             grp.accounts.filterIsInstance<CryptoAccount>()
                 .filterNot { it is InterestAccount }
                 .filter {
-                    if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL)
-                        it is TradingAccount
-                    else true
+                    when (walletModeService.enabledWalletMode()) {
+                        WalletMode.CUSTODIAL_ONLY,
+                        WalletMode.UNIVERSAL -> it is TradingAccount
+                        WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
+                    }
                 }
                 .filter {
                     if (it is NonCustodialAccount)

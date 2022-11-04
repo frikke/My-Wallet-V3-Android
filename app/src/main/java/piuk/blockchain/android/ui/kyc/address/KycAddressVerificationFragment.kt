@@ -59,7 +59,7 @@ class KycAddressVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         logEvent(AnalyticsEvents.KycAddress)
-        fraudService.startFlow(FraudFlow.ONBOARDING)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         if (addressVerificationFragment == null) {
@@ -82,6 +82,8 @@ class KycAddressVerificationFragment :
         if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
             analytics.logEvent(CowboysAnalytics.KycAddressConfirmed)
         }
+
+        fraudService.endFlow(FraudFlow.ONBOARDING)
 
         presenter.onContinueClicked(progressListener.campaignType, address)
         analytics.logEvent(KYCAnalyticsEvents.AddressChanged)

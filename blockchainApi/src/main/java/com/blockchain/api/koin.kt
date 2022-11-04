@@ -40,6 +40,10 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
+import com.blockchain.api.selfcustody.activity.activityDetailSerializer
+import com.blockchain.api.selfcustody.activity.activityIconSerializer
+import com.blockchain.api.selfcustody.activity.activityViewItemSerializer
+import com.blockchain.api.selfcustody.activity.stackComponentSerializer
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
@@ -64,12 +68,10 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ReferralApiService
-import com.blockchain.api.services.SessionService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistApiService
-import com.blockchain.api.session.SessionApi
 import com.blockchain.api.staking.StakingApi
 import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.trade.TradeApi
@@ -127,11 +129,15 @@ val blockchainApiModule = module {
     }
 
     single(walletPubkeyApi) {
+        val json = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
         Retrofit.Builder()
             .baseUrl(getBaseUrl("wallet-pubkey-api"))
             .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -190,6 +196,7 @@ val blockchainApiModule = module {
             ignoreUnknownKeys = true
             isLenient = true
             encodeDefaults = true
+            allowSpecialFloatingPointValues = true
             serializersModule = SerializersModule {
                 contextual(BigDecimalSerializer)
                 contextual(BigIntSerializer)
@@ -203,6 +210,10 @@ val blockchainApiModule = module {
                     subclass(AssetInformationDto::class)
                     default { UnsupportedAsset.serializer() }
                 }
+                stackComponentSerializer()
+                activityViewItemSerializer()
+                activityIconSerializer()
+                activityDetailSerializer()
             }
         }
     }
@@ -405,11 +416,6 @@ val blockchainApiModule = module {
             api,
             get()
         )
-    }
-
-    factory {
-        val api = get<Retrofit>(nabuApi).create(SessionApi::class.java)
-        SessionService(api)
     }
 
     factory {

@@ -50,13 +50,3 @@ data class AccountInfo(
     @SerialName("name")
     val name: String
 )
-
-@Serializable
-data class PubKeyInfo(
-    @SerialName("pubKey")
-    val pubKey: String,
-    @SerialName("style")
-    val style: String,
-    @SerialName("descriptor")
-    val descriptor: Int = 0
-)

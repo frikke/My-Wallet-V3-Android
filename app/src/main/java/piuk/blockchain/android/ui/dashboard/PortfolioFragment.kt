@@ -57,6 +57,7 @@ import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
@@ -171,7 +172,7 @@ class PortfolioFragment :
 
     private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+            (it.data?.getAccount(ACCOUNT_FOR_ACTIVITY))?.let { account ->
                 goToActivityFor(account)
             }
         }

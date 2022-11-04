@@ -16,7 +16,6 @@ val fraudDataModule = module {
         FraudRepository(
             coroutineScope = get(applicationScope),
             dispatcher = Dispatchers.IO,
-            sessionService = get(),
             fraudService = get(),
             sessionInfo = SessionInfo,
             fraudFlows = FraudFlows,

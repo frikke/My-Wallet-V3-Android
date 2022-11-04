@@ -60,6 +60,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviBottomSheetNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
@@ -573,5 +574,5 @@ fun BlockchainCardScaffold(
         }
     }
 
-    Scaffold(scaffoldState = scaffoldState, content = content)
+    Scaffold(scaffoldState = scaffoldState, content = content, backgroundColor = AppTheme.colors.background)
 }

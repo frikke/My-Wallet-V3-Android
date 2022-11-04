@@ -111,7 +111,7 @@ class NabuUserIdentityTest {
             product = EligibleProduct.SELL,
             canTransact = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
         whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL))
             .thenReturn(Outcome.Success(eligibility))
@@ -119,7 +119,7 @@ class NabuUserIdentityTest {
         subject.userAccessForFeature(Feature.Sell)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -128,7 +128,7 @@ class NabuUserIdentityTest {
             product = EligibleProduct.DEPOSIT_FIAT,
             canTransact = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
         whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT))
             .thenReturn(Outcome.Success(eligibility))
@@ -136,7 +136,7 @@ class NabuUserIdentityTest {
         subject.userAccessForFeature(Feature.DepositFiat)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -145,7 +145,7 @@ class NabuUserIdentityTest {
             product = EligibleProduct.DEPOSIT_INTEREST,
             canTransact = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
         whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST))
             .thenReturn(Outcome.Success(eligibility))
@@ -153,7 +153,7 @@ class NabuUserIdentityTest {
         subject.userAccessForFeature(Feature.DepositInterest)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -162,7 +162,7 @@ class NabuUserIdentityTest {
             product = EligibleProduct.WITHDRAW_FIAT,
             canTransact = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
         whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT))
             .thenReturn(Outcome.Success(eligibility))
@@ -170,7 +170,7 @@ class NabuUserIdentityTest {
         subject.userAccessForFeature(Feature.WithdrawFiat)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test

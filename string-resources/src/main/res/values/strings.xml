@@ -1763,7 +1763,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="send_scan_qr_code">Scan QR Code</string>
     <string name="send_error_not_valid_asset_address">Not a valid %1s address</string>
     <string name="send_error_invalid_domain">Invalid domain</string>
-    <string name="send_address_warning">Only send %1$s to %2$s Wallets</string>
+    <string name="send_address_warning">Only send %1$s to %2$s Networks</string>
+    <string name="send_address_title">Send Address</string>
     <string name="send_error_address_is_eth_contract">Address is not a user address</string>
     <string name="send_enter_amount_error_insufficient_funds">Not enough %1$s in your wallet.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to send with current network fees.</string>
@@ -2473,7 +2474,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="search_results">%s Results</string>
     <string name="receive_details_address_label">Wallet Address</string>
     <string name="receive_network_alert_title">%1$s on %2$s Network</string>
-    <string name="receive_network_alert_subtitle">Please receive %1$s on the %2$s Network for this address only. We cannot recover lost funds.</string>
+    <string name="receive_network_alert_subtitle">Please send %1$s on the %2$s Network for this address only. We cannot recover lost funds.</string>
+    <string name="receive_network_warning">Only receive %1$s on the %2$s network</string>
 
     <!-- Funds locks !-->
     <string name="funds_locked_warning_title">On Hold</string>
@@ -2599,6 +2601,18 @@ If you want to know more about our verification process visit our <annotation li
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
     <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>
     <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
+    <string name="available_to_trade_checkout">Available to Trade (est.)</string>
+    <string name="available_to_withdraw_checkout">Available to Withdraw or Send (est.)</string>
+    <string name="deposit_terms_immediately">Immediately</string>
+    <string name="deposit_terms_max_minutes">In %1$s minutes</string>
+    <string name="deposit_terms_between_minutes">Between %1$s and %2$s minutes</string>
+    <string name="deposit_terms_between_days">Between %1$s and %2$s</string>
+    <string name="deposit_terms_ach_info">By placing this order, you authorize Blockchain.com, Inc.to debit %1$s from your %2$s account for a %3$s purchase at a quoted price of %4$s.</string>
+    <string name="deposit_terms_ach_info_recurring">By placing this order, you authorize Blockchain.com, Inc. to debit your %1$s account for up to %2$s (the recurring purchase amount) via Bank Transfer (ACH).</string>
+    <string name="deposit_terms_withdrawal_hold_info">This hold protects you from fraud and theft if your Blockchain.com account is compromised. The hold period starts once funds are received in your account</string>
+    <string name="withdrawal_holds">Withdrawal Holds</string>
+    <string name="checkout_terms_and_conditions">You authorize Blockchain.com, Inc. to debit your %1$s account for up to %2$s via Bank Transfer (ACH) and, if necessary, to initiate credit entries/adjustments for any debits made in error to your account at the financial institution where you hold your account. You acknowledge that the origination of ACH transactions to your account complies with the provisions of U.S. law. You agree that this authorization cannot be revoked.\n\nYour deposit will be credited to your Blockchain.com account [within 0–4 business days] at the rate shown at the time of your purchase. You can withdraw these funds from your Blockchain.com account %3$s days after Blockchain.com receives funds from your financial institution.</string>
+    <string name="checkout_terms_and_conditions_recurring">You authorize Blockchain.com, Inc. to debit your %1$s account for up to %2$s (the recurring purchase amount) via Bank Transfer (ACH) and, if necessary, to initiate credit entries/adjustments for any debits made in error to your account at the above Financial Institution. You acknowledge that the origination of ACH transactions to your account comply with the provisions of U.S. law. You agree that this authorization cannot be revoked.\n\nYour deposit will be credited to your Blockchain.com account [within 0–4 business days] at the rate shown at the time of your purchase. You can withdraw these funds from your Blockchain.com account %3$s days after Blockchain.com receives funds from your Financial Institution.</string>
 
     <!-- Settings screen -->
     <string name="settings_see_profile">Edit Profile</string>
@@ -3225,6 +3239,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
     <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
+    <string name="error_loading_balance">Some balances failed to load</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
@@ -3332,6 +3347,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_status_locked">Locked</string>
     <string name="bc_card_status_terminated">Terminated</string>
     <string name="bc_card_order_processing">Processing</string>
+    <string name="bc_card_order_processed">Processed</string>
     <string name="bc_card_order_shipped">Shipped</string>
     <string name="bc_card_order_delivered">Delivered</string>
     <string name="bc_card_order_complete">Complete</string>
@@ -3342,10 +3358,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_activation_success_subtitle">Use your card everywhere Visa is accepted.</string>
     <string name="bc_card_delivered_title">Card Delivered</string>
     <string name="bc_card_delivered_subtitle">Activate your card</string>
-    <string name="bc_card_shipped_title">Card Shipped</string>
-    <string name="bc_card_shipped_subtitle">Already delivered? Tap here to activate</string>
-    <string name="bc_card_processing_title">Processing Order</string>
-    <string name="bc_card_processing_subtitle">Confirming your details</string>
+    <string name="bc_card_shipped_title">Card Delivered?</string>
+    <string name="bc_card_shipped_subtitle">Activate your card</string>
+    <string name="bc_card_processing_title">Card Ordered</string>
+    <string name="bc_card_processing_subtitle">Should arrive in 3-5 days</string>
     <string name="basic_info">Basic Info</string>
     <string name="bc_card_freeze">Freeze Card</string>
     <string name="legal_documents">Legal Documents</string>

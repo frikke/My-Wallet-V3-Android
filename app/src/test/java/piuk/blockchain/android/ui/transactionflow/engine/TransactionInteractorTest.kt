@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -58,6 +59,7 @@ class TransactionInteractorTest {
     private val quickFillRoundingService: QuickFillRoundingService = mock()
     private val hideDustFF: FeatureFlag = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
+    private val dynamicRepository: UniversalDynamicAssetRepository = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -82,7 +84,8 @@ class TransactionInteractorTest {
             swapSellQuickFillFF = quickfillSwapSellFF,
             quickFillRoundingService = quickFillRoundingService,
             hideDustFF = hideDustFF,
-            localSettingsPrefs = localSettingsPrefs
+            localSettingsPrefs = localSettingsPrefs,
+            dynamicAssetRepository = dynamicRepository
         )
     }
 

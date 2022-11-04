@@ -859,7 +859,9 @@ class CoinviewViewModel(
                 check(modelState.accounts != null) { "AccountExplainerAcknowledged accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
-                if (cvAccount is CoinviewAccount.Custodial.Staking) {
+                if ((cvAccount is CoinviewAccount.Universal && cvAccount.filter == AssetFilter.Staking) ||
+                    cvAccount is CoinviewAccount.Custodial.Staking
+                ) {
                     navigate(
                         CoinviewNavigationEvent.ShowStakingAccountInterstitial(
                             assetIconUrl = modelState.asset?.currency?.logo
@@ -940,7 +942,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Sell -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSell(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }
@@ -948,7 +950,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Send -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSend(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }
@@ -956,7 +958,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Receive -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToReceive(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false)
                             )
                         )
                     }
@@ -964,7 +966,7 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Swap -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSwap(
-                                cvAccount = modelState.actionableAccount
+                                cvAccount = modelState.actionableAccount()
                             )
                         )
                     }

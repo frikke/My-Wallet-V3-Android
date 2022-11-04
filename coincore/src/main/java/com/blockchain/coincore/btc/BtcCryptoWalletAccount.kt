@@ -16,10 +16,10 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
-import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import com.blockchain.utils.mapList
 import com.blockchain.utils.then
@@ -91,8 +91,8 @@ import io.reactivex.rxjava3.core.Single
     override val descriptor: Int
         get() = MULTIPLE_ADDRESSES_DESCRIPTOR
 
-    override val style: String
-        get() = NetworkWallet.EXTENDED_PUB_KEY_STYLE
+    override val style: PubKeyStyle
+        get() = PubKeyStyle.EXTENDED
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(

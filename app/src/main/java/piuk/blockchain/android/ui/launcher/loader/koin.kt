@@ -44,7 +44,8 @@ val loaderModule = module {
                 cowboysPrefs = get(),
                 userIdentity = get(),
                 kycService = get(),
-                experimentsStore = get()
+                experimentsStore = get(),
+                fraudService = get()
             )
         }
     }

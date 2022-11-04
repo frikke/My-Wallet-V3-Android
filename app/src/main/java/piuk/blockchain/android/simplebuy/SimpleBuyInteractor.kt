@@ -142,6 +142,7 @@ class SimpleBuyInteractor(
     private val rbExperimentFF: FeatureFlag,
     private val feynmanEnterAmountFF: FeatureFlag,
     private val feynmanCheckoutFF: FeatureFlag,
+    private val improvedPaymentUxFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
     private val quickFillRoundingService: QuickFillRoundingService
 ) {
@@ -647,9 +648,10 @@ class SimpleBuyInteractor(
             rbFrequencySuggestionFF.enabled,
             rbExperimentFF.enabled,
             feynmanEnterAmountFF.enabled,
-            feynmanCheckoutFF.enabled
+            feynmanCheckoutFF.enabled,
+            improvedPaymentUxFF.enabled
         ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF,
-            feynmanEnterAmountFF, feynmanCheckoutFF ->
+            feynmanEnterAmountFF, feynmanCheckoutFF, improvedPaymentUxFF ->
             FeatureFlagsSet(
                 cardRejectionFF = cardRejectionFF,
                 buyQuoteRefreshFF = buyQuoteRefreshFF,
@@ -657,7 +659,8 @@ class SimpleBuyInteractor(
                 rbFrequencySuggestionFF = rbFrequencySuggestionFF,
                 rbExperimentFF = rbExperimentFF,
                 feynmanEnterAmountFF = feynmanEnterAmountFF,
-                feynmanCheckoutFF = feynmanCheckoutFF
+                feynmanCheckoutFF = feynmanCheckoutFF,
+                improvedPaymentUxFF = improvedPaymentUxFF
             )
         }
     }

@@ -30,6 +30,7 @@ import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFER
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -47,17 +48,21 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMetho
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
+import com.blockchain.utils.toDayAndMonth
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import java.time.ZonedDateTime
+import java.util.Calendar
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
@@ -67,6 +72,8 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_S
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_GENERIC_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
+import piuk.blockchain.android.simplebuy.sheets.ComposeAchTermsAndConditionsBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.ComposeAchWithdrawalHoldInfoBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -89,15 +96,34 @@ class SimpleBuyCheckoutFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val googlePayViewUtils: GooglePayViewUtils by inject()
+    private val fraudService: FraudService by inject()
     private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
-        onToggleChanged = { updateRecurringBuy = it },
-        onTooltipClicked = { expandableType ->
-            if (expandableType == SimpleBuyCheckoutItem.ExpandableType.PRICE) {
+        onToggleChanged = {
+            updateRecurringBuy = it
+            model.process(SimpleBuyIntent.ToggleRecurringBuy(it))
+        },
+        onAction = {
+            when (it) {
+                ActionType.Price -> analytics.logEvent(BuyPriceTooltipClickedEvent)
+                ActionType.Fee -> analytics.logEvent(BuyBlockchainComFeeClickedEvent)
+                ActionType.WithdrawalHold ->
+                    showBottomSheet(ComposeAchWithdrawalHoldInfoBottomSheet.newInstance())
+                is ActionType.TermsAndConditions ->
+                    showBottomSheet(
+                        ComposeAchTermsAndConditionsBottomSheet.newInstance(
+                            it.bankLabel, it.amount, it.withdrawalLock, it.isRecurringBuyEnabled
+                        )
+                    )
+                ActionType.Unknown -> {
+                    /* NO-OP */
+                }
+            }
+            if (it == ActionType.Price) {
                 analytics.logEvent(BuyPriceTooltipClickedEvent)
-            } else if (expandableType == SimpleBuyCheckoutItem.ExpandableType.FEE) {
+            } else if (it == ActionType.Fee) {
                 analytics.logEvent(BuyBlockchainComFeeClickedEvent)
             }
         },
@@ -244,7 +270,8 @@ class SimpleBuyCheckoutFragment :
         val note = when {
             payment?.isCard() == true -> showWithdrawalPeriod(newState)
             payment?.isFunds() == true -> getString(R.string.purchase_funds_note)
-            payment?.isBank() == true -> showWithdrawalPeriod(newState)
+            payment?.isBank() == true && !(newState.featureFlagSet.improvedPaymentUxFF && newState.isAchTransfer()) ->
+                showWithdrawalPeriod(newState)
             else -> ""
         }
 
@@ -486,7 +513,7 @@ class SimpleBuyCheckoutFragment :
                 },
                 expandableContent = priceExplanation,
                 hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
-                expandableType = SimpleBuyCheckoutItem.ExpandableType.PRICE
+                actionType = ActionType.Price
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
@@ -526,7 +553,10 @@ class SimpleBuyCheckoutFragment :
                         )
                     )
                 )
-            } else null
+            } else null,
+            buildAvailableToTrade(state),
+            buildAvailableToWithdraw(state),
+            buildAchInfo(state)
         )
     }
 
@@ -581,9 +611,97 @@ class SimpleBuyCheckoutFragment :
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
                 hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
-                expandableType = SimpleBuyCheckoutItem.ExpandableType.FEE
+                actionType = ActionType.Fee
             )
         }
+
+    private fun buildAvailableToTrade(state: SimpleBuyState): SimpleBuyCheckoutItem? {
+        return if (state.featureFlagSet.improvedPaymentUxFF) {
+            state.quote?.depositTerms?.let {
+                getFormattedDepositTerms(
+                    displayMode = it.availableToTradeDisplayMode,
+                    min = it.availableToTradeMinutesMin,
+                    max = it.availableToTradeMinutesMax
+                )?.let { title ->
+                    SimpleBuyCheckoutItem.SimpleCheckoutItem(
+                        label = getString(R.string.available_to_trade_checkout),
+                        title = title,
+                        hasChanged = false
+                    )
+                }
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun buildAvailableToWithdraw(state: SimpleBuyState): SimpleBuyCheckoutItem? {
+        return if (state.featureFlagSet.improvedPaymentUxFF) {
+            state.quote?.depositTerms?.let {
+                getFormattedDepositTerms(
+                    displayMode = it.availableToWithdrawDisplayMode,
+                    min = it.availableToWithdrawMinutesMin,
+                    max = it.availableToWithdrawMinutesMax
+                )?.let { title ->
+                    SimpleBuyCheckoutItem.ClickableCheckoutItem(
+                        label = getString(R.string.available_to_withdraw_checkout),
+                        title = title,
+                        actionType = ActionType.WithdrawalHold
+                    )
+                }
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun getFormattedDepositTerms(displayMode: DepositTerms.DisplayMode, min: Int, max: Int): String? {
+        val minDay = Calendar.getInstance().apply { add(Calendar.MINUTE, min) }.time
+        val maxDay = Calendar.getInstance().apply { add(Calendar.MINUTE, max) }.time
+
+        return when (displayMode) {
+            DepositTerms.DisplayMode.IMMEDIATELY -> getString(R.string.deposit_terms_immediately)
+            DepositTerms.DisplayMode.MAX_MINUTE -> String.format(getString(R.string.deposit_terms_max_minutes), max)
+            DepositTerms.DisplayMode.MAX_DAY -> maxDay.toDayAndMonth()
+            DepositTerms.DisplayMode.MINUTE_RANGE ->
+                String.format(getString(R.string.deposit_terms_between_minutes), min, max)
+            DepositTerms.DisplayMode.DAY_RANGE ->
+                String.format(
+                    getString(R.string.deposit_terms_between_days), minDay.toDayAndMonth(), maxDay.toDayAndMonth()
+                )
+            DepositTerms.DisplayMode.NONE -> null
+        }
+    }
+
+    private fun buildAchInfo(state: SimpleBuyState): SimpleBuyCheckoutItem? {
+        if (state.isAchTransfer() && state.selectedPaymentMethod?.label != null &&
+            state.featureFlagSet.improvedPaymentUxFF
+        ) {
+            val recurringBuyEnabled =
+                state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME || state.isRecurringBuyToggled
+            val amount = state.amount.toStringWithSymbol(includeDecimalsWhenWhole = true)
+            val quote = if (state.featureFlagSet.feynmanCheckoutFF) {
+                state.quotePrice?.amountInCrypto?.toStringWithSymbol().orEmpty()
+            } else {
+                state.exchangeRate?.toStringWithSymbol().orEmpty()
+            }
+            val bankLabel = state.selectedPaymentMethod.label
+            val withdrawalLockPeriod = state.withdrawalLockPeriod.secondsToDays().takeIf { it > 0 }?.toString() ?: "7"
+            val displayTicker = state.selectedCryptoAsset?.displayTicker ?: ""
+            val infoText = if (recurringBuyEnabled) {
+                String.format(getString(R.string.deposit_terms_ach_info_recurring), bankLabel, amount)
+            } else {
+                String.format(getString(R.string.deposit_terms_ach_info), amount, bankLabel, displayTicker, quote)
+            }
+
+            return SimpleBuyCheckoutItem.ReadMoreCheckoutItem(
+                text = infoText,
+                cta = getString(R.string.coinview_expandable_button),
+                actionType = ActionType.TermsAndConditions(bankLabel, amount, withdrawalLockPeriod, recurringBuyEnabled)
+            )
+        }
+        return null
+    }
 
     private fun isPendingOrAwaitingFunds(orderState: OrderState) =
         isForPendingPayment || orderState == OrderState.AWAITING_FUNDS
@@ -606,6 +724,7 @@ class SimpleBuyCheckoutFragment :
                         }
                     )
                     setOnClickListener {
+                        trackFraudFlow()
                         when (
                             getSettlementReason(
                                 plaidFFEnabled = state.featureFlagSet.plaidFF,
@@ -670,6 +789,7 @@ class SimpleBuyCheckoutFragment :
                         getString(R.string.common_ok)
                     }
                     setOnClickListener {
+                        trackFraudFlow()
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
                         } else {
@@ -695,11 +815,18 @@ class SimpleBuyCheckoutFragment :
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
                 setOnClickListener {
+                    trackFraudFlow()
                     buttonGooglePay.showLoading()
                     model.process(SimpleBuyIntent.GooglePayInfoRequested)
                 }
             }
         }
+    }
+
+    private fun trackFraudFlow() {
+        fraudService.endFlows(
+            FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.CARD_DEPOSIT, FraudFlow.MOBILE_WALLET_DEPOSIT
+        )
     }
 
     private fun showErrorState(errorState: ErrorState) {

@@ -96,7 +96,7 @@ class LoginActivity :
         super.onStart()
 
         analytics.logEvent(LoginAnalytics.LoginViewed)
-        fraudService.startFlow(FraudFlow.LOGIN)
+        fraudService.trackFlow(FraudFlow.LOGIN)
         with(binding) {
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS

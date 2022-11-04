@@ -14,9 +14,9 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.flatMapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
@@ -26,6 +26,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
@@ -50,11 +51,30 @@ class LoadAssetAccountsUseCase(
             .await()
             .run { extractAccountDetails(this) }
 
+        val interestFlow = interestService.isAssetAvailableForInterestFlow(asset.currency).flatMapData {
+            if (it) {
+                interestService.getInterestRateFlow(asset.currency)
+            } else
+                flow {
+                    emit(DataResource.Data(0.toDouble()))
+                }
+        }
+
+        val stakingFlow =
+            stakingService.getAvailabilityForAsset(asset.currency).flatMapData {
+                if (it) {
+                    stakingService.getRateForAsset(asset.currency)
+                } else
+                    flow {
+                        emit(DataResource.Data(0.toDouble()))
+                    }
+            }
+
         return combine(
             accountsFlow,
             asset.getPricesWith24hDelta(),
-            interestService.getInterestRateFlow(asset.currency),
-            stakingService.getRateForAsset(asset.currency, FreshnessStrategy.Cached(forceRefresh = false))
+            interestFlow,
+            stakingFlow
         ) { accounts, prices, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support

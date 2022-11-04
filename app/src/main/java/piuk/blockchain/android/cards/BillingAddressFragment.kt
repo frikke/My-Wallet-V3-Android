@@ -94,6 +94,7 @@ class BillingAddressFragment :
                 })
 
             btnNext.setOnClickListener {
+                fraudService.endFlow(FraudFlow.CARD_LINK)
                 model.process(
                     CardIntent.UpdateBillingAddress(
                         BillingAddress(
@@ -111,7 +112,6 @@ class BillingAddressFragment :
                 model.process(CardIntent.ReadyToAddNewCard)
 
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
-                fraudService.endFlow(FraudFlow.CARD_LINK)
             }
         }
         activity.updateToolbarTitle(getString(R.string.add_card_address_title))
