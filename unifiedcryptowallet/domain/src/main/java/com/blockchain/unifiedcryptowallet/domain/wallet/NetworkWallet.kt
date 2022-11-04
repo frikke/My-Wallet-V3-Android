@@ -1,6 +1,7 @@
 package com.blockchain.unifiedcryptowallet.domain.wallet
 
 import com.blockchain.data.DataResource
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.payloadScope
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
@@ -29,14 +30,12 @@ interface NetworkWallet {
     val descriptor: Int
         get() = DEFAULT_ADDRESS_DESCRIPTOR
 
-    val style: String
-        get() = SINGLE_PUB_KEY_STYLE
+    val style: PubKeyStyle
+        get() = PubKeyStyle.SINGLE
 
     suspend fun publicKey(): String
 
     companion object {
-        const val SINGLE_PUB_KEY_STYLE = "SINGLE"
-        const val EXTENDED_PUB_KEY_STYLE = "EXTENDED"
         const val DEFAULT_SINGLE_ACCOUNT_INDEX = 0
         const val DEFAULT_ADDRESS_DESCRIPTOR = 0
         const val MULTIPLE_ADDRESSES_DESCRIPTOR = 1
@@ -63,7 +62,7 @@ class CryptoNetworkWallet(
     override val descriptor: Int
         get() = config.descriptor
 
-    override val style: String
+    override val style: PubKeyStyle
         get() = config.style
 
     override suspend fun publicKey(): String = pubKeyService.publicKey()
@@ -90,7 +89,7 @@ class NetworkWalletGroup(
     }
 }
 
-data class NetworkConfig(val descriptor: Int, val style: String)
+data class NetworkConfig(val descriptor: Int, val style: PubKeyStyle)
 
 interface PublicKeyService {
     suspend fun publicKey(): String

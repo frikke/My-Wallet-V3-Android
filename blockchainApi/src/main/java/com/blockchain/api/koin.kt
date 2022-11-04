@@ -40,6 +40,10 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
+import com.blockchain.api.selfcustody.activity.activityDetailSerializer
+import com.blockchain.api.selfcustody.activity.activityIconSerializer
+import com.blockchain.api.selfcustody.activity.activityViewItemSerializer
+import com.blockchain.api.selfcustody.activity.stackComponentSerializer
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
@@ -125,11 +129,15 @@ val blockchainApiModule = module {
     }
 
     single(walletPubkeyApi) {
+        val json = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
         Retrofit.Builder()
             .baseUrl(getBaseUrl("wallet-pubkey-api"))
             .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -202,6 +210,10 @@ val blockchainApiModule = module {
                     subclass(AssetInformationDto::class)
                     default { UnsupportedAsset.serializer() }
                 }
+                stackComponentSerializer()
+                activityViewItemSerializer()
+                activityIconSerializer()
+                activityDetailSerializer()
             }
         }
     }
