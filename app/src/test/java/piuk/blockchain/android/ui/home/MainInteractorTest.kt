@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.home
 
 import android.content.Intent
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
@@ -43,6 +47,7 @@ import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
+import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -71,6 +76,7 @@ class MainInteractorTest {
     private val referralRepository: ReferralRepository = mock()
     private val ethDataManager: EthDataManager = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val coincore: Coincore = mock()
 
     private val jsonSerializers = module {
         single {
@@ -112,7 +118,8 @@ class MainInteractorTest {
             referralPrefs = referralPrefs,
             referralRepository = referralRepository,
             ethDataManager = ethDataManager,
-            stakingAccountFlag = stakingFF
+            stakingAccountFlag = stakingFF,
+            coincore = coincore
         )
     }
 
@@ -285,6 +292,135 @@ class MainInteractorTest {
                 .await()
                 .assertComplete()
                 .assertValue(ReferralState(referralMock, true))
+        }
+    }
+
+    @Test
+    fun `given no wallets with same ticker when function called then NoAccount should be returned`() {
+        val btcCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("BTC")
+        }
+        val ethCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("ETH")
+        }
+        val accountList = listOf<CustodialTradingAccount>(
+            mock {
+                on { currency }.thenReturn(btcCurrency)
+            },
+            mock {
+                on { currency }.thenReturn(ethCurrency)
+            }
+        )
+
+        whenever(coincore.walletsWithActions(setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+
+        val result = interactor.selectAccountForTxFlow("XLM", AssetAction.Sell).test()
+        result.assertValue {
+            it is LaunchFlowForAccount.NoAccount
+        }
+    }
+
+    @Test
+    fun `given a funded custodial account when called then it should be returned`() {
+        val btcCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("BTC")
+        }
+        val ethCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("ETH")
+        }
+        val btcAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(btcCurrency)
+            on { isFunded }.thenReturn(true)
+        }
+        val ethAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(ethCurrency)
+            on { isFunded }.thenReturn(true)
+        }
+        val accountList = listOf(btcAccount, ethAccount)
+
+        whenever(coincore.walletsWithActions(setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+
+        val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
+        result.assertValue {
+            it is LaunchFlowForAccount.Account && it.account == btcAccount
+        }
+    }
+
+    @Test
+    fun `given no funded custodial account and a funded non-custodial account when called then it should be returned`() {
+        val btcCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("BTC")
+        }
+        val ethCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("ETH")
+        }
+        val btcCustodialAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(btcCurrency)
+            on { isFunded }.thenReturn(false)
+        }
+        val ethCustodialAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(ethCurrency)
+            on { isFunded }.thenReturn(true)
+        }
+        val btcNonCustodialAccount = mock<CryptoNonCustodialAccount> {
+            on { currency }.thenReturn(btcCurrency)
+            on { isFunded }.thenReturn(true)
+        }
+        val ethNonCustodialAccount = mock<CryptoNonCustodialAccount> {
+            on { currency }.thenReturn(ethCurrency)
+            on { isFunded }.thenReturn(true)
+        }
+        val accountList = listOf(
+            btcCustodialAccount,
+            ethCustodialAccount,
+            btcNonCustodialAccount,
+            ethNonCustodialAccount
+        )
+
+        whenever(coincore.walletsWithActions(setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+
+        val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
+        result.assertValue {
+            it is LaunchFlowForAccount.Account && it.account == btcNonCustodialAccount
+        }
+    }
+
+    @Test
+    fun `given no funded custodial or non-custodial accounts when called then NoAccount should be returned`() {
+        val btcCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("BTC")
+        }
+        val ethCurrency = mock<AssetInfo> {
+            on { networkTicker }.thenReturn("ETH")
+        }
+        val btcCustodialAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(btcCurrency)
+            on { isFunded }.thenReturn(false)
+        }
+        val ethCustodialAccount = mock<CustodialTradingAccount> {
+            on { currency }.thenReturn(ethCurrency)
+            on { isFunded }.thenReturn(false)
+        }
+        val btcNonCustodialAccount = mock<CryptoNonCustodialAccount> {
+            on { currency }.thenReturn(btcCurrency)
+            on { isFunded }.thenReturn(false)
+        }
+        val ethNonCustodialAccount = mock<CryptoNonCustodialAccount> {
+            on { currency }.thenReturn(ethCurrency)
+            on { isFunded }.thenReturn(false)
+        }
+        val accountList = listOf(
+            btcCustodialAccount,
+            ethCustodialAccount,
+            btcNonCustodialAccount,
+            ethNonCustodialAccount
+        )
+
+        whenever(coincore.walletsWithActions(setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+
+        val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
+        result.assertValue {
+            it is LaunchFlowForAccount.NoAccount
         }
     }
 }

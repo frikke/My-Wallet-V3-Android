@@ -63,6 +63,7 @@ sealed class ViewToLaunch {
         val walletConnectSession: WalletConnectSession,
         val networkInfo: NetworkInfo
     ) : ViewToLaunch()
+
     class LaunchWalletConnectSessionApproved(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     class LaunchWalletConnectSessionRejected(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()
@@ -72,4 +73,10 @@ sealed class ViewToLaunch {
     class LaunchTransactionFlowWithTargets(val targets: Collection<CryptoTarget>) : ViewToLaunch()
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
     object ShowReferralSheet : ViewToLaunch()
+    class LaunchTxFlowFromDeepLink(val account: LaunchFlowForAccount, val action: AssetAction) : ViewToLaunch()
+}
+
+sealed class LaunchFlowForAccount {
+    class Account(val account: BlockchainAccount) : LaunchFlowForAccount()
+    object NoAccount : LaunchFlowForAccount()
 }

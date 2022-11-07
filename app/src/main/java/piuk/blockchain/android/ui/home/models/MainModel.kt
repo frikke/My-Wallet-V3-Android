@@ -259,6 +259,29 @@ class MainModel(
                         process(MainIntent.UpdateStakingFlag(false))
                     }
                 )
+            is MainIntent.LaunchTransactionFlowFromDeepLink -> {
+                interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action)
+                    .subscribeBy(
+                        onSuccess = { account ->
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowFromDeepLink(account, intent.action)
+                                )
+                            )
+                        },
+                        onError = {
+                            Timber.e(
+                                "Error getting default account for TxFlow ${intent.action} deeplink ${it.message}"
+                            )
+
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowFromDeepLink(LaunchFlowForAccount.NoAccount, intent.action)
+                                )
+                            )
+                        }
+                    )
+            }
             is MainIntent.UpdateStakingFlag,
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,

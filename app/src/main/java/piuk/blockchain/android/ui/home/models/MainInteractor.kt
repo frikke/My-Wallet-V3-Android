@@ -5,6 +5,9 @@ import android.net.Uri
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
@@ -25,7 +28,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -64,7 +66,8 @@ class MainInteractor internal constructor(
     private val referralPrefs: ReferralPrefs,
     private val referralRepository: ReferralRepository,
     private val ethDataManager: EthDataManager,
-    private val stakingAccountFlag: FeatureFlag
+    private val stakingAccountFlag: FeatureFlag,
+    private val coincore: Coincore
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -165,4 +168,36 @@ class MainInteractor internal constructor(
 
     fun isStakingEnabled(): Single<Boolean> =
         stakingAccountFlag.enabled
+
+    fun selectAccountForTxFlow(cryptoTicker: String, action: AssetAction): Single<LaunchFlowForAccount> =
+        coincore.walletsWithActions(setOf(action)).map { sellAccounts ->
+            sellAccounts.filter { account ->
+                account.currency.networkTicker == cryptoTicker
+            }
+        }.map { sameAssetAccounts ->
+            val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
+                .firstOrNull { tradingAccount ->
+                    tradingAccount.isFunded
+                }
+
+            when {
+                eligibleTradingAccount != null -> {
+                    return@map LaunchFlowForAccount.Account(eligibleTradingAccount)
+                }
+                else -> {
+                    val eligibleNonCustodialAccount = sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
+                        .firstOrNull { ncAccount ->
+                            ncAccount.isFunded
+                        }
+                    when {
+                        eligibleNonCustodialAccount != null -> {
+                            return@map LaunchFlowForAccount.Account(eligibleNonCustodialAccount)
+                        }
+                        else -> {
+                            return@map LaunchFlowForAccount.NoAccount
+                        }
+                    }
+                }
+            }
+        }
 }

@@ -92,6 +92,7 @@ import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottom
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
 import piuk.blockchain.android.ui.home.analytics.BuyDefiAnalyticsEvents
+import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -705,6 +706,19 @@ class MainActivity :
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
+            is ViewToLaunch.LaunchTxFlowFromDeepLink -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        this,
+                        action = view.action,
+                        sourceAccount = if (view.account is LaunchFlowForAccount.Account) {
+                            view.account.account
+                        } else {
+                            NullCryptoAccount()
+                        }
+                    )
+                )
+            }
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch
@@ -887,12 +901,10 @@ class MainActivity :
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
             is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
             is Destination.AssetReceiveDestination -> launchReceive(destination.networkTicker)
-            is Destination.AssetSellDestination -> {
-                // next PR
-            }
-            is Destination.AssetSwapDestination -> {
-                // next PR
-            }
+            is Destination.AssetSellDestination ->
+                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Sell))
+            is Destination.AssetSwapDestination ->
+                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Swap))
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -1003,7 +1015,8 @@ class MainActivity :
             visible()
             animate()
                 .alpha(1f)
-                .setStartDelay(500L).duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+                .setStartDelay(500L).duration =
+                resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         }
     }
 
@@ -1046,7 +1059,9 @@ class MainActivity :
     }
 
     override fun onSelectNetworkClicked(session: WalletConnectSession) {
-        model.process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionNetworkSelection(session)))
+        model.process(
+            MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionNetworkSelection(session))
+        )
     }
 
     override fun onNetworkSelected(session: WalletConnectSession, networkInfo: NetworkInfo) {
