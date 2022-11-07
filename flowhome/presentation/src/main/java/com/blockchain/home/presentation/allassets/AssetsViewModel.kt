@@ -27,6 +27,7 @@ import com.blockchain.preferences.MultiAppAssetsFilterService
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.percentageDelta
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -295,10 +296,11 @@ class AssetsViewModel(
 
     private fun DataResource<List<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
         return combineDataResources(totalBalanceNow(), totalBalance24hAgo()) { balanceNow, balance24hAgo ->
+
             WalletBalance(
                 balance = balanceNow,
                 balanceDifference = balanceNow.minus(balance24hAgo),
-                valueChange = ValueChange.Up(222.0)
+                valueChange = ValueChange.Up(balanceNow.percentageDelta(balance24hAgo))
             )
         }
     }

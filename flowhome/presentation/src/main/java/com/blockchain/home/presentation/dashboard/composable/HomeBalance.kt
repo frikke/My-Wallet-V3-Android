@@ -24,6 +24,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
@@ -41,10 +42,7 @@ fun Balance(
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: AssetsViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
