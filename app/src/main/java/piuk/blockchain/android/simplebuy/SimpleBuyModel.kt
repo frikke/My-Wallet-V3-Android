@@ -133,7 +133,7 @@ class SimpleBuyModel(
                         )
                     },
                     onError = {
-                        processOrderErrors(it)
+                        // don't do anything
                     }
                 )
             }
