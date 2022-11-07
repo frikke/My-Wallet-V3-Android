@@ -6,6 +6,7 @@ import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.data.KycRepository
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.domain.tags.TagsService
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
@@ -43,6 +44,7 @@ import com.blockchain.nabu.metadata.AccountCredentialsMetadata
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
+import com.blockchain.nabu.service.UserTagsRepository
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -235,10 +237,17 @@ val nabuModule = module {
     single {
         NabuService(
             nabu = get(),
+            tagsService = get(),
             remoteConfigPrefs = get(),
             environmentConfig = get()
         )
     }
+
+    single {
+        UserTagsRepository(
+            walletModeService = get()
+        )
+    }.bind(TagsService::class)
 
     factory {
         get<Retrofit>(nabuApi).create(Nabu::class.java)

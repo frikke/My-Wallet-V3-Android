@@ -3,8 +3,10 @@ package com.blockchain.nabu.service
 import com.blockchain.core.sdd.domain.model.SddEligibilityDto
 import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.tags.TagsService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
+import com.blockchain.nabu.api.nabu.UserTags
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
@@ -44,6 +46,8 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenReques
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.utils.thenSingle
+import com.blockchain.utils.toJsonElement
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -52,6 +56,7 @@ import retrofit2.HttpException
 class NabuService internal constructor(
     private val nabu: Nabu,
     private val remoteConfigPrefs: RemoteConfigPrefs,
+    private val tagsService: TagsService,
     private val environmentConfig: EnvironmentConfig
 ) {
     internal fun getAuthToken(
@@ -85,7 +90,22 @@ class NabuService internal constructor(
         NabuBasicUser(firstName, lastName, dateOfBirth),
     )
 
-    internal fun getUser(): Single<NabuUser> = nabu.getUser().wrapErrorMessage()
+    internal fun getUser(): Single<NabuUser> = nabu.getUser().flatMap { user ->
+        val newTags = tagsService.tags(user.tagKeys)
+        if (newTags.isEmpty()) {
+            Single.just(user)
+        } else {
+            nabu.syncUserTags(
+                flags = UserTags(
+                    newTags.mapValues {
+                        it.value.toJsonElement()
+                    }
+                )
+            ).onErrorComplete().thenSingle {
+                Single.just(user)
+            }
+        }
+    }.wrapErrorMessage()
 
     internal fun getAirdropCampaignStatus(): Single<AirdropStatusList> =
         nabu.getAirdropCampaignStatus().wrapErrorMessage()

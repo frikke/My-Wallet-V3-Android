@@ -50,11 +50,14 @@ import com.blockchain.network.interceptor.AuthenticationNotRequired
 import com.blockchain.network.interceptor.CustomAuthentication
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -89,6 +92,9 @@ internal interface Nabu {
 
     @GET(NABU_USERS_CURRENT)
     fun getUser(): Single<NabuUser>
+
+    @PATCH(NABU_USERS_TAGS_SYNC)
+    fun syncUserTags(@Body flags: UserTags): Completable
 
     @GET(NABU_AIRDROP_CENTRE)
     fun getAirdropCampaignStatus(): Single<AirdropStatusList>
@@ -319,3 +325,6 @@ internal interface Nabu {
         @Path("id") id: String
     ): Completable
 }
+
+@Serializable
+data class UserTags(val flags: Map<String, JsonElement>)
