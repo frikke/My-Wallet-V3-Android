@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,16 +12,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
@@ -79,59 +77,63 @@ fun BalanceScreen(
     ) {
         when (walletBalance) {
             DataResource.Loading -> {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Spacer(modifier = Modifier.weight(1F))
-                    ShimmerLoadingBox(
-                        modifier = Modifier
-                            .height(AppTheme.dimensions.largeSpacing)
-                            .weight(1F)
-                    )
-                    Spacer(modifier = Modifier.weight(1F))
-                }
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Spacer(modifier = Modifier.weight(1F))
-                    ShimmerLoadingBox(
-                        modifier = Modifier
-                            .height(AppTheme.dimensions.mediumSpacing)
-                            .weight(0.5F)
-                    )
-                    Spacer(modifier = Modifier.weight(1F))
-                }
+                BalanceLoading()
             }
 
             is DataResource.Data -> {
-                with(walletBalance.data) {
-                    Text(
-                        text = balance.toStringWithSymbol(),
-                        style = AppTheme.typography.title1,
-                        color = AppTheme.colors.title
-                    )
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Text(
-                        text = "${valueChange.indicator} ${balanceDifference.toStringWithSymbol()} (${valueChange.value}%)",
-                        style = AppTheme.typography.paragraph2,
-                        color = valueChange.color
-                    )
-                }
+                BalanceData(walletBalance.data)
             }
 
             is DataResource.Error -> {
-                Text(
-                    text = "error ${walletBalance.error}",
-                    style = AppTheme.typography.title1,
-                    color = AppTheme.colors.title
-                )
-
+                // todo(othman) checking with Ethan
             }
         }
     }
 }
 
+@Composable
+fun ColumnScope.BalanceLoading() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.weight(1F))
+        ShimmerLoadingBox(
+            modifier = Modifier
+                .height(AppTheme.dimensions.largeSpacing)
+                .weight(1F)
+        )
+        Spacer(modifier = Modifier.weight(1F))
+    }
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.weight(1F))
+        ShimmerLoadingBox(
+            modifier = Modifier
+                .height(AppTheme.dimensions.mediumSpacing)
+                .weight(0.5F)
+        )
+        Spacer(modifier = Modifier.weight(1F))
+    }
+}
+
+@Composable
+fun ColumnScope.BalanceData(data: WalletBalance) {
+    with(data) {
+        Text(
+            text = balance.toStringWithSymbol(),
+            style = AppTheme.typography.title1,
+            color = AppTheme.colors.title
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        Text(
+            text = "${valueChange.indicator} ${balanceDifference.toStringWithSymbol()} (${valueChange.value}%)",
+            style = AppTheme.typography.paragraph2,
+            color = valueChange.color
+        )
+    }
+}
 //
 
 @Preview

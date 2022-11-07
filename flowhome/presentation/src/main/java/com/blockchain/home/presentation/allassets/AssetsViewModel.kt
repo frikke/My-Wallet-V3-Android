@@ -267,7 +267,7 @@ class AssetsViewModel(
             val balances = accounts.map { it.balance }
             val exchangeRates = accounts.map { it.exchangeRate24hWithDelta }
             when {
-                exchangeRates.anyError() -> exchangeRates.getFirstError().also { it.error.printStackTrace() }
+                exchangeRates.anyError() -> exchangeRates.getFirstError()
                 exchangeRates.anyLoading() -> DataResource.Loading
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
