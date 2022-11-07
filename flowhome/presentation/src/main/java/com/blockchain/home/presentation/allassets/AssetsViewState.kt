@@ -35,6 +35,6 @@ data class FiatAssetState(
 
 data class WalletBalance(
     val balance: Money,
-    val balanceDifference: Money,
-    val valueChange: ValueChange
+    val balanceDifference24h: Money,
+    val percentChange: ValueChange
 )

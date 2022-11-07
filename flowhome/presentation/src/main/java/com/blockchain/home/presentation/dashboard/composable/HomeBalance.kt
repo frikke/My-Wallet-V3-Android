@@ -11,21 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.WalletBalance
@@ -38,26 +32,7 @@ import org.koin.androidx.compose.getViewModel
 fun Balance(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope)
 ) {
-
-    val lifecycleOwner = LocalLifecycleOwner.current
     val viewState: AssetsViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
-
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
-        onDispose { }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(AssetsIntent.LoadFilters)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     viewState?.let { state ->
         BalanceScreen(walletBalance = state.balance)
@@ -128,9 +103,9 @@ fun ColumnScope.BalanceData(data: WalletBalance) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Text(
-            text = "${valueChange.indicator} ${balanceDifference.toStringWithSymbol()} (${valueChange.value}%)",
+            text = "${percentChange.indicator} ${balanceDifference24h.toStringWithSymbol()} (${percentChange.value}%)",
             style = AppTheme.typography.paragraph2,
-            color = valueChange.color
+            color = percentChange.color
         )
     }
 }
@@ -142,9 +117,9 @@ fun PreviewBalanceScreen() {
     BalanceScreen(
         walletBalance = DataResource.Data(
             WalletBalance(
-                balance = Money.fromMinor(CryptoCurrency.ETHER, 42000.toBigInteger()),
-                balanceDifference = Money.fromMajor(CryptoCurrency.ETHER, 666.toBigDecimal()),
-                valueChange = ValueChange.Up((7.18))
+                balance = Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()),
+                balanceDifference24h = Money.fromMajor(CryptoCurrency.ETHER, 12.3.toBigDecimal()),
+                percentChange = ValueChange.Up((7.18))
             )
         )
     )

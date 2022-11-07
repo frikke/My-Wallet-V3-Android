@@ -28,6 +28,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -298,11 +299,11 @@ class AssetsViewModel(
         return combineDataResources(totalBalanceNow(), totalBalance24hAgo()) { balanceNow, balance24hAgo ->
             WalletBalance(
                 balance = balanceNow,
-                balanceDifference = balanceNow.minus(balance24hAgo).abs(),
-                valueChange = balanceNow.percentageDelta(balance24hAgo).let { percentChange ->
+                balanceDifference24h = balanceNow.minus(balance24hAgo).abs(),
+                percentChange = balanceNow.percentageDelta(balance24hAgo).let { percentChange ->
                     when {
                         percentChange > 0 -> ValueChange.Up(percentChange)
-                        percentChange < 0 -> ValueChange.Down(percentChange)
+                        percentChange < 0 -> ValueChange.Down(percentChange.absoluteValue)
                         else -> ValueChange.None(percentChange)
                     }
                 }
