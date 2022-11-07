@@ -21,7 +21,11 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * * recurring buys
      * * todo
      */
-    object LoadAllData : CoinviewIntent
+    object LoadAllData : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
     /**
      * Load asset price and chart data
