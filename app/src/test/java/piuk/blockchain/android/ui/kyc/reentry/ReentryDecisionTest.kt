@@ -4,7 +4,6 @@ import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.Address
@@ -32,9 +31,6 @@ class ReentryDecisionTest {
     }
     private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
-    }
-    private val loqateFeatureFlag: FeatureFlag = mockk {
-        every { enabled } returns Single.just(false)
     }
 
     @Test
@@ -93,7 +89,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be` ReentryPoint.OldAddress
+        ) `should be` ReentryPoint.Address
     }
 
     @Test
@@ -254,7 +250,6 @@ class ReentryDecisionTest {
         TiersReentryDecision(
             custodialWalletManager,
             dataRemediationService,
-            loqateFeatureFlag
         ).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -12,7 +11,6 @@ import io.reactivex.rxjava3.core.Single
 class TiersReentryDecision(
     private val custodialWalletManager: CustodialWalletManager,
     private val dataRemediationService: DataRemediationService,
-    private val loqateFeatureFlag: FeatureFlag,
 ) : ReentryDecision {
 
     private lateinit var nabuUser: NabuUser
@@ -43,12 +41,6 @@ class TiersReentryDecision(
             }.map { questionnaire ->
                 ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
             }.defaultIfEmpty(ReentryPoint.Veriff)
-        }
-
-        if (entryPoint == ReentryPoint.Address) {
-            return loqateFeatureFlag.enabled.map { enabled ->
-                if (enabled) ReentryPoint.Address else ReentryPoint.OldAddress
-            }
         }
 
         return Single.just(entryPoint)

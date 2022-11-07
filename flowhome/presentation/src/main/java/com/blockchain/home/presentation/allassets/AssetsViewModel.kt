@@ -13,6 +13,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
@@ -28,7 +29,6 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
-import kotlin.math.absoluteValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -257,23 +257,24 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalanceNow(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalBalanceNow(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalance24hAgo(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalCryptoBalance24hAgo(): DataResource<Money> {
         return this.flatMap { accounts ->
-            val balances = accounts.map { it.balance }
-            val exchangeRates = accounts.map { it.exchangeRate24hWithDelta }
+            val cryptoAccounts = accounts.filter { it.singleAccount is CryptoAccount }
+            val balances = cryptoAccounts.map { it.balance }
+            val exchangeRates = cryptoAccounts.map { it.exchangeRate24hWithDelta }
             when {
                 exchangeRates.anyError() -> exchangeRates.getFirstError()
                 exchangeRates.anyLoading() -> DataResource.Loading
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
                         ?: balances.first { it is DataResource.Loading }
-                balances.all { balance -> balance is DataResource.Data } -> accounts.map {
+                balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
                         it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data ->
                             DataResource.Data(
@@ -295,28 +296,28 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
-        return combineDataResources(totalBalanceNow(), totalBalance24hAgo()) { balanceNow, balance24hAgo ->
-            WalletBalance(
-                balance = balanceNow,
-                balanceDifference24h = balanceNow.minus(balance24hAgo).abs(),
-                percentChange = balanceNow.percentageDelta(balance24hAgo).let { percentChange ->
-                    when {
-                        percentChange > 0 -> ValueChange.Up(percentChange)
-                        percentChange < 0 -> ValueChange.Down(percentChange.absoluteValue)
-                        else -> ValueChange.None(percentChange)
-                    }
-                }
-            )
-        }
-    }
-
-    private fun List<ModelAccount>.totalAccounts(): Money {
+    private fun Iterable<ModelAccount>.totalAccounts(): Money {
         return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
             .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
                 acc.plus(t)
             }
+    }
+
+    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
+        return combineDataResources(
+            totalBalanceNow(),
+            // the difference is calculated with crypto balance only
+            // as we don't support historic rates for fiat
+            filter { it.singleAccount is CryptoAccount }.totalBalanceNow(),
+            totalCryptoBalance24hAgo()
+        ) { balanceNow, cryptoBalanceNow, balance24hAgo ->
+            WalletBalance(
+                balance = balanceNow,
+                balanceDifference24h = cryptoBalanceNow.minus(balance24hAgo).abs(),
+                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(balance24hAgo))
+            )
+        }
     }
 }
 

@@ -11,7 +11,17 @@ import kotlinx.coroutines.flow.map
 sealed class DataResource<out T> {
     object Loading : DataResource<Nothing>()
     data class Data<out T>(val data: T) : DataResource<T>()
-    data class Error(val error: Exception) : DataResource<Nothing>()
+    data class Error(val error: Exception) : DataResource<Nothing>() {
+        override fun equals(other: Any?): Boolean {
+            return if (other is Error) {
+                error.message == other.error.message
+            } else false
+        }
+
+        override fun hashCode(): Int {
+            return error.hashCode()
+        }
+    }
 }
 
 fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
@@ -19,6 +29,14 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
         DataResource.Loading -> DataResource.Loading
         is DataResource.Error -> DataResource.Error(error)
         is DataResource.Data -> DataResource.Data(transform(data))
+    }
+}
+
+fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<Iterable<T>> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(this.data.filter { transform(it) })
     }
 }
 

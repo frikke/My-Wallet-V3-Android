@@ -16,6 +16,7 @@ import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -47,6 +48,7 @@ class GlobalEventHandler(
         }
 
         compositeDisposable += deeplinkRedirector.deeplinkEvents
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { deeplinkResult ->
                 navigateToDeeplinkDestination(deeplinkResult)
             }
@@ -64,7 +66,7 @@ class GlobalEventHandler(
                     MainActivity.newIntent(
                         context = application,
                         pendingDestination = deeplinkResult.destination
-                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
                 )
             }
         }

@@ -24,7 +24,7 @@ interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
     fun launchBuyForDefi()
     fun launchSell()
     fun launchInterestDashboard(origin: LaunchOrigin)
-    fun launchReceive()
+    fun launchReceive(cryptoTicker: String?)
     fun launchSend()
     fun launchTooManyPendingBuys(maxTransactions: Int)
 }
@@ -105,7 +105,7 @@ class BrokerageActionsBottomSheet :
                 secondaryText = context.getString(R.string.action_sheet_receive_description)
                 onClick = {
                     dismiss()
-                    host.launchReceive()
+                    host.launchReceive(cryptoTicker = null)
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_receive,

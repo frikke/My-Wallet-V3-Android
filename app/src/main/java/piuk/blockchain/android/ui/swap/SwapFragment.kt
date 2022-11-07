@@ -453,8 +453,7 @@ class SwapFragment :
         private const val SWAP_NO_ACCOUNTS = 1
         private const val KYC_VIEW = 2
         private const val TAG = "BOTTOM_SHEET"
-        fun newInstance(): SwapFragment =
-            SwapFragment()
+        fun newInstance(): SwapFragment = SwapFragment()
     }
 
     private data class SwapComposite(

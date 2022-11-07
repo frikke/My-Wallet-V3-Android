@@ -26,7 +26,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.utils.unsafeLazy
 import piuk.blockchain.android.R
 
-class ComposeAchTermsAndConditionsBottomSheet : ComposeModalBottomDialog() {
+class AchTermsAndConditionsBottomSheet : ComposeModalBottomDialog() {
 
     private val bankLabel: String by unsafeLazy { arguments?.getString(BANK_LABEL_KEY) ?: "" }
     private val amount: String by unsafeLazy { arguments?.getString(AMOUNT_KEY) ?: "" }
@@ -51,7 +51,7 @@ class ComposeAchTermsAndConditionsBottomSheet : ComposeModalBottomDialog() {
         private const val RECURRING_BUY_KEY = "RECURRING_BUY_KEY"
 
         fun newInstance(bankLabel: String, amount: String, withdrawalLock: String, isRecurringBuyEnabled: Boolean) =
-            ComposeAchTermsAndConditionsBottomSheet().apply {
+            AchTermsAndConditionsBottomSheet().apply {
                 arguments = Bundle().apply {
                     putString(BANK_LABEL_KEY, bankLabel)
                     putString(AMOUNT_KEY, amount)

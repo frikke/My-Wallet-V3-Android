@@ -26,7 +26,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.launchUrlInBrowser
 
-class ComposeAchWithdrawalHoldInfoBottomSheet : ComposeModalBottomDialog() {
+class AchWithdrawalHoldInfoBottomSheet : ComposeModalBottomDialog() {
 
     @Composable
     override fun Sheet() {
@@ -37,8 +37,8 @@ class ComposeAchWithdrawalHoldInfoBottomSheet : ComposeModalBottomDialog() {
     }
 
     companion object {
-        fun newInstance(): ComposeAchWithdrawalHoldInfoBottomSheet =
-            ComposeAchWithdrawalHoldInfoBottomSheet()
+        fun newInstance(): AchWithdrawalHoldInfoBottomSheet =
+            AchWithdrawalHoldInfoBottomSheet()
     }
 }
 

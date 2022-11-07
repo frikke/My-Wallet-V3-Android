@@ -1478,7 +1478,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bank_transfer_in_progress_title">%1$s Buy Started</string>
     <string name="bank_transfer_in_progress_blurb">We are completing your purchase now. Expect the funds to be withdrawn from your bank by %1$s. Check the status of your order at anytime in Activity.</string>
     <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed. You can safely close this screen while we update the order in the background.</string>
-    <string name="completing_card_buy_1">The initial %1$s order of %2$s is being processed.</string>
+    <string name="completing_card_buy_1">Your %1$s order of %2$s is being processed.</string>
     <string name="completing_card_buy_rb">Your %1$s buy of %2$s of %3$s has been set up.</string>
     <string name="completing_card_buy">We’re completing your purchase now.</string>
     <string name="card_purchased">%1s Purchased</string>
@@ -2607,7 +2607,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="deposit_terms_max_minutes">In %1$s minutes</string>
     <string name="deposit_terms_between_minutes">Between %1$s and %2$s minutes</string>
     <string name="deposit_terms_between_days">Between %1$s and %2$s</string>
-    <string name="deposit_terms_ach_info">By placing this order, you authorize Blockchain.com, Inc.to debit %1$s from your %2$s account for a %3$s purchase at a quoted price of %4$s.</string>
+    <string name="deposit_terms_ach_info">By placing this order, you authorize Blockchain.com, Inc.to debit %1$s from your %2$s account.</string>
+    <string name="deposit_terms_ach_info_quote">By placing this order, you authorize Blockchain.com, Inc.to debit %1$s from your %2$s account for a %3$s purchase at a quoted price of %4$s.</string>
     <string name="deposit_terms_ach_info_recurring">By placing this order, you authorize Blockchain.com, Inc. to debit your %1$s account for up to %2$s (the recurring purchase amount) via Bank Transfer (ACH).</string>
     <string name="deposit_terms_withdrawal_hold_info">This hold protects you from fraud and theft if your Blockchain.com account is compromised. The hold period starts once funds are received in your account</string>
     <string name="withdrawal_holds">Withdrawal Holds</string>

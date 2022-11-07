@@ -127,12 +127,13 @@ class SimpleBuyModel(
                         process(
                             SimpleBuyIntent.UpdateQuotePrice(
                                 amountInCrypto = it.resultAmount as CryptoValue,
-                                dynamicFee = it.dynamicFee
+                                dynamicFee = it.dynamicFee,
+                                fiatPrice = it.fiatPrice
                             )
                         )
                     },
                     onError = {
-                        processOrderErrors(it)
+                        // don't do anything
                     }
                 )
             }
@@ -551,6 +552,8 @@ class SimpleBuyModel(
                     limits = intent.limits,
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
+                    prepopulatedAmountFromDeeplink = previousState.hasAmountComeFromDeeplink,
+                    prepopulatedAmount = previousState.amount
                 ).subscribeBy(
                     onSuccess = { (amountToPrepopulate, quickFillData) ->
                         quickFillData?.let {
@@ -892,7 +895,10 @@ class SimpleBuyModel(
             is ApprovalErrorStatus.Undefined -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankUndefinedError(approvalErrorStatus.error))
             )
-            ApprovalErrorStatus.None -> throw IllegalStateException("Cannot handle error for order")
+            ApprovalErrorStatus.None -> {
+                Timber.e("Received ApprovalErrorStatus.None when the order failed")
+                process(SimpleBuyIntent.ErrorIntent(ErrorState.PaymentFailedError("")))
+            }
         }.exhaustive
     }
 

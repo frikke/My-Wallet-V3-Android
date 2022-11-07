@@ -117,6 +117,10 @@ class SimpleBuyActivity :
         intent.getStringExtra(PRESELECTED_AMOUNT)
     }
 
+    private val preselectedFiatTicker: String? by unsafeLazy {
+        intent.getStringExtra(PRESELECTED_FIAT_TICKER)
+    }
+
     private val startedFromKycResume: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_KYC_RESUME, false)
     }
@@ -238,6 +242,7 @@ class SimpleBuyActivity :
                     preselectedAsset = screenWithCurrency.cryptoCurrency,
                     preselectedPaymentMethodId = preselectedPaymentMethodId,
                     preselectedAmount = preselectedAmount,
+                    preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
                     launchPaymentMethodSelection = launchSelectNewPaymentMethod
                 )
@@ -282,6 +287,7 @@ class SimpleBuyActivity :
         preselectedAmount: String?,
         launchLinkCard: Boolean,
         launchPaymentMethodSelection: Boolean,
+        preselectedFiatTicker: String?
     ) {
         analytics.logEvent(BuyAssetSelectedEvent(type = preselectedAsset.networkTicker))
         supportFragmentManager.beginTransaction()
@@ -292,6 +298,7 @@ class SimpleBuyActivity :
                     asset = preselectedAsset,
                     preselectedMethodId = preselectedPaymentMethodId,
                     preselectedAmount = preselectedAmount,
+                    preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
                     launchPaymentMethodSelection = launchSelectNewPaymentMethod
                 ),
@@ -622,6 +629,7 @@ class SimpleBuyActivity :
         private const val ASSET_KEY = "crypto_currency_key"
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val PRESELECTED_AMOUNT = "preselected_amount_key"
+        private const val PRESELECTED_FIAT_TICKER = "preselected_fiat_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
         private const val LAUNCH_LINK_CARD = "launch_link_card"
         private const val LAUNCH_SELECT_PAYMENT_METHOD = "launch_select_new_method"
@@ -633,6 +641,7 @@ class SimpleBuyActivity :
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             preselectedAmount: String? = null,
+            preselectedFiatTicker: String? = null,
             launchFromApprovalDeepLink: Boolean = false,
             launchLinkCard: Boolean = false,
             launchNewPaymentMethodSelection: Boolean = false,
@@ -642,6 +651,7 @@ class SimpleBuyActivity :
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(PRESELECTED_AMOUNT, preselectedAmount)
+            putExtra(PRESELECTED_FIAT_TICKER, preselectedFiatTicker)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
             putExtra(LAUNCH_LINK_CARD, launchLinkCard)
             putExtra(LAUNCH_SELECT_PAYMENT_METHOD, launchNewPaymentMethodSelection)

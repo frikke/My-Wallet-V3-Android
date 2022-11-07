@@ -111,7 +111,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
@@ -168,7 +167,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
@@ -226,7 +224,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['stagingGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['stagingEverypayHost']}\""
@@ -463,7 +460,6 @@ dependencies {
         exclude group: 'com.android.support'
     }
     implementation Libraries.googlePlayServicesAuth
-    implementation Libraries.googlePlaces
     implementation Libraries.adsIdentifier
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi

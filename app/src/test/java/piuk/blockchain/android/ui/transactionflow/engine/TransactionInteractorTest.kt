@@ -55,9 +55,9 @@ class TransactionInteractorTest {
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
-    private val quickfillSwapSellFF: FeatureFlag = mock()
     private val quickFillRoundingService: QuickFillRoundingService = mock()
     private val hideDustFF: FeatureFlag = mock()
+    private val improvedPaymentUxFF: FeatureFlag = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
     private val dynamicRepository: UniversalDynamicAssetRepository = mock()
 
@@ -81,11 +81,11 @@ class TransactionInteractorTest {
             bankLinkingPrefs = bankLinkingPrefs,
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
-            swapSellQuickFillFF = quickfillSwapSellFF,
             quickFillRoundingService = quickFillRoundingService,
             hideDustFF = hideDustFF,
             localSettingsPrefs = localSettingsPrefs,
-            dynamicAssetRepository = dynamicRepository
+            dynamicAssetRepository = dynamicRepository,
+            improvedPaymentUxFF = improvedPaymentUxFF
         )
     }
 

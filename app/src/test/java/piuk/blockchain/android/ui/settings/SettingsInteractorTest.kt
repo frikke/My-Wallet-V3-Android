@@ -38,7 +38,6 @@ class SettingsInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val referralService: ReferralService = mock()
     private val nabuUserIdentity: NabuUserIdentity = mock()
-    private val cardRejectionFF: FeatureFlag = mock()
     private val dustBalancesFF: FeatureFlag = mock()
 
     @Before
@@ -53,7 +52,6 @@ class SettingsInteractorTest {
             currencyPrefs = currencyPrefs,
             referralService = referralService,
             nabuUserIdentity = nabuUserIdentity,
-            cardRejectionFF = cardRejectionFF,
             dustBalancesFF = dustBalancesFF
         )
     }

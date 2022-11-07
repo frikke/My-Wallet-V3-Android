@@ -9,8 +9,9 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     data class AssetBuyDestination(
+        val amount: String?,
         val networkTicker: String,
-        val amount: String
+        val fiatTicker: String?
     ) : Destination()
 
     @Parcelize
@@ -18,6 +19,21 @@ sealed class Destination : Parcelable {
         val networkTicker: String,
         val amount: String,
         val accountAddress: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetSwapDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetSellDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetReceiveDestination(
+        val networkTicker: String
     ) : Destination()
 
     @Parcelize

@@ -30,7 +30,6 @@ import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFER
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
-import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -48,14 +47,12 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMetho
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
-import com.blockchain.utils.toDayAndMonth
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import java.time.ZonedDateTime
-import java.util.Calendar
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -72,8 +69,8 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_S
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_GENERIC_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
-import piuk.blockchain.android.simplebuy.sheets.ComposeAchTermsAndConditionsBottomSheet
-import piuk.blockchain.android.simplebuy.sheets.ComposeAchWithdrawalHoldInfoBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.AchTermsAndConditionsBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.AchWithdrawalHoldInfoBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -84,6 +81,7 @@ import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringAnnotationClickEvent
+import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getFormattedDepositTerms
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.android.util.disableBackPress
@@ -110,10 +108,10 @@ class SimpleBuyCheckoutFragment :
                 ActionType.Price -> analytics.logEvent(BuyPriceTooltipClickedEvent)
                 ActionType.Fee -> analytics.logEvent(BuyBlockchainComFeeClickedEvent)
                 ActionType.WithdrawalHold ->
-                    showBottomSheet(ComposeAchWithdrawalHoldInfoBottomSheet.newInstance())
+                    showBottomSheet(AchWithdrawalHoldInfoBottomSheet.newInstance())
                 is ActionType.TermsAndConditions ->
                     showBottomSheet(
-                        ComposeAchTermsAndConditionsBottomSheet.newInstance(
+                        AchTermsAndConditionsBottomSheet.newInstance(
                             it.bankLabel, it.amount, it.withdrawalLock, it.isRecurringBuyEnabled
                         )
                     )
@@ -453,14 +451,10 @@ class SimpleBuyCheckoutFragment :
 
     private fun showAmountForMethod(newState: SimpleBuyState) {
         binding.amount.text = newState.orderValue?.toStringWithSymbol()
-        binding.amountFiat.text = newState.order.amount?.toStringWithSymbol()
     }
 
     private fun showAmountsHeaders(newState: SimpleBuyState) {
-        with(binding) {
-            amount.text = newState.quotePrice?.amountInCrypto?.toStringWithSymbol()
-            amountFiat.text = newState.amount.toStringWithSymbol()
-        }
+        binding.amount.text = newState.quotePrice?.amountInCrypto?.toStringWithSymbol()
     }
 
     private fun updateStatusPill(newState: SimpleBuyState) {
@@ -507,7 +501,7 @@ class SimpleBuyCheckoutFragment :
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = if (state.featureFlagSet.feynmanCheckoutFF) {
-                    state.quotePrice?.amountInCrypto?.toStringWithSymbol().orEmpty()
+                    state.quotePrice?.fiatPrice?.toStringWithSymbol().orEmpty()
                 } else {
                     state.exchangeRate?.toStringWithSymbol().orEmpty()
                 },
@@ -619,6 +613,7 @@ class SimpleBuyCheckoutFragment :
         return if (state.featureFlagSet.improvedPaymentUxFF) {
             state.quote?.depositTerms?.let {
                 getFormattedDepositTerms(
+                    resources = requireContext().resources,
                     displayMode = it.availableToTradeDisplayMode,
                     min = it.availableToTradeMinutesMin,
                     max = it.availableToTradeMinutesMax
@@ -639,6 +634,7 @@ class SimpleBuyCheckoutFragment :
         return if (state.featureFlagSet.improvedPaymentUxFF) {
             state.quote?.depositTerms?.let {
                 getFormattedDepositTerms(
+                    resources = requireContext().resources,
                     displayMode = it.availableToWithdrawDisplayMode,
                     min = it.availableToWithdrawMinutesMin,
                     max = it.availableToWithdrawMinutesMax
@@ -652,24 +648,6 @@ class SimpleBuyCheckoutFragment :
             }
         } else {
             null
-        }
-    }
-
-    private fun getFormattedDepositTerms(displayMode: DepositTerms.DisplayMode, min: Int, max: Int): String? {
-        val minDay = Calendar.getInstance().apply { add(Calendar.MINUTE, min) }.time
-        val maxDay = Calendar.getInstance().apply { add(Calendar.MINUTE, max) }.time
-
-        return when (displayMode) {
-            DepositTerms.DisplayMode.IMMEDIATELY -> getString(R.string.deposit_terms_immediately)
-            DepositTerms.DisplayMode.MAX_MINUTE -> String.format(getString(R.string.deposit_terms_max_minutes), max)
-            DepositTerms.DisplayMode.MAX_DAY -> maxDay.toDayAndMonth()
-            DepositTerms.DisplayMode.MINUTE_RANGE ->
-                String.format(getString(R.string.deposit_terms_between_minutes), min, max)
-            DepositTerms.DisplayMode.DAY_RANGE ->
-                String.format(
-                    getString(R.string.deposit_terms_between_days), minDay.toDayAndMonth(), maxDay.toDayAndMonth()
-                )
-            DepositTerms.DisplayMode.NONE -> null
         }
     }
 
@@ -691,7 +669,7 @@ class SimpleBuyCheckoutFragment :
             val infoText = if (recurringBuyEnabled) {
                 String.format(getString(R.string.deposit_terms_ach_info_recurring), bankLabel, amount)
             } else {
-                String.format(getString(R.string.deposit_terms_ach_info), amount, bankLabel, displayTicker, quote)
+                String.format(getString(R.string.deposit_terms_ach_info_quote), amount, bankLabel, displayTicker, quote)
             }
 
             return SimpleBuyCheckoutItem.ReadMoreCheckoutItem(
@@ -1031,8 +1009,7 @@ class SimpleBuyCheckoutFragment :
             ErrorState.ProviderIsNotSupported,
             ErrorState.Card3DsFailed,
             ErrorState.LinkedBankNotSupported,
-            ErrorState.BuyPaymentMethodsUnavailable,
-            -> throw IllegalStateException(
+            ErrorState.BuyPaymentMethodsUnavailable -> throw IllegalStateException(
                 "Error $errorState should not be presented in the checkout screen"
             )
         }.exhaustive

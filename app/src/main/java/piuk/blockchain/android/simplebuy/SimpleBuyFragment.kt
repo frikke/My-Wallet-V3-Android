@@ -22,7 +22,8 @@ interface SimpleBuyNavigator :
         preselectedPaymentMethodId: String?,
         preselectedAmount: String?,
         launchLinkCard: Boolean = false,
-        launchPaymentMethodSelection: Boolean = false
+        launchPaymentMethodSelection: Boolean = false,
+        preselectedFiatTicker: String? = null
     )
 
     fun goToCheckOutScreen(addToBackStack: Boolean = true)

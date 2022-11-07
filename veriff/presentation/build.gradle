@@ -9,6 +9,7 @@ android {
 }
 
 dependencies {
+    implementation project(':componentlib')
     api project(":veriff:domain")
     implementation Libraries.kotlin
     implementation Libraries.veriff

@@ -1,6 +1,7 @@
 package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.brokerage.data.DepositTermsResponse
 import com.blockchain.api.mapActions
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
@@ -8,6 +9,7 @@ import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.Limits
@@ -58,6 +60,7 @@ import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.CardType
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
@@ -522,6 +525,24 @@ class PaymentsRepository(
             )
         }
 
+    override suspend fun getDepositTerms(paymentMethodId: String, amount: Money): Outcome<Exception, DepositTerms> =
+        paymentMethodsService.getDepositTerms(
+            DepositTermsRequestBody(
+                amount = DepositTermsRequestBody.Amount(
+                    value = amount.toBigInteger().toString(),
+                    currency = amount.currencyCode
+                ),
+                paymentMethodId = paymentMethodId
+            )
+        ).fold(
+            onSuccess = {
+                Outcome.Success(it.toDepositTerms())
+            },
+            onFailure = {
+                Outcome.Failure(it)
+            }
+        )
+
     private fun BankProviderAccountAttributes.toProviderAttributes() =
         ProviderAccountAttrs(
             providerAccountId = providerAccountId,
@@ -908,6 +929,25 @@ class PaymentsRepository(
             cbu = agent?.address,
             cuil = agent?.holderDocument
         )
+
+    private fun DepositTermsResponse.toDepositTerms(): DepositTerms =
+        DepositTerms(
+            creditCurrency = this.creditCurrency,
+            availableToTradeMinutesMin = this.availableToTradeMinutesMin,
+            availableToTradeMinutesMax = this.availableToTradeMinutesMax,
+            availableToTradeDisplayMode = this.availableToTradeDisplayMode.toDisplayMode(),
+            availableToWithdrawMinutesMin = this.availableToWithdrawMinutesMin,
+            availableToWithdrawMinutesMax = this.availableToWithdrawMinutesMax,
+            availableToWithdrawDisplayMode = this.availableToWithdrawDisplayMode.toDisplayMode(),
+            settlementType = this.settlementType?.toSettlementType(),
+            settlementReason = this.settlementReason?.toSettlementReason()
+        )
+
+    private fun String.toDisplayMode(): DepositTerms.DisplayMode = try {
+        DepositTerms.DisplayMode.valueOf(this)
+    } catch (ex: Exception) {
+        DepositTerms.DisplayMode.NONE
+    }
 
     // </editor-fold>
 

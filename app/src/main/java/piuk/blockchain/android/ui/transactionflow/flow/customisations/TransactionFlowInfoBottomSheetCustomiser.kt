@@ -330,9 +330,8 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
-    ): TransactionFlowBottomSheetInfo {
-        val fiatRate = state.fiatRate
-        check(fiatRate != null)
+    ): TransactionFlowBottomSheetInfo? {
+        val fiatRate = state.fiatRate ?: return null
         val upgradeAvailable = state.limits.suggestedUpgrade != null
         val title = if (upgradeAvailable) {
             resources.getString(R.string.over_your_limit)

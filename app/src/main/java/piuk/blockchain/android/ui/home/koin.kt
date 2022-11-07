@@ -59,7 +59,8 @@ val mainModule = module {
                 referralPrefs = get(),
                 referralRepository = get(),
                 ethDataManager = get(),
-                stakingAccountFlag = get(stakingAccountFeatureFlag)
+                stakingAccountFlag = get(stakingAccountFeatureFlag),
+                coincore = get()
             )
         }
 

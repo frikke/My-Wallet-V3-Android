@@ -10,7 +10,8 @@ task generateEmbraceConfigurationFile(type:Exec) {
     def jsonString =
             "{\n" +
             "  \"app_id\": \"xxxxx\",\n" +
-            "  \"api_token\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+            "  \"api_token\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n" +
+            "  \"webview\": { \t\"capture_query_params\": false, \t\"enable\": false }" +
             "}"
 
     def configFile = rootProject.file('app/src/main/embrace-config.json')

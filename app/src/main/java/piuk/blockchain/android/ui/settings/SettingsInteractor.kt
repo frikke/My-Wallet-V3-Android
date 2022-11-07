@@ -37,7 +37,6 @@ class SettingsInteractor internal constructor(
     private val currencyPrefs: CurrencyPrefs,
     private val referralService: ReferralService,
     private val nabuUserIdentity: NabuUserIdentity,
-    private val cardRejectionFF: FeatureFlag,
     private val dustBalancesFF: FeatureFlag
 ) {
     private val userSelectedFiat: FiatCurrency
@@ -179,10 +178,7 @@ class SettingsInteractor internal constructor(
     )
 
     fun initializeFeatureFlags(): Single<FeatureFlagsSet> =
-        Single.zip(
-            cardRejectionFF.enabled,
-            dustBalancesFF.enabled
-        ) { cardRejectionEnabled, dustBalancesEnabled ->
-            FeatureFlagsSet(cardRejectionEnabled, dustBalancesEnabled)
+        dustBalancesFF.enabled.map { dustBalancesEnabled ->
+            FeatureFlagsSet(dustBalancesEnabled)
         }
 }

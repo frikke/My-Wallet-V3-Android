@@ -123,6 +123,12 @@ class SimpleBuyCryptoFragment :
 
     private var infoActionCallback: () -> Unit = {}
 
+    private val preselectedFiatCurrency: FiatCurrency? by lazy {
+        arguments?.getString(ARG_FIAT_CURRENCY)?.let { code ->
+            FiatCurrency.fromCurrencyCode(code)
+        }
+    }
+
     private val fiatCurrency: FiatCurrency
         get() = fiatCurrenciesService.selectedTradingCurrency
 
@@ -138,10 +144,17 @@ class SimpleBuyCryptoFragment :
     private val preselectedMethodId: String?
         get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
 
-    private val preselectedAmount: FiatValue?
-        get() = arguments?.getString(ARG_AMOUNT)?.let { amount ->
-            FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+    private val preselectedAmount: FiatValue? by lazy {
+        arguments?.getString(ARG_AMOUNT)?.let { amount ->
+            preselectedFiatCurrency?.let { currency ->
+                if (currency.networkTicker == fiatCurrency.networkTicker) {
+                    FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+                } else {
+                    FiatValue.zero(fiatCurrency)
+                }
+            } ?: FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
         }
+    }
 
     private val launchLinkCard: Boolean by lazy {
         arguments?.getBoolean(ARG_LINK_NEW_CARD, false) ?: false
@@ -195,7 +208,7 @@ class SimpleBuyCryptoFragment :
         compositeDisposable += binding.inputAmount.amount
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
-                    model.process(SimpleBuyIntent.AmountUpdated(amount))
+                    model.process(SimpleBuyIntent.PreselectedAmountUpdated(amount))
                 }
             }
             .subscribe { amount ->
@@ -236,8 +249,7 @@ class SimpleBuyCryptoFragment :
     override fun showAvailableToAddPaymentMethods() =
         showPaymentMethodsBottomSheet(
             paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
-            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD,
-            cardRejectionFFEnabled = false
+            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
         )
 
     override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
@@ -294,8 +306,7 @@ class SimpleBuyCryptoFragment :
 
     private fun showPaymentMethodsBottomSheet(
         paymentOptions: PaymentOptions,
-        state: PaymentMethodsChooserState,
-        cardRejectionFFEnabled: Boolean
+        state: PaymentMethodsChooserState
     ) {
         showBottomSheet(
             when (state) {
@@ -307,8 +318,7 @@ class SimpleBuyCryptoFragment :
                                     method is PaymentMethod.UndefinedBankAccount
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
-                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() },
-                        cardRejectionFFEnabled = cardRejectionFFEnabled
+                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
                     )
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
@@ -318,8 +328,7 @@ class SimpleBuyCryptoFragment :
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
                         canAddNewPayment = true,
-                        canUseCreditCards = canUseCreditCards(),
-                        cardRejectionFFEnabled = cardRejectionFFEnabled
+                        canUseCreditCards = canUseCreditCards()
                     )
             }
         )
@@ -511,8 +520,7 @@ class SimpleBuyCryptoFragment :
             if (shouldShowPaymentMethodSheet) {
                 showPaymentMethodsBottomSheet(
                     paymentOptions = newState.paymentOptions,
-                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY,
-                    cardRejectionFFEnabled = newState.featureFlagSet.cardRejectionFF
+                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY
                 )
                 shouldShowPaymentMethodSheet = false
             }
@@ -544,8 +552,7 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
-            newState.featureFlagSet.cardRejectionFF &&
-                newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+            newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
                     (newState.selectedPaymentMethodDetails as? PaymentMethod.Card)?.cardRejectionState
                         as? CardRejectionState.AlwaysRejected
@@ -715,15 +722,14 @@ class SimpleBuyCryptoFragment :
                     analytics.logEvent(BuyChangePaymentMethodClickedEvent)
                     showPaymentMethodsBottomSheet(
                         state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
-                        paymentOptions = state.paymentOptions,
-                        cardRejectionFFEnabled = state.featureFlagSet.cardRejectionFF
+                        paymentOptions = state.paymentOptions
                     )
                 }
             }
         }
 
         when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod, state.featureFlagSet.cardRejectionFF)
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
             is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
@@ -735,7 +741,7 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        if (state.featureFlagSet.cardRejectionFF && selectedPaymentMethod !is PaymentMethod.Card) {
+        if (selectedPaymentMethod !is PaymentMethod.Card) {
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
@@ -863,7 +869,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card, cardRejectionFF: Boolean) {
+    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
         with(binding) {
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
@@ -872,32 +878,31 @@ class SimpleBuyCryptoFragment :
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.icon()
                 )
-                if (cardRejectionFF) {
-                    when (val cardState = selectedPaymentMethod.cardRejectionState) {
-                        is CardRejectionState.AlwaysRejected -> {
-                            cardState.renderAlwaysRejectedCardError()
-                            showErrorColours()
-                            btnContinue.gone()
-                            tags = emptyList()
-                        }
-                        is CardRejectionState.MaybeRejected -> {
-                            showDefaultTextColours()
-                            btnError.gone()
-                            btnContinue.visible()
-                            secondaryText = null
-                            tags = listOf(
-                                TagViewState(
-                                    cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
-                                    TagType.Warning()
-                                )
+
+                when (val cardState = selectedPaymentMethod.cardRejectionState) {
+                    is CardRejectionState.AlwaysRejected -> {
+                        cardState.renderAlwaysRejectedCardError()
+                        showErrorColours()
+                        btnContinue.gone()
+                        tags = emptyList()
+                    }
+                    is CardRejectionState.MaybeRejected -> {
+                        showDefaultTextColours()
+                        btnError.gone()
+                        btnContinue.visible()
+                        secondaryText = null
+                        tags = listOf(
+                            TagViewState(
+                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                TagType.Warning()
                             )
-                        }
-                        else -> {
-                            showDefaultTextColours()
-                            tags = emptyList()
-                            btnError.gone()
-                            btnContinue.visible()
-                        }
+                        )
+                    }
+                    else -> {
+                        showDefaultTextColours()
+                        tags = emptyList()
+                        btnError.gone()
+                        btnContinue.visible()
                     }
                 }
             }
@@ -1351,6 +1356,7 @@ class SimpleBuyCryptoFragment :
         private const val ARG_AMOUNT = "AMOUNT"
         private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
         private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
+        private const val ARG_FIAT_CURRENCY = "ARG_FIAT_CURRENCY"
 
         fun newInstance(
             asset: AssetInfo,
@@ -1358,12 +1364,14 @@ class SimpleBuyCryptoFragment :
             preselectedAmount: String? = null,
             launchLinkCard: Boolean = false,
             launchPaymentMethodSelection: Boolean = false,
+            preselectedFiatTicker: String? = null
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_CRYPTO_ASSET, asset.networkTicker)
-                    preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
-                    preselectedAmount?.let { putString(ARG_AMOUNT, preselectedAmount) }
+                    preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, it) }
+                    preselectedAmount?.let { putString(ARG_AMOUNT, it) }
+                    preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }
                     putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
                     putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
                 }

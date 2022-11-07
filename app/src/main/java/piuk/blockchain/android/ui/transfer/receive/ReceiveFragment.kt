@@ -44,6 +44,10 @@ class ReceiveFragment :
 
     override val model: ReceiveModel by scopedInject()
 
+    private val startForTicker: String? by lazy {
+        arguments?.getString(START_FOR_ASSET)
+    }
+
     private val assetsAdapter: ExpandableAssetsAdapter =
         ExpandableAssetsAdapter(
             assetResources,
@@ -69,61 +73,72 @@ class ReceiveFragment :
     override fun render(newState: ReceiveState) {
         if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL) {
             renderUniversalMode(newState)
-        } else renderSuperAppReceiveAccounts(newState)
+        } else {
+            renderSuperAppReceiveAccounts(newState)
+        }
+
+        newState.showReceiveForAccount?.let {
+            model.process(ReceiveIntent.ResetReceiveForAccount)
+            doOnAccountSelected(it)
+        }
     }
 
     private fun renderUniversalMode(newState: ReceiveState) {
-        binding.assetList.visible()
-        binding.supperAppAccountList.gone()
-        binding.assetList.apply {
-            layoutManager = LinearLayoutManager(activity)
-            this.adapter = assetsAdapter
-            addItemDecoration(BlockchainListDividerDecor(requireContext()))
-        }
-
-        assetsAdapter.items = newState.assets.filter { asset -> asset.assetInfo.filteredBy(newState.input) }
-            .sortedWith(
-                compareByDescending<ReceiveItem> { it.priceWithDelta?.marketCap }
-                    .thenBy { it.assetInfo.name }
-            )
-            .map { receiveItem ->
-                ExpandableCryptoItem(
-                    assetInfo = receiveItem.assetInfo,
-                    newState.loadAccountsForAsset,
-                    ::doOnAccountSelected
-                )
+        with(binding) {
+            assetList.visible()
+            supperAppAccountList.gone()
+            assetList.apply {
+                layoutManager = LinearLayoutManager(activity)
+                this.adapter = assetsAdapter
+                addItemDecoration(BlockchainListDividerDecor(requireContext()))
             }
 
-        binding.searchBoxLayout.apply {
-            updateResults(
-                resultCount = assetsAdapter.itemCount.toString(),
-                shouldShow = newState.input.isNotEmpty()
-            )
-            updateLayoutState()
+            assetsAdapter.items = newState.assets.filter { asset -> asset.assetInfo.filteredBy(newState.input) }
+                .sortedWith(
+                    compareByDescending<ReceiveItem> { it.priceWithDelta?.marketCap }
+                        .thenBy { it.assetInfo.name }
+                )
+                .map { receiveItem ->
+                    ExpandableCryptoItem(
+                        assetInfo = receiveItem.assetInfo,
+                        newState.loadAccountsForAsset,
+                        ::doOnAccountSelected
+                    )
+                }
+
+            searchBoxLayout.apply {
+                updateResults(
+                    resultCount = assetsAdapter.itemCount.toString(),
+                    shouldShow = newState.input.isNotEmpty()
+                )
+                updateLayoutState()
+            }
         }
     }
 
     private fun renderSuperAppReceiveAccounts(newState: ReceiveState) {
-        binding.assetList.gone()
-        binding.supperAppAccountList.apply {
-            visible()
-            initialise(
-                source = Single.just(newState.allReceivableAccountsSource)
-                    .map { accounts -> accounts.filter { it.currency.filteredBy(newState.input) } }
-                    .map {
-                        it.map { account ->
-                            AccountListViewItem.create(account)
-                        }
-                    },
-            )
-            onAccountSelected = {
-                (it as? CryptoAccount)?.let { cryptoAccount ->
-                    doOnAccountSelected(cryptoAccount)
+        with(binding) {
+            assetList.gone()
+            supperAppAccountList.apply {
+                visible()
+                initialise(
+                    source = Single.just(newState.allReceivableAccountsSource)
+                        .map { accounts -> accounts.filter { it.currency.filteredBy(newState.input) } }
+                        .map {
+                            it.map { account ->
+                                AccountListViewItem.create(account)
+                            }
+                        },
+                )
+                onAccountSelected = {
+                    (it as? CryptoAccount)?.let { cryptoAccount ->
+                        doOnAccountSelected(cryptoAccount)
+                    }
                 }
             }
-        }
-        binding.searchBoxLayout.apply {
-            updateLayoutState()
+            searchBoxLayout.apply {
+                updateLayoutState()
+            }
         }
     }
 
@@ -141,7 +156,8 @@ class ReceiveFragment :
                 icon = R.drawable.ic_receive_blue_circle,
                 showSeparator = false
             )
-            model.process(ReceiveIntent.GetAvailableAssets)
+
+            model.process(ReceiveIntent.GetAvailableAssets(startForTicker))
         }
     }
 
@@ -185,8 +201,13 @@ class ReceiveFragment :
     }
 
     companion object {
-        const val BOTTOM_SHEET = "BOTTOM_SHEET"
-
-        fun newInstance() = ReceiveFragment()
+        private const val START_FOR_ASSET = "START_FOR_ASSET"
+        fun newInstance(cryptoTicker: String? = null) = ReceiveFragment().apply {
+            arguments = Bundle().apply {
+                cryptoTicker?.let { ticker ->
+                    putString(START_FOR_ASSET, ticker)
+                }
+            }
+        }
     }
 }

@@ -609,14 +609,14 @@ class PortfolioFragment :
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
                 visibleIf { state.uiState == DashboardUIState.EMPTY && state.canPotentiallyTransactWithBanks }
-                leftButton.setOnClickListener { navigator().launchReceive() }
+                leftButton.setOnClickListener { navigator().launchReceive(null) }
                 rightButton.setOnClickListener {
                     model.process(DashboardIntent.StartBankTransferFlow(action = AssetAction.FiatDeposit))
                 }
             }
             receiveButton.apply {
                 visibleIf { state.uiState == DashboardUIState.EMPTY && !state.canPotentiallyTransactWithBanks }
-                setOnClickListener { navigator().launchReceive() }
+                setOnClickListener { navigator().launchReceive(null) }
             }
         }
     }
@@ -808,7 +808,7 @@ class PortfolioFragment :
                     origin = LaunchOrigin.DASHBOARD_PROMO, type = TransferAnalyticsEvent.AnalyticsTransferType.RECEIVE
                 )
             )
-            navigator().launchReceive()
+            navigator().launchReceive(null)
         }
 
         override fun finishSimpleBuySignup() {

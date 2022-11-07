@@ -51,7 +51,7 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
                             analytics.logEvent(FabBuyClickedEvent)
                             host.launchBuy()
                         }
-                        ActionsSheetNavEvent.Receive -> host.launchReceive()
+                        ActionsSheetNavEvent.Receive -> host.launchReceive(null)
                         ActionsSheetNavEvent.Send -> host.launchSend()
                         ActionsSheetNavEvent.TradingBuy -> host.launchBuyForDefi()
                         ActionsSheetNavEvent.Swap -> {

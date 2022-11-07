@@ -72,6 +72,8 @@ class LinkedBankAccount(
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
     fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)
 
+    fun isAchCurrency() = currency.networkTicker.equals("USD", true)
+
     internal class BankAccountAddress(
         override val address: String,
         override val label: String = address

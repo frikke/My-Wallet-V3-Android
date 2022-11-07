@@ -8,8 +8,8 @@ import io.reactivex.rxjava3.core.Single
 
 sealed class ReceiveIntent : MviIntent<ReceiveState> {
 
-    object GetAvailableAssets : ReceiveIntent() {
-        override fun reduce(oldState: ReceiveState): ReceiveState = oldState.copy()
+    class GetAvailableAssets(val startForTicker: String?) : ReceiveIntent() {
+        override fun reduce(oldState: ReceiveState): ReceiveState = oldState
     }
 
     data class UpdateAssets(
@@ -37,5 +37,18 @@ sealed class ReceiveIntent : MviIntent<ReceiveState> {
             oldState.copy(
                 input = searchString
             )
+    }
+
+    class GetStartingAccountForAsset(val cryptoTicker: String, val accounts: List<SingleAccount>) : ReceiveIntent() {
+        override fun reduce(oldState: ReceiveState): ReceiveState = oldState
+    }
+
+    class UpdateReceiveForAsset(val account: CryptoAccount) : ReceiveIntent() {
+        override fun reduce(oldState: ReceiveState): ReceiveState =
+            oldState.copy(showReceiveForAccount = account)
+    }
+
+    object ResetReceiveForAccount : ReceiveIntent() {
+        override fun reduce(oldState: ReceiveState): ReceiveState = oldState.copy(showReceiveForAccount = null)
     }
 }
