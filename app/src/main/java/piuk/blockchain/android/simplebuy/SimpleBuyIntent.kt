@@ -62,7 +62,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class UpdateQuotePrice(
         private val amountInCrypto: CryptoValue,
         private val dynamicFee: Money,
-        private val price: Money
+        private val fiatPrice: Money
     ) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
@@ -70,7 +70,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 quotePrice = QuotePrice(
                     amountInCrypto = amountInCrypto,
                     fee = dynamicFee as FiatValue,
-                    price = price as FiatValue,
+                    fiatPrice = fiatPrice as FiatValue
                 ),
             )
     }

@@ -5,6 +5,7 @@ import com.blockchain.api.trade.data.AccumulatedInPeriod
 import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.QuoteResponse
 import com.blockchain.api.trade.data.RecurringBuyResponse
+import com.blockchain.coincore.toFiat
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
@@ -15,12 +16,14 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.android.domain.repositories.TradeDataService
+import piuk.blockchain.android.simplebuy.BuyQuote.Companion.toFiat
 
 class TradeDataRepository(
     private val tradeService: TradeService,
@@ -90,7 +93,7 @@ class TradeDataRepository(
                     value = response.amount.toBigInteger()
                 ),
                 price = Money.fromMinor(
-                    currency = currencyPair.source,
+                    currency = currencyPair.destination,
                     value = response.price.toBigInteger()
                 ),
                 resultAmount = Money.fromMinor(
@@ -122,7 +125,10 @@ data class QuotePrice(
     val networkFee: Money?,
     val paymentMethod: PaymentMethodType,
     val orderProfileName: String
-)
+) {
+    val fiatPrice: FiatValue
+        get() = price.toFiat(currencyPair.source)
+}
 
 private fun String.toPaymentMethodType(): PaymentMethodType = when (this) {
     QuoteResponse.PAYMENT_CARD -> PaymentMethodType.PAYMENT_CARD

@@ -225,7 +225,7 @@ enum class KycState {
 data class QuotePrice(
     val amountInCrypto: @Contextual CryptoValue? = null,
     val fee: FiatValue? = null,
-    val price: FiatValue? = null
+    val fiatPrice: FiatValue? = null
 )
 
 @kotlinx.serialization.Serializable
@@ -376,7 +376,7 @@ data class BuyQuote(
                 } ?: quoteFee
                 ) as FiatValue
 
-        private fun Money.toFiat(fiatCurrency: Currency): FiatValue {
+        fun Money.toFiat(fiatCurrency: Currency): FiatValue {
             return (this as? CryptoValue)?.let { value ->
                 return ExchangeRate(
                     from = fiatCurrency,

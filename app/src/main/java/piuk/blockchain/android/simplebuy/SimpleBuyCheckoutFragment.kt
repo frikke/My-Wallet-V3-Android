@@ -451,14 +451,10 @@ class SimpleBuyCheckoutFragment :
 
     private fun showAmountForMethod(newState: SimpleBuyState) {
         binding.amount.text = newState.orderValue?.toStringWithSymbol()
-        binding.amountFiat.text = newState.order.amount?.toStringWithSymbol()
     }
 
     private fun showAmountsHeaders(newState: SimpleBuyState) {
-        with(binding) {
-            amount.text = newState.quotePrice?.amountInCrypto?.toStringWithSymbol()
-            amountFiat.text = newState.amount.toStringWithSymbol()
-        }
+        binding.amount.text = newState.quotePrice?.amountInCrypto?.toStringWithSymbol()
     }
 
     private fun updateStatusPill(newState: SimpleBuyState) {
@@ -505,7 +501,7 @@ class SimpleBuyCheckoutFragment :
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = if (state.featureFlagSet.feynmanCheckoutFF) {
-                    state.quotePrice?.amountInCrypto?.toStringWithSymbol().orEmpty()
+                    state.quotePrice?.fiatPrice?.toStringWithSymbol().orEmpty()
                 } else {
                     state.exchangeRate?.toStringWithSymbol().orEmpty()
                 },

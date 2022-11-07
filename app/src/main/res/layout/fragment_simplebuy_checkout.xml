@@ -32,17 +32,6 @@
         tools:text="$10000 of BTC" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/amount_fiat"
-        style="@style/Text.Light.20"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_spacing"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/amount"
-        tools:text="$100" />
-
-    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/status"
         style="@style/Text.Semibold.14"
         android:layout_width="wrap_content"
@@ -62,7 +51,7 @@
         android:layout_marginTop="@dimen/medium_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amount_fiat" />
+        app:layout_constraintTop_toBottomOf="@+id/status" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
