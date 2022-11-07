@@ -311,11 +311,11 @@ class AssetsViewModel(
             // as we don't support historic rates for fiat
             filter { it.singleAccount is CryptoAccount }.totalBalance(),
             totalCryptoBalance24hAgo()
-        ) { balanceNow, cryptoBalanceNow, balance24hAgo ->
+        ) { balanceNow, cryptoBalanceNow, cryptoBalance24hAgo ->
             WalletBalance(
                 balance = balanceNow,
-                balanceDifference24h = cryptoBalanceNow.minus(balance24hAgo).abs(),
-                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(balance24hAgo))
+                balanceDifference24h = cryptoBalanceNow.minus(cryptoBalance24hAgo).abs(),
+                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(cryptoBalance24hAgo))
             )
         }
     }
