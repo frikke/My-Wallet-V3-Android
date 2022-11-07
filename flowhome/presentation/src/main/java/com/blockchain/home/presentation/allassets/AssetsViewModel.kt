@@ -12,6 +12,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
+import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
@@ -58,7 +59,8 @@ class AssetsViewModel(
         return with(state) {
             AssetsViewState(
                 balance = accounts.totalBalance(),
-                prevBalance = accounts.totalBalance24hAgo(),
+                currentCryptoBalance = accounts.filter { it.singleAccount is CryptoAccount }.totalBalance(),
+                prevCryptoBalance = accounts.filter { it.singleAccount is CryptoAccount }.totalBalance24hAgo(),
                 cryptoAssets = state.accounts.map { modelAccounts ->
                     modelAccounts
                         .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
@@ -255,23 +257,24 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalBalance(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalance24hAgo(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalBalance24hAgo(): DataResource<Money> {
         return this.flatMap { accounts ->
-            val balances = accounts.map { it.balance }
-            val exchangeRates = accounts.map { it.exchangeRate24hWithDelta }
+            val cryptoAccounts = accounts.filter { it.singleAccount is CryptoAccount }
+            val balances = cryptoAccounts.map { it.balance }
+            val exchangeRates = cryptoAccounts.map { it.exchangeRate24hWithDelta }
             when {
                 exchangeRates.anyError() -> DataResource.Error(RuntimeException("Cannot load prices"))
                 exchangeRates.anyLoading() -> DataResource.Loading
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
                         ?: balances.first { it is DataResource.Loading }
-                balances.all { balance -> balance is DataResource.Data } -> accounts.map {
+                balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
                         it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data ->
                             DataResource.Data(
@@ -293,7 +296,7 @@ class AssetsViewModel(
         }
     }
 
-    private fun List<ModelAccount>.totalAccounts(): Money {
+    private fun Iterable<ModelAccount>.totalAccounts(): Money {
         return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
             .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->

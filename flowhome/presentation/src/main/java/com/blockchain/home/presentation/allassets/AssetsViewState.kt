@@ -13,14 +13,15 @@ import java.math.RoundingMode
  */
 data class AssetsViewState(
     val balance: DataResource<Money>,
-    val prevBalance: DataResource<Money>,
+    private val currentCryptoBalance: DataResource<Money>,
+    private val prevCryptoBalance: DataResource<Money>,
     val cryptoAssets: DataResource<Pair<List<CryptoAssetState> /*display list*/, Boolean /*is full list*/>>,
     val fiatAssets: DataResource<List<FiatAssetState>>,
     val filters: List<AssetFilterStatus>
 ) : ViewState {
     val percentageChangeData: DataResource<Double>
         get() =
-            combineDataResources(balance, prevBalance) { cBalance, prevBalance ->
+            combineDataResources(currentCryptoBalance, prevCryptoBalance) { cBalance, prevBalance ->
                 cBalance.toBigDecimal().minus(prevBalance.toBigDecimal())
                     .divide(prevBalance.toBigDecimal(), 4, RoundingMode.HALF_EVEN)
                     .movePointRight(2)

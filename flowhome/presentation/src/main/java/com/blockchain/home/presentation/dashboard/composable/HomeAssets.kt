@@ -75,7 +75,6 @@ fun HomeAssets(
 
     viewState?.let { state ->
         HomeAssetsScreen(
-            dayDelta = state.prevBalance,
             cryptoAssets = state.cryptoAssets.map { it.first },
             showSeeAllCryptoAssets = state.cryptoAssets.map { it.second },
             onSeeAllCryptoAssetsClick = openAllAssets,
@@ -86,7 +85,6 @@ fun HomeAssets(
 
 @Composable
 fun HomeAssetsScreen(
-    dayDelta: DataResource<Money> = DataResource.Loading,
     cryptoAssets: DataResource<List<CryptoAssetState>>,
     showSeeAllCryptoAssets: DataResource<Boolean>,
     onSeeAllCryptoAssetsClick: () -> Unit,
