@@ -257,7 +257,7 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.totalBalanceNow(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalBalance(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
@@ -306,10 +306,10 @@ class AssetsViewModel(
 
     private fun DataResource<Iterable<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
         return combineDataResources(
-            totalBalanceNow(),
+            totalBalance(),
             // the difference is calculated with crypto balance only
             // as we don't support historic rates for fiat
-            filter { it.singleAccount is CryptoAccount }.totalBalanceNow(),
+            filter { it.singleAccount is CryptoAccount }.totalBalance(),
             totalCryptoBalance24hAgo()
         ) { balanceNow, cryptoBalanceNow, balance24hAgo ->
             WalletBalance(
