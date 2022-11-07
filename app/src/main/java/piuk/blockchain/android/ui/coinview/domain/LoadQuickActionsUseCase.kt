@@ -68,12 +68,15 @@ class LoadQuickActionsUseCase(
                             isAvailableForTradingData,
                             isSupportedForSwapData ->
 
-                            val assetFilter = when (accounts) {
-                                is CoinviewAccounts.Universal -> AssetFilter.All
-                                is CoinviewAccounts.Custodial -> AssetFilter.Trading
+                            val assetFilters = when (accounts) {
+                                is CoinviewAccounts.Universal -> listOf(AssetFilter.Trading, AssetFilter.NonCustodial)
+                                is CoinviewAccounts.Custodial -> listOf(AssetFilter.Trading)
                                 is CoinviewAccounts.Defi -> error("Defi unreachable here")
                             }
-                            val hasBalance = totalBalance.totalCryptoBalance[assetFilter]?.isPositive ?: false
+
+                            val hasBalance = assetFilters.any {
+                                totalBalance.totalCryptoBalance[it]?.isPositive ?: false
+                            }
 
                             /**
                              * Sell button will be enabled if
@@ -130,7 +133,6 @@ class LoadQuickActionsUseCase(
                                 },
                                 bottomStart = CoinviewQuickAction.Sell(canSell),
                                 bottomEnd = CoinviewQuickAction.Buy(canBuy)
-                                //                                    actionableAccount = custodialAccount todo
                             )
                         }
                     }
