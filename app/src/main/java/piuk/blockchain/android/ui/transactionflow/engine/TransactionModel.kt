@@ -20,6 +20,7 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -27,6 +28,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
@@ -55,6 +57,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
@@ -150,6 +153,8 @@ data class TransactionState(
     val canFilterOutTradingAccounts: Boolean = false,
     val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
     val isLoading: Boolean = false,
+    val ffImprovedPaymentUxEnabled: Boolean = false,
+    val depositTerms: DepositTerms? = null,
     val networkName: String? = null
 ) : MviState, TransactionFlowStateInfo {
 
@@ -288,9 +293,9 @@ class TransactionModel(
             is TransactionIntent.InitialiseWithNoSourceOrTargetAccount -> processSourceAccountsListUpdate(
                 intent.action, NullAddress
             )
-            is TransactionIntent.InitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
-                intent.action, intent.target
-            )
+            is TransactionIntent.InitialiseWithTargetAndNoSource -> {
+                processSourceAccountsListUpdate(intent.action, intent.target)
+            }
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
                 intent.action, intent.target, true
             )
@@ -391,6 +396,10 @@ class TransactionModel(
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
             is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
+            is TransactionIntent.LoadDepositTerms -> processDepositTerms(
+                (previousState.sendingAccount as? LinkedBankAccount)?.accountId, previousState.amount
+            )
+            is TransactionIntent.LoadImprovedPaymentUxFeatureFlag -> processImprovedPaymentUxFF()
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -404,8 +413,10 @@ class TransactionModel(
             is TransactionIntent.FiatDepositOptionSelected,
             is TransactionIntent.UpdatePrefillAmount,
             is TransactionIntent.UpdateTradingAccountsFilterState,
+            is TransactionIntent.DepositTermsReceived,
             is TransactionIntent.ResetPrefillAmount,
-            is TransactionIntent.SetNetworkName -> null
+            is TransactionIntent.SetNetworkName,
+            is TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded -> null
         }
     }
 
@@ -838,6 +849,27 @@ class TransactionModel(
                     Timber.e(it)
                 }
             )
+
+    private fun processDepositTerms(paymentMethodId: String?, amount: Money) =
+        paymentMethodId?.let { paymentId ->
+            interactor.getDepositTerms(paymentId, amount).zipWith(interactor.isImprovedPaymentUxFFEnabled())
+                .subscribeBy(
+                    onSuccess = {
+                        if (it.second) {
+                            process(TransactionIntent.DepositTermsReceived(it.first))
+                        }
+                    },
+                    onError = { Timber.e(it) }
+                )
+        }
+
+    private fun processImprovedPaymentUxFF() = interactor.isImprovedPaymentUxFFEnabled()
+        .subscribeBy(
+            onSuccess = {
+                process(TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded(it))
+            },
+            onError = { Timber.e(it) }
+        )
 
     override fun distinctIntentFilter(
         previousIntent: TransactionIntent,

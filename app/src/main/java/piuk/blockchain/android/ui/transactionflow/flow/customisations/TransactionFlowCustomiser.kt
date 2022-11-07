@@ -65,6 +65,7 @@ import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringAnnotationClickEvent
+import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
@@ -484,14 +485,21 @@ class TransactionFlowCustomiserImpl(
             else -> throw IllegalStateException("Disclaimer not set for asset action ${state.action}")
         }
 
-    override fun confirmDisclaimerVisibility(assetAction: AssetAction): Boolean =
-        when (assetAction) {
-            AssetAction.Swap,
-            AssetAction.FiatDeposit,
-            AssetAction.InterestWithdraw,
-            AssetAction.Sell -> true
-            else -> false
+    override fun confirmDisclaimerVisibility(state: TransactionState, assetAction: AssetAction): Boolean {
+        val showAchDisclaimer = assetAction == AssetAction.FiatDeposit && state.sendingAccount is LinkedBankAccount &&
+            state.ffImprovedPaymentUxEnabled && state.sendingAccount.isAchCurrency()
+        return if (showAchDisclaimer) {
+            false
+        } else {
+            when (assetAction) {
+                AssetAction.Swap,
+                AssetAction.FiatDeposit,
+                AssetAction.InterestWithdraw,
+                AssetAction.Sell -> true
+                else -> false
+            }
         }
+    }
 
     override fun transactionProgressTitle(state: TransactionState): String {
         val amount = state.pendingTx?.amount?.toStringWithSymbol() ?: ""
@@ -1259,6 +1267,70 @@ class TransactionFlowCustomiserImpl(
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
 
+    override fun confirmAvailableToTradeBlurb(
+        state: TransactionState,
+        assetAction: AssetAction,
+        context: Context
+    ): String? {
+        return if (assetAction == AssetAction.FiatDeposit && state.sendingAccount is LinkedBankAccount &&
+            state.ffImprovedPaymentUxEnabled
+        ) {
+            state.depositTerms?.let { depositTerms ->
+                StringLocalizationUtil.getFormattedDepositTerms(
+                    resources = context.resources,
+                    displayMode = depositTerms.availableToTradeDisplayMode,
+                    min = depositTerms.availableToTradeMinutesMin,
+                    max = depositTerms.availableToTradeMinutesMax
+                )
+            }
+        } else null
+    }
+
+    override fun confirmAvailableToWithdrawBlurb(
+        state: TransactionState,
+        assetAction: AssetAction,
+        context: Context
+    ): String? {
+        return if (assetAction == AssetAction.FiatDeposit && state.sendingAccount is LinkedBankAccount &&
+            state.ffImprovedPaymentUxEnabled
+        ) {
+            state.depositTerms?.let { depositTerms ->
+                StringLocalizationUtil.getFormattedDepositTerms(
+                    resources = context.resources,
+                    displayMode = depositTerms.availableToWithdrawDisplayMode,
+                    min = depositTerms.availableToWithdrawMinutesMin,
+                    max = depositTerms.availableToWithdrawMinutesMax
+                )
+            }
+        } else null
+    }
+
+    override fun confirmAchDisclaimerBlurb(
+        state: TransactionState,
+        assetAction: AssetAction,
+        context: Context
+    ): AchDisclaimerBlurb? {
+        return if (assetAction == AssetAction.FiatDeposit && state.sendingAccount is LinkedBankAccount &&
+            state.ffImprovedPaymentUxEnabled && state.sendingAccount.isAchCurrency()
+        ) {
+            val amount = state.amount.toStringWithSymbol()
+            val bankLabel = state.sendingAccount.label
+            val infoText = String.format(context.getString(R.string.deposit_terms_ach_info), amount, bankLabel)
+            val withdrawalLock = if (state.pendingTx?.engineState?.containsKey(WITHDRAW_LOCKS) == true) {
+                state.pendingTx.engineState[WITHDRAW_LOCKS].toString()
+            } else {
+                "7"
+            }
+
+            AchDisclaimerBlurb(
+                value = infoText,
+                amount = amount,
+                bankLabel = bankLabel,
+                withdrawalLock = withdrawalLock
+            )
+        } else null
+    }
+
     override fun defInputType(state: TransactionState, fiatCurrency: Currency): Currency =
         when (state.action) {
             AssetAction.Swap,
@@ -1272,7 +1344,9 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> {
                 {
-                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletModeService.enabledWalletMode())
+                    SwapAccountSelectSheetFeeDecorator(
+                        account = it, walletMode = walletModeService.enabledWalletMode()
+                    )
                 }
             }
             AssetAction.InterestDeposit,

@@ -57,6 +57,7 @@ class TransactionInteractorTest {
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val quickFillRoundingService: QuickFillRoundingService = mock()
     private val hideDustFF: FeatureFlag = mock()
+    private val improvedPaymentUxFF: FeatureFlag = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
     private val dynamicRepository: UniversalDynamicAssetRepository = mock()
 
@@ -83,7 +84,8 @@ class TransactionInteractorTest {
             quickFillRoundingService = quickFillRoundingService,
             hideDustFF = hideDustFF,
             localSettingsPrefs = localSettingsPrefs,
-            dynamicAssetRepository = dynamicRepository
+            dynamicAssetRepository = dynamicRepository,
+            improvedPaymentUxFF = improvedPaymentUxFF
         )
     }
 

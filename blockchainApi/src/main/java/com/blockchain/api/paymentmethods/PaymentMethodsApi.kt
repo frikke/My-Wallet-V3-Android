@@ -1,5 +1,6 @@
 package com.blockchain.api.paymentmethods
 
+import com.blockchain.api.brokerage.data.DepositTermsResponse
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
@@ -7,6 +8,7 @@ import com.blockchain.api.paymentmethods.models.AliasInfoRequestBody
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
@@ -118,6 +120,12 @@ interface PaymentMethodsApi {
         @Body body: SettlementBody,
         @Query("localisedError") localisedError: String?
     ): Single<SettlementResponse>
+
+    @PUT("payments/deposit/terms")
+    suspend fun getDepositTerms(
+        @Body body: DepositTermsRequestBody,
+        @Query("localisedError") localisedError: String?
+    ): Outcome<Exception, DepositTermsResponse>
 
     @POST("payments/banktransfer/{id}/payment")
     fun startBankTransferPayment(

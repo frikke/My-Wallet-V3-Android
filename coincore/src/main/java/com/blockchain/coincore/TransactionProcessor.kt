@@ -143,7 +143,9 @@ enum class TxConfirmation {
     LARGE_TRANSACTION_WARNING,
     ERROR_NOTICE,
     INVOICE_COUNTDOWN,
-    QUOTE_COUNTDOWN
+    QUOTE_COUNTDOWN,
+    SIMPLE_TOOLTIP,
+    DISCLAIMER_READ_MORE
 }
 
 sealed class FeeState {

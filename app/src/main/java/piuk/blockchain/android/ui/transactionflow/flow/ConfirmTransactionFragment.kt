@@ -18,6 +18,8 @@ import com.blockchain.presentation.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxFlowConfirmBinding
 import piuk.blockchain.android.fraud.domain.service.FraudService
+import piuk.blockchain.android.simplebuy.sheets.AchTermsAndConditionsBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.AchWithdrawalHoldInfoBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -47,10 +49,24 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             selectedCurrency = prefs.selectedFiatCurrency,
             exchangeRates = exchangeRates,
             onTooltipClicked = { expandableType ->
-                if (expandableType is TxConfirmationValue.NetworkFee) {
-                    analyticsHooks.onFeesTooltipClicked(assetAction)
-                } else if (expandableType is TxConfirmationValue.ExchangePriceConfirmation) {
-                    analyticsHooks.onPriceTooltipClicked(assetAction)
+                when (expandableType) {
+                    is TxConfirmationValue.NetworkFee -> analyticsHooks.onFeesTooltipClicked(assetAction)
+                    is TxConfirmationValue.ExchangePriceConfirmation ->
+                        analyticsHooks.onPriceTooltipClicked(assetAction)
+                    is TxConfirmationValue.AvailableToWithdraw ->
+                        showBottomSheet(AchWithdrawalHoldInfoBottomSheet.newInstance())
+                    is TxConfirmationValue.AchTermsAndConditions ->
+                        showBottomSheet(
+                            AchTermsAndConditionsBottomSheet.newInstance(
+                                bankLabel = expandableType.bankLabel,
+                                amount = expandableType.amount,
+                                withdrawalLock = expandableType.withdrawalLock,
+                                isRecurringBuyEnabled = false
+                            )
+                        )
+                    else -> {
+                        /*NO-OP*/
+                    }
                 }
             },
         )
@@ -71,6 +87,8 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             itemAnimator = null
         }
         model.process(TransactionIntent.ValidateTransaction)
+        model.process(TransactionIntent.LoadImprovedPaymentUxFeatureFlag)
+        model.process(TransactionIntent.LoadDepositTerms)
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowConfirmBinding =
@@ -80,7 +98,24 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionFragment")
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
-            listAdapter.items = newState.pendingTx.txConfirmations.toList()
+            listAdapter.items = newState.pendingTx.txConfirmations.toMutableList().apply {
+                customiser.confirmAvailableToTradeBlurb(newState, newState.action, requireContext())?.let {
+                    add(TxConfirmationValue.AvailableToTrade(it))
+                }
+                customiser.confirmAvailableToWithdrawBlurb(newState, newState.action, requireContext())?.let {
+                    add(TxConfirmationValue.AvailableToWithdraw(it))
+                }
+                customiser.confirmAchDisclaimerBlurb(newState, newState.action, requireContext())?.let {
+                    add(
+                        TxConfirmationValue.AchTermsAndConditions(
+                            value = it.value,
+                            bankLabel = it.bankLabel,
+                            amount = it.amount,
+                            withdrawalLock = it.withdrawalLock
+                        )
+                    )
+                }
+            }
         }
 
         if (newState.executionStatus == TxExecutionStatus.Cancelled) {
@@ -100,7 +135,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                 onClick = { onCancelClick() }
             }
 
-            if (customiser.confirmDisclaimerVisibility(newState.action)) {
+            if (customiser.confirmDisclaimerVisibility(newState, newState.action)) {
                 confirmDisclaimer.apply {
                     text = customiser.confirmDisclaimerBlurb(newState, requireContext())
                     visible()

@@ -19,6 +19,7 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
@@ -686,6 +687,33 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 canFilterOutTradingAccounts = canFilterTradingAccounts
+            )
+    }
+
+    object LoadDepositTerms : TransactionIntent() {
+
+        override fun isValidFor(oldState: TransactionState): Boolean = oldState.depositTerms == null
+
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class DepositTermsReceived(private val depositTerms: DepositTerms) : TransactionIntent() {
+
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                depositTerms = depositTerms
+            )
+    }
+
+    object LoadImprovedPaymentUxFeatureFlag : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class ImprovedPaymentUxFeatureFlagLoaded(private val isLoadImprovedPaymentUxFeatureFlagEnabled: Boolean) :
+        TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                ffImprovedPaymentUxEnabled = isLoadImprovedPaymentUxFeatureFlagEnabled
             )
     }
 }

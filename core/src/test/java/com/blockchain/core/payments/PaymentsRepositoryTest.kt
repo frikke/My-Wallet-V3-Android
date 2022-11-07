@@ -3,11 +3,14 @@ package com.blockchain.core.payments
 import app.cash.turbine.test
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
+import com.blockchain.api.brokerage.data.DepositTermsResponse
+import com.blockchain.api.brokerage.data.SettlementDetails.Companion.INSTANT
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -50,6 +53,7 @@ import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -771,6 +775,77 @@ class PaymentsRepositoryTest {
                     settlementReason = SettlementReason.NONE
                 )
             )
+    }
+
+    @Test
+    fun `getDepositTerms() success should return DepositTerms`() = runTest {
+        // ARRANGE
+        val response = DepositTermsResponse(
+            creditCurrency = "USD",
+            availableToTradeMinutesMin = 1,
+            availableToTradeMinutesMax = 2,
+            availableToTradeDisplayMode = "DAY_RANGE",
+            availableToWithdrawMinutesMin = 3,
+            availableToWithdrawMinutesMax = 4,
+            availableToWithdrawDisplayMode = "MINUTE_RANGE",
+            settlementType = "INSTANT",
+            settlementReason = "REQUIRES_UPDATE"
+        )
+        val amount = Money.fromMinor(FiatCurrency.fromCurrencyCode("USD"), BigInteger.ONE)
+        val requestBody = DepositTermsRequestBody(
+            amount = DepositTermsRequestBody.Amount(
+                value = amount.toBigInteger().toString(),
+                currency = amount.currencyCode
+            ),
+            paymentMethodId = "paymentMethodId"
+        )
+
+        coEvery { paymentMethodsService.getDepositTerms(requestBody) } returns Outcome.Success(response)
+
+        // ACT
+        val result = subject.getDepositTerms("paymentMethodId", amount)
+
+        // ASSERT
+        result.doOnSuccess {
+            assertEquals(
+                DepositTerms(
+                    creditCurrency = "USD",
+                    availableToTradeDisplayMode = DepositTerms.DisplayMode.DAY_RANGE,
+                    availableToTradeMinutesMin = 1,
+                    availableToTradeMinutesMax = 2,
+                    availableToWithdrawDisplayMode = DepositTerms.DisplayMode.MINUTE_RANGE,
+                    availableToWithdrawMinutesMin = 3,
+                    availableToWithdrawMinutesMax = 4,
+                    settlementType = SettlementType.INSTANT,
+                    settlementReason = SettlementReason.REQUIRES_UPDATE
+                ),
+                it
+            )
+        }
+    }
+
+    @Test
+    fun `getDepositTerms() failure should return error`() = runTest {
+        // ARRANGE
+        val error = Exception()
+        val amount = Money.fromMinor(FiatCurrency.fromCurrencyCode("USD"), BigInteger.ONE)
+        val requestBody = DepositTermsRequestBody(
+            amount = DepositTermsRequestBody.Amount(
+                value = amount.toBigInteger().toString(),
+                currency = amount.currencyCode
+            ),
+            paymentMethodId = "paymentMethodId"
+        )
+
+        coEvery { paymentMethodsService.getDepositTerms(requestBody) } returns Outcome.Failure(error)
+
+        // ACT
+        val result = subject.getDepositTerms("paymentMethodId", amount)
+
+        // ASSERT
+        result.doOnFailure {
+            assertEquals(error, it)
+        }
     }
 
     // /////////////////////////////////////////

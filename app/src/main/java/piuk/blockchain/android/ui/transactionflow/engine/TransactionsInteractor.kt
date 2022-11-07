@@ -24,6 +24,7 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
@@ -37,6 +38,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.utils.mapList
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -85,6 +87,7 @@ class TransactionInteractor(
     private val quickFillRoundingService: QuickFillRoundingService,
     private val hideDustFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
+    private val improvedPaymentUxFF: FeatureFlag,
     private val dynamicAssetRepository: UniversalDynamicAssetRepository
 ) {
     private var transactionProcessor: TransactionProcessor? = null
@@ -383,6 +386,11 @@ class TransactionInteractor(
 
     fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
         quickFillRoundingService.getQuickFillRoundingForAction(action)
+
+    fun isImprovedPaymentUxFFEnabled() = improvedPaymentUxFF.enabled
+
+    fun getDepositTerms(paymentMethodId: String, amount: Money): Single<DepositTerms> =
+        rxSingleOutcome { bankService.getDepositTerms(paymentMethodId, amount) }
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

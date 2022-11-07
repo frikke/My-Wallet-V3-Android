@@ -3,6 +3,7 @@ package com.blockchain.domain.paymentmethods
 import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
@@ -49,6 +50,11 @@ interface BankService {
         accountId: String,
         amount: Money,
     ): Single<SettlementInfo>
+
+    suspend fun getDepositTerms(
+        paymentMethodId: String,
+        amount: Money,
+    ): Outcome<Exception, DepositTerms>
 
     fun startBankTransfer(
         id: String,
