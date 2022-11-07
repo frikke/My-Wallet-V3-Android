@@ -135,12 +135,10 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         val action: AssetAction,
         private val passwordRequired: Boolean,
         val eligibility: FeatureAccess? = null,
-        private val isSellSwapQuickFillFlagEnabled: Boolean = false,
         private val quickFillRoundingData: List<QuickFillRoundingData> = emptyList()
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
             currentStep = selectStep(passwordRequired, transactionTarget),
-            ffSwapSellQuickFillsEnabled = isSellSwapQuickFillFlagEnabled,
             quickFillRoundingData = quickFillRoundingData
         ).updateBackstack(oldState)
 

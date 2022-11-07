@@ -249,8 +249,7 @@ class SimpleBuyCryptoFragment :
     override fun showAvailableToAddPaymentMethods() =
         showPaymentMethodsBottomSheet(
             paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
-            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD,
-            cardRejectionFFEnabled = false
+            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
         )
 
     override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
@@ -307,8 +306,7 @@ class SimpleBuyCryptoFragment :
 
     private fun showPaymentMethodsBottomSheet(
         paymentOptions: PaymentOptions,
-        state: PaymentMethodsChooserState,
-        cardRejectionFFEnabled: Boolean
+        state: PaymentMethodsChooserState
     ) {
         showBottomSheet(
             when (state) {
@@ -320,8 +318,7 @@ class SimpleBuyCryptoFragment :
                                     method is PaymentMethod.UndefinedBankAccount
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
-                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() },
-                        cardRejectionFFEnabled = cardRejectionFFEnabled
+                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
                     )
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
@@ -331,8 +328,7 @@ class SimpleBuyCryptoFragment :
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
                         canAddNewPayment = true,
-                        canUseCreditCards = canUseCreditCards(),
-                        cardRejectionFFEnabled = cardRejectionFFEnabled
+                        canUseCreditCards = canUseCreditCards()
                     )
             }
         )
@@ -524,8 +520,7 @@ class SimpleBuyCryptoFragment :
             if (shouldShowPaymentMethodSheet) {
                 showPaymentMethodsBottomSheet(
                     paymentOptions = newState.paymentOptions,
-                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY,
-                    cardRejectionFFEnabled = newState.featureFlagSet.cardRejectionFF
+                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY
                 )
                 shouldShowPaymentMethodSheet = false
             }
@@ -557,8 +552,7 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
-            newState.featureFlagSet.cardRejectionFF &&
-                newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+            newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
                     (newState.selectedPaymentMethodDetails as? PaymentMethod.Card)?.cardRejectionState
                         as? CardRejectionState.AlwaysRejected
@@ -728,15 +722,14 @@ class SimpleBuyCryptoFragment :
                     analytics.logEvent(BuyChangePaymentMethodClickedEvent)
                     showPaymentMethodsBottomSheet(
                         state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
-                        paymentOptions = state.paymentOptions,
-                        cardRejectionFFEnabled = state.featureFlagSet.cardRejectionFF
+                        paymentOptions = state.paymentOptions
                     )
                 }
             }
         }
 
         when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod, state.featureFlagSet.cardRejectionFF)
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
             is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
@@ -748,7 +741,7 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        if (state.featureFlagSet.cardRejectionFF && selectedPaymentMethod !is PaymentMethod.Card) {
+        if (selectedPaymentMethod !is PaymentMethod.Card) {
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
@@ -876,7 +869,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card, cardRejectionFF: Boolean) {
+    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
         with(binding) {
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
@@ -885,32 +878,31 @@ class SimpleBuyCryptoFragment :
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.icon()
                 )
-                if (cardRejectionFF) {
-                    when (val cardState = selectedPaymentMethod.cardRejectionState) {
-                        is CardRejectionState.AlwaysRejected -> {
-                            cardState.renderAlwaysRejectedCardError()
-                            showErrorColours()
-                            btnContinue.gone()
-                            tags = emptyList()
-                        }
-                        is CardRejectionState.MaybeRejected -> {
-                            showDefaultTextColours()
-                            btnError.gone()
-                            btnContinue.visible()
-                            secondaryText = null
-                            tags = listOf(
-                                TagViewState(
-                                    cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
-                                    TagType.Warning()
-                                )
+
+                when (val cardState = selectedPaymentMethod.cardRejectionState) {
+                    is CardRejectionState.AlwaysRejected -> {
+                        cardState.renderAlwaysRejectedCardError()
+                        showErrorColours()
+                        btnContinue.gone()
+                        tags = emptyList()
+                    }
+                    is CardRejectionState.MaybeRejected -> {
+                        showDefaultTextColours()
+                        btnError.gone()
+                        btnContinue.visible()
+                        secondaryText = null
+                        tags = listOf(
+                            TagViewState(
+                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                TagType.Warning()
                             )
-                        }
-                        else -> {
-                            showDefaultTextColours()
-                            tags = emptyList()
-                            btnError.gone()
-                            btnContinue.visible()
-                        }
+                        )
+                    }
+                    else -> {
+                        showDefaultTextColours()
+                        tags = emptyList()
+                        btnError.gone()
+                        btnContinue.visible()
                     }
                 }
             }

@@ -23,7 +23,6 @@ import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
@@ -450,7 +449,6 @@ val applicationModule = module {
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
                 plaidFF = get(plaidFeatureFlag),
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
-                cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
                 feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),

@@ -1031,8 +1031,7 @@ class SimpleBuyCheckoutFragment :
             ErrorState.ProviderIsNotSupported,
             ErrorState.Card3DsFailed,
             ErrorState.LinkedBankNotSupported,
-            ErrorState.BuyPaymentMethodsUnavailable,
-            -> throw IllegalStateException(
+            ErrorState.BuyPaymentMethodsUnavailable -> throw IllegalStateException(
                 "Error $errorState should not be presented in the checkout screen"
             )
         }.exhaustive

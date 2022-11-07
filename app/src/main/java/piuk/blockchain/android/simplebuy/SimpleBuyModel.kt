@@ -895,7 +895,10 @@ class SimpleBuyModel(
             is ApprovalErrorStatus.Undefined -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankUndefinedError(approvalErrorStatus.error))
             )
-            ApprovalErrorStatus.None -> throw IllegalStateException("Cannot handle error for order")
+            ApprovalErrorStatus.None -> {
+                Timber.e("Received ApprovalErrorStatus.None when the order failed")
+                process(SimpleBuyIntent.ErrorIntent(ErrorState.PaymentFailedError("")))
+            }
         }.exhaustive
     }
 

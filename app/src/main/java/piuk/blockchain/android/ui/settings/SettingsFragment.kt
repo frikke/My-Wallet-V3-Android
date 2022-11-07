@@ -49,7 +49,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
-import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.FragmentRedesignSettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
@@ -161,8 +160,7 @@ class SettingsFragment :
                 totalLinkedPaymentMethods = newState.paymentMethodInfo.linkedBanks.count() +
                     newState.paymentMethodInfo.linkedCards.count(),
                 isUserGold = newState.tier == KycTier.GOLD,
-                canPayWithBind = newState.canPayWithBind,
-                cardRejectionFF = newState.featureFlagsSet.cardRejectionFF
+                canPayWithBind = newState.canPayWithBind
             )
         } else {
             with(binding.paymentsContainer) {
@@ -315,8 +313,7 @@ class SettingsFragment :
         paymentMethodInfo: PaymentMethods,
         totalLinkedPaymentMethods: Int,
         isUserGold: Boolean,
-        canPayWithBind: Boolean,
-        cardRejectionFF: Boolean
+        canPayWithBind: Boolean
     ) {
         val availablePaymentMethodTypes = paymentMethodInfo.availablePaymentMethodTypes
         val linkAccessMap = availablePaymentMethodTypes.associate { it.type to it.linkAccess }
@@ -332,7 +329,7 @@ class SettingsFragment :
                 with(binding.paymentsContainer) {
                     if (totalLinkedPaymentMethods > 0) {
                         addBanks(paymentMethodInfo)
-                        addCards(paymentMethodInfo, cardRejectionFF)
+                        addCards(paymentMethodInfo)
                         val canLinkNewMethods = availablePaymentMethodTypes.any { it.linkAccess == LinkAccess.GRANTED }
                         if (canLinkNewMethods) {
                             addView(
@@ -393,7 +390,7 @@ class SettingsFragment :
                 if (totalLinkedPaymentMethods > 0) {
                     with(binding.paymentsContainer) {
                         addBanks(paymentMethodInfo)
-                        addCards(paymentMethodInfo, cardRejectionFF)
+                        addCards(paymentMethodInfo)
                     }
                 } else {
                     with(binding) {
@@ -409,7 +406,7 @@ class SettingsFragment :
         }
     }
 
-    private fun LinearLayoutCompat.addCards(paymentMethodInfo: PaymentMethods, cardRejectionFF: Boolean) {
+    private fun LinearLayoutCompat.addCards(paymentMethodInfo: PaymentMethods) {
         paymentMethodInfo.linkedCards.forEach { card ->
             addView(
                 BalanceTableRowView(requireContext()).apply {
@@ -437,27 +434,27 @@ class SettingsFragment :
                     onClick = {
                         showBottomSheet(RemoveCardBottomSheet.newInstance(card))
                     }
-                    if (cardRejectionFF) {
-                        tags = when (val cardState = card.cardRejectionState) {
-                            is CardRejectionState.AlwaysRejected -> {
-                                listOf(
-                                    TagViewState(
-                                        cardState.title ?: getString(R.string.card_issuer_always_rejects_title),
-                                        TagType.Error()
-                                    )
+
+                    tags = when (val cardState = card.cardRejectionState) {
+                        is CardRejectionState.AlwaysRejected -> {
+                            listOf(
+                                TagViewState(
+                                    cardState.title ?: getString(R.string.card_issuer_always_rejects_title),
+                                    TagType.Error()
                                 )
-                            }
-                            is CardRejectionState.MaybeRejected -> {
-                                listOf(
-                                    TagViewState(
-                                        cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
-                                        TagType.Warning()
-                                    )
-                                )
-                            }
-                            else -> null
+                            )
                         }
+                        is CardRejectionState.MaybeRejected -> {
+                            listOf(
+                                TagViewState(
+                                    cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                    TagType.Warning()
+                                )
+                            )
+                        }
+                        else -> null
                     }
+
                     animate().alpha(1f)
                 }
             )

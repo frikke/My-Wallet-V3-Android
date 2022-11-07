@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
@@ -69,7 +68,6 @@ val redesignSettingsModule = module {
                 currencyPrefs = get(),
                 referralService = get(),
                 nabuUserIdentity = get(),
-                cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 dustBalancesFF = get(hideDustFeatureFlag)
             )
         }

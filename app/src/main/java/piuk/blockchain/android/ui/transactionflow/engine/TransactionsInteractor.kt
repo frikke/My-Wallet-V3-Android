@@ -82,7 +82,6 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val swapSellQuickFillFF: FeatureFlag,
     private val quickFillRoundingService: QuickFillRoundingService,
     private val hideDustFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
@@ -381,8 +380,6 @@ class TransactionInteractor(
         }
 
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
-
-    fun isSwapSellQuickFillFFEnabled() = swapSellQuickFillFF.enabled
 
     fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
         quickFillRoundingService.getQuickFillRoundingForAction(action)

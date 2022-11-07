@@ -147,7 +147,6 @@ data class TransactionState(
     val featureBlockedReason: BlockedReason? = null,
     val quickFillButtonData: QuickFillButtonData? = null,
     val amountsToPrefill: PrefillAmounts? = null,
-    val ffSwapSellQuickFillsEnabled: Boolean = false,
     val canFilterOutTradingAccounts: Boolean = false,
     val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
     val isLoading: Boolean = false,
@@ -637,10 +636,9 @@ class TransactionModel(
     ): Disposable =
         Maybes.zip(
             fetchProductEligibility(action, sourceAccount, transactionTarget),
-            interactor.isSwapSellQuickFillFFEnabled().toMaybe(),
             interactor.getRoundingDataForAction(action).toMaybe()
         ).subscribeBy(
-            onSuccess = { (featureAccess, swapSellFFEnabled, roundingData) ->
+            onSuccess = { (featureAccess, roundingData) ->
                 if (featureAccess is FeatureAccess.Blocked) {
                     process(TransactionIntent.ShowFeatureBlocked(featureAccess.reason))
                 } else {
@@ -652,7 +650,6 @@ class TransactionModel(
                             action = action,
                             passwordRequired = passwordRequired,
                             eligibility = featureAccess,
-                            isSellSwapQuickFillFlagEnabled = swapSellFFEnabled,
                             quickFillRoundingData = roundingData
                         )
                     )

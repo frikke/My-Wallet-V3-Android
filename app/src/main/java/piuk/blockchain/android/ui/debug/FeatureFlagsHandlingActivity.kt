@@ -73,7 +73,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
                     featureFlagHandler.setFeatureFlagState(featureFlag, featureStatus)
                 }
             )
-        }
+        }.sortedByDescending { it.name }
 
         with(binding) {
             featureFlagList.apply {

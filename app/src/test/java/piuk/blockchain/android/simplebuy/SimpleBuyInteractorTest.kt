@@ -71,7 +71,6 @@ class SimpleBuyInteractorTest {
     private val cardService: CardService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val paymentsRepository: PaymentsRepository = mock()
-    private val cardRejectionCheckFeatureFlag: FeatureFlag = mock()
     private val rbFrequencySuggestion: FeatureFlag = mock()
     private val rbExperimentFF: FeatureFlag = mock()
     private val remoteConfigRepository: RemoteConfigRepository = mock()
@@ -126,7 +125,6 @@ class SimpleBuyInteractorTest {
             buyQuoteRefreshFF = buyQuoteRefreshFF,
             plaidFF = plaidFF,
             rbFrequencySuggestionFF = rbFrequencySuggestion,
-            cardRejectionFF = cardRejectionCheckFeatureFlag,
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
             tradeDataService = tradeDataService,

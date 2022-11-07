@@ -885,12 +885,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Sell,
-            AssetAction.Swap -> if (state.ffSwapSellQuickFillsEnabled) {
-                QuickFillRowView(ctx).also {
-                    frame.addView(it)
-                }
-            } else {
-                BalanceAndFeeView(ctx).also { frame.addView(it) }
+            AssetAction.Swap -> QuickFillRowView(ctx).also {
+                frame.addView(it)
             }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
             AssetAction.FiatWithdraw,
@@ -925,13 +921,8 @@ class TransactionFlowCustomiserImpl(
     ): EnterAmountWidget? =
         when (state.action) {
             AssetAction.Sell,
-            AssetAction.Swap -> if (state.ffSwapSellQuickFillsEnabled) {
-                AvailableBalanceView(ctx).also { balanceView ->
-                    frame.addView(balanceView)
-                }
-            } else {
-                frame.gone()
-                null
+            AssetAction.Swap -> AvailableBalanceView(ctx).also { balanceView ->
+                frame.addView(balanceView)
             }
             else -> {
                 frame.gone()

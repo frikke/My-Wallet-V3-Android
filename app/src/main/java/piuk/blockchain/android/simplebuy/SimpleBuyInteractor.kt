@@ -56,7 +56,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
@@ -74,7 +73,6 @@ import com.blockchain.serializers.StringMapSerializer
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -138,7 +136,6 @@ class SimpleBuyInteractor(
     private val buyQuoteRefreshFF: FeatureFlag,
     private val plaidFF: FeatureFlag,
     private val rbFrequencySuggestionFF: FeatureFlag,
-    private val cardRejectionFF: FeatureFlag,
     private val rbExperimentFF: FeatureFlag,
     private val feynmanEnterAmountFF: FeatureFlag,
     private val feynmanCheckoutFF: FeatureFlag,
@@ -636,13 +633,8 @@ class SimpleBuyInteractor(
         bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
 
-    fun updateExchangeRate(fiat: FiatCurrency, asset: AssetInfo): Single<ExchangeRate> {
-        return exchangeRatesDataManager.exchangeRateLegacy(asset, fiat).firstOrError()
-    }
-
     fun initializeFeatureFlags(): Single<FeatureFlagsSet> {
         return Single.zip(
-            cardRejectionFF.enabled,
             buyQuoteRefreshFF.enabled,
             plaidFF.enabled,
             rbFrequencySuggestionFF.enabled,
@@ -650,10 +642,9 @@ class SimpleBuyInteractor(
             feynmanEnterAmountFF.enabled,
             feynmanCheckoutFF.enabled,
             improvedPaymentUxFF.enabled
-        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF,
+        ) { buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF,
             feynmanEnterAmountFF, feynmanCheckoutFF, improvedPaymentUxFF ->
             FeatureFlagsSet(
-                cardRejectionFF = cardRejectionFF,
                 buyQuoteRefreshFF = buyQuoteRefreshFF,
                 plaidFF = plaidFF,
                 rbFrequencySuggestionFF = rbFrequencySuggestionFF,
@@ -701,13 +692,8 @@ class SimpleBuyInteractor(
         simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
 
     fun checkNewCardRejectionRate(binNumber: String): Single<CardRejectionState> =
-        cardRejectionFF.enabled.flatMap { enabled ->
-            if (enabled) {
-                rxSingle { paymentsRepository.checkNewCardRejectionState(binNumber).getOrThrow() }
-            } else {
-                // we don't want to block the user if the FF is off
-                Single.just(CardRejectionState.NotRejected)
-            }
+        rxSingle {
+            paymentsRepository.checkNewCardRejectionState(binNumber).getOrDefault(CardRejectionState.NotRejected)
         }
 
     data class PaymentMethods(
