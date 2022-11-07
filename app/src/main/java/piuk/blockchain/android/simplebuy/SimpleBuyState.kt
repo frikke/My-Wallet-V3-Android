@@ -224,7 +224,8 @@ enum class KycState {
 @kotlinx.serialization.Serializable
 data class QuotePrice(
     val amountInCrypto: @Contextual CryptoValue? = null,
-    val fee: FiatValue? = null
+    val fee: FiatValue? = null,
+    val price: FiatValue? = null
 )
 
 @kotlinx.serialization.Serializable

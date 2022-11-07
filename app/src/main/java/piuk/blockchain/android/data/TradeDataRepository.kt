@@ -89,6 +89,10 @@ class TradeDataRepository(
                     currency = currencyPair.source,
                     value = response.amount.toBigInteger()
                 ),
+                price = Money.fromMinor(
+                    currency = currencyPair.source,
+                    value = response.price.toBigInteger()
+                ),
                 resultAmount = Money.fromMinor(
                     currency = currencyPair.destination,
                     value = response.resultAmount.toBigInteger()
@@ -112,6 +116,7 @@ class TradeDataRepository(
 data class QuotePrice(
     val currencyPair: CurrencyPair,
     val amount: Money,
+    val price: Money,
     val resultAmount: Money,
     val dynamicFee: Money,
     val networkFee: Money?,

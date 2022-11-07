@@ -127,7 +127,8 @@ class SimpleBuyModel(
                         process(
                             SimpleBuyIntent.UpdateQuotePrice(
                                 amountInCrypto = it.resultAmount as CryptoValue,
-                                dynamicFee = it.dynamicFee
+                                dynamicFee = it.dynamicFee,
+                                price = it.price
                             )
                         )
                     },
