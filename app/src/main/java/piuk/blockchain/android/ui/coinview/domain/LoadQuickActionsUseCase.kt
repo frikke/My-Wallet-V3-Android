@@ -74,7 +74,7 @@ class LoadQuickActionsUseCase(
                                 is CoinviewAccounts.Defi -> error("Defi unreachable here")
                             }
 
-                            val hasBalance = assetFilters.any {
+                            val hasPositiveFilterBalance = assetFilters.any {
                                 totalBalance.totalCryptoBalance[it]?.isPositive ?: false
                             }
 
@@ -94,7 +94,7 @@ class LoadQuickActionsUseCase(
                             val canSell = sellAccess is FeatureAccess.Granted &&
                                 isAvailableForTradingData &&
                                 (kycTierData == KycTier.GOLD || sddEligibilityData) &&
-                                hasBalance
+                                hasPositiveFilterBalance
 
                             /**
                              * Buy button will be enabled if
@@ -123,7 +123,7 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
-                            val canSwap = hasBalance
+                            val canSwap = hasPositiveFilterBalance
 
                             CoinviewQuickActions(
                                 center = if (isSupportedForSwapData) {
