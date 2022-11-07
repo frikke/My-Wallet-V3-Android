@@ -3,30 +3,15 @@ package com.blockchain.home.presentation.allassets
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
-import com.blockchain.data.combineDataResources
 import com.blockchain.home.model.AssetFilterStatus
 import info.blockchain.balance.Money
-import java.math.RoundingMode
 
-/**
- * @property cryptoAssets <assets/isFullList>
- */
 data class AssetsViewState(
-    val balance: DataResource<Money>,
-    val prevBalance: DataResource<Money>,
-    val cryptoAssets: DataResource<Pair<List<CryptoAssetState> /*display list*/, Boolean /*is full list*/>>,
+    val balance: DataResource<WalletBalance>,
+    val cryptoAssets: DataResource<List<CryptoAssetState>>,
     val fiatAssets: DataResource<List<FiatAssetState>>,
     val filters: List<AssetFilterStatus>
-) : ViewState {
-    val percentageChangeData: DataResource<Double>
-        get() =
-            combineDataResources(balance, prevBalance) { cBalance, prevBalance ->
-                cBalance.toBigDecimal().minus(prevBalance.toBigDecimal())
-                    .divide(prevBalance.toBigDecimal(), 4, RoundingMode.HALF_EVEN)
-                    .movePointRight(2)
-                    .toDouble()
-            }
-}
+) : ViewState
 
 sealed interface HomeAsset {
     val icon: String
@@ -47,3 +32,9 @@ data class FiatAssetState(
     override val name: String,
     override val balance: DataResource<Money>
 ) : HomeAsset
+
+data class WalletBalance(
+    val balance: Money,
+    val balanceDifference: Money,
+    val valueChange: ValueChange
+)

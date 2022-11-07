@@ -75,9 +75,7 @@ fun HomeAssets(
 
     viewState?.let { state ->
         HomeAssetsScreen(
-            dayDelta = state.prevBalance,
-            cryptoAssets = state.cryptoAssets.map { it.first },
-            showSeeAllCryptoAssets = state.cryptoAssets.map { it.second },
+            cryptoAssets = state.cryptoAssets,
             onSeeAllCryptoAssetsClick = openAllAssets,
             fiatAssets = state.fiatAssets,
         )
@@ -86,9 +84,7 @@ fun HomeAssets(
 
 @Composable
 fun HomeAssetsScreen(
-    dayDelta: DataResource<Money> = DataResource.Loading,
     cryptoAssets: DataResource<List<CryptoAssetState>>,
-    showSeeAllCryptoAssets: DataResource<Boolean>,
     onSeeAllCryptoAssetsClick: () -> Unit,
     fiatAssets: DataResource<List<FiatAssetState>>
 ) {
@@ -106,8 +102,6 @@ fun HomeAssetsScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // todo a trb decision will be made about this
-            //            if ((showSeeAllCryptoAssets as? DataResource.Data)?.data == true) {
             Text(
                 modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
                 text = stringResource(R.string.see_all),
@@ -215,7 +209,6 @@ fun PreviewHomeAccounts() {
                 )
             )
         ),
-        showSeeAllCryptoAssets = DataResource.Data(true),
         onSeeAllCryptoAssetsClick = {},
     )
 }
@@ -226,7 +219,6 @@ fun PreviewHomeAccounts_Loading() {
     HomeAssetsScreen(
         cryptoAssets = DataResource.Loading,
         fiatAssets = DataResource.Loading,
-        showSeeAllCryptoAssets = DataResource.Data(false),
         onSeeAllCryptoAssetsClick = {},
     )
 }
@@ -261,7 +253,6 @@ fun PreviewHomeAccounts_LoadingFiat() {
             )
         ),
         fiatAssets = DataResource.Loading,
-        showSeeAllCryptoAssets = DataResource.Data(true),
         onSeeAllCryptoAssetsClick = {},
     )
 }

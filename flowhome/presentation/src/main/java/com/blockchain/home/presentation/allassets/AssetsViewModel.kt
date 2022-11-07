@@ -12,7 +12,9 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
+import com.blockchain.data.combineDataResources
 import com.blockchain.data.flatMap
+import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.replace
@@ -57,8 +59,7 @@ class AssetsViewModel(
     override fun reduce(state: AssetsModelState): AssetsViewState {
         return with(state) {
             AssetsViewState(
-                balance = accounts.totalBalance(),
-                prevBalance = accounts.totalBalance24hAgo(),
+                balance = accounts.walletBalance(),
                 cryptoAssets = state.accounts.map { modelAccounts ->
                     modelAccounts
                         .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
@@ -103,8 +104,7 @@ class AssetsViewModel(
                         }
                         .toHomeCryptoAssets()
                         .let { accounts ->
-                            // <display list / isFullList>
-                            accounts.take(state.sectionSize.size) to (accounts.size > state.sectionSize.size)
+                            accounts.take(state.sectionSize.size)
                         }
                 },
                 fiatAssets = DataResource.Data(emptyList()),
@@ -255,7 +255,7 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {
+    private fun DataResource<List<ModelAccount>>.totalBalanceNow(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
@@ -266,7 +266,7 @@ class AssetsViewModel(
             val balances = accounts.map { it.balance }
             val exchangeRates = accounts.map { it.exchangeRate24hWithDelta }
             when {
-                exchangeRates.anyError() -> DataResource.Error(RuntimeException("Cannot load prices"))
+                exchangeRates.anyError() ->  exchangeRates.getFirstError().also { it.error.printStackTrace() }
                 exchangeRates.anyLoading() -> DataResource.Loading
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
@@ -290,6 +290,16 @@ class AssetsViewModel(
                     }
                 else -> throw IllegalStateException("State is not valid ${accounts.map { it.balance }} ")
             }
+        }
+    }
+
+    private fun DataResource<List<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
+        return combineDataResources(totalBalanceNow(), totalBalance24hAgo()) { balanceNow, balance24hAgo ->
+            WalletBalance(
+                balance = balanceNow,
+                balanceDifference = balanceNow.minus(balance24hAgo),
+                valueChange = ValueChange.Up(222.0)
+            )
         }
     }
 

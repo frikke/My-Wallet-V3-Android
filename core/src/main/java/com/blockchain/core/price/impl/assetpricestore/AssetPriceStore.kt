@@ -63,12 +63,16 @@ internal class AssetPriceStore(
         quote: Currency,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<AssetPriceRecord>> =
-        cache.stream(
-            freshnessStrategy.withKey(
-                AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
-            )
-        ).findAssetOrError(base, quote)
-            .distinctUntilChanged()
+        if (base.networkTicker == quote.networkTicker) {
+            flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
+        } else {
+            cache.stream(
+                freshnessStrategy.withKey(
+                    AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
+                )
+            ).findAssetOrError(base, quote)
+                .distinctUntilChanged()
+        }
 
     internal fun getHistoricalPriceForAsset(
         base: Currency,
