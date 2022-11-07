@@ -71,7 +71,7 @@ data class CryptoValue(
 
     override fun toZero(): CryptoValue = zero(currency)
 
-    fun abs(): CryptoValue = CryptoValue(currency, amount.abs())
+    override fun abs(): CryptoValue = CryptoValue(currency, amount.abs())
 
     override fun add(other: Money): CryptoValue {
         require(other is CryptoValue)

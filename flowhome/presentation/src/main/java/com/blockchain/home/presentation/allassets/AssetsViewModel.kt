@@ -267,7 +267,7 @@ class AssetsViewModel(
             val balances = accounts.map { it.balance }
             val exchangeRates = accounts.map { it.exchangeRate24hWithDelta }
             when {
-                exchangeRates.anyError() ->  exchangeRates.getFirstError().also { it.error.printStackTrace() }
+                exchangeRates.anyError() -> exchangeRates.getFirstError().also { it.error.printStackTrace() }
                 exchangeRates.anyLoading() -> DataResource.Loading
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
@@ -296,11 +296,16 @@ class AssetsViewModel(
 
     private fun DataResource<List<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
         return combineDataResources(totalBalanceNow(), totalBalance24hAgo()) { balanceNow, balance24hAgo ->
-
             WalletBalance(
                 balance = balanceNow,
-                balanceDifference = balanceNow.minus(balance24hAgo),
-                valueChange = ValueChange.Up(balanceNow.percentageDelta(balance24hAgo))
+                balanceDifference = balanceNow.minus(balance24hAgo).abs(),
+                valueChange = balanceNow.percentageDelta(balance24hAgo).let { percentChange ->
+                    when {
+                        percentChange > 0 -> ValueChange.Up(percentChange)
+                        percentChange < 0 -> ValueChange.Down(percentChange)
+                        else -> ValueChange.None(percentChange)
+                    }
+                }
             )
         }
     }
