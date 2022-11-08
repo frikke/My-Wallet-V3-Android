@@ -6,22 +6,10 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
-import com.blockchain.unifiedcryptowallet.domain.activity.model.StackComponent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import kotlinx.coroutines.flow.collect
@@ -43,20 +31,33 @@ class ActivityViewModel(
 
     override fun reduce(state: ActivityModelState): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activityPage.map { it.reduceActivityPage() }.map {
-                when (val sectionSize = state.sectionSize) {
-                    SectionSize.All -> {
-                        it
-                    }
-                    is SectionSize.Limited -> {
-                        // todo do we need to filter out pending?
-                        // todo make sure it's date sorted
-                        mapOf(
-                            TransactionGroup.Combined to it.values.flatten().take(sectionSize.size)
-                        )
+            activity = state.activityPage
+                .map {
+                    it.copy(
+                        activity = it.activity.filter { activityItem ->
+                            if (state.filterTerm.isEmpty()) {
+                                true
+                            } else {
+                                activityItem.summary.matches(state.filterTerm)
+                            }
+                        }
+                    )
+                }
+                .map { it.reduceActivityPage() }
+                .map {
+                    when (val sectionSize = state.sectionSize) {
+                        SectionSize.All -> {
+                            it
+                        }
+                        is SectionSize.Limited -> {
+                            // todo do we need to filter out pending?
+                            // todo make sure it's date sorted
+                            mapOf(
+                                TransactionGroup.Combined to it.values.flatten().take(sectionSize.size)
+                            )
+                        }
                     }
                 }
-            }
         )
     }
 
@@ -87,6 +88,12 @@ class ActivityViewModel(
 
                 loadData()
             }
+
+            is ActivityIntent.FilterSearch -> {
+                updateState {
+                    it.copy(filterTerm = intent.term)
+                }
+            }
         }
     }
 
@@ -107,5 +114,15 @@ class ActivityViewModel(
                 }
                 .collect()
         }
+    }
+}
+
+private fun ActivityDataItem.matches(filterTerm: String): Boolean = when (this) {
+    is ActivityDataItem.Stack -> {
+        leading.any { stack -> stack.value.contains(filterTerm, ignoreCase = true) } ||
+            trailing.any { stack -> stack.value.contains(filterTerm, ignoreCase = true) }
+    }
+    is ActivityDataItem.Button -> {
+        value.contains(filterTerm, ignoreCase = true)
     }
 }

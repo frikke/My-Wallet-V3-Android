@@ -4,9 +4,10 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.home.presentation.activity.detail.composable.DETAIL_DUMMY_DATA
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 
 class ActivityDetailViewModel(
-    // todo
+    private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
     ActivityDetailIntent,
     ActivityDetailViewState,

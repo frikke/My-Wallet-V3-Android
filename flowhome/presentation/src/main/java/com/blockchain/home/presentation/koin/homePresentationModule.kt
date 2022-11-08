@@ -25,7 +25,9 @@ val homePresentationModule = module {
         }
 
         viewModel {
-            ActivityDetailViewModel()
+            ActivityDetailViewModel(
+                unifiedActivityService = get()
+            )
         }
     }
 }

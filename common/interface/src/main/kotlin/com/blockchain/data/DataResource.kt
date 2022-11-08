@@ -2,6 +2,13 @@ package com.blockchain.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.Any
+import kotlin.Boolean
+import kotlin.Exception
+import kotlin.Int
+import kotlin.Nothing
+import kotlin.Unit
+import kotlin.also
 
 /**
  * [Loading] : emitted exclusively when fetching from network, the next emitted Data or Error will be related to the network fetch and mean that Store is no longer Loading
@@ -32,12 +39,12 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
     }
 }
 
-fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<Iterable<T>> {
-    return when (this) {
-        DataResource.Loading -> DataResource.Loading
-        is DataResource.Error -> DataResource.Error(error)
-        is DataResource.Data -> DataResource.Data(this.data.filter { transform(it) })
-    }
+fun <T> DataResource<Iterable<T>>.filter(predicate: (T) -> Boolean): DataResource<Iterable<T>> {
+    return map { it.filter(predicate) }
+}
+
+fun <K, V> DataResource<Map<K, V>>.filterMap(predicate: (Map.Entry<K, V>) -> Boolean): DataResource<Map<K, V>> {
+    return map { it.filter(predicate) }
 }
 
 fun <T, R> DataResource<T>.flatMap(transform: (T) -> DataResource<R>): DataResource<R> {

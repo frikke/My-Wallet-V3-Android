@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun Acitivity(
+fun Activity(
     viewModel: ActivityViewModel = getViewModel(scope = payloadScope)
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -68,7 +68,10 @@ fun Acitivity(
 
     viewState?.let { state ->
         ActivityScreen(
-            activity = state.activity
+            activity = state.activity,
+            onSearchTermEntered = { term ->
+                viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
+            },
         )
     }
 }
@@ -76,7 +79,8 @@ fun Acitivity(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ActivityScreen(
-    activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>
+    activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>,
+    onSearchTermEntered: (String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -123,6 +127,7 @@ fun ActivityScreen(
                     is DataResource.Data -> {
                         ActivityData(
                             transactions = activity.data,
+                            onSearchTermEntered = onSearchTermEntered,
                             onActivityClick = {
                                 focusManager.clearFocus(true)
                                 coroutineScope.launch { sheetState.show() }
@@ -138,13 +143,14 @@ fun ActivityScreen(
 @Composable
 fun ActivityData(
     transactions: Map<TransactionGroup, List<ActivityComponent>>,
+    onSearchTermEntered: (String) -> Unit,
     onActivityClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         CancelableOutlinedSearch(
-            onValueChange = { },
+            onValueChange = onSearchTermEntered,
             placeholder = stringResource(R.string.search)
         )
 
@@ -170,7 +176,7 @@ fun ActivityGroups(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val name = when(group){
+                        val name = when (group) {
                             TransactionGroup.Group.Pending -> "Pending" // todo str res
                             is TransactionGroup.Group.Date -> group.date
                             TransactionGroup.Combined -> error("not allowed")
@@ -208,6 +214,7 @@ fun ActivityGroups(
 @Composable
 fun PreviewActivityScreen() {
     ActivityScreen(
-        activity = DUMMY_DATA
+        activity = DUMMY_DATA,
+        onSearchTermEntered = {}
     )
 }
