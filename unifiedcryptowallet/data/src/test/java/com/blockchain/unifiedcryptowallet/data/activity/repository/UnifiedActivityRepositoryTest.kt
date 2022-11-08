@@ -1,3 +1,5 @@
+package com.blockchain.unifiedcryptowallet.data.activity.repository
+
 import com.blockchain.api.selfcustody.activity.activityDetailSerializer
 import com.blockchain.api.selfcustody.activity.activityIconSerializer
 import com.blockchain.api.selfcustody.activity.activityViewItemSerializer
@@ -8,7 +10,6 @@ import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityStore
-import com.blockchain.unifiedcryptowallet.data.activity.repository.UnifiedActivityRepository
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -25,7 +26,7 @@ import kotlin.test.assertTrue
 
 class UnifiedActivityRepositoryTest {
     val unifiedActivityStore: UnifiedActivityStore = mockk()
-    val unifiedActivityService = UnifiedActivityRepository(unifiedActivityStore)
+    val unifiedActivityService = UnifiedActivityRepository(unifiedActivityStore, mockk())
 
     private val json = Json {
         explicitNulls = false

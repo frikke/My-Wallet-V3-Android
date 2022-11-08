@@ -1,19 +1,24 @@
 package com.blockchain.componentlib.tablerow.custom
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.OverlapIcons
 import com.blockchain.componentlib.icon.SmallTagIcons
+import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -46,9 +51,19 @@ fun CustomTableRow(
         contentStart = {
 
             when (icon) {
-                is StackedIcon.OverlappingPair -> OverlapIcons(icon)
-                is StackedIcon.SmallTag -> SmallTagIcons(icon)
-                is StackedIcon.SingleIcon -> Image(imageResource = icon.icon)
+                is StackedIcon.OverlappingPair -> OverlapIcons(
+                    icon = icon
+                )
+                is StackedIcon.SmallTag -> SmallTagIcons(
+                    icon = icon
+                )
+                is StackedIcon.SingleIcon -> AsyncMediaItem(
+                    modifier = Modifier
+                        .size(AppTheme.dimensions.standardSpacing)
+                        .background(color = AppTheme.colors.light, shape = CircleShape)
+                        .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
+                    imageResource = icon.icon
+                )
                 StackedIcon.None -> {
                     // n/a
                 }

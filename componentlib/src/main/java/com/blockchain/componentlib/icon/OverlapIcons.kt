@@ -15,13 +15,15 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun OverlapIcons(
     icon: StackedIcon.OverlappingPair,
-    borderColor: Color = AppTheme.colors.light
+    iconBackground: Color = AppTheme.colors.light,
+    borderColor: Color = AppTheme.colors.background
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
     val iconSize = 18.dp
@@ -34,19 +36,19 @@ fun OverlapIcons(
                 width = iconSize + overlap + borderSize
             )
     ) {
-        Image(
+        AsyncMediaItem(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .size(iconSize)
-                .background(color = borderColor, shape = CircleShape)
+                .background(color = iconBackground, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
             imageResource = icon.back
         )
 
-        Image(
+        AsyncMediaItem(
             modifier = Modifier
                 .size(iconSize + borderSize * 2)
-                .background(color = borderColor, shape = CircleShape)
+                .background(color = iconBackground, shape = CircleShape)
                 .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
             imageResource = icon.front

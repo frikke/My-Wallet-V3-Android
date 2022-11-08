@@ -25,6 +25,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieRetrySignal
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -114,6 +116,38 @@ fun AsyncMediaItem(
                     contentScale = contentScale
                 )
             }
+        }
+    }
+}
+
+@ExperimentalCoilApi
+@Composable
+fun AsyncMediaItem(
+    modifier: Modifier = Modifier,
+    imageResource: ImageResource,
+    fallbackUrlType: UrlType? = null,
+    contentDescription: String? = "async media item",
+    contentScale: ContentScale = ContentScale.Fit,
+    @DrawableRes onLoadingPlaceholder: Int = R.drawable.bkgd_grey_900_rounded,
+    @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
+) {
+    when (imageResource) {
+        is ImageResource.Remote -> AsyncMediaItem(
+            modifier = modifier,
+            url = imageResource.url,
+            fallbackUrlType = fallbackUrlType,
+            contentDescription = contentDescription,
+            contentScale = contentScale,
+            onLoadingPlaceholder = onLoadingPlaceholder,
+            onErrorDrawable = onErrorDrawable
+        )
+        ImageResource.None -> {
+        }
+        else -> {
+            Image(
+                modifier = modifier,
+                imageResource = imageResource
+            )
         }
     }
 }
