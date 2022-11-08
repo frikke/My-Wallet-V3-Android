@@ -48,8 +48,11 @@ import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.koin.payloadScope
+import com.blockchain.utils.getMonthName
+import com.blockchain.utils.toMonthAndYear
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
+import java.util.Calendar
 
 @Composable
 fun Activity(
@@ -178,7 +181,7 @@ fun ActivityGroups(
                     ) {
                         val name = when (group) {
                             TransactionGroup.Group.Pending -> "Pending" // todo str res
-                            is TransactionGroup.Group.Date -> group.date
+                            is TransactionGroup.Group.Date -> group.date.format()
                             TransactionGroup.Combined -> error("not allowed")
                         }
                         Text(
@@ -207,6 +210,15 @@ fun ActivityGroups(
                 }
             }
         )
+    }
+}
+
+private fun Calendar.format(): String {
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    return if (get(Calendar.YEAR) == currentYear) {
+        getMonthName()
+    } else {
+        toMonthAndYear()
     }
 }
 

@@ -66,11 +66,11 @@ class ActivityViewModel(
             // group by date (month/year)
             .groupBy { activity ->
                 activity.date?.let {
-                    Calendar.getInstance().apply {
-                        set(Calendar.MONTH, it.get(Calendar.MONTH))
-                        set(Calendar.YEAR, it.get(Calendar.YEAR))
-                    }.let {
-                        TransactionGroup.Group.Date("${it.get(Calendar.MONTH)} ${it.get(Calendar.YEAR)}")
+                    it.apply {
+                        set(Calendar.MILLISECOND, 0)
+                        set(Calendar.DAY_OF_MONTH, 1)
+                    }.let { date ->
+                        TransactionGroup.Group.Date(date)
                     }
                 } ?: TransactionGroup.Group.Pending
             }
@@ -79,6 +79,7 @@ class ActivityViewModel(
                 group to activities.map { it.summary.toActivityComponent() }
             }
             .toMap()
+            .toSortedMap()
     }
 
     override suspend fun handleIntent(modelState: ActivityModelState, intent: ActivityIntent) {

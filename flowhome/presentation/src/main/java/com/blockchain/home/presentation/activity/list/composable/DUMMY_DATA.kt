@@ -8,6 +8,7 @@ import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
+import java.util.Calendar
 
 val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = DataResource.Data(
     mapOf(
@@ -59,7 +60,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 )
             )
         ),
-        TransactionGroup.Group.Date("june") to listOf(
+        TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 4) }) to listOf(
             ActivityComponent.StackView(
                 leadingImage = ActivityIcon.SmallTag("", ""),
                 leading = listOf(
@@ -107,7 +108,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 )
             )
         ),
-        TransactionGroup.Group.Date("july") to listOf(
+        TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 5) }) to listOf(
             ActivityComponent.StackView(
                 leadingImage = ActivityIcon.SmallTag("", ""),
                 leading = listOf(
