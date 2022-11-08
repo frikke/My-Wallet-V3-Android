@@ -115,6 +115,8 @@ class FiatValue private constructor(
             .trim()
             .removeComma()
 
+    override fun abs(): FiatValue = FiatValue(currency, amount.abs())
+
     override fun add(other: Money): FiatValue {
         require(other is FiatValue)
         return FiatValue(currency, amount + other.amount)

@@ -29,6 +29,10 @@ fun HomeScreen(
             ),
     ) {
         item {
+            Balance()
+        }
+
+        item {
             HomeAssets(
                 openAllAssets = openCryptoAssets
             )

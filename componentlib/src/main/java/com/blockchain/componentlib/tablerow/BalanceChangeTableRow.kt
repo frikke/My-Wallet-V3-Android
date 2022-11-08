@@ -36,6 +36,7 @@ import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.data.DataResource
+import kotlin.math.absoluteValue
 
 @Composable
 fun BalanceChangeTableRow(
@@ -176,7 +177,7 @@ sealed interface ValueChange {
         fun fromValue(value: Double): ValueChange {
             return when {
                 value >= 0 -> Up(value)
-                else -> Down(value)
+                else -> Down(value.absoluteValue)
             }
         }
     }
