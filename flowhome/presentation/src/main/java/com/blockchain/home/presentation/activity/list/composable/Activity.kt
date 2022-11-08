@@ -166,33 +166,38 @@ fun ActivityGroups(
         itemsIndexed(
             items = transactions.keys.toList(),
             itemContent = { index, group ->
-                val transactionsList = transactions[group]!!
+                transactions[group]?.let { transactionsList ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val name = when(group){
+                            TransactionGroup.Group.Pending -> "Pending" // todo str res
+                            is TransactionGroup.Group.Date -> group.date
+                            TransactionGroup.Combined -> error("not allowed")
+                        }
+                        Text(
+                            text = name,
+                            style = AppTheme.typography.body2,
+                            color = AppTheme.colors.muted
+                        )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = group.name,
-                        style = AppTheme.typography.body2,
-                        color = AppTheme.colors.muted
+                        if (group is TransactionGroup.Group.Pending) {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                            Image(ImageResource.Local(R.drawable.ic_question))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    ActivitySectionCard(
+                        components = transactionsList,
+                        onClick = onActivityClick
                     )
 
-                    if (group is TransactionGroup.Group /*todo waiting for how to know it's pending*/) {
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
-
-                        Image(ImageResource.Local(R.drawable.ic_question))
+                    if (index < transactions.keys.toList().lastIndex) {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     }
-                }
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                ActivitySectionCard(
-                    components = transactionsList,
-                    onClick = onActivityClick
-                )
-
-                if (index < transactions.keys.toList().lastIndex) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                 }
             }
         )

@@ -8,55 +8,55 @@ import com.blockchain.componentlib.theme.AppTheme
 
 // styles - use domain ones instead to map
 // text
-enum class ActivityTextTypography {
+enum class ActivityTextTypographyState {
     Paragraph2, Caption1
 }
 
 @Composable
-fun ActivityTextTypography.toComposable() = when (this) {
-    ActivityTextTypography.Paragraph2 -> AppTheme.typography.paragraph2
-    ActivityTextTypography.Caption1 -> AppTheme.typography.caption1
+fun ActivityTextTypographyState.toComposable() = when (this) {
+    ActivityTextTypographyState.Paragraph2 -> AppTheme.typography.paragraph2
+    ActivityTextTypographyState.Caption1 -> AppTheme.typography.caption1
 }
 
-enum class ActivityTextColor {
+enum class ActivityTextColorState {
     Title, Muted, Success, Error, Warning
 }
 
 @Composable
-fun ActivityTextColor.toComposable() = when (this) {
-    ActivityTextColor.Title -> AppTheme.colors.title
-    ActivityTextColor.Muted -> AppTheme.colors.muted
-    ActivityTextColor.Success -> AppTheme.colors.success
-    ActivityTextColor.Error -> AppTheme.colors.error
-    ActivityTextColor.Warning -> AppTheme.colors.warning
+fun ActivityTextColorState.toComposable() = when (this) {
+    ActivityTextColorState.Title -> AppTheme.colors.title
+    ActivityTextColorState.Muted -> AppTheme.colors.muted
+    ActivityTextColorState.Success -> AppTheme.colors.success
+    ActivityTextColorState.Error -> AppTheme.colors.error
+    ActivityTextColorState.Warning -> AppTheme.colors.warning
 }
 
-data class ActivityTextStyle(
-    val typography: ActivityTextTypography,
-    val color: ActivityTextColor,
+data class ActivityTextStyleState(
+    val typography: ActivityTextTypographyState,
+    val color: ActivityTextColorState,
     val strikethrough: Boolean = false
 )
 
 // tag
-enum class ActivityTagStyle {
+enum class ActivityTagStyleState {
     Success, Warning
 }
 
-fun ActivityTagStyle.toTagType() = when (this) {
-    ActivityTagStyle.Success -> TagType.Success()
-    ActivityTagStyle.Warning -> TagType.Warning()
+fun ActivityTagStyleState.toTagType() = when (this) {
+    ActivityTagStyleState.Success -> TagType.Success()
+    ActivityTagStyleState.Warning -> TagType.Warning()
 }
 
 // component
 sealed interface ActivityStackView {
     data class Text(
         val value: String,
-        val style: ActivityTextStyle
+        val style: ActivityTextStyleState
     ) : ActivityStackView
 
     data class Tag(
         val value: String,
-        val style: ActivityTagStyle
+        val style: ActivityTagStyleState
     ) : ActivityStackView
 }
 

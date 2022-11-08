@@ -15,12 +15,12 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SmallTagIcons(
-    main: ImageResource,
-    tag: ImageResource,
+    icon: StackedIcon.SmallTag,
     borderColor: Color = AppTheme.colors.light
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
@@ -38,7 +38,7 @@ fun SmallTagIcons(
                 .size(mainIconSize)
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = main
+            imageResource = icon.main
         )
 
         Image(
@@ -48,7 +48,7 @@ fun SmallTagIcons(
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
-            imageResource = tag
+            imageResource = icon.tag
         )
     }
 }
@@ -57,8 +57,10 @@ fun SmallTagIcons(
 @Composable
 fun PreviewSmallTagIcons() {
     SmallTagIcons(
-        main = ImageResource.Local(R.drawable.ic_close_circle_dark),
-        tag = ImageResource.Local(R.drawable.ic_close_circle),
+        icon = StackedIcon.SmallTag(
+            main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+            tag = ImageResource.Local(R.drawable.ic_close_circle)
+        ),
         borderColor = AppTheme.colors.light
     )
 }

@@ -18,6 +18,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.OverlapIcons
 import com.blockchain.componentlib.icon.SmallTagIcons
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 sealed interface ImageType {
@@ -63,10 +64,18 @@ fun SheetFloatingHeader(
             ) {
                 when (imageType) {
                     is ImageType.OverlapIcons -> {
-                        OverlapIcons(front = imageType.front, back = imageType.back)
+                        OverlapIcons(
+                            icon = StackedIcon.OverlappingPair(
+                                front = imageType.front, back = imageType.back
+                            )
+                        )
                     }
                     is ImageType.SmallTagIcons -> {
-                        SmallTagIcons(main = imageType.main, tag = imageType.tag)
+                        SmallTagIcons(
+                            icon = StackedIcon.SmallTag(
+                                main = imageType.main, tag = imageType.tag
+                            )
+                        )
                     }
                     is ImageType.SingleIcon -> {
                         Image(imageResource = imageType.icon)

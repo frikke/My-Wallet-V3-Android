@@ -11,6 +11,7 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityI
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 
 class UnifiedActivityRepository(
     private val unifiedActivityStore: UnifiedActivityStore
@@ -50,7 +51,9 @@ class UnifiedActivityRepository(
                             summary = summary,
                             detail = detail,
                             status = activityItem.status,
-                            timestamp = activityItem.timestamp
+                            date = activityItem.timestamp?.let {
+                                Calendar.getInstance().apply { set(Calendar.MILLISECOND, it.toInt()) }
+                            }
                         )
                     }
                 },

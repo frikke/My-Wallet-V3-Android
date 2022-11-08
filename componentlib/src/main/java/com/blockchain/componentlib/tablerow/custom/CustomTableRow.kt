@@ -1,22 +1,19 @@
 package com.blockchain.componentlib.tablerow.custom
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icon.OverlapIcons
+import com.blockchain.componentlib.icon.SmallTagIcons
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -38,9 +35,8 @@ private fun StyledText(
 }
 
 @Composable
-private fun CustomTableRow(
-    leadingImagePrimary: ImageResource = ImageResource.None,
-    leadingImageSecondary: ImageResource = ImageResource.None,
+fun CustomTableRow(
+    icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: (() -> Unit)? = null
@@ -48,42 +44,18 @@ private fun CustomTableRow(
     FlexibleTableRow(
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         contentStart = {
-            if (leadingImagePrimary != ImageResource.None) {
-                val stackedIconPadding = if (leadingImageSecondary != ImageResource.None) {
-                    2.dp // 2 extra to account for secondary icon
-                } else {
-                    AppTheme.dimensions.noSpacing
-                }
 
-                Box(
-                    modifier = Modifier
-                        .size(
-                            AppTheme.dimensions.standardSpacing + stackedIconPadding
-                        )
-                ) {
-                    Image(imageResource = leadingImagePrimary)
-
-                    if (leadingImageSecondary != ImageResource.None) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .size(AppTheme.dimensions.verySmallSpacing + stackedIconPadding)
-                                .background(
-                                    color = AppTheme.colors.background,
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                imageResource = leadingImageSecondary
-                            )
-                        }
-                    }
+            when (icon) {
+                is StackedIcon.OverlappingPair -> OverlapIcons(icon)
+                is StackedIcon.SmallTag -> SmallTagIcons(icon)
+                is StackedIcon.SingleIcon -> Image(imageResource = icon.icon)
+                StackedIcon.None -> {
+                    // n/a
                 }
             }
         },
         content = {
-            if (leadingImagePrimary != ImageResource.None) {
+            if (icon !is StackedIcon.None) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
             }
 
@@ -110,83 +82,6 @@ private fun CustomTableRow(
             }
         },
         onContentClicked = onClick
-    )
-}
-
-/**
- * for drawable res images
- */
-@Composable
-fun CustomTableRow(
-    @DrawableRes leadingImagePrimaryRes: Int,
-    @DrawableRes leadingImageSecondaryRes: Int? = null,
-    leadingComponents: List<ViewType>,
-    trailingComponents: List<ViewType>,
-    onClick: () -> Unit
-) {
-    CustomTableRow(
-        leadingImagePrimary = ImageResource.Local(
-            id = leadingImagePrimaryRes,
-            shape = CircleShape,
-            size = AppTheme.dimensions.standardSpacing
-        ),
-        leadingImageSecondary = leadingImageSecondaryRes?.let {
-            ImageResource.Local(
-                id = leadingImageSecondaryRes,
-                shape = CircleShape,
-                size = AppTheme.dimensions.verySmallSpacing
-            )
-        } ?: ImageResource.None,
-        leadingComponents = leadingComponents,
-        trailingComponents = trailingComponents,
-        onClick = onClick
-    )
-}
-
-/**
- * for remote url images
- */
-@Composable
-fun CustomTableRow(
-    leadingImagePrimaryUrl: String? = null,
-    leadingImageSecondaryUrl: String? = null,
-    leadingComponents: List<ViewType>,
-    trailingComponents: List<ViewType>,
-    onClick: (() -> Unit)? = null
-) {
-    CustomTableRow(
-        leadingImagePrimary = leadingImagePrimaryUrl?.let {
-            ImageResource.Remote(
-                url = leadingImagePrimaryUrl,
-                shape = CircleShape,
-                size = AppTheme.dimensions.standardSpacing
-            )
-        } ?: ImageResource.None,
-        leadingImageSecondary = leadingImageSecondaryUrl?.let {
-            ImageResource.Remote(
-                url = leadingImageSecondaryUrl,
-                shape = CircleShape,
-                size = AppTheme.dimensions.verySmallSpacing
-            )
-        } ?: ImageResource.None,
-        leadingComponents = leadingComponents,
-        trailingComponents = trailingComponents,
-        onClick = onClick
-    )
-}
-
-@Composable
-fun CustomTableRow(
-    leadingComponents: List<ViewType>,
-    trailingComponents: List<ViewType>,
-    onClick: () -> Unit
-) {
-    CustomTableRow(
-        leadingImagePrimary = ImageResource.None,
-        leadingImageSecondary = ImageResource.None,
-        leadingComponents = leadingComponents,
-        trailingComponents = trailingComponents,
-        onClick = onClick
     )
 }
 
@@ -218,9 +113,12 @@ private fun SingleComponent(viewType: ViewType) {
 
 @Preview
 @Composable
-private fun PreviewCustomTableRow_Summary_SingleIcon() {
+private fun PreviewCustomTableRow_Summary_SmallTag() {
     CustomTableRow(
-        leadingImagePrimaryRes = R.drawable.ic_two_circle,
+        icon = StackedIcon.SmallTag(
+            main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+            tag = ImageResource.Local(R.drawable.ic_close_circle)
+        ),
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Sent Ethereum",
@@ -261,8 +159,53 @@ private fun PreviewCustomTableRow_Summary_SingleIcon() {
 @Composable
 private fun PreviewCustomTableRow_Summary_StackedIcon() {
     CustomTableRow(
-        leadingImagePrimaryRes = R.drawable.ic_two_circle,
-        leadingImageSecondaryRes = R.drawable.ic_eth,
+        icon = StackedIcon.OverlappingPair(
+            front = ImageResource.Local(R.drawable.ic_close_circle_dark),
+            back = ImageResource.Local(R.drawable.ic_close_circle)
+        ),
+        leadingComponents = listOf(
+            ViewType.Text(
+                value = "Sent Ethereum",
+                style = ViewStyle.TextStyle(
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.title
+                )
+            ),
+            ViewType.Text(
+                value = "June 14",
+                style = ViewStyle.TextStyle(
+                    style = AppTheme.typography.caption1,
+                    color = AppTheme.colors.muted
+                )
+            )
+        ),
+        trailingComponents = listOf(
+            ViewType.Text(
+                value = "-100.00",
+                style = ViewStyle.TextStyle(
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.title
+                )
+            ),
+            ViewType.Text(
+                value = "-21.07674621 UNI",
+                style = ViewStyle.TextStyle(
+                    style = AppTheme.typography.caption1,
+                    color = AppTheme.colors.muted
+                )
+            )
+        ),
+        onClick = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewCustomTableRow_Summary_SingleIcon() {
+    CustomTableRow(
+        icon = StackedIcon.SingleIcon(
+            icon = ImageResource.Local(R.drawable.ic_close_circle_dark)
+        ),
         leadingComponents = listOf(
             ViewType.Text(
                 value = "Sent Ethereum",

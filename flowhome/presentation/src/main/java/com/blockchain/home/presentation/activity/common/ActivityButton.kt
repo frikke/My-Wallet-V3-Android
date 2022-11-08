@@ -9,7 +9,7 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.button.TertiaryButton
 
 // button
-enum class ActivityButtonStyle {
+enum class ActivityButtonStyleState {
     Primary,
     Secondary,
     Tertiary
@@ -25,21 +25,21 @@ fun ActivityDetailButton(
     val onClick: () -> Unit = { onClick?.invoke() }
 
     when (data.style) {
-        ActivityButtonStyle.Primary -> {
+        ActivityButtonStyleState.Primary -> {
             PrimaryButton(
                 modifier = modifier,
                 text = text,
                 onClick = onClick
             )
         }
-        ActivityButtonStyle.Secondary -> {
+        ActivityButtonStyleState.Secondary -> {
             SecondaryButton(
                 modifier = modifier,
                 text = text,
                 onClick = onClick
             )
         }
-        ActivityButtonStyle.Tertiary -> {
+        ActivityButtonStyleState.Tertiary -> {
             TertiaryButton(
                 modifier = modifier,
                 text = text,
@@ -55,7 +55,7 @@ fun PreviewActivityDetailButton_Primary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
             value = "Primary",
-            style = ActivityButtonStyle.Primary
+            style = ActivityButtonStyleState.Primary
         ),
         onClick = {}
     )
@@ -67,7 +67,7 @@ fun PreviewActivityDetailButton_Secondary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
             value = "Secondary",
-            style = ActivityButtonStyle.Secondary
+            style = ActivityButtonStyleState.Secondary
         ),
         onClick = {}
     )
@@ -79,7 +79,7 @@ fun PreviewActivityDetailButton_Tertiary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
             value = "Tertiary",
-            style = ActivityButtonStyle.Tertiary
+            style = ActivityButtonStyleState.Tertiary
         ),
         onClick = {}
     )

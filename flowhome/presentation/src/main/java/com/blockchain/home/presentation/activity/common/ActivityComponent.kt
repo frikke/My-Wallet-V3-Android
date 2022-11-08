@@ -10,18 +10,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 sealed interface ActivityComponent {
     data class StackView(
-        val leadingImagePrimaryUrl: String? = null,
-        val leadingImageImageSecondaryUrl: String? = null,
+        val leadingImage: ActivityIcon = ActivityIcon.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>,
     ) : ActivityComponent
 
     data class Button(
         val value: String,
-        val style: ActivityButtonStyle
+        val style: ActivityButtonStyleState
     ) : ActivityComponent
 }
 
@@ -36,8 +36,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: (() -> Unit)? =
         }
         is ActivityComponent.StackView -> {
             CustomTableRow(
-                leadingImagePrimaryUrl = component.leadingImagePrimaryUrl,
-                leadingImageSecondaryUrl = component.leadingImageImageSecondaryUrl,
+                icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
                 onClick = onClick

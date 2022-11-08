@@ -9,11 +9,10 @@ data class ActivityViewState(
 ) : ViewState
 
 sealed interface TransactionGroup {
-    val name: String
+    object Combined : TransactionGroup
 
-    object Combined : TransactionGroup {
-        override val name get() = error("not allowed")
+    sealed interface Group : TransactionGroup {
+        data class Date(val date: String) : Group
+        object Pending : Group
     }
-
-    data class Group(override val name: String) : TransactionGroup
 }

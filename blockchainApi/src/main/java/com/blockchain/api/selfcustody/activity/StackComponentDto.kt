@@ -13,7 +13,7 @@ data class ActivityTextStyleDto(
     @SerialName("color")
     val color: String,
     @SerialName("strikethrough")
-    val strikethrough: Boolean
+    val strikethrough: Boolean = false
 )
 
 @Serializable

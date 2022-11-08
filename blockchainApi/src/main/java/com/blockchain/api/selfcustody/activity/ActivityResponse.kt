@@ -24,5 +24,5 @@ data class ActivityItemDto(
     @SerialName("state")
     val status: String,
     @SerialName("timestamp")
-    val timestamp: Long
+    val timestamp: Long?
 )

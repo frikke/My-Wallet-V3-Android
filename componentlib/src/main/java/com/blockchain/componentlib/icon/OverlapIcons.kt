@@ -15,12 +15,12 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun OverlapIcons(
-    front: ImageResource,
-    back: ImageResource,
+    icon: StackedIcon.OverlappingPair,
     borderColor: Color = AppTheme.colors.light
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
@@ -40,7 +40,7 @@ fun OverlapIcons(
                 .size(iconSize)
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = back
+            imageResource = icon.back
         )
 
         Image(
@@ -49,7 +49,7 @@ fun OverlapIcons(
                 .background(color = borderColor, shape = CircleShape)
                 .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
-            imageResource = front
+            imageResource = icon.front
         )
     }
 }
@@ -58,8 +58,10 @@ fun OverlapIcons(
 @Composable
 fun PreviewOverlapIcons() {
     OverlapIcons(
-        front = ImageResource.Local(R.drawable.ic_close_circle_dark),
-        back = ImageResource.Local(R.drawable.ic_close_circle),
+        icon = StackedIcon.OverlappingPair(
+            front = ImageResource.Local(R.drawable.ic_close_circle_dark),
+            back = ImageResource.Local(R.drawable.ic_close_circle)
+        ),
         borderColor = AppTheme.colors.light
     )
 }

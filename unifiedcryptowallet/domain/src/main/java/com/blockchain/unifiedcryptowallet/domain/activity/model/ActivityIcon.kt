@@ -14,4 +14,6 @@ sealed interface ActivityIcon {
     data class SingleIcon(
         val url: String
     ) : ActivityIcon
+
+    object None: ActivityIcon
 }

@@ -2,7 +2,7 @@ package com.blockchain.unifiedcryptowallet.domain.activity.model
 
 sealed interface ActivityDataItem {
     data class Stack(
-        val leadingImage: ActivityIcon?,
+        val leadingImage: ActivityIcon,
         val leading: List<StackComponent>,
         val trailing: List<StackComponent>,
     ) : ActivityDataItem
