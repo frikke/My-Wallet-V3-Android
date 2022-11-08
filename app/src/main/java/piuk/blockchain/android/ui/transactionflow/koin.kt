@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.transactionflow
 import android.content.Context
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.hideDustFeatureFlag
+import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -19,6 +19,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
 import piuk.blockchain.android.ui.transactionflow.engine.data.QuickFillRoundingRepository
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.AvailableToTradePropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.AvailableToWithdrawPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ChainPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.CompoundNetworkFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.DAppInfoPropertyFormatter
@@ -27,6 +29,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.ExchangePriceFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.FromPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.NetworkFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.PaymentMethodPropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.ReadMoreDisclaimerPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SalePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SignEthMessagePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SwapExchangeRateFormatter
@@ -172,6 +175,24 @@ val transactionModule = module {
     }.bind(TxOptionsFormatterCheckout::class)
 
     factory {
+        AvailableToTradePropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        AvailableToWithdrawPropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        ReadMoreDisclaimerPropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
         TxConfirmReadOnlyMapperCheckout(
             formatters = getAll()
         )
@@ -215,10 +236,10 @@ val transactionModule = module {
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
                 fiatCurrenciesService = payloadScope.get(),
-                swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag),
                 quickFillRoundingService = get(),
                 hideDustFF = payloadScope.get(hideDustFeatureFlag),
                 localSettingsPrefs = get(),
+                improvedPaymentUxFF = payloadScope.get(improvedPaymentUxFeatureFlag),
                 dynamicAssetRepository = payloadScope.get()
             )
         }

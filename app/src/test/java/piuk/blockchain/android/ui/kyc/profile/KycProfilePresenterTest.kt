@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -40,9 +39,6 @@ class KycProfilePresenterTest {
     private val userService: UserService = mock()
     private val getUserStore: GetUserStore = mock()
     private val stringUtils: StringUtils = mock()
-    private val loqateFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
 
     @Suppress("unused")
     @get:Rule
@@ -58,7 +54,6 @@ class KycProfilePresenterTest {
             userService,
             getUserStore,
             stringUtils,
-            loqateFeatureFlag,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
         subject.initView(view)
@@ -120,13 +115,12 @@ class KycProfilePresenterTest {
     }
 
     @Test
-    fun `on continue clicked all data correct, metadata fetch success, loqate ON`() {
+    fun `on continue clicked all data correct, metadata fetch success`() {
         // Arrange
         val firstName = "Adam"
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        whenever(loqateFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
@@ -144,34 +138,6 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).navigateToAddressVerification(any())
-        verify(getUserStore).markAsStale()
-    }
-
-    @Test
-    fun `on continue clicked all data correct, metadata fetch success, loqate OFF`() {
-        // Arrange
-        val firstName = "Adam"
-        val lastName = "Bennett"
-        val dateOfBirth = date(Locale.US, 2014, 8, 10)
-        val countryCode = "UK"
-        whenever(loqateFeatureFlag.enabled).thenReturn(Single.just(false))
-        whenever(view.firstName).thenReturn(firstName)
-        whenever(view.lastName).thenReturn(lastName)
-        whenever(view.dateOfBirth).thenReturn(dateOfBirth)
-        whenever(view.countryCode).thenReturn(countryCode)
-        whenever(
-            nabuDataManager.createBasicUser(
-                firstName,
-                lastName,
-                dateOfBirth.toISO8601DateString(),
-            )
-        ).thenReturn(Completable.complete())
-        // Act
-        subject.onContinueClicked()
-        // Assert
-        verify(view).showProgressDialog()
-        verify(view).dismissProgressDialog()
-        verify(view).navigateToOldAddressVerification(any())
         verify(getUserStore).markAsStale()
     }
 

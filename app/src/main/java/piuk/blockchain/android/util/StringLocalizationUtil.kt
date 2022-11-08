@@ -1,5 +1,9 @@
 package piuk.blockchain.android.util
 
+import android.content.res.Resources
+import com.blockchain.domain.paymentmethods.model.DepositTerms
+import com.blockchain.utils.toDayAndMonth
+import java.util.Calendar
 import piuk.blockchain.android.R
 
 class StringLocalizationUtil {
@@ -37,6 +41,33 @@ class StringLocalizationUtil {
             TRADING_CURRENCY_POUNDS -> R.string.payment_deposit_subtitle_pounds
             TRADING_CURRENCY_EUROS -> R.string.payment_deposit_subtitle_euros
             else -> R.string.payment_deposit_subtitle_default
+        }
+
+        fun getFormattedDepositTerms(
+            resources: Resources,
+            displayMode: DepositTerms.DisplayMode,
+            min: Int,
+            max: Int
+        ): String? {
+            val minDay = Calendar.getInstance().apply { add(Calendar.MINUTE, min) }.time
+            val maxDay = Calendar.getInstance().apply { add(Calendar.MINUTE, max) }.time
+
+            return when (displayMode) {
+                DepositTerms.DisplayMode.IMMEDIATELY -> resources.getString(R.string.deposit_terms_immediately)
+                DepositTerms.DisplayMode.MAX_MINUTE -> String.format(
+                    resources.getString(R.string.deposit_terms_max_minutes), max
+                )
+                DepositTerms.DisplayMode.MAX_DAY -> maxDay.toDayAndMonth()
+                DepositTerms.DisplayMode.MINUTE_RANGE ->
+                    String.format(resources.getString(R.string.deposit_terms_between_minutes), min, max)
+                DepositTerms.DisplayMode.DAY_RANGE ->
+                    String.format(
+                        resources.getString(R.string.deposit_terms_between_days),
+                        minDay.toDayAndMonth(),
+                        maxDay.toDayAndMonth()
+                    )
+                DepositTerms.DisplayMode.NONE -> null
+            }
         }
     }
 }

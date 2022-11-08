@@ -52,6 +52,8 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(InvoiceCountdownTimerDelegate())
             addAdapterDelegate(ConfirmInfoItemValidationStatusDelegate())
             addAdapterDelegate(QuoteCountdownConfirmationDelegate())
+            addAdapterDelegate(TooltipConfirmationCheckoutDelegate(mapper, onTooltipClicked))
+            addAdapterDelegate(ReadMoreDisclaimerDelegate(mapper, onTooltipClicked))
         }
     }
 }

@@ -120,6 +120,21 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class QuoteCountDown(
         val pricedQuote: PricedQuote
     ) : TxConfirmationValue(TxConfirmation.QUOTE_COUNTDOWN)
+
+    data class AvailableToTrade(
+        val value: String
+    ) : TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
+
+    data class AvailableToWithdraw(
+        val value: String,
+    ) : TxConfirmationValue(TxConfirmation.SIMPLE_TOOLTIP)
+
+    data class AchTermsAndConditions(
+        val value: String,
+        val bankLabel: String,
+        val amount: String,
+        val withdrawalLock: String
+    ) : TxConfirmationValue(TxConfirmation.DISCLAIMER_READ_MORE)
 }
 
 interface UserEditable

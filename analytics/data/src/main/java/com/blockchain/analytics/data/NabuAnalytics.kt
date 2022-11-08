@@ -16,6 +16,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.then
+import com.blockchain.utils.toJsonElement
 import com.blockchain.utils.toUtcIso8601
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -24,10 +25,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.rx3.rxSingle
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import timber.log.Timber
 
@@ -162,20 +160,6 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
             it.value.toJsonElement()
         }.plusOriginIfAvailable(this.origin)
     )
-
-private fun Any?.toJsonElement(): JsonElement {
-    return when (this) {
-        null -> JsonNull
-        is JsonElement -> this
-        is Boolean -> JsonPrimitive(this)
-        is Number -> JsonPrimitive(this)
-        is String -> JsonPrimitive(this)
-        is Iterable<*> -> JsonArray(this.map { it.toJsonElement() })
-        // key simply converted to string
-        is Map<*, *> -> JsonObject(this.map { it.key.toString() to it.value.toJsonElement() }.toMap())
-        else -> throw IllegalArgumentException("Type not supported ${this::class}=$this}")
-    }
-}
 
 private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this

@@ -114,6 +114,8 @@ abstract class Money : Serializable, Comparable<Money> {
         return multiply(multiplier)
     }
 
+    abstract fun abs(): Money
+
     override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)

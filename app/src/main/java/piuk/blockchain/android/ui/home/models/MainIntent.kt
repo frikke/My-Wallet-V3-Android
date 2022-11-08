@@ -62,10 +62,10 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateViewToLaunch(val nextState: ViewToLaunch) : MainIntent() {
+    class UpdateViewToLaunch(private val view: ViewToLaunch) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
-                viewToLaunch = nextState
+                viewToLaunch = view
             )
     }
 
@@ -136,5 +136,9 @@ sealed class MainIntent : MviIntent<MainState> {
     class UpdateStakingFlag(private val isStakingEnabled: Boolean) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(isStakingEnabled = isStakingEnabled)
+    }
+
+    class LaunchTransactionFlowFromDeepLink(val cryptoTicker: String, val action: AssetAction) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
     }
 }

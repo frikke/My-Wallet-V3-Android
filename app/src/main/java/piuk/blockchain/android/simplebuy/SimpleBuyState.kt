@@ -97,6 +97,7 @@ data class SimpleBuyState constructor(
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
     @Transient val showAppRating: Boolean = false,
     @Transient val sideEventsChecked: Boolean = false,
+    @Transient val hasAmountComeFromDeeplink: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     val order: SimpleBuyOrder by unsafeLazy {
@@ -223,7 +224,8 @@ enum class KycState {
 @kotlinx.serialization.Serializable
 data class QuotePrice(
     val amountInCrypto: @Contextual CryptoValue? = null,
-    val fee: FiatValue? = null
+    val fee: FiatValue? = null,
+    val fiatPrice: FiatValue? = null
 )
 
 @kotlinx.serialization.Serializable
@@ -231,7 +233,6 @@ data class FeatureFlagsSet(
     val buyQuoteRefreshFF: Boolean = false,
     val plaidFF: Boolean = false,
     val rbFrequencySuggestionFF: Boolean = false,
-    val cardRejectionFF: Boolean = false,
     val rbExperimentFF: Boolean = false,
     val feynmanEnterAmountFF: Boolean = false,
     val feynmanCheckoutFF: Boolean = false,
@@ -375,7 +376,7 @@ data class BuyQuote(
                 } ?: quoteFee
                 ) as FiatValue
 
-        private fun Money.toFiat(fiatCurrency: Currency): FiatValue {
+        fun Money.toFiat(fiatCurrency: Currency): FiatValue {
             return (this as? CryptoValue)?.let { value ->
                 return ExchangeRate(
                     from = fiatCurrency,

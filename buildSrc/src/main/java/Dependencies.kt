@@ -7,7 +7,7 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 32
 
-    const val versionCode = 21422
+    const val versionCode = 24174
     const val versionName = "202211.1.0"
 
     const val buildTools = "30.0.3"
@@ -49,7 +49,6 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.6.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googleServicesCoroutines = "1.6.4"
@@ -236,8 +235,6 @@ object Libraries {
         "com.google.android.gms:play-services-tasks:${Versions.googleServicesTasks}"
     const val googlePlayServicesAuth =
         "com.google.android.gms:play-services-auth:${Versions.googleServicesAuth}"
-    const val googlePlaces =
-        "com.google.android.libraries.places:places:${Versions.googleServicesPlaces}"
     const val googleServicesReCaptcha =
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
     const val googleServicesWallet =

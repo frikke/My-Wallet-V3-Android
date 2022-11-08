@@ -4,8 +4,10 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.filterByActionAndState
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
@@ -35,12 +37,28 @@ class ReceiveModel(
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
         return when (intent) {
-            ReceiveIntent.GetAvailableAssets -> if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL)
-                getAvailableAssets() else getAvailableAccounts()
+            is ReceiveIntent.GetAvailableAssets -> if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL) {
+                // Receive to an account not supported on non-SuperApp MVP
+                getAvailableAssets()
+            } else {
+                getAvailableAccounts(intent.startForTicker)
+            }
+            is ReceiveIntent.GetStartingAccountForAsset -> {
+                process(
+                    ReceiveIntent.UpdateReceiveForAsset(
+                        intent.accounts.first {
+                            it.currency.networkTicker == intent.cryptoTicker &&
+                                (it is CustodialTradingAccount || it is NonCustodialAccount)
+                        } as CryptoAccount
+                    )
+                )
+                null
+            }
             is ReceiveIntent.UpdateAssets,
             is ReceiveIntent.UpdateAccounts,
             is ReceiveIntent.FilterAssets,
-            -> null
+            ReceiveIntent.ResetReceiveForAccount,
+            is ReceiveIntent.UpdateReceiveForAsset -> null
         }
     }
 
@@ -64,7 +82,7 @@ class ReceiveModel(
                 }
             )
 
-    private fun getAvailableAccounts(): Disposable =
+    private fun getAvailableAccounts(startForTicker: String?): Disposable =
         coincore.allWalletsInMode(walletModeService.enabledWalletMode()).flatMap { accountGroup ->
             accountGroup.accounts.filterByActionAndState(
                 AssetAction.Receive,
@@ -75,11 +93,16 @@ class ReceiveModel(
                 compareBy<SingleAccount> { it.currency.displayTicker }.thenBy { it.isDefault }.thenBy { it.label }
             )
         }.subscribeBy(
+            onSuccess = { accounts ->
+                process(ReceiveIntent.UpdateAccounts(accounts))
+
+                startForTicker?.let { ticker ->
+                    process(ReceiveIntent.GetStartingAccountForAsset(ticker, accounts))
+                }
+            },
             onError = {
                 Timber.e(it)
-            }, onSuccess = {
-            process(ReceiveIntent.UpdateAccounts(it))
-        }
+            }
         )
 
     private fun loadAccountsForAsset(assetInfo: AssetInfo): Single<List<CryptoAccount>> {

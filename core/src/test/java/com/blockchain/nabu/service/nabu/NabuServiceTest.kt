@@ -18,6 +18,7 @@ import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.testutils.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
@@ -29,7 +30,14 @@ class NabuServiceTest {
     private val nabu: Nabu = mock()
     private val remoteConfigPrefs: RemoteConfigPrefs = mock()
     private val environmentConfig: EnvironmentConfig = mock()
-    private val subject: NabuService = NabuService(nabu, remoteConfigPrefs, environmentConfig)
+    private val subject: NabuService = NabuService(
+        nabu,
+        remoteConfigPrefs,
+        mock {
+            on { tags(any()) }.thenReturn(emptyMap())
+        },
+        environmentConfig
+    )
 
     private val jwt = "JWT"
 

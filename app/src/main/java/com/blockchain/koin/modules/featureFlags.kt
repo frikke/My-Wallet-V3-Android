@@ -9,7 +9,6 @@ import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinNetworksFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
@@ -21,9 +20,7 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
-import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sardineFeatureFlag
@@ -63,15 +60,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_intercom",
                 "Show intercom chat"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(loqateFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_loqate",
-                "Loqate"
             )
         )
     }.bind(FeatureFlag::class)
@@ -166,15 +154,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(cardRejectionCheckFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_card_rejection_check",
-                "Check Cards for tx rejection"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(assetOrderingFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -225,15 +204,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_checkout_screen_ff_feynman",
                 "Feynman checkout screen Create + Confirm at once"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(quickFillSellSwapFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_sell_swap_quickfill",
-                "Enable Quick Fill in Tx Flow Sell/Swap"
             )
         )
     }.bind(FeatureFlag::class)

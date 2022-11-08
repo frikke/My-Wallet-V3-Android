@@ -10,6 +10,12 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.anyError
+import com.blockchain.data.anyLoading
+import com.blockchain.data.combineDataResources
+import com.blockchain.data.filter
+import com.blockchain.data.flatMap
+import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.replace
@@ -22,6 +28,7 @@ import com.blockchain.preferences.MultiAppAssetsFilterService
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.percentageDelta
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -54,7 +61,7 @@ class AssetsViewModel(
     override fun reduce(state: AssetsModelState): AssetsViewState {
         return with(state) {
             AssetsViewState(
-                balance = accounts.totalBalance(),
+                balance = accounts.walletBalance(),
                 cryptoAssets = state.accounts.map { modelAccounts ->
                     modelAccounts
                         .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
@@ -68,7 +75,6 @@ class AssetsViewModel(
                                         name.contains(state.filterTerm, ignoreCase = true)
                                 }
                             }
-
                             // create predicate for all filters
                             val filtersPredicate = filters.map { assetFilter ->
                                 when (assetFilter.filter) {
@@ -100,8 +106,7 @@ class AssetsViewModel(
                         }
                         .toHomeCryptoAssets()
                         .let { accounts ->
-                            // <display list / isFullList>
-                            accounts.take(state.sectionSize.size) to (accounts.size > state.sectionSize.size)
+                            accounts.take(state.sectionSize.size)
                         }
                 },
                 fiatAssets = DataResource.Data(emptyList()),
@@ -129,8 +134,8 @@ class AssetsViewModel(
                 name = it.first().singleAccount.currency.name,
                 balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                change = it.first().exchangeRateDayDelta.map { value ->
-                    ValueChange.fromValue(value)
+                change = it.first().exchangeRate24hWithDelta.map { value ->
+                    ValueChange.fromValue(value.delta24h)
                 }
             )
         }.sortedWith(
@@ -198,7 +203,7 @@ class AssetsViewModel(
                                     ModelAccount(
                                         singleAccount = account,
                                         balance = DataResource.Loading,
-                                        exchangeRateDayDelta = DataResource.Loading,
+                                        exchangeRate24hWithDelta = DataResource.Loading,
                                         fiatBalance = DataResource.Loading,
                                         usdRate = DataResource.Loading
                                     )
@@ -252,18 +257,67 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {
+    private fun DataResource<Iterable<ModelAccount>>.totalBalance(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
     }
 
-    private fun List<ModelAccount>.totalAccounts(): Money {
+    private fun DataResource<Iterable<ModelAccount>>.totalCryptoBalance24hAgo(): DataResource<Money> {
+        return this.flatMap { accounts ->
+            val cryptoAccounts = accounts.filter { it.singleAccount is CryptoAccount }
+            val balances = cryptoAccounts.map { it.balance }
+            val exchangeRates = cryptoAccounts.map { it.exchangeRate24hWithDelta }
+            when {
+                exchangeRates.anyError() -> exchangeRates.getFirstError()
+                exchangeRates.anyLoading() -> DataResource.Loading
+                balances.any { balance -> balance !is DataResource.Data } ->
+                    balances.firstOrNull { it is DataResource.Error }
+                        ?: balances.first { it is DataResource.Loading }
+                balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
+                    when {
+                        it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data ->
+                            DataResource.Data(
+                                it.exchangeRate24hWithDelta.data.previousRate.convert(it.balance.data)
+                            )
+                        it.balance is DataResource.Error -> it.balance
+                        it.exchangeRate24hWithDelta is DataResource.Error -> it.exchangeRate24hWithDelta
+                        else -> DataResource.Loading
+                    }
+                }.filterIsInstance<DataResource.Data<Money>>()
+                    .map { it.data }
+                    .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
+                        acc.plus(t)
+                    }.let {
+                        DataResource.Data(it)
+                    }
+                else -> throw IllegalStateException("State is not valid ${accounts.map { it.balance }} ")
+            }
+        }
+    }
+
+    private fun Iterable<ModelAccount>.totalAccounts(): Money {
         return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
             .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
                 acc.plus(t)
             }
+    }
+
+    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
+        return combineDataResources(
+            totalBalance(),
+            // the difference is calculated with crypto balance only
+            // as we don't support historic rates for fiat
+            filter { it.singleAccount is CryptoAccount }.totalBalance(),
+            totalCryptoBalance24hAgo()
+        ) { balanceNow, cryptoBalanceNow, cryptoBalance24hAgo ->
+            WalletBalance(
+                balance = balanceNow,
+                balanceDifference24h = cryptoBalanceNow.minus(cryptoBalance24hAgo).abs(),
+                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(cryptoBalance24hAgo))
+            )
+        }
     }
 }
 
@@ -325,10 +379,8 @@ private fun DataResource<List<ModelAccount>>.withPricing(
         accounts.replace(
             old = oldAccount,
             new = oldAccount.copy(
-                exchangeRateDayDelta = oldAccount.exchangeRateDayDelta.updateDataWith(
-                    price.map {
-                        it.delta24h
-                    }
+                exchangeRate24hWithDelta = oldAccount.exchangeRate24hWithDelta.updateDataWith(
+                    price
                 )
             )
         )

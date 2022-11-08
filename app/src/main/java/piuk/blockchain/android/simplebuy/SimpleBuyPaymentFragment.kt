@@ -306,8 +306,7 @@ class SimpleBuyPaymentFragment :
     private fun handleErrorStates(errorState: ErrorState, currencyCode: String) {
         when (errorState) {
             ErrorState.ApproveBankInvalid,
-            ErrorState.ApprovedBankAccountInvalid,
-            -> showLegacyError(
+            ErrorState.ApprovedBankAccountInvalid -> showLegacyError(
                 title = getString(R.string.bank_transfer_payment_invalid_title),
                 subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
@@ -315,8 +314,7 @@ class SimpleBuyPaymentFragment :
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankFailed,
-            ErrorState.ApprovedBankFailedInternal,
-            -> showLegacyError(
+            ErrorState.ApprovedBankFailedInternal -> showLegacyError(
                 title = getString(R.string.bank_transfer_payment_failed_title),
                 subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle),
                 errorState = errorState.toString(),
@@ -533,11 +531,10 @@ class SimpleBuyPaymentFragment :
                 currencyCode = currencyCode
             )
             ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
-                " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
+                "ErrorState LinkedBankNotSupported should not get handled in Payments screen"
             )
             ErrorState.UnknownCardProvider,
-            ErrorState.ProviderIsNotSupported,
-            -> showLegacyError(
+            ErrorState.ProviderIsNotSupported -> showLegacyError(
                 getString(R.string.sb_card_provider_not_supported),
                 getString(R.string.sb_checkout_contact_support),
                 R.drawable.ic_cross_white_bckg,

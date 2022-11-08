@@ -129,15 +129,11 @@ val blockchainApiModule = module {
     }
 
     single(walletPubkeyApi) {
-        val json = Json {
-            ignoreUnknownKeys = true
-            coerceInputValues = true
-        }
         Retrofit.Builder()
             .baseUrl(getBaseUrl("wallet-pubkey-api"))
             .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 

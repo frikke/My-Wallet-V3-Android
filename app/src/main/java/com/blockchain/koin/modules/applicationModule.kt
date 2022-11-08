@@ -23,7 +23,6 @@ import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
@@ -138,7 +137,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -451,7 +449,6 @@ val applicationModule = module {
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
                 plaidFF = get(plaidFeatureFlag),
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
-                cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
                 feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
@@ -746,13 +743,6 @@ val applicationModule = module {
 
         scoped {
             AssetActivityRepository()
-        }
-
-        scoped {
-            PlacesClientProvider(
-                context = get(),
-                apiKey = BuildConfig.PLACES_API_KEY,
-            )
         }
 
         factory {

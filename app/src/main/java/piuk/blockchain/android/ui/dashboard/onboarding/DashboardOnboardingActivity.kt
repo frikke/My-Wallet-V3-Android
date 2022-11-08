@@ -169,8 +169,7 @@ class DashboardOnboardingActivity :
                     PaymentMethodChooserBottomSheet.newInstance(
                         paymentMethods = action.eligiblePaymentMethods,
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
-                        canAddNewPayment = true,
-                        cardRejectionFFEnabled = false
+                        canAddNewPayment = true
                     )
                 )
             }

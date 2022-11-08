@@ -3,6 +3,7 @@ package com.blockchain.api.services
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoRequestBody
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
@@ -116,6 +117,13 @@ class PaymentMethodsService internal constructor(
     ) = api.checkSettlement(
         accountId,
         body,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
+
+    suspend fun getDepositTerms(
+        body: DepositTermsRequestBody
+    ) = api.getDepositTerms(
+        body = body,
         localisedError = getLocalisedErrorIfEnabled()
     )
 

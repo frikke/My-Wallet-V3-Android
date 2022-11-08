@@ -6,12 +6,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.model.AssetFilterStatus
 import info.blockchain.balance.Money
 
-/**
- * @property cryptoAssets <assets/isFullList>
- */
 data class AssetsViewState(
-    val balance: DataResource<Money>,
-    val cryptoAssets: DataResource<Pair<List<CryptoAssetState> /*display list*/, Boolean /*is full list*/>>,
+    val balance: DataResource<WalletBalance>,
+    val cryptoAssets: DataResource<List<CryptoAssetState>>,
     val fiatAssets: DataResource<List<FiatAssetState>>,
     val filters: List<AssetFilterStatus>
 ) : ViewState
@@ -35,3 +32,9 @@ data class FiatAssetState(
     override val name: String,
     override val balance: DataResource<Money>
 ) : HomeAsset
+
+data class WalletBalance(
+    val balance: Money,
+    val balanceDifference24h: Money,
+    val percentChange: ValueChange
+)

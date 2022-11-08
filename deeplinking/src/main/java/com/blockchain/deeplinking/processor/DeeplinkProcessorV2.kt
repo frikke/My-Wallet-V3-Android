@@ -32,12 +32,16 @@ class DeeplinkProcessorV2 {
                 }
             }
             BUY_URL -> {
-                val code = getAssetNetworkTicker(deeplinkUri)
-                val amount = getAmount(deeplinkUri)
-                Timber.d("deeplink: AssetBuy with args $code, $amount")
+                val cryptoTicker = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: AssetBuy with args $cryptoTicker")
 
-                if (!code.isNullOrEmpty() && !amount.isNullOrEmpty()) {
-                    val destination = Destination.AssetBuyDestination(code, amount)
+                if (!cryptoTicker.isNullOrEmpty()) {
+                    val amount = getAmount(deeplinkUri)
+                    val fiatTicker = getFiatTicker(deeplinkUri)
+                    val destination = Destination.AssetBuyDestination(
+                        networkTicker = cryptoTicker, amount = amount, fiatTicker = fiatTicker
+                    )
+
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
@@ -55,6 +59,54 @@ class DeeplinkProcessorV2 {
                 Timber.d("deeplink: AssetSend with args $code, $amount, $address") // TODO can we log address??
                 if (!code.isNullOrEmpty() && !amount.isNullOrEmpty() && !address.isNullOrEmpty()) {
                     val destination = Destination.AssetSendDestination(code, amount, address)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            SWAP_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Swap with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetSwapDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            SELL_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Swap with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetSellDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            RECEIVE_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Swap with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetReceiveDestination(code)
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
@@ -171,6 +223,9 @@ class DeeplinkProcessorV2 {
         const val ASSET_URL = "$APP_URL/asset"
         const val BUY_URL = "$ASSET_URL/buy"
         const val SEND_URL = "$ASSET_URL/send"
+        const val SWAP_URL = "$ASSET_URL/swap"
+        const val SELL_URL = "$ASSET_URL/sell"
+        const val RECEIVE_URL = "$ASSET_URL/receive"
 
         const val DIFFERENT_CARD_URL = "$TRANSACTION_URL/try/different/card"
         const val DIFFERENT_PAYMENT_URL = "$TRANSACTION_URL/try/different/payment_method"
@@ -186,6 +241,7 @@ class DeeplinkProcessorV2 {
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"
         const val PARAMETER_ADDRESS = "address"
+        const val FIAT_TICKER = "currency"
     }
 
     private fun getRecurringBuyId(deeplinkUri: Uri): String? =
@@ -196,6 +252,9 @@ class DeeplinkProcessorV2 {
 
     private fun getAmount(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_AMOUNT)
+
+    private fun getFiatTicker(deeplinkUri: Uri): String? =
+        deeplinkUri.getQueryParameter(FIAT_TICKER)
 
     private fun getAddress(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_ADDRESS)

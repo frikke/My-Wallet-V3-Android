@@ -50,6 +50,5 @@ data class UserDetails(
 
 @kotlinx.serialization.Serializable
 data class FeatureFlagsSet(
-    val cardRejectionFF: Boolean = false,
     val dustBalancesFF: Boolean = false
 )

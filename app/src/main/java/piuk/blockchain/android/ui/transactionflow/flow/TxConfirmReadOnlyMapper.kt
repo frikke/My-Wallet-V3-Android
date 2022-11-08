@@ -51,6 +51,12 @@ class TxConfirmReadOnlyMapperCheckout(
                 .format(property)
             is TxConfirmationValue.SignEthMessage -> formatters.first { it is SignEthMessagePropertyFormatter }
                 .format(property)
+            is TxConfirmationValue.AvailableToTrade -> formatters.first { it is AvailableToTradePropertyFormatter }
+                .format(property)
+            is TxConfirmationValue.AvailableToWithdraw ->
+                formatters.first { it is AvailableToWithdrawPropertyFormatter }.format(property)
+            is TxConfirmationValue.AchTermsAndConditions ->
+                formatters.first { it is ReadMoreDisclaimerPropertyFormatter }.format(property)
             else -> throw IllegalStateException("No formatter found for property: $property")
         }
     }
@@ -67,7 +73,8 @@ enum class ConfirmationPropertyKey {
     LINKED_NOTE,
     IS_IMPORTANT,
     FEE_ITEM_SENDING,
-    FEE_ITEM_RECEIVING
+    FEE_ITEM_RECEIVING,
+    CTA
 }
 
 class ExchangePriceFormatter(
@@ -474,6 +481,42 @@ class AmountFormatter(private val context: Context) : TxOptionsFormatterCheckout
             },
             ConfirmationPropertyKey.TITLE to property.amount.toStringWithSymbol(),
             ConfirmationPropertyKey.IS_IMPORTANT to property.isImportant
+        )
+    }
+}
+
+class AvailableToTradePropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.AvailableToTrade)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.available_to_trade_checkout),
+            ConfirmationPropertyKey.TITLE to property.value
+        )
+    }
+}
+
+class AvailableToWithdrawPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.AvailableToWithdraw)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.available_to_withdraw_checkout),
+            ConfirmationPropertyKey.TITLE to property.value
+        )
+    }
+}
+
+class ReadMoreDisclaimerPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.AchTermsAndConditions)
+        return mapOf(
+            ConfirmationPropertyKey.CTA to context.resources.getString(R.string.coinview_expandable_button),
+            ConfirmationPropertyKey.LABEL to property.value
         )
     }
 }

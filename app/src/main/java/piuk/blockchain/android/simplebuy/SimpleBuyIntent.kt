@@ -61,15 +61,17 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class UpdateQuotePrice(
         private val amountInCrypto: CryptoValue,
-        private val dynamicFee: Money
+        private val dynamicFee: Money,
+        private val fiatPrice: Money
     ) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 quotePrice = QuotePrice(
                     amountInCrypto = amountInCrypto,
-                    fee = dynamicFee as FiatValue
-                )
+                    fee = dynamicFee as FiatValue,
+                    fiatPrice = fiatPrice as FiatValue
+                ),
             )
     }
 
@@ -85,6 +87,15 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class AmountUpdated(val amount: FiatValue) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(amount = amount)
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return oldState.amount != amount
+        }
+    }
+
+    class PreselectedAmountUpdated(val amount: FiatValue) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(amount = amount, hasAmountComeFromDeeplink = true)
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return oldState.amount != amount

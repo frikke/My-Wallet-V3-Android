@@ -75,7 +75,7 @@ fun CryptoAssets(
 
     viewState?.let { state ->
         CryptoAssetsScreen(
-            cryptoAssets = state.cryptoAssets.map { it.first },
+            cryptoAssets = state.cryptoAssets,
             onSearchTermEntered = { term ->
                 viewModel.onIntent(AssetsIntent.FilterSearch(term = term))
             },
