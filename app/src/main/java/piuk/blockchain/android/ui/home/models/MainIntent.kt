@@ -111,7 +111,7 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateDeepLinkResult(val deeplinkResult: DeepLinkResult) : MainIntent() {
+    class UpdateDeepLinkResult(private val deeplinkResult: DeepLinkResult) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 deeplinkResult = deeplinkResult
@@ -139,6 +139,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class LaunchTransactionFlowFromDeepLink(val cryptoTicker: String, val action: AssetAction) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectRewardsAccountForAsset(val cryptoTicker: String) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

@@ -87,7 +87,7 @@ class DeeplinkProcessorV2 {
             }
             SELL_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
-                Timber.d("deeplink: Swap with args $code")
+                Timber.d("deeplink: Sell with args $code")
 
                 if (!code.isNullOrEmpty()) {
                     val destination = Destination.AssetSellDestination(code)
@@ -103,10 +103,42 @@ class DeeplinkProcessorV2 {
             }
             RECEIVE_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
-                Timber.d("deeplink: Swap with args $code")
+                Timber.d("deeplink: Receive with args $code")
 
                 if (!code.isNullOrEmpty()) {
                     val destination = Destination.AssetReceiveDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            REWARDS_DEPOSIT_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Rewards deposit with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.RewardsDepositDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            REWARDS_SUMMARY_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Rewards summary with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.RewardsSummaryDestination(code)
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
@@ -226,6 +258,9 @@ class DeeplinkProcessorV2 {
         const val SWAP_URL = "$ASSET_URL/swap"
         const val SELL_URL = "$ASSET_URL/sell"
         const val RECEIVE_URL = "$ASSET_URL/receive"
+        private const val REWARDS_URL = "$ASSET_URL/rewards"
+        const val REWARDS_DEPOSIT_URL = "$REWARDS_URL/deposit"
+        const val REWARDS_SUMMARY_URL = "$REWARDS_URL/summary"
 
         const val DIFFERENT_CARD_URL = "$TRANSACTION_URL/try/different/card"
         const val DIFFERENT_PAYMENT_URL = "$TRANSACTION_URL/try/different/payment_method"

@@ -37,6 +37,16 @@ sealed class Destination : Parcelable {
     ) : Destination()
 
     @Parcelize
+    data class RewardsDepositDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class RewardsSummaryDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
     data class ActivityDestination(val filter: String? = null) : Destination()
 
     @Parcelize

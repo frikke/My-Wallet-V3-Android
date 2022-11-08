@@ -6,6 +6,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -30,6 +31,7 @@ import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.asObservable
@@ -259,13 +261,29 @@ class MainModel(
                         process(MainIntent.UpdateStakingFlag(false))
                     }
                 )
-            is MainIntent.LaunchTransactionFlowFromDeepLink -> {
-                interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action)
+            is MainIntent.LaunchTransactionFlowFromDeepLink ->
+                // the interest deposit flow requires that there are defined source and target accounts before launch
+                if (intent.action == AssetAction.InterestDeposit) {
+                    Singles.zip(
+                        interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action),
+                        interactor.selectRewardsAccountForAsset(intent.cryptoTicker)
+                    ).map { (sourceAccount, targetAccount) ->
+                        require(sourceAccount is LaunchFlowForAccount.SourceAccount)
+                        require(targetAccount is LaunchFlowForAccount.SourceAccount)
+
+                        LaunchFlowForAccount.SourceAndTargetAccount(
+                            sourceAccount = sourceAccount.account,
+                            targetAccount = targetAccount.account as TransactionTarget
+                        )
+                    }
+                } else {
+                    interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action)
+                }
                     .subscribeBy(
                         onSuccess = { account ->
                             process(
                                 MainIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.LaunchTxFlowFromDeepLink(account, intent.action)
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(account, intent.action)
                                 )
                             )
                         },
@@ -276,12 +294,35 @@ class MainModel(
 
                             process(
                                 MainIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.LaunchTxFlowFromDeepLink(LaunchFlowForAccount.NoAccount, intent.action)
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                        LaunchFlowForAccount.NoAccount, intent.action
+                                    )
                                 )
                             )
                         }
                     )
-            }
+            is MainIntent.SelectRewardsAccountForAsset ->
+                interactor.selectRewardsAccountForAsset(intent.cryptoTicker)
+                    .subscribeBy(
+                        onSuccess = { account ->
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchRewardsSummaryFromDeepLink(account)
+                                )
+                            )
+                        },
+                        onError = {
+                            Timber.e(
+                                "Error getting default account for Rewards Summary ${it.message}"
+                            )
+
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchRewardsSummaryFromDeepLink(LaunchFlowForAccount.NoAccount)
+                                )
+                            )
+                        }
+                    )
             is MainIntent.UpdateStakingFlag,
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,

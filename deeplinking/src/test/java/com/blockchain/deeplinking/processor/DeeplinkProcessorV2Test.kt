@@ -136,6 +136,48 @@ class DeeplinkProcessorV2Test {
     }
 
     @Test
+    fun `given rewards deposit deeplink uri when it does not have a crypto ticker then destination is Unknown`() {
+        val depositUrl = Uri.parse("https://www.login.blockchain.com/app/asset/rewards/deposit")
+        val test = deeplinkProcessorV2Subject.process(depositUrl).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultUnknownLink &&
+                deeplinkResult.uri == depositUrl
+        }
+    }
+
+    @Test
+    fun `given rewards deposit deeplink uri when it has a crypto ticker then destination is Rewards Deposit`() {
+        val depositUrl = Uri.parse("https://www.login.blockchain.com/app/asset/rewards/deposit?code=BTC")
+        val test = deeplinkProcessorV2Subject.process(depositUrl).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.RewardsDepositDestination &&
+                (deeplinkResult.destination as Destination.RewardsDepositDestination).networkTicker == "BTC"
+        }
+    }
+
+    @Test
+    fun `given rewards summary deeplink uri when it does not have a crypto ticker then destination is Unknown`() {
+        val summaryUrl = Uri.parse("https://www.login.blockchain.com/app/asset/rewards/summary")
+        val test = deeplinkProcessorV2Subject.process(summaryUrl).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultUnknownLink &&
+                deeplinkResult.uri == summaryUrl
+        }
+    }
+
+    @Test
+    fun `given rewards summary deeplink uri when it has a crypto ticker then destination is Rewards Summary`() {
+        val summaryUrl = Uri.parse("https://www.login.blockchain.com/app/asset/rewards/summary?code=BTC")
+        val test = deeplinkProcessorV2Subject.process(summaryUrl).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.RewardsSummaryDestination &&
+                (deeplinkResult.destination as Destination.RewardsSummaryDestination).networkTicker == "BTC"
+        }
+    }
+
+    @Test
     fun `test parse of activityView deeplink URI`() {
         val activityViewTestURL = Uri.parse("https://www.login.blockchain.com/app/activity")
         val test = deeplinkProcessorV2Subject.process(activityViewTestURL).test()

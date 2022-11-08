@@ -101,6 +101,7 @@ import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
+import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -146,6 +147,7 @@ class MainActivity :
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
     NftHost,
+    InterestSummarySheet.Host,
     NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
@@ -706,18 +708,30 @@ class MainActivity :
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
-            is ViewToLaunch.LaunchTxFlowFromDeepLink -> {
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        this,
-                        action = view.action,
-                        sourceAccount = if (view.account is LaunchFlowForAccount.Account) {
-                            view.account.account
-                        } else {
-                            NullCryptoAccount()
-                        }
+            is ViewToLaunch.LaunchTxFlowWithAccountForAction -> {
+                if (view.account is LaunchFlowForAccount.SourceAndTargetAccount) {
+                    startActivity(
+                        TransactionFlowActivity.newIntent(
+                            this,
+                            action = view.action,
+                            sourceAccount = view.account.sourceAccount,
+                            target = view.account.targetAccount
+                        )
                     )
-                )
+                } else {
+                    launchInterestDashboard(LaunchOrigin.DASHBOARD)
+                }
+            }
+            is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
+                if (view.account is LaunchFlowForAccount.SourceAccount) {
+                    showBottomSheet(
+                        InterestSummarySheet.newInstance(
+                            singleAccount = view.account.account as CryptoAccount
+                        )
+                    )
+                } else {
+                    launchInterestDashboard(LaunchOrigin.DASHBOARD)
+                }
             }
         }.exhaustive
 
@@ -893,8 +907,7 @@ class MainActivity :
                     )
                 }
             }
-            Destination.CustomerSupportDestination ->
-                startActivity(SupportCentreActivity.newIntent(this))
+            Destination.CustomerSupportDestination -> startActivity(SupportCentreActivity.newIntent(this))
             Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
@@ -902,9 +915,33 @@ class MainActivity :
             is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
             is Destination.AssetReceiveDestination -> launchReceive(destination.networkTicker)
             is Destination.AssetSellDestination ->
-                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Sell))
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        cryptoTicker = destination.networkTicker,
+                        action = AssetAction.Sell
+                    )
+                )
             is Destination.AssetSwapDestination ->
-                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Swap))
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        cryptoTicker = destination.networkTicker,
+                        action = AssetAction.Swap
+                    )
+                )
+            is Destination.RewardsDepositDestination ->
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        cryptoTicker = destination.networkTicker,
+                        action = AssetAction.InterestDeposit
+                    )
+                )
+            is Destination.RewardsSummaryDestination -> {
+                model.process(
+                    MainIntent.SelectRewardsAccountForAsset(
+                        cryptoTicker = destination.networkTicker
+                    )
+                )
+            }
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -1097,6 +1134,30 @@ class MainActivity :
         analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
         model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
         startBuy()
+    }
+
+    override fun goToActivityFor(account: BlockchainAccount) {
+        startActivitiesFragment(account)
+    }
+
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                    LaunchFlowForAccount.SourceAccount(toAccount), AssetAction.InterestDeposit
+                )
+            )
+        )
+    }
+
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                    LaunchFlowForAccount.SourceAccount(fromAccount), AssetAction.InterestWithdraw
+                )
+            )
+        )
     }
 
     override fun onSheetClosed() {

@@ -1,9 +1,13 @@
 package piuk.blockchain.android.ui.home
 
 import android.content.Intent
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
@@ -27,7 +31,9 @@ import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -54,7 +60,7 @@ import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
-class MainInteractorTest {
+@OptIn(ExperimentalCoroutinesApi::class) class MainInteractorTest {
 
     private lateinit var interactor: MainInteractor
     private val deepLinkProcessor: DeepLinkProcessor = mock()
@@ -342,7 +348,7 @@ class MainInteractorTest {
 
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {
-            it is LaunchFlowForAccount.Account && it.account == btcAccount
+            it is LaunchFlowForAccount.SourceAccount && it.account == btcAccount
         }
     }
 
@@ -381,7 +387,7 @@ class MainInteractorTest {
 
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {
-            it is LaunchFlowForAccount.Account && it.account == btcNonCustodialAccount
+            it is LaunchFlowForAccount.SourceAccount && it.account == btcNonCustodialAccount
         }
     }
 
@@ -421,6 +427,44 @@ class MainInteractorTest {
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {
             it is LaunchFlowForAccount.NoAccount
+        }
+    }
+
+    @Test
+    fun `given no rewards account for ticker when usecase called then NoAccount is returned`() {
+        val assetTicker = "BTC"
+
+        whenever(assetCatalogue.assetInfoFromNetworkTicker(assetTicker)).thenReturn(null)
+
+        val result = interactor.selectRewardsAccountForAsset(assetTicker).test()
+
+        result.assertValue {
+            it is LaunchFlowForAccount.NoAccount
+        }
+
+        verifyNoMoreInteractions(coincore)
+    }
+
+    @Test
+    fun `given rewards account for ticker when usecase called then valid Account is returned`() {
+        val assetTicker = "BTC"
+        val assetInfo: AssetInfo = mock()
+        val interestAccount = mock<CustodialInterestAccount>()
+        val accountGroup: AccountGroup = mock {
+            on { accounts }.thenReturn(listOf(interestAccount))
+        }
+        val asset: Asset = mock {
+            on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(accountGroup))
+        }
+
+        whenever(assetCatalogue.assetInfoFromNetworkTicker(assetTicker)).thenReturn(assetInfo)
+        whenever(coincore[assetInfo]).thenReturn(asset)
+
+        val result = interactor.selectRewardsAccountForAsset(assetTicker).test()
+
+        result.assertValue {
+            it is LaunchFlowForAccount.SourceAccount &&
+                it.account == interestAccount
         }
     }
 }
