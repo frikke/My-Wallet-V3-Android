@@ -134,10 +134,6 @@ class SimpleBuyCheckoutFragment :
         arguments?.getBoolean(PENDING_PAYMENT_ORDER_KEY, false) ?: false
     }
 
-    private val showOnlyOrderData: Boolean by unsafeLazy {
-        arguments?.getBoolean(SHOW_ONLY_ORDER_DATA, false) ?: false
-    }
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
 
@@ -157,9 +153,7 @@ class SimpleBuyCheckoutFragment :
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
 
-        if (!showOnlyOrderData) {
-            setupToolbar()
-        }
+        setupToolbar()
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
         model.process(SimpleBuyIntent.GetSafeConnectTermsOfServiceLink)
     }
@@ -223,7 +217,9 @@ class SimpleBuyCheckoutFragment :
             model.process(SimpleBuyIntent.GetBrokerageQuote)
         }
 
-        if (newState.featureFlagSet.buyQuoteRefreshFF || newState.featureFlagSet.feynmanCheckoutFF) {
+        if (!isForPendingPayment &&
+            (newState.featureFlagSet.buyQuoteRefreshFF || newState.featureFlagSet.feynmanCheckoutFF)
+        ) {
             binding.quoteExpiration.visible()
             if (countDownTimer == null && newState.quote != null &&
                 !isPendingOrAwaitingFunds(newState.orderState)
@@ -779,7 +775,7 @@ class SimpleBuyCheckoutFragment :
                         }
                     }
                 }
-                visibleIf { !showOnlyOrderData && !isGooglePay }
+                visibleIf { !isGooglePay }
                 isEnabled = !state.isLoading
             }
 
@@ -1128,16 +1124,13 @@ class SimpleBuyCheckoutFragment :
     companion object {
         private const val COUNT_DOWN_INTERVAL_TIMER = 1000L
         private const val PENDING_PAYMENT_ORDER_KEY = "PENDING_PAYMENT_KEY"
-        private const val SHOW_ONLY_ORDER_DATA = "SHOW_ONLY_ORDER_DATA"
 
         fun newInstance(
-            isForPending: Boolean = false,
-            showOnlyOrderData: Boolean = false
+            isForPending: Boolean = false
         ): SimpleBuyCheckoutFragment {
             val fragment = SimpleBuyCheckoutFragment()
             fragment.arguments = Bundle().apply {
                 putBoolean(PENDING_PAYMENT_ORDER_KEY, isForPending)
-                putBoolean(SHOW_ONLY_ORDER_DATA, showOnlyOrderData)
             }
             return fragment
         }
