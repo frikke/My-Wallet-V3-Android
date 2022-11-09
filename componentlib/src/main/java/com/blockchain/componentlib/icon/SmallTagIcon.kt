@@ -13,14 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun SmallTagIcons(
+fun SmallTagIcon(
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background
@@ -58,7 +57,7 @@ fun SmallTagIcons(
 @Preview(backgroundColor = 0XFFF0F2F7, showBackground = true)
 @Composable
 fun PreviewSmallTagIcons() {
-    SmallTagIcons(
+    SmallTagIcon(
         icon = StackedIcon.SmallTag(
             main = ImageResource.Local(R.drawable.ic_close_circle_dark),
             tag = ImageResource.Local(R.drawable.ic_close_circle)

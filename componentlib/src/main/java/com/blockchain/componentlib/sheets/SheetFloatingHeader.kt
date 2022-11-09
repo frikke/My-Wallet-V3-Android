@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icon.OverlapIcons
-import com.blockchain.componentlib.icon.SmallTagIcons
+import com.blockchain.componentlib.icon.OverlapIcon
+import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -64,14 +64,14 @@ fun SheetFloatingHeader(
             ) {
                 when (imageType) {
                     is ImageType.OverlapIcons -> {
-                        OverlapIcons(
+                        OverlapIcon(
                             icon = StackedIcon.OverlappingPair(
                                 front = imageType.front, back = imageType.back
                             )
                         )
                     }
                     is ImageType.SmallTagIcons -> {
-                        SmallTagIcons(
+                        SmallTagIcon(
                             icon = StackedIcon.SmallTag(
                                 main = imageType.main, tag = imageType.tag
                             )
