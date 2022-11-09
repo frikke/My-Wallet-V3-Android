@@ -56,15 +56,15 @@ import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycErrorField
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
-import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ExpandableSimpleText
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
@@ -90,6 +90,7 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -101,16 +102,29 @@ import info.blockchain.balance.FiatValue
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
-fun OrderCard(
-    viewModel: OrderCardViewModel
-) {
-    OrderCardIntro(
-        onOrderCard = {
-            viewModel.onIntent(
-                BlockchainCardIntent.HowToOrderCard
-            )
-        }
-    )
+fun LoadingKycStatus() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = CenterHorizontally
+    ) {
+        CircularProgressIndicator(color = AppTheme.colors.primary)
+        SimpleText(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Loading User Information",
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview
+@Composable
+fun LoadingKycStatusPreview() {
+    AppTheme {
+        LoadingKycStatus()
+    }
 }
 
 @Composable
@@ -313,6 +327,161 @@ fun HowToOrderCard(onCloseBottomSheet: () -> Unit, onContinue: () -> Unit) {
 @Composable
 private fun PreviewHowToOrderCard() {
     HowToOrderCard({}, {})
+}
+
+@Composable
+fun OrderCardKycPending(onContinue: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.standardSpacing),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = CenterHorizontally
+        ) {
+            Image(
+                imageResource = ImageResource.Local(
+                    id = R.drawable.kyc_pending_badge,
+                ),
+                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+            )
+
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_kyc_pending_title),
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+
+            SmallVerticalSpacer()
+
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_kyc_pending_description),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(R.string.common_ok),
+                onClick = onContinue,
+                modifier = Modifier
+                    .fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewOrderCardKycPending() {
+    OrderCardKycPending({})
+}
+
+@Composable
+fun OrderCardKycFailure(errorFields: List<BlockchainCardKycErrorField>, onTryAgain: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.standardSpacing),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = CenterHorizontally
+        ) {
+            Image(
+                imageResource = ImageResource.Local(
+                    id = R.drawable.kyc_failed_badge,
+                ),
+                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+            )
+
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_kyc_failed_title),
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+
+            SmallVerticalSpacer()
+
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_kyc_failed_description),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+
+            SmallVerticalSpacer()
+
+            errorFields.forEach { errorField ->
+                val errorText = when (errorField) {
+                    BlockchainCardKycErrorField.SSN -> {
+                        stringResource(R.string.bc_card_kyc_failed_ssn)
+                    }
+                    BlockchainCardKycErrorField.RESIDENTIAL_ADDRESS -> {
+                        stringResource(R.string.bc_card_kyc_failed_address)
+                    }
+                }
+
+                Card(backgroundColor = AppTheme.colors.light) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            imageResource = ImageResource.Local(
+                                id = R.drawable.ic_information,
+                                colorFilter = ColorFilter.tint(AppTheme.colors.title)
+                            ),
+                            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                        )
+
+                        SimpleText(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = errorText,
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
+                }
+
+                TinyVerticalSpacer()
+            }
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(R.string.common_try_again),
+                onClick = onTryAgain,
+                modifier = Modifier
+                    .fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewOrderCardKycFailure() {
+    OrderCardKycFailure(
+        errorFields = listOf(
+            BlockchainCardKycErrorField.SSN,
+            BlockchainCardKycErrorField.RESIDENTIAL_ADDRESS
+        ),
+        onTryAgain = {}
+    )
 }
 
 @Composable

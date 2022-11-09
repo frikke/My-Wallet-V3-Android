@@ -3074,7 +3074,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="physical">Physical</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
     <string name="see_card_benefits">See Card Benefits</string>
-    <string name="create_card">Accept &amp; Order Card</string>
+    <string name="create_card">Accept &amp; Create Card</string>
     <string name="card_benefits">Card Benefits</string>
     <string name="cashback_rewards">Cashback Rewards</string>
     <string name="annual_fees">Annual Fee</string>
@@ -3154,7 +3154,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
     <string name="terminate_card">Terminate Card</string>
-    <string name="terminate_card_number">Terminate card %1s ?</string>
+    <string name="terminate_card_number">Terminate card ending in %1s ?</string>
     <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
     <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
@@ -3346,7 +3346,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_review_and_submit_title">Review and Submit</string>
     <string name="bc_card_status_initiated">Initiated</string>
     <string name="bc_card_status_unactivated">Unactivated</string>
-    <string name="bc_card_status_active">Active</string>
+    <string name="bc_card_status_active">Ready to use</string>
     <string name="bc_card_status_locked">Locked</string>
     <string name="bc_card_status_terminated">Terminated</string>
     <string name="bc_card_order_processing">Processing</string>
@@ -3378,6 +3378,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_virtual">Virtual Card</string>
     <string name="bc_card_visa_title">Blockchain.com Visa Card</string>
     <string name="bc_card_selected_input_title">Card Selected</string>
+    <string name="bc_card_kyc_pending_title">Your Account Is Pending Approval</string>
+    <string name="bc_card_kyc_pending_description">We are processing the provided information and require some extra time to review. One of our customer support agents will reach out via email.</string>
+    <string name="bc_card_kyc_failed_title">There Is An Error With Your Application</string>
+    <string name="bc_card_kyc_failed_description">We are processing the provided information and there seems to be an issue with the following below.</string>
+    <string name="bc_card_kyc_failed_ssn">SSN Does Not Match Our Records</string>
+    <string name="bc_card_kyc_failed_address">Residential Address Invalid</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>

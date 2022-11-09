@@ -42,11 +42,11 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     private val googleWalletManager: GoogleWalletManager by scopedInject()
 
     private val blockchainCardProducts by lazy {
-        intent?.getSerializableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST) as? List<BlockchainCardProduct>
+        (intent?.getSerializableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST) as? List<BlockchainCardProduct>) ?: emptyList()
     }
 
     private val blockchainCardList by lazy {
-        intent?.getSerializableExtra(BLOCKCHAIN_CARD_LIST) as? List<BlockchainCard>
+        (intent?.getSerializableExtra(BLOCKCHAIN_CARD_LIST) as? List<BlockchainCard>) ?: emptyList()
     }
 
     private val preselectedCard by lazy {
@@ -62,15 +62,22 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
-        blockchainCardList?.let { cards ->
-            startManageCardFlow(
-                blockchainCardProducts = blockchainCardProducts ?: emptyList(),
-                blockchainCards = cards,
-                preselectedCard = preselectedCard,
-            )
-        } ?: blockchainCardProducts?.let { _ ->
-            startOrderCardFlow()
-        } ?: throw IllegalStateException("Missing card or product data")
+        when {
+            blockchainCardList.isNotEmpty() -> {
+                startManageCardFlow(
+                    blockchainCardProducts = blockchainCardProducts,
+                    blockchainCards = blockchainCardList,
+                    preselectedCard = preselectedCard,
+                    isInitialFlow = true
+                )
+            }
+            blockchainCardProducts.isNotEmpty() -> {
+                startOrderCardFlow(isInitialFlow = true)
+            }
+            else -> {
+                throw IllegalStateException("Missing card or product data")
+            }
+        }
     }
 
     companion object {
@@ -86,10 +93,6 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
                 preselectedCard?.let {
                     putExtra(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard)
                 }
-            }
-        fun newIntent(context: Context, blockchainCardProducts: List<BlockchainCardProduct>): Intent =
-            Intent(context, BlockchainCardActivity::class.java).apply {
-                putExtra(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts as Serializable)
             }
     }
 
@@ -117,7 +120,7 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
         val fragment = BlockchainCardKycAddressVerificationFragment.newInstance(address)
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-            .replace(R.id.blockchain_card_content_frame, fragment, fragment::class.simpleName)
+            .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
             .addToBackStack(fragment::class.simpleName)
             .commitAllowingStateLoss()
     }
@@ -152,35 +155,53 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
         }
     }
 
-    override fun startOrderCardFlow() {
-        blockchainCardProducts?.let { products ->
-            val fragment = BlockchainCardFragment.newInstance(blockchainCardProducts = products)
+    override fun startOrderCardFlow(isInitialFlow: Boolean) {
+        if (blockchainCardProducts.isNotEmpty()) {
+            val fragment = BlockchainCardFragment.newInstance(blockchainCardProducts = blockchainCardProducts)
+
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
                 .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
+                .apply {
+                    if (!isInitialFlow) {
+                        addToBackStack(fragment::class.simpleName)
+                    }
+                }
                 .commitAllowingStateLoss()
-        } ?: Timber.e("No products available for order")
+        } else {
+            Timber.e("No products available for order")
+        }
+    }
+
+    override fun finishOrderCardFlow() {
+        supportFragmentManager.popBackStack()
     }
 
     override fun orderCardFlowComplete(blockchainCard: BlockchainCard) {
-        val cards = blockchainCardList ?: emptyList()
-        supportFragmentManager.popBackStack()
-        startManageCardFlow(blockchainCardProducts ?: emptyList(), cards, blockchainCard)
+        finishOrderCardFlow()
+        startManageCardFlow(blockchainCardProducts, blockchainCardList, blockchainCard)
     }
 
     override fun startManageCardFlow(
         blockchainCardProducts: List<BlockchainCardProduct>,
         blockchainCards: List<BlockchainCard>,
-        preselectedCard: BlockchainCard?
+        preselectedCard: BlockchainCard?,
+        isInitialFlow: Boolean
     ) {
         val fragment = BlockchainCardFragment.newInstance(
             blockchainCardProducts = blockchainCardProducts,
             blockchainCards = blockchainCards,
             preselectedCard = preselectedCard
         )
+
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
             .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
+            .apply {
+                if (!isInitialFlow) {
+                    addToBackStack(fragment::class.simpleName)
+                }
+            }
             .commitAllowingStateLoss()
     }
 

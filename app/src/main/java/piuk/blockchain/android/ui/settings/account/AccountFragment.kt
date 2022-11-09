@@ -22,7 +22,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
-import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
@@ -206,8 +205,9 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToOrderBlockchainCard(
-                            cardProducts = blockchainCardOrderState.cardProducts
+                        navigator().goToBlockchainCard(
+                            cardProducts = blockchainCardOrderState.cardProducts,
+                            cards = emptyList()
                         )
                     }
                 }
@@ -216,8 +216,8 @@ class AccountFragment :
                     secondaryText = null
                     tags = null
                     onClick = {
-                        navigator().goToManageBlockchainCard(
-                            products = blockchainCardOrderState.cardProducts,
+                        navigator().goToBlockchainCard(
+                            cardProducts = blockchainCardOrderState.cardProducts,
                             cards = blockchainCardOrderState.cards,
                             defaultCard = blockchainCardOrderState.defaultCard
                         )

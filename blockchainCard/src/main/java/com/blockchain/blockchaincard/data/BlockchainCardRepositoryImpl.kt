@@ -6,6 +6,8 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycStatusDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycUpdateRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
@@ -26,6 +28,10 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycErrorField
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycState
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycUpdate
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
@@ -95,12 +101,10 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun createCard(
         productCode: String,
-        ssn: String,
         shippingAddress: BlockchainCardAddress?
     ): Outcome<BlockchainCardError, BlockchainCard> =
         blockchainCardService.createCard(
             productCode = productCode,
-            ssn = ssn,
             shippingAddress = shippingAddress?.toDto()
         ).map { card ->
             card.toDomainModel()
@@ -344,6 +348,20 @@ internal class BlockchainCardRepositoryImpl(
         }
     }
 
+    override suspend fun getKycStatus(): Outcome<BlockchainCardError, BlockchainCardKycStatus> =
+        blockchainCardService.getKycStatus().map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun updateKyc(
+        kycUpdate: BlockchainCardKycUpdate
+    ): Outcome<BlockchainCardError, BlockchainCardKycStatus> =
+        blockchainCardService.updateKycStatus(
+            kycUpdate.toDto()
+        ).map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -497,6 +515,18 @@ internal class BlockchainCardRepositoryImpl(
         BlockchainCardStatement(
             id = statementId,
             date = "$month/$year"
+        )
+
+    private fun BlockchainCardKycStatusDto.toDomainModel(): BlockchainCardKycStatus =
+        BlockchainCardKycStatus(
+            state = BlockchainCardKycState.valueOf(status),
+            errorFields = errorFields?.map { BlockchainCardKycErrorField.valueOf(it) }
+        )
+
+    private fun BlockchainCardKycUpdate.toDto(): BlockchainCardKycUpdateRequestDto =
+        BlockchainCardKycUpdateRequestDto(
+            address = address?.toDto(),
+            ssn = ssn
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

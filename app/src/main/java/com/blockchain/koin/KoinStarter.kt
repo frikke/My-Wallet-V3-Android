@@ -170,8 +170,7 @@ object KoinStarter {
                     educationalWalletModesPresentationModule,
                     fraudDataModule,
                     nftDataModule, nftPresentationModule,
-
-                    multiAppModule
+                    multiAppModule,
                 )
             )
         }

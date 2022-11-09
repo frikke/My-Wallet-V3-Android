@@ -4,6 +4,8 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardActivationUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycStatusDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycUpdateRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
@@ -128,4 +130,12 @@ internal interface BlockchainCardApi {
     suspend fun getCardStatementUrl(
         @Path("statementId") statementId: String,
     ): Outcome<Exception, BlockchainCardStatementUrlResponseDto>
+
+    @GET("card-issuing/kyc")
+    suspend fun getKycStatus(): Outcome<Exception, BlockchainCardKycStatusDto>
+
+    @POST("card-issuing/kyc")
+    suspend fun updateKyc(
+        @Body kycUpdateRequest: BlockchainCardKycUpdateRequestDto
+    ): Outcome<Exception, BlockchainCardKycStatusDto>
 }

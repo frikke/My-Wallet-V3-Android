@@ -21,8 +21,23 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
 
+            is BlockchainCardNavigationEvent.ShowOrderCardIntro -> {
+                navController.popBackStack(BlockchainCardDestination.LoadingKycStatusDestination.route, true)
+                destination = BlockchainCardDestination.OrderCardIntroDestination
+            }
+
             is BlockchainCardNavigationEvent.ShowHowToOrderCard -> {
                 destination = BlockchainCardDestination.HowToOrderCardDestination
+            }
+
+            is BlockchainCardNavigationEvent.OrderCardKycPending -> {
+                navController.popBackStack(BlockchainCardDestination.LoadingKycStatusDestination.route, true)
+                destination = BlockchainCardDestination.OrderCardKycPendingDestination
+            }
+
+            is BlockchainCardNavigationEvent.OrderCardKycFailure -> {
+                navController.popBackStack(BlockchainCardDestination.LoadingKycStatusDestination.route, true)
+                destination = BlockchainCardDestination.OrderCardKycFailureDestination
             }
 
             is BlockchainCardNavigationEvent.OrderCardKycAddress -> {
@@ -31,6 +46,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
             is BlockchainCardNavigationEvent.OrderCardKycSSN -> {
                 destination = BlockchainCardDestination.OrderCardKycSSNDestination
+            }
+
+            is BlockchainCardNavigationEvent.OrderCardKycPendingComplete -> {
+                (navController.context as? BlockchainCardHostActivity)?.finishOrderCardFlow()
             }
 
             is BlockchainCardNavigationEvent.ChooseCardProduct -> {
@@ -55,7 +74,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.RetryOrderCard -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
+                navController.popBackStack(BlockchainCardDestination.OrderCardIntroDestination.route, false)
             }
 
             is BlockchainCardNavigationEvent.SeeProductDetails -> {
@@ -75,12 +94,12 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CreateCardSuccess -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, true)
+                navController.popBackStack(BlockchainCardDestination.OrderCardIntroDestination.route, true)
                 destination = BlockchainCardDestination.CreateCardSuccessDestination
             }
 
             is BlockchainCardNavigationEvent.CreateCardFailed -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
+                navController.popBackStack(BlockchainCardDestination.OrderCardIntroDestination.route, false)
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
@@ -99,9 +118,14 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ViewCardSelector -> {
-                if (navigationEvent.hasDefault)
-                    destination = BlockchainCardDestination.SelectCardDestination
-                else navController.popBackStack()
+
+                val wasPopped = navController.popBackStack(
+                    route = BlockchainCardDestination.SelectCardDestination.route,
+                    inclusive = false
+                )
+
+                if (!wasPopped) destination = BlockchainCardDestination.SelectCardDestination
+                else destination = BlockchainCardDestination.NoDestination
             }
 
             is BlockchainCardNavigationEvent.OrderCard -> {
@@ -237,11 +261,19 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
 
+    object ShowOrderCardIntro : BlockchainCardNavigationEvent()
+
     object ShowHowToOrderCard : BlockchainCardNavigationEvent()
+
+    object OrderCardKycPending : BlockchainCardNavigationEvent()
+
+    object OrderCardKycFailure : BlockchainCardNavigationEvent()
 
     object OrderCardKycAddress : BlockchainCardNavigationEvent()
 
     object OrderCardKycSSN : BlockchainCardNavigationEvent()
+
+    object OrderCardKycPendingComplete : BlockchainCardNavigationEvent()
 
     object ChooseCardProduct : BlockchainCardNavigationEvent()
 
@@ -330,9 +362,15 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object NoDestination : BlockchainCardDestination(route = "")
 
-    object OrderCardDestination : BlockchainCardDestination(route = "order_card")
+    object LoadingKycStatusDestination : BlockchainCardDestination(route = "loading_kyc_status")
+
+    object OrderCardIntroDestination : BlockchainCardDestination(route = "order_card_intro")
 
     object HowToOrderCardDestination : BlockchainCardDestination(route = "how_to_order_card")
+
+    object OrderCardKycPendingDestination : BlockchainCardDestination(route = "order_card_kyc_pending")
+
+    object OrderCardKycFailureDestination : BlockchainCardDestination(route = "order_card_kyc_failure")
 
     object OrderCardKycAddressDestination : BlockchainCardDestination(route = "order_card_kyc_address")
 

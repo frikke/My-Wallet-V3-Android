@@ -54,6 +54,20 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
                     onIntent(BlockchainCardIntent.LoadLinkedAccount)
                     onIntent(BlockchainCardIntent.LoadTransactions)
+                } else if (args.cards.filter { it.status != BlockchainCardStatus.TERMINATED }.size == 1) {
+                    updateState {
+                        it.copy(
+                            cardList = args.cards,
+                            cardProductList = args.cardProducts,
+                            currentCard = args.cards.first { card -> card.status != BlockchainCardStatus.TERMINATED },
+                        )
+                    }
+
+                    onIntent(BlockchainCardIntent.LoadCardWidget)
+                    onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
+                    onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                    onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                    onIntent(BlockchainCardIntent.LoadTransactions)
                 } else {
                     updateState {
                         it.copy(
@@ -142,7 +156,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.LoadCards -> {
                 blockchainCardRepository.getCards().fold(
                     onSuccess = { cards ->
-                        updateState { it.copy(cardList = cards.reversed()) }
+                        updateState { it.copy(cardList = cards) }
                     },
                     onFailure = { error ->
                         Timber.e("Unable to refresh card list")

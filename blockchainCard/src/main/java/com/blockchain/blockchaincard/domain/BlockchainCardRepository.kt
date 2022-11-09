@@ -5,6 +5,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycUpdate
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
@@ -26,7 +28,6 @@ interface BlockchainCardRepository {
 
     suspend fun createCard(
         productCode: String,
-        ssn: String,
         shippingAddress: BlockchainCardAddress?
     ): Outcome<BlockchainCardError, BlockchainCard>
 
@@ -119,4 +120,8 @@ interface BlockchainCardRepository {
     suspend fun getCardStatementUrl(statementId: String): Outcome<BlockchainCardError, String>
 
     suspend fun decodePostMessageType(postMessage: String): Outcome<BlockchainCardError, BlockchainCardPostMessageType>
+
+    suspend fun getKycStatus(): Outcome<BlockchainCardError, BlockchainCardKycStatus>
+
+    suspend fun updateKyc(kycUpdate: BlockchainCardKycUpdate): Outcome<BlockchainCardError, BlockchainCardKycStatus>
 }

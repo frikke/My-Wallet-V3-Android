@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
@@ -42,4 +43,5 @@ data class BlockchainCardViewState(
     val cardActivationUrl: String? = null,
     val cardStatements: List<BlockchainCardStatement>? = null,
     val shippingAddress: BlockchainCardAddress? = null,
+    val kycStatus: BlockchainCardKycStatus? = null,
 ) : ViewState

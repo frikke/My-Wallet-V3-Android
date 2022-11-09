@@ -17,19 +17,16 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
 
     // Order Card
     object HowToOrderCard : BlockchainCardIntent()
-    data class OrderCardKycComplete(val ssn: String) : BlockchainCardIntent()
+    object OrderCardPerformKyc : BlockchainCardIntent()
+    object OrderCardKycComplete : BlockchainCardIntent()
     object RetryOrderCard : BlockchainCardIntent()
     object LinkCard : BlockchainCardIntent()
-    object CreateCard : BlockchainCardIntent() {
-        override fun isValidFor(modelState: BlockchainCardModelState): Boolean {
-            return !modelState.ssn.isNullOrEmpty() && modelState.selectedCardProduct != null
-        }
-    }
+    object CreateCard : BlockchainCardIntent()
     object OnSeeProductDetails : BlockchainCardIntent()
     object OnSeeProductLegalInfo : BlockchainCardIntent()
     data class ManageCard(val card: BlockchainCard) : BlockchainCardIntent()
     object OrderCardKYCAddress : BlockchainCardIntent()
-    object OrderCardKYCSSN : BlockchainCardIntent()
+    object OrderCardKycSSN : BlockchainCardIntent()
     data class OnSeeSingleLegalDocument(val legalDocument: BlockchainCardLegalDocument) : BlockchainCardIntent()
     object OnSeeLegalDocuments : BlockchainCardIntent()
     data class OnLegalDocSeen(val name: String) : BlockchainCardIntent()
@@ -37,6 +34,8 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     data class OnOrderCardConfirm(val selectedProduct: BlockchainCardProduct) : BlockchainCardIntent()
     object OnOrderCardFlowComplete : BlockchainCardIntent()
     object OnChooseProduct : BlockchainCardIntent()
+    object LoadKycStatus : BlockchainCardIntent()
+    data class UpdateSSN(val ssn: String) : BlockchainCardIntent()
 
     // ManageCard
     object SelectCard : BlockchainCardIntent()

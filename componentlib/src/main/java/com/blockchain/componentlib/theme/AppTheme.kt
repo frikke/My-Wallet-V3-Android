@@ -172,7 +172,23 @@ fun AppTheme(
         isDarkTheme = darkTheme
     )
 
-    MaterialTheme(colors = debugColors(darkTheme)) {
+    MaterialTheme(
+        colors = Colors(
+            primary = mTheme.colors.primary,
+            primaryVariant = mTheme.colors.primaryMuted,
+            secondary = mTheme.colors.light,
+            secondaryVariant = mTheme.colors.dark,
+            background = mTheme.colors.background,
+            surface = mTheme.colors.background,
+            error = mTheme.colors.error,
+            onPrimary = mTheme.colors.light,
+            onSecondary = mTheme.colors.primary,
+            onBackground = mTheme.colors.primary,
+            onSurface = mTheme.colors.primary,
+            onError = mTheme.colors.light,
+            isLight = !darkTheme
+        )
+    ) {
         CompositionLocalProvider(
             colorsLocalProvider,
             LocalDimensions provides mTheme.dimensions,
