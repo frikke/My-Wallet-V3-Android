@@ -38,7 +38,7 @@ import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragmentDirections
 
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
@@ -144,7 +144,7 @@ class KycNavHostActivity :
         updateToolbarBackAction(null)
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         updateToolbarTitle(
             title = getString(R.string.kyc_email_title)
         )
@@ -160,7 +160,7 @@ class KycNavHostActivity :
                 .subscribeBy(
                     onSuccess = { (country, state) ->
                         navigate(
-                            KycEmailEntryFragmentDirections.actionAfterValidation(country, state, state)
+                            KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
                         )
                     },
                     onError = {

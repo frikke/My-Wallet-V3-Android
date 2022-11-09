@@ -18,6 +18,7 @@ public class SettingsManager {
     //API methods
     public static final String METHOD_GET_INFO = "get-info";
     public static final String METHOD_VERIFY_EMAIL = "verify-email";
+    public static final String METHOD_RESEND_VERIFY_EMAIL = "resend-verify-email";
     public static final String METHOD_VERIFY_SMS = "verify-sms";
     public static final String METHOD_UPDATE_NOTIFICATION_TYPE = "update-notifications-type";
     public static final String METHOD_UPDATE_NOTIFICATION_ON = "update-notifications-on";

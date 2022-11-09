@@ -1,11 +1,14 @@
 package com.blockchain.network
 
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.delay
 
 sealed class PollResult<T>(val value: T) {
     class FinalResult<T>(value: T) : PollResult<T>(value)
@@ -42,4 +45,37 @@ class PollService<T : Any>(
                     else -> PollResult.TimeOut(value)
                 }
             }
+
+    companion object {
+        suspend fun <T : Any> poll(
+            fetch: suspend () -> Outcome<Exception, T>,
+            until: (T) -> Boolean,
+            timerInSec: Long = 5,
+            retries: Int = 20,
+        ): Outcome<Exception, PollResult<T>> {
+            var lastFetched: T? = null
+            var currentRetry = 0
+            while (currentRetry++ <= retries) {
+                when (val result = fetch()) {
+                    is Outcome.Success -> {
+                        val value = result.value
+                        if (until(value)) {
+                            return result.map { PollResult.FinalResult(value) }
+                        } else {
+                            lastFetched = value
+                        }
+                    }
+                    is Outcome.Failure -> return result
+                }
+
+                delay(timerInSec * 1000)
+            }
+
+            return if (lastFetched != null) {
+                Outcome.Success(PollResult.TimeOut(lastFetched))
+            } else {
+                Outcome.Failure(NoSuchElementException("No result"))
+            }
+        }
+    }
 }

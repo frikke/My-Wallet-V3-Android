@@ -35,8 +35,7 @@
     <fragment
         android:id="@+id/kycProfileFragment"
         android:name="piuk.blockchain.android.ui.kyc.profile.KycProfileFragment"
-        android:label="KycProfileFragment"
-        tools:layout="@layout/fragment_kyc_profile">
+        android:label="KycProfileFragment">
         <action
             android:id="@+id/action_kycProfileFragment_to_kycAddressVerificationFragment"
             app:destination="@id/kycAddressVerificationFragment"
@@ -101,8 +100,7 @@
     <fragment
         android:id="@+id/veriffSplashFragment"
         android:name="piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashFragment"
-        android:label="VeriffSplashFragment"
-        tools:layout="@layout/fragment_kyc_veriff_splash">
+        android:label="VeriffSplashFragment">
         <argument
             android:name="countryCode"
             app:argType="string" />
@@ -126,7 +124,7 @@
         android:label="KycTierSplashFragment"
         tools:layout="@layout/fragment_kyc_tier_splash">
         <action
-            android:id="@+id/action_kycTierSplashFragment_to_kycEmailEntryFragment"
+            android:id="@+id/action_kycTierSplashFragment_to_kycEmailVerificationFragment"
             app:destination="@id/email_verification" />
     </fragment>
     <navigation
@@ -170,12 +168,11 @@
     <navigation
         android:id="@+id/email_verification"
         android:label="Email Verification"
-        app:startDestination="@id/kycEmailEntryFragment">
+        app:startDestination="@id/kycEmailVerificationFragment">
         <fragment
-            android:id="@+id/kycEmailEntryFragment"
-            android:name="piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment"
-            android:label="KycEmailEntryFragment"
-            tools:layout="@layout/fragment_kyc_add_email">
+            android:id="@+id/kycEmailVerificationFragment"
+            android:name="piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment"
+            android:label="Email Verification">
             <action
                 android:id="@+id/action_afterValidation"
                 app:destination="@id/kycProfileFragment"

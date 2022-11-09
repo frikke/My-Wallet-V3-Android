@@ -1,5 +1,8 @@
 package com.blockchain.outcome
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+
 sealed class Outcome<out E, out R> {
     data class Success<R>(
         val value: R
@@ -72,5 +75,64 @@ fun <E, R> Outcome<E, R>.getOrThrow(): R =
         is Outcome.Failure -> throw (failure as? Throwable ?: Exception())
     }
 
-// TODO(dtverdota): Check back for uptake in end of July
-infix fun <E, R, T> Outcome<E, R>.then(transform: (R) -> T): Outcome<E, T> = map(transform)
+fun <E, T> List<Outcome<E, T>>.anyError() = any { it is Outcome.Failure }
+fun <E, T> List<Outcome<E, T>>.getFirstError() = (first { it is Outcome.Failure } as Outcome.Failure)
+
+suspend fun <E, T1, T2, R> zipOutcomes(
+    p1: suspend () -> Outcome<E, T1>,
+    p2: suspend () -> Outcome<E, T2>,
+    transform: (T1, T2) -> R,
+): Outcome<E, R> = coroutineScope {
+    val a1 = async { p1() }
+    val a2 = async { p2() }
+    val r1 = a1.await()
+    val r2 = a2.await()
+    val results = listOf(r1, r2)
+
+    when {
+        results.anyError() -> Outcome.Failure(results.getFirstError().failure)
+        else -> {
+            r1 as Outcome.Success
+            r2 as Outcome.Success
+
+            Outcome.Success(transform(r1.value, r2.value))
+        }
+    }
+}
+
+suspend fun <E, T1, T2> zipOutcomes(
+    p1: suspend () -> Outcome<E, T1>,
+    p2: suspend () -> Outcome<E, T2>,
+): Outcome<E, Pair<T1, T2>> = zipOutcomes(p1, p2) { r1, r2 -> r1 to r2 }
+
+suspend fun <E, T1, T2, T3, R> zipOutcomes(
+    p1: suspend () -> Outcome<E, T1>,
+    p2: suspend () -> Outcome<E, T2>,
+    p3: suspend () -> Outcome<E, T3>,
+    transform: (T1, T2, T3) -> R,
+): Outcome<E, R> = coroutineScope {
+    val a1 = async { p1() }
+    val a2 = async { p2() }
+    val a3 = async { p3() }
+    val r1 = a1.await()
+    val r2 = a2.await()
+    val r3 = a3.await()
+    val results = listOf(r1, r2, r3)
+
+    when {
+        results.anyError() -> Outcome.Failure(results.getFirstError().failure)
+        else -> {
+            r1 as Outcome.Success
+            r2 as Outcome.Success
+            r3 as Outcome.Success
+
+            Outcome.Success(transform(r1.value, r2.value, r3.value))
+        }
+    }
+}
+
+suspend fun <E, T1, T2, T3> zipOutcomes(
+    p1: suspend () -> Outcome<E, T1>,
+    p2: suspend () -> Outcome<E, T2>,
+    p3: suspend () -> Outcome<E, T3>,
+): Outcome<E, Triple<T1, T2, T3>> = zipOutcomes(p1, p2, p3) { r1, r2, r3 -> Triple(r1, r2, r3) }

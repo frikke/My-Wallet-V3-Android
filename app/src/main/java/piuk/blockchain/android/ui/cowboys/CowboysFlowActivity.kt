@@ -61,7 +61,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_SDD_COMPLETE
 import timber.log.Timber
@@ -140,9 +140,9 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         )
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         emailSkipAction = buttonAction
-        shouldShowEmailSkipButton = shouldShowButton
+        shouldShowEmailSkipButton = showSkipButton
     }
 
     override fun onEmailVerified() {
@@ -308,7 +308,7 @@ fun EmailKycHost(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val emailKycFragment = remember { KycEmailEntryFragment.newInstance(true) }
+        val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true) }
 
         NavigationBar(
             title = stringResource(R.string.security_check),
@@ -328,7 +328,7 @@ fun EmailKycHost(
         EmbeddedFragment(
             fragment = emailKycFragment,
             fragmentManager = fragmentManager,
-            tag = KycEmailEntryFragment.javaClass.simpleName,
+            tag = KycEmailVerificationFragment.javaClass.simpleName,
             modifier = Modifier.fillMaxSize()
         )
     }

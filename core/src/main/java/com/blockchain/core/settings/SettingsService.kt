@@ -42,17 +42,14 @@ class SettingsService(private val settingsApi: SettingsManager) {
     internal fun updateEmail(email: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email)
 
-    internal fun updateEmail(email: String, context: String?): Observable<ResponseBody> =
-        settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email, context)
-
     /**
      * Resend the user's email
      *
      * @param email The email to be stored
      * @return A [ResponseBody] containing the response from the server
      */
-    internal fun resendEmail(email: String): Observable<ResponseBody> =
-        settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email)
+    internal fun resendVerificationEmail(email: String): Observable<ResponseBody> =
+        settingsApi.updateSetting(SettingsManager.METHOD_RESEND_VERIFY_EMAIL, email)
 
     /**
      * Update the user's phone number

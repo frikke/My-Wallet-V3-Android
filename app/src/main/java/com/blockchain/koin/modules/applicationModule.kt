@@ -137,7 +137,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -725,17 +724,8 @@ val applicationModule = module {
             CryptographyManagerImpl()
         }.bind(CryptographyManager::class)
 
-        factory {
+        viewModel {
             EmailVerificationModel(
-                interactor = get(),
-                uiScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get()
-            )
-        }
-
-        factory {
-            EmailVerificationInteractor(
                 emailUpdater = get(),
                 getUserStore = get(),
             )

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.kyc.tiercurrentstate
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,17 +17,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.nabu.models.responses.nabu.KycState
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.kyc.commonui.UserIcon
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT
 import piuk.blockchain.android.util.StringUtils
 
@@ -157,6 +157,7 @@ private fun ColumnScope.Header(
     modifier: Modifier = Modifier,
     state: KycState
 ) {
+    val context = LocalContext.current
     val titleRes = when (state) {
         KycState.None,
         KycState.Pending,
@@ -178,7 +179,19 @@ private fun ColumnScope.Header(
         )
     }
 
-    UserIcon(Modifier.padding(top = 140.dp), state)
+    val userStatusIconRes = when (state) {
+        KycState.None,
+        KycState.Pending,
+        KycState.UnderReview -> R.drawable.ic_pending_clock
+        KycState.Expired,
+        KycState.Rejected -> R.drawable.ic_warning_info_circle
+        KycState.Verified -> R.drawable.ic_check_circle
+    }
+    UserIcon(
+        modifier = Modifier.padding(top = AppTheme.dimensions.xHugeSpacing),
+        iconRes = R.drawable.ic_bank_user,
+        statusIconRes = userStatusIconRes,
+    )
 
     SimpleText(
         modifier = Modifier
@@ -199,54 +212,15 @@ private fun ColumnScope.Header(
         text = subtitle,
         style = ComposeTypographies.Body1,
         color = ComposeColors.Body,
-        gravity = ComposeGravities.Centre
-    )
-}
-
-@Composable
-private fun ColumnScope.UserIcon(modifier: Modifier = Modifier, state: KycState) {
-    ConstraintLayout(modifier) {
-        val (userIconRef, stateIconRef) = createRefs()
-
-        Image(
-            modifier = Modifier.constrainAs(userIconRef) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
-            imageResource = ImageResource.LocalWithBackground(
-                id = R.drawable.ic_bank_user,
-                iconTintColour = R.color.white,
-                backgroundColour = R.color.blue_600,
-                alpha = 1f,
-                size = AppTheme.dimensions.epicSpacing,
-                iconSize = AppTheme.dimensions.hugeSpacing,
-                shape = RoundedCornerShape(24.dp),
-            ),
-        )
-
-        val stateIconRes = when (state) {
-            KycState.None,
-            KycState.Pending,
-            KycState.UnderReview -> R.drawable.ic_pending_clock
-            KycState.Expired,
-            KycState.Rejected -> R.drawable.ic_warning_info_circle
-            KycState.Verified -> R.drawable.ic_check_circle
+        gravity = ComposeGravities.Centre,
+        onAnnotationClicked = { tag, value ->
+            if (tag == StringUtils.TAG_URL) {
+                Intent(Intent.ACTION_VIEW, Uri.parse(value))
+                    .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                    .also { context.startActivity(it) }
+            }
         }
-
-        Image(
-            modifier = Modifier.constrainAs(stateIconRef) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.top)
-                start.linkTo(parent.end)
-                end.linkTo(parent.end)
-            },
-            imageResource = ImageResource.Local(
-                id = stateIconRes,
-                size = AppTheme.dimensions.hugeSpacing,
-            ),
-        )
-    }
+    )
 }
 
 @Preview(showBackground = true)
