@@ -6,8 +6,8 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyl
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 
 internal fun String.toTextTypography(): ActivityTextTypography {
-    val paragraph2 = "Paragraph2"
-    val caption1 = "Caption1"
+    val paragraph2 = "paragraph2"
+    val caption1 = "caption1"
 
     return when (this) {
         paragraph2 -> ActivityTextTypography.Paragraph2
@@ -17,8 +17,8 @@ internal fun String.toTextTypography(): ActivityTextTypography {
 }
 
 internal fun String.toTextColor(): ActivityTextColor {
-    val title = "Title"
-    val muted = "Muted"
+    val title = "text-title"
+    val muted = "text-body"
     val success = "Success"
     val error = "Error"
     val warning = "Warning"

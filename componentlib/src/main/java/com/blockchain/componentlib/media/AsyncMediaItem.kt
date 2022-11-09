@@ -4,7 +4,6 @@ package com.blockchain.componentlib.media
 
 import android.os.Build
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -43,79 +42,77 @@ fun AsyncMediaItem(
 ) {
     val context = LocalContext.current
 
-    Column(modifier = modifier) {
-        when (url.getUrlType().ifEmpty { fallbackUrlType?.name }) {
-            UrlType.MP4.name,
-            UrlType.WAV.name,
-            UrlType.FLV.name -> {
-                VideoPlayerItem(
-                    modifier = modifier,
-                    sourceUrl = url
-                )
-            }
-            UrlType.JSON.name -> {
-                val retrySignal = rememberLottieRetrySignal()
-                val composition by rememberLottieComposition(
-                    LottieCompositionSpec.Url(url),
-                    onRetry = { _, _ ->
-                        retrySignal.retry()
-                        true
-                    },
-                )
+    when (url.getUrlType().ifEmpty { fallbackUrlType?.name }) {
+        UrlType.MP4.name,
+        UrlType.WAV.name,
+        UrlType.FLV.name -> {
+            VideoPlayerItem(
+                modifier = modifier,
+                sourceUrl = url
+            )
+        }
+        UrlType.JSON.name -> {
+            val retrySignal = rememberLottieRetrySignal()
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.Url(url),
+                onRetry = { _, _ ->
+                    retrySignal.retry()
+                    true
+                },
+            )
 
-                LottieAnimation(
-                    modifier = modifier,
-                    composition = composition,
-                    iterations = LottieConstants.IterateForever,
-                )
-            }
-            UrlType.JPG.name,
-            UrlType.PNG.name -> {
-                val imageRequest = ImageRequest.Builder(context)
-                    .data(url)
-                    .placeholder(onLoadingPlaceholder)
-                    .error(onErrorDrawable)
-                    .crossfade(true)
-                    .build()
+            LottieAnimation(
+                modifier = modifier,
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+            )
+        }
+        UrlType.JPG.name,
+        UrlType.PNG.name -> {
+            val imageRequest = ImageRequest.Builder(context)
+                .data(url)
+                .placeholder(onLoadingPlaceholder)
+                .error(onErrorDrawable)
+                .crossfade(true)
+                .build()
 
-                context.imageLoader.enqueue(imageRequest)
+            context.imageLoader.enqueue(imageRequest)
 
-                AsyncImage(
-                    model = imageRequest,
-                    modifier = modifier,
-                    contentDescription = contentDescription,
-                    contentScale = contentScale
-                )
-            }
-            UrlType.SVG.name,
-            UrlType.GIF.name -> {
-                val imageLoader = ImageLoader.Builder(context)
-                    .components {
-                        add(SvgDecoder.Factory())
-                        if (Build.VERSION.SDK_INT >= 28) {
-                            add(ImageDecoderDecoder.Factory())
-                        } else {
-                            add(GifDecoder.Factory())
-                        }
+            AsyncImage(
+                model = imageRequest,
+                modifier = modifier,
+                contentDescription = contentDescription,
+                contentScale = contentScale
+            )
+        }
+        UrlType.SVG.name,
+        UrlType.GIF.name -> {
+            val imageLoader = ImageLoader.Builder(context)
+                .components {
+                    add(SvgDecoder.Factory())
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(GifDecoder.Factory())
                     }
-                    .build()
+                }
+                .build()
 
-                val imageRequest = ImageRequest.Builder(context)
-                    .data(data = url)
-                    .placeholder(onLoadingPlaceholder)
-                    .error(onErrorDrawable)
-                    .crossfade(true)
-                    .build()
-                context.imageLoader.enqueue(imageRequest)
+            val imageRequest = ImageRequest.Builder(context)
+                .data(data = url)
+                .placeholder(onLoadingPlaceholder)
+                .error(onErrorDrawable)
+                .crossfade(true)
+                .build()
+            context.imageLoader.enqueue(imageRequest)
 
-                AsyncImage(
-                    model = imageRequest,
-                    imageLoader = imageLoader,
-                    modifier = modifier,
-                    contentDescription = contentDescription,
-                    contentScale = contentScale
-                )
-            }
+            AsyncImage(
+                model = imageRequest,
+                imageLoader = imageLoader,
+                modifier = modifier,
+                contentDescription = contentDescription,
+                contentScale = contentScale
+            )
         }
     }
 }
