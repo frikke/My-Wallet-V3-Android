@@ -23,6 +23,7 @@ import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
@@ -39,11 +40,7 @@ fun ActivityDetail(
     viewModel: ActivityDetailViewModel = getViewModel(scope = payloadScope),
     onCloseClick: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: ActivityDetailViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: ActivityDetailViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(ActivityDetailIntent.LoadActivityDetail)
@@ -113,9 +110,7 @@ fun ActivityDetailData(
         activityDetail.itemGroups.forEach { sectionItems ->
             item {
                 ActivitySectionCard(components = sectionItems)
-            }
 
-            item {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }
         }

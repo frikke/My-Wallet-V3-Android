@@ -131,7 +131,7 @@ fun ActivityScreen(
                     }
                     is DataResource.Data -> {
                         ActivityData(
-                            transactions = activity.data,
+                            activity = activity.data,
                             onSearchTermEntered = onSearchTermEntered,
                             onActivityClick = {
                                 focusManager.clearFocus(true)
@@ -147,7 +147,7 @@ fun ActivityScreen(
 
 @Composable
 fun ActivityData(
-    transactions: Map<TransactionGroup, List<ActivityComponent>>,
+    activity: Map<TransactionGroup, List<ActivityComponent>>,
     onSearchTermEntered: (String) -> Unit,
     onActivityClick: () -> Unit
 ) {
@@ -162,7 +162,7 @@ fun ActivityData(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         ActivityGroups(
-            transactions = transactions,
+            activity = activity,
             onActivityClick = onActivityClick
         )
     }
@@ -170,14 +170,14 @@ fun ActivityData(
 
 @Composable
 fun ActivityGroups(
-    transactions: Map<TransactionGroup, List<ActivityComponent>>,
+    activity: Map<TransactionGroup, List<ActivityComponent>>,
     onActivityClick: () -> Unit
 ) {
     LazyColumn {
         itemsIndexed(
-            items = transactions.keys.toList(),
+            items = activity.keys.toList(),
             itemContent = { index, group ->
-                transactions[group]?.let { transactionsList ->
+                activity[group]?.let { transactionsList ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -206,7 +206,7 @@ fun ActivityGroups(
                         onClick = onActivityClick
                     )
 
-                    if (index < transactions.keys.toList().lastIndex) {
+                    if (index < activity.keys.toList().lastIndex) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     }
                 }
