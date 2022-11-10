@@ -15,5 +15,5 @@ sealed interface ActivityIcon {
         val url: String
     ) : ActivityIcon
 
-    object None: ActivityIcon
+    object None : ActivityIcon
 }

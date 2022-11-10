@@ -1,7 +1,5 @@
 package com.blockchain.data
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Exception
@@ -9,6 +7,8 @@ import kotlin.Int
 import kotlin.Nothing
 import kotlin.Unit
 import kotlin.also
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * [Loading] : emitted exclusively when fetching from network, the next emitted Data or Error will be related to the network fetch and mean that Store is no longer Loading

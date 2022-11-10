@@ -3,7 +3,6 @@ package com.blockchain.unifiedcryptowallet.data.activity.repository
 import com.blockchain.api.selfcustody.activity.ActivityResponse
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityStore
 import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActivityDetailGroups
@@ -11,11 +10,11 @@ import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActi
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.Calendar
 
 class UnifiedActivityRepository(
     private val unifiedActivityStore: UnifiedActivityStore,
@@ -42,31 +41,32 @@ class UnifiedActivityRepository(
                 )
             )
         )*/
+        // todo(othman) hardcoding for now - will be using websocket
         return flowOf(DataResource.Data(json.decodeFromString<ActivityResponse>(js)))
             .mapData { activityResponse ->
-            UnifiedActivityPage(
-                activity = activityResponse.activity.mapNotNull { activityItem ->
-                    val summary = activityItem.summary.toActivityViewItem()
-                    val detail = activityItem.detail.toActivityDetailGroups()
+                UnifiedActivityPage(
+                    activity = activityResponse.activity.mapNotNull { activityItem ->
+                        val summary = activityItem.summary.toActivityViewItem()
+                        val detail = activityItem.detail.toActivityDetailGroups()
 
-                    if (summary == null || detail == null) {
-                        null
-                    } else {
-                        UnifiedActivityItem(
-                            txId = activityItem.id,
-                            blockExplorerUrl = activityItem.externalUrl,
-                            summary = summary,
-                            detail = detail,
-                            status = activityItem.status,
-                            date = activityItem.timestamp?.let {
-                                Calendar.getInstance().apply { set(Calendar.MILLISECOND, it.toInt()) }
-                            }
-                        )
-                    }
-                },
-                nextPage = activityResponse.nextPage
-            )
-        }
+                        if (summary == null || detail == null) {
+                            null
+                        } else {
+                            UnifiedActivityItem(
+                                txId = activityItem.id,
+                                blockExplorerUrl = activityItem.externalUrl,
+                                summary = summary,
+                                detail = detail,
+                                status = activityItem.status,
+                                date = activityItem.timestamp?.let {
+                                    Calendar.getInstance().apply { set(Calendar.MILLISECOND, it.toInt()) }
+                                }
+                            )
+                        }
+                    },
+                    nextPage = activityResponse.nextPage
+                )
+            }
     }
 }
 

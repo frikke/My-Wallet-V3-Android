@@ -56,5 +56,5 @@ sealed interface StackedIcon {
         val icon: ImageResource
     ) : StackedIcon
 
-    object None: StackedIcon
+    object None : StackedIcon
 }

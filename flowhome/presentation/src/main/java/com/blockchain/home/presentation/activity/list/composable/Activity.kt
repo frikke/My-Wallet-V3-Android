@@ -50,9 +50,9 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.koin.payloadScope
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
+import java.util.Calendar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
-import java.util.Calendar
 
 @Composable
 fun Activity(

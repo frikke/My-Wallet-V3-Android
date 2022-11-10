@@ -72,7 +72,10 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                     trailing = listOf(
                         ActivityStackView.Text(
                             "Free",
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Success)
+                            ActivityTextStyleState(
+                                ActivityTextTypographyState.Paragraph2,
+                                ActivityTextColorState.Success
+                            )
                         )
                     )
                 ),

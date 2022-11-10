@@ -12,10 +12,10 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class ActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
@@ -100,6 +100,7 @@ class ActivityViewModel(
 
     private fun loadData() {
         viewModelScope.launch {
+            // todo(othman) use service with websocket
             unifiedActivityService
                 .activityForAccount(
                     pubKey = "",

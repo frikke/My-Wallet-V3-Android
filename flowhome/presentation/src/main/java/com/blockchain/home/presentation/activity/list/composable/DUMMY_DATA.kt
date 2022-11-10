@@ -41,21 +41,33 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         value = "Sent Bitcoin",
-                        style = ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        style = ActivityTextStyleState(
+                            ActivityTextTypographyState.Paragraph2,
+                            ActivityTextColorState.Title
+                        )
                     ),
                     ActivityStackView.Text(
                         value = "RBF transaction",
-                        style = ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Error)
+                        style = ActivityTextStyleState(
+                            ActivityTextTypographyState.Caption1,
+                            ActivityTextColorState.Error
+                        )
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         value = "-25.00",
-                        style = ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+                        style = ActivityTextStyleState(
+                            ActivityTextTypographyState.Paragraph2,
+                            ActivityTextColorState.Muted
+                        )
                     ),
                     ActivityStackView.Text(
                         value = "0.00025 BTC",
-                        style = ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        style = ActivityTextStyleState(
+                            ActivityTextTypographyState.Caption1,
+                            ActivityTextColorState.Muted
+                        )
                     )
                 )
             )
@@ -99,11 +111,17 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 trailing = listOf(
                     ActivityStackView.Text(
                         "-10.00",
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted, true)
+                        ActivityTextStyleState(
+                            ActivityTextTypographyState.Paragraph2,
+                            ActivityTextColorState.Muted, true
+                        )
                     ),
                     ActivityStackView.Text(
                         "-0.00893208 ETH",
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted, true)
+                        ActivityTextStyleState(
+                            ActivityTextTypographyState.Caption1,
+                            ActivityTextColorState.Muted, true
+                        )
                     )
                 )
             )
@@ -124,11 +142,17 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 trailing = listOf(
                     ActivityStackView.Text(
                         "-10.00",
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted, true)
+                        ActivityTextStyleState(
+                            ActivityTextTypographyState.Paragraph2,
+                            ActivityTextColorState.Muted, true
+                        )
                     ),
                     ActivityStackView.Text(
                         "-0.00893208 ETH",
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted, true)
+                        ActivityTextStyleState(
+                            ActivityTextTypographyState.Caption1,
+                            ActivityTextColorState.Muted, true
+                        )
                     )
                 )
             )
