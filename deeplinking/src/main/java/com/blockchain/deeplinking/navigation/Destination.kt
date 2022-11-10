@@ -47,6 +47,17 @@ sealed class Destination : Parcelable {
     ) : Destination()
 
     @Parcelize
+    data class FiatDepositDestination(
+        val fiatTicker: String
+    ) : Destination()
+
+    @Parcelize
+    object SettingsAddCardDestination : Destination()
+
+    @Parcelize
+    object SettingsAddBankDestination : Destination()
+
+    @Parcelize
     data class ActivityDestination(val filter: String? = null) : Destination()
 
     @Parcelize

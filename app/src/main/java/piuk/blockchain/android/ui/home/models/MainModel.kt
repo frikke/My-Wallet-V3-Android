@@ -265,19 +265,19 @@ class MainModel(
                 // the interest deposit flow requires that there are defined source and target accounts before launch
                 if (intent.action == AssetAction.InterestDeposit) {
                     Singles.zip(
-                        interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action),
-                        interactor.selectRewardsAccountForAsset(intent.cryptoTicker)
+                        interactor.selectAccountForTxFlow(intent.networkTicker, intent.action),
+                        interactor.selectRewardsAccountForAsset(intent.networkTicker)
                     ).map { (sourceAccount, targetAccount) ->
                         require(sourceAccount is LaunchFlowForAccount.SourceAccount)
                         require(targetAccount is LaunchFlowForAccount.SourceAccount)
 
                         LaunchFlowForAccount.SourceAndTargetAccount(
-                            sourceAccount = sourceAccount.account,
-                            targetAccount = targetAccount.account as TransactionTarget
+                            sourceAccount = sourceAccount.source,
+                            targetAccount = targetAccount.source as TransactionTarget
                         )
                     }
                 } else {
-                    interactor.selectAccountForTxFlow(intent.cryptoTicker, intent.action)
+                    interactor.selectAccountForTxFlow(intent.networkTicker, intent.action)
                 }
                     .subscribeBy(
                         onSuccess = { account ->

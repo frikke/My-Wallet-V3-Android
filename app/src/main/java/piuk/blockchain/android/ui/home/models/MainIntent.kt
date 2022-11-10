@@ -138,7 +138,7 @@ sealed class MainIntent : MviIntent<MainState> {
             oldState.copy(isStakingEnabled = isStakingEnabled)
     }
 
-    class LaunchTransactionFlowFromDeepLink(val cryptoTicker: String, val action: AssetAction) : MainIntent() {
+    class LaunchTransactionFlowFromDeepLink(val networkTicker: String, val action: AssetAction) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 

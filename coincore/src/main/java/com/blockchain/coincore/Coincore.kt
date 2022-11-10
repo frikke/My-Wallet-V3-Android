@@ -207,7 +207,7 @@ class Coincore internal constructor(
         }
     }
 
-    private fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+    fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
         .flatMap {
             val fiats = it.filterIsInstance<FiatAsset>()
             if (fiats.isEmpty())

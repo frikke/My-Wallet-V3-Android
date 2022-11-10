@@ -7,6 +7,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -171,32 +172,48 @@ class MainInteractor internal constructor(
     fun isStakingEnabled(): Single<Boolean> =
         stakingAccountFlag.enabled
 
-    fun selectAccountForTxFlow(cryptoTicker: String, action: AssetAction): Single<LaunchFlowForAccount> =
-        coincore.walletsWithActions(setOf(action)).map { accountsForAction ->
-            accountsForAction.filter { account ->
-                account.currency.networkTicker == cryptoTicker
+    fun selectAccountForTxFlow(networkTicker: String, action: AssetAction): Single<LaunchFlowForAccount> =
+        if (action == AssetAction.FiatDeposit) {
+            coincore.allFiats().map { fiatAccount ->
+                fiatAccount.filter { account ->
+                    account.currency.networkTicker == networkTicker
+                }
+            }.map { accounts ->
+                return@map if (accounts.isEmpty() || accounts.size > 1) {
+                    LaunchFlowForAccount.NoAccount
+                } else {
+                    LaunchFlowForAccount.TargetAccount(accounts[0] as TransactionTarget)
+                }
             }
-        }.map { sameAssetAccounts ->
-            val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
-                .firstOrNull { tradingAccount ->
-                    tradingAccount.isFunded
+        } else {
+            coincore.walletsWithActions(setOf(action)).map { accountsForAction ->
+                accountsForAction.filter { account ->
+                    account.currency.networkTicker == networkTicker
                 }
+            }.map { sameAssetAccounts ->
 
-            when {
-                eligibleTradingAccount != null -> {
-                    return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
-                }
-                else -> {
-                    val eligibleNonCustodialAccount = sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
-                        .firstOrNull { ncAccount ->
-                            ncAccount.isFunded
-                        }
-                    when {
-                        eligibleNonCustodialAccount != null -> {
-                            return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
-                        }
-                        else -> {
-                            return@map LaunchFlowForAccount.NoAccount
+                val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
+                    .firstOrNull { tradingAccount ->
+                        tradingAccount.isFunded
+                    }
+
+                when {
+                    eligibleTradingAccount != null -> {
+                        return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
+                    }
+                    else -> {
+                        val eligibleNonCustodialAccount =
+                            sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
+                                .firstOrNull { ncAccount ->
+                                    ncAccount.isFunded
+                                }
+                        when {
+                            eligibleNonCustodialAccount != null -> {
+                                return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
+                            }
+                            else -> {
+                                return@map LaunchFlowForAccount.NoAccount
+                            }
                         }
                     }
                 }

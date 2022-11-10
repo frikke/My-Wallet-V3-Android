@@ -1366,7 +1366,7 @@ class MainModelTest {
                 (
                 (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction).account as
                     LaunchFlowForAccount.SourceAccount
-                ).account == custodialAccount
+                ).source == custodialAccount
         }
 
         verify(interactor).selectAccountForTxFlow(ticker, action)

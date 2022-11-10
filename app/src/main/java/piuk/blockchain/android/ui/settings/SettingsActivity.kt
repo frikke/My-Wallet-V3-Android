@@ -66,10 +66,11 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         setContentView(binding.root)
         setupToolbar()
 
+        val settingsHomeFragment = SettingsFragment.newInstance()
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
-                binding.settingsContentFrame.id, SettingsFragment.newInstance()
+                binding.settingsContentFrame.id, settingsHomeFragment
             )
             .commitNowAllowingStateLoss()
 
@@ -83,6 +84,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             SettingsDestination.General -> goToGeneralSettings()
             SettingsDestination.About -> goToAboutApp()
             SettingsDestination.CardLinking -> startActivity(CardDetailsActivity.newIntent(this))
+            SettingsDestination.BankLinking -> settingsHomeFragment.onLinkBankSelected()
         }
     }
 
@@ -225,7 +227,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     companion object {
         const val BASIC_INFO = "basic_info_user"
         const val USER_TIER = "user_tier"
-        private const val START_FOR_2FA = "START_FOR_2FA"
         private const val DEEPLINK_TO_SCREEN = "DEEPLINK_TO_SCREEN"
 
         const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
@@ -252,7 +253,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             Security,
             General,
             About,
-            CardLinking
+            CardLinking,
+            BankLinking
         }
     }
 }

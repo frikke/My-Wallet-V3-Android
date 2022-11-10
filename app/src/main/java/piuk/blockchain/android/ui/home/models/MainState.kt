@@ -79,7 +79,8 @@ sealed class ViewToLaunch {
 }
 
 sealed class LaunchFlowForAccount {
-    class SourceAccount(val account: BlockchainAccount) : LaunchFlowForAccount()
+    class SourceAccount(val source: BlockchainAccount) : LaunchFlowForAccount()
+    class TargetAccount(val target: TransactionTarget) : LaunchFlowForAccount()
     class SourceAndTargetAccount(val sourceAccount: BlockchainAccount, val targetAccount: TransactionTarget) :
         LaunchFlowForAccount()
 

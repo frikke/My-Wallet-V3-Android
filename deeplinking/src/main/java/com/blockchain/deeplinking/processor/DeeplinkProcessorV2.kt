@@ -149,6 +149,42 @@ class DeeplinkProcessorV2 {
                     Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
+            FIAT_DEPOSIT_URL -> {
+                val code = getFiatTicker(deeplinkUri)
+                Timber.d("deeplink: fiat deposit with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.FiatDepositDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+                }
+            }
+            SETTINGS_ADD_CARD -> {
+                Timber.d("deeplink: add card")
+
+                Single.just(
+                    DeepLinkResult.DeepLinkResultSuccess(
+                        destination = Destination.SettingsAddCardDestination,
+                        notificationPayload = payload
+                    )
+                )
+            }
+            SETTINGS_ADD_BANK -> {
+                Timber.d("deeplink: add bank")
+
+                Single.just(
+                    DeepLinkResult.DeepLinkResultSuccess(
+                        destination = Destination.SettingsAddBankDestination,
+                        notificationPayload = payload
+                    )
+                )
+            }
             ACTIVITY_URL -> {
                 // Todo add filter parameter to destination
                 // val filter = getFilter(deeplinkUri)
@@ -261,6 +297,11 @@ class DeeplinkProcessorV2 {
         private const val REWARDS_URL = "$ASSET_URL/rewards"
         const val REWARDS_DEPOSIT_URL = "$REWARDS_URL/deposit"
         const val REWARDS_SUMMARY_URL = "$REWARDS_URL/summary"
+
+        const val FIAT_DEPOSIT_URL = "$APP_URL/fiat/deposit"
+        private const val SETTINGS_URL = "$APP_URL/settings"
+        const val SETTINGS_ADD_CARD = "$SETTINGS_URL/add/card"
+        const val SETTINGS_ADD_BANK = "$SETTINGS_URL/add/bank"
 
         const val DIFFERENT_CARD_URL = "$TRANSACTION_URL/try/different/card"
         const val DIFFERENT_PAYMENT_URL = "$TRANSACTION_URL/try/different/payment_method"

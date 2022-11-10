@@ -487,7 +487,7 @@ class MainActivity :
             }
             BANK_DEEP_LINK_SETTINGS -> {
                 if (resultCode == RESULT_OK) {
-                    startActivity(SettingsActivity.newIntent(this))
+                    goToSettings()
                 }
             }
             BANK_DEEP_LINK_DEPOSIT -> {
@@ -709,24 +709,46 @@ class MainActivity :
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
             is ViewToLaunch.LaunchTxFlowWithAccountForAction -> {
-                if (view.account is LaunchFlowForAccount.SourceAndTargetAccount) {
-                    startActivity(
-                        TransactionFlowActivity.newIntent(
-                            this,
-                            action = view.action,
-                            sourceAccount = view.account.sourceAccount,
-                            target = view.account.targetAccount
+                when (view.account) {
+                    is LaunchFlowForAccount.SourceAndTargetAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                sourceAccount = view.account.sourceAccount,
+                                target = view.account.targetAccount
+                            )
                         )
-                    )
-                } else {
-                    launchInterestDashboard(LaunchOrigin.DASHBOARD)
+                    is LaunchFlowForAccount.SourceAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                sourceAccount = view.account.source
+                            )
+                        )
+                    is LaunchFlowForAccount.TargetAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                target = view.account.target
+                            )
+                        )
+                    is LaunchFlowForAccount.NoAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action
+                            )
+                        )
                 }
             }
             is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
                 if (view.account is LaunchFlowForAccount.SourceAccount) {
                     showBottomSheet(
                         InterestSummarySheet.newInstance(
-                            singleAccount = view.account.account as CryptoAccount
+                            singleAccount = view.account.source as CryptoAccount
                         )
                     )
                 } else {
@@ -881,12 +903,7 @@ class MainActivity :
                     )
                 } ?: run {
                     destinationArgs.getFiatAssetInfo(destination.networkTicker)?.let { _ ->
-                        startActivity(
-                            SettingsActivity.newIntent(
-                                context = this,
-                                deeplinkToScreen = SettingsDestination.CardLinking
-                            )
-                        )
+                        goToSettings(SettingsDestination.CardLinking)
                     } ?: Timber.e(
                         "Unable to start CardLinking from deeplink. Ticker not found ${destination.networkTicker}"
                     )
@@ -917,21 +934,21 @@ class MainActivity :
             is Destination.AssetSellDestination ->
                 model.process(
                     MainIntent.LaunchTransactionFlowFromDeepLink(
-                        cryptoTicker = destination.networkTicker,
+                        networkTicker = destination.networkTicker,
                         action = AssetAction.Sell
                     )
                 )
             is Destination.AssetSwapDestination ->
                 model.process(
                     MainIntent.LaunchTransactionFlowFromDeepLink(
-                        cryptoTicker = destination.networkTicker,
+                        networkTicker = destination.networkTicker,
                         action = AssetAction.Swap
                     )
                 )
             is Destination.RewardsDepositDestination ->
                 model.process(
                     MainIntent.LaunchTransactionFlowFromDeepLink(
-                        cryptoTicker = destination.networkTicker,
+                        networkTicker = destination.networkTicker,
                         action = AssetAction.InterestDeposit
                     )
                 )
@@ -942,10 +959,23 @@ class MainActivity :
                     )
                 )
             }
+            is Destination.FiatDepositDestination -> {
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        networkTicker = destination.fiatTicker,
+                        action = AssetAction.FiatDeposit
+                    )
+                )
+            }
+            Destination.SettingsAddCardDestination -> goToSettings(SettingsDestination.CardLinking)
+            Destination.SettingsAddBankDestination -> goToSettings(SettingsDestination.BankLinking)
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
     }
+
+    private fun goToSettings(destination: SettingsDestination = SettingsDestination.Home) =
+        startActivity(SettingsActivity.newIntent(this, destination))
 
     private fun launchWalletConnectSessionSelectNetwork(walletConnectSession: WalletConnectSession) {
         showBottomSheet(
@@ -1224,12 +1254,7 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(
-            SettingsActivity.newIntent(
-                context = this,
-                deeplinkToScreen = SettingsDestination.Security
-            )
-        )
+        goToSettings(destination = SettingsDestination.Security)
     }
 
     override fun launchOpenExternalEmailApp() {
