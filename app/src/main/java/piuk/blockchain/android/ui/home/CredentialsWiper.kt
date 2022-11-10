@@ -3,11 +3,13 @@ package piuk.blockchain.android.ui.home
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.walletoptions.WalletOptionsState
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -26,7 +28,8 @@ class CredentialsWiper(
     private val metadataService: MetadataService,
     private val nabuDataManager: NabuDataManager,
     private val walletOptionsState: WalletOptionsState,
-    private val storeWiper: StoreWiper
+    private val storeWiper: StoreWiper,
+    private val intercomEnabledFF: FeatureFlag
 ) {
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
@@ -42,6 +45,8 @@ class CredentialsWiper(
         }.onErrorComplete()
             .then {
                 rxCompletable { storeWiper.wipe() }
+            }.thenSingle {
+                intercomEnabledFF.enabled
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -51,8 +56,8 @@ class CredentialsWiper(
                     // StoreWiper failed, we can't safely recover at this point
                     throw it
                 },
-                onComplete = {
-                    appUtil.logout()
+                onSuccess = { intercomEnabled ->
+                    appUtil.logout(intercomEnabled)
                     appUtil.restartApp()
                 }
             )

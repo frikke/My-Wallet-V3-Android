@@ -32,7 +32,6 @@ import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import com.google.firebase.FirebaseApp
 import io.embrace.android.embracesdk.Embrace
-import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -89,10 +88,6 @@ open class BlockchainApplication : Application() {
         initRemoteLogger()
         initLifecycleListener()
         initFraudService()
-
-        if (environmentSettings.isCompanyInternalBuild() || environmentSettings.isRunningInDebugMode()) {
-            Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
-        }
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)

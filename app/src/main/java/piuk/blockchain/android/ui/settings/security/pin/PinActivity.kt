@@ -345,6 +345,7 @@ class PinActivity :
         setApiOutageMessage()
 
         with(model) {
+            process(PinIntent.CheckIntercomStatus)
             process(PinIntent.CheckNumPinAttempts)
             process(PinIntent.GetAction)
             process(PinIntent.CheckApiStatus)
@@ -476,10 +477,10 @@ class PinActivity :
             .setMessage(R.string.upgrade_fail_info)
             .setCancelable(false)
             .setPositiveButton(R.string.exit) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
             .setNegativeButton(R.string.logout) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
             .show()
@@ -714,10 +715,10 @@ class PinActivity :
             .setPositiveButton(
                 R.string.exit
             ) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
             .setNegativeButton(R.string.logout) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
             .show()
@@ -817,7 +818,7 @@ class PinActivity :
                 }
                 else -> {
                     fraudService.endFlow(FraudFlow.LOGIN)
-                    appUtil.logout()
+                    appUtil.logout(lastState.isIntercomEnabled)
                 }
             }
         }
@@ -911,7 +912,7 @@ class PinActivity :
         }
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setOnClickListener {
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
         fraudService.endFlow(FraudFlow.LOGIN)
     }

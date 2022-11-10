@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
+import android.app.Application
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.AuthDataManager
@@ -23,7 +24,7 @@ import io.intercom.android.sdk.identity.Registration
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
@@ -43,6 +44,7 @@ class PinInteractor internal constructor(
     private val defaultLabels: DefaultLabels,
     private val remoteLogger: RemoteLogger,
     private val isIntercomEnabledFlag: FeatureFlag,
+    private val application: Application
 ) {
 
     fun shouldShowFingerprintLogin(): Boolean {
@@ -102,11 +104,14 @@ class PinInteractor internal constructor(
         return walletOptionsDataManager.checkForceUpgrade(versionName)
     }
 
-    fun validatePIN(pin: String, isForValidatingPinForResult: Boolean = false): Single<String> =
+    fun validatePIN(
+        pin: String,
+        isForValidatingPinForResult: Boolean = false,
+        isIntercomEnabled: Boolean
+    ): Single<String> =
         authDataManager.validatePin(pin)
             .firstOrError()
-            .zipWith(isIntercomEnabledFlag.enabled)
-            .flatMap { (validatedPin, isIntercomEnabled) ->
+            .flatMap { validatedPin ->
                 if (isIntercomEnabled) {
                     registerIntercomUser()
                 }
@@ -120,6 +125,9 @@ class PinInteractor internal constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun registerIntercomUser() {
+        // TODO(dserrano): Move this initialization back to BlockchainApplication when the flag is removed
+        Intercom.initialize(application, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
+
         val registration = Registration.create().withUserId(authPrefs.walletGuid)
         Intercom.client().loginIdentifiedUser(
             registration,
@@ -166,6 +174,8 @@ class PinInteractor internal constructor(
             defaultLabels.getDefaultNonCustodialWalletLabel()
         )
     }
+
+    fun getIntercomStatus(): Single<Boolean> = isIntercomEnabledFlag.enabled
 
     companion object {
         private const val LOCAL_MAX_ATTEMPTS: Long = 4

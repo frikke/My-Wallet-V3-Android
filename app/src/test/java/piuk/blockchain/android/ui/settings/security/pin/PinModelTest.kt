@@ -1191,7 +1191,7 @@ class PinModelTest {
         val isForValidatingPinForResult = true
         val pin = "1234"
 
-        whenever(interactor.validatePIN(pin, isForValidatingPinForResult)).thenReturn(Single.just(pin))
+        whenever(interactor.validatePIN(pin, isForValidatingPinForResult, false)).thenReturn(Single.just(pin))
 
         val testState = model.state.test()
         model.process(PinIntent.ValidatePIN(pin, isForValidatingPinForResult))
@@ -1244,7 +1244,7 @@ class PinModelTest {
         val isForValidatingPinForResult = false
         val pin = "1234"
 
-        whenever(interactor.validatePIN(pin, isForValidatingPinForResult)).thenReturn(Single.just(pin))
+        whenever(interactor.validatePIN(pin, isForValidatingPinForResult, false)).thenReturn(Single.just(pin))
         whenever(interactor.isWalletUpgradeRequired()).thenReturn(false)
         whenever(interactor.updatePayload(any())).thenReturn(Completable.complete())
 
@@ -1287,7 +1287,7 @@ class PinModelTest {
         val isForValidatingPinForResult = false
         val pin = "1234"
 
-        whenever(interactor.validatePIN(pin, isForValidatingPinForResult))
+        whenever(interactor.validatePIN(pin, isForValidatingPinForResult, false))
             .thenReturn(Single.error(InvalidCredentialsException()))
 
         val testState = model.state.test()
@@ -1337,7 +1337,7 @@ class PinModelTest {
         val isForValidatingPinForResult = false
         val pin = "1234"
 
-        whenever(interactor.validatePIN(pin, isForValidatingPinForResult))
+        whenever(interactor.validatePIN(pin, isForValidatingPinForResult, false))
             .thenReturn(Single.error(Throwable()))
 
         val testState = model.state.test()

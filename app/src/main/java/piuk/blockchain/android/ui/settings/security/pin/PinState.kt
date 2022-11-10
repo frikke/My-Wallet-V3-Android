@@ -16,7 +16,8 @@ data class PinState(
     val biometricStatus: BiometricStatus = BiometricStatus(),
     val upgradeWalletStatus: UpgradeWalletStatus? = null,
     val payloadStatus: PayloadStatus = PayloadStatus(),
-    val pinStatus: PinStatus = PinStatus()
+    val pinStatus: PinStatus = PinStatus(),
+    val isIntercomEnabled: Boolean = false
 ) : MviState
 
 sealed class PinScreenView {

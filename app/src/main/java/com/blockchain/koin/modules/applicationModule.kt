@@ -183,7 +183,6 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            isIntercomEnabledFlag = get(intercomChatFeatureFlag),
             walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
@@ -252,7 +251,8 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
-                storeWiper = get()
+                storeWiper = get(),
+                intercomEnabledFF = get(intercomChatFeatureFlag)
             )
         }
 
