@@ -199,7 +199,11 @@ class Coincore internal constructor(
             AssetAction.Swap -> allWallets().map { it.accounts }
                 .map {
                     it.filterIsInstance<CryptoAccount>()
-                        .filterNot { account -> account is InterestAccount || account is ExchangeAccount }
+                        .filterNot { account ->
+                            account is InterestAccount ||
+                                account is ExchangeAccount ||
+                                account is StakingAccount
+                        }
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
                             sourceAccount.isTargetAvailableForSwap(

@@ -1198,7 +1198,9 @@ class CoinviewViewModel(
                             )
                             markAsSeen()
                         } else {
-                            if (account is CoinviewAccount.Custodial.Staking) {
+                            if ((account is CoinviewAccount.Universal && account.filter == AssetFilter.Staking) ||
+                                account is CoinviewAccount.Custodial.Staking
+                            ) {
                                 navigate(
                                     CoinviewNavigationEvent.ShowStakingAccountInterstitial(
                                         assetIconUrl = modelState.asset?.currency?.logo

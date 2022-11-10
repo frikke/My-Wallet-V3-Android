@@ -70,8 +70,7 @@ class CoinViewActivityV2 :
 
     @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
     val args: CoinviewArgs by lazy {
-        intent.getParcelableExtra<CoinviewArgs>(CoinviewArgs.ARGS_KEY)
-            ?: error("missing CoinviewArgs")
+        intent.getParcelableExtra<CoinviewArgs>(CoinviewArgs.ARGS_KEY) ?: error("missing CoinviewArgs")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
