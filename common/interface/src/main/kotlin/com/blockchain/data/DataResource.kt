@@ -1,12 +1,5 @@
 package com.blockchain.data
 
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Exception
-import kotlin.Int
-import kotlin.Nothing
-import kotlin.Unit
-import kotlin.also
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -39,12 +32,12 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
     }
 }
 
-fun <T> DataResource<Iterable<T>>.filter(predicate: (T) -> Boolean): DataResource<Iterable<T>> {
-    return map { it.filter(predicate) }
-}
-
-fun <K, V> DataResource<Map<K, V>>.filterMap(predicate: (Map.Entry<K, V>) -> Boolean): DataResource<Map<K, V>> {
-    return map { it.filter(predicate) }
+fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<Iterable<T>> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(this.data.filter { transform(it) })
+    }
 }
 
 fun <T, R> DataResource<T>.flatMap(transform: (T) -> DataResource<R>): DataResource<R> {
