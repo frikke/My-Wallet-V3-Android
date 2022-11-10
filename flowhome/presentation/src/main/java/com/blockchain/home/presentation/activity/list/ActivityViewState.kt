@@ -25,7 +25,11 @@ sealed interface TransactionGroup : Comparable<TransactionGroup> {
     object Combined : TransactionGroup
 
     sealed interface Group : TransactionGroup {
-        data class Date(val date: Calendar) : Group
+        data class Date(val date: Calendar) : Group {
+            override fun equals(other: Any?) = date.timeInMillis == (other as? Date)?.date?.timeInMillis
+            override fun hashCode() = date.hashCode()
+        }
+
         object Pending : Group
     }
 }

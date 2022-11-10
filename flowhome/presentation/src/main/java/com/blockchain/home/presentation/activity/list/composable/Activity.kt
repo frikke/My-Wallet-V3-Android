@@ -101,7 +101,9 @@ fun ActivityScreen(
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            ActivityDetail()
+            ActivityDetail(
+                onCloseClick = { coroutineScope.launch { sheetState.hide() } }
+            )
         },
         modifier = Modifier.fillMaxSize()
     ) {

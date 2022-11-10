@@ -16,17 +16,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
@@ -36,7 +36,8 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun ActivityDetail(
-    viewModel: ActivityDetailViewModel = getViewModel(scope = payloadScope)
+    viewModel: ActivityDetailViewModel = getViewModel(scope = payloadScope),
+    onCloseClick: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -50,22 +51,33 @@ fun ActivityDetail(
     }
 
     ActivityDetailScreen(
-        activityDetail = viewState?.activityDetailItems ?: DataResource.Loading
+        activityDetail = viewState?.activityDetailItems ?: DataResource.Loading,
+        onCloseClick = onCloseClick
     )
 }
 
 @Composable
 fun ActivityDetailScreen(
-    activityDetail: DataResource<ActivityDetail>
+    activityDetail: DataResource<ActivityDetail>,
+    onCloseClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color(0XFFF1F2F7))
     ) {
-        NavigationBar(
-            title = stringResource(R.string.ma_home_activity_title),
-            onBackButtonClick = { },
+        SheetFloatingHeader(
+            icon = if (activityDetail is DataResource.Data) {
+                activityDetail.data.icon.toStackedIcon()
+            } else {
+                StackedIcon.None
+            },
+            title = if (activityDetail is DataResource.Data) {
+                activityDetail.data.title
+            } else {
+                ""
+            },
+            onCloseClick = onCloseClick
         )
 
         Box(
@@ -124,6 +136,7 @@ fun ActivityDetailData(
 @Composable
 fun PreviewActivityScreen() {
     ActivityDetailScreen(
-        activityDetail = DETAIL_DUMMY_DATA
+        activityDetail = DETAIL_DUMMY_DATA,
+        onCloseClick = {}
     )
 }

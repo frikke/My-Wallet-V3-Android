@@ -9,9 +9,13 @@ import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
+        icon = ActivityIcon.None,
+        title = "Swapped BTC -> ETH",
+        subtitle = "",
         itemGroups = listOf(
             listOf<ActivityComponent>(
                 ActivityComponent.StackView(
