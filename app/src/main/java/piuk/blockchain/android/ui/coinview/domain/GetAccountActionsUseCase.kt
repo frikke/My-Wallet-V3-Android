@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.coinview.domain
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.minus
@@ -31,8 +30,9 @@ data class GetAccountActionsUseCase(
                 val balance = balanceDeferred.await()
 
                 assetActionsComparator.initAccount(account.account, balance)
-                val sortedActions = when (account) {
-                    is InterestAccount -> {
+
+                val sortedActions = when {
+                    account.isInterestAccount() -> {
                         if (actions.none { it.action == AssetAction.InterestDeposit }) {
                             actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
                         } else {
@@ -84,5 +84,10 @@ data class GetAccountActionsUseCase(
                 Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
             }
         }
+    }
+
+    private fun CoinviewAccount.isInterestAccount(): Boolean {
+        return this is CoinviewAccount.Custodial.Interest ||
+            (this is CoinviewAccount.Universal && filter == AssetFilter.Interest)
     }
 }
