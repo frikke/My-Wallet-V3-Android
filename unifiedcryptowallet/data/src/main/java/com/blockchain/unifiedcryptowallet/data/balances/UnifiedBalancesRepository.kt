@@ -8,7 +8,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.outcome.getOrThrow
-import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
@@ -36,7 +35,7 @@ internal class UnifiedBalancesRepository(
      */
     override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
-            val networkWallets = networkAccountsService.allNetworks()
+            val networkWallets = networkAccountsService.allNetworkWallets()
 
             val pubKeys = networkWallets.associateWith {
                 it.publicKey()

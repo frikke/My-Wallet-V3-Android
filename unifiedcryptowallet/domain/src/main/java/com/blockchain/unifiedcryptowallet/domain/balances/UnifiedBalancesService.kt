@@ -1,6 +1,8 @@
 package com.blockchain.unifiedcryptowallet.domain.balances
 
 import com.blockchain.data.DataResource
+import com.blockchain.domain.wallet.CoinNetwork
+import com.blockchain.outcome.Outcome
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -17,7 +19,11 @@ interface UnifiedBalancesService {
 }
 
 interface NetworkAccountsService {
-    suspend fun allNetworks(): List<NetworkWallet>
+    suspend fun allNetworkWallets(): List<NetworkWallet>
+}
+
+interface CoinNetworksService {
+    suspend fun allCoinNetworks(): Outcome<Exception, List<CoinNetwork>>
 }
 
 data class NetworkBalance(

@@ -69,7 +69,9 @@ class CryptoNetworkWallet(
 }
 
 class NetworkWalletGroup(
-    private val parentChainNetwork: NetworkWallet
+    private val parentChainNetwork: NetworkWallet,
+    val name: String,
+    private val networkWallets: List<NetworkWallet>
 ) : KoinComponent {
 
     private val balancesService: UnifiedBalancesService by scopedInject()
@@ -78,14 +80,8 @@ class NetworkWalletGroup(
         return parentChainNetwork.publicKey()
     }
 
-    val name: String
-        get() = throw NotImplementedError()
-
-    val networkWallets: List<NetworkWallet>
-        get() = throw NotImplementedError()
-
-    fun getNetworkWallet(currency: Currency): NetworkWallet {
-        throw NotImplementedError()
+    fun getNetworkWallet(currency: Currency): NetworkWallet? {
+        return networkWallets.firstOrNull { it.currency.networkTicker == currency.networkTicker }
     }
 }
 

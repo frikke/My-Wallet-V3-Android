@@ -8,8 +8,10 @@ import com.blockchain.unifiedcryptowallet.data.activity.repository.UnifiedActivi
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesRepository
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesStore
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesSubscribeStore
+import com.blockchain.unifiedcryptowallet.data.wallet.NetworkWalletRepository
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -51,5 +53,12 @@ val unifiedCryptoWalletModule = module {
                 unifiedActivityStore = get()
             )
         }.bind(UnifiedActivityService::class)
+
+        scoped {
+            NetworkWalletRepository(
+                networkAccountsService = get(),
+                networksService = get()
+            )
+        }.bind(NetworkWalletService::class)
     }
 }

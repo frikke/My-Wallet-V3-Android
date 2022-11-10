@@ -1,6 +1,6 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.api.coinnetworks.data.CoinNetwork
+import com.blockchain.api.coinnetworks.data.CoinNetworkDto
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAssetList
 import com.blockchain.api.services.DynamicAssetProducts
@@ -9,6 +9,7 @@ import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
@@ -134,16 +135,18 @@ class NonCustodialL2sDynamicAssetRepository(
             }
     }
 
-    private fun CoinNetwork.toEvmNetwork(): EvmNetwork? =
-        identifiers.chainId?.let { chainId ->
-            network?.let {
-                EvmNetwork(
-                    networkTicker = it,
-                    networkName = name,
-                    chainId = chainId,
-                    nodeUrl = nodeUrls.first(),
-                    explorerUrl = explorerUrl
-                )
+    private fun CoinNetworkDto.toEvmNetwork(): EvmNetwork? =
+        if (type == NetworkType.EVM) {
+            identifiers.chainId?.let { chainId ->
+                network?.let {
+                    EvmNetwork(
+                        networkTicker = it,
+                        networkName = name,
+                        chainId = chainId,
+                        nodeUrl = nodeUrls.first(),
+                        explorerUrl = explorerUrl
+                    )
+                }
             }
-        }
+        } else null
 }

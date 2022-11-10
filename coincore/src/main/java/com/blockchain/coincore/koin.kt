@@ -24,6 +24,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -102,6 +103,12 @@ val coincoreModule = module {
                 coincore = get()
             )
         }.bind(NetworkAccountsService::class)
+
+        scoped {
+            CoinNetworksRepository(
+                dynamicAssetService = get()
+            )
+        }.bind(CoinNetworksService::class)
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
