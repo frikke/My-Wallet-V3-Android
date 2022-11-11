@@ -10,7 +10,7 @@ android {
         }
     }
 
-    lintOptions {
+    lint {
         baseline file("lint-baseline.xml")
         warningsAsErrors true
         abortOnError true
@@ -26,6 +26,7 @@ dependencies {
     implementation project(':balance')
 
     api platform(Libraries.firebaseBom)
+    implementation Libraries.firebaseCrashlytics
 
     implementation(Libraries.firebaseConfig) {
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'

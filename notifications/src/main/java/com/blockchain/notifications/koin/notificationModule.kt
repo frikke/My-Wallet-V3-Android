@@ -9,11 +9,13 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.links.DynamicLinkHandler
 import com.blockchain.notifications.links.PendingLink
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import timber.log.Timber
 
 val notificationModule = module {
 
@@ -45,8 +47,18 @@ val notificationModule = module {
     single {
         val config = FirebaseRemoteConfigSettings.Builder()
             .build()
-        FirebaseRemoteConfig.getInstance().apply {
-            setConfigSettingsAsync(config)
+        try {
+            FirebaseRemoteConfig.getInstance().apply {
+                setConfigSettingsAsync(config)
+            }
+        } catch (e: NullPointerException) {
+            Timber.e("FirebaseRemoteConfig not set up ${e.message}")
+            try {
+                FirebaseCrashlytics.getInstance().log("FirebaseRemoteConfig not set up ${e.message}")
+            } catch (e: NullPointerException) {
+                Timber.e("FirebaseCrashlytics not set up ${e.message}")
+            }
+            null
         }
     }
 }
