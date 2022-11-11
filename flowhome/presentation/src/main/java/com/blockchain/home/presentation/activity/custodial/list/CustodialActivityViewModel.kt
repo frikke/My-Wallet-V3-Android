@@ -65,13 +65,12 @@ class CustodialActivityViewModel(
             .groupBy { activity ->
                 val activityDate = Calendar.getInstance().apply { timeInMillis = activity.timeStampMs }
                 if (activity.stateIsFinalised) {
-                    activityDate.let {
-                        it.apply {
-                            set(Calendar.MILLISECOND, 0)
-                            set(Calendar.DAY_OF_MONTH, 1)
-                        }.let { date ->
-                            TransactionGroup.Group.Date(date)
-                        }
+                    Calendar.getInstance().apply {
+                        timeInMillis = 0
+                        set(Calendar.YEAR, activityDate.get(Calendar.YEAR))
+                        set(Calendar.MONTH, activityDate.get(Calendar.MONTH))
+                    }.let { date ->
+                        TransactionGroup.Group.Date(date)
                     }
                 } else {
                     TransactionGroup.Group.Pending
@@ -82,7 +81,7 @@ class CustodialActivityViewModel(
                 group to activities.map { it.toActivityComponent() }
             }
             .toMap()
-            .toSortedMap()
+            .toSortedMap(compareByDescending { it })
     }
 
     override suspend fun handleIntent(modelState: CustodialActivityModelState, intent: CustodialActivityIntent) {

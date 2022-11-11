@@ -183,5 +183,5 @@ fun Date.toDayAndMonth(locale: Locale = Locale.getDefault()): String {
 
 fun Calendar.toMonthAndYear(locale: Locale = Locale.getDefault()): String {
     val defaultDateTimeFormat = SimpleDateFormat("MMMM yyyy", locale)
-    return defaultDateTimeFormat.format(this)
+    return defaultDateTimeFormat.format(time)
 }
