@@ -21,6 +21,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 
@@ -44,7 +45,9 @@ import org.koin.androidx.compose.get
  */
 @Composable
 fun MultiAppSingleScreen(
-    backgroundColors: ChromeBackgroundColors = get<WalletModeService>().enabledWalletMode().backgroundColors(),
+    backgroundColors: ChromeBackgroundColors = get<WalletModeService>(
+        superAppModeService
+    ).enabledWalletMode().backgroundColors(),
     content: @Composable () -> Unit
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()

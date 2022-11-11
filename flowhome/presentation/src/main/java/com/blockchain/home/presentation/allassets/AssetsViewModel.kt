@@ -31,6 +31,7 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -216,7 +217,10 @@ class AssetsViewModel(
                 .flatMapLatest { accounts ->
                     val balances = accounts.data.map { account ->
                         account.balance.distinctUntilChanged()
-                            .map { it to account }
+                            .map { DataResource.Data(it) as DataResource<AccountBalance> to account }
+                            .catch { t ->
+                                emit(DataResource.Error(t as Exception) to account)
+                            }
                     }.merge().onEach { (balance, account) ->
                         updateState { state ->
                             state.copy(
@@ -341,15 +345,15 @@ private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money
 
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(
     account: SingleAccount,
-    balance: AccountBalance
+    balance: DataResource<AccountBalance>
 ): DataResource<List<ModelAccount>> {
     return this.map { accounts ->
         val oldAccount = accounts.first { it.singleAccount == account }
         accounts.replace(
             old = oldAccount,
             new = oldAccount.copy(
-                balance = DataResource.Data(balance.total),
-                fiatBalance = DataResource.Data(balance.totalFiat)
+                balance = balance.map { it.total },
+                fiatBalance = balance.map { it.totalFiat }
             )
         )
     }

@@ -11,12 +11,14 @@ import com.blockchain.chrome.composable.DemoScreen
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 
 @Composable
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     enableRefresh: Boolean,
+    assetActionsNavigation: AssetActionsNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
@@ -34,6 +36,7 @@ fun MultiAppBottomNavigationHost(
                     HomeScreen(
                         listState = listState,
                         openCryptoAssets = openCryptoAssets,
+                        assetActionsNavigation = assetActionsNavigation,
                         openActivity = openActivity
                     )
                 },

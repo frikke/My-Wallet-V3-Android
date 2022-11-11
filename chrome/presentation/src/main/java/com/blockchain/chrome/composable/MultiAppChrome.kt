@@ -41,7 +41,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
@@ -63,6 +62,7 @@ import com.blockchain.chrome.toolbar.ScrollState
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
@@ -84,6 +84,7 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit,
+    assetActionsNavigation: AssetActionsNavigation,
     openActivity: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
@@ -115,6 +116,7 @@ fun MultiAppChrome(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
+                assetActionsNavigation = assetActionsNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
                 }
@@ -135,6 +137,7 @@ fun MultiAppChromeScreen(
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
+    assetActionsNavigation: AssetActionsNavigation,
     openActivity: () -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
@@ -627,6 +630,7 @@ fun MultiAppChromeScreen(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
+                assetActionsNavigation = assetActionsNavigation
             )
         }
 
@@ -686,7 +690,7 @@ fun MultiAppChromeScreen(
     }
 }
 
-@Preview
+/*@Preview
 @Composable
 fun PreviewMultiAppContainer() {
     MultiAppChromeScreen(
@@ -707,4 +711,5 @@ fun PreviewMultiAppContainer() {
         openActivity = {},
         onBalanceRevealed = {}
     )
-}
+    }
+    */

@@ -17,7 +17,7 @@ object Versions {
     const val kotlin = "1.7.0"
 
     // Coroutines
-    const val coroutines = "1.5.2"
+    const val coroutines = "1.6.4"
 
     // Kotlin Immutable Collections
     const val immutableCollections = "0.3.5"

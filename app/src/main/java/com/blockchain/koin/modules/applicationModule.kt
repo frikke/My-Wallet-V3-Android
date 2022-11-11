@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.biometric.BiometricManager
 import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
@@ -18,6 +19,7 @@ import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -136,6 +138,7 @@ import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
+import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -240,6 +243,10 @@ val applicationModule = module {
         factory {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
+
+        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }.bind(
+            AssetActionsNavigation::class
+        )
 
         scoped {
             CredentialsWiper(

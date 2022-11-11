@@ -110,7 +110,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     }
 
     private fun getSessionId(guid: String): Observable<String> =
-        sessionId?.let { Observable.just(it) } ?: authDataManager.getSessionId(guid)
+        sessionId?.takeIf { it.isNotEmpty() }?.let { Observable.just(it) } ?: authDataManager.getSessionId(guid)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     fun verifyPassword(password: String, guid: String) {

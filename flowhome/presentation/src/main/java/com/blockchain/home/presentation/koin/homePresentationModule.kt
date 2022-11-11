@@ -2,7 +2,9 @@ package com.blockchain.home.presentation.koin
 
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
+import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.superAppModeService
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -19,6 +21,12 @@ val homePresentationModule = module {
 
         viewModel {
             ActivityViewModel()
+        }
+        viewModel {
+            QuickActionsViewModel(
+                walletModeService = get(superAppModeService),
+                userFeaturePermissionService = get(),
+            )
         }
     }
 }

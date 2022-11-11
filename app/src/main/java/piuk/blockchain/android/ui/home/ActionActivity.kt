@@ -15,6 +15,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
@@ -67,6 +68,17 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
             AssetAction.Receive -> {
                 updateToolbarTitle(getString(R.string.toolbar_receive))
                 ReceiveFragment.newInstance(cryptoTicker = cryptoTicker)
+            }
+            AssetAction.Sell,
+            AssetAction.Buy -> {
+                updateToolbarTitle(getString(R.string.buy_and_sell))
+                BuySellFragment.newInstance(
+                    viewType = if (action == AssetAction.Sell) {
+                        BuySellFragment.BuySellViewType.TYPE_SELL
+                    } else {
+                        BuySellFragment.BuySellViewType.TYPE_BUY
+                    }
+                )
             }
             else -> {
                 throw IllegalStateException("$action is not supported")

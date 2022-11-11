@@ -12,10 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.quickactions.QuickActions
 
 @Composable
 fun HomeScreen(
     listState: LazyListState,
+    assetActionsNavigation: AssetActionsNavigation,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit
 ) {
@@ -30,6 +33,10 @@ fun HomeScreen(
     ) {
         item {
             Balance()
+        }
+
+        item {
+            QuickActions(assetActionsNavigation = assetActionsNavigation)
         }
 
         item {
