@@ -125,9 +125,6 @@ class PinInteractor internal constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun registerIntercomUser() {
-        // TODO(dserrano): Move this initialization back to BlockchainApplication when the flag is removed
-        Intercom.initialize(application, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
-
         val registration = Registration.create().withUserId(authPrefs.walletGuid)
         Intercom.client().loginIdentifiedUser(
             registration,
@@ -141,6 +138,11 @@ class PinInteractor internal constructor(
                 }
             }
         )
+    }
+
+    fun initialiseIntercom() {
+        // TODO(dserrano): Move this initialization back to BlockchainApplication when the flag is removed
+        Intercom.initialize(application, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
     }
 
     private fun verifyCloudBackup(): Completable =

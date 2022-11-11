@@ -55,10 +55,14 @@ class PinModel(
             is PinIntent.CheckIntercomStatus -> interactor.getIntercomStatus()
                 .subscribeBy(
                     onSuccess = { enabled ->
+                        if (enabled) {
+                            interactor.initialiseIntercom()
+                        }
                         process(PinIntent.UpdateIntercomStatus(enabled))
-                    }, onError = {
-                    Timber.e("Error getting intercom status")
-                }
+                    },
+                    onError = {
+                        Timber.e("Error getting intercom status")
+                    }
                 )
             is PinIntent.GetAction -> {
                 when {

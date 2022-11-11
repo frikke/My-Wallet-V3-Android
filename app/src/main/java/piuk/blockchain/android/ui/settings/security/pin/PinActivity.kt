@@ -952,11 +952,6 @@ class PinActivity :
         }
 
     private fun askToUseBiometrics() {
-        // This doesn't work
-        //        val tempFragment = supportFragmentManager.findFragmentByTag("BIOMETRICS_BOTTOM_SHEET")
-        //        if (tempFragment == null) {
-        //            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
-        //        }
         if (!isBiometricsVisible) {
             BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
             isBiometricsVisible = true
