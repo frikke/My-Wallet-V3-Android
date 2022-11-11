@@ -56,7 +56,8 @@ class WalletAuthService(private val walletApi: WalletApi) {
      */
     fun getSessionId(guid: String): Observable<String> = walletApi.getSessionId(guid)
         .map { responseBodyResponse ->
-            val headers = responseBodyResponse.headers().get("Set-Cookie")
+            val headers = responseBodyResponse.headers()
+                .firstOrNull { (key, value) -> key == "set-cookie" && value.contains("SID=") }?.second
             if (headers != null) {
                 val fields = headers.split(";\\s*".toRegex()).dropLastWhile { it.isEmpty() }
                     .toTypedArray()
