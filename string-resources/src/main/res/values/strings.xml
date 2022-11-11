@@ -3068,7 +3068,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
-    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5\u0025 back in crypto.²</string>
+    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 1\u0025 back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
     <string name="physical">Physical</string>
@@ -3116,7 +3116,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_back_title">Crypto Back</string>
-    <string name="crypto_back_description">Earn 0.5\u0025 back in crypto rewards on all your purchases.²</string>
+    <string name="crypto_back_description">Earn 1\u0025 back in crypto rewards on all your purchases.²</string>
     <string name="legal_info_title">The Legal Stuff</string>
     <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
     <string name="go_to_dashboard">Go To Dashboard</string>
@@ -3384,6 +3384,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_kyc_failed_description">We are processing the provided information and there seems to be an issue with the following below.</string>
     <string name="bc_card_kyc_failed_ssn">SSN Does Not Match Our Records</string>
     <string name="bc_card_kyc_failed_address">Residential Address Invalid</string>
+    <string name="blockchain_card_waitlist_announcement_title">Introducing the Blockchain.com Visa® Card</string>
+    <string name="blockchain_card_waitlist_announcement_description">Spend your crypto or cash without fees. Earn 1%% back in crypto.</string>
+    <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>

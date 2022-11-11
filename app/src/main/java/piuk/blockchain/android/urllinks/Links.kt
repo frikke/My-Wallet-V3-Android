@@ -81,3 +81,5 @@ const val STAKING_LEARN_MORE = "https://support.blockchain.com/hc/en-us/sections
 const val STAKING_WEB_APP = "https://login.blockchain.com/en/#/open/earn"
 
 const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"
+
+const val URL_JOIN_BLOCKCHAIN_CARD_WAITLIST = "https://www.blockchain.com/card"
