@@ -8,6 +8,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.toActivityComponent
+import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage

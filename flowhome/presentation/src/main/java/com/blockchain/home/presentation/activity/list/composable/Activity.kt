@@ -37,25 +37,69 @@ import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityIntent
+import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
-import java.util.Calendar
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import java.util.Calendar
 
 @Composable
-fun Activity(
+fun Activity() {
+    val walletMode by get<WalletModeService>(superAppModeService).walletMode.collectAsStateLifecycleAware(null)
+    walletMode?.let {
+        when (walletMode) {
+            WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
+            WalletMode.NON_CUSTODIAL_ONLY -> NonCustodialActivity()
+            else -> error("unsupported")
+        }
+    }
+}
+
+@Composable
+fun CustodialActivity(
+    viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(CustodialActivityIntent.LoadActivity(SectionSize.All))
+        onDispose { }
+    }
+
+    viewState?.let { state ->
+        ActivityScreen(
+            activity = state.activity,
+            onSearchTermEntered = { term ->
+                viewModel.onIntent(CustodialActivityIntent.FilterSearch(term = term))
+            },
+        )
+    }
+}
+
+@Composable
+fun NonCustodialActivity(
     viewModel: ActivityViewModel = getViewModel(scope = payloadScope)
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current

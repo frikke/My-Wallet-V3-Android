@@ -9,11 +9,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
 

@@ -23,21 +23,66 @@ import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityIntent
+import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeActivity(
+    openAllActivity: () -> Unit
+) {
+    val walletMode by get<WalletModeService>(superAppModeService).walletMode.collectAsStateLifecycleAware(null)
+    walletMode?.let {
+        when (walletMode) {
+            WalletMode.CUSTODIAL_ONLY -> CustodialHomeActivity(openAllActivity = openAllActivity)
+            WalletMode.NON_CUSTODIAL_ONLY -> NonCustodialHomeActivity(openAllActivity = openAllActivity)
+            else -> error("unsupported")
+        }
+    }
+}
+
+@Composable
+fun CustodialHomeActivity(
+    viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+    openAllActivity: () -> Unit
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(CustodialActivityIntent.LoadActivity(SectionSize.Limited()))
+        onDispose { }
+    }
+
+    viewState?.let { state ->
+        HomeActivityScreen(
+            activity = state.activity.map { it[TransactionGroup.Combined] ?: listOf() },
+            onSeeAllCryptoAssetsClick = openAllActivity,
+        )
+    }
+}
+
+@Composable
+fun NonCustodialHomeActivity(
     viewModel: ActivityViewModel = getViewModel(scope = payloadScope),
     openAllActivity: () -> Unit
 ) {
