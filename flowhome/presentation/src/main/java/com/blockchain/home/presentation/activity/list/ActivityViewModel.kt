@@ -31,7 +31,7 @@ class ActivityViewModel(
 
     override fun reduce(state: ActivityModelState): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activityPage
+            activity = state.activity
                 .map {
                     it.copy(
                         activity = it.activity.filter { activityItem ->
@@ -111,7 +111,7 @@ class ActivityViewModel(
                 )
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(activityPage = it.activityPage.updateDataWith(dataResource))
+                        it.copy(activity = it.activity.updateDataWith(dataResource))
                     }
                 }
                 .collect()

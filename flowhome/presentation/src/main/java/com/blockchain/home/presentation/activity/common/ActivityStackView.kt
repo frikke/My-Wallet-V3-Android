@@ -5,6 +5,8 @@ import com.blockchain.componentlib.tablerow.custom.ViewStyle
 import com.blockchain.componentlib.tablerow.custom.ViewType
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.value
 
 // styles - use domain ones instead to map
 // text
@@ -50,12 +52,12 @@ fun ActivityTagStyleState.toTagType() = when (this) {
 // component
 sealed interface ActivityStackView {
     data class Text(
-        val value: String,
+        val value: TextValue,
         val style: ActivityTextStyleState
     ) : ActivityStackView
 
     data class Tag(
-        val value: String,
+        val value: TextValue,
         val style: ActivityTagStyleState
     ) : ActivityStackView
 }
@@ -64,13 +66,13 @@ sealed interface ActivityStackView {
 fun ActivityStackView.toViewType() = when (this) {
     is ActivityStackView.Tag -> {
         ViewType.Tag(
-            value = value,
+            value = value.value(),
             style = style.toTagType()
         )
     }
     is ActivityStackView.Text -> {
         ViewType.Text(
-            value = value,
+            value = value.value(),
             style = ViewStyle.TextStyle(
                 style = style.typography.toComposable(),
                 color = style.color.toComposable(),

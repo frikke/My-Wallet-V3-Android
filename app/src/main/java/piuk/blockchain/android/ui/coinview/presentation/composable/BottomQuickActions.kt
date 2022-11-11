@@ -14,6 +14,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.value
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 

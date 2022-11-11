@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.koin
 
+import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
@@ -21,6 +22,12 @@ val homePresentationModule = module {
         viewModel {
             ActivityViewModel(
                 unifiedActivityService = get()
+            )
+        }
+
+        viewModel {
+            CustodialActivityViewModel(
+                coincore = get()
             )
         }
 

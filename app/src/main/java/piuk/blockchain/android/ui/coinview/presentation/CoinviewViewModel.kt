@@ -11,6 +11,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
@@ -293,7 +294,7 @@ class CoinviewViewModel(
                         header = when (accounts) {
                             is CoinviewAccounts.Universal,
                             is CoinviewAccounts.Custodial -> CoinviewAccountsHeaderState.ShowHeader(
-                                SimpleValue.IntResValue(R.string.coinview_accounts_label)
+                                TextValue.IntResValue(R.string.coinview_accounts_label)
                             )
                             is CoinviewAccounts.Defi -> CoinviewAccountsHeaderState.NoHeader
                         },
@@ -355,7 +356,7 @@ class CoinviewViewModel(
     ) = Unavailable(
         cvAccount = cvAccount,
         title = account.currency.name,
-        subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
+        subtitle = TextValue.IntResValue(R.string.coinview_nc_desc),
         logo = LogoSource.Remote(account.currency.logo)
     )
 
@@ -363,7 +364,7 @@ class CoinviewViewModel(
         Unavailable(
             cvAccount = cvAccount,
             title = labels.getDefaultStakingWalletLabel(),
-            subtitle = SimpleValue.IntResValue(
+            subtitle = TextValue.IntResValue(
                 R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
@@ -374,7 +375,7 @@ class CoinviewViewModel(
         Unavailable(
             cvAccount = cvAccount,
             title = labels.getDefaultInterestWalletLabel(),
-            subtitle = SimpleValue.IntResValue(
+            subtitle = TextValue.IntResValue(
                 R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
             ),
@@ -387,7 +388,7 @@ class CoinviewViewModel(
     ) = Unavailable(
         cvAccount = cvAccount,
         title = labels.getDefaultTradingWalletLabel(),
-        subtitle = SimpleValue.IntResValue(
+        subtitle = TextValue.IntResValue(
             R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
         ),
@@ -411,25 +412,25 @@ class CoinviewViewModel(
         },
         subtitle = when (cvAccount.filter) {
             AssetFilter.Trading -> {
-                SimpleValue.IntResValue(
+                TextValue.IntResValue(
                     R.string.coinview_c_unavailable_desc,
                     listOf(asset.currency.name)
                 )
             }
             AssetFilter.Interest -> {
-                SimpleValue.IntResValue(
+                TextValue.IntResValue(
                     R.string.coinview_interest_no_balance,
                     listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
                 )
             }
             AssetFilter.Staking -> {
-                SimpleValue.IntResValue(
+                TextValue.IntResValue(
                     R.string.coinview_interest_no_balance,
                     listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
                 )
             }
             AssetFilter.NonCustodial -> {
-                SimpleValue.IntResValue(R.string.coinview_nc_desc)
+                TextValue.IntResValue(R.string.coinview_nc_desc)
             }
             else -> error("${cvAccount.filter} Not a supported filter")
         },
@@ -456,7 +457,7 @@ class CoinviewViewModel(
     ) = Available(
         cvAccount = cvAccount,
         title = account.label,
-        subtitle = SimpleValue.StringValue(account.currency.displayTicker),
+        subtitle = TextValue.StringValue(account.currency.displayTicker),
         cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
         fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
         logo = LogoSource.Remote(account.currency.logo),
@@ -469,7 +470,7 @@ class CoinviewViewModel(
     ) = Available(
         cvAccount = cvAccount,
         title = labels.getDefaultStakingWalletLabel(),
-        subtitle = SimpleValue.IntResValue(
+        subtitle = TextValue.IntResValue(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
         ),
@@ -485,7 +486,7 @@ class CoinviewViewModel(
     ) = Available(
         cvAccount = cvAccount,
         title = labels.getDefaultInterestWalletLabel(),
-        subtitle = SimpleValue.IntResValue(
+        subtitle = TextValue.IntResValue(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
         ),
@@ -501,7 +502,7 @@ class CoinviewViewModel(
     ) = Available(
         cvAccount = cvAccount,
         title = labels.getDefaultTradingWalletLabel(),
-        subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
+        subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
         cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
         fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
@@ -525,28 +526,28 @@ class CoinviewViewModel(
         },
         subtitle = when (cvAccount.filter) {
             AssetFilter.Trading -> {
-                SimpleValue.IntResValue(R.string.coinview_c_available_desc)
+                TextValue.IntResValue(R.string.coinview_c_available_desc)
             }
             AssetFilter.Interest -> {
-                SimpleValue.IntResValue(
+                TextValue.IntResValue(
                     R.string.coinview_interest_with_balance,
                     listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
                 )
             }
             AssetFilter.Staking -> {
-                SimpleValue.IntResValue(
+                TextValue.IntResValue(
                     R.string.coinview_interest_with_balance,
                     listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
                 )
             }
             AssetFilter.NonCustodial -> {
                 if (account is MultiChainAccount) {
-                    SimpleValue.IntResValue(
+                    TextValue.IntResValue(
                         R.string.coinview_multi_nc_desc,
                         listOf(account.l1Network.networkName)
                     )
                 } else {
-                    SimpleValue.IntResValue(R.string.coinview_nc_desc)
+                    TextValue.IntResValue(R.string.coinview_nc_desc)
                 }
             }
             else -> error("${cvAccount.filter} Not a supported filter")
@@ -605,7 +606,7 @@ class CoinviewViewModel(
                             data.map { recurringBuy ->
                                 CoinviewRecurringBuyState(
                                     id = recurringBuy.id,
-                                    description = SimpleValue.IntResValue(
+                                    description = TextValue.IntResValue(
                                         R.string.dashboard_recurring_buy_item_title_1,
                                         listOf(
                                             recurringBuy.amount.toStringWithSymbol(),
@@ -616,12 +617,12 @@ class CoinviewViewModel(
                                     status = if (recurringBuy.state ==
                                         com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE
                                     ) {
-                                        SimpleValue.IntResValue(
+                                        TextValue.IntResValue(
                                             R.string.dashboard_recurring_buy_item_label,
                                             listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
                                         )
                                     } else {
-                                        SimpleValue.IntResValue(
+                                        TextValue.IntResValue(
                                             R.string.dashboard_recurring_buy_item_label_error
                                         )
                                     },

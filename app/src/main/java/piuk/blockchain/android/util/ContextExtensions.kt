@@ -113,11 +113,3 @@ fun ComponentActivity.disableBackPress(
         /* this will catch back press but would do nothing */
     }
 }
-
-fun Context.getStringMaybe(resId: Int): String {
-    return try {
-        getString(resId)
-    } catch (e: Resources.NotFoundException) {
-        resId.toString()
-    }
-}

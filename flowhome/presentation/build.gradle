@@ -58,6 +58,9 @@ dependencies {
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
 
+    // rx
+    implementation Libraries.rxKotlin
+
     // test
     testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest
