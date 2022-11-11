@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.custodial.list
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -30,6 +31,7 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
 
 private fun ActivitySummaryItem.icon() = when (this) {
     is CustodialTradingActivitySummaryItem -> icon()
+    is CustodialTransferActivitySummaryItem -> icon()
     else -> {
         R.drawable.ic_tx_confirming
     }
@@ -38,6 +40,10 @@ private fun ActivitySummaryItem.icon() = when (this) {
 private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
     return when (this) {
         is CustodialTradingActivitySummaryItem -> {
+            listOf(leadingTitle(), leadingSubtitle())
+        }
+
+        is CustodialTransferActivitySummaryItem -> {
             listOf(leadingTitle(), leadingSubtitle())
         }
 
@@ -55,6 +61,10 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
 private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
     return when (this) {
         is CustodialTradingActivitySummaryItem -> {
+            listOf(trailingTitle(), trailingSubtitle())
+        }
+
+        is CustodialTransferActivitySummaryItem -> {
             listOf(trailingTitle(), trailingSubtitle())
         }
 

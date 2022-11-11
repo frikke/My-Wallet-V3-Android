@@ -18,19 +18,14 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
@@ -77,50 +72,38 @@ fun Activity() {
 fun CustodialActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(CustodialActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
-    viewState?.let { state ->
-        ActivityScreen(
-            activity = state.activity,
-            onSearchTermEntered = { term ->
-                viewModel.onIntent(CustodialActivityIntent.FilterSearch(term = term))
-            },
-        )
-    }
+    ActivityScreen(
+        activity = viewState.activity,
+        onSearchTermEntered = { term ->
+            viewModel.onIntent(CustodialActivityIntent.FilterSearch(term = term))
+        },
+    )
 }
 
 @Composable
 fun NonCustodialActivity(
     viewModel: ActivityViewModel = getViewModel(scope = payloadScope)
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
-    viewState?.let { state ->
-        ActivityScreen(
-            activity = state.activity,
-            onSearchTermEntered = { term ->
-                viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
-            },
-        )
-    }
+    ActivityScreen(
+        activity = viewState.activity,
+        onSearchTermEntered = { term ->
+            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)

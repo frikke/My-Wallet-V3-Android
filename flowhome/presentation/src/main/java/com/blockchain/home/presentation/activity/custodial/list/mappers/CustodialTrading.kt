@@ -31,7 +31,11 @@ import java.util.Date
 internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
-            value = if (type == OrderType.BUY) R.string.tx_title_bought else R.string.tx_title_sold,
+            value = when (type) {
+                OrderType.BUY,
+                OrderType.RECURRING_BUY -> R.string.tx_title_bought
+                OrderType.SELL -> R.string.tx_title_sold
+            },
             args = listOf(asset.displayTicker)
         ),
         style = basicTitleStyle
@@ -66,7 +70,6 @@ internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStac
         style = basicSubtitleStyle.copy(color = color)
     )
 }
-
 
 internal fun CustodialTradingActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {

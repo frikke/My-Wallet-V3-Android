@@ -22,6 +22,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
 import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
@@ -59,6 +60,9 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 
     fun fiatValue(selectedFiat: FiatCurrency): Money =
         value.toFiat(selectedFiat, exchangeRates)
+
+    val date: Calendar
+        get() = Calendar.getInstance().apply { timeInMillis = timeStampMs }
 
     final override operator fun compareTo(
         other: ActivitySummaryItem,
