@@ -29,7 +29,6 @@ import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.dashboard.coinview.QuickActionCta
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
@@ -37,7 +36,6 @@ import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDe
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
