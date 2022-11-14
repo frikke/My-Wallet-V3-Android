@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -166,6 +168,7 @@ fun CoinviewScreen(
                         ) {
                             AssetPrice(
                                 data = price,
+                                assetTicker = asset.asset.networkTicker,
                                 onChartEntryHighlighted = onChartEntryHighlighted,
                                 resetPriceInformation = resetPriceInformation,
                                 onNewTimeSpanSelected = onNewTimeSpanSelected
@@ -174,6 +177,7 @@ fun CoinviewScreen(
                             TotalBalance(
                                 totalBalanceData = totalBalance,
                                 watchlistData = watchlist,
+                                assetTicker = asset.asset.networkTicker,
                                 onWatchlistClick = onWatchlistClick
                             )
 
@@ -183,6 +187,7 @@ fun CoinviewScreen(
 
                             AssetAccounts(
                                 data = accounts,
+                                assetTicker = asset.asset.networkTicker,
                                 onAccountClick = onAccountClick,
                                 onLockedAccountClick = onLockedAccountClick
                             )
@@ -194,12 +199,14 @@ fun CoinviewScreen(
 
                             RecurringBuys(
                                 data = recurringBuys,
+                                assetTicker = asset.asset.networkTicker,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
                                 onRecurringBuyItemClick = onRecurringBuyItemClick
                             )
 
                             AssetInfo(
                                 data = assetInfo,
+                                assetTicker = asset.asset.networkTicker,
                                 onWebsiteClick = onWebsiteClick
                             )
                         }

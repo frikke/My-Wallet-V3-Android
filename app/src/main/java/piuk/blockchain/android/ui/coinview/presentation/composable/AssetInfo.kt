@@ -10,16 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetInfo(
     data: CoinviewAssetInfoState,
+    assetTicker: String,
     onWebsiteClick: () -> Unit
 ) {
     when (data) {
@@ -34,6 +39,7 @@ fun AssetInfo(
         is CoinviewAssetInfoState.Data -> {
             AssetInfoData(
                 data = data,
+                assetTicker = assetTicker,
                 onWebsiteClick = onWebsiteClick
             )
         }
@@ -49,7 +55,9 @@ fun AssetInfoLoading() {
 
 @Composable
 fun AssetInfoData(
+    analytics: Analytics = get(),
     data: CoinviewAssetInfoState.Data,
+    assetTicker: String,
     onWebsiteClick: () -> Unit
 ) {
     Column(
@@ -92,7 +100,17 @@ fun AssetInfoData(
 
             SmallMinimalButton(
                 text = stringResource(R.string.coinview_asset_info_cta),
-                onClick = onWebsiteClick
+                onClick = {
+                    analytics.logEvent(
+                        CoinViewAnalytics.HyperlinkClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            selection = CoinViewAnalytics.Companion.Selection.LEARN_MORE
+                        )
+                    )
+
+                    onWebsiteClick()
+                }
             )
         }
     }
@@ -101,7 +119,7 @@ fun AssetInfoData(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetInfo_Loading() {
-    AssetInfo(CoinviewAssetInfoState.Loading, {})
+    AssetInfo(CoinviewAssetInfoState.Loading, assetTicker = "ETH", {})
 }
 
 @Preview(showBackground = true)
@@ -118,6 +136,7 @@ fun PreviewAssetInfo_Data() {
                 |publishing software like Aldus PageMaker including versions of Lorem Ipsum.""".trimMargin(),
             website = null
         ),
+        assetTicker = "ETH",
         {}
     )
 }

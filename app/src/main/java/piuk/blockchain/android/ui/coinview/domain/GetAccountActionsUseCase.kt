@@ -13,6 +13,7 @@ import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 
 data class GetAccountActionsUseCase(
@@ -84,10 +85,5 @@ data class GetAccountActionsUseCase(
                 Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
             }
         }
-    }
-
-    private fun CoinviewAccount.isInterestAccount(): Boolean {
-        return this is CoinviewAccount.Custodial.Interest ||
-            (this is CoinviewAccount.Universal && filter == AssetFilter.Interest)
     }
 }

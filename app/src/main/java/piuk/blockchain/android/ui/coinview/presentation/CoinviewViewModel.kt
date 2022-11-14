@@ -18,6 +18,7 @@ import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
+import com.blockchain.data.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -26,7 +27,6 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -45,11 +45,13 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
+import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -252,7 +254,7 @@ class CoinviewViewModel(
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
-                        assetName = asset.currency.displayTicker,
+                        assetName = asset.currency.name,
                         totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
                         totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]?.toStringWithSymbol()
                             .orEmpty()
@@ -958,7 +960,11 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Receive -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToReceive(
-                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false)
+                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false),
+                                isBuyReceive = (modelState.quickActions.map { it.canBuy() } as? DataResource.Data)
+                                    ?.data ?: false,
+                                isSendReceive = (modelState.quickActions.map { it.canSend() } as? DataResource.Data)
+                                    ?.data ?: false
                             )
                         )
                     }
@@ -1276,8 +1282,11 @@ class CoinviewViewModel(
 
             AssetAction.Receive -> navigate(
                 CoinviewNavigationEvent.NavigateToReceive(
-                    cvAccount = account
-                )
+                    cvAccount = account,
+                    isBuyReceive = (modelState.quickActions.map { it.canBuy() } as? DataResource.Data)
+                        ?.data ?: false,
+                    isSendReceive = (modelState.quickActions.map { it.canSend() } as? DataResource.Data)
+                        ?.data ?: false                )
             )
 
             AssetAction.Sell -> navigate(
@@ -1374,6 +1383,16 @@ class CoinviewViewModel(
                 }
             }
         }
+    }
+
+    private fun CoinviewQuickActions.canBuy(): Boolean {
+        val buyAction = CoinviewQuickAction.Buy(true)
+        return center == buyAction || bottomEnd == buyAction || bottomEnd == buyAction
+    }
+
+    private fun CoinviewQuickActions.canSend(): Boolean {
+        val sendAction = CoinviewQuickAction.Send(true)
+        return center == sendAction || bottomEnd == sendAction || bottomEnd == sendAction
     }
 
     // //////////////////////
