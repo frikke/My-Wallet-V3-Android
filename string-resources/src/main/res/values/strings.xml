@@ -3316,6 +3316,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="address_verification_invalid_state_title">You cannot change your State</string>
     <string name="address_verification_invalid_state_message">If you need to change your State, please contact our customer support.</string>
 
+    <string name="country_selection_suggested">Suggested</string>
     <string name="kyc_enter_address">Enter your current home address.</string>
     <string name="kyc_enter_address_manually">Enter manually -></string>
     <string name="kyc_postcode_error">Postcode not valid</string>

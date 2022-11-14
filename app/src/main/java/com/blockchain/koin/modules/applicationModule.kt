@@ -312,6 +312,7 @@ val applicationModule = module {
                 eligibilityService = get(),
                 referralService = get(),
                 payloadDataManager = get(),
+                nabuUserDataManager = get(),
             )
         }
 

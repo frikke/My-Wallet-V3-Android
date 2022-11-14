@@ -410,15 +410,19 @@ private fun EmailAndPasswordStep(
             )
         }
 
+        val checkboxTopPadding =
+            if (isPasswordStrengthVisible) AppTheme.dimensions.smallSpacing
+            else AppTheme.dimensions.standardSpacing
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.standardSpacing),
+                .padding(top = checkboxTopPadding, bottom = AppTheme.dimensions.verySmallSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 state = if (state.areTermsOfServiceChecked) CheckboxState.Checked else CheckboxState.Unchecked,
                 onCheckChanged = { isChecked ->
+                    keyboardController?.hide()
                     onIntent(CreateWalletIntent.TermsOfServiceStateChanged(isChecked))
                 }
             )
@@ -460,7 +464,7 @@ private fun Preview_RegionAndReferral() {
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
         passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
-        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1]),
+        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
         areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",
@@ -486,7 +490,7 @@ private fun Preview_EmailAndPassword() {
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
         passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
-        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1]),
+        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
         areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",

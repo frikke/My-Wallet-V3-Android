@@ -72,7 +72,8 @@ class CreateWalletActivity :
                         SearchPickerItemBottomSheet.newInstance(
                             it.countries.map { country ->
                                 CountryPickerItem(country.countryCode)
-                            }
+                            },
+                            it.suggested?.let { CountryPickerItem(it.countryCode) },
                         )
                     )
                 },

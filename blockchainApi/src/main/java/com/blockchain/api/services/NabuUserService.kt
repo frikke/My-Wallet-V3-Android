@@ -1,11 +1,13 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.contactpreferences.ContactPreferencesResponse
 import com.blockchain.api.nabu.data.contactpreferences.NotificationMethod
 import com.blockchain.api.nabu.data.contactpreferences.PreferenceUpdate
 import com.blockchain.api.nabu.data.contactpreferences.PreferenceUpdates
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Completable
 
 // TODO: Add nabu User and User Capability calls to this service (and the underlying interface)
@@ -17,6 +19,9 @@ class NabuUserService internal constructor(
         stateIsoCode: String?
     ): Completable =
         api.saveUserInitialLocation(InitialAddressRequest(countryIsoCode, stateIsoCode))
+
+    suspend fun getUserGeolocation(): Outcome<Exception, GeolocationResponse> =
+        api.getUserGeolocation()
 
     fun getContactPreferences() = api.getContactPreferences().map { it.toDomain() }
 
