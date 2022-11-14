@@ -164,6 +164,7 @@ fun LoadingChart() {
 fun ContentChart(
     fiatSymbol: String,
     chartData: List<ChartEntry>,
+    selectedTimeSpan: HistoricalTimeSpan,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
 ) {
@@ -201,7 +202,7 @@ fun ContentChart(
                     resetPriceInformation()
                 }
 
-                datePattern = HistoricalTimeSpan.fromValue(0).toDatePattern()
+                datePattern = selectedTimeSpan.toDatePattern()
                 this.fiatSymbol = fiatSymbol
                 setData(chartData)
             }
