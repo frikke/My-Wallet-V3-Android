@@ -198,7 +198,7 @@ class CoinviewViewModel(
                                 }
                             )
                         },
-                        selectedTimeSpan = (interactiveAssetPrice ?: priceDetail).timeSpan
+                        selectedTimeSpan = requestedTimeSpan ?: (interactiveAssetPrice ?: priceDetail).timeSpan
                     )
                 }
             }
