@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.custodial.list
 
 import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
@@ -32,6 +33,7 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
 private fun ActivitySummaryItem.icon() = when (this) {
     is CustodialTradingActivitySummaryItem -> icon()
     is CustodialTransferActivitySummaryItem -> icon()
+    is CustodialInterestActivitySummaryItem -> icon()
     else -> {
         R.drawable.ic_tx_confirming
     }
@@ -39,43 +41,31 @@ private fun ActivitySummaryItem.icon() = when (this) {
 
 private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
     return when (this) {
-        is CustodialTradingActivitySummaryItem -> {
-            listOf(leadingTitle(), leadingSubtitle())
-        }
+        is CustodialTradingActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialTransferActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
 
-        is CustodialTransferActivitySummaryItem -> {
-            listOf(leadingTitle(), leadingSubtitle())
-        }
-
-        else -> {
-            listOf(
-                ActivityStackView.Text(
-                    value = TextValue.StringValue("not implemented"),
-                    style = basicTitleStyle
-                )
+        else -> listOf(
+            ActivityStackView.Text(
+                value = TextValue.StringValue("not implemented"),
+                style = basicTitleStyle
             )
-        }
+        )
     }
 }
 
 private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
     return when (this) {
-        is CustodialTradingActivitySummaryItem -> {
-            listOf(trailingTitle(), trailingSubtitle())
-        }
+        is CustodialTradingActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
+        is CustodialTransferActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
+        is CustodialInterestActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
 
-        is CustodialTransferActivitySummaryItem -> {
-            listOf(trailingTitle(), trailingSubtitle())
-        }
-
-        else -> {
-            listOf(
-                ActivityStackView.Text(
-                    value = TextValue.StringValue("not implemented"),
-                    style = basicTitleStyle
-                )
+        else -> listOf(
+            ActivityStackView.Text(
+                value = TextValue.StringValue("not implemented"),
+                style = basicTitleStyle
             )
-        }
+        )
     }
 }
 

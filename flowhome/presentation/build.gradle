@@ -35,6 +35,7 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':wallet')
 
     // android
     implementation Libraries.design

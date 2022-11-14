@@ -74,14 +74,7 @@ internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStac
 internal fun CustodialTradingActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {
         OrderState.FINISHED -> ActivityTextColorState.Title
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN,
-        OrderState.CANCELED,
-        OrderState.FAILED -> ActivityTextColorState.Muted
+        else -> ActivityTextColorState.Muted
     }
 
     val strikethrough: Boolean = when (status) {
