@@ -1387,13 +1387,11 @@ class CoinviewViewModel(
     }
 
     private fun CoinviewQuickActions.canBuy(): Boolean {
-        val buyAction = CoinviewQuickAction.Buy(true)
-        return center == buyAction || bottomEnd == buyAction || bottomEnd == buyAction
+        return actions.any { it == CoinviewQuickAction.Buy(true) }
     }
 
     private fun CoinviewQuickActions.canSend(): Boolean {
-        val sendAction = CoinviewQuickAction.Send(true)
-        return center == sendAction || bottomEnd == sendAction || bottomEnd == sendAction
+        return actions.any { it == CoinviewQuickAction.Send(true) }
     }
 
     // //////////////////////
