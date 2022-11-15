@@ -99,8 +99,8 @@ class ActivityViewModel(
         viewModelScope.launch {
             unifiedActivityService
                 .getAllActivity(
-                    acceptLanguage = "",
-                    timeZone = ""
+                    acceptLanguage = "en-GB;q=1.0, en",
+                    timeZone = "Europe/London"
                 )
                 .onEach { dataResource ->
                     updateState {
