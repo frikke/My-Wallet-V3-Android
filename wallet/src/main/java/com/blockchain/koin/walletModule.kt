@@ -2,10 +2,12 @@ package com.blockchain.koin
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.getBaseUrl
+import com.blockchain.domain.session.SessionIdService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import info.blockchain.wallet.api.dust.BchDustService
 import info.blockchain.wallet.api.dust.DustApi
 import info.blockchain.wallet.api.dust.DustService
+import info.blockchain.wallet.api.session.SessionIdRepository
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
 import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
@@ -96,4 +98,12 @@ val walletModule = module {
             apiCode = getProperty("api-code")
         )
     }
+
+    single {
+        SessionIdRepository(
+            authPrefs = get(),
+            api = get(),
+            explorerEndpoints = get()
+        )
+    }.bind(SessionIdService::class)
 }

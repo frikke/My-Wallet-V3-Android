@@ -2,6 +2,7 @@ package com.blockchain.core.payload
 
 import com.blockchain.annotations.BurnCandidate
 import com.blockchain.api.ApiException
+import com.blockchain.domain.session.SessionIdService
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.SigningKey
@@ -22,7 +23,8 @@ import org.bitcoinj.core.ECKey
 // provides an rx wrapper for some PayloadManager calls. This is, at best, confusing and this can be merged
 // into PayloadManager
 internal class PayloadService(
-    private val payloadManager: PayloadManager
+    private val payloadManager: PayloadManager,
+    private val sessionIdService: SessionIdService,
 ) {
 
     // /////////////////////////////////////////////////////////////////////////
@@ -106,12 +108,15 @@ internal class PayloadService(
         sharedKey: String,
         guid: String,
         password: String
-    ): Completable = Completable.fromCallable {
-        payloadManager.initializeAndDecrypt(
-            sharedKey,
-            guid,
-            password
-        )
+    ): Completable = sessionIdService.sessionId().flatMapCompletable {
+        Completable.fromCallable {
+            payloadManager.initializeAndDecrypt(
+                sharedKey,
+                guid,
+                password,
+                sessionId = it
+            )
+        }
     }
 
     /**
@@ -122,10 +127,13 @@ internal class PayloadService(
      */
     internal fun handleQrCode(
         data: String
-    ): Completable = Completable.fromCallable {
-        payloadManager.initializeAndDecryptFromQR(
-            data
-        )
+    ): Completable = sessionIdService.sessionId().flatMapCompletable { sId ->
+        Completable.fromCallable {
+            payloadManager.initializeAndDecryptFromQR(
+                data,
+                sId
+            )
+        }
     }
 
     /**

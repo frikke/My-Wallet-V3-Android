@@ -37,8 +37,8 @@ class LoginAuthInteractor(
 
     fun clearSessionId() = authPrefs.clearSessionId()
 
-    fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
-        return authDataManager.authorizeSessionObject(authToken, sessionId)
+    fun authorizeApproval(authToken: String): Single<JsonObject> {
+        return authDataManager.authorizeSessionObject(authToken)
     }
 
     fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
@@ -75,19 +75,16 @@ class LoginAuthInteractor(
 
     fun submitCode(
         guid: String,
-        sessionId: String,
         code: String,
         payloadJson: String
     ): Single<ResponseBody> {
-        return Single.fromObservable(
-            authDataManager.submitTwoFactorCode(sessionId, guid, code).map { response ->
-                val responseObject = JSONObject(payloadJson).apply {
-                    put(LoginAuthIntents.PAYLOAD, response.string())
-                }
-                responseObject.toString()
-                    .toResponseBody("application/json".toMediaTypeOrNull())
+        return authDataManager.submitTwoFactorCode(guid, code).map { response ->
+            val responseObject = JSONObject(payloadJson).apply {
+                put(LoginAuthIntents.PAYLOAD, response.string())
             }
-        )
+            responseObject.toString()
+                .toResponseBody("application/json".toMediaTypeOrNull())
+        }
     }
 
     fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =

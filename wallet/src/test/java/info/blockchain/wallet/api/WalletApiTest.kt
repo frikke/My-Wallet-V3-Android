@@ -1,5 +1,6 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.domain.session.SessionIdService
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.blockchain.testutils.getStringFromResource
 import com.blockchain.testutils.waitForCompletionWithoutErrors
@@ -10,6 +11,7 @@ import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.payload.data.WalletBase
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.security.SecureRandom
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -25,7 +27,10 @@ import retrofit2.Response
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()
     private val api: ApiCode = mock()
-    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, "", "")
+    private val sessionIdService: SessionIdService = mock {
+        on { sessionId() }.thenReturn(Single.just(""))
+    }
+    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, sessionIdService, "", "")
 
     @Test
     fun `get encrypted payload`() {
@@ -43,7 +48,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(response)
+            Single.just(response)
         )
 
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
@@ -72,7 +77,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(expectedResponse)
+            Single.just(expectedResponse)
         )
 
         subject.fetchEncryptedPayload(guid, "", false).test()
@@ -138,7 +143,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(expectedResponse)
+            Single.just(expectedResponse)
         )
 
         subject.setAccess(key, value, pin).test()
@@ -162,7 +167,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(
+            Single.just(
                 Response.success(200, Json.decodeFromString<Status>("{ \"success\": \"$keyReturned\"}"))
             )
         )

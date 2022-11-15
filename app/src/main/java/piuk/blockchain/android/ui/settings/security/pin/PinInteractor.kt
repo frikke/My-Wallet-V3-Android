@@ -97,7 +97,7 @@ class PinInteractor internal constructor(
         mobileNoticeRemoteConfig.mobileNoticeDialog()
 
     fun createPin(tempPassword: String, pin: String): Completable =
-        authDataManager.createPin(tempPassword, pin)
+        authDataManager.createPin(tempPassword, pin,)
             .then { verifyCloudBackup() }
 
     fun checkForceUpgradeStatus(versionName: String): Observable<UpdateType> {
@@ -110,7 +110,6 @@ class PinInteractor internal constructor(
         isIntercomEnabled: Boolean
     ): Single<String> =
         authDataManager.validatePin(pin)
-            .firstOrError()
             .flatMap { validatedPin ->
                 if (isIntercomEnabled) {
                     registerIntercomUser()
@@ -161,7 +160,7 @@ class PinInteractor internal constructor(
     }
 
     fun updateShareKeyInPrefs() {
-        authPrefs.sharedKey = payloadManager.wallet?.sharedKey.orEmpty()
+        authPrefs.sharedKey = payloadManager.wallet.sharedKey.orEmpty()
     }
 
     fun isWalletUpgradeRequired(): Boolean = payloadManager.isWalletUpgradeRequired

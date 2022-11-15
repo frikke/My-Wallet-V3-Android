@@ -295,9 +295,10 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(blockchainApi).create(AuthApiInterface::class.java)
         AuthApiService(
-            api,
-            getProperty("api-code"),
-            getProperty("site-key")
+            api = api,
+            apiCode = getProperty("api-code"),
+            captchaSiteKey = getProperty("site-key"),
+            sessionIdService = get()
         )
     }
 

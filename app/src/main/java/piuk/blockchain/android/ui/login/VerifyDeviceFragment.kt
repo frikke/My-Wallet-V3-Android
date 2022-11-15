@@ -44,10 +44,6 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
         arguments?.getString(EMAIL) ?: throw IllegalArgumentException("No email specified")
     }
 
-    private val sessionId: String by lazy {
-        arguments?.getString(SESSION_ID) ?: throw IllegalArgumentException("No session id specified")
-    }
-
     private val captcha: String by lazy {
         arguments?.getString(CAPTCHA) ?: throw IllegalArgumentException("No captcha specified")
     }
@@ -81,7 +77,7 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
                 if (!isTimerRunning.get()) {
                     timer.start()
                     (requireActivity() as LoginIntentCoordinator)
-                        .process(LoginIntents.SendEmail(sessionId, email, captcha))
+                        .process(LoginIntents.SendEmail(email, captcha))
                     BlockchainSnackbar.make(
                         root, getString(R.string.verify_device_email_resent),
                         type = SnackbarType.Success
@@ -127,10 +123,9 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
         private const val EMAIL = "EMAIL"
         private const val CAPTCHA = "CAPTCHA"
 
-        fun newInstance(sessionId: String, email: String, captcha: String): Fragment =
+        fun newInstance(email: String, captcha: String): Fragment =
             VerifyDeviceFragment().apply {
                 arguments = Bundle().apply {
-                    putString(SESSION_ID, sessionId)
                     putString(EMAIL, email)
                     putString(CAPTCHA, captcha)
                 }

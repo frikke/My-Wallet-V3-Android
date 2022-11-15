@@ -22,6 +22,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 dependencies {
     implementation project(':balance')
     implementation project(':common:network')
+    implementation project(':common:domain')
     implementation project(':common:interface')
     implementation project(':logging:domain')
     implementation project(':blockchainApi')

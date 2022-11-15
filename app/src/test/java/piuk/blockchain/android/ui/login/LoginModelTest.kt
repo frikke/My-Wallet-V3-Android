@@ -6,7 +6,6 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.PollResult
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
@@ -14,7 +13,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
@@ -106,92 +104,25 @@ class LoginModelTest {
     }
 
     @Test
-    fun `create session ID and send email successfully`() {
-        // Arrange
-        val email = "test@gmail.com"
-        val sessionId = "sessionId"
-        val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
-            Completable.complete()
-        )
-
-        whenever(interactor.pollForAuth(any(), any())).thenReturn(
-            Single.just(PollResult.Cancel(mock()))
-        )
-
-        val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
-
-        // Assert
-        testState
-            .assertValues(
-                LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
-                LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE
-                ),
-                LoginState(
-                    email = email, captcha = captcha, sessionId = sessionId, currentStep = LoginStep.VERIFY_DEVICE,
-                    pollingState = AuthPollingState.POLLING
-                )
-            )
-    }
-
-    @Test
-    fun `fail to create session ID`() {
-        // Arrange
-        val email = "test@gmail.com"
-        val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.error(Exception())
-        )
-
-        val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
-
-        // Assert
-        testState
-            .assertValues(
-                LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SHOW_SESSION_ERROR)
-            )
-    }
-
-    @Test
     fun `fail to send email`() {
         // Arrange
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
 
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.error(Throwable())
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
                     email = email,
-                    sessionId = sessionId,
                     captcha = captcha,
                     currentStep = LoginStep.SHOW_EMAIL_ERROR
                 )
@@ -257,36 +188,30 @@ class LoginModelTest {
     @Test
     fun `check polling starts on initial intent`() {
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.Cancel(mock())) // cancel here is a return with no effect on the model
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 )
             )
@@ -295,40 +220,34 @@ class LoginModelTest {
     @Test
     fun `check timeout works`() {
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.TimeOut(mock())) // cancel here is a return with no effect on the model
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha,
+                    email = email, captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.TIMEOUT
                 )
@@ -338,18 +257,13 @@ class LoginModelTest {
     @Test
     fun `check polling full payload parsed correctly`() {
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.FinalResult(fullPayload.toResponseBody()))
         )
 
@@ -359,40 +273,32 @@ class LoginModelTest {
         val expectedPayload = jsonBuilder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(fullPayload)
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
+
                 LoginState(
                     email = email,
-                    captcha = captcha,
-                    currentStep = LoginStep.GET_SESSION_ID
-                ),
-                LoginState(
-                    email = email,
-                    sessionId = sessionId,
                     captcha = captcha,
                     currentStep = LoginStep.SEND_EMAIL
                 ),
                 LoginState(
                     email = email,
-                    sessionId = sessionId,
                     captcha = captcha,
                     currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
                     email = email,
-                    sessionId = sessionId,
                     captcha = captcha,
                     currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
                     email = email,
-                    sessionId = sessionId,
                     captcha = captcha,
                     currentStep = LoginStep.NAVIGATE_FROM_PAYLOAD,
                     pollingState = AuthPollingState.COMPLETE,
@@ -404,40 +310,34 @@ class LoginModelTest {
     @Test
     fun `check polling denial payload true parsed correctly`() {
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.FinalResult(deniedPayload.toResponseBody()))
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha,
+                    email = email, captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.DENIED
                 )
@@ -449,38 +349,33 @@ class LoginModelTest {
         val email = "test@gmail.com"
         val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.FinalResult(deniedPayloadFalse.toResponseBody()))
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha,
+                    email = email, captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.ERROR
                 )
@@ -490,40 +385,34 @@ class LoginModelTest {
     @Test
     fun `check polling unknown payload throws error`() {
         val email = "test@gmail.com"
-        val sessionId = "sessionId"
         val captcha = "captcha"
-        whenever(interactor.obtainSessionId(email)).thenReturn(
-            Single.just(
-                "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())
-            )
-        )
-        whenever(interactor.sendEmailForVerification(sessionId, email, captcha)).thenReturn(
+
+        whenever(interactor.sendEmailForVerification(email, captcha)).thenReturn(
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
+        whenever(interactor.pollForAuth(any())).thenReturn(
             Single.just(PollResult.FinalResult(unknownPayload.toResponseBody()))
         )
 
         val testState = model.state.test()
-        model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
+        model.process(LoginIntents.SendEmail(email, captcha))
 
         // Assert
         testState
             .assertValues(
                 LoginState(),
-                LoginState(email = email, captcha = captcha, currentStep = LoginStep.GET_SESSION_ID),
-                LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
+                LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, sessionId = sessionId, captcha = captcha,
+                    email = email, captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.ERROR
                 )

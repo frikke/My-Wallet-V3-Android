@@ -169,7 +169,6 @@ class PasswordRequiredActivity :
 
     override fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
-        sessionId: String,
         authType: Int,
         guid: String,
         password: String
@@ -182,7 +181,6 @@ class PasswordRequiredActivity :
             positiveAction = {
                 presenter.submitTwoFactorCode(
                     responseObject,
-                    sessionId,
                     guid,
                     password,
                     it

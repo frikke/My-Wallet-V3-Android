@@ -52,7 +52,7 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN)).thenReturn(
             Single.just(mock())
         )
         val payload: kotlinx.serialization.json.JsonObject = mock()
@@ -117,7 +117,7 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN)).thenReturn(
             Single.just(mock())
         )
         whenever(interactor.getPayload(GUID, sessionId)).thenReturn(Single.error(AuthRequiredException()))
@@ -256,7 +256,7 @@ class LoginAuthModelTest {
         val twoFACode = "code"
         val isMobileSetup = true
         val deviceType = DEVICE_TYPE_ANDROID
-        whenever(interactor.submitCode(anyString(), anyString(), anyString(), anyString())).thenReturn(
+        whenever(interactor.submitCode(anyString(), anyString(), anyString())).thenReturn(
             Single.just(TWO_FA_PAYLOAD.toResponseBody((JSON_HEADER).toMediaTypeOrNull()))
         )
         whenever(interactor.verifyPassword(anyString(), anyString())).thenReturn(
@@ -306,7 +306,7 @@ class LoginAuthModelTest {
     fun `fail to verify 2fa`() {
         val password = "password"
         val twoFACode = "code"
-        whenever(interactor.submitCode(anyString(), anyString(), anyString(), anyString())).thenReturn(
+        whenever(interactor.submitCode(anyString(), anyString(), anyString())).thenReturn(
             Single.error(Exception())
         )
 

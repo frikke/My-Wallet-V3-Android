@@ -46,7 +46,8 @@ val serviceModule = module {
             } else {
                 null
             },
-            captchaSiteKey = getProperty("site-key")
+            captchaSiteKey = getProperty("site-key"),
+            sessionIdService = get()
         )
     }
 

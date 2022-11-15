@@ -16,6 +16,7 @@ import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
+import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -50,7 +51,12 @@ class PayloadDataManagerIntegrationTest {
             }
         )
     )
-    private val payloadService: PayloadService = PayloadService(payloadManager)
+    private val payloadService: PayloadService = PayloadService(
+        payloadManager,
+        mock {
+            on { sessionId() }.thenReturn(Single.just("sID"))
+        }
+    )
     private lateinit var subject: PayloadDataManager
 
     @get:Rule
@@ -97,7 +103,7 @@ class PayloadDataManagerIntegrationTest {
             on { execute() }.thenReturn(fetchWalletDataResponse)
         }
         whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(mockCall)
-        whenever(walletApi.fetchWalletData(any(), any())).thenReturn(mockCallFetchWalletData)
+        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(mockCallFetchWalletData)
 
         subject = PayloadDataManager(
             payloadService,
@@ -179,7 +185,7 @@ class PayloadDataManagerIntegrationTest {
         val mockCallFetchWalletData = mock<Call<ResponseBody>> {
             on { execute() }.thenReturn(fetchWalletV2DataResponse)
         }
-        whenever(walletApi.fetchWalletData(any(), any())).thenReturn(mockCallFetchWalletData)
+        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(mockCallFetchWalletData)
         val test = subject.initializeAndDecrypt(
             sharedKey = "38f39fad-fd5d-449a-85e9-adcc84fffcf1",
             guid = "fa311856-db2a-4939-b6c3-9b5a05eda5b5",

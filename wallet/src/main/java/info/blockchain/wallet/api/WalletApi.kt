@@ -1,5 +1,6 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.domain.session.SessionIdService
 import com.blockchain.utils.withBearerPrefix
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
@@ -19,6 +20,7 @@ import retrofit2.Response
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
     private val api: ApiCode,
+    private val sessionIdService: SessionIdService,
     private val byPassCaptchaOrigin: String?,
     private val captchaSiteKey: String
 ) {
@@ -71,12 +73,12 @@ class WalletApi(
         return explorerInstance.getExternalIp().map { it.ip }
     }
 
-    fun setAccess(key: String, value: String, pin: String): Observable<Response<Status>> {
+    fun setAccess(key: String, value: String, pin: String): Single<Response<Status>> {
         val hex = Hex.toHexString(value.toByteArray())
         return explorerInstance.pinStore(key, pin, hex, "put", api.apiCode)
     }
 
-    fun validateAccess(key: String, pin: String): Observable<Response<Status>> {
+    fun validateAccess(key: String, pin: String): Single<Response<Status>> {
         return explorerInstance.pinStore(key, pin, null, "get", api.apiCode)
     }
 
@@ -148,40 +150,36 @@ class WalletApi(
         )
     }
 
-    fun fetchWalletData(guid: String, sharedKey: String): Call<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Call<ResponseBody> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
+            sessionId,
             sharedKey,
             "json",
             api.apiCode
         )
     }
 
-    fun submitTwoFactorCode(sessionId: String, guid: String?, twoFactorCode: String): Observable<ResponseBody> {
-        val headerMap: MutableMap<String, String> =
-            HashMap()
-        headerMap["Authorization"] = sessionId.withBearerPrefix()
-        return explorerInstance.submitTwoFactorCode(
-            headerMap,
-            "get-wallet",
-            guid,
-            twoFactorCode,
-            twoFactorCode.length,
-            "plain",
-            api.apiCode
-        )
-    }
-
-    fun getSessionId(guid: String): Observable<Response<ResponseBody>> {
-        return explorerInstance.getSessionId(guid)
+    fun submitTwoFactorCode(guid: String?, twoFactorCode: String): Single<ResponseBody> {
+        return sessionIdService.sessionId().flatMap {
+            explorerInstance.submitTwoFactorCode(
+                sessionId = it.withBearerPrefix(),
+                method = "get-wallet",
+                guid = guid,
+                twoFactorCode = twoFactorCode,
+                length = twoFactorCode.length,
+                format = "plain",
+                apiCode = api.apiCode
+            )
+        }
     }
 
     fun fetchEncryptedPayload(
         guid: String,
         sessionId: String,
         resend2FASms: Boolean
-    ): Observable<Response<ResponseBody>> =
+    ): Single<Response<ResponseBody>> =
         explorerInstance.fetchEncryptedPayload(
             guid,
             "SID=$sessionId",
@@ -259,17 +257,16 @@ class WalletApi(
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(api.apiCode)
 
-    fun createSessionId(email: String): Single<ResponseBody> =
-        explorerInstance.createSessionId(email, api.apiCode)
-
-    fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
-        explorerInstance.authorizeSession(
-            sessionId.withBearerPrefix(),
-            authToken,
-            api.apiCode,
-            "authorize-approve",
-            true
-        )
+    fun authorizeSession(authToken: String): Single<Response<ResponseBody>> =
+        sessionIdService.sessionId().flatMap {
+            explorerInstance.authorizeSession(
+                it.withBearerPrefix(),
+                authToken,
+                api.apiCode,
+                "authorize-approve",
+                true
+            )
+        }
 
     fun updateMobileSetup(
         guid: String,

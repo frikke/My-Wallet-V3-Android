@@ -43,7 +43,7 @@ class AccountRecoveryInteractor(
     }
 
     private fun restoreWallet() = Completable.fromCallable {
-        payloadDataManager.wallet?.let { wallet ->
+        payloadDataManager.wallet.let { wallet ->
             authPrefs.sharedKey = wallet.sharedKey
             authPrefs.walletGuid = wallet.guid
         }

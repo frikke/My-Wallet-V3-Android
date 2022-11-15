@@ -53,7 +53,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            password
+            password,
+            "any"
         )
     }
 
@@ -68,7 +69,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             )
         )
         assert(payloadManager.payload?.importedAddressList!!.isEmpty())
-        assert(payloadManager.payload?.isUpgradedToV3 == true)
+        assert(payloadManager.payload.isUpgradedToV3 == true)
         println(payloadManager.payload?.sharedKey == "ed8c9149-e9c2-4145-bc80-c8834e5eec50")
         assert(payloadManager.payload?.txNotes == emptyMap<String, String>())
 

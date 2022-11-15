@@ -72,7 +72,7 @@ class PinInteractorTest {
     @Test
     fun `validatePIN then call validatePin`() {
         val pin = "1234"
-        whenever(authDataManager.validatePin(pin)).thenReturn(Observable.just(pin))
+        whenever(authDataManager.validatePin(pin)).thenReturn(Single.just(pin))
         doNothing().whenever(interactor).registerIntercomUser()
         val test = interactor.validatePIN(pin, isIntercomEnabled = false).test()
         test.assertValue {
