@@ -5,6 +5,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
@@ -110,7 +111,7 @@ class CustodialActivityViewModel(
             .map {
                 println("-------- size: ${it.size}")
                 println("-------- value: ${it.map { it.value.toStringWithSymbol() }}")
-                println("-------- filterIsInstance: ${it.filterIsInstance<CustodialInterestActivitySummaryItem>().size}")
+                println("-------- filterIsInstance: ${it.filterIsInstance<FiatActivitySummaryItem>().size}")
                 it
             }
             .doOnSubscribe {

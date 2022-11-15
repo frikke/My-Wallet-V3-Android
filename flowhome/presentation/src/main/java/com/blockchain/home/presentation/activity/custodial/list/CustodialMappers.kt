@@ -4,6 +4,7 @@ import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -34,6 +35,7 @@ private fun ActivitySummaryItem.icon() = when (this) {
     is CustodialTradingActivitySummaryItem -> icon()
     is CustodialTransferActivitySummaryItem -> icon()
     is CustodialInterestActivitySummaryItem -> icon()
+    is RecurringBuyActivitySummaryItem -> icon()
     else -> {
         R.drawable.ic_tx_confirming
     }
@@ -44,6 +46,7 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
         is CustodialTradingActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is CustodialTransferActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
 
         else -> listOf(
             ActivityStackView.Text(
@@ -59,6 +62,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
         is CustodialTradingActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is CustodialTransferActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is CustodialInterestActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
+        is RecurringBuyActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
 
         else -> listOf(
             ActivityStackView.Text(
