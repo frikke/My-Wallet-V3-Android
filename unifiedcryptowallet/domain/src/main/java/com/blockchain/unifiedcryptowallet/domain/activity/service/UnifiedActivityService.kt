@@ -1,17 +1,12 @@
 package com.blockchain.unifiedcryptowallet.domain.activity.service
 
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
+import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import kotlinx.coroutines.flow.Flow
 
 interface UnifiedActivityService {
-    suspend fun activityForAccount(
-        pubKey: String,
-        currency: String,
+    suspend fun getAllActivity(
         acceptLanguage: String,
-        timeZone: String,
-        nextPage: String? = null,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<DataResource<UnifiedActivityPage>>
+        timeZone: String
+    ): Flow<DataResource<List<UnifiedActivityItem>>>
 }

@@ -2,16 +2,11 @@ package com.blockchain.unifiedcryptowallet.domain.activity.model
 
 import java.util.Calendar
 
-data class UnifiedActivityPage(
-    val activity: List<UnifiedActivityItem>,
-    val nextPage: String?
-)
-
 data class UnifiedActivityItem(
     val txId: String,
+    val network: String,
     val blockExplorerUrl: String,
     val summary: ActivityDataItem,
-    val detail: ActivityDetailGroups,
     val status: String,
     val date: Calendar?
 )

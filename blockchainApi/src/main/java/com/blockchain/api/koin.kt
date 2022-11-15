@@ -40,10 +40,13 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
+import com.blockchain.api.selfcustody.activity.ActivityRequest
+import com.blockchain.api.selfcustody.activity.ActivityResponse
 import com.blockchain.api.selfcustody.activity.activityDetailSerializer
 import com.blockchain.api.selfcustody.activity.activityIconSerializer
 import com.blockchain.api.selfcustody.activity.activityViewItemSerializer
 import com.blockchain.api.selfcustody.activity.stackComponentSerializer
+import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
@@ -78,12 +81,18 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
+import com.blockchain.koin.applicationScope
 import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.blockchain.koin.kotlinXCoinApiRetrofit
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.network.modules.OkHttpLoggingInterceptors
+import com.blockchain.network.websocket.Options
+import com.blockchain.network.websocket.autoRetry
+import com.blockchain.network.websocket.debugLog
+import com.blockchain.network.websocket.newBlockchainWebSocket
+import com.blockchain.network.websocket.toJsonSocket
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
@@ -463,11 +472,32 @@ val blockchainApiModule = module {
     }
 
     scope(payloadScopeQualifier) {
+
         scoped {
             val api = get<Retrofit>(walletPubkeyApi).create(SelfCustodyApi::class.java)
             DynamicSelfCustodyService(
                 selfCustodyApi = api,
                 credentials = get()
+            )
+        }
+
+        scoped {
+            val webSocket = get<OkHttpClient>()
+                .newBlockchainWebSocket(
+                    options = Options(url = getBaseUrl("unified-activity-ws"))
+                )
+                .autoRetry()
+                .debugLog("ACTIVITY_LOG")
+                .toJsonSocket(
+                    json = get(),
+                    outgoingAdapter = ActivityRequest.serializer(),
+                    incomingAdapter = ActivityResponse.serializer()
+                )
+            ActivityWebSocketService(
+                webSocket = webSocket,
+                activityCacheService = get(),
+                credentials = get(),
+                wsScope = get(applicationScope)
             )
         }
     }

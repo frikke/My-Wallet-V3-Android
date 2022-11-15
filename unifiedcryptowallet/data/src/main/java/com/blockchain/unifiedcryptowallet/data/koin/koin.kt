@@ -1,9 +1,10 @@
 package com.blockchain.unifiedcryptowallet.data.koin
 
+import com.blockchain.api.services.ActivityCacheService
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.store.KeyedStore
 import com.blockchain.store.Store
-import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityStore
+import com.blockchain.unifiedcryptowallet.data.Database
+import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityCache
 import com.blockchain.unifiedcryptowallet.data.activity.repository.UnifiedActivityRepository
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesRepository
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesStore
@@ -12,6 +13,8 @@ import com.blockchain.unifiedcryptowallet.data.wallet.NetworkWalletRepository
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
+import com.squareup.sqldelight.android.AndroidSqliteDriver
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -42,18 +45,28 @@ val unifiedCryptoWalletModule = module {
         }.bind(Store::class)
 
         scoped {
-            UnifiedActivityStore(
-                selfCustodyService = get(),
+            UnifiedActivityRepository(
+                activityWebSocketService = get(),
+                activityCache = get(),
+                json = get(),
                 currencyPrefs = get()
             )
-        }.bind(KeyedStore::class)
+        }.bind(UnifiedActivityService::class)
 
         scoped {
-            UnifiedActivityRepository(
-                unifiedActivityStore = get(),
+            Database(AndroidSqliteDriver(Database.Schema, androidContext(), "activity_persister.db"))
+        }
+
+        scoped {
+            get<Database>().activityQueries
+        }
+
+        scoped {
+            UnifiedActivityCache(
+                activityQueries = get(),
                 json = get()
             )
-        }.bind(UnifiedActivityService::class)
+        }.bind(ActivityCacheService::class)
 
         scoped {
             NetworkWalletRepository(
