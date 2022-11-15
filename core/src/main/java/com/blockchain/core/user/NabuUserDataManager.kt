@@ -4,11 +4,16 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.api.services.ContactPreferenceUpdate
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.domain.common.model.CountryIso
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 interface NabuUserDataManager {
     fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable
+
+    suspend fun getUserGeolocation(): Outcome<Exception, CountryIso>
 
     fun getContactPreferences(): Single<List<ContactPreference>>
 
@@ -25,6 +30,9 @@ class NabuUserDataManagerImpl(
             countryIsoCode,
             stateIsoCode
         )
+
+    override suspend fun getUserGeolocation(): Outcome<Exception, CountryIso> =
+        nabuUserService.getUserGeolocation().map { it.countryCode }
 
     override fun getContactPreferences(): Single<List<ContactPreference>> =
         nabuUserService.getContactPreferences()

@@ -1,6 +1,10 @@
 package com.blockchain.core.settings
 
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.network.PollService
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -15,17 +19,19 @@ internal class SettingsEmailAndSyncUpdater(
             .toJustEmail()
     }
 
+    override suspend fun pollForEmailVerification(timerInSec: Long, retries: Int): Outcome<Exception, Email> =
+        PollService.poll(
+            fetch = { email().awaitOutcome() },
+            until = { email -> email.isVerified },
+            timerInSec = timerInSec,
+            retries = retries,
+        ).map { it.value }
+
     override fun updateEmailAndSync(email: String): Single<Email> =
-        doUpdateEmailAndSync(email, null)
-
-    override fun updateEmailAndSync(email: String, context: String): Single<Email> =
-        doUpdateEmailAndSync(email, context)
-
-    private fun doUpdateEmailAndSync(email: String, context: String?): Single<Email> {
-        return email()
+        email()
             .flatMap { existing ->
                 if (!existing.isVerified || existing.address != email) {
-                    settingsDataManager.updateEmail(email, context)
+                    settingsDataManager.updateEmail(email)
                         .flatMapSingle { settings ->
                             nabuUserSync
                                 .syncUser()
@@ -36,11 +42,10 @@ internal class SettingsEmailAndSyncUpdater(
                     Single.just(existing)
                 }
             }
-    }
 
     override fun resendEmail(email: String): Single<Email> {
         return settingsDataManager
-            .updateEmail(email)
+            .resendVerificationEmail(email)
             .toJustEmail()
     }
 }

@@ -135,7 +135,8 @@ val coreModule = module {
 
     factory {
         WalletAuthService(
-            walletApi = get()
+            walletApi = get(),
+            sessionIdService = get()
         )
     }
 
@@ -401,7 +402,8 @@ val coreModule = module {
 
         factory {
             PayloadService(
-                payloadManager = get()
+                payloadManager = get(),
+                sessionIdService = get()
             )
         }
 

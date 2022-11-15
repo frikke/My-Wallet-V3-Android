@@ -1,6 +1,6 @@
 package com.blockchain.core.auth
 
-import com.blockchain.api.ApiException
+import com.blockchain.domain.session.SessionIdService
 import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class WalletAuthService(private val walletApi: WalletApi) {
+class WalletAuthService(private val walletApi: WalletApi, private val sessionIdService: SessionIdService) {
 
     /**
      * Returns a [WalletOptions] object, which amongst other things contains information
@@ -31,7 +31,7 @@ class WalletAuthService(private val walletApi: WalletApi) {
         guid: String,
         sessionId: String,
         resend2FASms: Boolean
-    ): Observable<Response<ResponseBody>> = walletApi.fetchEncryptedPayload(guid, sessionId, resend2FASms)
+    ): Single<Response<ResponseBody>> = walletApi.fetchEncryptedPayload(guid, sessionId, resend2FASms)
 
     /**
      * Posts a user's 2FA code to the server. Will return an encrypted copy of the Payload if
@@ -43,10 +43,9 @@ class WalletAuthService(private val walletApi: WalletApi) {
      * @return An [Observable] which may contain an encrypted Payload
      */
     fun submitTwoFactorCode(
-        sessionId: String,
         guid: String,
         twoFactorCode: String
-    ): Observable<ResponseBody> = walletApi.submitTwoFactorCode(sessionId, guid, twoFactorCode)
+    ): Single<ResponseBody> = walletApi.submitTwoFactorCode(guid, twoFactorCode)
 
     /**
      * Gets a session ID from the server
@@ -54,22 +53,7 @@ class WalletAuthService(private val walletApi: WalletApi) {
      * @param guid A user's GUID
      * @return An [Observable] wrapping a [String] response
      */
-    fun getSessionId(guid: String): Observable<String> = walletApi.getSessionId(guid)
-        .map { responseBodyResponse ->
-            val headers = responseBodyResponse.headers().get("Set-Cookie")
-            if (headers != null) {
-                val fields = headers.split(";\\s*".toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-                for (field in fields) {
-                    if (field.startsWith("SID=")) {
-                        return@map field.substring(4)
-                    }
-                }
-            } else {
-                throw ApiException("Session ID not found in headers")
-            }
-            ""
-        }
+    fun getSessionId(): Single<String> = sessionIdService.sessionId()
 
     /**
      * Get the encryption password for pairing
@@ -92,7 +76,7 @@ class WalletAuthService(private val walletApi: WalletApi) {
         key: String,
         value: String,
         pin: String
-    ): Observable<Response<Status>> =
+    ): Single<Response<Status>> =
         walletApi.setAccess(key, value, pin)
 
     /**
@@ -102,7 +86,7 @@ class WalletAuthService(private val walletApi: WalletApi) {
      * @param pin The user's PIN
      * @return A [Response] which may or may not contain the field "success"
      */
-    fun validateAccess(key: String, pin: String): Observable<Response<Status>> =
+    fun validateAccess(key: String, pin: String): Single<Response<Status>> =
         walletApi.validateAccess(key, pin)
             .doOnError {
                 if (it.message?.contains("Incorrect PIN") == true) {
@@ -113,23 +97,14 @@ class WalletAuthService(private val walletApi: WalletApi) {
             }
 
     /**
-     * Create a session ID for the given email for authorization
-     *
-     * @param email The user's email
-     * @return A [Single] wrapping the result
-     */
-    fun createSessionId(email: String): Single<ResponseBody> =
-        walletApi.createSessionId(email)
-
-    /**
      * Authorize the request for the given session ID
      *
      * @param authToken The token required for auth from the email
      * @param sessionId The current session ID
      * @return A [Single] wrapping the result
      */
-    fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
-        walletApi.authorizeSession(authToken, sessionId)
+    fun authorizeSession(authToken: String): Single<Response<ResponseBody>> =
+        walletApi.authorizeSession(authToken)
 
     /**
      * Update the account model fields for mobile setup
@@ -174,9 +149,8 @@ class WalletAuthService(private val walletApi: WalletApi) {
     ): Single<ResponseBody> =
         walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
 
-    fun getDeeplinkPayload(
-        sessionId: String
-    ): Single<ResponseBody> = walletApi.getDeeplinkPayload(sessionId)
+    fun getDeeplinkPayload(): Single<ResponseBody> =
+        sessionIdService.sessionId().flatMap { sessionId -> walletApi.getDeeplinkPayload(sessionId) }
 
     fun updateLoginApprovalStatus(
         sessionId: String,

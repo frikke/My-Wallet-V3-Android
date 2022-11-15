@@ -874,7 +874,7 @@ fun CardSelectorItem(
                                 )
 
                                 SimpleText(
-                                    text = last4digits,
+                                    text = "•••• $last4digits",
                                     style = ComposeTypographies.Paragraph2,
                                     color = ComposeColors.Title,
                                     gravity = ComposeGravities.Start
@@ -1128,7 +1128,7 @@ fun CardTransactionList(
                 CardTransactionItem(
                     merchantName = transaction.merchantName,
                     timestamp = transaction.userTransactionTime,
-                    amount = transaction.originalAmount.toStringWithSymbol(),
+                    amount = transaction.fundingAmount.toStringWithSymbol(),
                     state = transaction.state,
                     isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
                     onClick = { onSeeTransactionDetails(transaction) }
@@ -1245,7 +1245,7 @@ fun CardTransactionHistory(
                                 CardTransactionItem(
                                     merchantName = transaction.merchantName,
                                     timestamp = transaction.userTransactionTime,
-                                    amount = transaction.originalAmount.toStringWithSymbol(),
+                                    amount = transaction.fundingAmount.toStringWithSymbol(),
                                     state = transaction.state,
                                     isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
                                     onClick = { onSeeTransactionDetails(transaction) }
@@ -1282,7 +1282,7 @@ fun CardTransactionHistory(
                                         CardTransactionItem(
                                             merchantName = transaction.merchantName,
                                             timestamp = transaction.userTransactionTime,
-                                            amount = transaction.originalAmount.toStringWithSymbol(),
+                                            amount = transaction.fundingAmount.toStringWithSymbol(),
                                             state = transaction.state,
                                             isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
                                             onClick = { onSeeTransactionDetails(transaction) }
@@ -1511,234 +1511,241 @@ fun CardTransactionDetails(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.standardSpacing),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
-        val isRefund = cardTransaction.type == BlockchainCardTransactionType.REFUND
-
-        val transactionAmount =
-            when {
-                isRefund -> {
-                    buildAnnotatedString {
-                        append("+${cardTransaction.fundingAmount.toStringWithSymbol()}")
-                    }
-                }
-                cardTransaction.state == BlockchainCardTransactionState.DECLINED -> {
-                    buildAnnotatedString {
-                        withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
-                            append("-${cardTransaction.fundingAmount.toStringWithSymbol()}")
-                        }
-                    }
-                }
-                else -> {
-                    buildAnnotatedString { append("-${cardTransaction.fundingAmount.toStringWithSymbol()}") }
-                }
-            }
-
-        val merchantName = cardTransaction.merchantName
-
-        val transactionDateTime =
-            cardTransaction.userTransactionTime.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDateTime() ?: ""
-
-        val transactionStatus =
-            if (cardTransaction.state == BlockchainCardTransactionState.DECLINED) {
-                buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = AppTheme.colors.error)) {
-                        append(cardTransaction.state.toString())
-                    }
-                }
-            } else {
-                buildAnnotatedString {
-                    append(cardTransaction.state.toString())
-                }
-            }
-
-        val transactionPaymentMethod = cardTransaction.fundingAmount.currency.networkTicker
-
-        val transactionFee = cardTransaction.fee.toStringWithSymbol()
-
-        val originalTransactionAmount = cardTransaction.originalAmount.toStringWithSymbol()
 
         SheetHeader(
             onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.transaction_details_title),
-            shouldShowDivider = true
+            shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
-
-        // Transaction Amount
-        SimpleText(
-            text = transactionAmount,
-            style = ComposeTypographies.Title1,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Start,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
-
-        // Merchant Name
-        SimpleText(
-            text = merchantName,
-            style = ComposeTypographies.Body2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        // Transaction timestamp
-        SimpleText(
-            text = transactionDateTime,
-            style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Body,
-            gravity = ComposeGravities.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
-
-        // Transaction Status
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, Grey000),
-            shape = RoundedCornerShape(6.dp),
-            elevation = 0.dp
+                .padding(horizontal = AppTheme.dimensions.standardSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
-            ) {
-                SimpleText(
-                    text = stringResource(R.string.bc_card_transaction_status),
-                    style = ComposeTypographies.Body1,
-                    color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start,
-                )
 
-                SimpleText(
-                    text = transactionStatus,
-                    style = ComposeTypographies.Body2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
-                )
-            }
-        }
+            val isRefund = cardTransaction.type == BlockchainCardTransactionType.REFUND
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+            val transactionAmount =
+                when {
+                    isRefund -> {
+                        buildAnnotatedString {
+                            append("+${cardTransaction.originalAmount.toStringWithSymbol()}")
+                        }
+                    }
+                    cardTransaction.state == BlockchainCardTransactionState.DECLINED -> {
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                                append("-${cardTransaction.originalAmount.toStringWithSymbol()}")
+                            }
+                        }
+                    }
+                    else -> {
+                        buildAnnotatedString { append("-${cardTransaction.originalAmount.toStringWithSymbol()}") }
+                    }
+                }
 
-        // Other Transaction details
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, Grey000),
-            shape = RoundedCornerShape(6.dp),
-            elevation = 0.dp
-        ) {
-            Column(
+            val merchantName = cardTransaction.merchantName
+
+            val transactionDateTime =
+                cardTransaction.userTransactionTime.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDateTime() ?: ""
+
+            val transactionStatus =
+                if (cardTransaction.state == BlockchainCardTransactionState.DECLINED) {
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = AppTheme.colors.error)) {
+                            append(cardTransaction.state.toString())
+                        }
+                    }
+                } else {
+                    buildAnnotatedString {
+                        append(cardTransaction.state.toString())
+                    }
+                }
+
+            val transactionPaymentMethod = cardTransaction.fundingAmount.currency.networkTicker
+
+            val transactionFee = cardTransaction.fee.toStringWithSymbol()
+
+            val fundingTransactionAmount = cardTransaction.fundingAmount.toStringWithSymbol()
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            // Transaction Amount
+            SimpleText(
+                text = transactionAmount,
+                style = ComposeTypographies.Title1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            // Merchant Name
+            SimpleText(
+                text = merchantName,
+                style = ComposeTypographies.Body2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            // Transaction timestamp
+            SimpleText(
+                text = transactionDateTime,
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            // Transaction Status
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                shape = RoundedCornerShape(6.dp),
+                elevation = 0.dp
             ) {
-                // Card last 4 digits
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(AppTheme.dimensions.smallSpacing)
+                    modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
                 ) {
                     SimpleText(
-                        text = stringResource(id = R.string.card),
+                        text = stringResource(R.string.bc_card_transaction_status),
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Body,
-                        gravity = ComposeGravities.Start
+                        gravity = ComposeGravities.Start,
                     )
 
                     SimpleText(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(color = AppTheme.colors.primary)) {
-                                append("•••• $last4digits")
-                            }
-                        },
+                        text = transactionStatus,
                         style = ComposeTypographies.Body2,
                         color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
+                        gravity = ComposeGravities.Start,
                     )
                 }
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
 
-                // Payment Method
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            // Other Transaction details
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                shape = RoundedCornerShape(6.dp),
+                elevation = 0.dp
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.dimensions.smallSpacing)
                 ) {
-                    SimpleText(
-                        text = stringResource(R.string.bc_card_transaction_payment_method),
-                        style = ComposeTypographies.Body1,
-                        color = ComposeColors.Body,
-                        gravity = ComposeGravities.Start
-                    )
+                    // Card last 4 digits
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppTheme.dimensions.smallSpacing)
+                    ) {
+                        SimpleText(
+                            text = stringResource(id = R.string.card),
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
 
-                    SimpleText(
-                        text = transactionPaymentMethod,
-                        style = ComposeTypographies.Body2,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        SimpleText(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(color = AppTheme.colors.primary)) {
+                                    append("•••• $last4digits")
+                                }
+                            },
+                            style = ComposeTypographies.Body2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-                // Fee
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(AppTheme.dimensions.smallSpacing)
-                ) {
-                    SimpleText(
-                        text = stringResource(R.string.bc_card_transaction_fee),
-                        style = ComposeTypographies.Body1,
-                        color = ComposeColors.Body,
-                        gravity = ComposeGravities.Start
-                    )
+                    // Payment Method
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppTheme.dimensions.smallSpacing)
+                    ) {
+                        SimpleText(
+                            text = stringResource(R.string.bc_card_transaction_payment_method),
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
 
-                    SimpleText(
-                        text = transactionFee,
-                        style = ComposeTypographies.Body2,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        SimpleText(
+                            text = transactionPaymentMethod,
+                            style = ComposeTypographies.Body2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-                // Original transaction amount (total - fees)
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(AppTheme.dimensions.smallSpacing)
-                ) {
-                    SimpleText(
-                        text = stringResource(
-                            id = R.string.bc_card_transaction_original_amount,
-                            transactionPaymentMethod
-                        ),
-                        style = ComposeTypographies.Body1,
-                        color = ComposeColors.Body,
-                        gravity = ComposeGravities.Start
-                    )
+                    // Fee
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppTheme.dimensions.smallSpacing)
+                    ) {
+                        SimpleText(
+                            text = stringResource(R.string.bc_card_transaction_fee),
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
 
-                    SimpleText(
-                        text = originalTransactionAmount,
-                        style = ComposeTypographies.Body2,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
+                        SimpleText(
+                            text = transactionFee,
+                            style = ComposeTypographies.Body2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                    // Original transaction amount (total - fees)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppTheme.dimensions.smallSpacing)
+                    ) {
+                        SimpleText(
+                            text = stringResource(
+                                id = R.string.bc_card_transaction_original_amount,
+                                transactionPaymentMethod
+                            ),
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
+
+                        SimpleText(
+                            text = fundingTransactionAmount,
+                            style = ComposeTypographies.Body2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
                 }
             }
         }
@@ -2502,6 +2509,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = ComposeColors.Title.toComposeColor(),
                 focusedBorderColor = Grey000,
                 unfocusedBorderColor = Grey000
             )

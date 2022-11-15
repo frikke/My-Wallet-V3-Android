@@ -1,18 +1,20 @@
 package com.blockchain.api.coinnetworks.data
 
+import com.blockchain.domain.wallet.NetworkType
+import com.blockchain.domain.wallet.STYLE
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CoinNetworkResponse(
     @SerialName("networks")
-    val networks: List<CoinNetwork>,
+    val networks: List<CoinNetworkDto>,
     @SerialName("types")
-    val types: List<CoinType>
+    val types: List<CoinTypeDto>
 )
 
 @Serializable
-data class CoinNetwork(
+data class CoinNetworkDto(
     @SerialName("explorerUrl")
     val explorerUrl: String,
     @SerialName("nativeAsset")
@@ -40,17 +42,17 @@ data class Identifiers(
 )
 
 @Serializable
-data class CoinType(
+data class CoinTypeDto(
     @SerialName("type")
     val type: NetworkType = NetworkType.NOT_SUPPORTED,
     @SerialName("derivations")
-    val derivations: List<Derivation>,
+    val derivations: List<DerivationDto>,
     @SerialName("style")
     val style: STYLE
 )
 
 @Serializable
-data class Derivation(
+data class DerivationDto(
     @SerialName("purpose")
     val purpose: Int,
     @SerialName("coinType")
@@ -58,17 +60,3 @@ data class Derivation(
     @SerialName("descriptor")
     val descriptor: Int
 )
-
-// By having coerceInputValues set to true we can force the unknown values to be replaced by the default value
-// of the property with this type. That way we can control which networks are enable and support.
-enum class NetworkType {
-    EVM,
-    BTC,
-    XLM,
-    NOT_SUPPORTED
-}
-
-enum class STYLE {
-    SINGLE,
-    EXTENDED
-}

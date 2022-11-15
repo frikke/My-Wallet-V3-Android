@@ -19,7 +19,6 @@ import info.blockchain.wallet.exceptions.ServerConnectionException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.exceptions.Exceptions
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.Json
@@ -66,14 +65,15 @@ class AuthDataManager(
      */
     fun getEncryptedPayload(
         guid: String,
-        sessionId: String,
         resend2FASms: Boolean
-    ): Observable<Response<ResponseBody>> =
-        walletAuthService.getEncryptedPayload(
-            guid.trimAndTruncateGuid(),
-            sessionId,
-            resend2FASms
-        )
+    ): Single<Response<ResponseBody>> =
+        getSessionId().flatMap {
+            walletAuthService.getEncryptedPayload(
+                guid.trimAndTruncateGuid(),
+                it,
+                resend2FASms
+            )
+        }
             .applySchedulers()
 
     fun getEncryptedPayloadObject(guid: String, sessionId: String, resend2FASms: Boolean): Single<JsonObject> =
@@ -83,7 +83,6 @@ class AuthDataManager(
             resend2FASms
         )
             .applySchedulers()
-            .firstOrError()
             .flatMap {
                 it.handleResponse()
             }
@@ -97,18 +96,9 @@ class AuthDataManager(
      * @param guid The user's unique GUID
      * @return An [Observable] wrapping a session ID as a String
      */
-    fun getSessionId(guid: String): Observable<String> =
-        walletAuthService.getSessionId(guid)
+    fun getSessionId(): Single<String> =
+        walletAuthService.getSessionId()
             .applySchedulers()
-
-    /**
-     * Create a session ID for the given email for authorization
-     *
-     * @param email The user's email
-     * @return A [Single] wrapping the result
-     */
-    fun createSessionId(email: String): Single<ResponseBody> =
-        walletAuthService.createSessionId(email)
 
     /**
      * Requests authorization for the session specified by the ID
@@ -117,8 +107,8 @@ class AuthDataManager(
      * @param sessionId The current session ID
      * @return A [Single] wrapping
      */
-    fun authorizeSessionObject(authToken: String, sessionId: String): Single<JsonObject> =
-        walletAuthService.authorizeSession(authToken, sessionId).flatMap { it.handleResponse() }
+    fun authorizeSessionObject(authToken: String): Single<JsonObject> =
+        walletAuthService.authorizeSession(authToken).flatMap { it.handleResponse() }
 
     /**
      * Submits a user's 2FA code to the server and returns a response. This response will contain
@@ -130,10 +120,9 @@ class AuthDataManager(
      * @see .getSessionId
      */
     fun submitTwoFactorCode(
-        sessionId: String,
         guid: String,
         twoFactorCode: String
-    ): Observable<ResponseBody> = walletAuthService.submitTwoFactorCode(sessionId, guid, twoFactorCode)
+    ): Single<ResponseBody> = walletAuthService.submitTwoFactorCode(guid, twoFactorCode)
         .applySchedulers()
 
     /**
@@ -157,7 +146,7 @@ class AuthDataManager(
      * @param passedPin The PIN to be used
      * @return An [Observable] where the wrapped String is the user's decrypted password
      */
-    fun validatePin(passedPin: String): Observable<String> {
+    fun validatePin(passedPin: String): Single<String> {
         return getValidatePinObservable(passedPin)
             .applySchedulers()
     }
@@ -174,11 +163,11 @@ class AuthDataManager(
             .applySchedulers()
     }
 
-    private fun getValidatePinObservable(passedPin: String): Observable<String> {
+    private fun getValidatePinObservable(passedPin: String): Single<String> {
         val key = authPrefs.pinId
 
         if (!passedPin.isValidPin()) {
-            return Observable.error(IllegalArgumentException("Invalid PIN"))
+            return Single.error(IllegalArgumentException("Invalid PIN"))
         } else {
             pinRepository.setPin(passedPin)
             remoteLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
@@ -241,7 +230,6 @@ class AuthDataManager(
     }
 
     private fun getCreatePinObservable(password: String, passedPin: String): Completable {
-
         if (!passedPin.isValidPin()) {
             return Completable.error(IllegalArgumentException("Invalid PIN"))
         } else {
@@ -249,45 +237,31 @@ class AuthDataManager(
             remoteLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
-        return Completable.create { subscriber ->
-            val bytes = ByteArray(16)
-            val random = SecureRandom()
-            random.nextBytes(bytes)
-            val key = String(Hex.encode(bytes), Charsets.UTF_8)
-            random.nextBytes(bytes)
-            val value = String(Hex.encode(bytes), Charsets.UTF_8)
+        val bytes = ByteArray(16)
+        val random = SecureRandom()
+        random.nextBytes(bytes)
+        val key = String(Hex.encode(bytes), Charsets.UTF_8)
+        random.nextBytes(bytes)
+        val value = String(Hex.encode(bytes), Charsets.UTF_8)
 
-            walletAuthService.setAccessKey(key, value, passedPin)
-                .subscribe({ response ->
-                    if (response.isSuccessful) {
-                        val encryptionKey = Hex.toHexString(value.toByteArray(Charsets.UTF_8))
+        return walletAuthService.setAccessKey(key, value, passedPin).flatMap { response ->
+            if (response.isSuccessful) {
+                Single.just(response)
+            } else {
+                Single.error(Throwable("Validate access failed: ${response.errorBody()?.string()}"))
+            }
+        }.doOnSuccess {
+            val encryptionKey = Hex.toHexString(value.toByteArray(Charsets.UTF_8))
+            val encryptedPassword = aesUtilWrapper.encrypt(
+                password,
+                encryptionKey,
+                AESUtil.PIN_PBKDF2_ITERATIONS
+            )
+            authPrefs.encryptedPassword = encryptedPassword
+            authPrefs.pinId = key
 
-                        val encryptedPassword = aesUtilWrapper.encrypt(
-                            password,
-                            encryptionKey,
-                            AESUtil.PIN_PBKDF2_ITERATIONS
-                        )
-
-                        authPrefs.encryptedPassword = encryptedPassword
-                        authPrefs.pinId = key
-
-                        handleBackup(encryptionKey)
-
-                        if (!subscriber.isDisposed) {
-                            subscriber.onComplete()
-                        }
-                    } else {
-                        throw Exceptions.propagate(
-                            Throwable("Validate access failed: ${response.errorBody()?.string()}")
-                        )
-                    }
-                }) { throwable ->
-                    if (!subscriber.isDisposed) {
-                        subscriber.onError(throwable)
-                        subscriber.onComplete()
-                    }
-                }
-        }
+            handleBackup(encryptionKey)
+        }.ignoreElement()
     }
 
     /**
@@ -351,14 +325,13 @@ class AuthDataManager(
      * @param captcha Captcha token
      * @return A [Completable] wrapping the result
      */
-    fun sendEmailForAuthentication(sessionId: String, email: String, captcha: String) =
+    fun sendEmailForAuthentication(email: String, captcha: String) =
         authApiService.sendEmailForAuthentication(
-            sessionId = sessionId,
             email = email,
             captcha = captcha
         )
 
-    fun getDeeplinkPayload(sessionId: String) = walletAuthService.getDeeplinkPayload(sessionId)
+    fun getDeeplinkPayload() = walletAuthService.getDeeplinkPayload()
 
     fun updateLoginApprovalStatus(
         sessionId: String,

@@ -4,6 +4,8 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.domain.wallet.CoinNetwork
+import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -17,6 +19,7 @@ interface DynamicAssetsService {
     fun allEvmNetworks(): Single<List<EvmNetwork>>
     fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
     fun otherEvmNetworks(): Single<List<EvmNetwork>>
+    suspend fun allNetworks(): Outcome<Exception, List<CoinNetwork>>
 }
 
 internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo? =

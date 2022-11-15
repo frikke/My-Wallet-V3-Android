@@ -191,7 +191,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any_shared_key",
             "any_guid",
-            "SomeTestPassword"
+            "SomeTestPassword",
+            "sid"
         )
     }
 
@@ -205,7 +206,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "blockchain"
+            "blockchain",
+            "sid"
         )
     }
 
@@ -273,7 +275,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "SomeTestPassword"
+            "SomeTestPassword",
+            "sid"
         )
     }
 
@@ -400,7 +403,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "06f6fa9c-d0fe-403d-815a-111ee26888e2",
             "4750d125-5344-4b79-9cf9-6e3c97bc9523",
-            "MyTestWallet"
+            "MyTestWallet",
+            "sid"
         )
         val wallet = payloadManager.payload
 
@@ -463,7 +467,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "MyTestWallet"
+            "MyTestWallet",
+            "sid"
         )
         payloadManager.updateAllBalances()
 
@@ -570,7 +575,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
             "5350e5d5-bd65-456f-b150-e6cc089f0b26",
-            "MyTestWallet"
+            "MyTestWallet",
+            "sid"
         )
 
         // Account 1

@@ -345,6 +345,7 @@ class PinActivity :
         setApiOutageMessage()
 
         with(model) {
+            process(PinIntent.CheckIntercomStatus)
             process(PinIntent.CheckNumPinAttempts)
             process(PinIntent.GetAction)
             process(PinIntent.CheckApiStatus)
@@ -476,10 +477,10 @@ class PinActivity :
             .setMessage(R.string.upgrade_fail_info)
             .setCancelable(false)
             .setPositiveButton(R.string.exit) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
             .setNegativeButton(R.string.logout) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
             .show()
@@ -714,10 +715,10 @@ class PinActivity :
             .setPositiveButton(
                 R.string.exit
             ) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
             .setNegativeButton(R.string.logout) { _, _ ->
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
             .show()
@@ -817,7 +818,7 @@ class PinActivity :
                 }
                 else -> {
                     fraudService.endFlow(FraudFlow.LOGIN)
-                    appUtil.logout()
+                    appUtil.logout(lastState.isIntercomEnabled)
                 }
             }
         }
@@ -911,7 +912,7 @@ class PinActivity :
         }
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setOnClickListener {
-                util.logout()
+                util.logout(lastState.isIntercomEnabled)
             }
         fraudService.endFlow(FraudFlow.LOGIN)
     }
@@ -951,11 +952,6 @@ class PinActivity :
         }
 
     private fun askToUseBiometrics() {
-        // This doesn't work
-        //        val tempFragment = supportFragmentManager.findFragmentByTag("BIOMETRICS_BOTTOM_SHEET")
-        //        if (tempFragment == null) {
-        //            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
-        //        }
         if (!isBiometricsVisible) {
             BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
             isBiometricsVisible = true

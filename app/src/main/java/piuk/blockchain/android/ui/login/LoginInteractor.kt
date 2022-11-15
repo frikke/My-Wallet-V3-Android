@@ -40,16 +40,11 @@ class LoginInteractor(
             }
             .doOnError { appUtil.clearCredentials() }
 
-    fun obtainSessionId(email: String): Single<ResponseBody> =
-        authDataManager.createSessionId(email)
-
     fun sendEmailForVerification(
-        sessionId: String,
         email: String,
         captcha: String
     ): Completable {
-        authPrefs.sessionId = sessionId
-        return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
+        return authDataManager.sendEmailForAuthentication(email, captcha)
     }
 
     @ExperimentalSerializationApi
@@ -112,9 +107,9 @@ class LoginInteractor(
         }
     }
 
-    fun pollForAuth(sessionId: String, json: Json): Single<PollResult<ResponseBody>> {
+    fun pollForAuth(json: Json): Single<PollResult<ResponseBody>> {
         authPollService = PollService(
-            authDataManager.getDeeplinkPayload(sessionId)
+            authDataManager.getDeeplinkPayload()
         ) {
             val responseBodyString = it.peekResponseBody()
             try {

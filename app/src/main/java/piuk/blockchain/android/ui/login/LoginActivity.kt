@@ -418,7 +418,7 @@ class LoginActivity :
                 .replace(
                     R.id.content_frame,
                     VerifyDeviceFragment.newInstance(
-                        newState.sessionId, newState.email, newState.captcha
+                        newState.email, newState.captcha
                     ),
                     VerifyDeviceFragment::class.simpleName
                 )
@@ -442,7 +442,7 @@ class LoginActivity :
                 } else {
                     analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
                     model.process(
-                        LoginIntents.ObtainSessionIdForEmail(
+                        LoginIntents.SendEmail(
                             selectedEmail = selectedEmail,
                             captcha = response.tokenResult
                         )

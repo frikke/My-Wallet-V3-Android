@@ -52,6 +52,18 @@ class PinModel(
         intent: PinIntent
     ): Disposable? =
         when (intent) {
+            is PinIntent.CheckIntercomStatus -> interactor.getIntercomStatus()
+                .subscribeBy(
+                    onSuccess = { enabled ->
+                        if (enabled) {
+                            interactor.initialiseIntercom()
+                        }
+                        process(PinIntent.UpdateIntercomStatus(enabled))
+                    },
+                    onError = {
+                        Timber.e("Error getting intercom status")
+                    }
+                )
             is PinIntent.GetAction -> {
                 when {
                     interactor.isCreatingNewPin() -> process(PinIntent.UpdateAction(PinScreenView.CreateNewPin))
@@ -87,7 +99,7 @@ class PinModel(
             is PinIntent.ValidatePIN -> {
                 momentLogger.startEvent(MomentEvent.PIN_TO_DASHBOARD)
 
-                interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult)
+                interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult, previousState.isIntercomEnabled)
                     .handleProgress(R.string.validating_pin)
                     .subscribeBy(
                         onSuccess = { password ->
@@ -219,7 +231,8 @@ class PinModel(
             is PinIntent.HandleProgressDialog,
             is PinIntent.UpgradeWalletResponse,
             is PinIntent.CreatePINSucceeded,
-            is PinIntent.SetShowFingerprint -> null
+            is PinIntent.SetShowFingerprint,
+            is PinIntent.UpdateIntercomStatus -> null
         }
 
     private fun canTriggerAnUpdateOfType(

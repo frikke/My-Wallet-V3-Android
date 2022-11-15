@@ -124,7 +124,6 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
 
     override fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
-        sessionId: String,
         authType: Int,
         guid: String,
         password: String
@@ -135,7 +134,6 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         val dialog = getTwoFactorDialog(this, authType, walletPrefs, positiveAction = {
             presenter.submitTwoFactorCode(
                 responseObject,
-                sessionId,
                 guid,
                 password,
                 it

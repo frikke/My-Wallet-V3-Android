@@ -18,6 +18,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
@@ -65,6 +66,7 @@ class ActivitiesFragment :
     private val disposables = CompositeDisposable()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val assetResources: AssetResources by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val historicRateFetcher: HistoricRateFetcher by scopedInject()
 
     private var state: ActivitiesState? = null
@@ -99,20 +101,37 @@ class ActivitiesFragment :
                     showBottomSheet(AccountSelectSheet.newInstance(this))
                 }
                 ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS -> {
-                    newState.selectedCurrency?.asAssetInfoOrThrow()?.let {
-                        showBottomSheet(
-                            CryptoActivityDetailsBottomSheet.newInstance(
-                                it, newState.selectedTxId,
-                                newState.activityType
+                    try {
+                        newState.selectedCurrency?.asAssetInfoOrThrow()?.let { assetInfo ->
+                            showBottomSheet(
+                                CryptoActivityDetailsBottomSheet.newInstance(
+                                    asset = assetInfo,
+                                    txHash = newState.selectedTxId,
+                                    activityType = newState.activityType
+                                )
                             )
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        remoteLogger.logException(
+                            throwable = e,
+                            logMessage = "Failed to cast AssetInfo for ${newState.selectedCurrency?.networkTicker}"
                         )
+                        showDetailsLoadingError()
                     }
                 }
                 ActivitiesSheet.FIAT_ACTIVITY_DETAILS -> {
-                    newState.selectedCurrency?.asFiatCurrencyOrThrow()?.let {
-                        showBottomSheet(
-                            FiatActivityDetailsBottomSheet.newInstance(it, newState.selectedTxId)
+                    try {
+                        newState.selectedCurrency?.asFiatCurrencyOrThrow()?.let {
+                            showBottomSheet(
+                                FiatActivityDetailsBottomSheet.newInstance(it, newState.selectedTxId)
+                            )
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        remoteLogger.logException(
+                            throwable = e,
+                            logMessage = "Failed to cast FiatCurrency for ${newState.selectedCurrency?.networkTicker}"
                         )
+                        showDetailsLoadingError()
                     }
                 }
                 null -> {

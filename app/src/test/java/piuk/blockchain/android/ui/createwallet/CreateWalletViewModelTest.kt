@@ -6,6 +6,8 @@ import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
@@ -53,9 +55,14 @@ class CreateWalletViewModelTest {
     private val specificAnalytics: ProviderSpecificAnalytics = mockk(relaxed = true)
     private val appUtil: AppUtil = mockk(relaxed = true)
     private val formatChecker: FormatChecker = mockk()
-    private val eligibilityService: EligibilityService = mockk()
+    private val eligibilityService: EligibilityService = mockk {
+        coEvery { getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
+    }
     private val referralService: ReferralService = mockk()
     private val payloadDataManager: PayloadDataManager = mockk()
+    private val nabuUserDataManager: NabuUserDataManager = mockk {
+        coEvery { getUserGeolocation() } returns Outcome.Success(USER_LOCATION)
+    }
 
     private lateinit var subject: CreateWalletViewModel
 
@@ -73,6 +80,7 @@ class CreateWalletViewModelTest {
             eligibilityService = eligibilityService,
             referralService = referralService,
             payloadDataManager = payloadDataManager,
+            nabuUserDataManager = nabuUserDataManager,
         )
     }
 
@@ -82,17 +90,19 @@ class CreateWalletViewModelTest {
     }
 
     @Test
-    fun `onViewCreated should fetch countries and show them if successful`() = runTest {
+    fun `onViewCreated should fetch countries and geolocation and show them if successful`() = runTest {
         coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
+        coEvery { nabuUserDataManager.getUserGeolocation() } returns Outcome.Success(USER_LOCATION)
 
         subject.viewState.test {
             subject.viewCreated(ModelConfigArgs.NoArgs)
             awaitItem().countryInputState shouldBeEqualTo CountryInputState.Loading
-            awaitItem().countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, null)
+            awaitItem().countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, null, COUNTRY_UK)
             expectNoEvents()
         }
 
         coVerify { eligibilityService.getCountriesList(GetRegionScope.Signup) }
+        coVerify { nabuUserDataManager.getUserGeolocation() }
     }
 
     @Test
@@ -104,7 +114,7 @@ class CreateWalletViewModelTest {
             subject.viewCreated(ModelConfigArgs.NoArgs)
             awaitItem().countryInputState shouldBeEqualTo CountryInputState.Loading
             awaitItem().run {
-                countryInputState shouldBeEqualTo CountryInputState.Loaded(emptyList(), null)
+                countryInputState shouldBeEqualTo CountryInputState.Loaded(emptyList(), null, null)
                 this.error shouldBeEqualTo CreateWalletError.Unknown("error")
             }
             expectNoEvents()
@@ -112,26 +122,41 @@ class CreateWalletViewModelTest {
     }
 
     @Test
-    fun `selecting country should update the selected country and not fetch states if the country does not have states`() =
-        runTest {
-            coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
+    fun `onViewCreated user geolocation error should not affect the flow`() = runTest {
+        coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
+        coEvery { nabuUserDataManager.getUserGeolocation() } returns Outcome.Failure(RuntimeException("error"))
 
+        subject.viewState.test {
             subject.viewCreated(ModelConfigArgs.NoArgs)
-            subject.viewState.test {
-                expectMostRecentItem()
-                subject.onIntent(CreateWalletIntent.CountryInputChanged("UK"))
-                awaitItem().run {
-                    countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_UK)
-                    stateInputState shouldBeEqualTo StateInputState.Hidden
-                }
+            awaitItem().countryInputState shouldBeEqualTo CountryInputState.Loading
+            awaitItem().apply {
+                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, null, null)
+                error shouldBeEqualTo null
             }
-
-            coVerify { eligibilityService.getStatesList(any(), any()) wasNot Called }
+            expectNoEvents()
         }
+
+        coVerify { eligibilityService.getCountriesList(GetRegionScope.Signup) }
+        coVerify { nabuUserDataManager.getUserGeolocation() }
+    }
+
+    @Test
+    fun `selecting country should update the selected country and not fetch states if the country does not have states`() = runTest {
+        subject.viewCreated(ModelConfigArgs.NoArgs)
+        subject.viewState.test {
+            expectMostRecentItem()
+            subject.onIntent(CreateWalletIntent.CountryInputChanged("UK"))
+            awaitItem().run {
+                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_UK, COUNTRY_UK)
+                stateInputState shouldBeEqualTo StateInputState.Hidden
+            }
+        }
+
+        coVerify { eligibilityService.getStatesList(any(), any()) wasNot Called }
+    }
 
     @Test
     fun `selecting country with states should fetch states`() = runTest {
-        coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
         coEvery { eligibilityService.getStatesList("US", GetRegionScope.Signup) } returns Outcome.Success(STATES)
 
         subject.viewCreated(ModelConfigArgs.NoArgs)
@@ -139,7 +164,7 @@ class CreateWalletViewModelTest {
             expectMostRecentItem()
             subject.onIntent(CreateWalletIntent.CountryInputChanged("US"))
             awaitItem().run {
-                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_US)
+                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_US, COUNTRY_UK)
                 stateInputState shouldBeEqualTo StateInputState.Loading
             }
             awaitItem().run {
@@ -152,7 +177,6 @@ class CreateWalletViewModelTest {
 
     @Test
     fun `selecting country should cancel previous states fetching`() = runTest {
-        coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
         val statesDeferred = CompletableDeferred<Unit>()
         coEvery { eligibilityService.getStatesList("US", GetRegionScope.Signup) } coAnswers {
             statesDeferred.await()
@@ -166,7 +190,7 @@ class CreateWalletViewModelTest {
             awaitItem() // States Loading
             subject.onIntent(CreateWalletIntent.CountryInputChanged("UK"))
             awaitItem().run {
-                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_UK)
+                countryInputState shouldBeEqualTo CountryInputState.Loaded(COUNTRIES, COUNTRY_UK, COUNTRY_UK)
                 stateInputState shouldBeEqualTo StateInputState.Hidden
             }
             statesDeferred.complete(Unit) // states finished loading
@@ -179,7 +203,6 @@ class CreateWalletViewModelTest {
     @Test
     fun `whenever an input change the next button state should be recomputed and display the correct state`() =
         runTest {
-            coEvery { eligibilityService.getCountriesList(GetRegionScope.Signup) } returns Outcome.Success(COUNTRIES)
             coEvery { eligibilityService.getStatesList("US", GetRegionScope.Signup) } returns Outcome.Success(STATES)
 
             subject.viewState.test {
@@ -395,6 +418,7 @@ class CreateWalletViewModelTest {
             COUNTRY_UK,
             COUNTRY_PT,
         )
+        private val USER_LOCATION: CountryIso = COUNTRY_UK.countryCode
 
         private val STATE_AK = Region.State("US", "Arkansas", true, "AK")
         private val STATE_MH = Region.State("US", "Michigan", true, "MH")

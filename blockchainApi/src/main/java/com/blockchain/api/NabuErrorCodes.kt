@@ -23,7 +23,8 @@ enum class NabuErrorStatusCodes(val code: Int) {
     InternalServerError(500),
     BadRequest(400),
     Forbidden(403),
-    NotFound(404);
+    NotFound(404),
+    TooManyRequests(429);
 
     companion object {
 

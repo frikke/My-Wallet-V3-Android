@@ -19,7 +19,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRates
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
@@ -64,7 +63,6 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
     private val disposables = CompositeDisposable()
     private val interestService: InterestService by scopedInject()
-    private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
 

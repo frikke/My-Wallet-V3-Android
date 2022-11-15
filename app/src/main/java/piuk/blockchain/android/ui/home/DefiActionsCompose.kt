@@ -113,7 +113,7 @@ private fun PreviewDefiBuyCrypto() {
     AppTheme {
         BottomItem(
             sheetAction = SheetAction(
-                icon = R.drawable.ic_sheet_menu_swap,
+                icon = R.drawable.ic_cta_swap,
                 title = R.string.common_buy,
                 subtitle = R.string.common_buy,
                 action = AssetAction.Buy,

@@ -16,7 +16,6 @@ import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
-import org.json.JSONObject
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
@@ -40,14 +39,9 @@ class LoginModel(
                 null
             }
             is LoginIntents.LoginWithQr -> loginWithQrCode(intent.qrString)
-            is LoginIntents.ObtainSessionIdForEmail ->
-                obtainSessionId(
-                    intent.selectedEmail,
-                    intent.captcha
-                )
+
             is LoginIntents.SendEmail ->
                 sendVerificationEmail(
-                    intent.sessionId,
                     intent.selectedEmail,
                     intent.captcha,
                     previousState.pollingState
@@ -151,7 +145,7 @@ class LoginModel(
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
         }
-        return Single.defer { interactor.pollForAuth(previousState.sessionId, jsonBuilder) }
+        return Single.defer { interactor.pollForAuth(jsonBuilder) }
             .subscribeBy(
                 onSuccess = {
                     when (it) {
@@ -211,31 +205,12 @@ class LoginModel(
                 }
             )
 
-    private fun obtainSessionId(email: String, captcha: String): Disposable =
-        interactor.obtainSessionId(email)
-            .subscribeBy(
-                onSuccess = { responseBody ->
-                    val response = JSONObject(responseBody.string())
-                    if (response.has(SESSION_TOKEN)) {
-                        val sessionId = response.getString(SESSION_TOKEN)
-                        process(LoginIntents.SendEmail(sessionId, email, captcha))
-                    } else {
-                        process(LoginIntents.GetSessionIdFailed)
-                    }
-                },
-                onError = { throwable ->
-                    Timber.e(throwable)
-                    process(LoginIntents.GetSessionIdFailed)
-                }
-            )
-
     private fun sendVerificationEmail(
-        sessionId: String,
         email: String,
         captcha: String,
         pollingState: AuthPollingState
     ): Disposable =
-        interactor.sendEmailForVerification(sessionId, email, captcha)
+        interactor.sendEmailForVerification(email, captcha)
             .subscribeBy(
                 onComplete = {
                     process(LoginIntents.ShowEmailSent)

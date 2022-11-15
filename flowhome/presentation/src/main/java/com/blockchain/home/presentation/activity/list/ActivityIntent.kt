@@ -9,7 +9,7 @@ sealed interface ActivityIntent : Intent<ActivityModelState> {
 
     data class FilterSearch(val term: String) : ActivityIntent {
         override fun isValidFor(modelState: ActivityModelState): Boolean {
-            return modelState.activity is DataResource.Data
+            return modelState.activityItems is DataResource.Data
         }
     }
 }

@@ -3,6 +3,10 @@ package com.blockchain.blockchaincard.viewmodel.ordercard
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddressType
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycErrorField
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycState
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycUpdate
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
@@ -15,7 +19,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.fold
 import timber.log.Timber
 
 class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
@@ -24,6 +27,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         when (args) {
             is BlockchainCardArgs.ProductArgs -> {
                 updateState { it.copy(cardProductList = args.products) }
+                onIntent(BlockchainCardIntent.LoadKycStatus)
+                onIntent(BlockchainCardIntent.LoadResidentialAddress)
             }
 
             else -> {
@@ -45,7 +50,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         singleLegalDocumentToSee = state.singleLegalDocumentToSee,
         isAddressLoading = state.isAddressLoading,
         userFirstAndLastName = state.userFirstAndLastName,
-        shippingAddress = state.shippingAddress
+        shippingAddress = state.shippingAddress,
+        kycStatus = state.kycStatus
     )
 
     override suspend fun handleIntent(
@@ -53,34 +59,117 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         intent: BlockchainCardIntent
     ) {
         when (intent) {
+            is BlockchainCardIntent.LoadKycStatus -> {
+                blockchainCardRepository.getKycStatus()
+                    .doOnSuccess { kycStatus ->
+                        updateState { it.copy(kycStatus = kycStatus) }
+
+                        when (kycStatus.state) {
+                            BlockchainCardKycState.PENDING -> {
+                                navigate(BlockchainCardNavigationEvent.OrderCardKycPending)
+                            }
+
+                            BlockchainCardKycState.FAILURE -> {
+                                navigate(BlockchainCardNavigationEvent.OrderCardKycFailure)
+                            }
+
+                            else -> {
+                                navigate(BlockchainCardNavigationEvent.ShowOrderCardIntro)
+                            }
+                        }
+                    }.doOnFailure { error ->
+                        Timber.e("Unable to get kyc status: $error")
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
+                    }
+            }
 
             is BlockchainCardIntent.HowToOrderCard -> {
                 navigate(BlockchainCardNavigationEvent.ShowHowToOrderCard)
             }
 
-            is BlockchainCardIntent.OrderCardKYCAddress -> {
-                onIntent(BlockchainCardIntent.LoadResidentialAddress)
-                navigate(BlockchainCardNavigationEvent.OrderCardKycAddress)
+            is BlockchainCardIntent.OrderCardPerformKyc -> {
+                modelState.kycStatus?.let { kycStatus ->
+                    when (kycStatus.state) {
+                        BlockchainCardKycState.FAILURE,
+                        BlockchainCardKycState.UNVERIFIED -> {
+                            onIntent(BlockchainCardIntent.OrderCardKYCAddress)
+                        }
+
+                        else -> {
+                            navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
+                        }
+                    }
+                }
             }
 
-            is BlockchainCardIntent.OrderCardKYCSSN -> {
-                navigate(BlockchainCardNavigationEvent.OrderCardKycSSN)
+            is BlockchainCardIntent.OrderCardKYCAddress -> {
+                modelState.kycStatus?.let { kycStatus ->
+                    if (kycStatus.shouldUpdateAddress()) {
+                        navigate(BlockchainCardNavigationEvent.OrderCardKycAddress)
+                    } else {
+                        onIntent(BlockchainCardIntent.OrderCardKycSSN)
+                    }
+                }
+            }
+
+            is BlockchainCardIntent.OrderCardKycSSN -> {
+                modelState.kycStatus?.let { kycStatus ->
+                    if (kycStatus.shouldUpdateSSN()) {
+                        navigate(BlockchainCardNavigationEvent.OrderCardKycSSN)
+                    } else {
+                        onIntent(BlockchainCardIntent.OrderCardKycComplete)
+                    }
+                }
+            }
+
+            is BlockchainCardIntent.UpdateSSN -> {
+                updateState { it.copy(ssn = intent.ssn) }
+                onIntent(BlockchainCardIntent.OrderCardKycComplete)
             }
 
             is BlockchainCardIntent.OrderCardKycComplete -> {
-                updateState { it.copy(ssn = intent.ssn) }
-                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
+
+                modelState.kycStatus?.let { kycStatus ->
+
+                    if (kycStatus.state == BlockchainCardKycState.PENDING) {
+                        navigate(BlockchainCardNavigationEvent.OrderCardKycPendingComplete)
+                    } else {
+                        val kycUpdate = BlockchainCardKycUpdate(
+                            address = if (kycStatus.shouldUpdateAddress()) modelState.residentialAddress else null,
+                            ssn = if (kycStatus.shouldUpdateSSN()) modelState.ssn else null
+                        )
+
+                        blockchainCardRepository.updateKyc(kycUpdate)
+                            .doOnSuccess { updatedKycStatus ->
+                                updateState { it.copy(kycStatus = updatedKycStatus) }
+                                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
+                            }
+                            .doOnFailure { error ->
+                                Timber.e("Unable to update kyc: $error")
+                                updateState {
+                                    it.copy(
+                                        errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                                    )
+                                }
+                                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
+                            }
+                    }
+                }
             }
 
             is BlockchainCardIntent.LoadResidentialAddress -> {
 
                 updateState { it.copy(isAddressLoading = true) }
 
-                blockchainCardRepository.getResidentialAddress().fold(
-                    onSuccess = { address ->
+                blockchainCardRepository.getResidentialAddress()
+                    .doOnSuccess { address ->
                         updateState { it.copy(residentialAddress = address, isAddressLoading = false) }
-                    },
-                    onFailure = { error ->
+                    }
+                    .doOnFailure { error ->
                         Timber.e("Unable to get residential address: $error")
                         updateState {
                             it.copy(
@@ -89,7 +178,6 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                             )
                         }
                     }
-                )
             }
 
             is BlockchainCardIntent.SeeBillingAddress -> {
@@ -115,26 +203,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
                 when (intent.newAddress.addressType) {
                     BlockchainCardAddressType.BILLING -> {
-                        updateState { it.copy(isAddressLoading = true) }
-
-                        blockchainCardRepository.updateResidentialAddress(
-                            intent.newAddress
-                        ).fold(
-                            onSuccess = { newAddress ->
-                                updateState { it.copy(residentialAddress = newAddress, isAddressLoading = false) }
-                                navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
-                            },
-                            onFailure = { error ->
-                                Timber.e("Unable to update residential address: $error")
-                                updateState {
-                                    it.copy(
-                                        errorState = BlockchainCardErrorState.ScreenErrorState(error),
-                                        isAddressLoading = false
-                                    )
-                                }
-                                navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
-                            }
-                        )
+                        updateState { it.copy(residentialAddress = intent.newAddress, isAddressLoading = false) }
+                        navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
                     }
 
                     BlockchainCardAddressType.SHIPPING -> {
@@ -187,17 +257,13 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                if (modelState.selectedCardProduct != null &&
-                    modelState.ssn != null &&
-                    modelState.legalDocuments != null
-                ) {
+                if (modelState.selectedCardProduct != null && modelState.legalDocuments != null) {
                     navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
                     blockchainCardRepository.acceptLegalDocuments(
                         modelState.legalDocuments
                     ).flatMap {
                         blockchainCardRepository.createCard(
                             productCode = modelState.selectedCardProduct.productCode,
-                            ssn = modelState.ssn,
                             shippingAddress = modelState.shippingAddress
                         )
                             .doOnFailure { error ->
@@ -271,15 +337,14 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.LoadUserFirstAndLastName -> {
-                blockchainCardRepository.getUserFirstAndLastName().fold(
-                    onSuccess = { firstAndLastName ->
+                blockchainCardRepository.getUserFirstAndLastName()
+                    .doOnSuccess { firstAndLastName ->
                         updateState { it.copy(userFirstAndLastName = firstAndLastName) }
-                    },
-                    onFailure = { error ->
+                    }
+                    .doOnFailure { error ->
                         Timber.e("Unable to get user first and last name: $error")
                         updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
-                )
             }
 
             is BlockchainCardIntent.OnOrderCardFlowComplete -> {
@@ -298,3 +363,15 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         }
     }
 }
+
+fun BlockchainCardKycStatus.hasAddressErrorField(): Boolean =
+    errorFields?.contains(BlockchainCardKycErrorField.RESIDENTIAL_ADDRESS) == true
+
+fun BlockchainCardKycStatus.shouldUpdateAddress(): Boolean =
+    state == BlockchainCardKycState.UNVERIFIED || hasAddressErrorField()
+
+fun BlockchainCardKycStatus.hasSSNErrorField(): Boolean =
+    errorFields?.contains(BlockchainCardKycErrorField.SSN) == true
+
+fun BlockchainCardKycStatus.shouldUpdateSSN(): Boolean =
+    state == BlockchainCardKycState.UNVERIFIED || hasSSNErrorField()

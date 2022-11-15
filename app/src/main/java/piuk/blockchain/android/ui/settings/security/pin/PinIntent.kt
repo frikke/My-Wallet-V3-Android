@@ -132,6 +132,10 @@ sealed class PinIntent : MviIntent<PinState> {
         override fun reduce(oldState: PinState): PinState = oldState
     }
 
+    object CheckIntercomStatus : PinIntent() {
+        override fun reduce(oldState: PinState): PinState = oldState
+    }
+
     object FetchRemoteMobileNotice : PinIntent() {
         override fun reduce(oldState: PinState): PinState = oldState
     }
@@ -264,5 +268,9 @@ sealed class PinIntent : MviIntent<PinState> {
                     messageToShow = msgResource
                 )
             )
+    }
+
+    data class UpdateIntercomStatus(private val isIntercomEnabled: Boolean) : PinIntent() {
+        override fun reduce(oldState: PinState): PinState = oldState.copy(isIntercomEnabled = isIntercomEnabled)
     }
 }

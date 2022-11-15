@@ -14,7 +14,7 @@ import org.spongycastle.crypto.paddings.ISO7816d4Padding
 import org.spongycastle.crypto.paddings.ZeroBytePadding
 import org.spongycastle.util.encoders.Hex
 
-class WalletBase private constructor(private val walletBaseDto: WalletBaseDto) {
+class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
     lateinit var wallet: Wallet
 
     constructor(wallet: Wallet) : this(walletBaseDto = WalletBaseDto.withDefaults()) {

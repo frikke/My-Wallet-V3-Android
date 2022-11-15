@@ -28,7 +28,7 @@ import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
@@ -129,10 +129,10 @@ class LoaderActivity :
         }
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) =
         updateToolbar(
             getString(R.string.security_check),
-            if (shouldShowButton) {
+            if (showSkipButton) {
                 listOf(
                     NavigationBarButton.TextWithColorInt(
                         getString(R.string.common_skip),
@@ -207,13 +207,15 @@ class LoaderActivity :
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.content_frame,
-                KycEmailEntryFragment.newInstance(canBeSkipped = true),
-                KycEmailEntryFragment::class.simpleName
-            )
-            .commitAllowingStateLoss()
+        if (supportFragmentManager.findFragmentById(R.id.content_frame) !is KycEmailVerificationFragment) {
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.content_frame,
+                    KycEmailVerificationFragment.newInstance(canBeSkipped = true),
+                    KycEmailVerificationFragment::class.simpleName
+                )
+                .commitAllowingStateLoss()
+        }
     }
 
     private fun showMetadataNodeFailure() {

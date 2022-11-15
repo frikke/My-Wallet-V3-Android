@@ -101,6 +101,7 @@ import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
+import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -146,6 +147,7 @@ class MainActivity :
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
     NftHost,
+    InterestSummarySheet.Host,
     NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
@@ -485,7 +487,7 @@ class MainActivity :
             }
             BANK_DEEP_LINK_SETTINGS -> {
                 if (resultCode == RESULT_OK) {
-                    startActivity(SettingsActivity.newIntent(this))
+                    goToSettings()
                 }
             }
             BANK_DEEP_LINK_DEPOSIT -> {
@@ -706,18 +708,52 @@ class MainActivity :
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
-            is ViewToLaunch.LaunchTxFlowFromDeepLink -> {
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        this,
-                        action = view.action,
-                        sourceAccount = if (view.account is LaunchFlowForAccount.Account) {
-                            view.account.account
-                        } else {
-                            NullCryptoAccount()
-                        }
+            is ViewToLaunch.LaunchTxFlowWithAccountForAction -> {
+                when (view.account) {
+                    is LaunchFlowForAccount.SourceAndTargetAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                sourceAccount = view.account.sourceAccount,
+                                target = view.account.targetAccount
+                            )
+                        )
+                    is LaunchFlowForAccount.SourceAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                sourceAccount = view.account.source
+                            )
+                        )
+                    is LaunchFlowForAccount.TargetAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action,
+                                target = view.account.target
+                            )
+                        )
+                    is LaunchFlowForAccount.NoAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                this,
+                                action = view.action
+                            )
+                        )
+                }
+            }
+            is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
+                if (view.account is LaunchFlowForAccount.SourceAccount) {
+                    showBottomSheet(
+                        InterestSummarySheet.newInstance(
+                            singleAccount = view.account.source as CryptoAccount
+                        )
                     )
-                )
+                } else {
+                    launchInterestDashboard(LaunchOrigin.DASHBOARD)
+                }
             }
         }.exhaustive
 
@@ -867,12 +903,7 @@ class MainActivity :
                     )
                 } ?: run {
                     destinationArgs.getFiatAssetInfo(destination.networkTicker)?.let { _ ->
-                        startActivity(
-                            SettingsActivity.newIntent(
-                                context = this,
-                                deeplinkToScreen = SettingsDestination.CardLinking
-                            )
-                        )
+                        goToSettings(SettingsDestination.CardLinking)
                     } ?: Timber.e(
                         "Unable to start CardLinking from deeplink. Ticker not found ${destination.networkTicker}"
                     )
@@ -893,8 +924,7 @@ class MainActivity :
                     )
                 }
             }
-            Destination.CustomerSupportDestination ->
-                startActivity(SupportCentreActivity.newIntent(this))
+            Destination.CustomerSupportDestination -> startActivity(SupportCentreActivity.newIntent(this))
             Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
@@ -902,13 +932,50 @@ class MainActivity :
             is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
             is Destination.AssetReceiveDestination -> launchReceive(destination.networkTicker)
             is Destination.AssetSellDestination ->
-                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Sell))
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        networkTicker = destination.networkTicker,
+                        action = AssetAction.Sell
+                    )
+                )
             is Destination.AssetSwapDestination ->
-                model.process(MainIntent.LaunchTransactionFlowFromDeepLink(destination.networkTicker, AssetAction.Swap))
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        networkTicker = destination.networkTicker,
+                        action = AssetAction.Swap
+                    )
+                )
+            is Destination.RewardsDepositDestination ->
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        networkTicker = destination.networkTicker,
+                        action = AssetAction.InterestDeposit
+                    )
+                )
+            is Destination.RewardsSummaryDestination -> {
+                model.process(
+                    MainIntent.SelectRewardsAccountForAsset(
+                        cryptoTicker = destination.networkTicker
+                    )
+                )
+            }
+            is Destination.FiatDepositDestination -> {
+                model.process(
+                    MainIntent.LaunchTransactionFlowFromDeepLink(
+                        networkTicker = destination.fiatTicker,
+                        action = AssetAction.FiatDeposit
+                    )
+                )
+            }
+            Destination.SettingsAddCardDestination -> goToSettings(SettingsDestination.CardLinking)
+            Destination.SettingsAddBankDestination -> goToSettings(SettingsDestination.BankLinking)
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
     }
+
+    private fun goToSettings(destination: SettingsDestination = SettingsDestination.Home) =
+        startActivity(SettingsActivity.newIntent(this, destination))
 
     private fun launchWalletConnectSessionSelectNetwork(walletConnectSession: WalletConnectSession) {
         showBottomSheet(
@@ -1099,6 +1166,30 @@ class MainActivity :
         startBuy()
     }
 
+    override fun goToActivityFor(account: BlockchainAccount) {
+        startActivitiesFragment(account)
+    }
+
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                    LaunchFlowForAccount.SourceAccount(toAccount), AssetAction.InterestDeposit
+                )
+            )
+        )
+    }
+
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                    LaunchFlowForAccount.SourceAccount(fromAccount), AssetAction.InterestWithdraw
+                )
+            )
+        )
+    }
+
     override fun onSheetClosed() {
         binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
@@ -1163,12 +1254,7 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(
-            SettingsActivity.newIntent(
-                context = this,
-                deeplinkToScreen = SettingsDestination.Security
-            )
-        )
+        goToSettings(destination = SettingsDestination.Security)
     }
 
     override fun launchOpenExternalEmailApp() {

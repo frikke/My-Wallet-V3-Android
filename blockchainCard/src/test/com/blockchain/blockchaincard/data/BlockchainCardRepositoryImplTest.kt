@@ -243,11 +243,10 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN createCard gets called, THEN request body is correctly constructed AND response is correctly constructed into a domain object`() =
         runTest {
-            coEvery { blockchainCardService.createCard(any(), any(), any()) } returns Outcome.Success(cardResponseDto)
+            coEvery { blockchainCardService.createCard(any(), any()) } returns Outcome.Success(cardResponseDto)
 
             val cardUnderTest = blockchainCardRepository.createCard(
                 productCode = "productCode",
-                ssn = "123456789",
                 null
             )
 

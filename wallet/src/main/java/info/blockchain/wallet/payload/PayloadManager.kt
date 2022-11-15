@@ -170,10 +170,11 @@ class PayloadManager(
     fun initializeAndDecrypt(
         sharedKey: String,
         guid: String,
-        password: String
+        password: String,
+        sessionId: String,
     ) {
         this.password = password
-        val call = walletApi.fetchWalletData(guid, sharedKey)
+        val call = walletApi.fetchWalletData(guid, sharedKey, sessionId)
         val exe = call.execute()
         walletBase = if (exe.isSuccessful) {
             WalletBase.fromJson(exe.body()!!.string()).withDecryptedPayload(this.password)
@@ -192,7 +193,8 @@ class PayloadManager(
     }
 
     fun initializeAndDecryptFromQR(
-        qrData: String
+        qrData: String,
+        sessionId: String
     ) {
         val qrComponents = Pairing.qRComponentsFromRawString(qrData)
         val call = walletApi.fetchPairingEncryptionPasswordCall(qrComponents.first)
@@ -208,7 +210,8 @@ class PayloadManager(
             initializeAndDecrypt(
                 sharedKey,
                 guid,
-                password
+                password,
+                sessionId
             )
         } else {
             log.error("", exe.code().toString() + " - " + exe.errorBody()!!.string())

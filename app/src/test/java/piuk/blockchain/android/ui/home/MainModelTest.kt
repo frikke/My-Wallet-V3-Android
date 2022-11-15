@@ -9,6 +9,8 @@ import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.StatusData
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -46,6 +48,7 @@ import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
+import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
@@ -1272,5 +1275,124 @@ class MainModelTest {
                 viewToLaunch = ViewToLaunch.ShowReferralSheet
             )
         )
+    }
+
+    @Test
+    fun `given a flow launch intent when action is interest deposit then source and target are returned`() {
+        val ticker = "BTC"
+        val action = AssetAction.InterestDeposit
+
+        val custodialAccount: CustodialTradingAccount = mock()
+        val interestAccount: CustodialInterestAccount = mock()
+
+        whenever(interactor.selectRewardsAccountForAsset(ticker)).thenReturn(
+            Single.just(LaunchFlowForAccount.SourceAccount(interestAccount))
+        )
+        whenever(interactor.selectAccountForTxFlow(ticker, action)).thenReturn(
+            Single.just(LaunchFlowForAccount.SourceAccount(custodialAccount))
+        )
+
+        model.process(MainIntent.LaunchTransactionFlowFromDeepLink(ticker, action))
+
+        val result = model.state.test()
+
+        result.assertValue {
+            it.viewToLaunch is ViewToLaunch.LaunchTxFlowWithAccountForAction &&
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction)
+                    .account is LaunchFlowForAccount.SourceAndTargetAccount &&
+                (
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction).account as
+                    LaunchFlowForAccount.SourceAndTargetAccount
+                ).sourceAccount == custodialAccount &&
+                (
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction).account as
+                    LaunchFlowForAccount.SourceAndTargetAccount
+                ).targetAccount == interestAccount
+        }
+
+        verify(interactor).selectAccountForTxFlow(ticker, action)
+        verify(interactor).selectRewardsAccountForAsset(ticker)
+        verifyNoMoreInteractions(interactor)
+    }
+
+    @Test
+    fun `given a flow launch intent when action is interest deposit but flow errors no account is returned`() {
+        val ticker = "BTC"
+        val action = AssetAction.InterestDeposit
+
+        val interestAccount: CustodialInterestAccount = mock()
+
+        whenever(interactor.selectRewardsAccountForAsset(ticker)).thenReturn(
+            Single.just(LaunchFlowForAccount.SourceAccount(interestAccount))
+        )
+        whenever(interactor.selectAccountForTxFlow(ticker, action)).thenReturn(
+            Single.error(Exception())
+        )
+
+        model.process(MainIntent.LaunchTransactionFlowFromDeepLink(ticker, action))
+
+        val result = model.state.test()
+
+        result.assertValue {
+            it.viewToLaunch is ViewToLaunch.LaunchTxFlowWithAccountForAction &&
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction)
+                    .account is LaunchFlowForAccount.NoAccount
+        }
+
+        verify(interactor).selectAccountForTxFlow(ticker, action)
+        verify(interactor).selectRewardsAccountForAsset(ticker)
+        verifyNoMoreInteractions(interactor)
+    }
+
+    @Test
+    fun `given a flow launch intent when action is sell then source account is returned`() {
+        val ticker = "BTC"
+        val action = AssetAction.Sell
+
+        val custodialAccount: CustodialTradingAccount = mock()
+
+        whenever(interactor.selectAccountForTxFlow(ticker, action)).thenReturn(
+            Single.just(LaunchFlowForAccount.SourceAccount(custodialAccount))
+        )
+
+        model.process(MainIntent.LaunchTransactionFlowFromDeepLink(ticker, action))
+
+        val result = model.state.test()
+
+        result.assertValue {
+            it.viewToLaunch is ViewToLaunch.LaunchTxFlowWithAccountForAction &&
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction)
+                    .account is LaunchFlowForAccount.SourceAccount &&
+                (
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction).account as
+                    LaunchFlowForAccount.SourceAccount
+                ).source == custodialAccount
+        }
+
+        verify(interactor).selectAccountForTxFlow(ticker, action)
+        verifyNoMoreInteractions(interactor)
+    }
+
+    @Test
+    fun `given a flow launch intent when action is swap but flow errors then no account is returned`() {
+        val ticker = "BTC"
+        val action = AssetAction.Swap
+
+        whenever(interactor.selectAccountForTxFlow(ticker, action)).thenReturn(
+            Single.error(Exception())
+        )
+
+        model.process(MainIntent.LaunchTransactionFlowFromDeepLink(ticker, action))
+
+        val result = model.state.test()
+
+        result.assertValue {
+            it.viewToLaunch is ViewToLaunch.LaunchTxFlowWithAccountForAction &&
+                (it.viewToLaunch as ViewToLaunch.LaunchTxFlowWithAccountForAction)
+                    .account is LaunchFlowForAccount.NoAccount
+        }
+
+        verify(interactor).selectAccountForTxFlow(ticker, action)
+        verifyNoMoreInteractions(interactor)
     }
 }

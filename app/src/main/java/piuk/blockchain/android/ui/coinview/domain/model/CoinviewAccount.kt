@@ -88,3 +88,23 @@ sealed interface CoinviewAccount {
         override val filter: AssetFilter = AssetFilter.NonCustodial
     }
 }
+
+fun CoinviewAccount.isTradingAccount(): Boolean {
+    return this is CoinviewAccount.Custodial.Trading ||
+        (this is CoinviewAccount.Universal && filter == AssetFilter.Trading)
+}
+
+fun CoinviewAccount.isInterestAccount(): Boolean {
+    return this is CoinviewAccount.Custodial.Interest ||
+        (this is CoinviewAccount.Universal && filter == AssetFilter.Interest)
+}
+
+fun CoinviewAccount.isStakingAccount(): Boolean {
+    return this is CoinviewAccount.Custodial.Staking ||
+        (this is CoinviewAccount.Universal && filter == AssetFilter.Staking)
+}
+
+fun CoinviewAccount.isPrivateKeyAccount(): Boolean {
+    return this is CoinviewAccount.PrivateKey ||
+        (this is CoinviewAccount.Universal && filter == AssetFilter.NonCustodial)
+}

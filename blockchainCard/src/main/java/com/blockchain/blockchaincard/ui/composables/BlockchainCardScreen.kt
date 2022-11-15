@@ -8,15 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
@@ -41,8 +39,11 @@ import com.blockchain.blockchaincard.ui.composables.ordercard.CardProductPicker
 import com.blockchain.blockchaincard.ui.composables.ordercard.HowToOrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocumentsViewer
-import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
+import com.blockchain.blockchaincard.ui.composables.ordercard.LoadingKycStatus
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardIntro
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardKycFailure
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardKycPending
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardSsnKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
@@ -51,36 +52,41 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.blockchaincard.viewmodel.managecard.ManageCardViewModel
-import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviBottomSheetNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun BlockchainCardNavHost(
     viewModel: BlockchainCardViewModel,
-    modelArgs: ModelConfigArgs
+    modelArgs: ModelConfigArgs,
+    navigationRouter: BlockchainCardNavigationRouter,
+    stateFlowLifecycleAware: Flow<BlockchainCardViewState>,
+    navEventsFlowLifecycleAware: Flow<BlockchainCardNavigationEvent>
 ) {
-    val startDestination =
-        if (modelArgs is BlockchainCardArgs.CardArgs) {
-            if (modelArgs.preselectedCard != null) BlockchainCardDestination.ManageCardDestination
-            else BlockchainCardDestination.SelectCardDestination
-        } else BlockchainCardDestination.OrderCardDestination
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
-        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    val startDestination by remember(modelArgs) {
+        mutableStateOf(
+            if (modelArgs is BlockchainCardArgs.CardArgs) {
+                if (modelArgs.preselectedCard != null ||
+                    modelArgs.cards.filter { it.status != BlockchainCardStatus.TERMINATED }.size == 1
+                ) {
+                    BlockchainCardDestination.ManageCardDestination
+                } else {
+                    BlockchainCardDestination.SelectCardDestination
+                }
+            } else
+                BlockchainCardDestination.LoadingKycStatusDestination
+        )
     }
 
     val state by stateFlowLifecycleAware.collectAsState(null)
@@ -91,25 +97,45 @@ fun BlockchainCardNavHost(
     ) {
         MviBottomSheetNavHost(
             navEvents = navEventsFlowLifecycleAware,
-            navigationRouter = BlockchainCardNavigationRouter(rememberNavController()),
+            navigationRouter = navigationRouter,
             startDestination = startDestination,
         ) {
+            composable(BlockchainCardDestination.LoadingKycStatusDestination) {
+                LoadingKycStatus()
+            }
 
-            composable(BlockchainCardDestination.OrderCardDestination) {
-                OrderCard(viewModel as OrderCardViewModel)
+            composable(BlockchainCardDestination.OrderCardIntroDestination) {
+                OrderCardIntro(
+                    onOrderCard = { viewModel.onIntent(BlockchainCardIntent.HowToOrderCard) }
+                )
             }
 
             bottomSheet(BlockchainCardDestination.HowToOrderCardDestination) {
                 HowToOrderCard(
                     onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) },
-                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCAddress) }
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardPerformKyc) }
                 )
+            }
+
+            composable(BlockchainCardDestination.OrderCardKycPendingDestination) {
+                OrderCardKycPending(
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete) }
+                )
+            }
+
+            composable(BlockchainCardDestination.OrderCardKycFailureDestination) {
+                state?.kycStatus?.errorFields?.let { errors ->
+                    OrderCardKycFailure(
+                        errorFields = errors,
+                        onTryAgain = { viewModel.onIntent(BlockchainCardIntent.OrderCardPerformKyc) }
+                    )
+                }
             }
 
             composable(BlockchainCardDestination.OrderCardKycAddressDestination) {
                 state?.let { state ->
                     OrderCardAddressKYC(
-                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCSSN) },
+                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKycSSN) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
                         line1 = state.residentialAddress?.line1,
                         city = state.residentialAddress?.city,
@@ -122,7 +148,7 @@ fun BlockchainCardNavHost(
             composable(BlockchainCardDestination.OrderCardKycSSNDestination) {
                 OrderCardSsnKYC(
                     onContinue = { ssn ->
-                        viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn))
+                        viewModel.onIntent(BlockchainCardIntent.UpdateSSN(ssn))
                     }
                 )
             }

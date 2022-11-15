@@ -16,11 +16,15 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
@@ -36,17 +40,25 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
+import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isPrivateKeyAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isTradingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsStyle
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetAccounts(
     data: CoinviewAccountsState,
+    assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
 ) {
@@ -66,6 +78,7 @@ fun AssetAccounts(
         is CoinviewAccountsState.Data -> {
             AssetAccountsData(
                 data = data,
+                assetTicker = assetTicker,
                 onAccountClick = onAccountClick,
                 onLockedAccountClick = onLockedAccountClick
             )
@@ -102,6 +115,8 @@ fun AssetAccountsError() {
 
 @Composable
 fun AssetAccountsData(
+    analytics: Analytics = get(),
+    assetTicker: String,
     data: CoinviewAccountsState.Data,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -138,7 +153,23 @@ fun AssetAccountsData(
                             }
                         },
                         tags = emptyList(),
-                        onClick = { onAccountClick(account.cvAccount) }
+                        onClick = {
+                            account.cvAccount.account.let { account ->
+                                if (account is CryptoAccount && account is TradingAccount) {
+                                    analytics.logEvent(CustodialBalanceClicked(account.currency))
+                                }
+                            }
+
+                            analytics.logEvent(
+                                CoinViewAnalytics.WalletsAccountsClicked(
+                                    origin = LaunchOrigin.COIN_VIEW,
+                                    currency = assetTicker,
+                                    accountType = account.cvAccount.toAccountType()
+                                )
+                            )
+
+                            onAccountClick(account.cvAccount)
+                        }
                     )
                 }
                 is CoinviewAccountState.Unavailable -> {
@@ -216,11 +247,20 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
     }
 }
 
+private fun CoinviewAccount.toAccountType() = when {
+    isTradingAccount() -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
+    isInterestAccount() -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+    isStakingAccount() -> CoinViewAnalytics.Companion.AccountType.STAKING_ACCOUNT
+    isPrivateKeyAccount() -> CoinViewAnalytics.Companion.AccountType.USERKEY
+    else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
         CoinviewAccountsState.Loading,
+        assetTicker = "ETH",
         {}, {}
     )
 }
@@ -230,6 +270,7 @@ fun PreviewAssetAccounts_Loading() {
 fun PreviewAssetAccounts_Error() {
     AssetAccounts(
         CoinviewAccountsState.Error,
+        assetTicker = "ETH",
         {}, {}
     )
 }
@@ -268,6 +309,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                 )
             )
         ),
+        assetTicker = "ETH",
         {}, {}
     )
 }
@@ -306,6 +348,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                 )
             )
         ),
+        assetTicker = "ETH",
         {}, {}
     )
 }

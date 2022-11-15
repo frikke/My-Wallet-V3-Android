@@ -20,6 +20,7 @@ import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertTrue
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -69,9 +70,13 @@ class AuthDataManagerTest : RxTest() {
                 anyString(),
                 anyBoolean()
             )
-        ).thenReturn(Observable.just(Response.success(mockResponseBody)))
+        ).thenReturn(Single.just(Response.success(mockResponseBody)))
+
+        whenever(
+            walletAuthService.getSessionId()
+        ).thenReturn(Single.just("1234567890"))
         // Act
-        val observer = subject.getEncryptedPayload("1234567890", "1234567890", false).test()
+        val observer = subject.getEncryptedPayload("1234567890", false).test()
         // Assert
         verify(walletAuthService).getEncryptedPayload("1234567890", "1234567890", false)
         observer.assertComplete()
@@ -83,12 +88,12 @@ class AuthDataManagerTest : RxTest() {
     fun getSessionId() {
         // Arrange
         val sessionId = "SESSION_ID"
-        whenever(walletAuthService.getSessionId(anyString()))
-            .thenReturn(Observable.just(sessionId))
+        whenever(walletAuthService.getSessionId())
+            .thenReturn(Single.just(sessionId))
         // Act
-        val testObserver = subject.getSessionId("1234567890").test()
+        val testObserver = subject.getSessionId().test()
         // Assert
-        verify(walletAuthService).getSessionId(anyString())
+        verify(walletAuthService).getSessionId()
         testObserver.assertComplete()
         testObserver.onNext(sessionId)
         testObserver.assertNoErrors()
@@ -97,16 +102,15 @@ class AuthDataManagerTest : RxTest() {
     @Test
     fun submitTwoFactorCode() {
         // Arrange
-        val sessionId = "SESSION_ID"
         val guid = "GUID"
         val code = "123456"
         val responseBody = "{}".toResponseBody(("application/json").toMediaTypeOrNull())
-        whenever(walletAuthService.submitTwoFactorCode(sessionId, guid, code))
-            .thenReturn(Observable.just(responseBody))
+        whenever(walletAuthService.submitTwoFactorCode(guid, code))
+            .thenReturn(Single.just(responseBody))
         // Act
-        val testObserver = subject.submitTwoFactorCode(sessionId, guid, code).test()
+        val testObserver = subject.submitTwoFactorCode(guid, code).test()
         // Assert
-        verify(walletAuthService).submitTwoFactorCode(sessionId, guid, code)
+        verify(walletAuthService).submitTwoFactorCode(guid, code)
         testObserver.assertComplete()
         testObserver.onNext(responseBody)
         testObserver.assertNoErrors()
@@ -129,7 +133,7 @@ class AuthDataManagerTest : RxTest() {
         whenever(encryptedPrefs.hasBackup()).thenReturn(true)
         whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(walletAuthService.validateAccess(key, pin))
-            .thenReturn(Observable.just(Response.success(status)))
+            .thenReturn(Single.just(Response.success(status)))
 
         whenever(
             aesUtilWrapper.decrypt(
@@ -189,7 +193,7 @@ class AuthDataManagerTest : RxTest() {
         whenever(authPrefs.pinId).thenReturn(key)
         whenever(walletAuthService.validateAccess(key, pin))
             .thenReturn(
-                Observable.just(
+                Single.just(
                     Response.error(
                         403,
                         "{}".toResponseBody(("application/json").toMediaTypeOrNull())
@@ -247,7 +251,7 @@ class AuthDataManagerTest : RxTest() {
                 anyString(),
                 eq(pin)
             )
-        ).thenReturn(Observable.just(Response.success(status)))
+        ).thenReturn(Single.just(Response.success(status)))
         whenever(
             aesUtilWrapper.encrypt(
                 eq(password),
@@ -301,7 +305,7 @@ class AuthDataManagerTest : RxTest() {
                 eq(pin)
             )
         ).thenReturn(
-            Observable.just(
+            Single.just(
                 Response.error(
                     500,
                     "{}".toResponseBody(("application/json").toMediaTypeOrNull())

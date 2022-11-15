@@ -28,7 +28,11 @@ data class CreateWalletViewState(
 
 sealed class CountryInputState {
     object Loading : CountryInputState()
-    data class Loaded(val countries: List<Region.Country>, val selected: Region.Country?) : CountryInputState()
+    data class Loaded(
+        val countries: List<Region.Country>,
+        val selected: Region.Country?,
+        val suggested: Region.Country?,
+    ) : CountryInputState()
 }
 
 sealed class StateInputState {

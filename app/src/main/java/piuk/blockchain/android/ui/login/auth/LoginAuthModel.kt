@@ -26,7 +26,6 @@ class LoginAuthModel(
             is LoginAuthIntents.AuthorizeApproval ->
                 authorizeApproval(
                     authToken = previousState.authToken,
-                    sessionId = intent.sessionId
                 )
             is LoginAuthIntents.GetPayload -> getPayload(guid = previousState.guid, sessionId = previousState.sessionId)
             is LoginAuthIntents.VerifyPassword ->
@@ -42,7 +41,6 @@ class LoginAuthModel(
                 submitCode(
                     guid = previousState.guid,
                     password = intent.password,
-                    sessionId = previousState.sessionId,
                     code = intent.code,
                     payloadJson = previousState.payloadJson
                 )
@@ -101,8 +99,8 @@ class LoginAuthModel(
         return null
     }
 
-    private fun authorizeApproval(authToken: String, sessionId: String): Disposable {
-        return interactor.authorizeApproval(authToken, sessionId)
+    private fun authorizeApproval(authToken: String): Disposable {
+        return interactor.authorizeApproval(authToken)
             .subscribeBy(
                 onSuccess = { process(LoginAuthIntents.GetPayload) },
                 onError = { throwable ->
@@ -147,11 +145,10 @@ class LoginAuthModel(
     private fun submitCode(
         guid: String,
         password: String,
-        sessionId: String,
         code: String,
         payloadJson: String
     ): Disposable {
-        return interactor.submitCode(guid, sessionId, code, payloadJson)
+        return interactor.submitCode(guid, code, payloadJson)
             .subscribeBy(
                 onSuccess = { responseBody ->
                     process(LoginAuthIntents.VerifyPassword(password, responseBody.string()))

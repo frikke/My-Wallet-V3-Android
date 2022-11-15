@@ -4,6 +4,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycUpdate
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
@@ -45,6 +47,8 @@ data class BlockchainCardModelState(
     val cardActivationUrl: String? = null,
     val cardStatements: List<BlockchainCardStatement>? = null,
     val shippingAddress: BlockchainCardAddress? = null,
+    val kycStatus: BlockchainCardKycStatus? = null,
+    val kycStatusUpdate: BlockchainCardKycUpdate? = null,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

@@ -11,7 +11,7 @@ import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
-import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityPage
+import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import java.util.Calendar
 import kotlinx.coroutines.flow.collect
@@ -32,19 +32,16 @@ class ActivityViewModel(
 
     override fun reduce(state: ActivityModelState): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activity
-                .map {
-                    it.copy(
-                        activity = it.activity.filter { activityItem ->
-                            if (state.filterTerm.isEmpty()) {
-                                true
-                            } else {
-                                activityItem.summary.matches(state.filterTerm)
-                            }
-                        }
-                    )
+            activity = state.activityItems.map {
+                it.filter { activityItem ->
+                    if (state.filterTerm.isEmpty()) {
+                        true
+                    } else {
+                        activityItem.summary.matches(state.filterTerm)
+                    }
                 }
-                .map { it.reduceActivityPage() }
+            }
+                .map { it.reduceActivityItems() }
                 .map {
                     when (val sectionSize = state.sectionSize) {
                         SectionSize.All -> {
@@ -62,19 +59,18 @@ class ActivityViewModel(
         )
     }
 
-    private fun UnifiedActivityPage.reduceActivityPage(): Map<TransactionGroup, List<ActivityComponent>> {
-        return activity
-            // group by date (month/year)
-            .groupBy { activity ->
-                activity.date?.let {
-                    it.apply {
-                        set(Calendar.MILLISECOND, 0)
-                        set(Calendar.DAY_OF_MONTH, 1)
-                    }.let { date ->
-                        TransactionGroup.Group.Date(date)
-                    }
-                } ?: TransactionGroup.Group.Pending
-            }
+    private fun List<UnifiedActivityItem>.reduceActivityItems(): Map<TransactionGroup, List<ActivityComponent>> {
+        // group by date (month/year)
+        return groupBy { activity ->
+            activity.date?.let {
+                it.apply {
+                    set(Calendar.MILLISECOND, 0)
+                    set(Calendar.DAY_OF_MONTH, 1)
+                }.let { date ->
+                    TransactionGroup.Group.Date(date)
+                }
+            } ?: TransactionGroup.Group.Pending
+        }
             // reduce to summary
             .map { (group, activities) ->
                 group to activities.map { it.summary.toActivityComponent() }
@@ -101,18 +97,14 @@ class ActivityViewModel(
 
     private fun loadData() {
         viewModelScope.launch {
-            // todo(othman) use service with websocket
             unifiedActivityService
-                .activityForAccount(
-                    pubKey = "",
-                    currency = "",
+                .getAllActivity(
                     acceptLanguage = "",
-                    timeZone = "",
-                    nextPage = ""
+                    timeZone = ""
                 )
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(activity = it.activity.updateDataWith(dataResource))
+                        it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
                     }
                 }
                 .collect()

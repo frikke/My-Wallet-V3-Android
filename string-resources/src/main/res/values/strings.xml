@@ -1036,9 +1036,9 @@
     <string name="kyc_profile_header">Why do we need this information?</string>
 
     <!-- ProfileEntered -->
-    <string name="kyc_profile_message">We need this to verify your identity in order for you to use this improved feature. It should only take a couple of minutes.</string>
-    <string name="kyc_profile_first_name_hint">First Name</string>
-    <string name="kyc_profile_last_name_hint">Last Name</string>
+    <string name="kyc_profile_message">Verify your ID to securely buy crypto and prevent someone else from creating a Blockchain.com account in your name.</string>
+    <string name="kyc_profile_first_name_hint">Legal first name</string>
+    <string name="kyc_profile_last_name_hint">Legal last name</string>
     <string name="kyc_profile_dob_hint">Date of Birth</string>
     <string name="kyc_profile_next">Next</string>
     <string name="kyc_profile_submit">Submit</string>
@@ -1111,10 +1111,10 @@
     <string name="kyc_veriff_splash_country_supported_subheader">Not all countries are supported at this time. Check our up to date <annotation link="country_list">list of countries</annotation> before proceeding.</string>
 
     <!-- Veriff Splash -->
-    <string name="kyc_veriff_splash_title">Documents needed</string>
+    <string name="kyc_veriff_splash_title">Verify your ID</string>
     <string name="kyc_veriff_splash_error_silver">LIMITED ACCESS VERIFIED</string>
     <string name="kyc_veriff_splash_header">Let’s Confirm It’s You</string>
-    <string name="kyc_veriff_splash_subtitle">You’ll need 1 of the ID types below to continue.</string>
+    <string name="kyc_veriff_splash_subtitle">To finish setting up your account, we need to confirm your identity with a government issued ID and selfie.\n\nYou’ll need one of the following forms of ID handy and your camera turned on:</string>
     <string name="kyc_veriff_splash_enable_camera_title">Also, enable your camera!</string>
     <string name="kyc_veriff_splash_enable_camera_body">Please allow your Blockchain App access your camera to upload your ID and take a Selfie.</string>
     <string name="kyc_veriff_splash_verification_error">Error verifying ID, please try again</string>
@@ -1122,7 +1122,7 @@
     <string name="kyc_veriff_splash_drivers_license">Drivers License</string>
     <string name="kyc_veriff_splash_id_card">National ID Card</string>
     <string name="kyc_veriff_splash_residence_permit">Residence Card</string>
-    <string name="kyc_veriff_splash_continue">Continue</string>
+    <string name="kyc_veriff_splash_continue">Next</string>
     <string name="kyc_complete_title">Application Complete</string>
     <string name="kyc_complete_header">Done and done!</string>
 
@@ -2089,15 +2089,17 @@ If you want to know more about our verification process visit our <annotation li
     <string name="success_email_veriff">Success! Your email has been confirmed.</string>
     <string name="error_email_veriff_title">Oops! Something went wrong.</string>
     <string name="error_email_veriff">We were unable to your verify your email. Please try again or we can send you a new email.</string>
+    <string name="error_email_veriff_too_many_attempts">Too many attemps, please try again later.</string>
     <string name="email_verified">Email Verified</string>
-    <string name="email_verification_part_1">We sent a verification email to&#160;</string>
-    <string name="email_verification_part_2">. Please tap the link in the email to continue.</string>
+    <string name="email_verification_title">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
+    <string name="email_verification_subtitle">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
+    <string name="email_verification_resend_snackbar">Email sent to %1$s.</string>
     <string name="email_verify">Verify Your Email</string>
     <string name="edit_email_address">Edit Email Address</string>
     <string name="common_save">Save</string>
     <string name="change_email_instructions">Enter your email address below and click Save. We’ll send you a verification email to this new address.</string>
-    <string name="check_my_inbox">Check My Inbox</string>
-    <string name="did_not_get_email">Didn\'t get the email?</string>
+    <string name="check_my_inbox">Check my inbox</string>
+    <string name="did_not_get_email">I didn\’t receive the email</string>
     <string name="send_again">Send Again</string>
     <string name="want_to_buy_more">Want to buy more?</string>
     <string name="unlock_gold_level_trading">Unlock Full Access Trading</string>
@@ -3066,13 +3068,13 @@ If you want to know more about our verification process visit our <annotation li
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
-    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5\u0025 back in crypto.²</string>
+    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 1\u0025 back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
     <string name="physical">Physical</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
     <string name="see_card_benefits">See Card Benefits</string>
-    <string name="create_card">Accept &amp; Order Card</string>
+    <string name="create_card">Accept &amp; Create Card</string>
     <string name="card_benefits">Card Benefits</string>
     <string name="cashback_rewards">Cashback Rewards</string>
     <string name="annual_fees">Annual Fee</string>
@@ -3114,7 +3116,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_back_title">Crypto Back</string>
-    <string name="crypto_back_description">Earn 0.5\u0025 back in crypto rewards on all your purchases.²</string>
+    <string name="crypto_back_description">Earn 1\u0025 back in crypto rewards on all your purchases.²</string>
     <string name="legal_info_title">The Legal Stuff</string>
     <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
     <string name="go_to_dashboard">Go To Dashboard</string>
@@ -3152,7 +3154,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
     <string name="terminate_card">Terminate Card</string>
-    <string name="terminate_card_number">Terminate card %1s ?</string>
+    <string name="terminate_card_number">Terminate card ending in %1s ?</string>
     <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
     <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
@@ -3314,6 +3316,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="address_verification_invalid_state_title">You cannot change your State</string>
     <string name="address_verification_invalid_state_message">If you need to change your State, please contact our customer support.</string>
 
+    <string name="country_selection_suggested">Suggested</string>
     <string name="kyc_enter_address">Enter your current home address.</string>
     <string name="kyc_enter_address_manually">Enter manually -></string>
     <string name="kyc_postcode_error">Postcode not valid</string>
@@ -3344,7 +3347,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_review_and_submit_title">Review and Submit</string>
     <string name="bc_card_status_initiated">Initiated</string>
     <string name="bc_card_status_unactivated">Unactivated</string>
-    <string name="bc_card_status_active">Active</string>
+    <string name="bc_card_status_active">Ready to use</string>
     <string name="bc_card_status_locked">Locked</string>
     <string name="bc_card_status_terminated">Terminated</string>
     <string name="bc_card_order_processing">Processing</string>
@@ -3376,6 +3379,15 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_virtual">Virtual Card</string>
     <string name="bc_card_visa_title">Blockchain.com Visa Card</string>
     <string name="bc_card_selected_input_title">Card Selected</string>
+    <string name="bc_card_kyc_pending_title">Your Account Is Pending Approval</string>
+    <string name="bc_card_kyc_pending_description">We are processing the provided information and require some extra time to review. One of our customer support agents will reach out via email.</string>
+    <string name="bc_card_kyc_failed_title">There Is An Error With Your Application</string>
+    <string name="bc_card_kyc_failed_description">We are processing the provided information and there seems to be an issue with the following below.</string>
+    <string name="bc_card_kyc_failed_ssn">SSN Does Not Match Our Records</string>
+    <string name="bc_card_kyc_failed_address">Residential Address Invalid</string>
+    <string name="blockchain_card_waitlist_announcement_title">Introducing the Blockchain.com Visa® Card</string>
+    <string name="blockchain_card_waitlist_announcement_description">Spend your crypto or cash without fees. Earn 1%% back in crypto.</string>
+    <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>

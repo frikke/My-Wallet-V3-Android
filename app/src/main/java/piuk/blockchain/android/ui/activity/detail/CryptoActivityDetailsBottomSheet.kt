@@ -30,7 +30,6 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -72,7 +71,6 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         DialogSheetActivityDetailsBinding.inflate(inflater, container, false)
 
     override val model: ActivityDetailsModel by scopedInject()
-    private val assetCatalogue: AssetCatalogue by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val listAdapter: ActivityDetailsDelegateAdapter by lazy {
@@ -89,9 +87,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private val asset: AssetInfo by lazy {
-        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.assetInfoFromNetworkTicker(it)
-        } ?: throw IllegalArgumentException("Crypto asset should not be null")
+        arguments?.getSerializable(ARG_CRYPTO_ASSET) as? AssetInfo
+            ?: throw IllegalArgumentException("Crypto asset cast failed")
     }
 
     private val activityType by lazy {
@@ -591,7 +588,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
+                    putSerializable(ARG_CRYPTO_ASSET, asset)
                     putString(ARG_TRANSACTION_HASH, txHash)
                     putSerializable(ARG_ACTIVITY_TYPE, activityType)
                 }

@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.biometric.BiometricManager
 import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
@@ -18,6 +19,7 @@ import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -136,8 +138,8 @@ import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
+import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -184,7 +186,6 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            isIntercomEnabledFlag = get(intercomChatFeatureFlag),
             walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
@@ -243,6 +244,10 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
+        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }.bind(
+            AssetActionsNavigation::class
+        )
+
         scoped {
             CredentialsWiper(
                 appUtil = get(),
@@ -253,7 +258,8 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
-                storeWiper = get()
+                storeWiper = get(),
+                intercomEnabledFF = get(intercomChatFeatureFlag)
             )
         }
 
@@ -306,6 +312,7 @@ val applicationModule = module {
                 eligibilityService = get(),
                 referralService = get(),
                 payloadDataManager = get(),
+                nabuUserDataManager = get(),
             )
         }
 
@@ -725,17 +732,8 @@ val applicationModule = module {
             CryptographyManagerImpl()
         }.bind(CryptographyManager::class)
 
-        factory {
+        viewModel {
             EmailVerificationModel(
-                interactor = get(),
-                uiScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get()
-            )
-        }
-
-        factory {
-            EmailVerificationInteractor(
                 emailUpdater = get(),
                 getUserStore = get(),
             )

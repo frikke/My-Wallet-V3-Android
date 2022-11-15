@@ -10,12 +10,16 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.wallet.DefaultLabels
@@ -195,7 +199,11 @@ class Coincore internal constructor(
             AssetAction.Swap -> allWallets().map { it.accounts }
                 .map {
                     it.filterIsInstance<CryptoAccount>()
-                        .filterNot { account -> account is InterestAccount || account is ExchangeAccount }
+                        .filterNot { account ->
+                            account is InterestAccount ||
+                                account is ExchangeAccount ||
+                                account is StakingAccount
+                        }
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
                             sourceAccount.isTargetAvailableForSwap(
@@ -207,7 +215,7 @@ class Coincore internal constructor(
         }
     }
 
-    private fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+    fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
         .flatMap {
             val fiats = it.filterIsInstance<FiatAsset>()
             if (fiats.isEmpty())
@@ -323,7 +331,7 @@ class Coincore internal constructor(
 }
 
 internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
-    override suspend fun allNetworks(): List<NetworkWallet> =
+    override suspend fun allNetworkWallets(): List<NetworkWallet> =
         coincore.allWallets().map { it.accounts }.map { accounts ->
             accounts.filterIsInstance<NetworkWallet>().filter {
                 (it.currency as? AssetInfo)?.let { assetInfo ->
@@ -331,4 +339,10 @@ internal class NetworkAccountsRepository(private val coincore: Coincore) : Netwo
                 } ?: false
             }
         }.await()
+}
+
+internal class CoinNetworksRepository(private val dynamicAssetService: DynamicAssetsService) : CoinNetworksService {
+    override suspend fun allCoinNetworks(): Outcome<Exception, List<CoinNetwork>> {
+        return dynamicAssetService.allNetworks()
+    }
 }

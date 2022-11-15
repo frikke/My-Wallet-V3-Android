@@ -84,7 +84,7 @@ class SettingsEmailAndSyncUpdaterTest {
         }
         val settingsDataManager: SettingsDataManager = mock {
             on { fetchSettings() }.thenReturn(Observable.just(oldSettings))
-            on { updateEmail("newemail@blockchain.com", null) }.thenReturn(Observable.just(settings))
+            on { updateEmail("newemail@blockchain.com") }.thenReturn(Observable.just(settings))
         }
         val nabuUserSync = expectToSync()
         SettingsEmailAndSyncUpdater(settingsDataManager, nabuUserSync)
@@ -97,7 +97,7 @@ class SettingsEmailAndSyncUpdaterTest {
                 isVerified `should be` false
             }
         verify(settingsDataManager).fetchSettings()
-        verify(settingsDataManager).updateEmail("newemail@blockchain.com", null)
+        verify(settingsDataManager).updateEmail("newemail@blockchain.com")
         verifyNoMoreInteractions(settingsDataManager)
         verify(nabuUserSync).syncUser()
     }
@@ -109,7 +109,7 @@ class SettingsEmailAndSyncUpdaterTest {
             on { isEmailVerified }.thenReturn(false)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { updateEmail(any()) }.thenReturn(Observable.just(settings))
+            on { resendVerificationEmail(any()) }.thenReturn(Observable.just(settings))
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .resendEmail("oldemail@blockchain.com")
@@ -120,7 +120,7 @@ class SettingsEmailAndSyncUpdaterTest {
                 address `should be equal to` "oldemail@blockchain.com"
                 isVerified `should be` false
             }
-        verify(settingsDataManager).updateEmail("oldemail@blockchain.com")
+        verify(settingsDataManager).resendVerificationEmail("oldemail@blockchain.com")
         verifyNoMoreInteractions(settingsDataManager)
     }
 
@@ -155,7 +155,7 @@ class SettingsEmailAndSyncUpdaterTest {
         }
         val settingsDataManager: SettingsDataManager = mock {
             on { fetchSettings() }.thenReturn(Observable.just(settings))
-            on { updateEmail("theemail@emaildomain.com", null) }.thenReturn(Observable.just(settings))
+            on { updateEmail("theemail@emaildomain.com") }.thenReturn(Observable.just(settings))
         }
         val nabuUserSync = expectToSync()
         SettingsEmailAndSyncUpdater(settingsDataManager, nabuUserSync)
@@ -168,7 +168,7 @@ class SettingsEmailAndSyncUpdaterTest {
                 isVerified `should be` false
             }
         verify(settingsDataManager).fetchSettings()
-        verify(settingsDataManager).updateEmail("theemail@emaildomain.com", null)
+        verify(settingsDataManager).updateEmail("theemail@emaildomain.com")
         verifyNoMoreInteractions(settingsDataManager)
         verify(nabuUserSync).syncUser()
     }

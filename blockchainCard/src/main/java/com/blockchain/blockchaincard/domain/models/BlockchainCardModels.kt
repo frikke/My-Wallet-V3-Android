@@ -235,3 +235,25 @@ enum class BlockchainCardAddressType {
     BILLING,
     SHIPPING
 }
+
+data class BlockchainCardKycStatus(
+    val state: BlockchainCardKycState,
+    val errorFields: List<BlockchainCardKycErrorField>?
+)
+
+enum class BlockchainCardKycState {
+    SUCCESS,
+    UNVERIFIED,
+    PENDING,
+    FAILURE
+}
+
+enum class BlockchainCardKycErrorField {
+    SSN,
+    RESIDENTIAL_ADDRESS,
+}
+
+data class BlockchainCardKycUpdate(
+    val address: BlockchainCardAddress?,
+    val ssn: String?
+)

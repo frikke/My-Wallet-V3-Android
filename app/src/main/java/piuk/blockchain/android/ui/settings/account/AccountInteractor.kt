@@ -93,12 +93,12 @@ class AccountInteractor internal constructor(
                             cards.find { it.id == defaultCardId }?.let { defaultCard ->
                                 BlockchainCardOrderState.Ordered(
                                     cardProducts = products,
-                                    cards = cards.reversed(),
+                                    cards = cards,
                                     defaultCard = defaultCard
                                 )
                             } ?: BlockchainCardOrderState.Ordered(
                                 cardProducts = products,
-                                cards = cards.reversed()
+                                cards = cards
                             )
                         } else {
                             if (products.isNotEmpty())

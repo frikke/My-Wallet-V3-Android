@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
+import android.app.Application
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.core.payload.PayloadDataManager
@@ -41,6 +42,7 @@ class PinInteractorTest {
     private val biometricsController = mock<BiometricsController>()
     private val defaultLabels = mock<DefaultLabels>()
     private val isIntercomEnabledFlag = mock<FeatureFlag>()
+    private val application: Application = mock()
 
     @Before
     fun setup() {
@@ -61,7 +63,8 @@ class PinInteractorTest {
                 sessionPrefs = sessionPrefs,
                 remoteLogger = remoteLogger,
                 defaultLabels = defaultLabels,
-                isIntercomEnabledFlag = isIntercomEnabledFlag
+                isIntercomEnabledFlag = isIntercomEnabledFlag,
+                application = application
             )
         )
     }
@@ -69,10 +72,9 @@ class PinInteractorTest {
     @Test
     fun `validatePIN then call validatePin`() {
         val pin = "1234"
-        whenever(authDataManager.validatePin(pin)).thenReturn(Observable.just(pin))
-        whenever(isIntercomEnabledFlag.enabled).thenReturn(Single.just(false))
+        whenever(authDataManager.validatePin(pin)).thenReturn(Single.just(pin))
         doNothing().whenever(interactor).registerIntercomUser()
-        val test = interactor.validatePIN(pin).test()
+        val test = interactor.validatePIN(pin, isIntercomEnabled = false).test()
         test.assertValue {
             it == pin
         }

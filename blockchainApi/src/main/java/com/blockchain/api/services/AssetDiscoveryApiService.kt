@@ -9,8 +9,8 @@ import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
-import com.blockchain.api.coinnetworks.data.CoinNetwork
-import com.blockchain.api.coinnetworks.data.NetworkType
+import com.blockchain.api.coinnetworks.data.CoinNetworkDto
+import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
@@ -100,7 +100,7 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun otherEvmNetworks(): Single<List<CoinNetwork>> {
+    fun otherEvmNetworks(): Single<List<CoinNetworkDto>> {
         return supportedEvmNetworks().map {
             // TODO(dtverdota): remove this once Ethereum is moved to be a dynamic L1EvmAsset from the hard-coded
             // Cryptocurrency.ETHER object
@@ -108,7 +108,7 @@ class AssetDiscoveryApiService internal constructor(
         }
     }
 
-    fun supportedEvmNetworks(): Single<List<CoinNetwork>> {
+    fun supportedEvmNetworks(): Single<List<CoinNetworkDto>> {
         return rxSingle {
             coinNetworkApi.getCoinNetworks().map { response ->
                 response.networks.filter { coinNetwork ->
@@ -118,7 +118,7 @@ class AssetDiscoveryApiService internal constructor(
         }
     }
 
-    fun getEvmNetworkForCurrency(currency: String): Maybe<CoinNetwork> {
+    fun getEvmNetworkForCurrency(currency: String): Maybe<CoinNetworkDto> {
         return rxMaybeOutcome {
             coinNetworkApi.getCoinNetworks().map { response ->
                 response.networks.first { coinNetwork ->
@@ -127,6 +127,12 @@ class AssetDiscoveryApiService internal constructor(
             }
         }
     }
+
+    suspend fun allNetworks(): Outcome<Exception, List<CoinNetworkDto>> =
+        coinNetworkApi.getCoinNetworks()
+            .map { response ->
+                response.networks.filter { it.type != NetworkType.NOT_SUPPORTED }
+            }
 
     suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
         api.getL2CurrenciesForL1()

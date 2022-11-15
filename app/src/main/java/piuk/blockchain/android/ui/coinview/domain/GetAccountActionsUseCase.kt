@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.coinview.domain
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.minus
@@ -14,6 +13,7 @@ import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 
 data class GetAccountActionsUseCase(
@@ -31,8 +31,9 @@ data class GetAccountActionsUseCase(
                 val balance = balanceDeferred.await()
 
                 assetActionsComparator.initAccount(account.account, balance)
-                val sortedActions = when (account) {
-                    is InterestAccount -> {
+
+                val sortedActions = when {
+                    account.isInterestAccount() -> {
                         if (actions.none { it.action == AssetAction.InterestDeposit }) {
                             actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
                         } else {

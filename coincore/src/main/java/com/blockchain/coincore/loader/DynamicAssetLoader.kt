@@ -24,6 +24,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
+import com.blockchain.data.onErrorReturn
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -266,6 +267,8 @@ internal class DynamicAssetLoader(
             balances.map {
                 get(it.currency)
             }
+        }.onErrorReturn {
+            emptyList()
         }.filterIsInstance<DataResource.Data<List<Asset>>>()
 
         val enabledL1AssetsFlow = flow {

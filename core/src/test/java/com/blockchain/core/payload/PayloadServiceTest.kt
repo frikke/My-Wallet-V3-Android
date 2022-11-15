@@ -15,6 +15,7 @@ import info.blockchain.wallet.payload.data.Wallet
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
+import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,11 +33,15 @@ class PayloadServiceTest {
         mainTrampoline()
         ioTrampoline()
     }
+    private val sId = "sID"
 
     @Before
     fun setUp() {
         subject = PayloadService(
-            payloadManager = mockPayloadManager
+            payloadManager = mockPayloadManager,
+            sessionIdService = mock {
+                on { sessionId() }.thenReturn(Single.just(sId))
+            }
         )
     }
 
@@ -113,7 +118,8 @@ class PayloadServiceTest {
         verify(mockPayloadManager).initializeAndDecrypt(
             sharedKey,
             guid,
-            password
+            password,
+            sId
         )
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
@@ -129,7 +135,10 @@ class PayloadServiceTest {
         val testObserver = subject.handleQrCode(qrString).test()
 
         // Assert
-        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString)
+        verify(mockPayloadManager).initializeAndDecryptFromQR(
+            qrString,
+            sId
+        )
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }

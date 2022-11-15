@@ -107,9 +107,6 @@ abstract class SwapTxEngineBase(
     private fun buildConfirmations(pendingTx: PendingTx, pricedQuote: PricedQuote): PendingTx {
         return pendingTx.copy(
             txConfirmations = listOfNotNull(
-                TxConfirmationValue.QuoteCountDown(
-                    pricedQuote = pricedQuote
-                ),
                 TxConfirmationValue.SwapExchange(
                     unitCryptoCurrency = Money.fromMajor(sourceAsset, BigDecimal.ONE),
                     price = Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
@@ -133,6 +130,9 @@ abstract class SwapTxEngineBase(
                             target.currency
                         )
                 ),
+                TxConfirmationValue.QuoteCountDown(
+                    pricedQuote = pricedQuote
+                )
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(LATEST_QUOTE_ID, pricedQuote.transferQuote.id)
@@ -164,10 +164,6 @@ abstract class SwapTxEngineBase(
         return pendingTx.copy(
             limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
         ).addOrReplaceOption(
-            TxConfirmationValue.QuoteCountDown(
-                pricedQuote
-            )
-        ).addOrReplaceOption(
             TxConfirmationValue.SwapExchange(
                 Money.fromMajor(sourceAsset, BigDecimal.ONE),
                 Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
@@ -191,6 +187,10 @@ abstract class SwapTxEngineBase(
                         pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                         target.currency
                     )
+            )
+        ).addOrReplaceOption(
+            TxConfirmationValue.QuoteCountDown(
+                pricedQuote
             )
         )
     }

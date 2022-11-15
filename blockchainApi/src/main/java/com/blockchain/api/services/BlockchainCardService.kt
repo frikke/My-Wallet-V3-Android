@@ -6,6 +6,8 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardActivationUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycStatusDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardKycUpdateRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
@@ -34,12 +36,10 @@ class BlockchainCardService internal constructor(
 
     suspend fun createCard(
         productCode: String,
-        ssn: String,
         shippingAddress: ResidentialAddressDto?
     ): Outcome<Exception, CardDto> = api.createCard(
         cardCreationRequest = CardCreationRequestBodyDto(
             productCode = productCode,
-            ssn = ssn,
             shippingAddress = shippingAddress
         )
     )
@@ -164,4 +164,13 @@ class BlockchainCardService internal constructor(
 
     suspend fun getCardStatementUrl(statementId: String): Outcome<Exception, BlockchainCardStatementUrlResponseDto> =
         api.getCardStatementUrl(statementId = statementId)
+
+    suspend fun getKycStatus(): Outcome<Exception, BlockchainCardKycStatusDto> =
+        api.getKycStatus()
+
+    suspend fun updateKycStatus(
+        kycUpdateRequest: BlockchainCardKycUpdateRequestDto
+    ): Outcome<Exception, BlockchainCardKycStatusDto> = api.updateKyc(
+        kycUpdateRequest = kycUpdateRequest
+    )
 }

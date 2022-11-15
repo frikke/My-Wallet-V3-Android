@@ -75,8 +75,8 @@ class SettingsDataManager(
             .flatMap { fetchSettings() }
             .applySchedulers()
 
-    fun updateEmail(email: String, context: String?): Observable<Settings> =
-        settingsService.updateEmail(email, context)
+    fun resendVerificationEmail(email: String): Observable<Settings> =
+        settingsService.resendVerificationEmail(email)
             .flatMap { fetchSettings() }
             .applySchedulers()
 

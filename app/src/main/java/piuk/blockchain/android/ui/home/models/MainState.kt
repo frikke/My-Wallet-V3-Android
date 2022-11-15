@@ -5,6 +5,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -73,10 +74,15 @@ sealed class ViewToLaunch {
     class LaunchTransactionFlowWithTargets(val targets: Collection<CryptoTarget>) : ViewToLaunch()
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
     object ShowReferralSheet : ViewToLaunch()
-    class LaunchTxFlowFromDeepLink(val account: LaunchFlowForAccount, val action: AssetAction) : ViewToLaunch()
+    class LaunchTxFlowWithAccountForAction(val account: LaunchFlowForAccount, val action: AssetAction) : ViewToLaunch()
+    class LaunchRewardsSummaryFromDeepLink(val account: LaunchFlowForAccount) : ViewToLaunch()
 }
 
 sealed class LaunchFlowForAccount {
-    class Account(val account: BlockchainAccount) : LaunchFlowForAccount()
+    class SourceAccount(val source: BlockchainAccount) : LaunchFlowForAccount()
+    class TargetAccount(val target: TransactionTarget) : LaunchFlowForAccount()
+    class SourceAndTargetAccount(val sourceAccount: BlockchainAccount, val targetAccount: TransactionTarget) :
+        LaunchFlowForAccount()
+
     object NoAccount : LaunchFlowForAccount()
 }

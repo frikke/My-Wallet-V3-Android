@@ -42,28 +42,15 @@ sealed class LoginIntents : MviIntent<LoginState> {
             )
     }
 
-    data class ObtainSessionIdForEmail(
-        val selectedEmail: String,
-        val captcha: String
-    ) : LoginIntents() {
-        override fun reduce(oldState: LoginState): LoginState =
-            oldState.copy(
-                email = selectedEmail,
-                captcha = captcha,
-                currentStep = LoginStep.GET_SESSION_ID
-            )
-    }
-
     data class SendEmail(
-        val sessionId: String,
         val selectedEmail: String,
         val captcha: String
     ) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 email = selectedEmail,
-                sessionId = sessionId,
-                currentStep = LoginStep.SEND_EMAIL
+                currentStep = LoginStep.SEND_EMAIL,
+                captcha = captcha,
             )
     }
 
@@ -132,13 +119,6 @@ sealed class LoginIntents : MviIntent<LoginState> {
             oldState.copy(
                 currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                 pollingState = AuthPollingState.DENIED
-            )
-    }
-
-    object GetSessionIdFailed : LoginIntents() {
-        override fun reduce(oldState: LoginState): LoginState =
-            oldState.copy(
-                currentStep = LoginStep.SHOW_SESSION_ERROR
             )
     }
 

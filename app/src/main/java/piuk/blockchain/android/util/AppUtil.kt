@@ -6,7 +6,6 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.core.access.PinRepository
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SessionPrefs
@@ -24,10 +23,9 @@ class AppUtil(
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,
-    private val isIntercomEnabledFlag: FeatureFlag,
     private val walletStatusPrefs: WalletStatusPrefs
 ) : AppUtilAPI {
-    override fun logout() {
+    override fun logout(isIntercomEnabled: Boolean) {
         pinRepository.clearPin()
         trust.clearUserId()
         context.startActivity(
@@ -36,7 +34,7 @@ class AppUtil(
                 action = BlockchainActivity.LOGOUT_ACTION
             }
         )
-        isIntercomEnabledFlag.enabled.map {
+        if (isIntercomEnabled) {
             Intercom.client().logout()
         }
     }

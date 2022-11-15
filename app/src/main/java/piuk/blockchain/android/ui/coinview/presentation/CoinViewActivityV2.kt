@@ -37,6 +37,8 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
@@ -70,8 +72,7 @@ class CoinViewActivityV2 :
 
     @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
     val args: CoinviewArgs by lazy {
-        intent.getParcelableExtra<CoinviewArgs>(CoinviewArgs.ARGS_KEY)
-            ?: error("missing CoinviewArgs")
+        intent.getParcelableExtra<CoinviewArgs>(CoinviewArgs.ARGS_KEY) ?: error("missing CoinviewArgs")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +87,16 @@ class CoinViewActivityV2 :
         setContent {
             Coinview(
                 viewModel = viewModel,
-                backOnClick = { onBackPressedDispatcher.onBackPressed() }
+                backOnClick = {
+                    analytics.logEvent(
+                        CoinViewAnalytics
+                            .CoinViewClosed(
+                                closingMethod = CoinViewAnalytics.Companion.ClosingMethod.BACK_BUTTON,
+                                currency = args.networkTicker
+                            )
+                    )
+                    onBackPressedDispatcher.onBackPressed()
+                }
             )
         }
 
@@ -129,6 +139,8 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToBuy -> {
+                analytics.logEvent(CoinViewAnalytics.CoinViewBuyClickedEvent)
+
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         context = this,
@@ -138,6 +150,15 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToSell -> {
+                analytics.logEvent(
+                    CoinViewAnalytics.BuySellClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = args.networkTicker,
+                        type = CoinViewAnalytics.Companion.Type.SELL
+                    )
+                )
+                analytics.logEvent(CoinViewSellClickedEvent)
+
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,
@@ -148,6 +169,14 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToSend -> {
+                analytics.logEvent(
+                    CoinViewAnalytics.SendReceiveClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = args.networkTicker,
+                        type = CoinViewAnalytics.Companion.Type.SEND
+                    )
+                )
+
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,
@@ -158,6 +187,24 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToReceive -> {
+                if (navigationEvent.isBuyReceive) {
+                    analytics.logEvent(
+                        CoinViewAnalytics.BuyReceiveClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = args.networkTicker,
+                            type = CoinViewAnalytics.Companion.Type.RECEIVE
+                        )
+                    )
+                } else if (navigationEvent.isSendReceive) {
+                    analytics.logEvent(
+                        CoinViewAnalytics.SendReceiveClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = args.networkTicker,
+                            type = CoinViewAnalytics.Companion.Type.RECEIVE
+                        )
+                    )
+                }
+
                 startActivity(
                     ReceiveDetailActivity.newIntent(
                         context = this, account = navigationEvent.cvAccount.account as CryptoAccount
@@ -166,6 +213,8 @@ class CoinViewActivityV2 :
             }
 
             is CoinviewNavigationEvent.NavigateToSwap -> {
+                analytics.logEvent(SwapAnalyticsEvents.CoinViewSwapClickedEvent)
+
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,
