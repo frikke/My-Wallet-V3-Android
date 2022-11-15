@@ -18,6 +18,7 @@ import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
+import com.blockchain.data.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -45,6 +46,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
@@ -196,7 +198,7 @@ class CoinviewViewModel(
                                 }
                             )
                         },
-                        selectedTimeSpan = (interactiveAssetPrice ?: priceDetail).timeSpan
+                        selectedTimeSpan = requestedTimeSpan ?: (interactiveAssetPrice ?: priceDetail).timeSpan
                     )
                 }
             }
@@ -252,7 +254,7 @@ class CoinviewViewModel(
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
-                        assetName = asset.currency.displayTicker,
+                        assetName = asset.currency.name,
                         totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
                         totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]?.toStringWithSymbol()
                             .orEmpty()
@@ -958,7 +960,11 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Receive -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToReceive(
-                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false)
+                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false),
+                                isBuyReceive = (modelState.quickActions.map { it.canBuy() } as? DataResource.Data)
+                                    ?.data ?: false,
+                                isSendReceive = (modelState.quickActions.map { it.canSend() } as? DataResource.Data)
+                                    ?.data ?: false
                             )
                         )
                     }
@@ -1278,7 +1284,11 @@ class CoinviewViewModel(
 
             AssetAction.Receive -> navigate(
                 CoinviewNavigationEvent.NavigateToReceive(
-                    cvAccount = account
+                    cvAccount = account,
+                    isBuyReceive = (modelState.quickActions.map { it.canBuy() } as? DataResource.Data)
+                        ?.data ?: false,
+                    isSendReceive = (modelState.quickActions.map { it.canSend() } as? DataResource.Data)
+                        ?.data ?: false
                 )
             )
 
@@ -1376,6 +1386,14 @@ class CoinviewViewModel(
                 }
             }
         }
+    }
+
+    private fun CoinviewQuickActions.canBuy(): Boolean {
+        return actions.any { it == CoinviewQuickAction.Buy(true) }
+    }
+
+    private fun CoinviewQuickActions.canSend(): Boolean {
+        return actions.any { it == CoinviewQuickAction.Send(true) }
     }
 
     // //////////////////////

@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
@@ -20,14 +22,17 @@ import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 @Composable
 fun RecurringBuys(
     data: CoinviewRecurringBuysState,
+    assetTicker: String,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
@@ -49,7 +54,11 @@ fun RecurringBuys(
         }
 
         is CoinviewRecurringBuysState.Data -> {
-            RecurringBuysData(data, onRecurringBuyItemClick = onRecurringBuyItemClick)
+            RecurringBuysData(
+                data = data,
+                assetTicker = assetTicker,
+                onRecurringBuyItemClick = onRecurringBuyItemClick
+            )
         }
     }
 }
@@ -92,6 +101,7 @@ fun RecurringBuysError() {
 
 @Composable
 fun RecurringBuysUpsell(
+    analytics: Analytics = get(),
     onRecurringBuyUpsellClick: () -> Unit
 ) {
     Column(
@@ -111,7 +121,10 @@ fun RecurringBuysUpsell(
             callToActionButton = CardButton(
                 text = stringResource(R.string.common_learn_more),
                 type = ButtonType.Minimal,
-                onClick = onRecurringBuyUpsellClick
+                onClick = {
+                    analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
+                    onRecurringBuyUpsellClick()
+                }
             ),
             isDismissable = false
         )
@@ -120,7 +133,9 @@ fun RecurringBuysUpsell(
 
 @Composable
 fun RecurringBuysData(
+    analytics: Analytics = get(),
     data: CoinviewRecurringBuysState.Data,
+    assetTicker: String,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
@@ -144,7 +159,16 @@ fun RecurringBuysData(
                     ),
                     shape = CircleShape
                 ),
-                onClick = { onRecurringBuyItemClick(recurringBuy.id) }
+                onClick = {
+                    analytics.logEvent(
+                        RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                            LaunchOrigin.CURRENCY_PAGE,
+                            assetTicker
+                        )
+                    )
+
+                    onRecurringBuyItemClick(recurringBuy.id)
+                }
             )
 
             if (data.recurringBuys.lastIndex != index) {
@@ -157,19 +181,19 @@ fun RecurringBuysData(
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Loading() {
-    RecurringBuys(CoinviewRecurringBuysState.Loading, {}, {})
+    RecurringBuys(CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Error() {
-    RecurringBuys(CoinviewRecurringBuysState.Error, {}, {})
+    RecurringBuys(CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Upsell() {
-    RecurringBuys(CoinviewRecurringBuysState.Upsell, {}, {})
+    RecurringBuys(CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
@@ -198,6 +222,7 @@ fun PreviewRecurringBuys_Data() {
                 )
             )
         ),
+        assetTicker = "ETH",
         {}, {}
     )
 }

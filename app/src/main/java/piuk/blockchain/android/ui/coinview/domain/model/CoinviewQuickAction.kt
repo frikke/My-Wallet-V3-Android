@@ -5,6 +5,9 @@ data class CoinviewQuickActions(
     val bottomStart: CoinviewQuickAction,
     val bottomEnd: CoinviewQuickAction,
 ) {
+    val actions: List<CoinviewQuickAction>
+        get() = listOf(center, bottomStart, bottomEnd)
+
     companion object {
         fun none() = CoinviewQuickActions(
             center = CoinviewQuickAction.None,
