@@ -26,12 +26,12 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.activity.components.ActivityStackView
+import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.composable.ActivityList
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
@@ -62,7 +62,7 @@ fun HomeActivity(
 
 @Composable
 fun HomeActivityScreen(
-    activity: DataResource<List<ActivityStackView>>,
+    activity: DataResource<List<ActivityComponent>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
 ) {
     Column(
@@ -98,7 +98,10 @@ fun HomeActivityScreen(
             }
             is DataResource.Data -> {
                 if (activity.data.isNotEmpty()) {
-                    ActivityList(transactions = activity.data)
+                    ActivitySectionCard(
+                        components = activity.data,
+                        onClick = {}
+                    )
                 }
             }
         }

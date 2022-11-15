@@ -141,6 +141,10 @@ fun Date.getMonthName(locale: Locale = Locale.getDefault()): String {
     return dateTimeFormat.format(this)
 }
 
+fun Calendar.getMonthName(locale: Locale = Locale.getDefault()): String {
+    return time.getMonthName(locale)
+}
+
 /**
  * Takes an expiration date in "MMyy" format and formats it to UI-ready "MM/yy" format
  *
@@ -175,4 +179,9 @@ fun Date.toDayAndMonth(locale: Locale = Locale.getDefault()): String {
     val defaultDateTimeFormat = SimpleDateFormat("dd MMMM", locale)
     val usDateTimeFormat = SimpleDateFormat("MMMM dd", locale)
     return if (locale == Locale.US) usDateTimeFormat.format(this) else defaultDateTimeFormat.format(this)
+}
+
+fun Calendar.toMonthAndYear(locale: Locale = Locale.getDefault()): String {
+    val defaultDateTimeFormat = SimpleDateFormat("MMMM yyyy", locale)
+    return defaultDateTimeFormat.format(this)
 }

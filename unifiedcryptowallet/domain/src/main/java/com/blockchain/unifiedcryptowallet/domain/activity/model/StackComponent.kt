@@ -22,13 +22,15 @@ enum class ActivityTagStyle {
 
 // component
 sealed interface StackComponent {
+    val value: String
+
     data class Text(
-        val value: String,
+        override val value: String,
         val style: ActivityTextStyle
     ) : StackComponent
 
     data class Tag(
-        val value: String,
+        override val value: String,
         val style: ActivityTagStyle
     ) : StackComponent
 }

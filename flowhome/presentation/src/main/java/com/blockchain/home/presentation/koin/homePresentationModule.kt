@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.koin
 
+import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
@@ -20,7 +21,13 @@ val homePresentationModule = module {
         }
 
         viewModel {
-            ActivityViewModel()
+            ActivityViewModel(
+                unifiedActivityService = get()
+            )
+        }
+
+        viewModel {
+            ActivityDetailViewModel()
         }
         viewModel {
             QuickActionsViewModel(

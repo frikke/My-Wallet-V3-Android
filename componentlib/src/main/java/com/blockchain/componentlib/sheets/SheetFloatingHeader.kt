@@ -16,29 +16,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icon.OverlapIcons
-import com.blockchain.componentlib.icon.SmallTagIcons
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
-
-sealed interface ImageType {
-    data class OverlapIcons(
-        val front: ImageResource,
-        val back: ImageResource
-    ) : ImageType
-
-    data class SmallTagIcons(
-        val main: ImageResource,
-        val tag: ImageResource
-    ) : ImageType
-
-    data class SingleIcon(
-        val icon: ImageResource
-    ) : ImageType
-}
+import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 fun SheetFloatingHeader(
-    imageType: ImageType,
+    icon: StackedIcon,
     title: String,
     onCloseClick: () -> Unit
 ) {
@@ -61,17 +46,7 @@ fun SheetFloatingHeader(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                when (imageType) {
-                    is ImageType.OverlapIcons -> {
-                        OverlapIcons(front = imageType.front, back = imageType.back)
-                    }
-                    is ImageType.SmallTagIcons -> {
-                        SmallTagIcons(main = imageType.main, tag = imageType.tag)
-                    }
-                    is ImageType.SingleIcon -> {
-                        Image(imageResource = imageType.icon)
-                    }
-                }
+                CustomStackedIcon(icon = icon)
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
@@ -86,6 +61,7 @@ fun SheetFloatingHeader(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             Image(
+                modifier = Modifier.clickableNoEffect { onCloseClick() },
                 imageResource = ImageResource.Local(R.drawable.ic_close_circle_white)
             )
         }
@@ -96,7 +72,7 @@ fun SheetFloatingHeader(
 @Composable
 fun PreviewSheetFloatingHeader_Overlap() {
     SheetFloatingHeader(
-        imageType = ImageType.OverlapIcons(
+        icon = StackedIcon.OverlappingPair(
             front = ImageResource.Local(R.drawable.ic_close_circle_dark),
             back = ImageResource.Local(R.drawable.ic_close_circle),
         ),
@@ -109,7 +85,7 @@ fun PreviewSheetFloatingHeader_Overlap() {
 @Composable
 fun PreviewSheetFloatingHeader_SmallTag() {
     SheetFloatingHeader(
-        imageType = ImageType.SmallTagIcons(
+        icon = StackedIcon.SmallTag(
             main = ImageResource.Local(R.drawable.ic_close_circle_dark),
             tag = ImageResource.Local(R.drawable.ic_close_circle),
         ),
@@ -122,7 +98,7 @@ fun PreviewSheetFloatingHeader_SmallTag() {
 @Composable
 fun PreviewSheetFloatingHeader_Single() {
     SheetFloatingHeader(
-        imageType = ImageType.SingleIcon(
+        icon = StackedIcon.SingleIcon(
             ImageResource.Local(R.drawable.ic_close_circle_dark)
         ),
         title = "Swapped BTC -> ETH",

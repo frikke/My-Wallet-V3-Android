@@ -6,7 +6,7 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 internal fun ActivityViewItemDto.toActivityViewItem(): ActivityDataItem? = when (this) {
     is ActivityViewItemDto.Stack -> {
         ActivityDataItem.Stack(
-            leadingImage = leadingImage?.toActivityIcon(),
+            leadingImage = leadingImage.toActivityIcon(),
             leading = leading.mapNotNull { it.toStackComponent() },
             trailing = trailing.mapNotNull { it.toStackComponent() }
         )

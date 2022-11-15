@@ -24,7 +24,7 @@ sealed interface ActivityViewItemDto {
     data class Button(
         @SerialName("text")
         val value: String,
-        @SerialName("buttonStyle")
+        @SerialName("style")
         val style: String,
         @SerialName("actionType")
         val actionType: String,

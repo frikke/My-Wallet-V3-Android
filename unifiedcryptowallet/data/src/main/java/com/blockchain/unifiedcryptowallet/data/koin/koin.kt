@@ -50,7 +50,8 @@ val unifiedCryptoWalletModule = module {
 
         scoped {
             UnifiedActivityRepository(
-                unifiedActivityStore = get()
+                unifiedActivityStore = get(),
+                json = get()
             )
         }.bind(UnifiedActivityService::class)
 
