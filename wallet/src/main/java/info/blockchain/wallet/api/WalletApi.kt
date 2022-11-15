@@ -154,7 +154,7 @@ class WalletApi(
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
-            sessionId,
+            sessionId.withBearerPrefix(),
             sharedKey,
             "json",
             api.apiCode
