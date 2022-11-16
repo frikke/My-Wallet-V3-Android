@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
@@ -45,8 +46,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -120,7 +123,7 @@ fun LoadingKycStatus() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun LoadingKycStatusPreview() {
     AppTheme {
@@ -659,12 +662,17 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 )
             }
 
+            val focusManager = LocalFocusManager.current
+
             OutlinedTextInput(
                 value = ssn,
                 label = stringResource(R.string.ssn_title),
                 placeholder = stringResource(R.string.ssn_hint),
                 onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
                 visualTransformation = if (hideSSN) PasswordVisualTransformation() else VisualTransformation.None,
                 modifier = Modifier.padding(
                     start = AppTheme.dimensions.smallSpacing,
