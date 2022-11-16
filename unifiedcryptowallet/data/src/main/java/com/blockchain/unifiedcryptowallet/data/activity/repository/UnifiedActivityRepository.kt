@@ -8,6 +8,7 @@ import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivi
 import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActivityViewItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.Calendar
 
 class UnifiedActivityRepository(
     private val activityWebSocketService: ActivityWebSocketService,
