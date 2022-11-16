@@ -4,9 +4,12 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.activity.ActivityRequest
 import com.blockchain.api.selfcustody.activity.ActivityRequestParams
 import com.blockchain.api.selfcustody.activity.ActivityResponse
+import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 
@@ -16,6 +19,34 @@ class ActivityWebSocketService(
     private val credentials: SelfCustodyServiceAuthCredentials,
     private val wsScope: CoroutineScope
 ) {
+    private var isActive: Boolean = false
+    private var activityJob: Job? = null
+
+    init {
+        wsScope.launch {
+            webSocket.connectionEvents.asFlow()
+                .onEach {
+                    when (it) {
+                        ConnectionEvent.Connected -> {
+                            isActive = true
+                            activityJob = wsScope.launch {
+                                webSocket.responses.asFlow()
+                                    .collect {
+                                        activityCacheService.addOrUpdateActivityItems(it)
+                                    }
+                            }
+                        }
+                        is ConnectionEvent.Failure,
+                        ConnectionEvent.ClientDisconnect -> {
+                            isActive = false
+                            activityJob?.cancel()
+                        }
+                        ConnectionEvent.Authenticated -> {}
+                    }
+                }.collect()
+        }
+    }
+
     private val authInfo: AuthInfo
         get() = AuthInfo(
             guidHash = credentials.hashedGuid,
@@ -23,7 +54,7 @@ class ActivityWebSocketService(
         )
 
     fun open() {
-        webSocket.open()
+        if (isActive.not()) webSocket.open()
     }
 
     fun send(fiatCurrency: String, acceptLanguage: String, timeZone: String) {
@@ -39,13 +70,6 @@ class ActivityWebSocketService(
                 channel = UNIFIED_ACTIVITY_WS_CHANNEL
             )
         )
-    }
-
-    suspend fun subscribeToActivity() = wsScope.launch {
-        webSocket.responses.asFlow()
-            .collect {
-                activityCacheService.addOrUpdateActivityItems(it)
-            }
     }
 
     fun stop() {
