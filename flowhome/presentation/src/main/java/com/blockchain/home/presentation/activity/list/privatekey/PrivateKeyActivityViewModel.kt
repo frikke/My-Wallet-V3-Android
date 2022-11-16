@@ -65,9 +65,10 @@ class PrivateKeyActivityViewModel(
         // group by date (month/year)
         return groupBy { activity ->
             activity.date?.let {
-                it.apply {
-                    set(Calendar.MILLISECOND, 0)
-                    set(Calendar.DAY_OF_MONTH, 1)
+                Calendar.getInstance().apply {
+                    timeInMillis = 0
+                    set(Calendar.YEAR, it.get(Calendar.YEAR))
+                    set(Calendar.MONTH, it.get(Calendar.MONTH))
                 }.let { date ->
                     TransactionGroup.Group.Date(date)
                 }

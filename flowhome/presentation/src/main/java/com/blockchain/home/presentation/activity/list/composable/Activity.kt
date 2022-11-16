@@ -57,7 +57,9 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun Activity() {
-    val walletMode by get<WalletModeService>(superAppModeService).walletMode.collectAsStateLifecycleAware(null)
+    val walletMode by get<WalletModeService>(superAppModeService).walletMode
+        .collectAsStateLifecycleAware(null)
+
     walletMode?.let {
         when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
