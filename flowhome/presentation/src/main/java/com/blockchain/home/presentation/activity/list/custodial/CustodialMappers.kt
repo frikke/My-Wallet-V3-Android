@@ -7,19 +7,17 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
-import com.blockchain.home.presentation.activity.custodial.list.mappers.icon
-import com.blockchain.home.presentation.activity.custodial.list.mappers.leadingSubtitle
-import com.blockchain.home.presentation.activity.custodial.list.mappers.leadingTitle
-import com.blockchain.home.presentation.activity.custodial.list.mappers.trailingSubtitle
-import com.blockchain.home.presentation.activity.custodial.list.mappers.trailingTitle
+import com.blockchain.home.presentation.activity.list.custodial.mappers.icon
+import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingSubtitle
+import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingTitle
+import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingSubtitle
+import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingTitle
 
 internal val basicTitleStyle = ActivityTextStyleState(
     typography = ActivityTextTypographyState.Paragraph2,

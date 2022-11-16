@@ -1,10 +1,7 @@
-package com.blockchain.home.presentation.activity.custodial.list
+package com.blockchain.home.presentation.activity.list.custodial
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -12,8 +9,11 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityModelState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar

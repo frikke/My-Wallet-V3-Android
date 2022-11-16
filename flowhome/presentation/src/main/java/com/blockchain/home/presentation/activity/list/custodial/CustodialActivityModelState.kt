@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.custodial.list
+package com.blockchain.home.presentation.activity.list.custodial
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState

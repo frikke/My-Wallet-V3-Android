@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.custodial.list.mappers
+package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
 import com.blockchain.coincore.TradeActivitySummaryItem

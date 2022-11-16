@@ -38,7 +38,7 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
-import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityIntent
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
 import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
