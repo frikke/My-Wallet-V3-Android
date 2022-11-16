@@ -4,6 +4,7 @@ import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
@@ -38,9 +39,8 @@ private fun ActivitySummaryItem.icon() = when (this) {
     is CustodialInterestActivitySummaryItem -> icon()
     is RecurringBuyActivitySummaryItem -> icon()
     is TradeActivitySummaryItem -> icon()
-    else -> {
-        R.drawable.ic_tx_confirming
-    }
+    is FiatActivitySummaryItem -> icon()
+    else -> error("${this::class.simpleName} not supported")
 }
 
 private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
@@ -50,13 +50,8 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
         is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
-
-        else -> listOf(
-            ActivityStackView.Text(
-                value = TextValue.StringValue("not implemented"),
-                style = basicTitleStyle
-            )
-        )
+        is FiatActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 
@@ -67,13 +62,8 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
         is CustodialInterestActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is RecurringBuyActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is TradeActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
-
-        else -> listOf(
-            ActivityStackView.Text(
-                value = TextValue.StringValue("not implemented"),
-                style = basicTitleStyle
-            )
-        )
+        is FiatActivitySummaryItem -> listOfNotNull(trailingTitle(), trailingSubtitle())
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 

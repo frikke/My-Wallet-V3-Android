@@ -1,0 +1,87 @@
+package com.blockchain.home.presentation.activity.custodial.list.mappers
+
+import androidx.annotation.StringRes
+import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAddress.asset
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.home.presentation.activity.common.ActivityTextColorState
+import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleStyle
+import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
+import com.blockchain.nabu.datamanagers.TransactionState
+import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.toFormattedDate
+import org.koin.java.KoinJavaComponent
+import java.util.Date
+
+@StringRes internal fun FiatActivitySummaryItem.icon(): Int {
+    return when (type) {
+        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
+        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell
+    }
+}
+
+internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
+    return ActivityStackView.Text(
+        value = TextValue.IntResValue(
+            value = when (type) {
+                TransactionType.DEPOSIT -> R.string.tx_title_deposited
+                TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
+            },
+            args = listOf(asset.displayTicker)
+        ),
+        style = basicTitleStyle
+    )
+}
+
+internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
+    val color: ActivityTextColorState = when (state) {
+        TransactionState.PENDING,
+        TransactionState.COMPLETED -> ActivityTextColorState.Muted
+        TransactionState.FAILED -> ActivityTextColorState.Error
+    }
+
+    return ActivityStackView.Text(
+        value = TextValue.StringValue(Date(timeStampMs).toFormattedDate()),
+        style = basicSubtitleStyle.copy(color = color)
+    )
+}
+
+internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {
+    val color: ActivityTextColorState = when (state) {
+        TransactionState.COMPLETED -> ActivityTextColorState.Title
+        else -> ActivityTextColorState.Muted
+    }
+
+    val strikethrough: Boolean = when (state) {
+        TransactionState.PENDING,
+        TransactionState.COMPLETED -> false
+        TransactionState.FAILED -> true
+    }
+
+    return ActivityStackView.Text(
+        value = TextValue.StringValue(value.toStringWithSymbol()),
+        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+    )
+}
+
+internal fun FiatActivitySummaryItem.trailingSubtitle(): ActivityStackView? {
+    return KoinJavaComponent.getKoin().get<CurrencyPrefs>().selectedFiatCurrency.let { selectedFiat ->
+        if (currency != selectedFiat) {
+            val strikethrough: Boolean = when (state) {
+                TransactionState.PENDING,
+                TransactionState.COMPLETED -> false
+                TransactionState.FAILED -> true
+            }
+
+            return ActivityStackView.Text(
+                value = TextValue.StringValue(fiatValue(selectedFiat).toStringWithSymbol()),
+                style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+            )
+        } else {
+            null
+        }
+    }
+}

@@ -14,10 +14,10 @@ import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
 @StringRes internal fun CustodialTradingActivitySummaryItem.icon(): Int {
-    return if (type == OrderType.BUY) {
-        R.drawable.ic_activity_buy
-    } else {
-        R.drawable.ic_activity_sell
+    return when (type) {
+        OrderType.BUY,
+        OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy
+        OrderType.SELL -> R.drawable.ic_activity_sell
     }
 }
 
