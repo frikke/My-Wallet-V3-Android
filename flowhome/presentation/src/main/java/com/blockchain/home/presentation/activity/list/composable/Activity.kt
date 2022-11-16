@@ -41,7 +41,7 @@ import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
 import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
-import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
@@ -94,14 +94,14 @@ fun NonCustodialActivity(
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
+        viewModel.onIntent(PrivateKeyActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
     ActivityScreen(
         activity = viewState.activity,
         onSearchTermEntered = { term ->
-            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
+            viewModel.onIntent(PrivateKeyActivityIntent.FilterSearch(term = term))
         },
     )
 }

@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.list
+package com.blockchain.home.presentation.activity.list.privatekey
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -8,7 +8,8 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.toActivityComponent
-import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
@@ -18,19 +19,19 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ActivityViewModel(
+class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
-    ActivityIntent,
+    PrivateKeyActivityIntent,
     ActivityViewState,
-    ActivityModelState,
+    PrivateKeyActivityModelState,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState()) {
+    ModelConfigArgs.NoArgs>(PrivateKeyActivityModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: ActivityModelState): ActivityViewState = state.run {
+    override fun reduce(state: PrivateKeyActivityModelState): ActivityViewState = state.run {
         ActivityViewState(
             activity = state.activityItems.map {
                 it.filter { activityItem ->
@@ -79,15 +80,15 @@ class ActivityViewModel(
             .toSortedMap()
     }
 
-    override suspend fun handleIntent(modelState: ActivityModelState, intent: ActivityIntent) {
+    override suspend fun handleIntent(modelState: PrivateKeyActivityModelState, intent: PrivateKeyActivityIntent) {
         when (intent) {
-            is ActivityIntent.LoadActivity -> {
+            is PrivateKeyActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
 
                 loadData()
             }
 
-            is ActivityIntent.FilterSearch -> {
+            is PrivateKeyActivityIntent.FilterSearch -> {
                 updateState {
                     it.copy(filterTerm = intent.term)
                 }
