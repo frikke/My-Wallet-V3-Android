@@ -61,7 +61,7 @@ fun Activity() {
     walletMode?.let {
         when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyCustodialActivity()
+            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity()
             else -> error("unsupported")
         }
     }
@@ -87,7 +87,7 @@ fun CustodialActivity(
 }
 
 @Composable
-fun PrivateKeyCustodialActivity(
+fun PrivateKeyActivity(
     viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
