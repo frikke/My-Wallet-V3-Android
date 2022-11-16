@@ -211,7 +211,8 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         blockchainCardRepository.getCardWidgetUrl(
                             cardId = modelState.currentCard.id,
                             last4Digits = modelState.currentCard.last4,
-                            userFullName = firstAndLastName
+                            userFullName = firstAndLastName,
+                            cardType = modelState.currentCard.type
                         )
                     }.fold(
                         onFailure = { error ->

@@ -65,14 +65,23 @@ class BlockchainCardService internal constructor(
     fun getCardWidgetUrl(
         widgetToken: String,
         last4Digits: String,
-        userFullName: String
-    ): Outcome<Exception, String> = Outcome.Success(buildCardWidgetUrl(widgetToken, last4Digits, userFullName))
+        userFullName: String,
+        cardType: String
+    ): Outcome<Exception, String> = Outcome.Success(
+        buildCardWidgetUrl(widgetToken, last4Digits, userFullName, cardType)
+    )
 
     private fun buildCardWidgetUrl(
         widgetToken: String,
         last4Digits: String,
-        userFullName: String
-    ): String = "${walletHelperUrl.url}wallet-helper/marqeta-card/#/$widgetToken/$last4Digits/$userFullName"
+        userFullName: String,
+        cardType: String
+    ): String =
+        "${walletHelperUrl.url}wallet-helper/marqeta-card/#/" +
+            "?token=$widgetToken" +
+            "&last4=$last4Digits" +
+            "&fullName=$userFullName" +
+            "&cardType=$cardType"
 
     suspend fun getEligibleAccounts(
         cardId: String
