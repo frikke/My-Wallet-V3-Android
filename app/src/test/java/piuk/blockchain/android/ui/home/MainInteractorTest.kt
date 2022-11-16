@@ -22,6 +22,7 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -84,7 +85,9 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
     private val referralRepository: ReferralRepository = mock()
     private val ethDataManager: EthDataManager = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val earnEnabledFF: FeatureFlag = mock()
     private val coincore: Coincore = mock()
+    private val walletModeService: WalletModeService = mock()
 
     private val jsonSerializers = module {
         single {
@@ -127,7 +130,9 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
             referralRepository = referralRepository,
             ethDataManager = ethDataManager,
             stakingAccountFlag = stakingFF,
-            coincore = coincore
+            coincore = coincore,
+            earnOnNavBarFlag = earnEnabledFF,
+            walletModeService = walletModeService
         )
     }
 

@@ -19,12 +19,15 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    object NavigationTabs : MainIntent() {
+    object RefreshTabs : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class RefreshTabs(val walletMode: WalletMode) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState.copy(walletMode = walletMode)
+    class UpdateNavigationTabs(val walletMode: WalletMode) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                walletMode = walletMode
+            )
     }
 
     class ReferralCodeIntent(private val referralState: ReferralState) : MainIntent() {
@@ -129,13 +132,16 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    object LoadStakingFlag : MainIntent() {
+    object LoadFeatureFlags : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState.copy()
     }
 
-    class UpdateStakingFlag(private val isStakingEnabled: Boolean) : MainIntent() {
+    class UpdateFlags(
+        private val isStakingEnabled: Boolean,
+        private val isEarnEnabled: Boolean
+    ) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
-            oldState.copy(isStakingEnabled = isStakingEnabled)
+            oldState.copy(isStakingEnabled = isStakingEnabled, isEarnOnNavEnabled = isEarnEnabled)
     }
 
     class LaunchTransactionFlowFromDeepLink(val networkTicker: String, val action: AssetAction) : MainIntent() {

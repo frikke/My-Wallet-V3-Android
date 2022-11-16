@@ -81,7 +81,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
         )
     }
 
-    private fun actionsForBrokerage(): List<SheetAction> = listOf(
+    private fun actionsForBrokerage(earnEnabled: Boolean): List<SheetAction> = listOfNotNull(
         SheetAction(
             title = R.string.common_buy,
             subtitle = R.string.use_your_card_or_cash,
@@ -112,12 +112,16 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
             icon = R.drawable.ic_sheet_menu_receive,
             action = AssetAction.Receive,
         ),
-        SheetAction(
-            title = R.string.common_rewards,
-            subtitle = R.string.rewards_to_your_cryptos,
-            icon = R.drawable.ic_sheet_menu_rewards,
-            action = AssetAction.InterestDeposit,
-        )
+        if (earnEnabled) {
+            null
+        } else {
+            SheetAction(
+                title = R.string.common_rewards,
+                subtitle = R.string.rewards_to_your_cryptos,
+                icon = R.drawable.ic_sheet_menu_rewards,
+                action = AssetAction.InterestDeposit,
+            )
+        }
     )
 
     override suspend fun handleIntent(modelState: ActionsSheetModelState, intent: ActionsSheetIntent) {
@@ -125,7 +129,11 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
             is ActionsSheetIntent.ActionClicked -> handleActionForMode(modelState.walletMode, intent.action)
             is ActionsSheetIntent.LoadActions -> viewModelScope.launch {
                 val actions =
-                    if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY) actionsForDefi() else actionsForBrokerage()
+                    if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                        actionsForDefi()
+                    } else actionsForBrokerage(
+                        intent.isEarnEnabled
+                    )
                 updateState {
                     it.copy(actions = actions, walletMode = intent.walletMode)
                 }
@@ -212,7 +220,7 @@ data class ActionsSheetModelState(
 
 sealed class ActionsSheetIntent : Intent<ActionsSheetModelState> {
     class ActionClicked(val action: AssetAction) : ActionsSheetIntent()
-    class LoadActions(val walletMode: WalletMode) : ActionsSheetIntent()
+    class LoadActions(val walletMode: WalletMode, val isEarnEnabled: Boolean) : ActionsSheetIntent()
 }
 
 sealed class ActionsSheetNavEvent : NavigationEvent {

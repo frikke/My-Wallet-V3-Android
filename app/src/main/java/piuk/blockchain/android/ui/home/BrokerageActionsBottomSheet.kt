@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.home
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.analytics.events.LaunchOrigin
@@ -7,6 +8,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.Alignment
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
@@ -41,6 +43,10 @@ class BrokerageActionsBottomSheet :
         super.host as? ActionBottomSheetHost ?: throw IllegalStateException(
             "Host fragment is not a ActionBottomSheetHost"
         )
+    }
+
+    private val isEarnEnabled by lazy {
+        arguments?.getBoolean(EARN_ENABLED_ARG, false) ?: false
     }
 
     override fun initControls(binding: BottomSheetRedesignActionsBinding) {
@@ -114,7 +120,9 @@ class BrokerageActionsBottomSheet :
                     contentDescription = null
                 )
             }
+
             rewardsBtn.apply {
+                visibleIf { !isEarnEnabled }
                 primaryText = getString(R.string.common_rewards)
                 secondaryText = context.getString(R.string.action_sheet_rewards_description)
                 onClick = {
@@ -166,6 +174,11 @@ class BrokerageActionsBottomSheet :
     override fun getTheme() = R.style.RedesignBottomSheetDialog
 
     companion object {
-        fun newInstance() = BrokerageActionsBottomSheet()
+        private const val EARN_ENABLED_ARG = "EARN_ENABLED_ARG"
+        fun newInstance(isEarnOnNavBarEnabled: Boolean) = BrokerageActionsBottomSheet().apply {
+            arguments = Bundle().apply {
+                putBoolean(EARN_ENABLED_ARG, isEarnOnNavBarEnabled)
+            }
+        }
     }
 }

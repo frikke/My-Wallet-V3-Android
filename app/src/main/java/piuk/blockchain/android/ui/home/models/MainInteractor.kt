@@ -26,14 +26,18 @@ import com.blockchain.network.PollService
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
@@ -70,7 +74,9 @@ class MainInteractor internal constructor(
     private val referralRepository: ReferralRepository,
     private val ethDataManager: EthDataManager,
     private val stakingAccountFlag: FeatureFlag,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val walletModeService: WalletModeService,
+    private val earnOnNavBarFlag: FeatureFlag
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -228,4 +234,12 @@ class MainInteractor internal constructor(
                     LaunchFlowForAccount.SourceAccount(interestAccount)
                 }
         } ?: Single.just(LaunchFlowForAccount.NoAccount)
+
+    fun getEnabledWalletMode(): Observable<WalletMode> =
+        walletModeService.walletMode.asObservable()
+
+    fun updateWalletMode(mode: WalletMode): Completable =
+        Completable.fromAction { walletModeService.updateEnabledWalletMode(mode) }
+
+    fun isEarnOnNavBarEnabled(): Single<Boolean> = earnOnNavBarFlag.enabled
 }
