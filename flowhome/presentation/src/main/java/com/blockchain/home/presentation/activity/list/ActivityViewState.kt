@@ -14,7 +14,7 @@ sealed interface TransactionGroup : Comparable<TransactionGroup> {
         fun getAssignedValue(group: TransactionGroup): Long {
             return when (group) {
                 Combined -> 0L
-                Group.Pending -> 1L
+                Group.Pending -> Long.MAX_VALUE
                 is Group.Date -> group.date.timeInMillis
             }
         }

@@ -19,17 +19,11 @@ private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source
 private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-// todo tint
 @StringRes internal fun TradeActivitySummaryItem.icon(): Int {
-    return when (state) {
-        CustodialOrderState.PENDING_CONFIRMATION,
-        CustodialOrderState.PENDING_LEDGER,
-        CustodialOrderState.PENDING_EXECUTION,
-        CustodialOrderState.PENDING_DEPOSIT,
-        CustodialOrderState.PENDING_WITHDRAWAL,
-        CustodialOrderState.FINISH_DEPOSIT -> R.drawable.ic_tx_confirming
-        CustodialOrderState.FAILED -> R.drawable.ic_close
-        else -> R.drawable.ic_tx_swap
+    return when {
+        isSwapPair() -> R.drawable.ic_activity_swap
+        isSellingPair() ->R.drawable.ic_activity_sell
+        else -> error("unsupported")
     }
 }
 

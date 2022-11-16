@@ -13,18 +13,11 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-// todo tint
 @StringRes internal fun CustodialTradingActivitySummaryItem.icon(): Int {
-    return when (status) {
-        OrderState.FINISHED -> if (type == OrderType.BUY) R.drawable.ic_tx_buy else R.drawable.ic_tx_sell
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION -> R.drawable.ic_tx_confirming
-        OrderState.UNINITIALISED, // should not see these next ones ATM
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN,
-        OrderState.CANCELED,
-        OrderState.FAILED -> if (type == OrderType.BUY) R.drawable.ic_tx_buy else R.drawable.ic_tx_sell
+    return if (type == OrderType.BUY) {
+        R.drawable.ic_activity_buy
+    } else {
+        R.drawable.ic_activity_sell
     }
 }
 

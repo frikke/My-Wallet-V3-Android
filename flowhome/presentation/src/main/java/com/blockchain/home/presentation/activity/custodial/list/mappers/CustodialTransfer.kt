@@ -12,15 +12,10 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedDate
 
-// todo tint
 @StringRes internal fun CustodialTransferActivitySummaryItem.icon(): Int {
-    return if (isConfirmed) {
-        when (type) {
-            TransactionType.DEPOSIT -> R.drawable.ic_tx_receive
-            TransactionType.WITHDRAWAL -> R.drawable.ic_tx_sent
-        }
-    } else {
-        R.drawable.ic_tx_confirming
+    return when (type) {
+        TransactionType.DEPOSIT -> R.drawable.ic_activity_receive
+        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_send
     }
 }
 

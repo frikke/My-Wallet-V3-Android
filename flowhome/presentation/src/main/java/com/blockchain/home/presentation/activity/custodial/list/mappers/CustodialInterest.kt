@@ -9,23 +9,18 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleStyle
 import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-// todo tint
 @StringRes internal fun CustodialInterestActivitySummaryItem.icon(): Int {
     return when (status) {
-        InterestState.PENDING,
-        InterestState.PROCESSING,
-        InterestState.MANUAL_REVIEW -> R.drawable.ic_tx_confirming
-        InterestState.FAILED -> R.drawable.ic_close
-        else -> when (type) {
-            TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_tx_buy
-            TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_tx_interest
-            TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_tx_sell
-            else -> R.drawable.ic_tx_buy
+        InterestState.COMPLETE -> when (type) {
+            TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
+            TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards
+            TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
+            else -> R.drawable.ic_activity_buy
         }
+        else  -> R.drawable.ic_activity_rewards
     }
 }
 
@@ -98,22 +93,22 @@ internal fun CustodialInterestActivitySummaryItem.trailingTitle(): ActivityStack
 }
 
 internal fun CustodialInterestActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-//    val strikethrough: Boolean = when (status) {
-//        OrderState.FINISHED,
-//        OrderState.AWAITING_FUNDS,
-//        OrderState.PENDING_CONFIRMATION,
-//        OrderState.PENDING_EXECUTION,
-//        OrderState.UNINITIALISED,
-//        OrderState.INITIALISED,
-//        OrderState.UNKNOWN -> false
-//        OrderState.CANCELED,
-//        OrderState.FAILED -> true
-//    }
+    //    val strikethrough: Boolean = when (status) {
+    //        OrderState.FINISHED,
+    //        OrderState.AWAITING_FUNDS,
+    //        OrderState.PENDING_CONFIRMATION,
+    //        OrderState.PENDING_EXECUTION,
+    //        OrderState.UNINITIALISED,
+    //        OrderState.INITIALISED,
+    //        OrderState.UNKNOWN -> false
+    //        OrderState.CANCELED,
+    //        OrderState.FAILED -> true
+    //    }
 
-//    return ActivityStackView.Text(
-//        value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
-//        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
-//    )
+    //    return ActivityStackView.Text(
+    //        value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
+    //        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+    //    )
 
     return ActivityStackView.Text(
         value = TextValue.StringValue("not implemented"),

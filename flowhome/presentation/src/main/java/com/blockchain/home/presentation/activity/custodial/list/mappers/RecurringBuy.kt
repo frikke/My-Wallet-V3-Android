@@ -13,19 +13,8 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-// todo tint
 @StringRes internal fun RecurringBuyActivitySummaryItem.icon(): Int {
-    return when (transactionState) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION -> R.drawable.ic_tx_recurring_buy
-        OrderState.UNINITIALISED, // should not see these next ones ATM
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN,
-        OrderState.CANCELED,
-        OrderState.FAILED -> R.drawable.ic_close
-    }
+    return R.drawable.ic_activity_buy
 }
 
 internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {
@@ -118,7 +107,7 @@ internal fun RecurringBuyActivitySummaryItem.trailingSubtitle(): ActivityStackVi
         OrderState.CANCELED,
         OrderState.FAILED -> true
     }
-    
+
     return ActivityStackView.Text(
         value = when (transactionState) {
             OrderState.FINISHED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
