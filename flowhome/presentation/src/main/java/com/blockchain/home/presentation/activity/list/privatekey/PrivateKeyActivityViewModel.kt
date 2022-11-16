@@ -3,25 +3,24 @@ package com.blockchain.home.presentation.activity.list.privatekey
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.toActivityComponent
-import com.blockchain.home.presentation.activity.list.Activity
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
-import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
@@ -37,13 +36,11 @@ class PrivateKeyActivityViewModel(
     override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
         ActivityViewState(
             activity = state.activityItems
-                .map { activity ->
-                    activity.items.filter { activityItem ->
-                        if (state.filterTerm.isEmpty()) {
-                            true
-                        } else {
-                            activityItem.summary.matches(state.filterTerm)
-                        }
+                .filter {activityItem ->
+                    if (state.filterTerm.isEmpty()) {
+                        true
+                    } else {
+                        activityItem.summary.matches(state.filterTerm)
                     }
                 }
                 .map { unifiedActivityItems ->
@@ -81,7 +78,7 @@ class PrivateKeyActivityViewModel(
                 group to activities.map { it.summary.toActivityComponent() }
             }
             .toMap()
-            .toSortedMap()
+            .toSortedMap(compareByDescending { it })
     }
 
     override suspend fun handleIntent(
@@ -111,7 +108,6 @@ class PrivateKeyActivityViewModel(
                     acceptLanguage = "en-GB;q=1.0, en",
                     timeZone = "Europe/London"
                 )
-                .mapData { Activity(it) }
                 .onEach { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))

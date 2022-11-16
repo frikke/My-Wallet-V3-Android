@@ -32,7 +32,7 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
     }
 }
 
-fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<Iterable<T>> {
+fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<List<T>> {
     return when (this) {
         DataResource.Loading -> DataResource.Loading
         is DataResource.Error -> DataResource.Error(error)

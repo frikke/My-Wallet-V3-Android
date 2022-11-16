@@ -6,11 +6,11 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
-import com.blockchain.home.presentation.activity.list.Activity
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
@@ -33,13 +33,11 @@ class CustodialActivityViewModel(
     override fun reduce(state: ActivityModelState<ActivitySummaryItem>): ActivityViewState = state.run {
         ActivityViewState(
             activity = state.activityItems
-                .map { activity ->
-                    activity.items.filter { activityItem ->
-                        if (state.filterTerm.isEmpty()) {
-                            true
-                        } else {
-                            activityItem.matches(state.filterTerm)
-                        }
+                .filter { activityItem ->
+                    if (state.filterTerm.isEmpty()) {
+                        true
+                    } else {
+                        activityItem.matches(state.filterTerm)
                     }
                 }
                 .map { activityItems ->
@@ -109,7 +107,6 @@ class CustodialActivityViewModel(
             .flatMap { accountGroup ->
                 accountGroup.activity
             }
-            .map { Activity(it) }
             .doOnSubscribe {
                 updateState { it.copy(activityItems = DataResource.Loading) }
             }

@@ -5,11 +5,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.SectionSize
 
 data class ActivityModelState<ACTIVITY_MODEL>(
-    val activityItems: DataResource<Activity<ACTIVITY_MODEL>> = DataResource.Loading,
+    val activityItems: DataResource<List<ACTIVITY_MODEL>> = DataResource.Loading,
     val sectionSize: SectionSize = SectionSize.All,
     val filterTerm: String = ""
 ) : ModelState
-
-data class Activity<ACTIVITY_MODEL>(
-    val items: List<ACTIVITY_MODEL>
-)
