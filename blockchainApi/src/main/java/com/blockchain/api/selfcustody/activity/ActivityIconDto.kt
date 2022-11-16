@@ -7,30 +7,30 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
 @Serializable
-sealed interface ActivityIconDto {
+sealed class ActivityIconDto {
     @Serializable
     @SerialName("SMALL_TAG")
     data class SmallTag(
         val main: String,
         val tag: String
-    ) : ActivityIconDto
+    ) : ActivityIconDto()
 
     @Serializable
     @SerialName("OVERLAPPING_PAIR")
     data class OverlappingPair(
         val front: String,
         val back: String
-    ) : ActivityIconDto
+    ) : ActivityIconDto()
 
     @Serializable
     @SerialName("SINGLE_ICON")
     data class SingleIcon(
         val url: String
-    ) : ActivityIconDto
+    ) : ActivityIconDto()
 
     @Serializable
     @SerialName("UNKNOWN")
-    object Unknown : ActivityIconDto
+    object Unknown : ActivityIconDto()
 }
 
 fun SerializersModuleBuilder.activityIconSerializer() {

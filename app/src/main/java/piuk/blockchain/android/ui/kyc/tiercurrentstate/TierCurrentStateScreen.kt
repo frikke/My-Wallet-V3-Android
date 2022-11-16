@@ -23,6 +23,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.nabu.models.responses.nabu.KycState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.commonui.UserIcon
@@ -172,7 +173,7 @@ private fun ColumnScope.Header(
         KycState.UnderReview -> AnnotatedString(stringResource(R.string.kyc_tier_current_state_underreview_subtitle))
         KycState.Verified -> AnnotatedString(stringResource(R.string.kyc_tier_current_state_verified_subtitle))
         KycState.Expired,
-        KycState.Rejected -> StringUtils.getAnnotatedStringWithMappedAnnotations(
+        KycState.Rejected -> AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
             LocalContext.current,
             R.string.kyc_tier_current_state_rejected_subtitle,
             mapOf("gold_error" to URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT)

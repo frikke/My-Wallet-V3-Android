@@ -17,7 +17,7 @@ data class ActivityTextStyleDto(
 )
 
 @Serializable
-sealed interface StackComponentDto {
+sealed class StackComponentDto {
     @Serializable
     @SerialName("TEXT")
     data class Text(
@@ -25,7 +25,7 @@ sealed interface StackComponentDto {
         val value: String,
         @SerialName("style")
         val style: ActivityTextStyleDto
-    ) : StackComponentDto
+    ) : StackComponentDto()
 
     @Serializable
     @SerialName("BADGE")
@@ -34,11 +34,11 @@ sealed interface StackComponentDto {
         val value: String,
         @SerialName("style")
         val style: String
-    ) : StackComponentDto
+    ) : StackComponentDto()
 
     @Serializable
     @SerialName("UNKNOWN")
-    object Unknown : StackComponentDto
+    object Unknown : StackComponentDto()
 }
 
 fun SerializersModuleBuilder.stackComponentSerializer() {

@@ -29,7 +29,7 @@ import piuk.blockchain.android.simplebuy.FabBuyClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.FabSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 
-class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
+class SuperAppActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
     private val viewModel: ActionsSheetViewModel by inject()
     override val scope: Scope = payloadScope
 
@@ -37,6 +37,10 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
         super.host as? ActionBottomSheetHost ?: throw IllegalStateException(
             "Host fragment is not a ActionBottomSheetHost.Host"
         )
+    }
+
+    private val isEarnEnabled by lazy {
+        arguments?.getBoolean(EARN_ENABLED_ARG, false) ?: false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +75,7 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
                 }
             }
         }
-        viewModel.onIntent(ActionsSheetIntent.LoadActions(walletMode))
+        viewModel.onIntent(ActionsSheetIntent.LoadActions(walletMode, isEarnEnabled))
         super.onCreate(savedInstanceState)
     }
 
@@ -118,9 +122,11 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
 
     companion object {
         private const val WALLET_MODE = "WALLET_MODE"
-        fun newInstance(walletMode: WalletMode) = ActionsBottomSheet().apply {
+        private const val EARN_ENABLED_ARG = "EARN_ENABLED_ARG"
+        fun newInstance(walletMode: WalletMode, isEarnOnNavBarEnabled: Boolean) = SuperAppActionsBottomSheet().apply {
             arguments = Bundle().apply {
                 putSerializable(WALLET_MODE, walletMode)
+                putBoolean(EARN_ENABLED_ARG, isEarnOnNavBarEnabled)
             }
         }
     }

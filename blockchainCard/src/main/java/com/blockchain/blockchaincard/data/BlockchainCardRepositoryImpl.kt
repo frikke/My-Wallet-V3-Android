@@ -141,12 +141,18 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun getCardWidgetUrl(
         cardId: String,
         last4Digits: String,
-        userFullName: String
+        userFullName: String,
+        cardType: BlockchainCardType
     ): Outcome<BlockchainCardError, String> =
         blockchainCardService.getCardWidgetToken(
             cardId = cardId,
         ).flatMap { widgetToken ->
-            blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits, userFullName)
+            blockchainCardService.getCardWidgetUrl(
+                widgetToken = widgetToken.token,
+                last4Digits = last4Digits,
+                userFullName = userFullName,
+                cardType = cardType.name
+            )
         }.wrapBlockchainCardError()
 
     override suspend fun getEligibleTradingAccounts(

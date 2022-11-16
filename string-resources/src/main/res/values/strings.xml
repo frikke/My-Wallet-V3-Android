@@ -2518,6 +2518,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="main_toolbar_prices">Prices</string>
     <string name="main_toolbar_buy_sell">Buy &amp; Sell</string>
     <string name="main_toolbar_nfts" translatable="false">NFTs</string>
+    <string name="main_toolbar_earn">Earn</string>
     <string name="main_toolbar_activity">Activity</string>
     <string name="toolbar_swap">Swap</string>
     <string name="toolbar_send">Send</string>
@@ -3184,7 +3185,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_locked">Locked</string>
     <string name="bc_card_transactions_title">Recent Activity</string>
     <string name="bc_card_see_all">See All</string>
-    <string name="bc_card_terms_and_conditions_label">I understand and accept the terms and conditions of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
+    <string name="bc_card_terms_and_conditions_label">I understand and accept the <annotation link="terms">terms and conditions</annotation> of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
     <string name="bc_card_transaction_payment">Payment</string>
     <string name="bc_card_transaction_refund">Refund</string>
     <string name="bc_card_transaction_payment_with_cashback">Payment with Cashback</string>
@@ -3240,6 +3241,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
     <string name="bottom_nav_nfts" translatable="false">NFTs</string>
+    <string name="bottom_nav_earn">Earn</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
     <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
     <string name="error_loading_balance">Some balances failed to load</string>

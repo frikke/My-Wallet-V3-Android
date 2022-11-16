@@ -27,14 +27,12 @@ import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.coroutines.rx3.asObservable
 import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
@@ -55,7 +53,6 @@ class MainModel(
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<MainState, MainIntent>(
@@ -89,14 +86,22 @@ class MainModel(
         }
     }
 
-    private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
+    private fun updateTabs(
+        walletMode: WalletMode,
+        currentTab: NavigationItem,
+        earnOnNavBarEnabled: Boolean
+    ): MainIntent {
         val tabs = when (walletMode) {
             WalletMode.UNIVERSAL,
             WalletMode.CUSTODIAL_ONLY ->
                 listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
-                    NavigationItem.BuyAndSell,
+                    if (earnOnNavBarEnabled) {
+                        NavigationItem.Earn
+                    } else {
+                        NavigationItem.BuyAndSell
+                    },
                     NavigationItem.Activity
                 )
             WalletMode.NON_CUSTODIAL_ONLY -> {
@@ -116,11 +121,13 @@ class MainModel(
 
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
-            MainIntent.NavigationTabs -> walletModeService.walletMode.asObservable().subscribeBy {
-                process(MainIntent.RefreshTabs(it))
-            }
-            is MainIntent.RefreshTabs -> {
-                process(updateTabs(intent.walletMode, previousState.currentTab))
+            MainIntent.RefreshTabs -> interactor.getEnabledWalletMode()
+                .subscribeBy { walletMode ->
+                    process(MainIntent.UpdateNavigationTabs(walletMode))
+                }
+
+            is MainIntent.UpdateNavigationTabs -> {
+                process(updateTabs(intent.walletMode, previousState.currentTab, previousState.isEarnOnNavEnabled))
                 null
             }
             is MainIntent.PerformInitialChecks -> {
@@ -245,20 +252,20 @@ class MainModel(
                     }
                 )
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
-            is MainIntent.SwitchWalletMode -> {
-                walletModeService.updateEnabledWalletMode(intent.walletMode)
-                null
-            }
+            is MainIntent.SwitchWalletMode -> interactor.updateWalletMode(intent.walletMode).emptySubscribe()
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
-            is MainIntent.LoadStakingFlag ->
-                interactor.isStakingEnabled().subscribeBy(
-                    onSuccess = {
-                        process(MainIntent.UpdateStakingFlag(it))
+            is MainIntent.LoadFeatureFlags ->
+                Singles.zip(
+                    interactor.isStakingEnabled(),
+                    interactor.isEarnOnNavBarEnabled()
+                ).subscribeBy(
+                    onSuccess = { (stakingEnabled, earnEnabled) ->
+                        process(MainIntent.UpdateFlags(stakingEnabled, earnEnabled))
                     },
                     onError = {
-                        process(MainIntent.UpdateStakingFlag(false))
+                        process(MainIntent.UpdateFlags(isStakingEnabled = false, isEarnEnabled = false))
                     }
                 )
             is MainIntent.LaunchTransactionFlowFromDeepLink ->
@@ -323,7 +330,7 @@ class MainModel(
                             )
                         }
                     )
-            is MainIntent.UpdateStakingFlag,
+            is MainIntent.UpdateFlags,
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,
             is MainIntent.UpdateViewToLaunch,

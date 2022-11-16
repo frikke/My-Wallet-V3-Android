@@ -7,7 +7,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
 @Serializable
-sealed interface ActivityViewItemDto {
+sealed class ActivityViewItemDto {
     @Serializable
     @SerialName("STACK_VIEW")
     data class Stack(
@@ -17,7 +17,7 @@ sealed interface ActivityViewItemDto {
         val leading: List<StackComponentDto>,
         @SerialName("trailing")
         val trailing: List<StackComponentDto>,
-    ) : ActivityViewItemDto
+    ) : ActivityViewItemDto()
 
     @Serializable
     @SerialName("BUTTON")
@@ -30,11 +30,11 @@ sealed interface ActivityViewItemDto {
         val actionType: String,
         @SerialName("actionData")
         val actionData: String
-    ) : ActivityViewItemDto
+    ) : ActivityViewItemDto()
 
     @Serializable
     @SerialName("UNKNOWN")
-    object Unknown : ActivityViewItemDto
+    object Unknown : ActivityViewItemDto()
 }
 
 fun SerializersModuleBuilder.activityViewItemSerializer() {

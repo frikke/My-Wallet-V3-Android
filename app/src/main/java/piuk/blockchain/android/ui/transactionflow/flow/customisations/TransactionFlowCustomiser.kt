@@ -19,6 +19,8 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
+import com.blockchain.componentlib.utils.StringAnnotationClickEvent
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.domain.common.model.ServerErrorAction
@@ -64,7 +66,6 @@ import piuk.blockchain.android.ui.transactionflow.plugin.SwapInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
-import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
@@ -452,7 +453,7 @@ class TransactionFlowCustomiserImpl(
                 val map = mapOf(
                     "refund_policy" to StringAnnotationClickEvent.OpenUri(Uri.parse(CHECKOUT_REFUND_POLICY))
                 )
-                StringUtils.getStringWithMappedAnnotations(
+                AnnotatedStringUtils.getStringWithMappedAnnotations(
                     stringId = when (state.action) {
                         AssetAction.Swap -> R.string.swap_confirmation_disclaimer_1
                         AssetAction.Sell -> R.string.sell_confirmation_disclaimer

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -255,12 +254,7 @@ fun ManageCard(
                             disableScrolling = true,
                             onWebMessageReceived = onWebMessageReceived,
                             overrideTextZoom = true,
-                            modifier = Modifier
-                                .padding(
-                                    top = AppTheme.dimensions.smallSpacing
-                                )
-                                .requiredHeight(355.dp)
-                                .requiredWidth(400.dp),
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }

@@ -11,6 +11,7 @@ import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.coinNetworksFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
@@ -276,6 +277,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_improved_payment_ux",
                 "Improved Payment UX"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(earnTabFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_nav_bar_earn",
+                "Earn on Bottom Nav Bar"
             )
         )
     }.bind(FeatureFlag::class)

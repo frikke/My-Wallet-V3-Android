@@ -35,7 +35,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.SerializationException
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
@@ -88,12 +87,11 @@ class MainModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
-            walletModeService = mock {
-                on { walletMode }.thenReturn(flowOf(WalletMode.UNIVERSAL))
-            },
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
         )
+
+        whenever(interactor.getEnabledWalletMode()).thenReturn(Observable.just(WalletMode.UNIVERSAL))
     }
 
     @Test

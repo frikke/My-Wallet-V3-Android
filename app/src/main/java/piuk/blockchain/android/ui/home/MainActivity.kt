@@ -102,6 +102,7 @@ import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
+import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -206,6 +207,7 @@ class MainActivity :
     }
 
     private var isStakingAccountEnabled: Boolean = false
+    private var isEarnOnNavBarEnabled: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -255,15 +257,17 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
+            model.process(MainIntent.LoadFeatureFlags)
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
-            model.process(MainIntent.LoadStakingFlag)
+
             if (startUiTour) {
                 binding.uiTour.host = this
                 showUiTour()
             }
         }
-        model.process(MainIntent.NavigationTabs)
+
+        model.process(MainIntent.RefreshTabs)
     }
 
     override fun onResume() {
@@ -410,7 +414,18 @@ class MainActivity :
             NavigationItem.BuyAndSell -> launchBuySell()
             NavigationItem.Nfts -> launchNfts()
             NavigationItem.Activity -> startActivitiesFragment()
+            NavigationItem.Earn -> launchEarn()
         }.exhaustive
+    }
+
+    private fun launchEarn() {
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        updateSelectedNavigationItem(NavigationItem.Earn)
+
+        supportFragmentManager.showFragment(
+            fragment = InterestDashboardFragment.newInstance(),
+            reloadFragment = false
+        )
     }
 
     private fun launchNfts() {
@@ -567,6 +582,7 @@ class MainActivity :
 
     override fun render(newState: MainState) {
         isStakingAccountEnabled = newState.isStakingEnabled
+        isEarnOnNavBarEnabled = newState.isEarnOnNavEnabled
 
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
@@ -790,9 +806,12 @@ class MainActivity :
 
     private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
         get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance(isEarnOnNavBarEnabled)
             WalletMode.CUSTODIAL_ONLY,
-            WalletMode.NON_CUSTODIAL_ONLY -> ActionsBottomSheet.newInstance(walletModeService.enabledWalletMode())
+            WalletMode.NON_CUSTODIAL_ONLY -> SuperAppActionsBottomSheet.newInstance(
+                walletMode = walletModeService.enabledWalletMode(),
+                isEarnOnNavBarEnabled = isEarnOnNavBarEnabled
+            )
         }
 
     private fun renderMode(walletMode: WalletMode) {
@@ -1191,8 +1210,8 @@ class MainActivity :
     }
 
     override fun onSheetClosed() {
-        binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
+        binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
     }
 
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
@@ -1296,23 +1315,36 @@ class MainActivity :
         reload: Boolean,
     ) {
         homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_buy_sell))
-        updateSelectedNavigationItem(NavigationItem.BuyAndSell)
-        val buySellFragment = BuySellFragment.newInstance(
-            viewType = viewType,
-            asset = asset
-        )
 
-        if (!reload) {
-            val currentBuySell: BuySellFragment? =
-                supportFragmentManager.findFragmentByTag(buySellFragment.javaClass.simpleName)
-                    as? BuySellFragment
-            currentBuySell?.goToPage(viewType.ordinal)
+        if (isEarnOnNavBarEnabled) {
+            actionsResultContract.launch(
+                ActionActivity.ActivityArgs(
+                    action = when (viewType) {
+                        BuySellFragment.BuySellViewType.TYPE_BUY -> AssetAction.Buy
+                        BuySellFragment.BuySellViewType.TYPE_SELL -> AssetAction.Sell
+                    },
+                    asset?.networkTicker
+                )
+            )
+        } else {
+            updateSelectedNavigationItem(NavigationItem.BuyAndSell)
+            val buySellFragment = BuySellFragment.newInstance(
+                viewType = viewType,
+                asset = asset
+            )
+
+            if (!reload) {
+                val currentBuySell: BuySellFragment? =
+                    supportFragmentManager.findFragmentByTag(buySellFragment.javaClass.simpleName)
+                        as? BuySellFragment
+                currentBuySell?.goToPage(viewType.ordinal)
+            }
+
+            supportFragmentManager.showFragment(
+                fragment = buySellFragment,
+                reloadFragment = reload
+            )
         }
-
-        supportFragmentManager.showFragment(
-            fragment = buySellFragment,
-            reloadFragment = reload
-        )
     }
 
     private fun homeToolbarTitle(fragmentTitle: String) {

@@ -13,6 +13,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
@@ -50,7 +51,8 @@ interface BlockchainCardRepository {
     suspend fun getCardWidgetUrl(
         cardId: String,
         last4Digits: String,
-        userFullName: String
+        userFullName: String,
+        cardType: BlockchainCardType
     ): Outcome<BlockchainCardError, String>
 
     suspend fun getEligibleTradingAccounts(

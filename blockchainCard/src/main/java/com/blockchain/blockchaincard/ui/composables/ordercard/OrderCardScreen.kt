@@ -10,7 +10,6 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
@@ -45,8 +45,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -93,6 +96,7 @@ import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -119,7 +123,7 @@ fun LoadingKycStatus() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun LoadingKycStatusPreview() {
     AppTheme {
@@ -333,7 +337,9 @@ private fun PreviewHowToOrderCard() {
 fun OrderCardKycPending(onContinue: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.standardSpacing),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(AppTheme.dimensions.standardSpacing),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = CenterHorizontally
         ) {
@@ -390,7 +396,9 @@ private fun PreviewOrderCardKycPending() {
 fun OrderCardKycFailure(errorFields: List<BlockchainCardKycErrorField>, onTryAgain: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.standardSpacing),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(AppTheme.dimensions.standardSpacing),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = CenterHorizontally
         ) {
@@ -654,12 +662,17 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 )
             }
 
+            val focusManager = LocalFocusManager.current
+
             OutlinedTextInput(
                 value = ssn,
                 label = stringResource(R.string.ssn_title),
                 placeholder = stringResource(R.string.ssn_hint),
                 onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
                 visualTransformation = if (hideSSN) PasswordVisualTransformation() else VisualTransformation.None,
                 modifier = Modifier.padding(
                     start = AppTheme.dimensions.smallSpacing,
@@ -1264,9 +1277,8 @@ fun ReviewAndSubmit(
 
             StandardVerticalSpacer()
 
-            var termsAndConditionsCheckboxState by remember(isLegalDocReviewComplete) {
-                if (isLegalDocReviewComplete) mutableStateOf(CheckboxState.Checked)
-                else mutableStateOf(CheckboxState.Unchecked)
+            var termsAndConditionsCheckboxState by remember {
+                mutableStateOf(CheckboxState.Unchecked)
             }
             Row(
                 modifier = Modifier
@@ -1279,27 +1291,33 @@ fun ReviewAndSubmit(
                     modifier = Modifier.padding(AppTheme.dimensions.tinySpacing),
                     state = termsAndConditionsCheckboxState,
                     onCheckChanged = { checked ->
-                        if (checked) {
-                            if (isLegalDocReviewComplete) {
-                                termsAndConditionsCheckboxState = CheckboxState.Checked
-                            } else {
-                                onSeeLegalDocuments()
-                            }
+                        termsAndConditionsCheckboxState = if (checked) {
+                            CheckboxState.Checked
                         } else {
-                            termsAndConditionsCheckboxState = CheckboxState.Unchecked
+                            CheckboxState.Unchecked
                         }
                     },
                 )
 
+                val termsAndConditionsText = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
+                    context = LocalContext.current,
+                    stringId = R.string.bc_card_terms_and_conditions_label,
+                    linksMap = mapOf("terms" to "",)
+                )
+
                 ExpandableSimpleText(
-                    text = stringResource(id = R.string.bc_card_terms_and_conditions_label),
+                    text = termsAndConditionsText,
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Start,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSeeLegalDocuments() },
-                    maxLinesWhenCollapsed = 3
+                        .fillMaxWidth(),
+                    maxLinesWhenCollapsed = 3,
+                    onAnnotationClicked = { annotation, _ ->
+                        when (annotation) {
+                            AnnotatedStringUtils.TAG_URL -> onSeeLegalDocuments()
+                        }
+                    }
                 )
             }
 

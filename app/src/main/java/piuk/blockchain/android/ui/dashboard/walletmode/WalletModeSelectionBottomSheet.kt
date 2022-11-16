@@ -116,6 +116,7 @@ class WalletModeSelectionBottomSheet :
                         /*n/a*/
                     }
                 }
+
                 dismiss()
             }
         }.exhaustive

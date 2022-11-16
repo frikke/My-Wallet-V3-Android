@@ -31,12 +31,8 @@ class UnifiedActivityRepository(
 
         return flow {
             emit(DataResource.Loading)
-            if (!activityWebSocketService.subscribeToActivity().isActive) {
-                // If it's not running, open the web socket and subscribe to the changes
-                activityWebSocketService.open()
-                activityWebSocketService.subscribeToActivity().start()
-            }
 
+            activityWebSocketService.open()
             activityWebSocketService.send(
                 fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker,
                 acceptLanguage = acceptLanguage,
