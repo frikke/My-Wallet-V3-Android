@@ -97,9 +97,10 @@ class ActivityViewModel(
     private fun loadData() {
         viewModelScope.launch {
             unifiedActivityService
+                // todo(othman) real values
                 .getAllActivity(
-                    acceptLanguage = "",
-                    timeZone = ""
+                    acceptLanguage = "en-GB;q=1.0, en",
+                    timeZone = "Europe/London"
                 )
                 .onEach { dataResource ->
                     updateState {

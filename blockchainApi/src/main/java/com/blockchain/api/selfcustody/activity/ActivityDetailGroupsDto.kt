@@ -7,7 +7,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
 @Serializable
-sealed interface ActivityDetailGroupsDto {
+sealed class ActivityDetailGroupsDto {
     @Serializable
     @SerialName("GROUPED_ITEMS")
     data class GroupedItems(
@@ -21,7 +21,7 @@ sealed interface ActivityDetailGroupsDto {
         val items: List<DetailGroup>,
         @SerialName("floatingActions")
         val floatingActions: List<ActivityViewItemDto>
-    ) : ActivityDetailGroupsDto {
+    ) : ActivityDetailGroupsDto() {
 
         @Serializable
         data class DetailGroup(
@@ -34,7 +34,7 @@ sealed interface ActivityDetailGroupsDto {
 
     @Serializable
     @SerialName("UNKNOWN")
-    object Unknown : ActivityDetailGroupsDto
+    object Unknown : ActivityDetailGroupsDto()
 }
 
 fun SerializersModuleBuilder.activityDetailSerializer() {
