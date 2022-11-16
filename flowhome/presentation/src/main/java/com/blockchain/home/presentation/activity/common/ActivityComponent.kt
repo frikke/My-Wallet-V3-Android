@@ -13,7 +13,6 @@ import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 fun ActivityIconState.toStackedIcon() = when (this) {
     is ActivityIconState.OverlappingPair.Local -> StackedIcon.OverlappingPair(

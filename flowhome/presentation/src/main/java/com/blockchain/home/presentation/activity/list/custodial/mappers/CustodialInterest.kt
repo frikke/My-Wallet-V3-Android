@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.home.presentation.R
@@ -10,7 +9,6 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleStyle
 import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
@@ -22,7 +20,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
             TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
             else -> R.drawable.ic_activity_buy
         }
-        else  -> R.drawable.ic_activity_rewards
+        else -> R.drawable.ic_activity_rewards
     }
 }
 
@@ -65,7 +63,7 @@ internal fun CustodialInterestActivitySummaryItem.leadingSubtitle(): ActivitySta
     )
 }
 
-private fun CustodialInterestActivitySummaryItem.trailingStrikethrough() =  when (status) {
+private fun CustodialInterestActivitySummaryItem.trailingStrikethrough() = when (status) {
     InterestState.REFUNDED,
     InterestState.REJECTED,
     InterestState.FAILED -> true

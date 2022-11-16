@@ -40,7 +40,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivitySta
     }
 
     return ActivityStackView.Text(
-        value = when(state){
+        value = when (state) {
             TransactionState.COMPLETED,
             TransactionState.PENDING -> TextValue.StringValue(date.toFormattedDate())
             TransactionState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)

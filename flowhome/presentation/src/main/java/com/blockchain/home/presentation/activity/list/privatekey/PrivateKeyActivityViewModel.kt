@@ -18,10 +18,10 @@ import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService

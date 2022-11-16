@@ -15,7 +15,7 @@ sealed interface ActivityIconState {
         ) : SmallTag
     }
 
-    sealed interface OverlappingPair : ActivityIconState{
+    sealed interface OverlappingPair : ActivityIconState {
         data class Remote(
             val front: String,
             val back: String
@@ -27,7 +27,7 @@ sealed interface ActivityIconState {
         ) : OverlappingPair
     }
 
-    sealed interface SingleIcon: ActivityIconState {
+    sealed interface SingleIcon : ActivityIconState {
         data class Remote(
             val url: String
         ) : SingleIcon

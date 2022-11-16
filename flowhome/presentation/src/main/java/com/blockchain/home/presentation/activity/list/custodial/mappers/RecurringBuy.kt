@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
-import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -11,7 +10,6 @@ import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleSty
 import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
