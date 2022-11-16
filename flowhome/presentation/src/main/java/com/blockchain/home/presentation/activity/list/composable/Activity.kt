@@ -38,13 +38,13 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
-import com.blockchain.home.presentation.activity.custodial.list.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
-import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityIntent
-import com.blockchain.home.presentation.activity.list.ActivityViewModel
+import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
+import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.utils.getMonthName
@@ -62,7 +62,7 @@ fun Activity() {
     walletMode?.let {
         when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
-            WalletMode.NON_CUSTODIAL_ONLY -> NonCustodialActivity()
+            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyCustodialActivity()
             else -> error("unsupported")
         }
     }
@@ -88,20 +88,20 @@ fun CustodialActivity(
 }
 
 @Composable
-fun NonCustodialActivity(
-    viewModel: ActivityViewModel = getViewModel(scope = payloadScope)
+fun PrivateKeyCustodialActivity(
+    viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PrivateKeyActivityIntent.LoadActivity(SectionSize.All))
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
     ActivityScreen(
         activity = viewState.activity,
         onSearchTermEntered = { term ->
-            viewModel.onIntent(PrivateKeyActivityIntent.FilterSearch(term = term))
+            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
     )
 }

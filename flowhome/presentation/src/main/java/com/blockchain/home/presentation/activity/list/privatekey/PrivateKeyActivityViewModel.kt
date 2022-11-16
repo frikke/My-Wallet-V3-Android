@@ -8,51 +8,56 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.toActivityComponent
+import com.blockchain.home.presentation.activity.list.Activity
+import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
-import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
-    PrivateKeyActivityIntent,
+    ActivityIntent<UnifiedActivityItem>,
     ActivityViewState,
-    PrivateKeyActivityModelState,
+    ActivityModelState<UnifiedActivityItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(PrivateKeyActivityModelState()) {
+    ModelConfigArgs.NoArgs>(ActivityModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: PrivateKeyActivityModelState): ActivityViewState = state.run {
+    override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activityItems.map {
-                it.filter { activityItem ->
-                    if (state.filterTerm.isEmpty()) {
-                        true
-                    } else {
-                        activityItem.summary.matches(state.filterTerm)
+            activity = state.activityItems
+                .map { activity ->
+                    activity.items.filter { activityItem ->
+                        if (state.filterTerm.isEmpty()) {
+                            true
+                        } else {
+                            activityItem.summary.matches(state.filterTerm)
+                        }
                     }
                 }
-            }
-                .map { it.reduceActivityItems() }
-                .map {
+                .map { unifiedActivityItems ->
+                    unifiedActivityItems.reduceActivityItems()
+                }
+                .map { groupedComponents ->
                     when (val sectionSize = state.sectionSize) {
                         SectionSize.All -> {
-                            it
+                            groupedComponents
                         }
                         is SectionSize.Limited -> {
-                            // todo do we need to filter out pending?
-                            // todo make sure it's date sorted
                             mapOf(
-                                TransactionGroup.Combined to it.values.flatten().take(sectionSize.size)
+                                TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
                             )
                         }
                     }
@@ -80,15 +85,18 @@ class PrivateKeyActivityViewModel(
             .toSortedMap()
     }
 
-    override suspend fun handleIntent(modelState: PrivateKeyActivityModelState, intent: PrivateKeyActivityIntent) {
+    override suspend fun handleIntent(
+        modelState: ActivityModelState<UnifiedActivityItem>,
+        intent: ActivityIntent<UnifiedActivityItem>
+    ) {
         when (intent) {
-            is PrivateKeyActivityIntent.LoadActivity -> {
+            is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
 
                 loadData()
             }
 
-            is PrivateKeyActivityIntent.FilterSearch -> {
+            is ActivityIntent.FilterSearch -> {
                 updateState {
                     it.copy(filterTerm = intent.term)
                 }
@@ -104,6 +112,7 @@ class PrivateKeyActivityViewModel(
                     acceptLanguage = "en-GB;q=1.0, en",
                     timeZone = "Europe/London"
                 )
+                .mapData { Activity(it) }
                 .onEach { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))

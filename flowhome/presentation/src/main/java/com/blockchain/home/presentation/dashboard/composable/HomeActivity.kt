@@ -29,11 +29,11 @@ import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
-import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
@@ -93,7 +93,7 @@ fun PrivateKeyHomeActivity(
     val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PrivateKeyActivityIntent.LoadActivity(SectionSize.Limited()))
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
         onDispose { }
     }
 
