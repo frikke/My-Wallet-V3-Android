@@ -38,4 +38,8 @@ fun Currency.asAssetInfoOrThrow(): AssetInfo {
         "Currency is $networkTicker of type $type is not a asset info currency"
     )
 }
+
+val Currency.isCustodial: Boolean
+    get() = categories.contains(AssetCategory.CUSTODIAL)
+
 private const val DEFAULT_ASSET_ORDER_INDEX = 0

@@ -29,9 +29,6 @@ interface AssetInfo : Currency, Serializable {
 val Currency.isCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.CUSTODIAL)
 
-val AssetInfo.isCustodial: Boolean
-    get() = categories.contains(AssetCategory.CUSTODIAL)
-
 val AssetInfo.isNonCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.NON_CUSTODIAL)
 

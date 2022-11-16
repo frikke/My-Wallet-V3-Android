@@ -211,7 +211,7 @@ internal class DynamicAssetLoader(
                  * Persisting to loaded any custodial+the standardL1s
                  */
                 assetMap.putAll(
-                    assetList.filter { (it.currency as? AssetInfo)?.isCustodial == true || it is StandardL1Asset }
+                    assetList.filter { it.currency.isCustodial || it.currency is StandardL1Asset }
                         .associateBy { it.currency }
                 )
             }
