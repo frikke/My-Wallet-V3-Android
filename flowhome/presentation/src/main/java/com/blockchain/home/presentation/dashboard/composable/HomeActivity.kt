@@ -33,7 +33,6 @@ import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
@@ -69,7 +68,7 @@ fun CustodialHomeActivity(
     val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(CustodialActivityIntent.LoadActivity(SectionSize.Limited()))
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
         onDispose { }
     }
 

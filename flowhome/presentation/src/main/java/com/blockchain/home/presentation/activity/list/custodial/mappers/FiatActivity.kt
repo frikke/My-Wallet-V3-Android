@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
-import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
@@ -15,7 +14,6 @@ import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import org.koin.java.KoinJavaComponent
-import java.util.Date
 
 @StringRes internal fun FiatActivitySummaryItem.icon(): Int {
     return when (type) {
@@ -44,14 +42,18 @@ internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(Date(timeStampMs).toFormattedDate()),
+        value = when (state) {
+            TransactionState.COMPLETED,
+            TransactionState.PENDING -> TextValue.StringValue(date.toFormattedDate())
+            TransactionState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
+        },
         style = basicSubtitleStyle.copy(color = color)
     )
 }
 
 private fun FiatActivitySummaryItem.trailingStrikethrough() = when (state) {
     TransactionState.FAILED -> true
-   else -> false
+    else -> false
 }
 
 internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {

@@ -2,7 +2,7 @@ package com.blockchain.home.presentation.activity.list.custodial
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
@@ -10,10 +10,11 @@ import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.custodial.list.toActivityComponent
+import com.blockchain.home.presentation.activity.list.Activity
+import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityModelState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
@@ -21,20 +22,19 @@ import java.util.Calendar
 class CustodialActivityViewModel(
     private val coincore: Coincore
 ) : MviViewModel<
-    CustodialActivityIntent,
+    ActivityIntent<ActivitySummaryItem>,
     ActivityViewState,
-    CustodialActivityModelState,
+    ActivityModelState<ActivitySummaryItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(CustodialActivityModelState()) {
+    ModelConfigArgs.NoArgs>(ActivityModelState()) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: CustodialActivityModelState): ActivityViewState = state.run {
+    override fun reduce(state: ActivityModelState<ActivitySummaryItem>): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activity
-                .map {
-                    it.filter { activityItem ->
+            activity = state.activityItems
+                .map { activity ->
+                    activity.items.filter { activityItem ->
                         if (state.filterTerm.isEmpty()) {
                             true
                         } else {
@@ -42,19 +42,17 @@ class CustodialActivityViewModel(
                         }
                     }
                 }
-                .map {
-                    it.reduceActivityPage()
+                .map { activityItems ->
+                    activityItems.reduceActivityPage()
                 }
-                .map {
+                .map { groupedComponents ->
                     when (val sectionSize = state.sectionSize) {
                         SectionSize.All -> {
-                            it
+                            groupedComponents
                         }
                         is SectionSize.Limited -> {
-                            // todo do we need to filter out pending?
-                            // todo make sure it's date sorted
                             mapOf(
-                                TransactionGroup.Combined to it.values.flatten().take(sectionSize.size)
+                                TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
                             )
                         }
                     }
@@ -87,15 +85,18 @@ class CustodialActivityViewModel(
             .toSortedMap(compareByDescending { it })
     }
 
-    override suspend fun handleIntent(modelState: CustodialActivityModelState, intent: CustodialActivityIntent) {
+    override suspend fun handleIntent(
+        modelState: ActivityModelState<ActivitySummaryItem>,
+        intent: ActivityIntent<ActivitySummaryItem>
+    ) {
         when (intent) {
-            is CustodialActivityIntent.LoadActivity -> {
+            is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
 
                 loadData()
             }
 
-            is CustodialActivityIntent.FilterSearch -> {
+            is ActivityIntent.FilterSearch -> {
                 updateState {
                     it.copy(filterTerm = intent.term)
                 }
@@ -108,19 +109,25 @@ class CustodialActivityViewModel(
             .flatMap { accountGroup ->
                 accountGroup.activity
             }
-            .map {
-                println("-------- size: ${it.size}")
-                println("-------- value: ${it.map { it.value.toStringWithSymbol() }}")
-                println("-------- filterIsInstance: ${it.filterIsInstance<FiatActivitySummaryItem>().size}")
-                it
-            }
+            .map { Activity(it) }
             .doOnSubscribe {
-                updateState { it.copy(activity = DataResource.Loading) }
+                updateState { it.copy(activityItems = DataResource.Loading) }
             }
             .subscribe { activity ->
-                updateState { it.copy(activity = DataResource.Data(activity)) }
+                updateState { it.copy(activityItems = DataResource.Data(activity)) }
             }
     }
 }
 
-private fun ActivitySummaryItem.matches(filterTerm: String): Boolean = true //todo
+private fun ActivitySummaryItem.matches(filterTerm: String): Boolean {
+    return account.currency.networkTicker.contains(filterTerm, ignoreCase = true) ||
+
+        account.currency.name.contains(filterTerm, ignoreCase = true) ||
+
+        value.toStringWithSymbol().contains(filterTerm, ignoreCase = true) ||
+
+        (this as? CryptoActivitySummaryItem)?.asset?.let { asset ->
+            asset.networkTicker.contains(filterTerm, ignoreCase = true) ||
+                asset.name.contains(filterTerm, ignoreCase = true)
+        } ?: false
+}

@@ -42,7 +42,6 @@ import com.blockchain.home.presentation.activity.detail.composable.ActivityDetai
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityIntent
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
@@ -75,14 +74,14 @@ fun CustodialActivity(
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(CustodialActivityIntent.LoadActivity(SectionSize.All))
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
     ActivityScreen(
         activity = viewState.activity,
         onSearchTermEntered = { term ->
-            viewModel.onIntent(CustodialActivityIntent.FilterSearch(term = term))
+            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
     )
 }

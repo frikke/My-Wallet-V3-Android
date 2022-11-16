@@ -32,8 +32,7 @@ class PrivateKeyActivityViewModel(
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityModelState()) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
         ActivityViewState(
