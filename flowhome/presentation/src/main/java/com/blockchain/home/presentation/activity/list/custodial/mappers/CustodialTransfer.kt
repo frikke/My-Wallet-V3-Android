@@ -45,6 +45,11 @@ internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivitySta
     )
 }
 
+private fun CustodialTransferActivitySummaryItem.trailingStrikethrough() = when (state) {
+    TransactionState.FAILED -> true
+    else -> false
+}
+
 internal fun CustodialTransferActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (state) {
         TransactionState.COMPLETED -> ActivityTextColorState.Title
@@ -52,27 +57,15 @@ internal fun CustodialTransferActivitySummaryItem.trailingTitle(): ActivityStack
         TransactionState.FAILED -> ActivityTextColorState.Muted
     }
 
-    val strikethrough: Boolean = when (state) {
-        TransactionState.COMPLETED,
-        TransactionState.PENDING -> false
-        TransactionState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(value.toStringWithSymbol()),
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun CustodialTransferActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    val strikethrough: Boolean = when (state) {
-        TransactionState.COMPLETED,
-        TransactionState.PENDING -> false
-        TransactionState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
-        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }

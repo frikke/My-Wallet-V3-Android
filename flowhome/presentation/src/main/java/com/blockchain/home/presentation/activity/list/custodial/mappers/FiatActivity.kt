@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
@@ -38,9 +39,8 @@ internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
 
 internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColorState = when (state) {
-        TransactionState.PENDING,
-        TransactionState.COMPLETED -> ActivityTextColorState.Muted
         TransactionState.FAILED -> ActivityTextColorState.Error
+        else -> ActivityTextColorState.Muted
     }
 
     return ActivityStackView.Text(
@@ -49,36 +49,29 @@ internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     )
 }
 
+private fun FiatActivitySummaryItem.trailingStrikethrough() = when (state) {
+    TransactionState.FAILED -> true
+   else -> false
+}
+
 internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (state) {
         TransactionState.COMPLETED -> ActivityTextColorState.Title
         else -> ActivityTextColorState.Muted
     }
 
-    val strikethrough: Boolean = when (state) {
-        TransactionState.PENDING,
-        TransactionState.COMPLETED -> false
-        TransactionState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(value.toStringWithSymbol()),
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun FiatActivitySummaryItem.trailingSubtitle(): ActivityStackView? {
     return KoinJavaComponent.getKoin().get<CurrencyPrefs>().selectedFiatCurrency.let { selectedFiat ->
         if (currency != selectedFiat) {
-            val strikethrough: Boolean = when (state) {
-                TransactionState.PENDING,
-                TransactionState.COMPLETED -> false
-                TransactionState.FAILED -> true
-            }
-
             return ActivityStackView.Text(
                 value = TextValue.StringValue(fiatValue(selectedFiat).toStringWithSymbol()),
-                style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+                style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
             )
         } else {
             null

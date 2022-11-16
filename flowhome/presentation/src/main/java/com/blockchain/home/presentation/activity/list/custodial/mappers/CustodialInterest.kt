@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.home.presentation.R
@@ -9,6 +10,7 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleStyle
 import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
+import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
@@ -41,15 +43,10 @@ internal fun CustodialInterestActivitySummaryItem.leadingTitle(): ActivityStackV
 
 internal fun CustodialInterestActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {
-        InterestState.COMPLETE,
-        InterestState.PENDING,
-        InterestState.PROCESSING,
-        InterestState.MANUAL_REVIEW,
-        InterestState.CLEARED,
-        InterestState.UNKNOWN -> ActivityTextColorState.Muted
         InterestState.REJECTED,
         InterestState.REFUNDED -> ActivityTextColorState.Warning
         InterestState.FAILED -> ActivityTextColorState.Error
+        else -> ActivityTextColorState.Muted
     }
 
     return ActivityStackView.Text(
@@ -68,46 +65,30 @@ internal fun CustodialInterestActivitySummaryItem.leadingSubtitle(): ActivitySta
     )
 }
 
+private fun CustodialInterestActivitySummaryItem.trailingStrikethrough() =  when (status) {
+    InterestState.REFUNDED,
+    InterestState.REJECTED,
+    InterestState.FAILED -> true
+    else -> false
+}
+
 internal fun CustodialInterestActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {
         InterestState.COMPLETE -> ActivityTextColorState.Title
         else -> ActivityTextColorState.Muted
     }
 
-    val strikethrough: Boolean = when (status) {
-        InterestState.COMPLETE,
-        InterestState.PENDING,
-        InterestState.PROCESSING,
-        InterestState.MANUAL_REVIEW,
-        InterestState.CLEARED,
-        InterestState.UNKNOWN -> false
-        InterestState.REFUNDED,
-        InterestState.REJECTED,
-        InterestState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(value.toStringWithSymbol()),
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
+// todo(othman) find a way to get fiat because it's fetched by separate api
 internal fun CustodialInterestActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    //    val strikethrough: Boolean = when (status) {
-    //        OrderState.FINISHED,
-    //        OrderState.AWAITING_FUNDS,
-    //        OrderState.PENDING_CONFIRMATION,
-    //        OrderState.PENDING_EXECUTION,
-    //        OrderState.UNINITIALISED,
-    //        OrderState.INITIALISED,
-    //        OrderState.UNKNOWN -> false
-    //        OrderState.CANCELED,
-    //        OrderState.FAILED -> true
-    //    }
-
     //    return ActivityStackView.Text(
     //        value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
-    //        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+    //        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     //    )
 
     return ActivityStackView.Text(

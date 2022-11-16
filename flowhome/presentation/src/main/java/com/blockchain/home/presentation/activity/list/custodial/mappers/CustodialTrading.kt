@@ -37,15 +37,9 @@ internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackVi
 
 internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> ActivityTextColorState.Muted
         OrderState.CANCELED -> ActivityTextColorState.Warning
         OrderState.FAILED -> ActivityTextColorState.Error
+        else -> ActivityTextColorState.Muted
     }
 
     return ActivityStackView.Text(
@@ -64,45 +58,27 @@ internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStac
     )
 }
 
+private fun CustodialTradingActivitySummaryItem.trailingStrikethrough() = when (status) {
+    OrderState.CANCELED,
+    OrderState.FAILED -> true
+    else -> false
+}
+
 internal fun CustodialTradingActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (status) {
         OrderState.FINISHED -> ActivityTextColorState.Title
         else -> ActivityTextColorState.Muted
     }
 
-    val strikethrough: Boolean = when (status) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> false
-        OrderState.CANCELED,
-        OrderState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(value.toStringWithSymbol()),
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun CustodialTradingActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    val strikethrough: Boolean = when (status) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> false
-        OrderState.CANCELED,
-        OrderState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
-        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }

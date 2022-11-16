@@ -22,7 +22,7 @@ private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
 @StringRes internal fun TradeActivitySummaryItem.icon(): Int {
     return when {
         isSwapPair() -> R.drawable.ic_activity_swap
-        isSellingPair() ->R.drawable.ic_activity_sell
+        isSellingPair() -> R.drawable.ic_activity_sell
         else -> error("unsupported")
     }
 }
@@ -52,18 +52,10 @@ internal fun TradeActivitySummaryItem.leadingTitle(): ActivityStackView {
 
 internal fun TradeActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColorState = when (state) {
-        CustodialOrderState.CREATED,
-        CustodialOrderState.PENDING_CONFIRMATION,
-        CustodialOrderState.PENDING_LEDGER,
-        CustodialOrderState.PENDING_EXECUTION,
-        CustodialOrderState.PENDING_DEPOSIT,
-        CustodialOrderState.FINISH_DEPOSIT,
-        CustodialOrderState.PENDING_WITHDRAWAL,
-        CustodialOrderState.FINISHED,
-        CustodialOrderState.UNKNOWN -> ActivityTextColorState.Muted
         CustodialOrderState.EXPIRED,
         CustodialOrderState.CANCELED -> ActivityTextColorState.Warning
         CustodialOrderState.FAILED -> ActivityTextColorState.Error
+        else -> ActivityTextColorState.Muted
     }
 
     return ActivityStackView.Text(
@@ -72,55 +64,32 @@ internal fun TradeActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     )
 }
 
+private fun TradeActivitySummaryItem.trailingStrikethrough() = when (state) {
+    CustodialOrderState.EXPIRED,
+    CustodialOrderState.CANCELED,
+    CustodialOrderState.FAILED -> true
+    else -> false
+}
+
 internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (state) {
         CustodialOrderState.FINISHED -> ActivityTextColorState.Title
         else -> ActivityTextColorState.Muted
     }
 
-    val strikethrough: Boolean = when (state) {
-        CustodialOrderState.CREATED,
-        CustodialOrderState.PENDING_CONFIRMATION,
-        CustodialOrderState.PENDING_LEDGER,
-        CustodialOrderState.PENDING_EXECUTION,
-        CustodialOrderState.PENDING_DEPOSIT,
-        CustodialOrderState.FINISH_DEPOSIT,
-        CustodialOrderState.PENDING_WITHDRAWAL,
-        CustodialOrderState.FINISHED,
-        CustodialOrderState.UNKNOWN -> false
-        CustodialOrderState.EXPIRED,
-        CustodialOrderState.CANCELED,
-        CustodialOrderState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = TextValue.StringValue(value.toStringWithSymbol()),
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun TradeActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    val strikethrough: Boolean = when (state) {
-        CustodialOrderState.CREATED,
-        CustodialOrderState.PENDING_CONFIRMATION,
-        CustodialOrderState.PENDING_LEDGER,
-        CustodialOrderState.PENDING_EXECUTION,
-        CustodialOrderState.PENDING_DEPOSIT,
-        CustodialOrderState.FINISH_DEPOSIT,
-        CustodialOrderState.PENDING_WITHDRAWAL,
-        CustodialOrderState.FINISHED,
-        CustodialOrderState.UNKNOWN -> false
-        CustodialOrderState.EXPIRED,
-        CustodialOrderState.CANCELED,
-        CustodialOrderState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = when {
             isSwapPair() -> TextValue.StringValue(fiatValue.toStringWithSymbol())
             isSellingPair() -> TextValue.StringValue(receivingValue.toStringWithSymbol())
             else -> error("unsupported")
         },
-        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }

@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.StringRes
+import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -10,6 +11,7 @@ import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleSty
 import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
+import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
@@ -29,15 +31,9 @@ internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {
 
 internal fun RecurringBuyActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColorState = when (transactionState) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> ActivityTextColorState.Muted
         OrderState.CANCELED -> ActivityTextColorState.Warning
         OrderState.FAILED -> ActivityTextColorState.Error
+        else -> ActivityTextColorState.Muted
     }
 
     return ActivityStackView.Text(
@@ -53,30 +49,22 @@ internal fun RecurringBuyActivitySummaryItem.leadingSubtitle(): ActivityStackVie
                     else -> R.string.recurring_buy_short_error
                 }
             )
-            OrderState.UNINITIALISED,
-            OrderState.INITIALISED,
-            OrderState.UNKNOWN -> TextValue.StringValue("")
+            else -> TextValue.StringValue("")
         },
         style = basicSubtitleStyle.copy(color = color)
     )
+}
+
+private fun RecurringBuyActivitySummaryItem.trailingStrikethrough() = when (transactionState) {
+    OrderState.CANCELED,
+    OrderState.FAILED -> true
+    else -> false
 }
 
 internal fun RecurringBuyActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColorState = when (transactionState) {
         OrderState.FINISHED -> ActivityTextColorState.Title
         else -> ActivityTextColorState.Muted
-    }
-
-    val strikethrough: Boolean = when (transactionState) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> false
-        OrderState.CANCELED,
-        OrderState.FAILED -> true
     }
 
     return ActivityStackView.Text(
@@ -87,32 +75,18 @@ internal fun RecurringBuyActivitySummaryItem.trailingTitle(): ActivityStackView 
             OrderState.PENDING_CONFIRMATION,
             OrderState.CANCELED,
             OrderState.FAILED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
-            OrderState.UNINITIALISED,
-            OrderState.INITIALISED,
-            OrderState.UNKNOWN -> TextValue.StringValue("")
+            else -> TextValue.StringValue("")
         },
-        style = basicTitleStyle.copy(color = color, strikethrough = strikethrough)
+        style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun RecurringBuyActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    val strikethrough: Boolean = when (transactionState) {
-        OrderState.FINISHED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_CONFIRMATION,
-        OrderState.PENDING_EXECUTION,
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.UNKNOWN -> false
-        OrderState.CANCELED,
-        OrderState.FAILED -> true
-    }
-
     return ActivityStackView.Text(
         value = when (transactionState) {
             OrderState.FINISHED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
             else -> TextValue.StringValue("")
         },
-        style = basicSubtitleStyle.copy(strikethrough = strikethrough)
+        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }
