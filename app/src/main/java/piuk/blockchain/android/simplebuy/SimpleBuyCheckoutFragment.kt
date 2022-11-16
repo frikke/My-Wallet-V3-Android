@@ -19,6 +19,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
+import com.blockchain.componentlib.utils.StringAnnotationClickEvent
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
@@ -80,7 +82,6 @@ import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
-import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getFormattedDepositTerms
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
@@ -288,7 +289,7 @@ class SimpleBuyCheckoutFragment :
                     "privacy" to StringAnnotationClickEvent.OpenUri(Uri.parse(URL_OPEN_BANKING_PRIVACY_POLICY))
                 )
 
-                text = StringUtils.getStringWithMappedAnnotations(
+                text = AnnotatedStringUtils.getStringWithMappedAnnotations(
                     context = requireContext(),
                     stringId = R.string.open_banking_permission_confirmation_buy,
                     linksMap = linksMap

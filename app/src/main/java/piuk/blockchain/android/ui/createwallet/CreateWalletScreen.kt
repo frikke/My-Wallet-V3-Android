@@ -54,6 +54,7 @@ import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.Region
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -432,7 +433,7 @@ private fun EmailAndPasswordStep(
                 "terms" to URL_TOS_POLICY,
                 "privacy" to URL_PRIVACY_POLICY
             )
-            val disclaimerText = StringUtils.getAnnotatedStringWithMappedAnnotations(
+            val disclaimerText = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
                 context,
                 R.string.password_disclaimer,
                 linksMap

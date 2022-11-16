@@ -159,6 +159,86 @@ fun ExpandableSimpleText(
     }
 }
 
+@Composable
+fun ExpandableSimpleText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: ComposeTypographies,
+    color: ComposeColors,
+    gravity: ComposeGravities,
+    maxLinesWhenCollapsed: Int,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    onAnnotationClicked: ((tag: String, value: String) -> Unit)? = null,
+) {
+    val composeColor = color.toComposeColor()
+    val composeStyle = style.toComposeTypography()
+    val composeTextAlign = gravity.toTextAlignment()
+    val textColor = composeColor.takeOrElse {
+        composeStyle.color.takeOrElse {
+            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+        }
+    }
+    val mergedStyle = composeStyle.merge(
+        TextStyle(
+            color = textColor,
+            textAlign = composeTextAlign,
+        )
+    )
+
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(modifier = modifier) {
+
+        if (onAnnotationClicked != null) {
+            val textColor = composeColor.takeOrElse {
+                composeStyle.color.takeOrElse {
+                    LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+                }
+            }
+            val mergedStyle = composeStyle.merge(
+                TextStyle(
+                    color = textColor,
+                    textAlign = composeTextAlign,
+                )
+            )
+
+            ClickableText(
+                modifier = Modifier.weight(1f),
+                text = text,
+                style = mergedStyle,
+                maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
+                onClick = { offset ->
+                    val result = text.getStringAnnotations(offset, offset).firstOrNull() ?: return@ClickableText
+                    onAnnotationClicked(result.tag, result.item)
+                }
+            )
+        } else {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = text,
+                style = mergedStyle,
+                maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
+                overflow = overflow,
+            )
+        }
+
+        SmallHorizontalSpacer()
+
+        val expandIcon = when (expanded) {
+            true -> ImageResource.Local(R.drawable.ic_chevron_up)
+            false -> ImageResource.Local(R.drawable.ic_chevron_down)
+        }
+
+        Image(
+            imageResource = expandIcon,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .size(dimensionResource(R.dimen.standard_spacing))
+                .clickable { expanded = !expanded }
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewExpandableSimpleText() {
