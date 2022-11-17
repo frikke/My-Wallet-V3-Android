@@ -113,7 +113,7 @@
     <string name="screen_overlay_warning">Sobreposição de ecrã detetada!</string>
     <string name="screen_overlay_note">As aplicações que utilizam sobreposições de ecrã têm a capacidade de o enganar\n        para que carregue em objetos invisíveis e potencialmente roubar fundos. Tenha em atenção que este aviso também será acionado por aplicações de escurecimento de ecrã. Se estiver confiante de que não\n        existem ameaças, pode continuar.\n    </string>
     <string name="unexpected_error">Erro inesperado, tente novamente mais tarde.</string>
-    <string name="app_version">Versão da aplicação: %1$s ( %2$s )</string>
+    <string name="app_version">Versão da aplicação: %1$s (%2$d)</string>
     <string name="dialog_continue">Continuar</string>
     <string name="search">Pesquisar</string>
     <string name="backup_wallet_title">Recuperação da Chave Privada Secreta</string>

@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.analytics.events.RequestAnalyticsEvents
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -31,7 +32,8 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 
 class ReceiveDetailActivity :
-    MviActivity<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, ActivityReceiveDetailsBinding>() {
+    MviActivity<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, ActivityReceiveDetailsBinding>(),
+    SlidingModalBottomDialog.Host {
     override val model: ReceiveDetailModel by scopedInject()
     private val encoder: QRCodeEncoder by inject()
 
@@ -223,5 +225,9 @@ class ReceiveDetailActivity :
             Intent(context, ReceiveDetailActivity::class.java).apply {
                 putAccount(PARAM_ACCOUNT, account)
             }
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 }

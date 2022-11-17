@@ -18,7 +18,8 @@ interface NetworkWallet {
     val currency: Currency
     val index: Int
     val networkBalance: Flow<DataResource<NetworkBalance>>
-
+    val isImported: Boolean
+        get() = false
     /**
      * The descriptor field will need some explanation. Over time some currencies change the
      * way that keys are derived as well as how such keys are used. Most notably, Bitcoin uses

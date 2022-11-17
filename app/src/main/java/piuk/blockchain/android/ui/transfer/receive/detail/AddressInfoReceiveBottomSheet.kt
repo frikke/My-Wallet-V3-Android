@@ -11,16 +11,10 @@ import piuk.blockchain.android.R
 
 class AddressInfoReceiveBottomSheet : ComposeModalBottomDialog() {
 
-    override val host: Host by lazy {
-        activity as? Host ?: parentFragment as? Host ?: throw IllegalStateException(
-            "Host is not a AddressInfoReceiveBottomSheet.Host"
-        )
-    }
-
     val displayTicker: String
         get() = arguments?.getString(TICKER).orEmpty()
 
-    val label: String?
+    val label: String
         get() = arguments?.getString(LABEL).orEmpty()
 
     override val makeSheetNonCollapsible: Boolean
