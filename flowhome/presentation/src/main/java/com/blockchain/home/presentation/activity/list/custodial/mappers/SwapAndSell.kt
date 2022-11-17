@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -19,7 +19,7 @@ private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source
 private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-@StringRes internal fun TradeActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun TradeActivitySummaryItem.icon(): Int {
     return when {
         isSwapPair() -> R.drawable.ic_activity_swap
         isSellingPair() -> R.drawable.ic_activity_sell

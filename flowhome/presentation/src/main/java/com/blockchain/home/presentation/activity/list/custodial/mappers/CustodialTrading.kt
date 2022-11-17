@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -13,7 +13,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-@StringRes internal fun CustodialTradingActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun CustodialTradingActivitySummaryItem.icon(): Int {
     return when (type) {
         OrderType.BUY,
         OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy

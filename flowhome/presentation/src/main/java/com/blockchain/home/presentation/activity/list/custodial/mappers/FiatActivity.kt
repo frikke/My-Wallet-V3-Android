@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
@@ -15,7 +15,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import org.koin.java.KoinJavaComponent
 
-@StringRes internal fun FiatActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun FiatActivitySummaryItem.icon(): Int {
     return when (type) {
         TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
         TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell
