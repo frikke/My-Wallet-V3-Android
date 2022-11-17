@@ -17,10 +17,10 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
@@ -36,7 +36,7 @@ class PrivateKeyActivityViewModel(
     override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
         ActivityViewState(
             activity = state.activityItems
-                .filter {activityItem ->
+                .filter { activityItem ->
                     if (state.filterTerm.isEmpty()) {
                         true
                     } else {

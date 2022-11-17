@@ -43,7 +43,9 @@ internal fun RecurringBuyActivitySummaryItem.leadingSubtitle(): ActivityStackVie
             OrderState.CANCELED -> TextValue.IntResValue(R.string.activity_state_canceled)
             OrderState.FAILED -> TextValue.IntResValue(
                 when (failureReason) {
-                    RecurringBuyFailureReason.INSUFFICIENT_FUNDS -> R.string.recurring_buy_insufficient_funds_short_error
+                    RecurringBuyFailureReason.INSUFFICIENT_FUNDS -> {
+                        R.string.recurring_buy_insufficient_funds_short_error
+                    }
                     else -> R.string.recurring_buy_short_error
                 }
             )
