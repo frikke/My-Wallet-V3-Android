@@ -14,7 +14,7 @@ import org.koin.core.scope.Scope
 
 abstract class BlockchainCardHostFragment : Fragment(), AndroidScopeComponent {
 
-    override val scope: Scope = payloadScope
+    override var scope: Scope? = payloadScope
 
     val orderCardViewModel: OrderCardViewModel by sharedViewModel()
     val manageCardViewModel: ManageCardViewModel by sharedViewModel()

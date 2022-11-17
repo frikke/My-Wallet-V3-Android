@@ -36,7 +36,7 @@ class VeriffSplashFragment :
     NavigationRouter<Navigation>,
     AndroidScopeComponent {
 
-    override val scope: Scope = payloadScope
+    override var scope: Scope? = payloadScope
 
     private val model: VeriffSplashModel by scopedInject()
     private val analytics: Analytics by inject()

@@ -23,6 +23,7 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
@@ -34,11 +35,7 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ActivityDetail(
-    txId: String,
-    viewModel: ActivityDetailViewModel = getViewModel(
-        scope = payloadScope,
-        parameters = { parametersOf(txId) }
-    ),
+    viewModel: ActivityDetailViewModel,
     onCloseClick: () -> Unit
 ) {
     val viewState: ActivityDetailViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
@@ -50,6 +47,9 @@ fun ActivityDetail(
 
     ActivityDetailScreen(
         activityDetail = viewState?.activityDetail ?: DataResource.Loading,
+        onComponentClick = { clickAction ->
+            viewModel.onIntent(ActivityDetailIntent.ComponentClicked(clickAction))
+        },
         onCloseClick = onCloseClick
     )
 }
@@ -57,6 +57,7 @@ fun ActivityDetail(
 @Composable
 fun ActivityDetailScreen(
     activityDetail: DataResource<ActivityDetail>,
+    onComponentClick: ((ClickAction) -> Unit),
     onCloseClick: () -> Unit
 ) {
     Column(
@@ -93,6 +94,7 @@ fun ActivityDetailScreen(
                 is DataResource.Data -> {
                     ActivityDetailData(
                         activityDetail = activityDetail.data,
+                        onComponentClick = onComponentClick
                     )
                 }
             }
@@ -100,9 +102,14 @@ fun ActivityDetailScreen(
     }
 }
 
+/**
+ * draw the list of cards (multiple groups) based on [ActivityDetail.detailItems]
+ * and then draw the list of actions
+ */
 @Composable
 fun ActivityDetailData(
-    activityDetail: ActivityDetail
+    activityDetail: ActivityDetail,
+    onComponentClick: ((ClickAction) -> Unit)
 ) {
     LazyColumn(
         modifier = Modifier
@@ -110,7 +117,10 @@ fun ActivityDetailData(
     ) {
         activityDetail.detailItems.forEach { sectionItems ->
             item {
-                ActivitySectionCard(components = sectionItems.itemGroup) ///
+                ActivitySectionCard(
+                    components = sectionItems.itemGroup,
+                    onClick = onComponentClick
+                )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }
@@ -133,6 +143,7 @@ fun ActivityDetailData(
 fun PreviewActivityScreen() {
     ActivityDetailScreen(
         activityDetail = DETAIL_DUMMY_DATA,
+        onComponentClick = {},
         onCloseClick = {}
     )
 }

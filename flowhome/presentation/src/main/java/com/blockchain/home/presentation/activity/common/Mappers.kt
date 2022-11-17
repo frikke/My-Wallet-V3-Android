@@ -67,15 +67,21 @@ fun StackComponent.toStackView() = when (this) {
     )
 }
 
-fun ActivityDataItem.toActivityComponent() = when (this) {
+/**
+ * @param componentId some components may want to be identified for later interaction
+ */
+fun ActivityDataItem.toActivityComponent(componentId: String = this.toString()) = when (this) {
     is ActivityDataItem.Stack -> ActivityComponent.StackView(
+        id = componentId,
         leadingImage = leadingImage.toStackedIcon(),
         leading = leading.map { it.toStackView() },
         trailing = trailing.map { it.toStackView() },
     )
 
     is ActivityDataItem.Button -> ActivityComponent.Button(
+        id = componentId,
         value = TextValue.StringValue(value),
-        style = style.toButtonStyle()
+        style = style.toButtonStyle(),
+        action = action
     )
 }

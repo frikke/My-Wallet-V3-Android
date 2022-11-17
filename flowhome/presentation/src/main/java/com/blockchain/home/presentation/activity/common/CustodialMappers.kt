@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.custodial.list
+package com.blockchain.home.presentation.activity.common
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
@@ -7,12 +7,6 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityIconState
-import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.list.custodial.mappers.icon
 import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingSubtitle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingTitle
@@ -67,6 +61,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
 
 fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
     return ActivityComponent.StackView(
+        id = txId,
         leadingImage = ActivityIconState.SingleIcon.Local(icon()),
         leading = leading(),
         trailing = trailing()

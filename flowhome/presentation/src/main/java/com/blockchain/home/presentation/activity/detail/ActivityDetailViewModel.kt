@@ -6,9 +6,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,11 +73,22 @@ class ActivityDetailViewModel(
             is ActivityDetailIntent.LoadActivityDetail -> {
                 loadActivityDetail()
             }
+            is ActivityDetailIntent.ComponentClicked -> {
+                when (intent.action) {
+                    is ClickAction.TableRowClick -> {
+                        // n/a
+                    }
+                    is ClickAction.ButtonClick -> {
+                        handleButtonClick(intent.action)
+                    }
+                }
+            }
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadActivityDetail() {
+        println("------- txx selec $activityTxId")
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             unifiedActivityService
@@ -103,6 +116,17 @@ class ActivityDetailViewModel(
                     }
                 }
                 .collect()
+        }
+    }
+
+    private fun handleButtonClick(action: ClickAction.ButtonClick) {
+        when (action.action.type) {
+            ActivityButtonAction.ActivityButtonActionType.Copy -> {
+                println("------- copy")
+            }
+            ActivityButtonAction.ActivityButtonActionType.OpenUrl -> {
+                println("------- openurl")
+            }
         }
     }
 }

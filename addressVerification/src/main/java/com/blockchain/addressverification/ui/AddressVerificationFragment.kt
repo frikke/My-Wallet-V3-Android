@@ -57,7 +57,7 @@ class AddressVerificationFragment :
         arguments?.getBoolean(ARG_ALLOW_MANUAL_OVERRIDE) ?: false
     }
 
-    override val scope: Scope = payloadScope
+    override var scope: Scope? = payloadScope
 
     private val viewModel: AddressVerificationModel by viewModel()
 

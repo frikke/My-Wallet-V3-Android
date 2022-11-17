@@ -27,7 +27,7 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
 
     private val analytics: Analytics by inject()
 
-    override val scope: Scope = payloadScope
+    override var scope: Scope? = payloadScope
 
     private val model: NotificationPreferencesViewModel by viewModel()
 

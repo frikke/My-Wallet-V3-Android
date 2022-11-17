@@ -13,6 +13,7 @@ import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
@@ -27,6 +28,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                 title = "title",
                 itemGroup = listOf<ActivityComponent>(
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Purchase"),
@@ -45,6 +47,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Amount"),
@@ -87,6 +90,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Fees"),
@@ -106,6 +110,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Total"),
@@ -135,6 +140,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                 title = "iii",
                 itemGroup = listOf<ActivityComponent>(
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
@@ -151,6 +157,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
@@ -169,6 +176,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
@@ -196,6 +204,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                 title = null,
                 itemGroup = listOf<ActivityComponent>(
                     ActivityComponent.StackView(
+                        id = "",
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
@@ -214,8 +223,13 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         )
                     ),
                     ActivityComponent.Button(
+                        id = "",
                         value = TextValue.StringValue("Copy Transaction ID"),
-                        ActivityButtonStyleState.Tertiary
+                        style = ActivityButtonStyleState.Tertiary,
+                        action = ActivityButtonAction(
+                            type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                            data = ""
+                        )
                     )
                 )
             )
@@ -223,16 +237,32 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
         ),
         floatingActions = listOf(
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("View on Etherscan"),
-                ActivityButtonStyleState.Primary
+                style = ActivityButtonStyleState.Primary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
+
             ),
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("Speed Up"),
-                ActivityButtonStyleState.Secondary
+                style = ActivityButtonStyleState.Secondary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
             ),
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("Cancel"),
-                ActivityButtonStyleState.Tertiary
+                style = ActivityButtonStyleState.Tertiary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
             )
         )
     )

@@ -42,6 +42,8 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.ClickAction
+import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
@@ -57,6 +59,7 @@ import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 import java.util.Calendar
 
 @Composable
@@ -142,7 +145,12 @@ fun ActivityScreen(
         sheetContent = {
             selectedTxId?.let {
                 ActivityDetail(
-                    txId = it,
+                    viewModel = getViewModel(
+                        scope = payloadScope,
+                        parameters = {
+                            println("------- txx selec vm22 $it")
+                            parametersOf(it) }
+                    ),
                     onCloseClick = {
                         coroutineScope.launch {
                             sheetState.hide()
@@ -182,11 +190,20 @@ fun ActivityScreen(
                         ActivityData(
                             activity = activity.data,
                             onSearchTermEntered = onSearchTermEntered,
-                            onActivityClick = {
+                            onActivityClick = { clickAction ->
                                 focusManager.clearFocus(true)
-                                coroutineScope.launch {
-                                    selectedTxId = "0x39d83797f1bf2b564f94e0c9cb2e32fec8faeddcaa504a3c9054edd64b72cd10"
-                                    sheetState.show()
+
+                                when (clickAction) {
+                                    is ClickAction.ButtonClick -> {
+                                        // n/a for now
+                                    }
+                                    is ClickAction.TableRowClick -> {
+                                        coroutineScope.launch {
+                                            println("------- txx selec data ${clickAction.data}")
+                                            selectedTxId = clickAction.data
+                                            sheetState.show()
+                                        }
+                                    }
                                 }
                             }
                         )
@@ -201,7 +218,7 @@ fun ActivityScreen(
 fun ActivityData(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
     onSearchTermEntered: (String) -> Unit,
-    onActivityClick: () -> Unit
+    onActivityClick: (ClickAction) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -223,7 +240,7 @@ fun ActivityData(
 @Composable
 fun ActivityGroups(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
-    onActivityClick: () -> Unit
+    onActivityClick: (ClickAction) -> Unit
 ) {
     LazyColumn {
         itemsIndexed(

@@ -43,8 +43,7 @@ class WalletModeSelectionBottomSheet :
     NavigationRouter<WalletModeSelectionNavigationEvent>,
     AndroidScopeComponent {
 
-    override val scope: Scope
-        get() = payloadScope
+    override var scope: Scope? = payloadScope
 
     private val viewModel: WalletModeSelectionViewModel by viewModel()
 

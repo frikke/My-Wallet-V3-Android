@@ -72,7 +72,7 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.2.0"
+    const val koin = "3.2.1"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
