@@ -33,8 +33,11 @@ val homePresentationModule = module {
             )
         }
 
-        viewModel {
-            ActivityDetailViewModel()
+        viewModel { (txId: String) ->
+            ActivityDetailViewModel(
+                activityTxId = txId,
+                unifiedActivityService = get()
+            )
         }
         viewModel {
             QuickActionsViewModel(

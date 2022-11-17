@@ -23,6 +23,14 @@ class UnifiedActivityCache(
             }
     }
 
+    fun getActivity(txId: String): Flow<ActivityItem?> {
+        return activityQueries.selectByTxId(txId)
+            .asFlow()
+            .map {
+                it.executeAsOneOrNull()
+            }
+    }
+
     override fun addOrUpdateActivityItems(items: ActivityResponse) {
         items.activityData.activity.map { activityItem ->
             activityQueries.insert(

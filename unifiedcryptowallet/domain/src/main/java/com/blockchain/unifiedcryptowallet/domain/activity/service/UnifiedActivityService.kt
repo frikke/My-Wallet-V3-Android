@@ -12,6 +12,10 @@ interface UnifiedActivityService {
         timeZone: String
     ): Flow<DataResource<List<UnifiedActivityItem>>>
 
+    fun getActivity(
+        txId: String
+    ): Flow<DataResource<UnifiedActivityItem>>
+
     suspend fun getActivityDetails(
         txId: String,
         network: String,

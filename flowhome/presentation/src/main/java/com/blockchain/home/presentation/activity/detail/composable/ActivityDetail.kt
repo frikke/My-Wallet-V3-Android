@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,10 +30,15 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ActivityDetail(
-    viewModel: ActivityDetailViewModel = getViewModel(scope = payloadScope),
+    txId: String,
+    viewModel: ActivityDetailViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = { parametersOf(txId) }
+    ),
     onCloseClick: () -> Unit
 ) {
     val viewState: ActivityDetailViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
@@ -55,7 +61,7 @@ fun ActivityDetailScreen(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(color = Color(0XFFF1F2F7))
     ) {
         SheetFloatingHeader(
