@@ -113,7 +113,7 @@
     <string name="screen_overlay_warning">Ekran yer paylaşımı algılandı!</string>
     <string name="screen_overlay_note">Ekran yer paylaşımı kullanan uygulamalar görünmeyen objelere tıklatarak\n        muhtemelen paranızı çalma beceresine sahiptir. Bu uyarının ekran aydınlatmasını azaltan uygulamalar için de ortaya çıkacağını unutmayın. Herhangi bir tehdit olmadığı konusunda \n        eminseniz devam edebilirsiniz.\n    </string>
     <string name="unexpected_error">Beklenmedik hata. Lütfen daha sonra tekrar deneyin.</string>
-    <string name="app_version">Uygulama Sürümü: %1$s (%2$s)</string>
+    <string name="app_version">Uygulama Sürümü: %1$s (%2$d)</string>
     <string name="dialog_continue">Devam et</string>
     <string name="search">Arama</string>
     <string name="backup_wallet_title">Gizli Özel Anahtar Kurtarma</string>

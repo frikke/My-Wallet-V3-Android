@@ -190,11 +190,46 @@
             android:paddingBottom="@dimen/standard_spacing"
             app:layout_constraintTop_toBottomOf="@id/divider_4" />
 
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:src="@drawable/ic_blockchain_logo_with_text"
+            app:layout_constraintTop_toBottomOf="@id/sign_out_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/app_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            style="@style/Text.Light.12"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/app_version"
+            />
+
+        <TextView
+            android:id="@+id/legal_entity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Text.Light.12"
+            android:layout_marginTop="@dimen/smallest_spacing"
+            app:layout_constraintTop_toBottomOf="@id/app_version"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/legal_entity_copyright"
+            />
+
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/settings_debug"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/sign_out_btn" />
+            app:layout_constraintTop_toBottomOf="@id/legal_entity" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -113,7 +113,7 @@
     <string name="screen_overlay_warning">Superposition d\'écran détectée !</string>
     <string name="screen_overlay_note">Les applications qui utilisent des superpositions d\'écran peuvent vous inciter\n        à toucher des objets invisibles et vous soutirer des fonds. Notez que cet avertissement sera également déclenché par les applications de réduction d\'écran. Si vous êtes sûr\n        qu\'il n\'y a pas de menace, vous pouvez continuer.\n    </string>
     <string name="unexpected_error">Une erreur inattendue s\'est produite, veuillez réessayer.</string>
-    <string name="app_version">Version de l\'application : %1$s (%2$s)</string>
+    <string name="app_version">Version de l\'application : %1$s (%2$d)</string>
     <string name="dialog_continue">Continuer</string>
     <string name="search">Rechercher</string>
     <string name="backup_wallet_title">Récupération de clé privée secrète</string>
