@@ -3,9 +3,15 @@ package com.blockchain.unifiedcryptowallet.data.activity.repository
 import com.blockchain.api.selfcustody.activity.ActivityViewItemDto
 import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.mapData
+import com.blockchain.unifiedcryptowallet.data.activity.datasource.ActivityDetailsStore
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityCache
+import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActivityViewItem
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import java.util.Calendar
@@ -20,11 +26,12 @@ import kotlinx.serialization.json.Json
 class UnifiedActivityRepository(
     private val activityWebSocketService: ActivityWebSocketService,
     private val activityCache: UnifiedActivityCache,
+    private val activityDetailsStore: ActivityDetailsStore,
     private val json: Json,
     private val currencyPrefs: CurrencyPrefs
 ) : UnifiedActivityService {
 
-    override suspend fun getAllActivity(
+    override fun getAllActivity(
         acceptLanguage: String,
         timeZone: String
     ): Flow<DataResource<List<UnifiedActivityItem>>> {
@@ -62,5 +69,27 @@ class UnifiedActivityRepository(
                     }
             )
         }
+    }
+
+    override suspend fun getActivityDetails(
+        txId: String,
+        network: String,
+        pubKey: String,
+        locales: String,
+        timeZone: String,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<ActivityDetailGroups>> {
+        return activityDetailsStore.stream(
+            freshnessStrategy.withKey(
+                ActivityDetailsStore.Key(
+                    txId, network, pubKey, locales, timeZone
+                )
+            )
+        )
+            .mapData {
+                it.detail.toActivityDetailGroups() ?: throw Exception("Could not map response to group")
+            }.catch {
+                DataResource.Error(Exception(it))
+            }
     }
 }
