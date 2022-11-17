@@ -88,7 +88,7 @@ class UnifiedActivityRepository(
             )
         )
             .mapData {
-                it.detail.toActivityDetailGroups() ?: throw Exception("Could not map response to group")
+                it.toActivityDetailGroups() ?: throw Exception("Could not map response to group")
             }.catch {
                 DataResource.Error(Exception(it))
             }
@@ -99,6 +99,7 @@ class UnifiedActivityRepository(
             .toActivityViewItem()?.let { summary ->
                 UnifiedActivityItem(
                     txId = tx_id,
+                    pubkey = pubkey,
                     network = network,
                     blockExplorerUrl = external_url,
                     summary = summary,

@@ -49,7 +49,7 @@ fun ActivityDetail(
     }
 
     ActivityDetailScreen(
-        activityDetail = viewState?.activityDetailItems ?: DataResource.Loading,
+        activityDetail = viewState?.activityDetail ?: DataResource.Loading,
         onCloseClick = onCloseClick
     )
 }
@@ -108,9 +108,9 @@ fun ActivityDetailData(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        activityDetail.itemGroups.forEach { sectionItems ->
+        activityDetail.detailItems.forEach { sectionItems ->
             item {
-                ActivitySectionCard(components = sectionItems)
+                ActivitySectionCard(components = sectionItems.itemGroup) ///
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }

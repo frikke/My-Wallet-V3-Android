@@ -6,21 +6,21 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAc
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 
 internal fun String.toButtonStyle(): ActivityButtonStyle {
-    val primary = "Primary"
-    val secondary = "Secondary"
-    val tertiary = "Tertiary"
+    val primary = "primary"
+    val secondary = "secondary"
+    val tertiary = "tertiary"
 
     return when (this) {
         primary -> ActivityButtonStyle.Primary
-        secondary -> ActivityButtonStyle.Secondary
-        tertiary -> ActivityButtonStyle.Tertiary
+        secondary -> ActivityButtonStyle.Tertiary // backend returns secondary for clear button so need to reverse them
+        tertiary -> ActivityButtonStyle.Secondary
         else -> ActivityButtonStyle.Primary // todo what's the default here
     }
 }
 
 internal fun ActivityViewItemDto.Button.toButtonAction(): ActivityButtonAction? {
-    val copy = "Copy"
-    val openUrl = "OpenUrl"
+    val copy = "COPY"
+    val openUrl = "OPEN_URL"
 
     val type = when (actionType) {
         copy -> ActivityButtonActionType.Copy

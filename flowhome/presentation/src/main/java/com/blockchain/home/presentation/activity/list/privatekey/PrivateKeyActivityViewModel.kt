@@ -62,10 +62,6 @@ class PrivateKeyActivityViewModel(
     }
 
     private fun List<UnifiedActivityItem>.reduceActivityItems(): Map<TransactionGroup, List<ActivityComponent>> {
-//        forEach {
-//            println("-------- txid: ${it.txId}")
-//        }
-
         // group by date (month/year)
         return groupBy { activity ->
             activity.date?.let {

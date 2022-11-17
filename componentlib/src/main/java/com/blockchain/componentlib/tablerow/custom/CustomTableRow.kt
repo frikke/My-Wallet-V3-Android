@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow.custom
 
+import android.widget.Space
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -49,7 +50,7 @@ fun CustomTableRow(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
             }
 
-            Column(modifier = Modifier.weight(1F)) {
+            Column {
                 leadingComponents.forEachIndexed { index, viewType ->
                     SingleComponent(viewType)
 
@@ -58,8 +59,11 @@ fun CustomTableRow(
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.verySmallSpacing))
 
             Column(
+                modifier = Modifier.weight(1F),
                 horizontalAlignment = Alignment.End
             ) {
                 trailingComponents.forEachIndexed { index, viewType ->

@@ -4,6 +4,7 @@ import java.util.Calendar
 
 data class UnifiedActivityItem(
     val txId: String,
+    val pubkey: String,
     val network: String,
     val blockExplorerUrl: String,
     val summary: ActivityDataItem,
