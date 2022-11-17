@@ -1,5 +1,6 @@
 package com.blockchain.coincore.btc
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -51,6 +52,9 @@ import io.reactivex.rxjava3.core.Single
     CryptoCurrency.BTC
 ) {
 
+    override val isImported: Boolean
+        get() = internalAccount is ImportedAddress
+
     override val label: String
         get() = internalAccount.label
 
@@ -59,6 +63,23 @@ import io.reactivex.rxjava3.core.Single
 
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
+
+    override val balanceRx: Observable<AccountBalance>
+        get() = if (internalAccount is ImportedAddress) {
+            Observable.combineLatest(
+                getOnChainBalance(),
+                exchangeRates.exchangeRateToUserFiat(currency)
+            ) { balance, rate ->
+                AccountBalance(
+                    total = balance,
+                    withdrawable = balance,
+                    pending = Money.zero(currency),
+                    exchangeRate = rate
+                )
+            }
+        } else {
+            super.balanceRx
+        }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = when (internalAccount) {

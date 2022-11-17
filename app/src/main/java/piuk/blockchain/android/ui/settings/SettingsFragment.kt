@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.settings
 
 import android.content.pm.ShortcutManager
+import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -43,9 +45,11 @@ import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
@@ -110,6 +114,13 @@ class SettingsFragment :
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.appVersion.text = getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        binding.legalEntity.text = getString(R.string.legal_entity_copyright, currentYear)
+    }
 
     override fun onResume() {
         super.onResume()

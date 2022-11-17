@@ -83,7 +83,7 @@
     </string>
     <string name="unexpected_error">Unexpected error, please try again later.</string>
 
-    <string name="app_version">App Version: %1$s (%2$s)</string>
+    <string name="app_version">Wallet Version: %1$s (%2$d)</string>
 
     <string name="dialog_continue">Continue</string>
     <string name="search">Search</string>
@@ -264,7 +264,7 @@
     <string name="rate_us">Rate us</string>
     <string name="licenses">Licenses</string>
 
-    <string name="about">Blockchain Wallet %1$s\n©%2$s Blockchain Luxembourg S.A.\nAll rights reserved.</string>
+    <string name="legal_entity_copyright">© %1$d Blockchain.com. All rights reserved.</string>
 
     <string name="merchant_download">Free Merchant app</string>
     <string name="password_or_wipe">Enter using your password or forget this wallet</string>

@@ -113,7 +113,7 @@
     <string name="screen_overlay_warning">¡Se ha detectado una superposición de pantallas!</string>
     <string name="screen_overlay_note">Las aplicaciones que usan superposiciones de pantallas podrían hacerle pulsar sobre objetos ocultos y robarle los fondos. Observe que esta advertencia también se desencadena con las aplicaciones de oscurecimiento de pantalla. Si está seguro de que no hay ninguna amenaza, puede continuar.\n    </string>
     <string name="unexpected_error">Error inesperado. Vuelva a intentarlo más tarde.</string>
-    <string name="app_version">Versión de la aplicación: %1$s (%2$s)</string>
+    <string name="app_version">Versión de la aplicación: %1$s (%2$d)</string>
     <string name="dialog_continue">Continuar</string>
     <string name="search">Buscar</string>
     <string name="backup_wallet_title">Recuperación de clave privada secreta</string>

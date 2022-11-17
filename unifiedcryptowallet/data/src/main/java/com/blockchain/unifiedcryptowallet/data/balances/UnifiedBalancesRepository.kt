@@ -35,7 +35,7 @@ internal class UnifiedBalancesRepository(
      */
     override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
-            val networkWallets = networkAccountsService.allNetworkWallets()
+            val networkWallets = networkAccountsService.allNetworkWallets().filterNot { it.isImported }
 
             val pubKeys = networkWallets.associateWith {
                 it.publicKey()

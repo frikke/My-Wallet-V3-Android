@@ -17,12 +17,6 @@ import piuk.blockchain.android.util.putAccount
 
 class MultichainInfoBottomSheet : ComposeModalBottomDialog() {
 
-    override val host: Host by lazy {
-        activity as? Host ?: parentFragment as? Host ?: throw IllegalStateException(
-            "Host is not a MultichainInfoBottomSheet.Host"
-        )
-    }
-
     val account: CryptoAccount?
         get() = arguments?.getAccount(PARAM_ACCOUNT) as? CryptoAccount
 

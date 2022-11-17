@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.interest.domain.model.InterestState
@@ -12,7 +12,7 @@ import com.blockchain.home.presentation.activity.common.basicTitleStyle
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-@StringRes internal fun CustodialInterestActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun CustodialInterestActivitySummaryItem.icon(): Int {
     return when (status) {
         InterestState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy

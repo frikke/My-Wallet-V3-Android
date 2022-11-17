@@ -4,8 +4,9 @@ object Versions {
 
     // Release info
     const val minSdk = 24
-    const val targetSdk = 30
-    const val compileSdk = 32
+
+    const val targetSdk = 33
+    const val compileSdk = 33
 
     const val versionCode = 24342
     const val versionName = "202212.1.0"
@@ -62,7 +63,7 @@ object Versions {
     const val adsIdentifier = "17.0.0"
 
     // Networking, RxJava
-    const val chucker = "3.4.0"
+    const val chucker = "3.5.2"
     const val retrofit = "2.9.0"
     const val okHttp = "4.9.0"
     const val gson = "2.8.5"
