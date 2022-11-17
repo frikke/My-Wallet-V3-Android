@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.activity.common
 
-import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 
 sealed interface ActivityIconState {
     sealed interface SmallTag : ActivityIconState {
@@ -10,8 +10,8 @@ sealed interface ActivityIconState {
         ) : SmallTag
 
         data class Local(
-            @StringRes val main: Int,
-            @StringRes val tag: Int
+            @DrawableRes val main: Int,
+            @DrawableRes val tag: Int
         ) : SmallTag
     }
 
@@ -22,8 +22,8 @@ sealed interface ActivityIconState {
         ) : OverlappingPair
 
         data class Local(
-            @StringRes val front: Int,
-            @StringRes val back: Int
+            @DrawableRes val front: Int,
+            @DrawableRes val back: Int
         ) : OverlappingPair
     }
 
@@ -33,7 +33,7 @@ sealed interface ActivityIconState {
         ) : SingleIcon
 
         data class Local(
-            @StringRes val res: Int
+            @DrawableRes val res: Int
         ) : SingleIcon
     }
 
