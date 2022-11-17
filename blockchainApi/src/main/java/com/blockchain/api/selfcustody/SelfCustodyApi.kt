@@ -1,5 +1,7 @@
 package com.blockchain.api.selfcustody
 
+import com.blockchain.api.selfcustody.activity.ActivityDetailsRequest
+import com.blockchain.api.selfcustody.activity.ActivityDetailsResponse
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -30,6 +32,9 @@ interface SelfCustodyApi {
     suspend fun getTransactionHistory(
         @Body request: TransactionHistoryRequest
     ): Outcome<Exception, TransactionHistoryResponse>
+
+    @POST("activityDetail")
+    suspend fun getActivityDetails(@Body request: ActivityDetailsRequest): Outcome<Exception, ActivityDetailsResponse>
 
     @POST("buildTx")
     suspend fun buildTransaction(@Body request: BuildTxRequest): Outcome<Exception, BuildTxResponse>

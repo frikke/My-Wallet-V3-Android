@@ -2,8 +2,10 @@ package com.blockchain.unifiedcryptowallet.data.koin
 
 import com.blockchain.api.services.ActivityCacheService
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.store.KeyedStore
 import com.blockchain.store.Store
 import com.blockchain.unifiedcryptowallet.data.Database
+import com.blockchain.unifiedcryptowallet.data.activity.datasource.ActivityDetailsStore
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityCache
 import com.blockchain.unifiedcryptowallet.data.activity.repository.UnifiedActivityRepository
 import com.blockchain.unifiedcryptowallet.data.balances.UnifiedBalancesRepository
@@ -45,11 +47,19 @@ val unifiedCryptoWalletModule = module {
         }.bind(Store::class)
 
         scoped {
+            ActivityDetailsStore(
+                selfCustodyService = get(),
+                currencyPrefs = get()
+            )
+        }.bind(KeyedStore::class)
+
+        scoped {
             UnifiedActivityRepository(
                 activityWebSocketService = get(),
                 activityCache = get(),
                 json = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                activityDetailsStore = get()
             )
         }.bind(UnifiedActivityService::class)
 

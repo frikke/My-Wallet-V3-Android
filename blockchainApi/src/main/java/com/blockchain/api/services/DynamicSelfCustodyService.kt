@@ -20,6 +20,9 @@ import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
+import com.blockchain.api.selfcustody.activity.ActivityDetailsRequest
+import com.blockchain.api.selfcustody.activity.ActivityPubKeyInfo
+import com.blockchain.api.selfcustody.activity.LocalisationParams
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -129,6 +132,31 @@ class DynamicSelfCustodyService(
             auth = authInfo,
             currency = currency,
             contractAddress = contractAddress
+        )
+    )
+
+    suspend fun getActivityDetails(
+        txId: String,
+        network: String,
+        pubKey: String,
+        timeZone: String,
+        locales: String,
+        fiatCurrency: String
+    ) = selfCustodyApi.getActivityDetails(
+        request = ActivityDetailsRequest(
+            auth = authInfo,
+            txId = txId,
+            network = network,
+            pubKey = ActivityPubKeyInfo(
+                pubKey = pubKey,
+                style = PubKeyStyle.SINGLE,
+                descriptor = "legacy"
+            ),
+            params = LocalisationParams(
+                timeZone = timeZone,
+                locales = locales,
+                fiatCurrency = fiatCurrency
+            )
         )
     )
 
