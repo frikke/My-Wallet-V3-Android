@@ -4,8 +4,9 @@ object Versions {
 
     // Release info
     const val minSdk = 24
-    const val targetSdk = 30
-    const val compileSdk = 32
+
+    const val targetSdk = 33
+    const val compileSdk = 33
 
     const val versionCode = 24342
     const val versionName = "202212.1.0"
