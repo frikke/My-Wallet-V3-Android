@@ -22,8 +22,8 @@ public class SettingsManager {
     public static final String METHOD_VERIFY_SMS = "verify-sms";
     public static final String METHOD_UPDATE_NOTIFICATION_TYPE = "update-notifications-type";
     public static final String METHOD_UPDATE_NOTIFICATION_ON = "update-notifications-on";
-    public static final String METHOD_UPDATE_SMS = "update-sms";
-    public static final String METHOD_UPDATE_EMAIL = "update-email";
+    public static final String METHOD_UPDATE_SMS = "secure-update-sms";
+    public static final String METHOD_UPDATE_EMAIL = "secure-update-email";
     public static final String METHOD_UPDATE_BTC_CURRENCY = "update-btc-currency";
     public static final String METHOD_UPDATE_CURRENCY = "update-currency";
     public static final String METHOD_UPDATE_PASSWORD_HINT_1 = "update-password-hint1";

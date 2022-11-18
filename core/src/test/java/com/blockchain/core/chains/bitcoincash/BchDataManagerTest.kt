@@ -374,12 +374,12 @@ class BchDataManagerTest {
         val newBtcAccount = mock<AccountV4> {
             on { xpubForDerivation("legacy") }.thenReturn("213123")
         }
-        whenever(payloadDataManager.addAccountWithLabel("BTC label 2")).thenReturn(newBtcAccount)
+        whenever(payloadDataManager.addAccountWithLabel("BTC label 2")).thenReturn(Single.just(newBtcAccount))
 
         whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("BTC label")
 
         // Act
-        subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed().test()
 
         // Assert
         verify(payloadDataManager).addAccountWithLabel(any())
@@ -438,12 +438,15 @@ class BchDataManagerTest {
         )
         val offset = btcAccounts.size + 1
         mockAccounts.forEachIndexed { index, account ->
-            whenever(payloadDataManager.addAccountWithLabel("$DEFAULT_LABEL ${index + offset}")).thenReturn(account)
+            whenever(payloadDataManager.addAccountWithLabel("$DEFAULT_LABEL ${index + offset}"))
+                .thenReturn(
+                    Single.just(account)
+                )
         }
 
         whenever(bchDataStore.bchMetadata?.accounts).thenReturn(bchAccounts)
         // Act
-        subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed().test()
 
         // Assert
         verify(payloadDataManager, times(bchAccounts.size - btcAccounts.size)).addAccountWithLabel(any())

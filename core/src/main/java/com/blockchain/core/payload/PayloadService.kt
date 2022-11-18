@@ -1,7 +1,6 @@
 package com.blockchain.core.payload
 
 import com.blockchain.annotations.BurnCandidate
-import com.blockchain.api.ApiException
 import com.blockchain.domain.session.SessionIdService
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -63,14 +62,13 @@ internal class PayloadService(
         walletName: String,
         email: String,
         password: String
-    ): Single<Wallet> = Single.fromCallable {
+    ): Single<Wallet> =
         payloadManager.recoverFromMnemonic(
             mnemonic,
             walletName,
             email,
             password
         )
-    }
 
     /**
      * Creates a new HD wallet and Blockchain.info account.
@@ -86,14 +84,13 @@ internal class PayloadService(
         walletName: String,
         email: String,
         recaptchaToken: String?
-    ): Single<Wallet> = Single.fromCallable {
+    ): Single<Wallet> =
         payloadManager.create(
             walletName,
             email,
             password,
             recaptchaToken
         )
-    }
 
     /**
      * Fetches the user's wallet payload, and then initializes and decrypts a payload using the
@@ -109,14 +106,12 @@ internal class PayloadService(
         guid: String,
         password: String
     ): Completable = sessionIdService.sessionId().flatMapCompletable {
-        Completable.fromCallable {
-            payloadManager.initializeAndDecrypt(
-                sharedKey,
-                guid,
-                password,
-                sessionId = it
-            )
-        }
+        payloadManager.initializeAndDecrypt(
+            sharedKey,
+            guid,
+            password,
+            sessionId = it
+        )
     }
 
     /**
@@ -128,12 +123,10 @@ internal class PayloadService(
     internal fun handleQrCode(
         data: String
     ): Completable = sessionIdService.sessionId().flatMapCompletable { sId ->
-        Completable.fromCallable {
-            payloadManager.initializeAndDecryptFromQR(
-                data,
-                sId
-            )
-        }
+        payloadManager.initializeAndDecryptFromQR(
+            data,
+            sId
+        )
     }
 
     /**
@@ -145,11 +138,7 @@ internal class PayloadService(
      * @return A [Completable] object
      */
     internal fun syncPayloadAndPublicKeys(): Completable =
-        Completable.fromCallable {
-            if (!payloadManager.syncPubKeys()) {
-                throw ApiException("Sync failed")
-            }
-        }
+        payloadManager.syncPubKeys()
 
     // /////////////////////////////////////////////////////////////////////////
     // TRANSACTION METHODS
@@ -184,7 +173,7 @@ internal class PayloadService(
      * @return A [Completable] object
      */
     internal fun updateTransactionNotes(transactionHash: String, notes: String): Completable {
-        return Completable.fromCallable { payloadManager.updateNotesForTxHash(transactionHash, notes) }
+        return payloadManager.updateNotesForTxHash(transactionHash, notes)
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -211,9 +200,8 @@ internal class PayloadService(
     internal fun createNewAccount(
         accountLabel: String,
         secondPassword: String?
-    ): Observable<Account> = Observable.fromCallable {
-        payloadManager.addAccount(accountLabel, secondPassword)
-    }
+    ): Observable<Account> =
+        payloadManager.addAccount(accountLabel, secondPassword).toObservable()
 
     /**
      * Sets a private key for an associated [ImportedAddress] which is already in the [Wallet] as a
@@ -226,9 +214,8 @@ internal class PayloadService(
     internal fun setKeyForImportedAddress(
         key: SigningKey,
         secondPassword: String?
-    ): Observable<ImportedAddress> = Observable.fromCallable {
-        payloadManager.setKeyForImportedAddress(key, secondPassword)
-    }
+    ): Observable<ImportedAddress> =
+        payloadManager.setKeyForImportedAddress(key, secondPassword).toObservable()
 
     /**
      * Allows you to add a [ImportedAddress] to the [Wallet]
@@ -237,7 +224,5 @@ internal class PayloadService(
      * @return A [Completable] object representing a successful save
      */
     internal fun addImportedAddress(importedAddress: ImportedAddress): Completable =
-        Completable.fromCallable {
-            payloadManager.addImportedAddress(importedAddress)
-        }
+        payloadManager.addImportedAddress(importedAddress)
 }

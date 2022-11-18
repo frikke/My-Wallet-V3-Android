@@ -18,10 +18,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
-import retrofit2.Call
 import retrofit2.Response
 
 class WalletApiTest {
@@ -91,9 +89,6 @@ class WalletApiTest {
         val guid = "a09910d9-1906-4ea1-a956-2508c3fe0661"
         val expectedBodyString = "5001071ac0ea0b6993444716729429c1d7637def2bcc73a6ad6360c9cec06d47"
 
-        val callResponse: Call<ResponseBody> = FakeHttpExceptionFactory.mockApiCall(
-            expectedBodyString.toResponseBody("plain/text".toMediaTypeOrNull())
-        )
         whenever(
             walletExplorerEndpoints.fetchPairingEncryptionPasswordCall(
                 "pairing-encryption-password",
@@ -101,12 +96,11 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            callResponse
+            Single.just(expectedBodyString.toResponseBody("plain/text".toMediaTypeOrNull()))
         )
-        val bodyString = subject.fetchPairingEncryptionPasswordCall(guid).execute()
-            .body()!!.string()
-
-        bodyString `should be equal to` expectedBodyString
+        subject.fetchPairingEncryptionPasswordCall(guid).test().assertValue {
+            it.string() == expectedBodyString
+        }
     }
 
     @Test

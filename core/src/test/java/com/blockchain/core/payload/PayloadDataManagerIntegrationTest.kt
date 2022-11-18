@@ -16,17 +16,15 @@ import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import retrofit2.Call
-import retrofit2.Response
 
 /**
  * ð
@@ -67,8 +65,7 @@ class PayloadDataManagerIntegrationTest {
 
     @Before
     fun setup() {
-        val response = Response.success(mock<ResponseBody>())
-        val fetchWalletDataResponse = Response.success<ResponseBody>(
+        val fetchWalletDataResponse =
             (
                 "{\"extra_seed\":\"55a5cbe20a56866034fc2887af719fb9902045d18d645a84c0044de62a2bdd1e3054223b0c09d8baadf42eb73515213a75cb4ae31354f225a2ac4606344" +
                     "4a3af\",\"payload\":\"{\\\"version\\\":4,\\\"pbkdf2_iterations\\\":5000,\\\"payload\\\":\\\"kQAUYc5TIUdBovvdCLEVcVrcFxkXw" +
@@ -95,15 +92,11 @@ class PayloadDataManagerIntegrationTest {
                 ).toResponseBody(
                 "application/json".toMediaTypeOrNull()
             )
+
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
         )
-        val mockCall = mock<Call<ResponseBody>> {
-            on { execute() }.thenReturn(response)
-        }
-        val mockCallFetchWalletData = mock<Call<ResponseBody>> {
-            on { execute() }.thenReturn(fetchWalletDataResponse)
-        }
-        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(mockCall)
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(mockCallFetchWalletData)
+        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(Single.just(fetchWalletDataResponse))
 
         subject = PayloadDataManager(
             payloadService,
@@ -163,7 +156,7 @@ class PayloadDataManagerIntegrationTest {
 
     @Test
     fun `When v2 payload detected then it should be updated to v4`() {
-        val fetchWalletV2DataResponse = Response.success<ResponseBody>(
+        val fetchWalletV2DataResponse =
             (
                 "{\"extra_seed\":\"48c9b51c508f3b3cadc32ffa586f66399ef5d3b7892e603a4378b95a1f9e7f71ed69d8f296ecfbb8905dd2f5364dbbb0" +
                     "15b1acc51268f8f24c94631b1593ee3e\",\"auth_type\":0,\"initial_success\":\"Reminder: Verify your email.\",\"real" +
@@ -181,11 +174,8 @@ class PayloadDataManagerIntegrationTest {
                 ).toResponseBody(
                 "application/json".toMediaTypeOrNull()
             )
-        )
-        val mockCallFetchWalletData = mock<Call<ResponseBody>> {
-            on { execute() }.thenReturn(fetchWalletV2DataResponse)
-        }
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(mockCallFetchWalletData)
+
+        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(Single.just(fetchWalletV2DataResponse))
         val test = subject.initializeAndDecrypt(
             sharedKey = "38f39fad-fd5d-449a-85e9-adcc84fffcf1",
             guid = "fa311856-db2a-4939-b6c3-9b5a05eda5b5",

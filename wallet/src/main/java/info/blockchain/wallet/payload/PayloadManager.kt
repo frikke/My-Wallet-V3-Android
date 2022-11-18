@@ -5,6 +5,7 @@ import com.blockchain.api.ApiException
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.serialization.JsonSerializableAccount
+import com.blockchain.utils.thenSingle
 import info.blockchain.balance.Money
 import info.blockchain.wallet.Device
 import info.blockchain.wallet.api.WalletApi
@@ -38,6 +39,8 @@ import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payload.model.toBalanceMap
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.Tools
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.io.IOException
 import java.math.BigInteger
 import java.security.NoSuchAlgorithmException
@@ -48,6 +51,7 @@ import org.bitcoinj.crypto.MnemonicException.MnemonicWordException
 import org.slf4j.LoggerFactory
 import org.spongycastle.crypto.InvalidCipherTextException
 import org.spongycastle.util.encoders.Hex
+import retrofit2.HttpException
 
 class PayloadManager(
     private val walletApi: WalletApi,
@@ -92,39 +96,40 @@ class PayloadManager(
         email: String,
         password: String,
         recaptchaToken: String?
-    ): Wallet {
+    ): Single<Wallet> {
         this.password = password
-        walletBase = WalletBase(
+        val walletBase = WalletBase(
             Wallet(
                 defaultAccountName
             )
         )
-        saveNewWallet(walletBase, email, recaptchaToken)
-        return payload
+        return saveNewWallet(walletBase, email, recaptchaToken).thenSingle {
+            Single.just(payload)
+        }
     }
 
-    private fun saveNewWallet(walletBase: WalletBase, email: String, recaptchaToken: String?) {
+    private fun saveNewWallet(walletBase: WalletBase, email: String, recaptchaToken: String?): Completable {
         validateSave(walletBase)
         // Encrypt and wrap payload
         val (newPayloadChecksum, payloadWrapper) = walletBase.encryptAndWrapPayload(password)
         // Save to server
-        val call = walletApi.insertWallet(
-            payload.guid,
-            payload.sharedKey,
+        return walletApi.insertWallet(
+            walletBase.wallet.guid,
+            walletBase.wallet.sharedKey,
             null,
             payloadWrapper.toJson(),
             newPayloadChecksum,
             email,
             device.osType,
             recaptchaToken
-        )
-        val exe = call.execute()
-        if (exe.isSuccessful) {
-            // set new checksum
-            updatePayload(this.walletBase.withUpdatedChecksum(newPayloadChecksum))
-        } else {
-            log.error("", exe.code().toString() + " - " + exe.errorBody()!!.string())
-            throw ServerConnectionException(exe.code().toString() + " - " + exe.errorBody()!!.string())
+        ).doOnComplete {
+            this.walletBase = walletBase.withUpdatedChecksum(newPayloadChecksum)
+        }.onErrorResumeNext {
+            if (it is HttpException) {
+                Completable.error(
+                    ServerConnectionException(it.code().toString() + " - " + it.response()?.errorBody()!!.string())
+                )
+            } else Completable.error(it)
         }
     }
 
@@ -139,7 +144,7 @@ class PayloadManager(
         defaultAccountName: String,
         email: String,
         password: String
-    ): Wallet {
+    ): Single<Wallet> {
         this.password = password
         val walletBody = recoverFromMnemonic(
             mnemonic,
@@ -148,8 +153,11 @@ class PayloadManager(
         )
         val wallet = Wallet(walletBody)
         walletBase = WalletBase(wallet)
-        saveNewWallet(walletBase, email, null)
-        return payload
+        return saveNewWallet(walletBase, email, null).thenSingle {
+            Single.just(
+                payload
+            )
+        }
     }
 
     /**
@@ -172,36 +180,31 @@ class PayloadManager(
         guid: String,
         password: String,
         sessionId: String,
-    ) {
+    ): Completable {
         this.password = password
-        val call = walletApi.fetchWalletData(guid, sharedKey, sessionId)
-        val exe = call.execute()
-        walletBase = if (exe.isSuccessful) {
-            WalletBase.fromJson(exe.body()!!.string()).withDecryptedPayload(this.password)
-        } else {
-            log.warn("Fetching wallet data failed with provided credentials")
-            val errorMessage = exe.errorBody()!!.string()
-            log.warn("", errorMessage)
-            if (errorMessage.contains("Unknown Wallet Identifier")) {
-                throw InvalidCredentialsException()
-            } else if (errorMessage.contains("locked")) {
-                throw AccountLockedException(errorMessage)
-            } else {
-                throw ServerConnectionException(errorMessage)
+        return walletApi.fetchWalletData(guid, sharedKey, sessionId).doOnSuccess {
+            walletBase = WalletBase.fromJson(it.string()).withDecryptedPayload(this.password)
+        }.ignoreElement().onErrorResumeNext {
+            if (it is HttpException) {
+                val message = it.response()?.errorBody()?.string() ?: ""
+                return@onErrorResumeNext when {
+                    message.contains("Unknown Wallet Identifier") -> Completable.error(InvalidCredentialsException())
+                    message.contains("locked") -> Completable.error(AccountLockedException())
+                    else -> Completable.error(ServerConnectionException())
+                }
             }
+            return@onErrorResumeNext Completable.error(it)
         }
     }
 
     fun initializeAndDecryptFromQR(
         qrData: String,
         sessionId: String
-    ) {
+    ): Completable {
         val qrComponents = Pairing.qRComponentsFromRawString(qrData)
-        val call = walletApi.fetchPairingEncryptionPasswordCall(qrComponents.first)
-        val exe = call.execute()
-        if (exe.isSuccessful) {
-            val encryptionPassword = exe.body()!!.string()
-            val encryptionPairingCode = qrComponents.second as String
+        return walletApi.fetchPairingEncryptionPasswordCall(qrComponents.first).flatMapCompletable {
+            val encryptionPassword = it.string()
+            val encryptionPairingCode = qrComponents.second
             val guid = qrComponents.first
             val sharedKeyAndPassword = Pairing.sharedKeyAndPassword(encryptionPairingCode, encryptionPassword)
             val sharedKey = sharedKeyAndPassword[0]
@@ -213,9 +216,13 @@ class PayloadManager(
                 password,
                 sessionId
             )
-        } else {
-            log.error("", exe.code().toString() + " - " + exe.errorBody()!!.string())
-            throw ServerConnectionException(exe.code().toString() + " - " + exe.errorBody()!!.string())
+        }.onErrorResumeNext {
+            Completable.error(
+                ServerConnectionException(
+                    (it as? HttpException)?.code().toString() + " - " +
+                        (it as? HttpException)?.response()?.errorBody()?.string()
+                )
+            )
         }
     }
 
@@ -234,17 +241,10 @@ class PayloadManager(
     fun upgradeV2PayloadToV3(
         secondPassword: String?,
         defaultAccountName: String
-    ) {
+    ): Completable {
         val currentWallet = payload
-        try {
-            val upgradedWallet = currentWallet.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-            val success: Boolean = saveAndSync(walletBase.withWalletBody(upgradedWallet), password)
-            if (!success) {
-                throw Exception("Save failed")
-            }
-        } catch (t: Throwable) {
-            throw t
-        }
+        val upgradedWallet = currentWallet.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
+        return saveAndSync(walletBase.withWalletBody(upgradedWallet), password)
     }
 
     /**
@@ -253,7 +253,7 @@ class PayloadManager(
      * @param secondPassword
      * @throws Exception
      */
-    fun upgradeV3PayloadToV4(secondPassword: String?) {
+    fun upgradeV3PayloadToV4(secondPassword: String?): Completable {
         if (payload.isDoubleEncryption) {
             payload.decryptHDWallet(secondPassword)
         }
@@ -265,57 +265,45 @@ class PayloadManager(
                 payload.options.pbkdf2Iterations!!
             )
         } ?: emptyList()
-        val success =
-            saveAndSync(
-                walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)), password
-            )
-        if (!success) {
-            throw Exception("Save failed")
-        }
+
+        return saveAndSync(
+            walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)), password
+        )
     }
 
-    fun updateDerivationsForAccounts(accounts: List<Account>) {
-        saveAndSync(
+    fun updateDerivationsForAccounts(accounts: List<Account>): Completable {
+        return saveAndSync(
             walletBase.withUpdatedDerivationsForAccounts(accounts), password
         )
     }
 
-    fun updateAccountLabel(account: JsonSerializableAccount, label: String) {
-        saveAndSync(
+    fun updateAccountLabel(account: JsonSerializableAccount, label: String): Completable {
+        return saveAndSync(
             walletBase.withUpdatedLabel(account, label), password
         )
     }
 
-    fun updateArchivedAccountState(account: JsonSerializableAccount, acrhived: Boolean) {
-        saveAndSync(
+    fun updateArchivedAccountState(account: JsonSerializableAccount, acrhived: Boolean): Completable {
+        return saveAndSync(
             walletBase.withUpdatedAccountState(account, acrhived), password
         )
     }
 
-    fun updateMnemonicVerified(verified: Boolean) {
-        saveAndSync(
+    fun updateMnemonicVerified(verified: Boolean): Completable {
+        return saveAndSync(
             walletBase.withMnemonicState(verified), password
         )
     }
 
-    fun updatePassword(password: String): Boolean {
-        val success: Boolean = saveAndSync(walletBase, password)
-        if (success) {
+    fun updatePassword(password: String): Completable {
+        return saveAndSync(walletBase, password).doOnComplete {
             this.password = password
         }
-        return success
     }
 
-    fun updateDefaultIndex(index: Int) {
-        saveAndSync(
+    fun updateDefaultIndex(index: Int): Completable {
+        return saveAndSync(
             walletBase.withWalletBody(payload.updateDefaultIndex(index)),
-            password
-        )
-    }
-
-    fun updateDefaultDerivationTypeForAccounts(accounts: List<Account>) {
-        saveAndSync(
-            walletBase.withUpdatedDefaultDerivationTypeForAccounts(accounts),
             password
         )
     }
@@ -359,7 +347,7 @@ class PayloadManager(
      *
      * @return True if save successful
      */
-    fun syncPubKeys(): Boolean {
+    fun syncPubKeys(): Completable {
         return saveAndSync(
             walletBase.withSyncedPubKeys(),
             password
@@ -379,7 +367,7 @@ class PayloadManager(
      * @throws EncryptionException
      * @throws IOException
      */
-    private fun saveAndSync(newWalletBase: WalletBase, passw: String): Boolean {
+    private fun saveAndSync(newWalletBase: WalletBase, passw: String): Completable {
         validateSave(newWalletBase)
         // Encrypt and wrap payload
         val payloadVersion = newWalletBase.wallet.wrapperVersion
@@ -393,7 +381,7 @@ class PayloadManager(
             emptyList()
         }
 
-        val call = walletApi.updateWallet(
+        return walletApi.updateWallet(
             guid = payload.guid,
             sharedKey = payload.sharedKey,
             activeAddressList = syncAddresses,
@@ -401,16 +389,9 @@ class PayloadManager(
             newChecksum = newPayloadChecksum,
             oldChecksum = oldPayloadChecksum,
             device = device.osType
-        )
-        val exe = call.execute()
-        return if (exe.isSuccessful) {
-            // set new checksum and update the local
+        ).doOnComplete {
             val updatedWalletBase = newWalletBase.withUpdatedChecksum(newPayloadChecksum)
             updatePayload(updatedWalletBase)
-            true
-        } else {
-            log.error("Save unsuccessful: " + exe.errorBody()!!.string())
-            false
         }
     }
 
@@ -452,22 +433,20 @@ class PayloadManager(
     fun addAccount(
         label: String,
         secondPassword: String?
-    ): Account {
+    ): Single<Account> {
 
         val updatedWallet: Wallet = payload.addAccount(
             label,
             secondPassword
         )
-        val success = saveAndSync(
+        return saveAndSync(
             walletBase.withWalletBody(updatedWallet),
             password
-        )
-        if (!success) {
-            // Revert on save fail
-            throw java.lang.Exception("Failed to save added account.")
+        ).doOnComplete {
+            updateAllBalances()
+        }.thenSingle {
+            Single.just(walletBase.wallet.walletBody!!.lastCreatedAccount())
         }
-        updateAllBalances()
-        return walletBase.wallet.walletBody!!.lastCreatedAccount()
     }
 
     /**
@@ -477,17 +456,15 @@ class PayloadManager(
      * @param importedAddress The [ImportedAddress] to be added
      * @throws Exception Possible if saving the Wallet fails
      */
-    fun addImportedAddress(importedAddress: ImportedAddress?) {
+    fun addImportedAddress(importedAddress: ImportedAddress?): Completable {
         val wallet: Wallet = payload.addImportedAddress(importedAddress)
         val updatedWalletBase = walletBase.withWalletBody(wallet)
-        if (!saveAndSync(
-                updatedWalletBase,
-                password
-            )
-        ) {
-            throw java.lang.Exception("Failed to save added Imported Address.")
+        return saveAndSync(
+            updatedWalletBase,
+            password
+        ).doOnComplete {
+            updateAllBalances()
         }
-        updateAllBalances()
     }
 
     /**
@@ -500,22 +477,19 @@ class PayloadManager(
     fun setKeyForImportedAddress(
         key: SigningKey,
         secondPassword: String?
-    ): ImportedAddress {
+    ): Single<ImportedAddress> {
         return try {
             val address = payload.updateKeyForImportedAddress(
                 key,
                 secondPassword
             )
-            if (saveAndSync(
-                    walletBase.withWalletBody(payload.replaceOrAddImportedAddress(address)),
-                    password
-                )
-            ) {
-                address
-            } else {
-                throw RuntimeException("Failed to add address")
+            saveAndSync(
+                walletBase.withWalletBody(payload.replaceOrAddImportedAddress(address)),
+                password
+            ).thenSingle {
+                Single.just(address)
             }
-        } catch (e: NoSuchAddressException) { // No match found
+        } catch (e: NoSuchAddressException) {
             addImportedAddressFromKey(key, secondPassword)
         }
     }
@@ -523,21 +497,18 @@ class PayloadManager(
     fun addImportedAddressFromKey(
         key: SigningKey,
         secondPassword: String?
-    ): ImportedAddress {
+    ): Single<ImportedAddress> {
         val address = payload.importedAddressFromKey(
             key,
             secondPassword, device.osType,
             appVersion.appVersion
         )
         val wallet: Wallet = payload.addImportedAddress(address)
-        return if (saveAndSync(
-                walletBase.withWalletBody(wallet),
-                password
-            )
-        ) {
-            address
-        } else {
-            throw RuntimeException("Failed to import Address")
+        return saveAndSync(
+            walletBase.withWalletBody(wallet),
+            password
+        ).thenSingle {
+            Single.just(address)
         }
     }
 
@@ -805,10 +776,9 @@ class PayloadManager(
         account: Account,
         position: Int,
         derivationType: String
-    ): String? {
+    ): String {
         val hdAccount = payload.walletBody!!
-            .getHDAccountFromAccountBody(account)[if (derivationType === Derivation.LEGACY_TYPE) 0 else 1]
-            ?: return null
+            .getHDAccountFromAccountBody(account)[if (derivationType === Derivation.LEGACY_TYPE) 0 else 1]!!
 
         return hdAccount.receive
             .getAddressAt(
@@ -857,22 +827,20 @@ class PayloadManager(
         multiAddressFactory.incrementNextChangeAddress(account.xpubs.default.address)
     }
 
-    fun getNextReceiveAddressAndReserve(account: Account, reserveLabel: String): String? {
+    fun getNextReceiveAddressAndReserve(account: Account, reserveLabel: String): Single<String> {
         val derivationType = derivationTypeFromXPub(account.xpubs.default)
         val nextIndex = getNextReceiveAddressIndexBtc(account)
-        reserveAddress(account, nextIndex, reserveLabel)
-        return getReceiveAddress(account, nextIndex, derivationType)
+        return reserveAddress(account, nextIndex, reserveLabel).thenSingle {
+            Single.just(getReceiveAddress(account, nextIndex, derivationType))
+        }
     }
 
-    fun reserveAddress(account: Account, index: Int, label: String?) {
+    private fun reserveAddress(account: Account, index: Int, label: String?): Completable {
         val updatedAccount = account.addAddressLabel(index, label!!)
-        val success = saveAndSync(
+        return saveAndSync(
             walletBase.withWalletBody(payload.updateAccount(account, updatedAccount)),
             password
         )
-        if (!success) {
-            throw ServerConnectionException("Unable to reserve address.")
-        }
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -910,8 +878,8 @@ class PayloadManager(
         balanceManagerBtc.subtractAmountFromAddressBalance(address, amount)
     }
 
-    fun updateNotesForTxHash(transactionHash: String, notes: String) {
-        saveAndSync(
+    fun updateNotesForTxHash(transactionHash: String, notes: String): Completable {
+        return saveAndSync(
             walletBase.withWalletBody(payload.updateTxNotes(transactionHash, notes)),
             password
         )
