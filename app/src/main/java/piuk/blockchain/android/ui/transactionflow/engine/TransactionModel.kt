@@ -626,6 +626,7 @@ class TransactionModel(
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
+        AssetAction.StakingDeposit -> interactor.userAccessForFeature(Feature.DepositStaking).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,
         AssetAction.ViewActivity,

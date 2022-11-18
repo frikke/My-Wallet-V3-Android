@@ -49,6 +49,7 @@ internal class UserFeaturePermissionRepository(
             Feature.DepositCrypto,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.DepositStaking,
             Feature.WithdrawFiat -> {
                 getAccessForFeature(feature).mapData { it is FeatureAccess.Granted }
             }
@@ -112,6 +113,11 @@ internal class UserFeaturePermissionRepository(
 
             Feature.DepositInterest -> {
                 eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.DepositStaking -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_STAKING)
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 

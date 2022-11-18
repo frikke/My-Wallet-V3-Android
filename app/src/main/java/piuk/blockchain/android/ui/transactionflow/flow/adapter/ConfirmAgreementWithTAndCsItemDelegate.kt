@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTcsBinding
+import piuk.blockchain.android.databinding.ItemSendConfirmAgreementCheckboxBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -20,11 +20,11 @@ class ConfirmAgreementWithTAndCsItemDelegate<in T>(
     private val model: TransactionModel
 ) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean =
-        (items[position] as? TxConfirmationValue)?.confirmation == TxConfirmation.AGREEMENT_INTEREST_T_AND_C
+        (items[position] as? TxConfirmationValue)?.confirmation == TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AgreementItemViewHolder(
-            ItemSendConfirmAgreementTcsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemSendConfirmAgreementCheckboxBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
 
     override fun onBindViewHolder(
@@ -37,7 +37,7 @@ class ConfirmAgreementWithTAndCsItemDelegate<in T>(
     )
 }
 
-private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreementTcsBinding) :
+private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreementCheckboxBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<Unit>,

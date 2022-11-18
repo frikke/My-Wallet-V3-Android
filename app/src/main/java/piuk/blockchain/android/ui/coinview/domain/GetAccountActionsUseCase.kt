@@ -14,6 +14,7 @@ import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 
 data class GetAccountActionsUseCase(
@@ -40,7 +41,16 @@ data class GetAccountActionsUseCase(
                             actions
                         }
                     }
-                    else -> actions.minus { it.action == AssetAction.InterestDeposit }
+                    account.isStakingAccount() -> {
+                        if (actions.none { it.action == AssetAction.StakingDeposit }) {
+                            actions + StateAwareAction(ActionState.Available, AssetAction.StakingDeposit)
+                        } else {
+                            actions
+                        }
+                    }
+                    else -> actions.minus {
+                        it.action == AssetAction.InterestDeposit || it.action == AssetAction.StakingDeposit
+                    }
                 }.sortedWith(assetActionsComparator)
 
                 DataResource.Data(sortedActions)

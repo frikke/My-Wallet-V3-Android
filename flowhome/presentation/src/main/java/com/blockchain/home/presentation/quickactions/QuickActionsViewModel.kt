@@ -81,6 +81,7 @@ class QuickActionsViewModel(
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
             AssetAction.FiatDeposit,
+            AssetAction.StakingDeposit,
             AssetAction.Sign -> throw IllegalStateException("Action $action is not supported as a Quick action")
         }
     }

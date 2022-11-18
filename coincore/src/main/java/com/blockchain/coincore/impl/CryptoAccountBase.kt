@@ -126,6 +126,7 @@ abstract class CryptoAccountBase : CryptoAccount {
             AssetAction.Send,
             AssetAction.Sell,
             AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
             AssetAction.Swap,
             AssetAction.Receive
         )
@@ -350,6 +351,8 @@ abstract class CryptoNonCustodialAccount(
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
             AssetAction.FiatDeposit,
+            // TODO(dserrano) - STAKING - re-enable this
+            AssetAction.StakingDeposit,
             AssetAction.Sign -> Single.just(StateAwareAction(ActionState.Unavailable, this))
         }
     }

@@ -148,7 +148,8 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
                 actionName = getString(R.string.common_withdraw)
                 icon = R.drawable.ic_tx_withdraw
             }
-            AssetAction.InterestDeposit -> {
+            AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit -> {
                 actionName = getString(R.string.common_transfer)
                 icon = R.drawable.ic_tx_deposit_arrow
             }

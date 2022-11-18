@@ -156,8 +156,8 @@ class CustodialTradingAccount(
                 .map { it.toSet() }
         }
 
-    private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> {
-        return when (this) {
+    private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> =
+        when (this) {
             AssetAction.ViewActivity -> viewActivityEligibility()
             AssetAction.Receive -> receiveEligibility()
             AssetAction.Send -> sendEligibility(balance)
@@ -165,13 +165,13 @@ class CustodialTradingAccount(
             AssetAction.Swap -> swapEligibility(balance)
             AssetAction.Sell -> sellEligibility(balance)
             AssetAction.Buy -> buyEligibility()
+            AssetAction.StakingDeposit -> stakingDepositEligibility(balance)
             AssetAction.ViewStatement,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
             AssetAction.FiatDeposit,
             AssetAction.Sign -> Single.just(StateAwareAction(ActionState.Unavailable, this))
         }
-    }
 
     private fun buyEligibility(): Single<StateAwareAction> {
         val supportedPairs = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
@@ -247,6 +247,19 @@ class CustodialTradingAccount(
                     else -> ActionState.Available
                 },
                 AssetAction.InterestDeposit
+            )
+        }
+    }
+
+    private fun stakingDepositEligibility(balance: AccountBalance): Single<StateAwareAction> {
+        return identity.userAccessForFeature(Feature.DepositStaking).map { access ->
+            StateAwareAction(
+                when {
+                    access is FeatureAccess.Blocked -> access.toActionState()
+                    balance.total.isPositive.not() -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.StakingDeposit
             )
         }
     }

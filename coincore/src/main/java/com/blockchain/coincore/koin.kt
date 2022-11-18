@@ -178,7 +178,9 @@ val coincoreModule = module {
                 userIdentity = get(),
                 withdrawLocksRepository = get(),
                 plaidFeatureFlag = get(plaidFeatureFlag),
-                swapTransactionsCache = get()
+                swapTransactionsCache = get(),
+                stakingBalanceStore = get(),
+                stakingService = get()
             )
         }
 

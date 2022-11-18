@@ -7,5 +7,6 @@ enum class EligibleProduct {
     DEPOSIT_FIAT,
     DEPOSIT_CRYPTO,
     DEPOSIT_INTEREST,
-    WITHDRAW_FIAT
+    WITHDRAW_FIAT,
+    DEPOSIT_STAKING
 }

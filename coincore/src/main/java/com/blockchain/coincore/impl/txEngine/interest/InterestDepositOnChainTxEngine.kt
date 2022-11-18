@@ -102,7 +102,7 @@ class InterestDepositOnChainTxEngine(
 
     override fun doOptionUpdateRequest(pendingTx: PendingTx, newConfirmation: TxConfirmationValue): Single<PendingTx> =
         if (newConfirmation.confirmation in setOf(
-                TxConfirmation.AGREEMENT_INTEREST_T_AND_C,
+                TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
                 TxConfirmation.AGREEMENT_INTEREST_TRANSFER
             )
         ) {

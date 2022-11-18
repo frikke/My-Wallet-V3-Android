@@ -158,7 +158,7 @@ class TxFlowAnalytics(
             )
             AssetAction.Send -> if (account is InterestAccount) {
                 analytics.logEvent(
-                    InterestAnalytics.InterestDepositClicked(
+                    EarnAnalytics.InterestDepositClicked(
                         currency = state.sendingAsset.networkTicker,
                         origin = LaunchOrigin.SEND
                     )
@@ -209,7 +209,7 @@ class TxFlowAnalytics(
         when (step) {
 
             TransactionStep.ENTER_AMOUNT -> {
-                analytics.logEvent(InterestAnalytics.InterestDepositViewed)
+                analytics.logEvent(EarnAnalytics.InterestDepositViewed)
                 analytics.logEvent(InterestDepositAnalyticsEvent.EnterAmountSeen)
             }
             TransactionStep.CONFIRM_DETAIL -> analytics.logEvent(InterestDepositAnalyticsEvent.ConfirmationsSeen)
@@ -220,7 +220,7 @@ class TxFlowAnalytics(
 
     private fun triggerInterestWithdrawScreenEvent(step: TransactionStep) {
         when (step) {
-            TransactionStep.ENTER_AMOUNT -> analytics.logEvent(InterestAnalytics.InterestWithdrawalViewed)
+            TransactionStep.ENTER_AMOUNT -> analytics.logEvent(EarnAnalytics.InterestWithdrawalViewed)
             else -> {
             }
         }
@@ -385,7 +385,7 @@ class TxFlowAnalytics(
             }
             AssetAction.InterestDeposit -> {
                 analytics.logEvent(
-                    InterestAnalytics.InterestDepositMaxAmount(
+                    EarnAnalytics.InterestDepositMaxAmount(
                         currency = state.amount.currencyCode,
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount)
                     )
@@ -434,7 +434,7 @@ class TxFlowAnalytics(
             AssetAction.InterestDeposit -> {
                 analytics.logEvent(InterestDepositAnalyticsEvent.EnterAmountCtaClick(state.sendingAsset))
                 analytics.logEvent(
-                    InterestAnalytics.InterestDepositAmountEntered(
+                    EarnAnalytics.InterestDepositAmountEntered(
                         currency = state.sendingAsset.networkTicker,
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         inputAmount = state.amount

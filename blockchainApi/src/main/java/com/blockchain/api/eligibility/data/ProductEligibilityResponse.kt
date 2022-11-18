@@ -13,7 +13,8 @@ class ProductEligibilityResponse(
     val depositFiat: DefaultEligibilityResponse?,
     val depositCrypto: DefaultEligibilityResponse?,
     val depositInterest: DefaultEligibilityResponse?,
-    val withdrawFiat: DefaultEligibilityResponse?
+    val withdrawFiat: DefaultEligibilityResponse?,
+    val depositStaking: DefaultEligibilityResponse?
 )
 
 @Serializable

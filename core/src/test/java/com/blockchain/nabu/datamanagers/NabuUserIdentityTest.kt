@@ -8,6 +8,7 @@ import com.blockchain.core.kyc.domain.model.KycTierDetail
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -37,6 +38,7 @@ class NabuUserIdentityTest {
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
     private val bindFeatureFlag: FeatureFlag = mock()
+    private val stakingService: StakingService = mock()
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
@@ -45,7 +47,8 @@ class NabuUserIdentityTest {
         kycService = kycService,
         eligibilityService = eligibilityService,
         userService = userService,
-        bindFeatureFlag = bindFeatureFlag
+        bindFeatureFlag = bindFeatureFlag,
+        stakingService = stakingService
     )
 
     @Test

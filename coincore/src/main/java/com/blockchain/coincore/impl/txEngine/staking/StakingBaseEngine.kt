@@ -1,19 +1,23 @@
-package com.blockchain.coincore.impl.txEngine.interest
+package com.blockchain.coincore.impl.txEngine.staking
 
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestLimits
+import com.blockchain.coincore.impl.txEngine.interest.TransferData
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.staking.domain.model.StakingLimits
+import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 
-abstract class InterestBaseEngine(
-    private val interestService: InterestService
+private val PendingTx.stakingLimits: StakingLimits
+    get() = (this.engineState[STAKING_LIMITS] as StakingLimits)
+
+abstract class StakingBaseEngine(
+    private val stakingService: StakingService
 ) : TxEngine() {
 
     protected val sourceAssetInfo: AssetInfo
@@ -33,15 +37,17 @@ abstract class InterestBaseEngine(
             )
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation(
-                    confirmation = TxConfirmation.AGREEMENT_INTEREST_TRANSFER,
-                    data = TransferData.Interest(pendingTx.amount),
+                    confirmation = TxConfirmation.AGREEMENT_STAKING_TRANSFER,
+                    data = TransferData.Staking(
+                        pendingTx.amount, pendingTx.stakingLimits
+                    ),
                     value = agreementChecked
                 )
             )
 
-    protected fun getLimits(): Single<Pair<AssetInfo, InterestLimits>> =
-        interestService.getLimitsForAsset(sourceAssetInfo).map { interestLimits ->
-            Pair(sourceAssetInfo, interestLimits)
+    protected fun getLimits(): Single<Pair<AssetInfo, StakingLimits>> =
+        stakingService.getLimitsForAsset(sourceAssetInfo).asSingle().map { stakingLimits ->
+            Pair(sourceAssetInfo, stakingLimits)
         }
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
@@ -56,17 +62,12 @@ abstract class InterestBaseEngine(
         )?.value ?: false
 
     private fun getAgreementOptionValue(pendingTx: PendingTx): Boolean =
-        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<TransferData>>(
-            TxConfirmation.AGREEMENT_INTEREST_TRANSFER
+        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Money>>(
+            TxConfirmation.AGREEMENT_STAKING_TRANSFER
         )?.value ?: false
 
     protected fun TxConfirmation.isInterestAgreement(): Boolean = this in setOf(
         TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
-        TxConfirmation.AGREEMENT_INTEREST_TRANSFER
+        TxConfirmation.AGREEMENT_STAKING_TRANSFER
     )
-}
-
-sealed class TransferData {
-    class Interest(val amount: Money) : TransferData()
-    class Staking(val amount: Money, val stakingLimits: StakingLimits) : TransferData()
 }

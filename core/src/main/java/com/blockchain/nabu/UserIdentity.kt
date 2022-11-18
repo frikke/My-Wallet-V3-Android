@@ -36,6 +36,7 @@ sealed class Feature {
     object DepositCrypto : Feature()
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
+    object DepositStaking : Feature()
 }
 
 data class BasicProfileInfo(

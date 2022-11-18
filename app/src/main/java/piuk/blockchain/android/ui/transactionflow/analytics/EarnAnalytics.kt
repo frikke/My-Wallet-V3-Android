@@ -6,25 +6,25 @@ import com.blockchain.analytics.events.LaunchOrigin
 import info.blockchain.balance.Money
 import java.io.Serializable
 
-sealed class InterestAnalytics(
+sealed class EarnAnalytics(
     override val event: String,
     override val params: Map<String, Serializable> = emptyMap(),
     override val origin: LaunchOrigin? = null
 ) : AnalyticsEvent {
-    object InterestAnnouncementCta : InterestAnalytics("earn_banner_clicked")
-    object InterestDashboardKyc : InterestAnalytics("earn_verify_identity_clicked")
-    object InterestDashboardAction : InterestAnalytics("earn_interest_clicked")
-    object InterestSummaryDepositCta : InterestAnalytics("earn_deposit_clicked")
-    object InterestSummaryWithdrawCta : InterestAnalytics("earn_withdraw_clicked")
+    object InterestAnnouncementCta : EarnAnalytics("earn_banner_clicked")
+    object InterestDashboardKyc : EarnAnalytics("earn_verify_identity_clicked")
+    object InterestDashboardAction : EarnAnalytics("earn_interest_clicked")
+    object InterestSummaryDepositCta : EarnAnalytics("earn_deposit_clicked")
+    object InterestSummaryWithdrawCta : EarnAnalytics("earn_withdraw_clicked")
 
     class InterestClicked(override val origin: LaunchOrigin) :
-        InterestAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
+        EarnAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
 
     class InterestDepositAmountEntered(
         currency: String,
         sourceAccountType: TxFlowAnalyticsAccountType,
         inputAmount: Money
-    ) : InterestAnalytics(
+    ) : EarnAnalytics(
         event = AnalyticsNames.INTEREST_DEPOSIT_AMOUNT_ENTERED.eventName,
         mapOf(
             CURRENCY to currency,
@@ -36,7 +36,7 @@ sealed class InterestAnalytics(
     class InterestDepositClicked(
         currency: String,
         origin: LaunchOrigin
-    ) : InterestAnalytics(
+    ) : EarnAnalytics(
         event = AnalyticsNames.INTEREST_DEPOSIT_CLICKED.eventName,
         mapOf(
             CURRENCY to currency
@@ -47,7 +47,7 @@ sealed class InterestAnalytics(
     class InterestDepositMaxAmount(
         currency: String,
         sourceAccountType: TxFlowAnalyticsAccountType
-    ) : InterestAnalytics(
+    ) : EarnAnalytics(
         event = AnalyticsNames.INTEREST_MAX_CLICKED.eventName,
         mapOf(
             CURRENCY to currency,
@@ -55,18 +55,18 @@ sealed class InterestAnalytics(
         )
     )
 
-    object InterestDepositViewed : InterestAnalytics(
+    object InterestDepositViewed : EarnAnalytics(
         event = AnalyticsNames.INTEREST_DEPOSIT_VIEWED.eventName
     )
 
-    object InterestViewed : InterestAnalytics(
+    object InterestViewed : EarnAnalytics(
         event = AnalyticsNames.INTEREST_VIEWED.eventName
     )
 
     class InterestWithdrawalClicked(
         currency: String,
         origin: LaunchOrigin
-    ) : InterestAnalytics(
+    ) : EarnAnalytics(
         event = AnalyticsNames.INTEREST_WITHDRAWAL_CLICKED.eventName,
         mapOf(
             CURRENCY to currency
@@ -74,8 +74,19 @@ sealed class InterestAnalytics(
         origin = origin
     )
 
-    object InterestWithdrawalViewed : InterestAnalytics(
+    object InterestWithdrawalViewed : EarnAnalytics(
         event = AnalyticsNames.INTEREST_WITHDRAWAL_VIEWED.eventName
+    )
+
+    class StakingDepositClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.STAKING_DEPOSIT_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
     )
 
     companion object {

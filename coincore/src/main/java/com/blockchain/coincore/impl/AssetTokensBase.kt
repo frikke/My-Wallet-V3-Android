@@ -186,7 +186,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             label = labels.getDefaultStakingWalletLabel(),
                             stakingService = stakingService,
                             exchangeRates = exchangeRates,
-                            internalAccountLabel = labels.getDefaultTradingWalletLabel()
+                            internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                            identity = identity,
+                            kycService = kycService
                         )
                     )
                 } else {

@@ -2,6 +2,7 @@ package com.blockchain.api.staking
 
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
+import com.blockchain.api.staking.data.StakingLimitsMapDto
 import com.blockchain.api.staking.data.StakingRatesDto
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
@@ -22,9 +23,10 @@ internal interface StakingApi {
     @GET("accounts/staking")
     suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingBalanceDto>?>
 
-    // TODO(dserrano) - STAKING
-    //    @GET("earn/limits")
-    //    suspend fun getTickersLimits(
-    //        @Query("currency") ticker: String
-    //    ): Outcome<Exception, StakingAssetLimitsDto>
+    @GET("earn/limits")
+    suspend fun getTickerLimits(
+        @Query("ccy") cryptoTicker: String?,
+        @Query("currency") fiatTicker: String,
+        @Query("product") product: String = "STAKING"
+    ): Outcome<Exception, StakingLimitsMapDto>
 }

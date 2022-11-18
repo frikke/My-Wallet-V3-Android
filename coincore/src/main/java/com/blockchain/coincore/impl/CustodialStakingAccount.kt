@@ -13,11 +13,18 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.coincore.toActionState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.staking.domain.StakingActivity
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.extensions.exhaustive
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
@@ -34,6 +41,8 @@ class CustodialStakingAccount(
     private val internalAccountLabel: String,
     private val stakingService: StakingService,
     override val exchangeRates: ExchangeRatesDataManager,
+    private val identity: UserIdentity,
+    private val kycService: KycService
 ) : CryptoAccountBase(), StakingAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -147,9 +156,27 @@ class CustodialStakingAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    // TODO(dserrano) - STAKING - add deposit & withdraw
+    // TODO(dserrano) - STAKING - add withdraw & summary
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = Single.just(setOf(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)))
+        get() = Single.zip(
+            kycService.getHighestApprovedTierLevelLegacy(),
+            identity.userAccessForFeature(Feature.DepositStaking)
+        ) { tier, depositInterestEligibility ->
+            return@zip when (tier) {
+                KycTier.BRONZE,
+                KycTier.SILVER -> emptySet()
+                KycTier.GOLD -> setOf(
+                    StateAwareAction(
+                        when (depositInterestEligibility) {
+                            is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
+                            else -> ActionState.Available
+                        },
+                        AssetAction.StakingDeposit
+                    ),
+                    StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+                )
+            }.exhaustive
+        }
 
     companion object {
         private val displayedStates = setOf(

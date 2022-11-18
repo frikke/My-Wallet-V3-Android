@@ -9,6 +9,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit

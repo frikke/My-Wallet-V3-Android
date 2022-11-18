@@ -1324,7 +1324,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">%1$s veya daha fazlasını gönderin</string>
     <string name="send_enter_invalid_password">Parola yanlış.</string>
     <string name="send_enter_unexpected_error">Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.</string>
-    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli ETH\'niz bulunmuyor.</string>
+    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli %1$s\'niz bulunmuyor.</string>
     <string name="send_select_a_wallet_title">veya Bir Cüzdan Seçin</string>
     <string name="send_select_a_wallet_warning">Yalnızca (%2$s) ağındaki cüzdanlara %1$s gönderin.\n<annotation link="send_network_options">Daha fazla bilgi edinin</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s), birden çok ağda bulunabilecek bir tokendir. Göndermeden önce, gönderdiğiniz cüzdan adresinin ağını bildiğinizden emin olun.</string>

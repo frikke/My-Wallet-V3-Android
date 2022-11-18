@@ -13,6 +13,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
@@ -211,6 +212,18 @@ class TransactionInteractor(
             }
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
+                require(targetAccount is CryptoAccount)
+                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
+                    it.filter { acc ->
+                        acc is CryptoAccount &&
+                            acc.currency == targetAccount.currency &&
+                            acc != targetAccount &&
+                            acc.isFunded
+                    }
+                }
+            }
+            AssetAction.StakingDeposit -> {
+                require(targetAccount is StakingAccount)
                 require(targetAccount is CryptoAccount)
                 coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
                     it.filter { acc ->

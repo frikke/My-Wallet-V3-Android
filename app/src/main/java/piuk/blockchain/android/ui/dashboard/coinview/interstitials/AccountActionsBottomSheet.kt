@@ -48,7 +48,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
@@ -336,7 +336,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 action = stateAwareAction
             ) {
                 analytics.logEvent(
-                    InterestAnalytics.InterestDepositClicked(
+                    EarnAnalytics.InterestDepositClicked(
                         currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
@@ -351,7 +351,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 action = stateAwareAction
             ) {
                 analytics.logEvent(
-                    InterestAnalytics.InterestWithdrawalClicked(
+                    EarnAnalytics.InterestWithdrawalClicked(
                         currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
@@ -376,6 +376,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 action = stateAwareAction
             ) {
                 processAction(AssetAction.Buy)
+            }
+            AssetAction.StakingDeposit -> AssetActionItem(
+                title = getString(R.string.dashboard_asset_actions_add_title),
+                icon = R.drawable.ic_tx_deposit_arrow,
+                description = getString(R.string.dashboard_asset_actions_add_staking_dsc, asset.displayTicker),
+                asset = asset,
+                action = stateAwareAction
+            ) {
+                analytics.logEvent(
+                    EarnAnalytics.StakingDepositClicked(
+                        currency = asset.networkTicker,
+                        origin = LaunchOrigin.CURRENCY_PAGE
+                    )
+                )
+                processAction(AssetAction.StakingDeposit)
             }
             AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")

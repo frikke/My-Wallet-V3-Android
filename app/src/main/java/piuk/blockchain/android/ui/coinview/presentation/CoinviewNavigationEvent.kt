@@ -59,6 +59,10 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
+    data class NavigateToStakingDeposit(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
     data class ShowNoBalanceUpsell(
         val cvAccount: CoinviewAccount,
         val action: AssetAction,
@@ -77,10 +81,6 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
 
     data class ShowRecurringBuySheet(
         val recurringBuyId: String
-    ) : CoinviewNavigationEvent
-
-    data class ShowStakingAccountInterstitial(
-        val assetIconUrl: String?
     ) : CoinviewNavigationEvent
 
     object NavigateToSupport : CoinviewNavigationEvent

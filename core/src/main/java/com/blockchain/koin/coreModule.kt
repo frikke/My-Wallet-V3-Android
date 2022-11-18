@@ -92,6 +92,7 @@ import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.core.staking.data.StakingRepository
 import com.blockchain.core.staking.data.datasources.StakingBalanceStore
 import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
+import com.blockchain.core.staking.data.datasources.StakingLimitsStore
 import com.blockchain.core.staking.data.datasources.StakingRatesStore
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.user.NabuUserDataManager
@@ -610,6 +611,13 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            StakingLimitsStore(
+                stakingApiService = get(),
+                currencyPrefs = get()
+            )
+        }
+
         scoped<StakingService> {
             StakingRepository(
                 stakingRatesStore = get(),
@@ -617,7 +625,9 @@ val coreModule = module {
                 stakingBalanceStore = get(),
                 assetCatalogue = get(),
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
-                paymentTransactionHistoryStore = get()
+                paymentTransactionHistoryStore = get(),
+                stakingLimitsStore = get(),
+                currencyPrefs = get()
             )
         }
 

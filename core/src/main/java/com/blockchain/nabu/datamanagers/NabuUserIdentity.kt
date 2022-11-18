@@ -2,6 +2,9 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.staking.domain.StakingService
+import com.blockchain.core.staking.domain.model.StakingEligibility
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -15,6 +18,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.store.firstOutcome
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipSingles
 import io.reactivex.rxjava3.core.Completable
@@ -29,7 +33,8 @@ class NabuUserIdentity(
     private val kycService: KycService,
     private val userService: UserService,
     private val eligibilityService: EligibilityService,
-    private val bindFeatureFlag: FeatureFlag
+    private val bindFeatureFlag: FeatureFlag,
+    private val stakingService: StakingService
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -45,6 +50,7 @@ class NabuUserIdentity(
             Feature.DepositCrypto,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.DepositStaking,
             Feature.WithdrawFiat -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
         }
     }
@@ -63,6 +69,7 @@ class NabuUserIdentity(
             Feature.Swap,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.DepositStaking,
             Feature.Sell,
             Feature.WithdrawFiat -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
@@ -139,6 +146,10 @@ class NabuUserIdentity(
             Feature.WithdrawFiat ->
                 rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
+            Feature.DepositStaking ->
+                rxSingleOutcome {
+                    stakingService.getStakingEligibility(FreshnessStrategy.Cached(forceRefresh = false)).firstOutcome()
+                }.map(StakingEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> TODO("Not Implemented Yet")
@@ -195,3 +206,12 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
             null -> BlockedReason.NotEligible(null)
         }
     )
+
+private fun StakingEligibility.toFeatureAccess(): FeatureAccess =
+    if (this is StakingEligibility.Eligible) FeatureAccess.Granted()
+    else when (this as StakingEligibility.Ineligible) {
+        StakingEligibility.Ineligible.REGION -> FeatureAccess.Blocked(BlockedReason.NotEligible(null))
+        StakingEligibility.Ineligible.KYC_TIER -> FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)
+        StakingEligibility.Ineligible.OTHER -> FeatureAccess.Blocked(BlockedReason.NotEligible(null))
+        StakingEligibility.Ineligible.NONE -> FeatureAccess.Granted()
+    }

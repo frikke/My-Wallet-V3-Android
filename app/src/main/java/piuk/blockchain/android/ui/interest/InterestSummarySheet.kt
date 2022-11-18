@@ -36,7 +36,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import timber.log.Timber
 
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
@@ -102,7 +102,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         interestDetailsDepositCta.text =
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
-                            analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
+                            analytics.logEvent(EarnAnalytics.InterestSummaryDepositCta)
                             analytics.logEvent(
                                 CoinViewAnalytics.RewardsWithdrawOrAddClicked(
                                     origin = LaunchOrigin.COIN_VIEW,
@@ -155,12 +155,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                 interestDetailsWithdrawCta.visible()
                 interestDetailsWithdrawCta.setOnClickListener {
                     analytics.logEvent(
-                        InterestAnalytics.InterestWithdrawalClicked(
+                        EarnAnalytics.InterestWithdrawalClicked(
                             currency = composite.balance.currencyCode,
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )
-                    analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
+                    analytics.logEvent(EarnAnalytics.InterestSummaryWithdrawCta)
                     analytics.logEvent(
                         CoinViewAnalytics.RewardsWithdrawOrAddClicked(
                             origin = LaunchOrigin.COIN_VIEW,
