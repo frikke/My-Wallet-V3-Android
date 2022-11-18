@@ -60,7 +60,7 @@ fun <T> DataResource<T>.doOnData(f: (T) -> Unit): DataResource<T> {
     }
 }
 
-fun <T> Flow<DataResource<T>>.doOnData(f: suspend (T) -> Unit): Flow<DataResource<T>> {
+fun <T> Flow<DataResource<T>>.doOnData(f: (T) -> Unit): Flow<DataResource<T>> {
     return map { dataResource ->
         dataResource.also {
             if (it is DataResource.Data) f(it.data)

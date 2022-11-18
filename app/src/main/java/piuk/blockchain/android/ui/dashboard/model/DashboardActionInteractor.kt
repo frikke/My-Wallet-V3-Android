@@ -64,7 +64,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -72,8 +71,9 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
-import kotlinx.coroutines.flow.distinctUntilChangedBy
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
@@ -122,25 +122,25 @@ class DashboardActionInteractor(
     private val stakingFeatureFlag: FeatureFlag,
     private val shouldAssetShowUseCase: ShouldAssetShowUseCase
 ) {
-
-    private val defFilter: AssetFilter
-        get() = walletModeService.enabledWalletMode().defaultFilter()
+    private val activeAssetsDisposable = CompositeDisposable()
+    private val balancesDisposable = CompositeDisposable()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         walletModeService.walletMode.onEach {
+            balancesDisposable.clear()
             model.process(DashboardIntent.ClearAnnouncement)
-        }.flatMapLatest {
-            coincore.activeAssets(it)
-        }.distinctUntilChangedBy { assetList ->
-            assetList.map { it.currency }
+        }.flatMapLatest { wMode ->
+            coincore.activeAssets(wMode).map {
+                it to wMode
+            }
         }
             .asObservable()
             .subscribeBy(
-                onNext = { activeAssets ->
-                    Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
+                onNext = { (activeAssets, mode) ->
                     model.process(
                         DashboardIntent.UpdateActiveAssets(
-                            activeAssets
+                            assetList = activeAssets,
+                            walletMode = mode
                         )
                     )
                 },
@@ -149,17 +149,19 @@ class DashboardActionInteractor(
                     throw it
                 }
             ).also {
-                compositeDisposable.clear()
+                activeAssetsDisposable.clear()
+                balancesDisposable.clear()
             }.also {
-                compositeDisposable.add(it)
+                activeAssetsDisposable.add(it)
             }
 
-    fun fetchAccounts(assets: List<Asset>, model: DashboardModel) {
+    fun fetchAccounts(assets: List<Asset>, model: DashboardModel, walletMode: WalletMode) {
         return model.process(
             DashboardIntent.UpdateAllAssetsAndBalances(
                 assetList = assets.map { asset ->
-                    asset.toDashboardAsset(walletModeService.enabledWalletMode())
-                }
+                    asset.toDashboardAsset(walletMode)
+                },
+                walletMode = walletMode
             )
         )
     }
@@ -201,24 +203,21 @@ class DashboardActionInteractor(
                 onError = { throwable ->
                     Timber.e(throwable)
                 }
-            )
-
-    private val compositeDisposable = CompositeDisposable()
+            ).also {
+                balancesDisposable += it
+            }
 
     fun refreshBalances(
         model: DashboardModel,
         activeAssets: Set<Currency>,
+        walletMode: WalletMode,
     ): Disposable {
-        loadBalances(activeAssets, model).forEach {
-            it.addTo(compositeDisposable)
+        loadBalances(activeAssets, model, walletMode).forEach {
+            it.addTo(balancesDisposable)
         }
-        warmWalletModeBalanceCache().forEach {
-            it.addTo(compositeDisposable)
-        }
-        warmProductsCache().also {
-            it.addTo(compositeDisposable)
-        }
-        return compositeDisposable
+        warmWalletModeBalanceCache()
+        warmProductsCache()
+        return balancesDisposable
     }
 
     private fun warmWalletModeBalanceCache(): List<Disposable> {
@@ -245,10 +244,11 @@ class DashboardActionInteractor(
 
     private fun loadBalances(
         assets: Set<Currency>,
-        model: DashboardModel
+        model: DashboardModel,
+        walletMode: WalletMode
     ): List<Disposable> {
         return assets.takeIf { it.isNotEmpty() }?.map { asset ->
-            refreshAssetBalance(asset, model).subscribeBy(onError = {
+            refreshAssetBalance(asset, model, walletMode).subscribeBy(onError = {
                 Timber.e(it)
             })
         } ?: kotlin.run {
@@ -274,14 +274,18 @@ class DashboardActionInteractor(
     private fun refreshAssetBalance(
         currency: Currency,
         model: DashboardModel,
+        walletMode: WalletMode,
     ): Observable<Money> =
-        coincore[currency].accountGroup(defFilter)
-            .logGroupLoadError(currency, defFilter)
+        coincore[currency].accountGroup(walletMode.defaultFilter())
+            .logGroupLoadError(currency, walletMode.defaultFilter())
             .flatMapObservable { group ->
-                Observables.zip(
-                    group.balanceRx.logBalanceLoadError(currency, defFilter),
-                    shouldAssetShowUseCase.invoke(currency, group).asObservable()
-                )
+                group.balanceRx.debounce(500, TimeUnit.MILLISECONDS)
+                    .logBalanceLoadError(currency, walletMode.defaultFilter())
+                    .flatMap { balance ->
+                        shouldAssetShowUseCase.invoke(balance).asObservable().map { shouldShow ->
+                            balance to shouldShow
+                        }
+                    }
             }
             .doOnSubscribe {
                 Timber.i("Fetching balance for asset ${currency.displayTicker}")
@@ -324,7 +328,7 @@ class DashboardActionInteractor(
             is BrokerageFiatAsset,
             is DefiAsset -> refreshPrice(model, asset.currency)
         }.also {
-            compositeDisposable += it
+            balancesDisposable += it
         }
 
     private fun refreshPrice(model: DashboardModel, currency: Currency): Disposable =
@@ -339,8 +343,8 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
-        if (asset.startDate != null) {
+    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable {
+        return if (asset.startDate != null) {
             coincore[asset].lastDayTrend().asObservable()
         } else {
             Observable.just(DataResource.Data(FLATLINE_CHART))
@@ -358,7 +362,10 @@ class DashboardActionInteractor(
                         }
                     }
                 }
-            )
+            ).also {
+                balancesDisposable += it
+            }
+    }
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)
 

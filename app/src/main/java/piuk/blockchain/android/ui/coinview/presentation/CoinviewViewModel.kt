@@ -1100,19 +1100,26 @@ class CoinviewViewModel(
 
     private fun updateWatchlist(asset: CryptoAsset, toggle: WatchlistToggle) {
         viewModelScope.launch {
-            watchlistService.updateWatchlist(asset = asset.currency, toggle = toggle)
-                .collectLatest { dataResource ->
-                    when (dataResource) {
-                        is DataResource.Error -> {
-                            updateState {
-                                it.copy(error = CoinviewError.WatchlistToggleError)
-                            }
-                        }
-                        else -> {
-                            /* n/a */
+            watchlistService.updateWatchlist(
+                asset = asset.currency,
+                toggle = toggle
+            ).let { dataResource ->
+                when (dataResource) {
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(error = CoinviewError.WatchlistToggleError)
                         }
                     }
+                    is DataResource.Data -> {
+                        loadWatchlistData(
+                            asset = asset,
+                        )
+                    }
+                    DataResource.Loading -> {
+                        // n/a
+                    }
                 }
+            }
         }
     }
 

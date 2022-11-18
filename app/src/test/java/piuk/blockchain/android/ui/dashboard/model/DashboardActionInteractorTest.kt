@@ -122,7 +122,7 @@ class DashboardActionInteractorTest {
             shouldAssetShowUseCase = shouldAssetShowUseCase
         )
 
-        whenever(shouldAssetShowUseCase.invoke(any(), any())).thenReturn(flowOf(true))
+        whenever(shouldAssetShowUseCase.invoke(any())).thenReturn(flowOf(true))
     }
 
     @Test

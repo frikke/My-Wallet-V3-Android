@@ -14,14 +14,14 @@ interface WatchlistService {
 
     suspend fun addToWatchlist(
         asset: Currency
-    ): Flow<DataResource<Unit>>
+    ): DataResource<Unit>
 
     suspend fun removeFromWatchlist(
         asset: Currency
-    ): Flow<DataResource<Unit>>
+    ): DataResource<Unit>
 
     suspend fun updateWatchlist(
         asset: Currency,
         toggle: WatchlistToggle
-    ): Flow<DataResource<Unit>>
+    ): DataResource<Unit>
 }

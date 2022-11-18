@@ -88,7 +88,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Act
         subject.balanceRx.test()
             .assertComplete()
-            .assertValue {
+            .assertValueAt(1) {
                 it.total == accountBalance1.total + accountBalance2.total &&
                     it.pending == accountBalance1.pending + accountBalance2.pending &&
                     it.withdrawable == accountBalance1.withdrawable + accountBalance2.withdrawable &&
