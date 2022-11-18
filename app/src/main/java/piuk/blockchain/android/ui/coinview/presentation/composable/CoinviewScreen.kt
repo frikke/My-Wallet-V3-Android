@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,9 +38,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceStat
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
-import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
-import piuk.blockchain.android.util.getStringMaybe
 
 @Composable
 fun Coinview(
@@ -316,25 +313,4 @@ fun PreviewCoinviewScreen_Unknown() {
 
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
-}
-
-// todo move
-@Composable
-fun SimpleValue.value(): String {
-    return when (this) {
-        is SimpleValue.IntResValue -> stringResource(
-            value,
-            *(
-                args.map {
-                    when (it) {
-                        is Int -> {
-                            LocalContext.current.getStringMaybe(it)
-                        }
-                        else -> it.toString()
-                    }
-                }.toTypedArray()
-                )
-        )
-        is SimpleValue.StringValue -> value
-    }
 }

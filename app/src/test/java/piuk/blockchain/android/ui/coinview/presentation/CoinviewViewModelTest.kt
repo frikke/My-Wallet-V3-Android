@@ -7,6 +7,7 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -336,13 +337,13 @@ class CoinviewViewModelTest {
                     val expected = CoinviewAccountsState.Data(
                         style = CoinviewAccountsStyle.Simple,
                         header = CoinviewAccountsState.Data.CoinviewAccountsHeaderState.ShowHeader(
-                            SimpleValue.IntResValue(R.string.coinview_accounts_label)
+                            TextValue.IntResValue(R.string.coinview_accounts_label)
                         ),
                         accounts = listOf(
                             CoinviewAccountsState.Data.CoinviewAccountState.Available(
                                 cvAccount = coinviewAccount,
                                 title = tradingWalletLabel,
-                                subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
+                                subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
                                 cryptoBalance = balanceFormatted,
                                 fiatBalance = balanceFormatted,
                                 logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),

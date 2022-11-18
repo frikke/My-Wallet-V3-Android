@@ -1,13 +1,18 @@
-package com.blockchain.home.presentation.activity.list
+package com.blockchain.home.presentation.activity.list.privatekey
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.toActivityComponent
+import com.blockchain.home.presentation.activity.list.ActivityIntent
+import com.blockchain.home.presentation.activity.list.ActivityModelState
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
@@ -17,40 +22,38 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ActivityViewModel(
+class PrivateKeyActivityViewModel(
     private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
-    ActivityIntent,
+    ActivityIntent<UnifiedActivityItem>,
     ActivityViewState,
-    ActivityModelState,
+    ActivityModelState<UnifiedActivityItem>,
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityModelState()) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ActivityModelState): ActivityViewState = state.run {
+    override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
         ActivityViewState(
-            activity = state.activityItems.map {
-                it.filter { activityItem ->
+            activity = state.activityItems
+                .filter { activityItem ->
                     if (state.filterTerm.isEmpty()) {
                         true
                     } else {
                         activityItem.summary.matches(state.filterTerm)
                     }
                 }
-            }
-                .map { it.reduceActivityItems() }
-                .map {
+                .map { unifiedActivityItems ->
+                    unifiedActivityItems.reduceActivityItems()
+                }
+                .map { groupedComponents ->
                     when (val sectionSize = state.sectionSize) {
                         SectionSize.All -> {
-                            it
+                            groupedComponents
                         }
                         is SectionSize.Limited -> {
-                            // todo do we need to filter out pending?
-                            // todo make sure it's date sorted
                             mapOf(
-                                TransactionGroup.Combined to it.values.flatten().take(sectionSize.size)
+                                TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
                             )
                         }
                     }
@@ -62,9 +65,10 @@ class ActivityViewModel(
         // group by date (month/year)
         return groupBy { activity ->
             activity.date?.let {
-                it.apply {
-                    set(Calendar.MILLISECOND, 0)
-                    set(Calendar.DAY_OF_MONTH, 1)
+                Calendar.getInstance().apply {
+                    timeInMillis = 0
+                    set(Calendar.YEAR, it.get(Calendar.YEAR))
+                    set(Calendar.MONTH, it.get(Calendar.MONTH))
                 }.let { date ->
                     TransactionGroup.Group.Date(date)
                 }
@@ -75,10 +79,13 @@ class ActivityViewModel(
                 group to activities.map { it.summary.toActivityComponent() }
             }
             .toMap()
-            .toSortedMap()
+            .toSortedMap(compareByDescending { it })
     }
 
-    override suspend fun handleIntent(modelState: ActivityModelState, intent: ActivityIntent) {
+    override suspend fun handleIntent(
+        modelState: ActivityModelState<UnifiedActivityItem>,
+        intent: ActivityIntent<UnifiedActivityItem>
+    ) {
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }

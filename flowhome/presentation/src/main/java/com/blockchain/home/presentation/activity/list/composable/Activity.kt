@@ -18,25 +18,21 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
@@ -44,39 +40,71 @@ import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
-import com.blockchain.home.presentation.activity.list.ActivityViewModel
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
+import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import java.util.Calendar
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun Activity(
-    viewModel: ActivityViewModel = getViewModel(scope = payloadScope)
-) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+fun Activity() {
+    val walletMode by get<WalletModeService>(superAppModeService).walletMode
+        .collectAsStateLifecycleAware(null)
+
+    walletMode?.let {
+        when (walletMode) {
+            WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
+            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity()
+            else -> error("unsupported")
+        }
     }
-    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+}
+
+@Composable
+fun CustodialActivity(
+    viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+) {
+    val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
         onDispose { }
     }
 
-    viewState?.let { state ->
-        ActivityScreen(
-            activity = state.activity,
-            onSearchTermEntered = { term ->
-                viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
-            },
-        )
+    ActivityScreen(
+        activity = viewState.activity,
+        onSearchTermEntered = { term ->
+            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
+        },
+    )
+}
+
+@Composable
+fun PrivateKeyActivity(
+    viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
+) {
+    val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
+        onDispose { }
     }
+
+    ActivityScreen(
+        activity = viewState.activity,
+        onSearchTermEntered = { term ->
+            viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)

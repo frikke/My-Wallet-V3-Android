@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -111,13 +110,5 @@ fun ComponentActivity.disableBackPress(
 ): OnBackPressedCallback {
     return onBackPressedDispatcher.addCallback(owner = owner, enabled = callbackEnabled) {
         /* this will catch back press but would do nothing */
-    }
-}
-
-fun Context.getStringMaybe(resId: Int): String {
-    return try {
-        getString(resId)
-    } catch (e: Resources.NotFoundException) {
-        resId.toString()
     }
 }

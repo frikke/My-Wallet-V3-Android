@@ -32,11 +32,9 @@ import org.koin.androidx.compose.getViewModel
 fun Balance(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope)
 ) {
-    val viewState: AssetsViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
+    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    viewState?.let { state ->
-        BalanceScreen(walletBalance = state.balance)
-    }
+    BalanceScreen(walletBalance = viewState.balance)
 }
 
 @Composable

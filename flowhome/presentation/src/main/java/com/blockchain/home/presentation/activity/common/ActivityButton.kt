@@ -7,6 +7,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.value
 
 // button
 enum class ActivityButtonStyleState {
@@ -28,21 +30,21 @@ fun ActivityDetailButton(
         ActivityButtonStyleState.Primary -> {
             PrimaryButton(
                 modifier = modifier,
-                text = text,
+                text = text.value(),
                 onClick = onClick
             )
         }
         ActivityButtonStyleState.Secondary -> {
             SecondaryButton(
                 modifier = modifier,
-                text = text,
+                text = text.value(),
                 onClick = onClick
             )
         }
         ActivityButtonStyleState.Tertiary -> {
             TertiaryButton(
                 modifier = modifier,
-                text = text,
+                text = text.value(),
                 onClick = onClick
             )
         }
@@ -54,7 +56,7 @@ fun ActivityDetailButton(
 fun PreviewActivityDetailButton_Primary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
-            value = "Primary",
+            value = TextValue.StringValue("Primary"),
             style = ActivityButtonStyleState.Primary
         ),
         onClick = {}
@@ -66,7 +68,7 @@ fun PreviewActivityDetailButton_Primary() {
 fun PreviewActivityDetailButton_Secondary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
-            value = "Secondary",
+            value = TextValue.StringValue("Secondary"),
             style = ActivityButtonStyleState.Secondary
         ),
         onClick = {}
@@ -78,7 +80,7 @@ fun PreviewActivityDetailButton_Secondary() {
 fun PreviewActivityDetailButton_Tertiary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
-            value = "Tertiary",
+            value = TextValue.StringValue("Tertiary"),
             style = ActivityButtonStyleState.Tertiary
         ),
         onClick = {}

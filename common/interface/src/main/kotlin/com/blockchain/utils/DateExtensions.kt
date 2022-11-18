@@ -105,6 +105,8 @@ fun Date.toFormattedDate(): String {
     return dateFormat.format(this)
 }
 
+fun Calendar.toFormattedDate() = time.toFormattedDate()
+
 /**
  * Takes a [Date] object and converts it to our standard date and time format, ie June 21, 01:23 pm.
  *
@@ -183,5 +185,5 @@ fun Date.toDayAndMonth(locale: Locale = Locale.getDefault()): String {
 
 fun Calendar.toMonthAndYear(locale: Locale = Locale.getDefault()): String {
     val defaultDateTimeFormat = SimpleDateFormat("MMMM yyyy", locale)
-    return defaultDateTimeFormat.format(this)
+    return defaultDateTimeFormat.format(time)
 }

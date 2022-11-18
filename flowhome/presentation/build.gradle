@@ -35,6 +35,8 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':wallet')
+    implementation project(':store:core')
 
     // android
     implementation Libraries.design
@@ -57,6 +59,9 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
+
+    // rx
+    implementation Libraries.rxKotlin
 
     // test
     testImplementation project(':testutils')

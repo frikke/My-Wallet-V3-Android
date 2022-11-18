@@ -1,7 +1,8 @@
 package com.blockchain.home.presentation.koin
 
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
-import com.blockchain.home.presentation.activity.list.ActivityViewModel
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
+import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.koin.payloadScopeQualifier
@@ -21,8 +22,14 @@ val homePresentationModule = module {
         }
 
         viewModel {
-            ActivityViewModel(
+            PrivateKeyActivityViewModel(
                 unifiedActivityService = get()
+            )
+        }
+
+        viewModel {
+            CustodialActivityViewModel(
+                coincore = get()
             )
         }
 

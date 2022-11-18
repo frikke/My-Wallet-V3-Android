@@ -34,6 +34,8 @@ import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.value
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -51,7 +53,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Da
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsStyle
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
-import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
@@ -280,12 +281,12 @@ fun PreviewAssetAccounts_Data_Simple() {
     AssetAccounts(
         CoinviewAccountsState.Data(
             style = CoinviewAccountsStyle.Simple,
-            header = CoinviewAccountsHeaderState.ShowHeader(SimpleValue.StringValue("wallet & accounts")),
+            header = CoinviewAccountsHeaderState.ShowHeader(TextValue.StringValue("wallet & accounts")),
             accounts = listOf(
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 1",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
@@ -294,7 +295,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 2",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
@@ -303,7 +304,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                 CoinviewAccountState.Unavailable(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 2",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
@@ -324,7 +325,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 1",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
@@ -333,7 +334,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 2",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
@@ -342,7 +343,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                 CoinviewAccountState.Unavailable(
                     cvAccount = previewCvAccount,
                     title = "Ethereum 2",
-                    subtitle = SimpleValue.StringValue("ETH"),
+                    subtitle = TextValue.StringValue("ETH"),
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
