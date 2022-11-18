@@ -3424,4 +3424,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
+
+    <string name="staking_cannot_withdraw_title">Staking Considerations</string>
+    <!-- todo (dserrano): - STAKING - copy when ready -->
+    <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
+    <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+
+
 </resources>

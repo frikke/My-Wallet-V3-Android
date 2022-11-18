@@ -96,7 +96,8 @@ class SimpleBuyBlockedFragment : Fragment() {
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )
                 }
-                is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Buy")
+                is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+                is BlockedReason.InsufficientTier,
                 is BlockedReason.Sanctions -> throw IllegalStateException("Not used in Buy")
             }.exhaustive
 

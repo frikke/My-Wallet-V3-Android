@@ -363,6 +363,9 @@ class SimpleBuyActivity :
                     )
                     .commitAllowingStateLoss()
             }
+            is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
+                // do nothing
+            }
         }
     }
 

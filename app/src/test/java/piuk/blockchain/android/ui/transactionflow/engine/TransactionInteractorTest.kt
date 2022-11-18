@@ -5,6 +5,7 @@ import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -60,6 +61,7 @@ class TransactionInteractorTest {
     private val improvedPaymentUxFF: FeatureFlag = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
     private val dynamicRepository: UniversalDynamicAssetRepository = mock()
+    private val stakingService: StakingService = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -85,7 +87,8 @@ class TransactionInteractorTest {
             hideDustFF = hideDustFF,
             localSettingsPrefs = localSettingsPrefs,
             dynamicAssetRepository = dynamicRepository,
-            improvedPaymentUxFF = improvedPaymentUxFF
+            improvedPaymentUxFF = improvedPaymentUxFF,
+            stakingService = stakingService
         )
     }
 

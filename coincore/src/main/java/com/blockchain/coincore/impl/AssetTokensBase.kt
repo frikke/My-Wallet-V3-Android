@@ -21,6 +21,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.staking.domain.StakingService
+import com.blockchain.core.staking.domain.model.StakingEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
@@ -283,6 +284,17 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
         }
 
+    private fun getStakingTargets(): Maybe<SingleAccountList> =
+        stakingService.getEligibilityForAsset(currency).asSingle().flatMapMaybe { eligibility ->
+            if (eligibility == StakingEligibility.Eligible) {
+                accounts.flatMapMaybe {
+                    Maybe.just(it.filterIsInstance<CustodialStakingAccount>())
+                }
+            } else {
+                Maybe.empty()
+            }
+        }
+
     private fun getCustodialTargets(): Maybe<SingleAccountList> =
         accountGroup(AssetFilter.Trading)
             .map { it.accounts }
@@ -310,7 +322,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             is TradingAccount -> Maybe.concat(
                 listOf(
                     getNonCustodialTargets(),
-                    getInterestTargets()
+                    getInterestTargets(),
+                    getStakingTargets()
                 )
             ).toList()
                 .map { ll -> ll.flatten() }

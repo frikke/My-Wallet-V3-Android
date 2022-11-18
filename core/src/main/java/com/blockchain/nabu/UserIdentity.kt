@@ -72,4 +72,5 @@ sealed class BlockedReason : Serializable {
         data class Unknown(override val message: String) : Sanctions()
     }
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
+    class ShouldAcknowledgeStakingWithdrawal(val bondingDays: Int, val assetIconUrl: String) : BlockedReason()
 }

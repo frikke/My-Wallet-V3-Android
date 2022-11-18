@@ -127,6 +127,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
     is BlockedReason.Sanctions -> ActionState.LockedDueToSanctions(reason)
     is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
+    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> ActionState.Unavailable
 }
 
 interface Asset {

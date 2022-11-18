@@ -123,6 +123,7 @@ class PrefsUtil(
         set(value) {
             setValue(KEY_SHOW_TRADING_ON_PKW_MODE, value)
         }
+
     override var isOnboardingComplete: Boolean
         get() = getValue(KEY_ONBOARDING_COMPLETE, false)
         set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)

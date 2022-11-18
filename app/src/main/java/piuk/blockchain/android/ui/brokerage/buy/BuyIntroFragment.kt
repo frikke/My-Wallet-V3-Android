@@ -119,6 +119,7 @@ class BuyIntroFragment :
                             is BlockedReason.InsufficientTier -> renderKycUpgradeNow()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
+                            is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
                             null -> loadBuyDetails(showLoading)
                         }
                     },

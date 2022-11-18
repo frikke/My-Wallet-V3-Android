@@ -164,6 +164,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.common_send)
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
+            AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_withdraw)
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
@@ -1419,7 +1420,8 @@ class TransactionFlowCustomiserImpl(
             TransactionStep.FEATURE_BLOCKED -> when (state.featureBlockedReason) {
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.NotEligible,
-                is BlockedReason.Sanctions -> selectTargetAddressTitle(state)
+                is BlockedReason.Sanctions,
+                is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> selectTargetAddressTitle(state)
                 is BlockedReason.InsufficientTier -> resources.getString(R.string.kyc_upgrade_now_toolbar)
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"

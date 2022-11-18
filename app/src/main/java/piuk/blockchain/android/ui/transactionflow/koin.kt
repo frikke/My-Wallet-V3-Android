@@ -240,7 +240,8 @@ val transactionModule = module {
                 hideDustFF = payloadScope.get(hideDustFeatureFlag),
                 localSettingsPrefs = get(),
                 improvedPaymentUxFF = payloadScope.get(improvedPaymentUxFeatureFlag),
-                dynamicAssetRepository = payloadScope.get()
+                dynamicAssetRepository = payloadScope.get(),
+                stakingService = payloadScope.get()
             )
         }
 
