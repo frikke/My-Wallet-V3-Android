@@ -579,6 +579,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                                 Timber.d("Card Already Tokenized")
                                 updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED) }
                             } else {
+                                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED) }
                                 onIntent(BlockchainCardIntent.LoadGoogleWalletDetails)
                             }
                         }

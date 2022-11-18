@@ -28,7 +28,8 @@ val blockchainCardModule = module {
 
         factory {
             GoogleWalletManager(
-                context = get()
+                context = get(),
+                remoteLogger = get()
             )
         }
 

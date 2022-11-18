@@ -16,9 +16,11 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import java.io.Serializable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityBlockchainCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -40,6 +42,7 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
     }
 
     private val googleWalletManager: GoogleWalletManager by scopedInject()
+    private val remoteLogger: RemoteLogger by inject()
 
     private val blockchainCardProducts by lazy {
         (intent?.getSerializableExtra(BLOCKCHAIN_CARD_PRODUCT_LIST) as? List<BlockchainCardProduct>) ?: emptyList()
@@ -144,11 +147,11 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
         if (requestCode == GOOGLE_PAY_TOKENIZE_REQUEST_CODE) {
             when (resultCode) {
                 RESULT_OK -> {
-                    Timber.d("Google Wallet: Add Card Success!")
+                    remoteLogger.logEvent("Google Wallet: card added")
                     manageCardViewModel.onIntent(BlockchainCardIntent.GoogleWalletAddCardSuccess)
                 }
-                RESULT_CANCELED -> {
-                    Timber.e("Google Wallet: Add Card Failed!")
+                else -> {
+                    remoteLogger.logEvent("Google Wallet: add card failed with result code $resultCode")
                     manageCardViewModel.onIntent(BlockchainCardIntent.GoogleWalletAddCardFailed)
                 }
             }
