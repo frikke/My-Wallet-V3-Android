@@ -31,7 +31,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 
 class SuperAppActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
     private val viewModel: ActionsSheetViewModel by inject()
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     override val host: ActionBottomSheetHost by lazy {
         super.host as? ActionBottomSheetHost ?: throw IllegalStateException(

@@ -31,7 +31,7 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
-import org.koin.core.parameter.parametersOf
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ActivityDetail(

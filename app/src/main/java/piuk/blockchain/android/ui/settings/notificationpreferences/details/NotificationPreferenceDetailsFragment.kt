@@ -35,7 +35,7 @@ class NotificationPreferenceDetailsFragment :
         (arguments?.getParcelable(NOTIFICATION_PREFERENCE_DETAILS)!!)
     }
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val model: NotificationPreferencesDetailsViewModel by viewModel()
 

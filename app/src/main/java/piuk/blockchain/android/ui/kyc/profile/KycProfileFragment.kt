@@ -33,7 +33,7 @@ import piuk.blockchain.android.ui.kyc.navigate
 
 class KycProfileFragment : MVIFragment<KycProfileViewState>(), NavigationRouter<Navigation>, AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: KycProfileModel by viewModel()
     private val analytics: Analytics by inject()

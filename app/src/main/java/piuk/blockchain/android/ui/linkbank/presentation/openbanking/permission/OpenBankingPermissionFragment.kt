@@ -41,7 +41,7 @@ class OpenBankingPermissionFragment :
             ?: error("host does not implement NavigationRouter<OpenBankingPermissionNavEvent>")
     }
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: OpenBankingPermissionViewModel by viewModel()
 

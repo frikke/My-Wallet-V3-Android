@@ -35,7 +35,7 @@ class ReferralSheet :
         arguments?.getParcelable<ReferralArgs>(ReferralArgs.ARGS_KEY) ?: error("missing ReferralArgs")
     }
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: ReferralViewModel by viewModel()
 

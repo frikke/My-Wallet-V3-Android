@@ -53,7 +53,7 @@ import piuk.blockchain.android.R
 
 class BankAliasLinkFragment : MVIFragment<BankAliasLinkViewState>(), AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: BankAliasLinkViewModel by viewModel()
 

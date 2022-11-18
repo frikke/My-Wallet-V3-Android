@@ -29,7 +29,7 @@ class PricesFragment :
     MVIFragment<PricesViewState>(),
     AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
     private val viewModel: PricesViewModel by viewModel()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val navigationRouter: NavigationRouter<PricesNavigationEvent> by lazy {

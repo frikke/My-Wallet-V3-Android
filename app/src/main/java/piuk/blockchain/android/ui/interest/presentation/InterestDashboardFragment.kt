@@ -29,7 +29,7 @@ class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
     private val viewModel: InterestDashboardViewModel by viewModel()
 
     private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()

@@ -39,7 +39,7 @@ class CreateWalletActivity :
 
     private lateinit var backPressCallback: OnBackPressedCallback
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
     override val alwaysDisableScreenshots: Boolean = true
 
     private val viewModel: CreateWalletViewModel by viewModel()

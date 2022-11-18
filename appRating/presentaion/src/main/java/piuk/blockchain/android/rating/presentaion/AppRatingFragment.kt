@@ -23,7 +23,7 @@ import piuk.blockchain.android.rating.presentaion.inappreview.InAppReviewSetting
 
 class AppRatingFragment : DialogFragment(), AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: AppRatingViewModel by viewModel()
 

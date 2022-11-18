@@ -43,7 +43,6 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.common.ClickAction
-import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
@@ -147,9 +146,8 @@ fun ActivityScreen(
                 ActivityDetail(
                     viewModel = getViewModel(
                         scope = payloadScope,
-                        parameters = {
-                            println("------- txx selec vm22 $it")
-                            parametersOf(it) }
+                        key = it,
+                        parameters = { parametersOf(it) }
                     ),
                     onCloseClick = {
                         coroutineScope.launch {

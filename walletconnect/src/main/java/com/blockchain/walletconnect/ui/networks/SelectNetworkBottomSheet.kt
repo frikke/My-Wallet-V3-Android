@@ -65,7 +65,7 @@ class SelectNetworkBottomSheet :
         )
     }
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val viewModel: SelectNetworkViewModel by viewModel()
 

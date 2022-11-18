@@ -29,7 +29,7 @@ class KycEmailVerificationFragment :
     EditEmailAddressBottomSheet.Host,
     AndroidScopeComponent {
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val model: EmailVerificationModel by viewModel()
 

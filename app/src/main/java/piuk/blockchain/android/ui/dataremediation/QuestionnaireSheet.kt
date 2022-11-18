@@ -41,7 +41,7 @@ class QuestionnaireSheet() :
         )
     }
 
-    override var scope: Scope? = payloadScope
+    override val scope: Scope = payloadScope
 
     private val model: QuestionnaireModel by viewModel()
     private val fraudService: FraudService by inject()
