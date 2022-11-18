@@ -63,23 +63,17 @@ fun CustodialHomeActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
     openAllActivity: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
         onDispose { }
     }
 
-    viewState?.let { state ->
-        HomeActivityScreen(
-            activity = state.activity.map { it[TransactionGroup.Combined] ?: listOf() },
-            onSeeAllCryptoAssetsClick = openAllActivity,
-        )
-    }
+    HomeActivityScreen(
+        activity = viewState.activity.map { it[TransactionGroup.Combined] ?: listOf() },
+        onSeeAllCryptoAssetsClick = openAllActivity,
+    )
 }
 
 @Composable
