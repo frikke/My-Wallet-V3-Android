@@ -34,16 +34,6 @@ class ActivityDetailViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: ActivityDetailModelState): ActivityDetailViewState = state.run {
-        when (val a = activityDetail.map { it.reduceActivityDetail() }) {
-            is DataResource.Data -> println("--------- $a")
-            is DataResource.Error -> {
-                println("--------- error")
-                a.error.printStackTrace()
-            }
-            DataResource.Loading -> println("--------- loading")
-
-        }
-
         ActivityDetailViewState(
             activityDetail = activityDetail.map { it.reduceActivityDetail() }
         )

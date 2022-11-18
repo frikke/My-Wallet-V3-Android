@@ -41,6 +41,9 @@ fun ActivityIconState.toStackedIcon() = when (this) {
     ActivityIconState.None -> StackedIcon.None
 }
 
+/**
+ * @property id Some components may want to be identified for later interaction
+ */
 sealed interface ActivityComponent {
     val id: String
 
@@ -85,7 +88,6 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
 
 /**
  * Draw a card with a list of [ActivityComponent]
- *
  * actual drawing of components is done by [ActivityComponentItem]
  */
 @Composable

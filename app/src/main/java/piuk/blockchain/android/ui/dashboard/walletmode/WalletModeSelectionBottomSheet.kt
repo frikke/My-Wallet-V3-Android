@@ -45,7 +45,7 @@ class WalletModeSelectionBottomSheet :
 
     override val scope: Scope
         get() = payloadScope
-    
+
     private val viewModel: WalletModeSelectionViewModel by viewModel()
 
     private val onDeFiOnboardingResult = registerForActivityResult(

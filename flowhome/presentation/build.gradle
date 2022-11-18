@@ -28,7 +28,6 @@ dependencies {
     // android
     implementation project(':commonarch')
     implementation project(':common:interface')
-    implementation project(':common:presentation')
     implementation project(':flowhome:domain')
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':coincore')
