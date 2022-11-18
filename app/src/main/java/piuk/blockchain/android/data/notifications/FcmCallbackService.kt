@@ -96,7 +96,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title,
                 body = remoteMessage.notification?.body,
                 pendingIntent = PendingIntent.getActivity(
-                    applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
+                    applicationContext, 0, Intent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT or
+                        PendingIntent.FLAG_IMMUTABLE
                 ),
                 notificationId = ID_BACKGROUND_NOTIFICATION_2FA
             )
@@ -134,7 +136,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                         applicationContext,
                         0,
                         notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                     val notificationId = if (foreground) ID_FOREGROUND_NOTIFICATION else ID_BACKGROUND_NOTIFICATION
 
