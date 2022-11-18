@@ -192,14 +192,17 @@ fun ActivityScreen(
                                 focusManager.clearFocus(true)
 
                                 when (clickAction) {
-                                    is ClickAction.Button -> {
-                                        // n/a for now
-                                    }
                                     is ClickAction.Stack -> {
                                         coroutineScope.launch {
                                             selectedTxId = clickAction.data
                                             sheetState.show()
                                         }
+                                    }
+                                    is ClickAction.Button -> {
+                                        // n/a nothing expected for now
+                                    }
+                                    ClickAction.None -> {
+                                        // n/a
                                     }
                                 }
                             }
