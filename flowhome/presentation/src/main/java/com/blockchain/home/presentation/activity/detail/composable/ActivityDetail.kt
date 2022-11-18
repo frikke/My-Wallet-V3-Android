@@ -41,7 +41,7 @@ fun ActivityDetail(
     viewModel: ActivityDetailViewModel,
     onCloseClick: () -> Unit
 ) {
-    val viewState: ActivityDetailViewState? by viewModel.viewState.collectAsStateLifecycleAware(null)
+    val viewState: ActivityDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(ActivityDetailIntent.LoadActivityDetail)
@@ -49,7 +49,7 @@ fun ActivityDetail(
     }
 
     ActivityDetailScreen(
-        activityDetail = viewState?.activityDetail ?: DataResource.Loading,
+        activityDetail = viewState.activityDetail,
         onCloseClick = onCloseClick
     )
 }
@@ -130,7 +130,10 @@ fun ActivityDetailData(
 
         activityDetail.floatingActions.forEach { item ->
             item {
-                ActivityComponentItem(component = item, onClick = { clickAction = it })
+                ActivityComponentItem(
+                    component = item,
+                    onClick = { clickAction = it }
+                )
             }
 
             item {
