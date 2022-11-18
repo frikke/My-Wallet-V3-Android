@@ -4,7 +4,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 
 data class ActivityDetailViewState(
     val activityDetail: DataResource<ActivityDetail>

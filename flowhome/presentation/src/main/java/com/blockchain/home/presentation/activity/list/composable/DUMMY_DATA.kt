@@ -1,10 +1,5 @@
 package com.blockchain.home.presentation.activity.list.composable
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
@@ -15,13 +10,6 @@ import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import org.koin.androidx.compose.defaultExtras
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.annotation.KoinInternalApi
-import org.koin.core.context.GlobalContext
-import org.koin.core.parameter.ParametersDefinition
-import org.koin.core.qualifier.Qualifier
-import org.koin.core.scope.Scope
 import java.util.Calendar
 
 val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = DataResource.Data(

@@ -55,11 +55,11 @@ import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import java.util.Calendar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
-import java.util.Calendar
 
 @Composable
 fun Activity() {
