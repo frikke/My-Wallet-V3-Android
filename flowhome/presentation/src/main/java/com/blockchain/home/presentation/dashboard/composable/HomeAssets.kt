@@ -12,7 +12,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,6 +30,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
@@ -51,10 +51,8 @@ fun HomeAssets(
     openAllAssets: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
@@ -73,13 +71,11 @@ fun HomeAssets(
         }
     }
 
-    viewState?.let { state ->
-        HomeAssetsScreen(
-            cryptoAssets = state.cryptoAssets,
-            onSeeAllCryptoAssetsClick = openAllAssets,
-            fiatAssets = state.fiatAssets,
-        )
-    }
+    HomeAssetsScreen(
+        cryptoAssets = viewState.cryptoAssets,
+        onSeeAllCryptoAssetsClick = openAllAssets,
+        fiatAssets = viewState.fiatAssets,
+    )
 }
 
 @Composable
