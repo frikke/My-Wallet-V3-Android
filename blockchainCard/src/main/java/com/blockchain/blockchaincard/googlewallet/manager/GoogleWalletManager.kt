@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
+import com.blockchain.logging.RemoteLogger
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
 import com.google.android.gms.tapandpay.issuer.IsTokenizedRequest
@@ -11,10 +12,10 @@ import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import com.google.android.gms.tapandpay.issuer.UserAddress
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import timber.log.Timber
 
 class GoogleWalletManager(
-    context: Context
+    context: Context,
+    private val remoteLogger: RemoteLogger
 ) {
 
     private val tapAndPayClient: TapAndPayClient by lazy {
@@ -28,7 +29,7 @@ class GoogleWalletManager(
                 try {
                     completedTask.getResult(Exception::class.java)?.let { continuation.resume(it) }
                 } catch (exception: Exception) {
-                    Timber.w(exception, "getActiveWallet failed")
+                    remoteLogger.logException(exception, "getWalletId failed")
                     continuation.resume("")
                 }
             }
@@ -41,7 +42,7 @@ class GoogleWalletManager(
                 try {
                     completedTask.getResult(Exception::class.java)?.let { continuation.resume(it) }
                 } catch (exception: Exception) {
-                    Timber.w(exception, "getActiveWallet failed")
+                    remoteLogger.logException(exception, "getStableHardwareId failed")
                     continuation.resume("")
                 }
             }
@@ -58,10 +59,13 @@ class GoogleWalletManager(
             val task = tapAndPayClient.isTokenized(isTokenizedRequest)
             task.addOnCompleteListener { completedTask ->
                 try {
-                    completedTask.getResult(Exception::class.java)?.let { continuation.resume(it) }
+                    completedTask.getResult(Exception::class.java)?.let {
+                        remoteLogger.logEvent("getTokenizationStatus result -> $it")
+                        continuation.resume(it)
+                    }
                 } catch (exception: Exception) {
-                    Timber.w(exception, "getTokenizationStatus failed")
-                    continuation.resume(false)
+                    remoteLogger.logException(exception, "getTokenizationStatus failed")
+                    continuation.resume(true)
                 }
             }
         }
@@ -72,6 +76,7 @@ class GoogleWalletManager(
         tokenizeRequest: BlockchainCardGoogleWalletPushTokenizeData,
         requestCode: Int
     ) {
+        remoteLogger.logEvent("Pushing new tokenization request")
         tapAndPayClient.pushTokenize(
             activity,
             buildTokenizeRequest(tokenizeRequest),

@@ -15,11 +15,13 @@ import info.blockchain.wallet.payload.data.Wallet
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.Mockito.anyString
 
 @Suppress("IllegalIdentifier")
 class PayloadServiceTest {
@@ -72,7 +74,7 @@ class PayloadServiceTest {
         val password = "PASSWORD"
         val mockWallet: Wallet = mock()
         whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password))
-            .thenReturn(mockWallet)
+            .thenReturn(Single.just(mockWallet))
 
         // Act
         val testObserver = subject.restoreHdWallet(mnemonic, walletName, email, password).test()
@@ -92,7 +94,9 @@ class PayloadServiceTest {
         val email = "EMAIL"
         val mockWallet: Wallet = mock()
         val recaptchaToken = "CAPTCHA"
-        whenever(mockPayloadManager.create(walletName, email, password, recaptchaToken)).thenReturn(mockWallet)
+        whenever(mockPayloadManager.create(walletName, email, password, recaptchaToken)).thenReturn(
+            Single.just(mockWallet)
+        )
         // Act
         val testObserver = subject.createHdWallet(password, walletName, email, recaptchaToken).test()
         // Assert
@@ -108,8 +112,9 @@ class PayloadServiceTest {
         val sharedKey = "SHARED_KEY"
         val guid = "GUID"
         val password = "PASSWORD"
-        val v4Enabled = true
-
+        whenever(
+            mockPayloadManager.initializeAndDecrypt(anyString(), anyString(), anyString(), anyString())
+        ).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.initializeAndDecrypt(sharedKey, guid, password)
             .test()
@@ -129,8 +134,9 @@ class PayloadServiceTest {
     fun handleQrCode_v4() {
         // Arrange
         val qrString = "QR_STRING"
-        val v4Enabled = true
-
+        whenever(mockPayloadManager.initializeAndDecryptFromQR(anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
         // Act
         val testObserver = subject.handleQrCode(qrString).test()
 
@@ -146,7 +152,7 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadAndPublicKeys successful`() {
         // Arrange
-        whenever(mockPayloadManager.syncPubKeys()).thenReturn(true)
+        whenever(mockPayloadManager.syncPubKeys()).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
@@ -158,7 +164,7 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadAndPublicKeys failed`() {
         // Arrange
-        whenever(mockPayloadManager.syncPubKeys()).thenReturn(false)
+        whenever(mockPayloadManager.syncPubKeys()).thenReturn(Completable.error(ApiException()))
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
@@ -241,7 +247,7 @@ class PayloadServiceTest {
                 label,
                 secondPassword
             )
-        ).thenReturn(mockAccount)
+        ).thenReturn(Single.just(mockAccount))
         // Act
         val testObserver = subject.createNewAccount(label, secondPassword).test()
         // Assert
@@ -258,7 +264,7 @@ class PayloadServiceTest {
         val secondPassword = "SECOND_PASSWORD"
         val mockImportedAddress: ImportedAddress = mock()
         whenever(mockPayloadManager.setKeyForImportedAddress(mockKey, secondPassword))
-            .thenReturn(mockImportedAddress)
+            .thenReturn(Single.just(mockImportedAddress))
         // Act
         val testObserver = subject.setKeyForImportedAddress(mockKey, secondPassword).test()
         // Assert

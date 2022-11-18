@@ -19,11 +19,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -111,6 +109,7 @@ import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
 import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.MediumVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
@@ -381,12 +380,14 @@ fun ManageCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+        MediumVerticalSpacer()
 
         when (googleWalletState) {
             BlockchainCardGoogleWalletStatus.NOT_ADDED -> GooglePayButton(
                 onClick = onAddToGoogleWallet,
-                modifier = Modifier.requiredWidth(153.dp)
+                modifier = Modifier
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
+                    .fillMaxWidth()
             )
             BlockchainCardGoogleWalletStatus.ADDED -> {}
             BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS -> CircularProgressBar()
@@ -394,20 +395,19 @@ fun ManageCard(
             BlockchainCardGoogleWalletStatus.ADD_FAILED -> GooglePayButtonAddFailed()
         }
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+        MediumVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    AppTheme.dimensions.smallSpacing
+                    horizontal = AppTheme.dimensions.smallSpacing
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = AppTheme.dimensions.smallSpacing),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -502,6 +502,8 @@ fun ManageCard(
                 gravity = ComposeGravities.Centre
             )
         }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
     }
 }
 
@@ -556,7 +558,7 @@ private fun PreviewManageCard() {
 fun GooglePayButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     OutlinedButton(
         onClick = onClick,
-        shape = RoundedCornerShape(18.dp),
+        shape = AppTheme.shapes.veryLarge,
         border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
         modifier = modifier
@@ -564,7 +566,10 @@ fun GooglePayButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.add_to_googlepay_button_content),
             contentDescription = stringResource(R.string.add_to_google_pay),
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .height(AppTheme.dimensions.xLargeSpacing)
+                .padding(AppTheme.dimensions.smallestSpacing),
+            contentScale = ContentScale.FillHeight
         )
     }
 }
@@ -573,7 +578,7 @@ fun GooglePayButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 fun GooglePayButtonAddSuccess(modifier: Modifier = Modifier) {
     OutlinedButton(
         onClick = {},
-        shape = RoundedCornerShape(18.dp),
+        shape = AppTheme.shapes.veryLarge,
         border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
         modifier = modifier.height(IntrinsicSize.Min)
@@ -581,7 +586,9 @@ fun GooglePayButtonAddSuccess(modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.googlepay_button_content),
             contentDescription = stringResource(R.string.add_to_google_pay),
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .height(AppTheme.dimensions.xLargeSpacing)
+                .padding(AppTheme.dimensions.smallestSpacing),
         )
 
         Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
@@ -604,7 +611,7 @@ fun GooglePayButtonAddSuccess(modifier: Modifier = Modifier) {
 fun GooglePayButtonAddFailed(modifier: Modifier = Modifier) {
     OutlinedButton(
         onClick = {},
-        shape = RoundedCornerShape(18.dp),
+        shape = AppTheme.shapes.veryLarge,
         border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
         modifier = modifier.height(IntrinsicSize.Min)
@@ -612,7 +619,9 @@ fun GooglePayButtonAddFailed(modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.googlepay_button_content),
             contentDescription = stringResource(R.string.add_to_google_pay),
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .height(AppTheme.dimensions.xLargeSpacing)
+                .padding(AppTheme.dimensions.smallestSpacing),
         )
 
         Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))

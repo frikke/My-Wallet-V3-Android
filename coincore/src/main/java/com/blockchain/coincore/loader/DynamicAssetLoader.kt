@@ -200,7 +200,8 @@ internal class DynamicAssetLoader(
                     nonCustodialAssets + supportedEvmL1Assets + loadedAssets
                 }
             }
-            .doOnSuccess { assetList ->
+            .doOnSuccess {
+                assetList ->
                 assetList.map { it.currency.networkTicker }.let { ids ->
                     /**
                      * checking that values here are unique

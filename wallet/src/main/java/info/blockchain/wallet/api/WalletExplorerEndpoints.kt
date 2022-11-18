@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -52,6 +51,7 @@ interface WalletExplorerEndpoints {
     @FormUrlEncoded
     @POST("wallet")
     fun updateSettings(
+        @Header("Authorization") sessionId: String,
         @Field("method") method: String,
         @Field("guid") guid: String,
         @Field("sharedKey") sharedKey: String,
@@ -65,6 +65,7 @@ interface WalletExplorerEndpoints {
     @FormUrlEncoded
     @POST("wallet")
     fun updateSettings(
+        @Header("Authorization") sessionId: String,
         @Field("method") method: String,
         @Field("guid") guid: String,
         @Field("sharedKey") sharedKey: String,
@@ -85,7 +86,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("format") format: String,
         @Field("api_code") apiCode: String
-    ): Call<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")
@@ -112,6 +113,7 @@ interface WalletExplorerEndpoints {
     @POST("wallet")
     fun syncWalletCall(
         @Field("method") method: String,
+        @Header("Authorization") sessionId: String? = null,
         @Field("guid") guid: String?,
         @Field("sharedKey") sharedKey: String?,
         @Field("payload") payload: String,
@@ -125,7 +127,7 @@ interface WalletExplorerEndpoints {
         @Field("api_code") apiCode: String,
         @Field("captcha") recaptchaToken: String?,
         @Field("siteKey") siteKey: String?
-    ): Call<ResponseBody>
+    ): Completable
 
     @FormUrlEncoded
     @POST("wallet")
@@ -133,7 +135,7 @@ interface WalletExplorerEndpoints {
         @Field("method") method: String,
         @Field("guid") guid: String?,
         @Field("api_code") apiCode: String
-    ): Call<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")

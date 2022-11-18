@@ -14,7 +14,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
-import retrofit2.Call
 import retrofit2.Response
 
 class WalletApi(
@@ -91,10 +90,11 @@ class WalletApi(
         email: String?,
         device: String?,
         recaptchaToken: String?
-    ): Call<ResponseBody> {
+    ): Completable {
         val pipedAddresses = activeAddressList?.joinToString("|")
 
         return explorerInstance.syncWalletCall(
+            sessionId = null,
             method = "insert",
             guid = guid,
             sharedKey = sharedKey,
@@ -128,29 +128,30 @@ class WalletApi(
         newChecksum: String?,
         oldChecksum: String?,
         device: String?
-    ): Call<ResponseBody> {
-
+    ): Completable {
         val pipedAddresses = activeAddressList?.joinToString("|") ?: ""
-
-        return explorerInstance.syncWalletCall(
-            method = "update",
-            guid = guid,
-            sharedKey = sharedKey,
-            payload = encryptedPayload,
-            length = encryptedPayload.length,
-            checksum = URLEncoder.encode(newChecksum, "utf-8"),
-            email = pipedAddresses,
-            origin = null,
-            device = device,
-            old_checksum = oldChecksum,
-            apiCode = api.apiCode,
-            recaptchaToken = null,
-            siteKey = null,
-            active = null
-        )
+        return sessionIdService.sessionId().flatMapCompletable { sessionId ->
+            explorerInstance.syncWalletCall(
+                method = "secure-update",
+                guid = guid,
+                sessionId = sessionId.withBearerPrefix(),
+                sharedKey = sharedKey,
+                payload = encryptedPayload,
+                length = encryptedPayload.length,
+                checksum = URLEncoder.encode(newChecksum, "utf-8"),
+                email = pipedAddresses,
+                origin = null,
+                device = device,
+                old_checksum = oldChecksum,
+                apiCode = api.apiCode,
+                recaptchaToken = null,
+                siteKey = null,
+                active = null
+            )
+        }
     }
 
-    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Call<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<ResponseBody> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
@@ -188,7 +189,7 @@ class WalletApi(
             api.apiCode
         )
 
-    fun fetchPairingEncryptionPasswordCall(guid: String?): Call<ResponseBody> {
+    fun fetchPairingEncryptionPasswordCall(guid: String?): Single<ResponseBody> {
         return explorerInstance.fetchPairingEncryptionPasswordCall(
             "pairing-encryption-password",
             guid,
@@ -221,16 +222,19 @@ class WalletApi(
         payload: String,
         context: String?
     ): Observable<ResponseBody> {
-        return explorerInstance.updateSettings(
-            method,
-            guid,
-            sharedKey,
-            payload,
-            payload.length,
-            "plain",
-            context,
-            api.apiCode
-        )
+        return sessionIdService.sessionId().flatMapObservable { sessionId ->
+            explorerInstance.updateSettings(
+                sessionId.withBearerPrefix(),
+                method,
+                guid,
+                sharedKey,
+                payload,
+                payload.length,
+                "plain",
+                context,
+                api.apiCode
+            )
+        }
     }
 
     fun updateSettings(
@@ -241,17 +245,20 @@ class WalletApi(
         context: String?,
         forceJson: Boolean?
     ): Single<Response<ResponseBody>> {
-        return explorerInstance.updateSettings(
-            method,
-            guid,
-            sharedKey,
-            payload,
-            payload.length,
-            "plain",
-            context,
-            api.apiCode,
-            forceJson
-        )
+        return sessionIdService.sessionId().flatMap { sessionId ->
+            explorerInstance.updateSettings(
+                sessionId.withBearerPrefix(),
+                method,
+                guid,
+                sharedKey,
+                payload,
+                payload.length,
+                "plain",
+                context,
+                api.apiCode,
+                forceJson
+            )
+        }
     }
 
     val walletOptions: Observable<WalletOptions>

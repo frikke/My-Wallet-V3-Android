@@ -92,9 +92,9 @@ class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
         return Wallet.fromJson(decryptedPayload, 1)
     }
 
-    fun withUpdatedChecksum(checksum: String?): WalletBase {
+    fun withUpdatedChecksum(checksum: String): WalletBase {
         return WalletBase(
-            walletBaseDto.withUpdatedPayloadCheckSum(checksum!!),
+            walletBaseDto.withUpdatedPayloadCheckSum(checksum),
             wallet
         )
     }

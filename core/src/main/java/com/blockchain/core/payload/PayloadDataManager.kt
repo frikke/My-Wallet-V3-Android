@@ -38,7 +38,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.RuntimeException
 import java.math.BigInteger
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
@@ -253,13 +252,10 @@ class PayloadDataManager internal constructor(
         return when {
             !updateRequired || isDoubleEncrypted -> Completable.complete()
             else -> {
-                Completable.fromCallable {
-                    payloadManager.updateDerivationsForAccounts(accounts)
-                }.then {
-                    Completable.fromCallable {
+                payloadManager.updateDerivationsForAccounts(accounts)
+                    .then {
                         payloadManager.updateDefaultIndex(HD_DEFAULT_WALLET_INDEX)
                     }
-                }
             }
         }
     }
@@ -281,30 +277,40 @@ class PayloadDataManager internal constructor(
      * @param defaultAccountName A required name for the default account
      * @return A [Completable] object
      */
+
+    private fun v3Upgrade(
+        secondPassword: String?,
+        defaultAccountName: String
+    ) = payloadManager.upgradeV2PayloadToV3(secondPassword = secondPassword, defaultAccountName = defaultAccountName)
+        .doOnError {
+            remoteLogger.logException(it)
+        }.onErrorResumeNext {
+            throw WalletUpgradeFailure("v2 -> v3 failed", it)
+        }.applySchedulers()
+
+    private fun v4Upgrade(
+        secondPassword: String?,
+    ) = payloadManager.upgradeV3PayloadToV4(secondPassword).doOnError {
+        remoteLogger.logException(it)
+    }.onErrorResumeNext {
+        throw WalletUpgradeFailure("v3 -> v4 failed", it)
+    }.applySchedulers()
+
     fun upgradeWalletPayload(
         secondPassword: String?,
         defaultAccountName: String
-    ): Completable =
-        Completable.fromCallable {
-            logWalletUpgradeStats()
-            if (payloadManager.isV3UpgradeRequired()) {
-                try {
-                    payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-                } catch (t: Throwable) {
-                    remoteLogger.logException(t)
-                    throw WalletUpgradeFailure("v2 -> v3 failed", t)
-                }
+    ): Completable {
+        logWalletUpgradeStats()
+
+        if (payloadManager.isV3UpgradeRequired()) {
+            return v3Upgrade(secondPassword = secondPassword, defaultAccountName = defaultAccountName).then {
+                v4Upgrade(secondPassword)
             }
-            if (payloadManager.isV4UpgradeRequired()) {
-                try {
-                    payloadManager.upgradeV3PayloadToV4(secondPassword)
-                } catch (t: Throwable) {
-                    remoteLogger.logException(t)
-                    throw WalletUpgradeFailure("v3 -> v4 failed", t)
-                }
-            }
+        } else if (payloadManager.isV4UpgradeRequired()) {
+            return v4Upgrade(secondPassword = secondPassword)
         }
-            .applySchedulers()
+        return Completable.complete()
+    }
 
     private fun logWalletUpgradeStats() {
         payloadManager.payload.let { payload ->
@@ -365,9 +371,7 @@ class PayloadDataManager internal constructor(
         return when {
             accountsWithMissingDerivations.isNullOrEmpty() || isDoubleEncrypted -> Completable.complete()
             else -> {
-                Completable.fromCallable {
-                    payloadManager.updateDerivationsForAccounts(accountsWithMissingDerivations)
-                }
+                payloadManager.updateDerivationsForAccounts(accountsWithMissingDerivations)
             }
         }
     }
@@ -490,14 +494,10 @@ class PayloadDataManager internal constructor(
      */
     fun getNextReceiveAddressAndReserve(accountIndex: Int, label: String): Observable<String> {
         val account = accounts[accountIndex]
-        return Observable.fromCallable {
-            payloadManager.getNextReceiveAddressAndReserve(
-                account,
-                label
-            )!!
-        }
-            .subscribeOn(Schedulers.computation())
-            .observeOn(MainScheduler.main())
+        return payloadManager.getNextReceiveAddressAndReserve(
+            account,
+            label
+        ).applySchedulers().toObservable()
     }
 
     /**
@@ -534,7 +534,7 @@ class PayloadDataManager internal constructor(
      * @return An Elliptic Curve Key object [SigningKey]
      * @see ImportedAddress.isPrivateKeyEncrypted
      */
-    fun getAddressSigningKey(importedAddress: ImportedAddress, secondPassword: String?): SigningKey? =
+    fun getAddressSigningKey(importedAddress: ImportedAddress, secondPassword: String?): SigningKey =
         payloadManager.getAddressSigningKey(importedAddress, secondPassword)
 
     /**
@@ -652,7 +652,7 @@ class PayloadDataManager internal constructor(
     // /////////////////////////////////////////////////////////////////////////
 
     fun getAccount(accountPosition: Int): Account =
-        wallet!!.walletBody?.getAccount(accountPosition) ?: throw NoSuchElementException()
+        wallet.walletBody?.getAccount(accountPosition) ?: throw NoSuchElementException()
 
     fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
         Single<List<TransactionSummary>> =
@@ -669,7 +669,7 @@ class PayloadDataManager internal constructor(
      * @param txHash The Tx hash
      * @return A string representing the Tx note, which can be null
      */
-    fun getTransactionNotes(txHash: String): String? = payloadManager.payload!!.txNotes[txHash]
+    fun getTransactionNotes(txHash: String): String? = payloadManager.payload.txNotes[txHash]
 
     /**
      * Returns a list of [SigningKey] objects for signing transactions.
@@ -682,7 +682,7 @@ class PayloadDataManager internal constructor(
         account: Account,
         unspentOutputBundle: SpendableUnspentOutputs
     ): List<SigningKey> =
-        wallet!!.walletBody?.getHDKeysForSigning(
+        wallet.walletBody?.getHDKeysForSigning(
             account,
             unspentOutputBundle
         ) ?: throw NoSuchElementException()
@@ -692,9 +692,8 @@ class PayloadDataManager internal constructor(
     // /////////////////////////////////////////////////////////////////////////
 
     fun setDefaultIndex(defaultIndex: Int): Completable =
-        Completable.fromCallable {
-            payloadManager.updateDefaultIndex(defaultIndex)
-        }.applySchedulers()
+        payloadManager.updateDefaultIndex(defaultIndex)
+            .applySchedulers()
 
     fun validateSecondPassword(secondPassword: String?): Boolean =
         payloadManager.validateSecondPassword(secondPassword)
@@ -744,36 +743,27 @@ class PayloadDataManager internal constructor(
         }
     }
 
-    fun addAccountWithLabel(newAccountLabel: String): Account {
+    fun addAccountWithLabel(newAccountLabel: String): Single<Account> {
         return payloadManager.addAccount(newAccountLabel, null)
     }
 
     fun updateAccountLabel(internalAccount: JsonSerializableAccount, newLabel: String): Completable {
-        return Completable.fromCallable {
-            payloadManager.updateAccountLabel(internalAccount, newLabel)
-        }.applySchedulers()
+        return payloadManager.updateAccountLabel(internalAccount, newLabel)
+            .applySchedulers()
     }
 
     fun updateAccountArchivedState(internalAccount: JsonSerializableAccount, isArchived: Boolean): Completable {
-        return Completable.fromCallable {
-            payloadManager.updateArchivedAccountState(internalAccount, isArchived)
-        }.applySchedulers()
+        return payloadManager.updateArchivedAccountState(internalAccount, isArchived)
+            .applySchedulers()
     }
 
     override fun updateMnemonicVerified(mnemonicVerified: Boolean): Completable {
-        return Completable.fromCallable {
-            payloadManager.updateMnemonicVerified(mnemonicVerified)
-        }.applySchedulers()
+        return payloadManager.updateMnemonicVerified(mnemonicVerified)
+            .applySchedulers()
     }
 
     fun updatePassword(password: String): Completable {
-        return Single.fromCallable {
-            payloadManager.updatePassword(password)
-        }.applySchedulers().flatMapCompletable { success ->
-            if (success) {
-                Completable.complete()
-            } else Completable.error(RuntimeException("Update password failed"))
-        }
+        return payloadManager.updatePassword(password)
     }
 
     companion object {

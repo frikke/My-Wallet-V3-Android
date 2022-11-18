@@ -3,9 +3,11 @@ package com.blockchain.core.payload
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.testutils.rxInit
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -25,7 +27,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
-import java.lang.RuntimeException
 import java.math.BigInteger
 import kotlin.test.assertEquals
 import org.amshove.kluent.`should be equal to`
@@ -177,7 +178,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).isV3UpgradeRequired()
-        verify(payloadManager).isV4UpgradeRequired()
+        verify(payloadManager, never()).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -192,6 +193,8 @@ class PayloadDataManagerTest {
 
         whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.upgradeV2PayloadToV3(any(), any())).thenReturn(Completable.complete())
+        whenever(payloadManager.upgradeV3PayloadToV4(any())).thenReturn(Completable.complete())
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -202,7 +205,6 @@ class PayloadDataManagerTest {
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
         verify(payloadManager).isV3UpgradeRequired()
-        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -239,7 +241,7 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
         whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName))
-            .thenThrow(MockitoException("Failed"))
+            .thenReturn(Completable.error(MockitoException("Failed")))
         whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
@@ -262,7 +264,14 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
-        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(MockitoException("Failed"))
+        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenReturn(
+            Completable.error(MockitoException("Failed"))
+        )
+
+        whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)).thenReturn(
+            Completable.complete()
+        )
+
         whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
@@ -275,7 +284,7 @@ class PayloadDataManagerTest {
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
         verify(payloadManager).isV3UpgradeRequired()
-        verify(payloadManager).isV4UpgradeRequired()
+        verify(payloadManager, never()).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -414,7 +423,7 @@ class PayloadDataManagerTest {
                 mockAccount,
                 addressLabel
             )
-        ).thenReturn(address)
+        ).thenReturn(Single.just(address))
 
         // Act
         val testObserver = subject.getNextReceiveAddressAndReserve(accountIndex, addressLabel).test()
@@ -784,7 +793,7 @@ class PayloadDataManagerTest {
     fun updatePasswordSuccess() {
         // Arrange
         val tempPassword = "TEMP_PASSWORD"
-        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(true)
+        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(Completable.complete())
         // Act
         val test = subject.updatePassword(tempPassword).test()
         // Assert
@@ -796,7 +805,7 @@ class PayloadDataManagerTest {
     fun updatePasswordFailed() {
         // Arrange
         val tempPassword = "TEMP_PASSWORD"
-        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(false)
+        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(Completable.error(RuntimeException()))
         // Act
         val test = subject.updatePassword(tempPassword).test()
         // Assert
@@ -820,7 +829,7 @@ class PayloadDataManagerTest {
     @Test
     fun isDoubleEncrypted() {
         // Arrange
-        whenever(payloadManager.payload?.isDoubleEncryption).thenReturn(true)
+        whenever(payloadManager.payload.isDoubleEncryption).thenReturn(true)
         // Act
         val result = subject.isDoubleEncrypted
         // Assert

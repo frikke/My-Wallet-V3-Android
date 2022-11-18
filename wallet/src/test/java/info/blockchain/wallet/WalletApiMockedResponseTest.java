@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
 
-    protected WalletApi walletApi;
 
     private ApiCode api = mock(ApiCode.class);
     private SessionIdService sessionIdService = mock(SessionIdService.class);
@@ -37,22 +36,6 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
     @Before
     public void setWalletApiAccess() {
         when(sessionIdService.sessionId()).thenReturn(Single.just(""));
-
-        walletApi = spy(new WalletApi(
-            getRetrofit(
-                "https://explorer.staging.blockchain.info/",
-                newOkHttpClient()
-            ).create(WalletExplorerEndpoints.class),
-            api,
-            sessionIdService,
-            "",
-            ""
-        ));
-    }
-
-    @After
-    public void clearWalletApiAccess() {
-        walletApi = null;
     }
 
     @SuppressWarnings("unchecked")

@@ -279,7 +279,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         })
         val receiverIntent = Intent(context, receiver.javaClass)
         val pendingIntent =
-            PendingIntent.getBroadcast(context, 0, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getBroadcast(
+                context, 0, receiverIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         try {
             startActivity(
                 Intent.createChooser(

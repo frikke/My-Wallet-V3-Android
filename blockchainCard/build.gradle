@@ -29,6 +29,7 @@ dependencies {
     implementation project(':blockchainApi')
     implementation project(':addressVerification')
     implementation project(':string-resources')
+    implementation project(':logging:domain')
 
     implementation Libraries.retrofit
     implementation Libraries.retrofitKotlinJsonConverter

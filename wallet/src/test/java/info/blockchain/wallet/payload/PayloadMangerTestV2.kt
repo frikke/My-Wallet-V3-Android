@@ -4,14 +4,20 @@ import com.blockchain.AppVersion
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.Device
 import info.blockchain.wallet.WalletApiMockedResponseTest
+import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.payload.data.AccountV3
 import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.Options
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.util.LinkedList
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Test
 import org.mockito.MockitoAnnotations
@@ -21,6 +27,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
     private val balanceManagerBtc: BalanceManagerBtc = mock()
 
     private val balanceManagerBch: BalanceManagerBch = mock()
+    private val walletApi: WalletApi = mock()
 
     private lateinit var payloadManager: PayloadManager
     @Before fun setup() {
@@ -47,15 +54,15 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
 
     private fun initializeAndDecryptTestWallet(resourse: String, password: String) {
         val walletBase = loadResourceContent(resourse)
-        val responseList = LinkedList<String>()
-        responseList.add(walletBase)
-        mockInterceptor!!.setResponseStringList(responseList)
+        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
+            Single.just(walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+        )
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
             password,
             "any"
-        )
+        ).test()
     }
 
     @Test
@@ -70,7 +77,6 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
         )
         assert(payloadManager.payload?.importedAddressList!!.isEmpty())
         assert(payloadManager.payload.isUpgradedToV3 == true)
-        println(payloadManager.payload?.sharedKey == "ed8c9149-e9c2-4145-bc80-c8834e5eec50")
         assert(payloadManager.payload?.txNotes == emptyMap<String, String>())
 
         assert(
@@ -158,12 +164,12 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
 
     @Test
     fun `updateDerivationsForAccounts should update the account payloads and sync back to the api`() {
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
+        )
         initializeAndDecryptTestWallet("wallet_v3_encrypted.txt", "1234")
         assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV3)
-        val responseList = LinkedList<String>()
-        responseList.add("HDWallet successfully synced with server")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.updateDerivationsForAccounts(payloadManager.payload!!.walletBody!!.accounts)
+        payloadManager.updateDerivationsForAccounts(payloadManager.payload!!.walletBody!!.accounts).test()
         assert(payloadManager.payload!!.walletBodies!!.size == 1)
         assert(payloadManager.payload!!.walletBodies!![0].accounts.size == 1)
         assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV4)
@@ -172,46 +178,49 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
 
     @Test
     fun `updateAccountLabel  should update the account payloads and sync back to the api`() {
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
+        )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
         assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Private Key Wallet")
-        val responseList = LinkedList<String>()
-        responseList.add("HDWallet successfully synced with server")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.updateAccountLabel(payloadManager.payload!!.walletBodies!![0].accounts[0], "Random Label")
+        payloadManager.updateAccountLabel(payloadManager.payload!!.walletBodies!![0].accounts[0], "Random Label").test()
         assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Random Label")
         assert(payloadManager.payload!!.walletBodies!![0].accounts.none { it.label == "Private Key Wallet" })
     }
 
     @Test
     fun `updateArchivedAccountState  should update the account payloads and sync back to the api`() {
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
+        )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
         assert(!payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
-        val responseList = LinkedList<String>()
-        responseList.add("HDWallet successfully synced with server")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.updateArchivedAccountState(payloadManager.payload!!.walletBodies!![0].accounts[0], true)
+        payloadManager.updateArchivedAccountState(payloadManager.payload!!.walletBodies!![0].accounts[0], true).test()
         assert(payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
     }
 
     @Test
     fun `updateMnemonicVerified  should update the account payloads and sync back to the api`() {
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
+        )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
         assert(payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
         val responseList = LinkedList<String>()
         responseList.add("HDWallet successfully synced with server")
         mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.updateMnemonicVerified(false)
+        payloadManager.updateMnemonicVerified(false).test()
         assert(!payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
     }
 
     @Test
     fun `updateDefaultIndex should update the account payloads and sync back to the api`() {
+        whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
+            Completable.complete()
+        )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
         assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 0)
-        val responseList = LinkedList<String>()
-        responseList.add("HDWallet successfully synced with server")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.updateDefaultIndex(21)
+        payloadManager.updateDefaultIndex(21).test()
         assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 21)
     }
 }

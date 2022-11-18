@@ -79,9 +79,7 @@ class BchDataManager(
                     Completable.complete()
                 }
                 saveToMetadataCompletable.then {
-                    Completable.fromCallable {
-                        correctBtcOffsetIfNeed()
-                    }
+                    correctBtcOffsetIfNeed()
                 }
             }
             .subscribeOn(Schedulers.io())
@@ -204,23 +202,25 @@ class BchDataManager(
      *
      * @return Boolean value to indicate if bitcoin wallet payload needs to sync to the server
      */
-    fun correctBtcOffsetIfNeed() {
+    fun correctBtcOffsetIfNeed(): Completable {
         val startingAccountIndex = payloadDataManager.accounts.size
         val bchAccountSize = bchDataStore.bchMetadata?.accounts?.size ?: 0
         val difference = bchAccountSize.minus(startingAccountIndex)
 
-        if (difference > 0) {
-            (startingAccountIndex until bchAccountSize)
-                .forEach {
+        return if (difference > 0) {
+            val singles = (startingAccountIndex until bchAccountSize)
+                .map {
                     val accountNumber = it + 1
                     val label = defaultLabels.getDefaultNonCustodialWalletLabel()
                     val newAccountLabel = "$label $accountNumber"
-                    val acc = payloadDataManager.addAccountWithLabel(newAccountLabel)
-                    bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
-                        it, acc.xpubForDerivation(Derivation.LEGACY_TYPE)!!
-                    )
+                    payloadDataManager.addAccountWithLabel(newAccountLabel).doOnSuccess { account ->
+                        bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
+                            it, account.xpubForDerivation(Derivation.LEGACY_TYPE)!!
+                        )
+                    }
                 }
-        }
+            Single.merge(singles).ignoreElements()
+        } else Completable.complete()
     }
 
     /**
