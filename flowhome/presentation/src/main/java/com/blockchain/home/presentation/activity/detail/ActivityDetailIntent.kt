@@ -5,5 +5,4 @@ import com.blockchain.home.presentation.activity.common.ClickAction
 
 sealed interface ActivityDetailIntent : Intent<ActivityDetailModelState> {
     object LoadActivityDetail : ActivityDetailIntent
-    data class ComponentClicked(val action: ClickAction) : ActivityDetailIntent
 }

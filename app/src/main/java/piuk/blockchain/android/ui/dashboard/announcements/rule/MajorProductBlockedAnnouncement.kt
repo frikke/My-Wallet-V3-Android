@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicReference
 import piuk.blockchain.android.R
-import piuk.blockchain.android.maintenance.presentation.openUrl
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder

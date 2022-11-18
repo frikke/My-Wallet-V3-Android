@@ -69,7 +69,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
         is ActivityComponent.Button -> {
             ActivityDetailButton(
                 data = component,
-                onClick = { onClick?.invoke(ClickAction.ButtonClick(component.action)) }
+                onClick = { onClick?.invoke(ClickAction.Button(component.action)) }
             )
         }
         is ActivityComponent.StackView -> {
@@ -77,7 +77,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
                 icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
-                onClick = { onClick?.invoke(ClickAction.TableRowClick(data = component.id)) }
+                onClick = { onClick?.invoke(ClickAction.Stack(data = component.id)) }
             )
         }
     }

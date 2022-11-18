@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -22,9 +21,9 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
+import com.blockchain.componentlib.utils.CopyText
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.CopyState
-import com.blockchain.presentation.extensions.copyToClipboard
 
 @Composable
 fun CopyMnemonicCta(
@@ -35,7 +34,10 @@ fun CopyMnemonicCta(
     var copyMnemonic by remember { mutableStateOf(false) }
 
     if (copyMnemonic) {
-        CopyMnemonic(mnemonic)
+        CopyText(
+            label = stringResource(id = R.string.manual_backup_title),
+            textToCopy = mnemonic.joinToString(separator = " ")
+        )
         mnemonicCopied()
         copyMnemonic = false
     }
@@ -74,12 +76,4 @@ fun MnemonicCopied() {
             color = Green600
         )
     }
-}
-
-@Composable
-fun CopyMnemonic(mnemonic: List<String>) {
-    LocalContext.current.copyToClipboard(
-        label = stringResource(id = R.string.manual_backup_title),
-        text = mnemonic.joinToString(separator = " ")
-    )
 }

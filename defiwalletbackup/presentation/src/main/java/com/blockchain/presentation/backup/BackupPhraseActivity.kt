@@ -9,13 +9,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.utils.copyToClipboard
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavHost
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
-import com.blockchain.presentation.extensions.copyToClipboard
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent

@@ -77,7 +77,6 @@ class PrivateKeyActivityViewModel(
             // reduce to summary
             .map { (group, activities) ->
                 group to activities.map {
-                    println("------- txx ${it.txId}")
                     it.summary.toActivityComponent(componentId = it.txId) }
             }
             .toMap()

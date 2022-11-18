@@ -192,12 +192,11 @@ fun ActivityScreen(
                                 focusManager.clearFocus(true)
 
                                 when (clickAction) {
-                                    is ClickAction.ButtonClick -> {
+                                    is ClickAction.Button -> {
                                         // n/a for now
                                     }
-                                    is ClickAction.TableRowClick -> {
+                                    is ClickAction.Stack -> {
                                         coroutineScope.launch {
-                                            println("------- txx selec data ${clickAction.data}")
                                             selectedTxId = clickAction.data
                                             sheetState.show()
                                         }
