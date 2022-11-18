@@ -18,14 +18,20 @@ import com.blockchain.componentlib.theme.AppTheme
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CustomStackedIcon(
-    icon: StackedIcon
+    icon: StackedIcon,
+    iconBackground: Color = AppTheme.colors.light,
+    borderColor: Color = AppTheme.colors.background
 ) {
     when (icon) {
         is StackedIcon.OverlappingPair -> OverlapIcon(
-            icon = icon
+            icon = icon,
+            iconBackground = iconBackground,
+            borderColor = borderColor
         )
         is StackedIcon.SmallTag -> SmallTagIcon(
-            icon = icon
+            icon = icon,
+            iconBackground = iconBackground,
+            borderColor = borderColor
         )
         is StackedIcon.SingleIcon -> AsyncMediaItem(
             modifier = Modifier
