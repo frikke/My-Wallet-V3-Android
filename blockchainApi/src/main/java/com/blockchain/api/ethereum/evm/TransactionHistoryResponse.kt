@@ -34,9 +34,9 @@ data class EvmTransactionData(
     @SerialName("gasLimit")
     val gasLimit: @Contextual BigInteger,
     @SerialName("gasUsed")
-    val gasUsed: @Contextual BigInteger,
+    val gasUsed: @Contextual BigInteger? = null,
     @SerialName("blockNumber")
-    val blockNumber: @Contextual BigInteger
+    val blockNumber: @Contextual BigInteger? = null
 )
 
 @Serializable

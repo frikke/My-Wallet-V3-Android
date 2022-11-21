@@ -20,6 +20,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
@@ -79,6 +80,9 @@ internal class UnifiedBalancesRepository(
                 index = wallet.index
             )
         }
+            .catch {
+                DataResource.Error(Exception(it))
+            }
     }
 
     private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkWallet, String>): CommonResponse {
