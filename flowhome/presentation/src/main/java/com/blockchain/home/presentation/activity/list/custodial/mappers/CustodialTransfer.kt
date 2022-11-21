@@ -6,8 +6,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.basicSubtitleStyle
-import com.blockchain.home.presentation.activity.common.basicTitleStyle
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedDate

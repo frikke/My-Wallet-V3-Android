@@ -47,7 +47,7 @@ class FiatActivityDetailsModel(
     fun loadPaymentDetails(activityItem: FiatActivitySummaryItem) {
         viewModelScope.launch {
             withContext(dispatcher) {
-                paymentMethodService.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
+                paymentMethodService.getPaymentMethodDetailsForIdLegacy(activityItem.paymentMethodId.orEmpty())
                     .doOnFailure { error ->
                         Timber.e("Failed to get PaymentMethodDetails: ${error.message}")
                         // TODO Map error types to error messages

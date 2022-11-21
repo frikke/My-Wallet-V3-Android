@@ -76,6 +76,7 @@ import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
@@ -521,8 +522,12 @@ val coreModule = module {
         }
 
         scoped {
+            PaymentMethodsStore(paymentsService = get())
+        }
+        scoped {
             PaymentsRepository(
                 paymentsService = get(),
+                paymentMethodsStore = get(),
                 paymentMethodsService = get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),

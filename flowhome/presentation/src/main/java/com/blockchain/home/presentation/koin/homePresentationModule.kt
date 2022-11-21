@@ -44,7 +44,8 @@ val homePresentationModule = module {
         viewModel { (txId: String) ->
             CustodialActivityDetailViewModel(
                 activityTxId = txId,
-                custodialActivityService = get()
+                custodialActivityService = get(),
+                paymentMethodService = get()
             )
         }
 

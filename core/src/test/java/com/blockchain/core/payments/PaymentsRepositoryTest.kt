@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.brokerage.data.DepositTermsResponse
-import com.blockchain.api.brokerage.data.SettlementDetails.Companion.INSTANT
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -28,6 +27,7 @@ import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.RefreshPlaidResponse
 import com.blockchain.api.payments.data.SettlementBody
@@ -41,6 +41,7 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -137,6 +138,7 @@ class PaymentsRepositoryTest {
     }
 
     private val paymentsService: PaymentsService = mockk()
+    private val paymentMethodsStore: PaymentMethodsStore = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
     private val tradingService: TradingService = mockk()
@@ -160,6 +162,7 @@ class PaymentsRepositoryTest {
     fun setUp() {
         subject = PaymentsRepository(
             paymentsService,
+            paymentMethodsStore,
             paymentMethodsService,
             linkedCardsStore,
             tradingService,
@@ -1072,16 +1075,16 @@ class PaymentsRepositoryTest {
     @Test
     fun `getPaymentMethodForId() - happy`() = runTest {
         // ARRANGE
-        val paymentMethodDetails: PaymentMethodDetails = mockk()
+        val paymentMethodDetailsResponse: PaymentMethodDetailsResponse = mockk()
         coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
-            Outcome.Success(paymentMethodDetails)
+            Outcome.Success(paymentMethodDetailsResponse)
 
         // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
 
         // ASSERT
         result.doOnSuccess {
-            assertEquals(paymentMethodDetails, it)
+            assertEquals(paymentMethodDetailsResponse, it)
         }
     }
 }

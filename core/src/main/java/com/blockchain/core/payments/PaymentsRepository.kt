@@ -29,6 +29,7 @@ import com.blockchain.api.payments.data.LinkBankAttrsResponse
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.ProviderAccountAttrs
 import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.SettlementBody
@@ -39,8 +40,10 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -111,17 +114,18 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.rxSingle
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import kotlinx.coroutines.rx3.rxSingle
 
 class PaymentsRepository(
     private val paymentsService: PaymentsService,
+    private val paymentMethodsStore: PaymentMethodsStore,
     private val paymentMethodsService: PaymentMethodsService,
     private val linkedCardsStore: LinkedCardsStore,
     private val tradingService: TradingService,
@@ -139,11 +143,20 @@ class PaymentsRepository(
         googlePayFeatureFlag.enabled.cache()
     }
 
-    override suspend fun getPaymentMethodDetailsForId(
+    override suspend fun getPaymentMethodDetailsForIdLegacy(
         paymentId: String,
     ): Outcome<Exception, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         return paymentsService.getPaymentMethodDetailsForId(paymentId)
+            .map { it.toPaymentDetails() }
+    }
+
+    override suspend fun getPaymentMethodDetailsForId(
+        paymentId: String,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<PaymentMethodDetails>> {
+        return paymentMethodsStore.stream(freshnessStrategy.withKey(PaymentMethodsStore.Key(paymentId)))
+            .mapData { it.toPaymentDetails() }
     }
 
     override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
@@ -963,4 +976,41 @@ private fun String.toCardType(): CardType = try {
     CardType.valueOf(this)
 } catch (ex: Exception) {
     CardType.UNKNOWN
+}
+
+private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetails {
+    return when (this.paymentMethodType) {
+        PaymentMethodDetailsResponse.PAYMENT_CARD -> {
+            PaymentMethodDetails(
+                label = cardDetails?.card?.label,
+                endDigits = cardDetails?.card?.number,
+                mobilePaymentType = cardDetails?.mobilePaymentType?.toMobilePaymentType()
+            )
+        }
+        PaymentMethodDetailsResponse.BANK_TRANSFER -> {
+            check(bankTransferAccountDetails != null) { "bankTransferAccountDetails not present" }
+            bankTransferAccountDetails!!.let { bankTransferAccountDetails ->
+                check(bankTransferAccountDetails.details != null) { "bankTransferAccountDetails not present" }
+                bankTransferAccountDetails.details!!.let { detail ->
+                    PaymentMethodDetails(
+                        label = detail.accountName,
+                        endDigits = detail.accountNumber
+                    )
+                }
+            }
+        }
+        PaymentMethodDetailsResponse.BANK_ACCOUNT -> {
+            check(bankAccountDetails != null) { "bankAccountDetails not present" }
+            bankAccountDetails!!.let { bankAccountDetails ->
+                check(bankAccountDetails.extraAttributes != null) { "extraAttributes not present" }
+                bankAccountDetails.extraAttributes!!.let { extraAttributes ->
+                    PaymentMethodDetails(
+                        label = extraAttributes.name,
+                        endDigits = extraAttributes.address
+                    )
+                }
+            }
+        }
+        else -> PaymentMethodDetails()
+    }
 }

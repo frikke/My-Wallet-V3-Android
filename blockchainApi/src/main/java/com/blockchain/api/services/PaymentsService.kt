@@ -18,44 +18,14 @@ class PaymentsService internal constructor(
 ) {
     suspend fun getPaymentMethodDetailsForId(
         paymentId: String
-    ): Outcome<Exception, PaymentMethodDetails> =
+    ): Outcome<Exception, PaymentMethodDetailsResponse> =
         api.getPaymentMethodDetailsForId(paymentId)
-            .map { it.toPaymentDetails() }
 
     fun getWithdrawalLocks(
         localCurrency: String
     ): Single<CollateralLocks> =
         api.getWithdrawalLocks(localCurrency)
             .map { it.toWithdrawalLocks() }
-}
-
-private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetails {
-    return when (this.paymentMethodType) {
-        PAYMENT_CARD -> {
-            PaymentMethodDetails(
-                label = cardDetails?.card?.label,
-                endDigits = cardDetails?.card?.number,
-                mobilePaymentType = cardDetails?.mobilePaymentType?.toMobilePaymentType()
-            )
-        }
-        BANK_TRANSFER -> {
-            check(this.bankTransferAccountDetails != null) { "bankTransferAccountDetails not present" }
-            check(this.bankTransferAccountDetails.details != null) { "bankTransferAccountDetails not present" }
-            PaymentMethodDetails(
-                label = bankTransferAccountDetails.details.accountName,
-                endDigits = bankTransferAccountDetails.details.accountNumber
-            )
-        }
-        BANK_ACCOUNT -> {
-            check(this.bankAccountDetails != null) { "bankAccountDetails not present" }
-            check(this.bankAccountDetails.extraAttributes != null) { "extraAttributes not present" }
-            PaymentMethodDetails(
-                label = bankAccountDetails.extraAttributes.name,
-                endDigits = bankAccountDetails.extraAttributes.address
-            )
-        }
-        else -> PaymentMethodDetails()
-    }
 }
 
 private fun WithdrawalLocksResponse.toWithdrawalLocks() =

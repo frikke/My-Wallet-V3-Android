@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.common
+package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
@@ -7,11 +7,12 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.home.presentation.activity.list.custodial.mappers.icon
-import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingSubtitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingTitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingSubtitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingTitle
+import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.home.presentation.activity.common.ActivityIconState
+import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.home.presentation.activity.common.ActivityTextColorState
+import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
+import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 
 internal val basicTitleStyle = ActivityTextStyleState(
     typography = ActivityTextTypographyState.Paragraph2,
@@ -25,7 +26,7 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
     strikethrough = false
 )
 
-private fun ActivitySummaryItem.icon() = when (this) {
+internal fun ActivitySummaryItem.icon() = when (this) {
     is CustodialTradingActivitySummaryItem -> icon()
     is CustodialTransferActivitySummaryItem -> icon()
     is CustodialInterestActivitySummaryItem -> icon()

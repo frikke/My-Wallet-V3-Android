@@ -4,22 +4,29 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.home.activity.CustodialActivityService
-import com.blockchain.home.presentation.activity.common.toActivityComponent
-import com.blockchain.home.presentation.activity.common.toStackedIcon
-import com.blockchain.home.presentation.activity.detail.ActivityDetail
+import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
+import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
+import com.blockchain.store.mapData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class CustodialActivityDetailViewModel(
     private val activityTxId: String,
-    private val custodialActivityService: CustodialActivityService
+    private val custodialActivityService: CustodialActivityService,
+    private val paymentMethodService: PaymentMethodService
 ) : MviViewModel<
     CustodialActivityDetailIntent,
     ActivityDetailViewState,
@@ -33,20 +40,8 @@ class CustodialActivityDetailViewModel(
 
     override fun reduce(state: CustodialActivityDetailModelState): ActivityDetailViewState = state.run {
         ActivityDetailViewState(
-            activityDetail = activityDetail.map { it.reduceActivityDetail() }
+            activityDetail = activityDetail.map { it.toActivityDetail() }
         )
-    }
-
-    private fun ActivityDetailGroups.reduceActivityDetail(): ActivityDetail = when (this) {
-        is ActivityDetailGroups.GroupedItems -> {
-            ActivityDetail(
-                icon = icon.toStackedIcon(),
-                title = title,
-                subtitle = subtitle,
-                detailItems = listOf(),
-                floatingActions = actionItems.map { it.toActivityComponent() }
-            )
-        }
     }
 
     override suspend fun handleIntent(
@@ -60,41 +55,59 @@ class CustodialActivityDetailViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadActivityDetail() {
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             custodialActivityService
                 .getActivity(txId = activityTxId)
-                .onEach {
-                    println("--------- ooo ${it.map { it is FiatActivitySummaryItem }}")
+                .flatMapLatest { summaryDataResource ->
+                    when (summaryDataResource) {
+                        is DataResource.Data -> {
+                            with(summaryDataResource.data) {
+                                when (this) {
+                                    is FiatActivitySummaryItem -> {
+                                        fiatDetail()
+                                    }
+                                    else -> flowOf(DataResource.Loading)
+                                }
+                            }
+                        }
+                        is DataResource.Error -> flowOf(DataResource.Error(summaryDataResource.error))
+                        DataResource.Loading -> flowOf(DataResource.Loading)
+                    }
                 }
                 .collect()
-            //            unifiedActivityService
-            //                .getActivity(txId = activityTxId)
-            //                .flatMapLatest { summaryDataResource ->
-            //                    when (summaryDataResource) {
-            //                        is DataResource.Data -> {
-            //                            with(summaryDataResource.data) {
-            //                                // todo(othman) real values
-            //                                unifiedActivityService.getActivityDetails(
-            //                                    txId = txId,
-            //                                    network = network,
-            //                                    pubKey = pubkey,
-            //                                    locales = "en-GB;q=1.0, en",
-            //                                    timeZone = "Europe/London"
-            //                                )
-            //                            }
-            //                        }
-            //                        is DataResource.Error -> flowOf(DataResource.Error(summaryDataResource.error))
-            //                        DataResource.Loading -> flowOf(DataResource.Loading)
-            //                    }
-            //                }
-            //                .onEach { dataResource ->
-            //                    updateState {
-            //                        it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
-            //                    }
-            //                }
-            //                .collect()
         }
+    }
+
+    private suspend fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return paymentMethodService.getPaymentMethodDetailsForId(paymentMethodId.orEmpty())
+            .mapData { paymentMethodDetails ->
+                CustodialActivityDetail(
+                    activity = this,
+                    extras = listOf(
+                        CustodialActivityDetailExtras(
+                            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+                            value = with(paymentMethodDetails) {
+                                when {
+                                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
+                                        R.string.google_pay
+                                    )
+                                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
+                                        R.string.apple_pay
+                                    )
+                                    paymentMethodDetails.label.isNullOrBlank() -> TextValue.StringValue(
+                                        account.currency.name
+                                    )
+                                    else -> TextValue.StringValue(
+                                        "${paymentMethodDetails.label} ${paymentMethodDetails.endDigits}"
+                                    )
+                                }
+                            }
+                        )
+                    )
+                )
+            }
     }
 }
