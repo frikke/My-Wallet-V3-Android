@@ -7,6 +7,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface StakingService {
@@ -47,6 +48,10 @@ interface StakingService {
     fun getLimitsForAllAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Map<AssetInfo, StakingLimits>>>
+
+    suspend fun getAccountAddress(currency: Currency): DataResource<String>
+
+    fun getAccountAddressRx(currency: Currency): Single<String>
 
     fun getLimitsForAsset(
         asset: AssetInfo,

@@ -1,5 +1,6 @@
 package com.blockchain.api.staking
 
+import com.blockchain.api.staking.data.StakingAddressDto
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.api.staking.data.StakingLimitsMapDto
@@ -29,4 +30,9 @@ internal interface StakingApi {
         @Query("currency") fiatTicker: String,
         @Query("product") product: String = "STAKING"
     ): Outcome<Exception, StakingLimitsMapDto>
+
+    @GET("payments/accounts/staking")
+    suspend fun getAddress(
+        @Query("ccy") cryptoCurrencyTicker: String
+    ): Outcome<Exception, StakingAddressDto>
 }

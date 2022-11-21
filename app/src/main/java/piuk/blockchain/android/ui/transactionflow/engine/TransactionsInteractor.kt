@@ -217,7 +217,10 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&
@@ -229,7 +232,10 @@ class TransactionInteractor(
             AssetAction.StakingDeposit -> {
                 require(targetAccount is StakingAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&

@@ -627,7 +627,8 @@ val coreModule = module {
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 paymentTransactionHistoryStore = get(),
                 stakingLimitsStore = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                stakingApi = get()
             )
         }
 

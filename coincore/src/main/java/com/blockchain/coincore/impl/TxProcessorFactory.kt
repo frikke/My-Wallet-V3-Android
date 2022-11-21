@@ -32,6 +32,7 @@ import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawOnChainTxE
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.staking.StakingDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
@@ -228,7 +229,6 @@ class TxProcessorFactory(
                     )
                 )
             )
-
             is CustodialInterestAccount ->
                 target.receiveAddress
                     .map {
@@ -239,6 +239,21 @@ class TxProcessorFactory(
                             engine = InterestDepositOnChainTxEngine(
                                 interestBalanceStore = interestBalanceStore,
                                 interestService = interestService,
+                                walletManager = walletManager,
+                                onChainEngine = engine
+                            )
+                        )
+                    }
+            is CustodialStakingAccount ->
+                target.receiveAddress
+                    .map {
+                        TransactionProcessor(
+                            exchangeRates = exchangeRates,
+                            sourceAccount = source,
+                            txTarget = it,
+                            engine = StakingDepositOnChainTxEngine(
+                                stakingBalanceStore = stakingBalanceStore,
+                                stakingService = stakingService,
                                 walletManager = walletManager,
                                 onChainEngine = engine
                             )

@@ -1,5 +1,6 @@
 package com.blockchain.core.staking.data
 
+import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
@@ -21,6 +22,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
+import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
@@ -31,11 +33,13 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Single
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.rxSingle
 
 class StakingRepository(
     private val stakingRatesStore: StakingRatesStore,
@@ -45,7 +49,8 @@ class StakingRepository(
     private val stakingFeatureFlag: FeatureFlag,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val stakingLimitsStore: StakingLimitsStore,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val stakingApi: StakingApiService
 ) : StakingService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -164,6 +169,28 @@ class StakingRepository(
                     Pair(asset, stakingLimit)
                 }
             }.toMap()
+        }
+
+    override suspend fun getAccountAddress(currency: Currency): DataResource<String> =
+        stakingApi.getAccountAddress(currency.networkTicker).fold(
+            onSuccess = {
+                DataResource.Data(it.address)
+            },
+            onFailure = {
+                DataResource.Error(it)
+            }
+        )
+
+    override fun getAccountAddressRx(currency: Currency): Single<String> =
+        rxSingle {
+            stakingApi.getAccountAddress(currency.networkTicker).fold(
+                onSuccess = {
+                    it.address
+                },
+                onFailure = {
+                    throw it
+                }
+            )
         }
 
     override fun getLimitsForAsset(

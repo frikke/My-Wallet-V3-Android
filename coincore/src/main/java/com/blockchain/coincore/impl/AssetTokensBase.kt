@@ -11,6 +11,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
@@ -189,7 +190,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             exchangeRates = exchangeRates,
                             internalAccountLabel = labels.getDefaultTradingWalletLabel(),
                             identity = identity,
-                            kycService = kycService
+                            kycService = kycService,
+                            custodialWalletManager = custodialManager
                         )
                     )
                 } else {
@@ -295,7 +297,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
         }
 
-    private fun getCustodialTargets(): Maybe<SingleAccountList> =
+    private fun getTradingTargets(): Maybe<SingleAccountList> =
         accountGroup(AssetFilter.Trading)
             .map { it.accounts }
             .onErrorComplete()
@@ -333,17 +335,22 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     listOf(
                         getPitLinkingTargets(),
                         getInterestTargets(),
-                        getCustodialTargets(),
-                        getNonCustodialTargets(exclude = account)
+                        getTradingTargets(),
+                        getNonCustodialTargets(exclude = account),
+                        getStakingTargets()
                     )
                 ).toList()
                     .map { ll -> ll.flatten() }
                     .onErrorReturnItem(emptyList())
             is InterestAccount -> {
-                getCustodialTargets()
+                getTradingTargets()
                     .onErrorReturnItem(emptyList())
                     .defaultIfEmpty(emptyList())
             }
+            is StakingAccount ->
+                getTradingTargets()
+                    .onErrorReturnItem(emptyList())
+                    .defaultIfEmpty(emptyList())
             else -> Single.just(emptyList())
         }
     }

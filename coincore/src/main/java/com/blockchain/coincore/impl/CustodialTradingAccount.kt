@@ -251,8 +251,8 @@ class CustodialTradingAccount(
         }
     }
 
-    private fun stakingDepositEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        return identity.userAccessForFeature(Feature.DepositStaking).map { access ->
+    private fun stakingDepositEligibility(balance: AccountBalance): Single<StateAwareAction> =
+        identity.userAccessForFeature(Feature.DepositStaking).map { access ->
             StateAwareAction(
                 when {
                     access is FeatureAccess.Blocked -> access.toActionState()
@@ -262,7 +262,6 @@ class CustodialTradingAccount(
                 AssetAction.StakingDeposit
             )
         }
-    }
 
     private fun sendEligibility(balance: AccountBalance): Single<StateAwareAction> {
         return Single.just(
