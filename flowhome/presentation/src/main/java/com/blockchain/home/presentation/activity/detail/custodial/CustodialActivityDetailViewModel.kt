@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.home.activity.CustodialActivityService
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class CustodialActivityDetailViewModel(
@@ -77,6 +79,11 @@ class CustodialActivityDetailViewModel(
                         DataResource.Loading -> flowOf(DataResource.Loading)
                     }
                 }
+                .onEach { dataResource ->
+                    updateState {
+                        it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
+                    }
+                }
                 .collect()
         }
     }
@@ -87,7 +94,7 @@ class CustodialActivityDetailViewModel(
                 CustodialActivityDetail(
                     activity = this,
                     extras = listOf(
-                        CustodialActivityDetailExtras(
+                        CustodialActivityDetailExtra(
                             title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
                             value = with(paymentMethodDetails) {
                                 when {

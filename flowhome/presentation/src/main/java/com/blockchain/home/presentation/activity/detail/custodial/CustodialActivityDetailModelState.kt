@@ -11,10 +11,10 @@ data class CustodialActivityDetailModelState(
 
 data class CustodialActivityDetail(
     val activity: ActivitySummaryItem,
-    val extras: List<CustodialActivityDetailExtras>
+    val extras: List<CustodialActivityDetailExtra>
 )
 
-data class CustodialActivityDetailExtras(
+data class CustodialActivityDetailExtra(
     val title: TextValue,
     val value: TextValue
 )

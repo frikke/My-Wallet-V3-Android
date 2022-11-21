@@ -25,6 +25,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.CopyText
 import com.blockchain.componentlib.utils.OpenUrl
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
@@ -126,7 +127,7 @@ fun ActivityDetailScreen(
                 StackedIcon.None
             },
             title = if (activityDetail is DataResource.Data) {
-                activityDetail.data.title
+                activityDetail.data.title.value()
             } else {
                 ""
             },

@@ -41,12 +41,14 @@ data class ActivityTextStyleState(
 
 // tag
 enum class ActivityTagStyleState {
-    Success, Warning
+    Success, Info, Warning, Error
 }
 
 fun ActivityTagStyleState.toTagType() = when (this) {
     ActivityTagStyleState.Success -> TagType.Success()
+    ActivityTagStyleState.Info -> TagType.InfoAlt()
     ActivityTagStyleState.Warning -> TagType.Warning()
+    ActivityTagStyleState.Error -> TagType.Error()
 }
 
 // component

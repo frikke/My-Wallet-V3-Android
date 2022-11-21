@@ -95,6 +95,10 @@ fun Date.toFormattedString(locale: Locale = Locale.getDefault()): String {
     return "$timeText on $dateText"
 }
 
+fun Calendar.toFormattedString(locale: Locale = Locale.getDefault()): String {
+    return time.toFormattedString(locale)
+}
+
 /**
  * Takes a [Date] object and converts it to the standard MEDIUM date format, ie 21 Jun 2020.
  *

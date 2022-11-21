@@ -26,6 +26,8 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
     strikethrough = false
 )
 
+internal fun ActivityTextStyleState.muted() = copy(color = ActivityTextColorState.Muted)
+
 internal fun ActivitySummaryItem.icon() = when (this) {
     is CustodialTradingActivitySummaryItem -> icon()
     is CustodialTransferActivitySummaryItem -> icon()

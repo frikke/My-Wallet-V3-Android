@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.activity.detail
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
@@ -44,8 +45,8 @@ class ActivityDetailViewModel(
         is ActivityDetailGroups.GroupedItems -> {
             ActivityDetail(
                 icon = icon.toStackedIcon(),
-                title = title,
-                subtitle = subtitle,
+                title = TextValue.StringValue(title),
+                subtitle = TextValue.StringValue(subtitle),
                 detailItems = detailItems.map {
                     ActivityDetailGroup(
                         title = it.title,
