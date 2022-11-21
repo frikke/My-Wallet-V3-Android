@@ -113,6 +113,7 @@ android {
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
@@ -170,6 +171,7 @@ android {
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
@@ -228,6 +230,7 @@ android {
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['stagingEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['stagingApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""

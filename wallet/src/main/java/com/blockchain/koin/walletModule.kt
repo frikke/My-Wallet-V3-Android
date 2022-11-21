@@ -91,10 +91,25 @@ val walletModule = module {
             .build()
     }
 
+    single(evmNodesApiRetrofit) {
+        val json = Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+        }
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("evm-nodes-api"))
+            .client(get())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
     factory {
         EthAccountApi(
             ethEndpoints = get<Retrofit>(apiRetrofit).create(EthEndpoints::class.java),
-            ethNodeEndpoints = get<Retrofit>(kotlinXApiRetrofit).create(EthNodeEndpoints::class.java),
+            ethNodeEndpoints = get<Retrofit>(evmNodesApiRetrofit).create(EthNodeEndpoints::class.java),
             apiCode = getProperty("api-code")
         )
     }
