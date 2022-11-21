@@ -120,8 +120,12 @@ class CryptographyManagerImpl() : CryptographyManager {
         encryptedData: String,
         requireUserAuthentication: Boolean
     ): CipherState {
-        val ivSpec = decodeFromBase64ToArray(getDataAndIV(encryptedData, separator).second)
-        return initialiseCipher(Cipher.DECRYPT_MODE, keyName, requireUserAuthentication, ivSpec)
+        return try {
+            val ivSpec = decodeFromBase64ToArray(getDataAndIV(encryptedData, separator).second)
+            initialiseCipher(Cipher.DECRYPT_MODE, keyName, requireUserAuthentication, ivSpec)
+        } catch (e: IllegalStateException) {
+            CipherState.CipherOtherError(e)
+        }
     }
 
     private fun initialiseCipher(

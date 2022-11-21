@@ -65,7 +65,7 @@ object Versions {
     // Networking, RxJava
     const val chucker = "3.5.2"
     const val retrofit = "2.9.0"
-    const val okHttp = "4.9.0"
+    const val okHttp = "4.10.0"
     const val gson = "2.8.5"
     const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"

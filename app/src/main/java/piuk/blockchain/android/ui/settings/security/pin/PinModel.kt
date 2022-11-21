@@ -232,6 +232,7 @@ class PinModel(
             is PinIntent.UpgradeWalletResponse,
             is PinIntent.CreatePINSucceeded,
             is PinIntent.SetShowFingerprint,
+            PinIntent.DialogShown,
             is PinIntent.UpdateIntercomStatus -> null
         }
 
