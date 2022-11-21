@@ -20,6 +20,8 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':coincore')
     implementation project(':flowhome:domain')
+    implementation project(':store:core')
+    implementation project(':store:caches:inmemory')
 
     // coroutines
     implementation Libraries.androidCoroutines
@@ -30,4 +32,6 @@ dependencies {
     implementation Libraries.koin
     implementation Libraries.koinCompose
 
+    // rx
+    implementation Libraries.rxKotlin
 }

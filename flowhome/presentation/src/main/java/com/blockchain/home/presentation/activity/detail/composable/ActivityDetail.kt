@@ -34,10 +34,65 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailIntent
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
+import com.blockchain.home.presentation.activity.list.composable.PrivateKeyActivity
+import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ActivityDetail(
+    selectedTxId: String,
+    walletMode: WalletMode = get<WalletModeService>(superAppModeService).enabledWalletMode(),
+    onCloseClick: () -> Unit
+) {
+    when (walletMode) {
+        WalletMode.CUSTODIAL_ONLY -> CustodialActivityDetail(
+            viewModel = getViewModel(
+                scope = payloadScope,
+                key = selectedTxId,
+                parameters = { parametersOf(selectedTxId) }
+            ),
+            onCloseClick = onCloseClick
+        )
+        WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivityDetail(
+            viewModel = getViewModel(
+                scope = payloadScope,
+                key = selectedTxId,
+                parameters = { parametersOf(selectedTxId) }
+            ),
+            onCloseClick = onCloseClick
+        )
+        else -> error("unsupported")
+    }
+}
+
+@Composable
+fun CustodialActivityDetail(
+    viewModel: CustodialActivityDetailViewModel,
+    onCloseClick: () -> Unit
+) {
+    val viewState: ActivityDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(CustodialActivityDetailIntent.LoadActivityDetail)
+        onDispose { }
+    }
+
+    ActivityDetailScreen(
+        activityDetail = viewState.activityDetail,
+        onCloseClick = onCloseClick
+    )
+}
+
+@Composable
+fun PrivateKeyActivityDetail(
     viewModel: ActivityDetailViewModel,
     onCloseClick: () -> Unit
 ) {

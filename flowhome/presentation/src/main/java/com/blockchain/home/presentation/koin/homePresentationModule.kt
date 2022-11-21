@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.koin
 
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
@@ -29,7 +30,7 @@ val homePresentationModule = module {
 
         viewModel {
             CustodialActivityViewModel(
-                coincore = get()
+                custodialActivityService = get()
             )
         }
 
@@ -39,6 +40,16 @@ val homePresentationModule = module {
                 unifiedActivityService = get()
             )
         }
+
+        viewModel { (txId: String) ->
+            CustodialActivityDetailViewModel(
+                activityTxId = txId,
+                custodialActivityService = get()
+            )
+        }
+
+
+
         viewModel {
             QuickActionsViewModel(
                 walletModeService = get(superAppModeService),

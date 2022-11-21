@@ -144,11 +144,7 @@ fun ActivityScreen(
         sheetContent = {
             selectedTxId?.let {
                 ActivityDetail(
-                    viewModel = getViewModel(
-                        scope = payloadScope,
-                        key = it,
-                        parameters = { parametersOf(it) }
-                    ),
+                    selectedTxId = it,
                     onCloseClick = {
                         coroutineScope.launch {
                             sheetState.hide()
