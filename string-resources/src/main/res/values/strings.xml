@@ -3405,6 +3405,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="blockchain_card_waitlist_announcement_title">Introducing the Blockchain.com Visa® Card</string>
     <string name="blockchain_card_waitlist_announcement_description">Spend your crypto or cash without fees. Earn 1%% back in crypto.</string>
     <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
+    <string name="bc_card_empty_statements_title">Your Statements Go Here</string>
+    <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
