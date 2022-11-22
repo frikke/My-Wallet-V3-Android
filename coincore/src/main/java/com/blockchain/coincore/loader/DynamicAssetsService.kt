@@ -85,7 +85,7 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
             DynamicAssetProducts.PrivateKey -> AssetCategory.NON_CUSTODIAL
             DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.CUSTODIAL
             DynamicAssetProducts.InterestBalance -> AssetCategory.CUSTODIAL
-            DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.NON_CUSTODIAL
+            DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.DELEGATED_NON_CUSTODIAL
             else -> null
         }
     }.toSet()

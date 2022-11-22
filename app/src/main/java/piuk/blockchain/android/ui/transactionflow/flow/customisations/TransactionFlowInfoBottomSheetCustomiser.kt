@@ -130,6 +130,8 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     when (state.sourceAccountType) {
                         AssetCategory.CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_custodial_info
                         AssetCategory.NON_CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_noncustodial_info
+                        AssetCategory.DELEGATED_NON_CUSTODIAL ->
+                            R.string.swap_enter_amount_max_limit_from_noncustodial_info
                     },
                     effectiveLimitAmount,
                     limitPeriodText,

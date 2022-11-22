@@ -45,7 +45,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isNonCustodial
+import info.blockchain.balance.isDelegatedNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
@@ -98,7 +98,7 @@ internal class DynamicAssetLoader(
         when {
             currency.isErc20() -> loadErc20Asset(currency)
             (currency as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(currency)
-            (currency as? AssetInfo)?.isNonCustodial == true -> loadSelfCustodialAsset(currency)
+            (currency as? AssetInfo)?.isDelegatedNonCustodial == true -> loadSelfCustodialAsset(currency)
             currency is FiatCurrency -> FiatAsset(currency)
             else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
         }.also {
@@ -326,7 +326,11 @@ internal class DynamicAssetLoader(
                             emit(
                                 result.value.mapNotNull {
                                     assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        loadSelfCustodialAsset(asset)
+                                        if (asset.isDelegatedNonCustodial) {
+                                            loadSelfCustodialAsset(asset)
+                                        } else {
+                                            null
+                                        }
                                     }
                                 }
                             )
