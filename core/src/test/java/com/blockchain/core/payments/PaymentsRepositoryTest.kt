@@ -17,16 +17,20 @@ import com.blockchain.api.payments.data.BankTransferChargeAttributes
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferFiatAmount
 import com.blockchain.api.payments.data.BankTransferPaymentResponse
+import com.blockchain.api.payments.data.CardDetailsResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
+import com.blockchain.api.payments.data.ExtraAttributes
 import com.blockchain.api.payments.data.FastlinkParamsResponse
 import com.blockchain.api.payments.data.LinkBankAttrsResponse
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
+import com.blockchain.api.payments.data.LinkedBankDetailsResponse
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.PaymentAccountResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.RefreshPlaidResponse
@@ -64,9 +68,11 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
@@ -1072,9 +1078,19 @@ class PaymentsRepositoryTest {
     // /////////////////////////////////////////
 
     @Test
-    fun `getPaymentMethodForId() - happy`() = runTest {
+    fun `getPaymentMethodForId() - happy PAYMENT_CARD`() = runTest {
         // ARRANGE
-        val paymentMethodDetailsResponse: PaymentMethodDetailsResponse = mockk()
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.PAYMENT_CARD,
+            cardDetails = com.blockchain.api.payments.data.CardResponse(
+                card = CardDetailsResponse(
+                    number = "number",
+                    label = "label",
+                    type = "type"
+                ),
+                mobilePaymentType = CardResponse.GOOGLE_PAY
+            )
+        )
         coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
             Outcome.Success(paymentMethodDetailsResponse)
 
@@ -1082,8 +1098,93 @@ class PaymentsRepositoryTest {
         val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
 
         // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "label",
+            endDigits = "number",
+            mobilePaymentType = MobilePaymentType.GOOGLE_PAY
+        )
+
         result.doOnSuccess {
-            assertEquals(paymentMethodDetailsResponse, it)
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy BANK_TRANSFER`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.BANK_TRANSFER,
+            bankTransferAccountDetails = LinkedBankTransferResponse(
+                id = "", partner = "", currency = "", state = "",
+                details = LinkedBankDetailsResponse(
+                    accountNumber = "accountNumber", accountName = "accountName",
+                    bankName = null, bankAccountType = null, sortCode = null, iban = null, bic = null
+                ),
+                error = null, attributes = null, ux = null
+            )
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "accountName",
+            endDigits = "accountNumber"
+        )
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy BANK_ACCOUNT`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.BANK_ACCOUNT,
+            bankAccountDetails = PaymentAccountResponse(
+                extraAttributes = ExtraAttributes(
+                    name = "name", type = null, address = "address"
+                )
+            )
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "name",
+            endDigits = "address"
+        )
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy Default`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = "any"
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails()
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
         }
     }
 }
