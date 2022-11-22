@@ -140,7 +140,7 @@ class SettingsInteractor internal constructor(
         }
 
     private fun getLinkedCards(limits: PaymentLimits): Single<List<PaymentMethod.Card>> =
-        cardService.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
+        cardService.getLinkedCardsLegacy(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
             cards.map { it.toPaymentCard(limits) }
         }
 

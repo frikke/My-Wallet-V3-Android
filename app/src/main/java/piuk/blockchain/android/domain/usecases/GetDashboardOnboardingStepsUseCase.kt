@@ -73,7 +73,7 @@ class GetDashboardOnboardingStepsUseCase(
         bankService.getLinkedBanks().map { banks ->
             banks.any { it.state == BankState.ACTIVE }
         },
-        cardService.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { it.isNotEmpty() }
+        cardService.getLinkedCardsLegacy(CardStatus.ACTIVE, CardStatus.EXPIRED).map { it.isNotEmpty() }
     ) { hasLinkedBank, hasLinkedCard ->
         hasLinkedBank || hasLinkedCard
     }

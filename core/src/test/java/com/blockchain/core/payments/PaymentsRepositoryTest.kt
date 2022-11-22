@@ -1012,7 +1012,7 @@ class PaymentsRepositoryTest {
         every { paymentMethodsService.getCardDetails(ID) } returns Single.just(cardResponse)
 
         // ASSERT
-        subject.getCardDetails(ID).test()
+        subject.getCardDetailsLegacy(ID).test()
             .assertValue {
                 it.limits == PaymentLimits(
                     BigInteger.ZERO,

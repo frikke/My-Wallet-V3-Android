@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ActivityDetailViewModel(
+class PrivateKeyActivityDetailViewModel(
     private val activityTxId: String,
     private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<

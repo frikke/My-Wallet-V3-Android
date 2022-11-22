@@ -84,7 +84,7 @@ class ActivityDetailsInteractor(
         )
 
         return when (summaryItem.paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetails(
+            PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetailsLegacy(
                 summaryItem.paymentMethodId
             )
                 .map { paymentMethod ->
@@ -135,7 +135,7 @@ class ActivityDetailsInteractor(
             NextPayment(recurringBuy.nextPaymentDate)
         )
         return when (cacheTransaction.paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetails(cacheTransaction.paymentMethodId)
+            PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetailsLegacy(cacheTransaction.paymentMethodId)
                 .map { paymentMethod ->
                     addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
                     list.toList()

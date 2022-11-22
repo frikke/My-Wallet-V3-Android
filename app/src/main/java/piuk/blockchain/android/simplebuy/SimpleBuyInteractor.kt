@@ -549,7 +549,7 @@ class SimpleBuyInteractor(
 
     fun pollForCardStatus(cardId: String): Single<CardIntent.CardUpdated> =
         PollService(
-            cardService.getCardDetails(cardId)
+            cardService.getCardDetailsLegacy(cardId)
         ) {
             it.status == CardStatus.BLOCKED ||
                 it.status == CardStatus.EXPIRED ||
@@ -680,7 +680,7 @@ class SimpleBuyInteractor(
         }
 
     fun loadLinkedCards(): Single<List<LinkedPaymentMethod.Card>> =
-        paymentsRepository.getLinkedCards(
+        paymentsRepository.getLinkedCardsLegacy(
             CardStatus.PENDING,
             CardStatus.ACTIVE
         )

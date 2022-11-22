@@ -52,7 +52,7 @@ class GetAvailablePaymentMethodsTypesUseCase(
                 userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
                     .flatMap { isSDD ->
                         if (isSDD) {
-                            cardService.getLinkedCards(CardStatus.ACTIVE).map { cards ->
+                            cardService.getLinkedCardsLegacy(CardStatus.ACTIVE).map { cards ->
                                 availableTypes.map {
                                     AvailablePaymentMethodType(
                                         canBeUsedForPayment = it.eligible,

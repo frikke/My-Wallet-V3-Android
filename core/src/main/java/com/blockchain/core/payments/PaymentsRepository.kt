@@ -39,6 +39,7 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
@@ -102,6 +103,7 @@ import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import com.blockchain.utils.rxSingleOutcome
@@ -114,19 +116,20 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.rxSingle
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import kotlinx.coroutines.rx3.rxSingle
 
 class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsStore: PaymentMethodsStore,
     private val paymentMethodsService: PaymentMethodsService,
+    private val cardDetailsStore: CardDetailsStore,
     private val linkedCardsStore: LinkedCardsStore,
     private val tradingService: TradingService,
     private val assetCatalogue: AssetCatalogue,
@@ -151,7 +154,7 @@ class PaymentsRepository(
             .map { it.toPaymentDetails() }
     }
 
-    override suspend fun getPaymentMethodDetailsForId(
+    override fun getPaymentMethodDetailsForId(
         paymentId: String,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<PaymentMethodDetails>> {
@@ -265,7 +268,7 @@ class PaymentsRepository(
     ): Single<List<LinkedPaymentMethod>> =
         Single.zip(
             tradingService.getBalanceFor(currency).firstOrError(),
-            getLinkedCards(),
+            getLinkedCardsLegacy(),
             paymentMethodsService.getBanks().onErrorReturn { emptyList() }
         ) { fundsResponse, cards, linkedBanks ->
             val funds = listOf(LinkedPaymentMethod.Funds(fundsResponse.total, currency))
@@ -284,7 +287,7 @@ class PaymentsRepository(
                     .map { item -> item.toPaymentMethod() }
             }
 
-    override fun getLinkedCards(
+    override fun getLinkedCardsLegacy(
         vararg states: CardStatus,
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
@@ -343,16 +346,24 @@ class PaymentsRepository(
             linkedCardsStore.markAsStale()
         }.wrapErrorMessage()
 
-    override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
-        paymentMethodsService.getCardDetails(cardId).map { cardsResponse ->
-            cardsResponse.toPaymentMethod().toCardPaymentMethod(
-                cardLimits = PaymentLimits(
-                    BigInteger.ZERO,
-                    BigInteger.ZERO,
-                    FiatCurrency.fromCurrencyCode(cardsResponse.currency)
+    override fun getCardDetailsLegacy(cardId: String): Single<PaymentMethod.Card> =
+        getCardDetails(cardId).asSingle()
+
+    override fun getCardDetails(
+        cardId: String,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<PaymentMethod.Card>> {
+        return cardDetailsStore.stream(freshnessStrategy.withKey(CardDetailsStore.Key(cardId)))
+            .mapData { cardsResponse ->
+                cardsResponse.toPaymentMethod().toCardPaymentMethod(
+                    cardLimits = PaymentLimits(
+                        BigInteger.ZERO,
+                        BigInteger.ZERO,
+                        FiatCurrency.fromCurrencyCode(cardsResponse.currency)
+                    )
                 )
-            )
-        }
+            }
+    }
 
     override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo> =
         paymentMethodsService.getGooglePayInfo(currency).map {

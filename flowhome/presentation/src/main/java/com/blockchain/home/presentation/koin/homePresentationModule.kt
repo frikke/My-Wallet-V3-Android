@@ -1,7 +1,7 @@
 package com.blockchain.home.presentation.koin
 
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
-import com.blockchain.home.presentation.activity.detail.privatekey.ActivityDetailViewModel
+import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
@@ -35,7 +35,7 @@ val homePresentationModule = module {
         }
 
         viewModel { (txId: String) ->
-            ActivityDetailViewModel(
+            PrivateKeyActivityDetailViewModel(
                 activityTxId = txId,
                 unifiedActivityService = get()
             )

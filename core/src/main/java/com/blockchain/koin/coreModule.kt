@@ -75,6 +75,7 @@ import com.blockchain.core.payload.PayloadService
 import com.blockchain.core.payload.PromptingSeedAccessAdapter
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.WithdrawLocksCache
+import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
@@ -125,9 +126,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.util.UUID
 
 val coreModule = module {
 
@@ -526,11 +527,17 @@ val coreModule = module {
         scoped {
             PaymentMethodsStore(paymentsService = get())
         }
+
+        scoped {
+            CardDetailsStore(paymentMethodsService = get())
+        }
+
         scoped {
             PaymentsRepository(
                 paymentsService = get(),
                 paymentMethodsStore = get(),
                 paymentMethodsService = get(),
+                cardDetailsStore= get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),
                 googlePayManager = get(),

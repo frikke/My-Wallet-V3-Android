@@ -17,7 +17,7 @@ interface PaymentMethodService {
         paymentId: String
     ): Outcome<Exception, PaymentMethodDetails>
 
-    suspend fun getPaymentMethodDetailsForId(
+    fun getPaymentMethodDetailsForId(
         paymentId: String,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<PaymentMethodDetails>>
