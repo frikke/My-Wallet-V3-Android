@@ -73,7 +73,8 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.2.0"
+    const val koin = "3.2.2"
+    const val koinAndroid = "3.3.0"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -268,10 +269,10 @@ object Libraries {
     const val coroutinesSqlDelight = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
-    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
+    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koinAndroid}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val koinTestJunit = "io.insert-koin:koin-test-junit4:${Versions.koin}"
-    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroid}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"

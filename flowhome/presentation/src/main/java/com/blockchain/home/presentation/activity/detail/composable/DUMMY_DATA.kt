@@ -12,6 +12,8 @@ import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
 import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
+import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
@@ -21,169 +23,246 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
         ),
         title = "Swapped BTC -> ETH",
         subtitle = "",
-        itemGroups = listOf(
-            listOf<ActivityComponent>(
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Purchase"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+        detailItems = listOf(
+            ActivityDetailGroup(
+                title = "title",
+                itemGroup = listOf<ActivityComponent>(
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Purchase"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
+                        ),
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Purchase"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                )
+                            )
                         )
                     ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Purchase"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
-                        )
-                    )
-                ),
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Amount"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Amount"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("20/35 confirmations"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Network"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Transaction ID"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                )
+                            )
                         ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("20/35 confirmations"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
-                        ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Network"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
-                        ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Transaction ID"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("0.00503823 BTC"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Bitcoin Account"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Warning
+                                )
+                            )
                         )
                     ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("0.00503823 BTC"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Fees"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
                         ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Bitcoin Account"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Warning)
-                        )
-                    )
-                ),
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Fees"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Free"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2,
+                                    ActivityTextColorState.Success
+                                )
+                            )
                         )
                     ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Free"),
-                            ActivityTextStyleState(
-                                ActivityTextTypographyState.Paragraph2,
-                                ActivityTextColorState.Success
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Total"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
+                        ),
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("106.17"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("0.00534908 BTC"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                )
                             )
                         )
                     )
-                ),
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Total"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+                )
+            ),
+            ActivityDetailGroup(
+                title = "iii",
+                itemGroup = listOf<ActivityComponent>(
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Status"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
+                        ),
+                        trailing = listOf(
+                            ActivityStackView.Tag(
+                                value = TextValue.StringValue("Complete"),
+                                ActivityTagStyleState.Success
+                            )
                         )
                     ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("106.17"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Bank"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
                         ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("0.00534908 BTC"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Capital One •••• 0192"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                )
+                            )
+                        )
+                    ),
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Status"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            ),
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("20/35 confirmations"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                )
+                            )
+                        ),
+                        trailing = listOf(
+                            ActivityStackView.Tag(
+                                value = TextValue.StringValue("Pending"),
+                                ActivityTagStyleState.Warning
+                            )
                         )
                     )
                 )
             ),
-            listOf<ActivityComponent>(
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Status"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
-                        )
-                    ),
-                    trailing = listOf(
-                        ActivityStackView.Tag(
-                            value = TextValue.StringValue("Complete"),
-                            ActivityTagStyleState.Success
-                        )
-                    )
-                ),
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Bank"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
-                        )
-                    ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Capital One •••• 0192"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
-                        )
-                    )
-                ),
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Status"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
+            ActivityDetailGroup(
+                title = null,
+                itemGroup = listOf<ActivityComponent>(
+                    ActivityComponent.StackView(
+                        id = "",
+                        leading = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Bank"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                )
+                            )
                         ),
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("20/35 confirmations"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        trailing = listOf(
+                            ActivityStackView.Text(
+                                value = TextValue.StringValue("Capital One •••• 0192"),
+                                ActivityTextStyleState(
+                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                )
+                            )
                         )
                     ),
-                    trailing = listOf(
-                        ActivityStackView.Tag(
-                            value = TextValue.StringValue("Pending"),
-                            ActivityTagStyleState.Warning
+                    ActivityComponent.Button(
+                        id = "",
+                        value = TextValue.StringValue("Copy Transaction ID"),
+                        style = ActivityButtonStyleState.Tertiary,
+                        action = ActivityButtonAction(
+                            type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                            data = ""
                         )
                     )
-                )
-            ),
-            listOf<ActivityComponent>(
-                ActivityComponent.StackView(
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Bank"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted)
-                        )
-                    ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue("Capital One •••• 0192"),
-                            ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
-                        )
-                    )
-                ),
-                ActivityComponent.Button(
-                    value = TextValue.StringValue("Copy Transaction ID"),
-                    ActivityButtonStyleState.Tertiary
                 )
             )
+
         ),
         floatingActions = listOf(
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("View on Etherscan"),
-                ActivityButtonStyleState.Primary
+                style = ActivityButtonStyleState.Primary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
+
             ),
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("Speed Up"),
-                ActivityButtonStyleState.Secondary
+                style = ActivityButtonStyleState.Secondary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
             ),
             ActivityComponent.Button(
+                id = "",
                 value = TextValue.StringValue("Cancel"),
-                ActivityButtonStyleState.Tertiary
+                style = ActivityButtonStyleState.Tertiary,
+                action = ActivityButtonAction(
+                    type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                    data = ""
+                )
             )
         )
     )

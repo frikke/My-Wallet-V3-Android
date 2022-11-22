@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.list.composable
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +20,10 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +42,7 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
@@ -54,6 +59,7 @@ import java.util.Calendar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun Activity() {
@@ -122,16 +128,37 @@ fun ActivityScreen(
 
     val focusManager = LocalFocusManager.current
 
+    var selectedTxId: String? by remember {
+        mutableStateOf(null)
+    }
+
     BackHandler(sheetState.isVisible) {
-        coroutineScope.launch { sheetState.hide() }
+        coroutineScope.launch {
+            sheetState.hide()
+            selectedTxId = null
+        }
     }
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            ActivityDetail(
-                onCloseClick = { coroutineScope.launch { sheetState.hide() } }
-            )
+            selectedTxId?.let {
+                ActivityDetail(
+                    viewModel = getViewModel(
+                        scope = payloadScope,
+                        key = it,
+                        parameters = { parametersOf(it) }
+                    ),
+                    onCloseClick = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                            selectedTxId = null
+                        }
+                    }
+                )
+            } ?: Box(modifier = Modifier.fillMaxSize())
+            // Box needed because sheet content needs a default view
+            // https://issuetracker.google.com/issues?q=178529942
         },
         modifier = Modifier.fillMaxSize()
     ) {
@@ -161,9 +188,23 @@ fun ActivityScreen(
                         ActivityData(
                             activity = activity.data,
                             onSearchTermEntered = onSearchTermEntered,
-                            onActivityClick = {
+                            onActivityClick = { clickAction ->
                                 focusManager.clearFocus(true)
-                                coroutineScope.launch { sheetState.show() }
+
+                                when (clickAction) {
+                                    is ClickAction.Stack -> {
+                                        coroutineScope.launch {
+                                            selectedTxId = clickAction.data
+                                            sheetState.show()
+                                        }
+                                    }
+                                    is ClickAction.Button -> {
+                                        // n/a nothing expected for now
+                                    }
+                                    ClickAction.None -> {
+                                        // n/a
+                                    }
+                                }
                             }
                         )
                     }
@@ -177,7 +218,7 @@ fun ActivityScreen(
 fun ActivityData(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
     onSearchTermEntered: (String) -> Unit,
-    onActivityClick: () -> Unit
+    onActivityClick: (ClickAction) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -199,7 +240,7 @@ fun ActivityData(
 @Composable
 fun ActivityGroups(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
-    onActivityClick: () -> Unit
+    onActivityClick: (ClickAction) -> Unit
 ) {
     LazyColumn {
         itemsIndexed(

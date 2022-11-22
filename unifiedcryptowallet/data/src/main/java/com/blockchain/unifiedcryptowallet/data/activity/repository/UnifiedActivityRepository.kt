@@ -1,5 +1,6 @@
 package com.blockchain.unifiedcryptowallet.data.activity.repository
 
+import activity.ActivityItem
 import com.blockchain.api.selfcustody.activity.ActivityViewItemDto
 import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.data.DataResource
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -52,23 +54,22 @@ class UnifiedActivityRepository(
                         emit(DataResource.Error(Exception(it)))
                     }.map { activityItems ->
                         val items = activityItems.mapNotNull {
-                            json.decodeFromString<ActivityViewItemDto>(it.summary_view)
-                                .toActivityViewItem()?.let { summary ->
-                                    UnifiedActivityItem(
-                                        txId = it.tx_id,
-                                        network = it.network,
-                                        blockExplorerUrl = it.external_url,
-                                        summary = summary,
-                                        status = it.status,
-                                        date = Calendar.getInstance()
-                                            .apply { set(Calendar.MILLISECOND, it.timestamp.toInt()) }
-                                    )
-                                }
+                            it.toUnifiedActivityItem()
                         }
                         DataResource.Data(items)
                     }
             )
         }
+    }
+
+    override fun getActivity(txId: String): Flow<DataResource<UnifiedActivityItem>> {
+        return activityCache.getActivity(txId)
+            .map { activityItem ->
+                activityItem?.toUnifiedActivityItem()?.let {
+                    DataResource.Data(it)
+                } ?: DataResource.Error(Exception("not found"))
+            }
+            .onStart { emit(DataResource.Loading) }
     }
 
     override suspend fun getActivityDetails(
@@ -87,9 +88,25 @@ class UnifiedActivityRepository(
             )
         )
             .mapData {
-                it.detail.toActivityDetailGroups() ?: throw Exception("Could not map response to group")
+                it.toActivityDetailGroups() ?: throw Exception("Could not map response to group")
             }.catch {
                 DataResource.Error(Exception(it))
+            }
+    }
+
+    private fun ActivityItem.toUnifiedActivityItem(): UnifiedActivityItem? {
+        return json.decodeFromString<ActivityViewItemDto>(summary_view)
+            .toActivityViewItem()?.let { summary ->
+                UnifiedActivityItem(
+                    txId = tx_id,
+                    pubkey = pubkey,
+                    network = network,
+                    blockExplorerUrl = external_url,
+                    summary = summary,
+                    status = status,
+                    date = Calendar.getInstance()
+                        .apply { set(Calendar.MILLISECOND, timestamp.toInt()) }
+                )
             }
     }
 }

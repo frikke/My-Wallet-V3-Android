@@ -9,6 +9,7 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 
 // button
 enum class ActivityButtonStyleState {
@@ -56,8 +57,13 @@ fun ActivityDetailButton(
 fun PreviewActivityDetailButton_Primary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
+            id = "",
             value = TextValue.StringValue("Primary"),
-            style = ActivityButtonStyleState.Primary
+            style = ActivityButtonStyleState.Primary,
+            action = ActivityButtonAction(
+                type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                data = ""
+            )
         ),
         onClick = {}
     )
@@ -68,8 +74,13 @@ fun PreviewActivityDetailButton_Primary() {
 fun PreviewActivityDetailButton_Secondary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
+            id = "",
             value = TextValue.StringValue("Secondary"),
-            style = ActivityButtonStyleState.Secondary
+            style = ActivityButtonStyleState.Secondary,
+            action = ActivityButtonAction(
+                type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                data = ""
+            )
         ),
         onClick = {}
     )
@@ -80,8 +91,13 @@ fun PreviewActivityDetailButton_Secondary() {
 fun PreviewActivityDetailButton_Tertiary() {
     ActivityDetailButton(
         data = ActivityComponent.Button(
+            id = "",
             value = TextValue.StringValue("Tertiary"),
-            style = ActivityButtonStyleState.Tertiary
+            style = ActivityButtonStyleState.Tertiary,
+            action = ActivityButtonAction(
+                type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
+                data = ""
+            )
         ),
         onClick = {}
     )

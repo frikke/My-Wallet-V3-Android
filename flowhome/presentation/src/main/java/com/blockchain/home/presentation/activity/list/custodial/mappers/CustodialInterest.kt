@@ -7,8 +7,8 @@ import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.custodial.list.basicSubtitleStyle
-import com.blockchain.home.presentation.activity.custodial.list.basicTitleStyle
+import com.blockchain.home.presentation.activity.common.basicSubtitleStyle
+import com.blockchain.home.presentation.activity.common.basicTitleStyle
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 

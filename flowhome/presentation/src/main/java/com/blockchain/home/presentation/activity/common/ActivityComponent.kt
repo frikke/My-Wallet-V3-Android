@@ -13,6 +13,7 @@ import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 
 fun ActivityIconState.toStackedIcon() = when (this) {
     is ActivityIconState.OverlappingPair.Local -> StackedIcon.OverlappingPair(
@@ -40,26 +41,38 @@ fun ActivityIconState.toStackedIcon() = when (this) {
     ActivityIconState.None -> StackedIcon.None
 }
 
+/**
+ * @property id Some components may want to be identified for later interaction
+ */
 sealed interface ActivityComponent {
+    val id: String
+
     data class StackView(
+        override val id: String,
         val leadingImage: ActivityIconState = ActivityIconState.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent
 
     data class Button(
+        override val id: String,
         val value: TextValue,
-        val style: ActivityButtonStyleState
+        val style: ActivityButtonStyleState,
+        val action: ActivityButtonAction
     ) : ActivityComponent
 }
 
+/**
+ * all supported composable types are defined in ActivityComponent
+ * this function takes an instance and draws based on which type it is
+ */
 @Composable
-fun ActivityComponentItem(component: ActivityComponent, onClick: (() -> Unit)? = null) {
+fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) -> Unit)? = null) {
     when (component) {
         is ActivityComponent.Button -> {
             ActivityDetailButton(
                 data = component,
-                onClick = onClick
+                onClick = { onClick?.invoke(ClickAction.Button(component.action)) }
             )
         }
         is ActivityComponent.StackView -> {
@@ -67,17 +80,21 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: (() -> Unit)? =
                 icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
-                onClick = onClick
+                onClick = { onClick?.invoke(ClickAction.Stack(data = component.id)) }
             )
         }
     }
 }
 
+/**
+ * Draw a card with a list of [ActivityComponent]
+ * actual drawing of components is done by [ActivityComponentItem]
+ */
 @Composable
 fun ActivitySectionCard(
     modifier: Modifier = Modifier,
     components: List<ActivityComponent>,
-    onClick: (() -> Unit)? = null
+    onClick: ((ClickAction) -> Unit)? = null
 ) {
     if (components.isNotEmpty()) {
         Card(

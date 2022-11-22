@@ -6,13 +6,18 @@ import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 
 data class ActivityDetailViewState(
-    val activityDetailItems: DataResource<ActivityDetail>
+    val activityDetail: DataResource<ActivityDetail>
 ) : ViewState
 
 data class ActivityDetail(
     val icon: ActivityIconState,
     val title: String,
     val subtitle: String,
-    val itemGroups: List<List<ActivityComponent>>,
+    val detailItems: List<ActivityDetailGroup>,
     val floatingActions: List<ActivityComponent>
+)
+
+data class ActivityDetailGroup(
+    val title: String?,
+    val itemGroup: List<ActivityComponent>
 )

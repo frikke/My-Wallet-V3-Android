@@ -46,7 +46,10 @@ fun SheetFloatingHeader(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomStackedIcon(icon = icon)
+                CustomStackedIcon(
+                    icon = icon,
+                    borderColor = AppTheme.colors.light
+                )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 

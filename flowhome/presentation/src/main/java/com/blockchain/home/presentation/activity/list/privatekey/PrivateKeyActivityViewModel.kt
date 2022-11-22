@@ -76,7 +76,7 @@ class PrivateKeyActivityViewModel(
         }
             // reduce to summary
             .map { (group, activities) ->
-                group to activities.map { it.summary.toActivityComponent() }
+                group to activities.map { it.summary.toActivityComponent(componentId = it.txId) }
             }
             .toMap()
             .toSortedMap(compareByDescending { it })

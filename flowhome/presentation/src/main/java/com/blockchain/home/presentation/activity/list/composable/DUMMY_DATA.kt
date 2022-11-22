@@ -16,6 +16,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
     mapOf(
         TransactionGroup.Group.Pending to listOf(
             ActivityComponent.StackView(
+                id = "",
                 leadingImage = ActivityIconState.SmallTag.Local(
                     main = R.drawable.ic_close_circle_dark,
                     tag = R.drawable.ic_close_circle
@@ -42,6 +43,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 )
             ),
             ActivityComponent.StackView(
+                id = "",
                 leadingImage = ActivityIconState.SmallTag.Local(
                     main = R.drawable.ic_close_circle_dark,
                     tag = R.drawable.ic_close_circle
@@ -82,6 +84,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         ),
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 4) }) to listOf(
             ActivityComponent.StackView(
+                id = "",
                 leadingImage = ActivityIconState.SmallTag.Local(
                     main = R.drawable.ic_close_circle_dark,
                     tag = R.drawable.ic_close_circle
@@ -108,6 +111,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 )
             ),
             ActivityComponent.StackView(
+                id = "",
                 leadingImage = ActivityIconState.SmallTag.Local(
                     main = R.drawable.ic_close_circle_dark,
                     tag = R.drawable.ic_close_circle
@@ -142,6 +146,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         ),
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 5) }) to listOf(
             ActivityComponent.StackView(
+                id = "",
                 leadingImage = ActivityIconState.SmallTag.Local(
                     main = R.drawable.ic_close_circle_dark,
                     tag = R.drawable.ic_close_circle
