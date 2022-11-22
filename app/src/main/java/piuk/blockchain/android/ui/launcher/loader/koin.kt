@@ -36,6 +36,7 @@ val loaderModule = module {
                 notificationTokenManager = get(),
                 settingsDataManager = get(),
                 prerequisites = get(),
+                walletModeService = get(),
                 ioScheduler = Schedulers.io(),
                 deepLinkPersistence = get(),
                 referralService = get(),

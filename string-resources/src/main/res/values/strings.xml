@@ -3047,7 +3047,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="skip_backup_cta_backup">Back Up (Recommended)</string>
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
-    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
+    <string name="recovery_phrase_description">These 12 words give you access to your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
     <string name="recovery_phrase_backup_again">Back Up Again</string>
     <string name="recovery_phrase_backup_manual">Back Up Manually</string>
     <string name="recovery_phrase_backup_cloud">Back Up to Cloud</string>
@@ -3433,5 +3433,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
 
+    <string name="all_prices">All Prices</string>
+    <string name="tradable">Tradable</string>
 
 </resources>

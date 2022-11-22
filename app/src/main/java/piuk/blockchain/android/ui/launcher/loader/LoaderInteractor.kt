@@ -19,6 +19,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.then
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.wallet.api.data.Settings
@@ -44,6 +46,7 @@ class LoaderInteractor(
     private val settingsDataManager: SettingsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val walletModeService: WalletModeService,
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatusPrefs,
     private val analytics: Analytics,
@@ -176,7 +179,7 @@ class LoaderInteractor(
         }
         emitter.onComplete()
         walletPrefs.isAppUnlocked = true
-        analytics.logEvent(LoginAnalyticsEvent)
+        analytics.logEvent(LoginAnalyticsEvent(walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL))
     }
 
     private fun updateUserFiatIfNotSet(): Completable {
@@ -203,10 +206,12 @@ class LoaderInteractor(
         } else Completable.complete()
     }
 
-    object LoginAnalyticsEvent : AnalyticsEvent {
+    class LoginAnalyticsEvent(private val isOnMvp: Boolean) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.SIGNED_IN.eventName
         override val params: Map<String, Serializable>
-            get() = mapOf()
+            get() = mapOf(
+                "is_superapp_mvp" to isOnMvp
+            )
     }
 }
