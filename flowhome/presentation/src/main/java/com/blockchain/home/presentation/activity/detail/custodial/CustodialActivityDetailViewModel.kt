@@ -75,6 +75,7 @@ class CustodialActivityDetailViewModel(
                                     is FiatActivitySummaryItem -> {
                                         fiatDetail()
                                     }
+                                    // todo rest of types
                                     else -> flowOf(DataResource.Loading)
                                 }
                             }
