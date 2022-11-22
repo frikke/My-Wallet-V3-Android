@@ -14,5 +14,4 @@ interface CustodialActivityService {
         txId: String,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<ActivitySummaryItem>>
-
 }

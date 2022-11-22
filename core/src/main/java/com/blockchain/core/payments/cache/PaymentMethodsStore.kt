@@ -24,7 +24,8 @@ class PaymentMethodsStore(
     dataSerializer = PaymentMethodDetailsResponse.serializer(),
     keySerializer = Key.serializer(),
     mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
-), KeyedFlushableDataSource<PaymentMethodsStore.Key> {
+),
+    KeyedFlushableDataSource<PaymentMethodsStore.Key> {
 
     @Serializable
     data class Key(

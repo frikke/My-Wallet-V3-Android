@@ -67,7 +67,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
-import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo

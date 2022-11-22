@@ -49,8 +49,6 @@ val homePresentationModule = module {
             )
         }
 
-
-
         viewModel {
             QuickActionsViewModel(
                 walletModeService = get(superAppModeService),

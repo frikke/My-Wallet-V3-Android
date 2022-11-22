@@ -37,7 +37,6 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
-import com.blockchain.home.presentation.activity.list.composable.PrivateKeyActivity
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction

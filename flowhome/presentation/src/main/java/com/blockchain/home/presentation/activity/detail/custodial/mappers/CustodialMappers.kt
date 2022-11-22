@@ -2,12 +2,7 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.RecurringBuyActivitySummaryItem
-import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -18,7 +13,6 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.iconSummary
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 
 internal const val TX_ID_MAX_LENGTH = 15
@@ -30,7 +24,7 @@ internal const val TX_ID_MAX_LENGTH = 15
 //    is RecurringBuyActivitySummaryItem -> iconSummary()
 //    is TradeActivitySummaryItem -> iconSummary()
     is FiatActivitySummaryItem -> iconDetail()
-    else -> /*error("${this::class.simpleName} not supported")*/ R.drawable.ic_filter //todo temp
+    else -> /*error("${this::class.simpleName} not supported")*/ R.drawable.ic_filter // todo temp
 }
 
 private fun ActivitySummaryItem.title(): TextValue {

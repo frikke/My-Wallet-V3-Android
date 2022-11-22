@@ -15,4 +15,3 @@ fun String.abbreviate(maxLength: Int, indicator: String = "..."): String {
         else it
     }
 }
-
