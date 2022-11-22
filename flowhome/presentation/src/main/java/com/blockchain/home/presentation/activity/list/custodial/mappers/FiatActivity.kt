@@ -13,7 +13,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import org.koin.java.KoinJavaComponent
 
-@DrawableRes internal fun FiatActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun FiatActivitySummaryItem.iconSummary(): Int {
     return when (type) {
         TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
         TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell

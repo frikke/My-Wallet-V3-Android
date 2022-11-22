@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
@@ -18,6 +19,13 @@ import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
+
+@DrawableRes internal fun FiatActivitySummaryItem.iconDetail(): Int {
+    return when (type) {
+        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
+        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
+    }
+}
 
 internal fun FiatActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {

@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
@@ -28,13 +29,13 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
 
 internal fun ActivityTextStyleState.muted() = copy(color = ActivityTextColorState.Muted)
 
-internal fun ActivitySummaryItem.icon() = when (this) {
-    is CustodialTradingActivitySummaryItem -> icon()
-    is CustodialTransferActivitySummaryItem -> icon()
-    is CustodialInterestActivitySummaryItem -> icon()
-    is RecurringBuyActivitySummaryItem -> icon()
-    is TradeActivitySummaryItem -> icon()
-    is FiatActivitySummaryItem -> icon()
+@DrawableRes internal fun ActivitySummaryItem.iconSummary() = when (this) {
+    is CustodialTradingActivitySummaryItem -> iconSummary()
+    is CustodialTransferActivitySummaryItem -> iconSummary()
+    is CustodialInterestActivitySummaryItem -> iconSummary()
+    is RecurringBuyActivitySummaryItem -> iconSummary()
+    is TradeActivitySummaryItem -> iconSummary()
+    is FiatActivitySummaryItem -> iconSummary()
     else -> error("${this::class.simpleName} not supported")
 }
 
@@ -65,7 +66,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
 fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
     return ActivityComponent.StackView(
         id = txId,
-        leadingImage = ActivityIconState.SingleIcon.Local(icon()),
+        leadingImage = ActivityIconState.SingleIcon.Local(iconSummary()),
         leading = leading(),
         trailing = trailing()
     )

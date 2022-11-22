@@ -10,7 +10,7 @@ import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-@DrawableRes internal fun CustodialInterestActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun CustodialInterestActivitySummaryItem.iconSummary(): Int {
     return when (status) {
         InterestState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy

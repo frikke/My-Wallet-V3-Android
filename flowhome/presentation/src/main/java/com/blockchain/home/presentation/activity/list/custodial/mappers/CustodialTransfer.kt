@@ -10,7 +10,7 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedDate
 
-@DrawableRes internal fun CustodialTransferActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun CustodialTransferActivitySummaryItem.iconSummary(): Int {
     return when (type) {
         TransactionType.DEPOSIT -> R.drawable.ic_activity_receive
         TransactionType.WITHDRAWAL -> R.drawable.ic_activity_send

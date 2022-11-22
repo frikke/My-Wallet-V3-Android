@@ -17,7 +17,7 @@ private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source
 private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-@DrawableRes internal fun TradeActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun TradeActivitySummaryItem.iconSummary(): Int {
     return when {
         isSwapPair() -> R.drawable.ic_activity_swap
         isSellingPair() -> R.drawable.ic_activity_sell

@@ -11,7 +11,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-@DrawableRes internal fun CustodialTradingActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun CustodialTradingActivitySummaryItem.iconSummary(): Int {
     return when (type) {
         OrderType.BUY,
         OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy

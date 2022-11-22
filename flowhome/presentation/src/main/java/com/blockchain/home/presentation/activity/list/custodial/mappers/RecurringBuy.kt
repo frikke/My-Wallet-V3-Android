@@ -11,7 +11,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-@DrawableRes internal fun RecurringBuyActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun RecurringBuyActivitySummaryItem.iconSummary(): Int {
     return R.drawable.ic_activity_buy
 }
 
