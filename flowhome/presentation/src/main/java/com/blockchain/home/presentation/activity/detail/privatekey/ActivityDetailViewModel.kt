@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.activity.detail
+package com.blockchain.home.presentation.activity.detail.privatekey
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -9,7 +9,11 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.common.toStackedIcon
-import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
+import com.blockchain.home.presentation.activity.detail.ActivityDetail
+import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
+import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
+import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
@@ -25,9 +29,9 @@ class ActivityDetailViewModel(
     private val activityTxId: String,
     private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
-    ActivityDetailIntent,
+    ActivityDetailIntent<ActivityDetailGroups>,
     ActivityDetailViewState,
-    ActivityDetailModelState,
+    ActivityDetailModelState<ActivityDetailGroups>,
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityDetailModelState()) {
 
@@ -35,7 +39,9 @@ class ActivityDetailViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ActivityDetailModelState): ActivityDetailViewState = state.run {
+    override fun reduce(
+        state: ActivityDetailModelState<ActivityDetailGroups>
+    ): ActivityDetailViewState = state.run {
         ActivityDetailViewState(
             activityDetail = activityDetail.map { it.reduceActivityDetail() }
         )
@@ -58,7 +64,10 @@ class ActivityDetailViewModel(
         }
     }
 
-    override suspend fun handleIntent(modelState: ActivityDetailModelState, intent: ActivityDetailIntent) {
+    override suspend fun handleIntent(
+        modelState: ActivityDetailModelState<ActivityDetailGroups>,
+        intent: ActivityDetailIntent<ActivityDetailGroups>
+    ) {
         when (intent) {
             is ActivityDetailIntent.LoadActivityDetail -> {
                 loadActivityDetail()

@@ -33,10 +33,9 @@ import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
-import com.blockchain.home.presentation.activity.detail.ActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
-import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
+import com.blockchain.home.presentation.activity.detail.privatekey.ActivityDetailViewModel
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
@@ -81,7 +80,7 @@ fun CustodialActivityDetail(
     val viewState: ActivityDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(CustodialActivityDetailIntent.LoadActivityDetail)
+        viewModel.onIntent(ActivityDetailIntent.LoadActivityDetail())
         onDispose { }
     }
 
@@ -99,7 +98,7 @@ fun PrivateKeyActivityDetail(
     val viewState: ActivityDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ActivityDetailIntent.LoadActivityDetail)
+        viewModel.onIntent(ActivityDetailIntent.LoadActivityDetail())
         onDispose { }
     }
 

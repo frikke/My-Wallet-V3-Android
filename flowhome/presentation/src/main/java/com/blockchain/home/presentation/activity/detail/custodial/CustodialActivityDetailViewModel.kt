@@ -12,6 +12,8 @@ import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.home.activity.CustodialActivityService
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
+import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -30,28 +32,30 @@ class CustodialActivityDetailViewModel(
     private val custodialActivityService: CustodialActivityService,
     private val paymentMethodService: PaymentMethodService
 ) : MviViewModel<
-    CustodialActivityDetailIntent,
+    ActivityDetailIntent<CustodialActivityDetail>,
     ActivityDetailViewState,
-    CustodialActivityDetailModelState,
+    ActivityDetailModelState<CustodialActivityDetail>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(CustodialActivityDetailModelState()) {
+    ModelConfigArgs.NoArgs>(ActivityDetailModelState()) {
 
     private var activityDetailJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: CustodialActivityDetailModelState): ActivityDetailViewState = state.run {
+    override fun reduce(
+        state: ActivityDetailModelState<CustodialActivityDetail>
+    ): ActivityDetailViewState = state.run {
         ActivityDetailViewState(
             activityDetail = activityDetail.map { it.toActivityDetail() }
         )
     }
 
     override suspend fun handleIntent(
-        modelState: CustodialActivityDetailModelState,
-        intent: CustodialActivityDetailIntent
+        modelState: ActivityDetailModelState<CustodialActivityDetail>,
+        intent: ActivityDetailIntent<CustodialActivityDetail>
     ) {
         when (intent) {
-            is CustodialActivityDetailIntent.LoadActivityDetail -> {
+            is ActivityDetailIntent.LoadActivityDetail -> {
                 loadActivityDetail()
             }
         }

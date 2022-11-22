@@ -35,7 +35,7 @@ private fun ActivitySummaryItem.title(): TextValue {
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> title()
-        else -> TextValue.StringValue("not implemented")
+        else -> /*error("${this::class.simpleName} not supported")*/ TextValue.StringValue("not implemented")
     }
 }
 
@@ -47,7 +47,7 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> activity.detailItems(extras)
-        else -> emptyList()
+        else -> /*error("${this::class.simpleName} not supported")*/ emptyList()
     }
 }
 
@@ -59,7 +59,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> emptyList()
-        else -> emptyList()
+        else -> /*error("${this::class.simpleName} not supported")*/ emptyList()
     }
 }
 
