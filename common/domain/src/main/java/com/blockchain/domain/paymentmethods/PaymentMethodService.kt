@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface PaymentMethodService {
-    @Deprecated("use flow getPaymentMethodDetailsFssorId")
+    @Deprecated("use flow getPaymentMethodDetailsForId")
     suspend fun getPaymentMethodDetailsForIdLegacy(
         paymentId: String
     ): Outcome<Exception, PaymentMethodDetails>
