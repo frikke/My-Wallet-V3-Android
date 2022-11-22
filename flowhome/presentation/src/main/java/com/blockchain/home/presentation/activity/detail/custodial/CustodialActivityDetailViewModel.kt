@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.detail.custodial
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -72,6 +73,9 @@ class CustodialActivityDetailViewModel(
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
                                 when (this) {
+                                    is CustodialTradingActivitySummaryItem -> {
+                                        tradingDetail()
+                                    }
                                     is FiatActivitySummaryItem -> {
                                         fiatDetail()
                                     }
@@ -91,6 +95,63 @@ class CustodialActivityDetailViewModel(
                 }
                 .collect()
         }
+    }
+
+    private suspend fun CustodialTradingActivitySummaryItem.tradingDetail(): Flow<DataResource<CustodialActivityDetail>> {
+//        return paymentMethodService.getPaymentMethodDetailsForId(paymentMethodId)
+//            .mapData { paymentMethodDetails ->
+//                CustodialActivityDetail(
+//                    activity = this,
+//                    extras = listOf(
+////                        CustodialActivityDetailExtra(
+////                            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+////                            value = with(paymentMethodDetails) {
+////                                when {
+////                                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
+////                                        R.string.google_pay
+////                                    )
+////                                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
+////                                        R.string.apple_pay
+////                                    )
+////                                    paymentMethodDetails.label.isNullOrBlank() -> TextValue.StringValue(
+////                                        account.currency.name
+////                                    )
+////                                    else -> TextValue.StringValue(
+////                                        "${paymentMethodDetails.label} ${paymentMethodDetails.endDigits}"
+////                                    )
+////                                }
+////                            }
+////                        )
+//                    )
+//                )
+//            }
+
+        return flowOf(DataResource.Data(
+            CustodialActivityDetail(
+                activity = this,
+                extras = listOf(
+                    //                        CustodialActivityDetailExtra(
+                    //                            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+                    //                            value = with(paymentMethodDetails) {
+                    //                                when {
+                    //                                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
+                    //                                        R.string.google_pay
+                    //                                    )
+                    //                                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
+                    //                                        R.string.apple_pay
+                    //                                    )
+                    //                                    paymentMethodDetails.label.isNullOrBlank() -> TextValue.StringValue(
+                    //                                        account.currency.name
+                    //                                    )
+                    //                                    else -> TextValue.StringValue(
+                    //                                        "${paymentMethodDetails.label} ${paymentMethodDetails.endDigits}"
+                    //                                    )
+                    //                                }
+                    //                            }
+                    //                        )
+                )
+            )
+        ))
     }
 
     private suspend fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
