@@ -11,6 +11,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
@@ -21,6 +22,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.staking.domain.StakingService
+import com.blockchain.core.staking.domain.model.StakingEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
@@ -186,7 +188,10 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             label = labels.getDefaultStakingWalletLabel(),
                             stakingService = stakingService,
                             exchangeRates = exchangeRates,
-                            internalAccountLabel = labels.getDefaultTradingWalletLabel()
+                            internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                            identity = identity,
+                            kycService = kycService,
+                            custodialWalletManager = custodialManager
                         )
                     )
                 } else {
@@ -281,7 +286,18 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
         }
 
-    private fun getCustodialTargets(): Maybe<SingleAccountList> =
+    private fun getStakingTargets(): Maybe<SingleAccountList> =
+        stakingService.getEligibilityForAsset(currency).asSingle().flatMapMaybe { eligibility ->
+            if (eligibility == StakingEligibility.Eligible) {
+                accounts.flatMapMaybe {
+                    Maybe.just(it.filterIsInstance<CustodialStakingAccount>())
+                }
+            } else {
+                Maybe.empty()
+            }
+        }
+
+    private fun getTradingTargets(): Maybe<SingleAccountList> =
         accountGroup(AssetFilter.Trading)
             .map { it.accounts }
             .onErrorComplete()
@@ -308,7 +324,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             is TradingAccount -> Maybe.concat(
                 listOf(
                     getNonCustodialTargets(),
-                    getInterestTargets()
+                    getInterestTargets(),
+                    getStakingTargets()
                 )
             ).toList()
                 .map { ll -> ll.flatten() }
@@ -318,17 +335,22 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     listOf(
                         getPitLinkingTargets(),
                         getInterestTargets(),
-                        getCustodialTargets(),
-                        getNonCustodialTargets(exclude = account)
+                        getTradingTargets(),
+                        getNonCustodialTargets(exclude = account),
+                        getStakingTargets()
                     )
                 ).toList()
                     .map { ll -> ll.flatten() }
                     .onErrorReturnItem(emptyList())
             is InterestAccount -> {
-                getCustodialTargets()
+                getTradingTargets()
                     .onErrorReturnItem(emptyList())
                     .defaultIfEmpty(emptyList())
             }
+            is StakingAccount ->
+                getTradingTargets()
+                    .onErrorReturnItem(emptyList())
+                    .defaultIfEmpty(emptyList())
             else -> Single.just(emptyList())
         }
     }

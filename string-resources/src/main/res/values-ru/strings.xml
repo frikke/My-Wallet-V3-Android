@@ -1326,7 +1326,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Отправьте %1$s или больше.</string>
     <string name="send_enter_invalid_password">Неверный пароль.</string>
     <string name="send_enter_unexpected_error">Произошла непредвиденная ошибка. Попробуйте еще раз.</string>
-    <string name="send_enter_insufficient_gas">У вас недостаточно ETH для обработки этой транзакции.</string>
+    <string name="send_enter_insufficient_gas">У вас недостаточно %1$s для обработки этой транзакции.</string>
     <string name="send_select_a_wallet_title">или выберите Кошелек</string>
     <string name="send_select_a_wallet_warning">Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link="send_network_options">Подробнее</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) – это токен, который может быть доступен в нескольких сетях. Перед отправкой убедитесь, что вы знаете сеть адреса кошелька, на который отправляете.</string>

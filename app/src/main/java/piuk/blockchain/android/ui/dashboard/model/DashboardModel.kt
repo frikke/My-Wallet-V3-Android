@@ -49,7 +49,8 @@ class DashboardModel(
             is DashboardIntent.UpdateActiveAssets -> {
                 interactor.fetchAccounts(
                     intent.assetList,
-                    this
+                    this,
+                    intent.walletMode
                 )
                 null
             }
@@ -57,7 +58,8 @@ class DashboardModel(
                 process(DashboardIntent.LoadFundsLocked)
                 interactor.refreshBalances(
                     model = this,
-                    activeAssets = intent.assetList.map { it.currency }.toSet()
+                    activeAssets = intent.assetList.map { it.currency }.toSet(),
+                    walletMode = intent.walletMode
                 )
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)

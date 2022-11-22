@@ -31,6 +31,16 @@ sealed class PinIntent : MviIntent<PinState> {
             )
     }
 
+    object DialogShown : PinIntent() {
+        override fun reduce(oldState: PinState): PinState {
+            return oldState.copy(
+                biometricStatus = oldState.biometricStatus.copy(
+                    shouldShowFingerprint = false
+                )
+            )
+        }
+    }
+
     object CreatePINSucceeded : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(

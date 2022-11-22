@@ -5,7 +5,8 @@ import java.io.Serializable
 
 enum class AssetCategory {
     CUSTODIAL,
-    NON_CUSTODIAL
+    NON_CUSTODIAL,
+    DELEGATED_NON_CUSTODIAL
 }
 
 interface AssetInfo : Currency, Serializable {
@@ -32,8 +33,11 @@ val Currency.isCustodialOnly: Boolean
 val AssetInfo.isNonCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.NON_CUSTODIAL)
 
+val AssetInfo.isDelegatedNonCustodial: Boolean
+    get() = categories.contains(AssetCategory.DELEGATED_NON_CUSTODIAL)
+
 val AssetInfo.isNonCustodial: Boolean
-    get() = categories.contains(AssetCategory.NON_CUSTODIAL)
+    get() = categories.contains(AssetCategory.NON_CUSTODIAL) || isDelegatedNonCustodial
 
 fun AssetInfo.l1chain(assetCatalogue: AssetCatalogue): AssetInfo? =
     l1chainTicker?.let { ticker ->

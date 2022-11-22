@@ -20,7 +20,6 @@ import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
-import com.blockchain.api.coinnetworks.MockInterceptor
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
@@ -165,13 +164,8 @@ val blockchainApiModule = module {
             .build()
     }
 
-    single {
-        MockInterceptor()
-    }
-
     single(kotlinXCoinApiRetrofit) {
         val builder: OkHttpClient.Builder = get()
-        builder.addInterceptor(get<MockInterceptor>())
         get<OkHttpLoggingInterceptors>().forEach {
             builder.addInterceptor(it)
         }

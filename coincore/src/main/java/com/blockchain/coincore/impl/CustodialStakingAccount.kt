@@ -13,20 +13,33 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.coincore.toActionState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.staking.domain.StakingActivity
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.staking.domain.StakingState
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.extensions.exhaustive
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.utils.mapList
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.rxSingle
 
 class CustodialStakingAccount(
     override val currency: AssetInfo,
@@ -34,6 +47,9 @@ class CustodialStakingAccount(
     private val internalAccountLabel: String,
     private val stakingService: StakingService,
     override val exchangeRates: ExchangeRatesDataManager,
+    private val identity: UserIdentity,
+    private val kycService: KycService,
+    private val custodialWalletManager: CustodialWalletManager
 ) : CryptoAccountBase(), StakingAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -41,20 +57,23 @@ class CustodialStakingAccount(
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = Single.error(NotImplementedError())
-
-    // TODO(dserrano) - STAKING - add deposit & withdraw
-    /*stakingService.getAddress(currency).map { address ->
-            makeExternalAssetAddress(
-                asset = currency,
-                address = address,
-                label = label,
-                postTransactions = onTxCompleted
-            )
-        }*/
+        get() = rxSingle { stakingService.getAccountAddress(currency) }.map {
+            when (it) {
+                is DataResource.Data -> {
+                    makeExternalAssetAddress(
+                        asset = currency,
+                        address = it.data,
+                        label = label,
+                        postTransactions = onTxCompleted
+                    )
+                }
+                is DataResource.Error,
+                DataResource.Loading -> throw IllegalStateException()
+            }
+        }
 
     override val onTxCompleted: (TxResult) -> Completable
-        get() = { Completable.error(NotImplementedError()) } /*{ txResult ->
+        get() = { txResult ->
             require(txResult.amount is CryptoValue)
             require(txResult is TxResult.HashedTxResult)
             receiveAddress.flatMapCompletable { receiveAddress ->
@@ -63,10 +82,10 @@ class CustodialStakingAccount(
                     address = receiveAddress.address,
                     hash = txResult.txId,
                     amount = txResult.amount,
-                    product = Product.SAVINGS
+                    product = Product.STAKING
                 )
             }
-        }*/
+        }
 
     override val directions: Set<TransferDirection>
         get() = emptySet()
@@ -147,9 +166,27 @@ class CustodialStakingAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    // TODO(dserrano) - STAKING - add deposit & withdraw
+    // TODO(dserrano) - STAKING - add withdraw & summary
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = Single.just(setOf(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)))
+        get() = Single.zip(
+            kycService.getHighestApprovedTierLevelLegacy(),
+            identity.userAccessForFeature(Feature.DepositStaking)
+        ) { tier, depositInterestEligibility ->
+            return@zip when (tier) {
+                KycTier.BRONZE,
+                KycTier.SILVER -> emptySet()
+                KycTier.GOLD -> setOf(
+                    StateAwareAction(
+                        when (depositInterestEligibility) {
+                            is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
+                            else -> ActionState.Available
+                        },
+                        AssetAction.StakingDeposit
+                    ),
+                    StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+                )
+            }.exhaustive
+        }
 
     companion object {
         private val displayedStates = setOf(

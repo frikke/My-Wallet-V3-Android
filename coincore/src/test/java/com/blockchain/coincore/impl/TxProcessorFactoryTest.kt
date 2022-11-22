@@ -13,11 +13,11 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransferError
 import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
-import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawOnChainTxEngine
@@ -34,6 +34,8 @@ import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.staking.data.datasources.StakingBalanceStore
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
@@ -63,6 +65,8 @@ class TxProcessorFactoryTest {
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankService: BankService = mock()
     private val plaidFeatureFlag: FeatureFlag = mock()
+    private val stakingBalanceStore: StakingBalanceStore = mock()
+    private val stakingService: StakingService = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -87,7 +91,9 @@ class TxProcessorFactoryTest {
             ethDataManager = mock(),
             fees = mock(),
             swapTransactionsCache = mock(),
-            plaidFeatureFlag = plaidFeatureFlag
+            plaidFeatureFlag = plaidFeatureFlag,
+            stakingBalanceStore = stakingBalanceStore,
+            stakingService = stakingService
         )
     }
 

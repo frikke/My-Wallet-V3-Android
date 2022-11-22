@@ -5,6 +5,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import info.blockchain.balance.Money
 
@@ -25,8 +26,9 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
     }
 
     private fun StateAwareAction.sortingValue(): Int = when (accountForActions) {
-        is CustodialTradingAccount -> this.action.tradingAccountsOrdering()
-        is CustodialInterestAccount -> this.action.tradingAccountsOrdering()
+        is CustodialTradingAccount,
+        is CustodialInterestAccount,
+        is CustodialStakingAccount -> this.action.tradingAccountsOrdering()
         is CryptoNonCustodialAccount -> this.action.nonCustodialAccountOrdering()
         else -> throw IllegalStateException(
             "Trying to sort actions for an unsupported account type - $accountForActions"
@@ -41,10 +43,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
         AssetAction.Receive -> 4
         AssetAction.FiatDeposit -> 5
         AssetAction.InterestDeposit -> 6
-        AssetAction.InterestWithdraw -> 7
-        AssetAction.FiatWithdraw -> 8
-        AssetAction.ViewStatement -> 9
-        AssetAction.ViewActivity -> 10
+        AssetAction.StakingDeposit -> 7
+        AssetAction.InterestWithdraw -> 8
+        AssetAction.FiatWithdraw -> 9
+        AssetAction.ViewStatement -> 10
+        AssetAction.ViewActivity -> 11
         AssetAction.Sign -> Int.MAX_VALUE
     }
 
@@ -57,10 +60,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.Buy -> 4
             AssetAction.FiatDeposit -> 5
             AssetAction.InterestDeposit -> 6
-            AssetAction.InterestWithdraw -> 7
-            AssetAction.FiatWithdraw -> 8
-            AssetAction.ViewStatement -> 9
-            AssetAction.ViewActivity -> 10
+            AssetAction.StakingDeposit -> 7
+            AssetAction.InterestWithdraw -> 8
+            AssetAction.FiatWithdraw -> 9
+            AssetAction.ViewStatement -> 10
+            AssetAction.ViewActivity -> 11
             AssetAction.Sign -> Int.MAX_VALUE
         }
     } else {
@@ -72,10 +76,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.Buy -> 4
             AssetAction.FiatDeposit -> 5
             AssetAction.InterestDeposit -> 6
-            AssetAction.InterestWithdraw -> 7
-            AssetAction.FiatWithdraw -> 8
-            AssetAction.ViewStatement -> 9
-            AssetAction.ViewActivity -> 10
+            AssetAction.StakingDeposit -> 7
+            AssetAction.InterestWithdraw -> 8
+            AssetAction.FiatWithdraw -> 9
+            AssetAction.ViewStatement -> 10
+            AssetAction.ViewActivity -> 11
             AssetAction.Sign -> Int.MAX_VALUE
         }
     }

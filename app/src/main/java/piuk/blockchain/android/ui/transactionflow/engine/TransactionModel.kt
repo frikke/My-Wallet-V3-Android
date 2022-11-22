@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.FiatAccount
@@ -56,13 +57,13 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
-import piuk.blockchain.android.ui.transfer.receive.detail.SetNetworkName
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
@@ -307,10 +308,6 @@ class TransactionModel(
                 intent.eligibility
             )
             is TransactionIntent.ValidatePassword -> processPasswordValidation(intent.password)
-            is TransactionIntent.UpdatePasswordIsValidated -> null
-            is TransactionIntent.UpdatePasswordNotValidated -> null
-            is TransactionIntent.PrepareTransaction -> null
-            is TransactionIntent.AvailableSourceAccountsListUpdated -> null
             is TransactionIntent.SourceAccountSelected -> processAccountsListUpdate(
                 selectedTarget = previousState.selectedTarget,
                 fromAccount = intent.sourceAccount,
@@ -343,28 +340,11 @@ class TransactionModel(
                     action = previousState.action,
                     passwordRequired = previousState.passwordRequired
                 )
-            is TransactionIntent.TargetSelectionUpdated -> null
-            is TransactionIntent.InitialiseWithSourceAndPreferredTarget -> null
-            is TransactionIntent.PendingTransactionStarted -> null
-            is TransactionIntent.TargetAccountSelected -> null
-            is TransactionIntent.FatalTransactionError -> null
             is TransactionIntent.AmountChanged -> processAmountChanged(intent.amount)
             is TransactionIntent.ModifyTxOption -> processModifyTxOptionRequest(intent.confirmation)
-            is TransactionIntent.PendingTxUpdated -> null
-            is TransactionIntent.DisplayModeChanged -> null
-            is TransactionIntent.UpdateTransactionComplete -> null
-            is TransactionIntent.ReturnToPreviousStep -> null
-            is TransactionIntent.ShowTargetSelection -> null
             is TransactionIntent.FetchFiatRates -> processGetFiatRate()
             is TransactionIntent.FetchTargetRates -> processGetTargetRate()
-            is TransactionIntent.FiatRateUpdated -> null
-            is TransactionIntent.CryptoRateUpdated -> null
             is TransactionIntent.ValidateTransaction -> processValidateTransaction()
-            is TransactionIntent.EnteredAddressReset -> null
-            is TransactionIntent.AvailableAccountsListUpdated -> null
-            is TransactionIntent.UpdateTransactionCancelled -> null
-            is TransactionIntent.ShowMoreAccounts -> null
-            is TransactionIntent.UseMaxSpendable -> null
             is TransactionIntent.SetFeeLevel -> processSetFeeLevel(intent)
             is TransactionIntent.InvalidateTransaction -> processInvalidateTransaction()
             is TransactionIntent.InvalidateTransactionKeepingTarget -> processInvalidationAndNavigate(previousState)
@@ -400,6 +380,12 @@ class TransactionModel(
                 (previousState.sendingAccount as? LinkedBankAccount)?.accountId, previousState.amount
             )
             is TransactionIntent.LoadImprovedPaymentUxFeatureFlag -> processImprovedPaymentUxFF()
+            is TransactionIntent.UpdateStakingWithdrawalSeen -> {
+                interactor.updateStakingExplainerAcknowledged(intent.networkTicker)
+                null
+            }
+            is TransactionIntent.ShowSourceSelection ->
+                loadAvailableSourceAccounts(previousState.action, previousState.selectedTarget, true)
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -416,7 +402,28 @@ class TransactionModel(
             is TransactionIntent.DepositTermsReceived,
             is TransactionIntent.ResetPrefillAmount,
             is TransactionIntent.SetNetworkName,
-            is TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded -> null
+            is TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded,
+            is TransactionIntent.ShowTargetSelection,
+            is TransactionIntent.TargetSelectionUpdated,
+            is TransactionIntent.InitialiseWithSourceAndPreferredTarget,
+            is TransactionIntent.PendingTransactionStarted,
+            is TransactionIntent.TargetAccountSelected,
+            is TransactionIntent.FatalTransactionError,
+            is TransactionIntent.PendingTxUpdated,
+            is TransactionIntent.DisplayModeChanged,
+            is TransactionIntent.UpdateTransactionComplete,
+            is TransactionIntent.ReturnToPreviousStep,
+            is TransactionIntent.FiatRateUpdated,
+            is TransactionIntent.CryptoRateUpdated,
+            is TransactionIntent.EnteredAddressReset,
+            is TransactionIntent.AvailableAccountsListUpdated,
+            is TransactionIntent.UpdateTransactionCancelled,
+            is TransactionIntent.ShowMoreAccounts,
+            is TransactionIntent.UseMaxSpendable,
+            is TransactionIntent.UpdatePasswordIsValidated,
+            is TransactionIntent.UpdatePasswordNotValidated,
+            is TransactionIntent.PrepareTransaction,
+            is TransactionIntent.AvailableSourceAccountsListUpdated -> null
         }
     }
 
@@ -514,7 +521,37 @@ class TransactionModel(
         transactionTarget: TransactionTarget,
         shouldResetBackStack: Boolean = false
     ): Disposable =
-        interactor.getAvailableSourceAccounts(action, transactionTarget).subscribeBy(
+        if (action == AssetAction.StakingDeposit) {
+            Singles.zip(
+                fetchProductEligibility(action, NullCryptoAccount(), transactionTarget).toSingle(),
+                interactor.getAvailableSourceAccounts(action, transactionTarget)
+            ).subscribeBy(
+                onSuccess = { (access, accountList) ->
+                    if (access is FeatureAccess.Blocked) {
+                        process(TransactionIntent.ShowFeatureBlocked(access.reason))
+                    } else {
+                        process(
+                            TransactionIntent.AvailableSourceAccountsListUpdated(accountList)
+                        )
+                    }
+                    if (shouldResetBackStack) {
+                        process(TransactionIntent.ClearBackStack)
+                    }
+                },
+                onError = {
+                    process(TransactionIntent.FatalTransactionError(it))
+                }
+            )
+        } else {
+            loadAvailableSourceAccounts(action, transactionTarget, shouldResetBackStack)
+        }
+
+    private fun loadAvailableSourceAccounts(
+        action: AssetAction,
+        transactionTarget: TransactionTarget,
+        shouldResetBackStack: Boolean
+    ) = interactor.getAvailableSourceAccounts(action, transactionTarget)
+        .subscribeBy(
             onSuccess = {
                 process(
                     TransactionIntent.AvailableSourceAccountsListUpdated(it)
@@ -626,6 +663,10 @@ class TransactionModel(
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
+        AssetAction.StakingDeposit -> interactor.checkShouldShowInterstitial(
+            asset = (target as CryptoAccount).currency,
+            feature = Feature.DepositStaking
+        ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,
         AssetAction.ViewActivity,

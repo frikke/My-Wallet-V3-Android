@@ -363,6 +363,7 @@ class PinActivity :
     private fun checkFingerprintStatus() {
         if (lastState.biometricStatus.shouldShowFingerprint && !isChangingPin) {
             showFingerprintDialog()
+            model.process(PinIntent.DialogShown)
         } else {
             binding.keyboard.requestFocus()
         }
@@ -975,7 +976,8 @@ class PinActivity :
 
         if (lastState.biometricStatus.canShowFingerprint) {
             biometricsController.authenticate(
-                this, BiometricsType.TYPE_LOGIN,
+                this,
+                BiometricsType.TYPE_LOGIN,
                 object : BiometricsCallback<WalletBiometricData> {
                     override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         correctPinBoxes()

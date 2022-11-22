@@ -22,7 +22,7 @@ import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragmen
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardNavigationEvent
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.putAccount
 
@@ -57,7 +57,7 @@ class InterestDashboardActivity :
             toolbarTitle = getString(R.string.rewards_dashboard_title),
             backAction = { onSupportNavigateUp() }
         )
-        analytics.logEvent(InterestAnalytics.InterestViewed)
+        analytics.logEvent(EarnAnalytics.InterestViewed)
 
         goToInterestDashboardFragment()
     }
@@ -140,7 +140,7 @@ class InterestDashboardActivity :
     }
 
     private fun startKyc() {
-        analytics.logEvent(InterestAnalytics.InterestDashboardKyc)
+        analytics.logEvent(EarnAnalytics.InterestDashboardKyc)
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 

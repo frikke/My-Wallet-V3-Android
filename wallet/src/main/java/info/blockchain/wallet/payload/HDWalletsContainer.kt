@@ -1,9 +1,9 @@
 package info.blockchain.wallet.payload
 
+import com.blockchain.domain.wallet.CoinType
 import info.blockchain.wallet.bip44.HDAccount
 import info.blockchain.wallet.bip44.HDWallet
 import info.blockchain.wallet.bip44.HDWalletFactory
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
@@ -137,9 +137,9 @@ class HDWalletsContainer {
         }
     }
 
-    fun getDynamicAccount(coinConfiguration: CoinConfiguration) =
-        when (coinConfiguration.purpose) {
-            Derivation.SEGWIT_BECH32_PURPOSE -> segwitBech32?.getDynamicHdAccount(coinConfiguration)
-            else -> legacy.getDynamicHdAccount(coinConfiguration)
+    fun getDynamicAccount(coinType: CoinType) =
+        when (coinType.purpose) {
+            Derivation.SEGWIT_BECH32_PURPOSE -> segwitBech32?.getDynamicHdAccount(coinType)
+            else -> legacy.getDynamicHdAccount(coinType)
         }
 }

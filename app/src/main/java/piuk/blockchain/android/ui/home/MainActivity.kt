@@ -123,7 +123,7 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -1379,7 +1379,7 @@ class MainActivity :
         startActivityForResult(
             InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
         )
-        analytics.logEvent(InterestAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
+        analytics.logEvent(EarnAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
     }
 
     override fun launchFiatDeposit(currency: String) {

@@ -6,6 +6,7 @@ import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
@@ -192,6 +193,9 @@ class Coincore internal constructor(
             AssetAction.Send -> sameCurrencyTransactionTargets
             AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialInterestAccount>()
+            }
+            AssetAction.StakingDeposit -> sameCurrencyTransactionTargets.map {
+                it.filterIsInstance<CustodialStakingAccount>()
             }
             AssetAction.InterestWithdraw -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialTradingAccount>()

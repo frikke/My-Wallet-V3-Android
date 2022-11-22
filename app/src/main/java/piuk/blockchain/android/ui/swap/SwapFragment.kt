@@ -225,7 +225,9 @@ class SwapFragment :
                                     is BlockedReason.NotEligible -> showBlockedDueToNotEligible(reason)
                                     is BlockedReason.InsufficientTier -> showKycUpgradeNow()
                                     is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
-                                    is BlockedReason.TooManyInFlightTransactions -> { // noop
+                                    is BlockedReason.TooManyInFlightTransactions,
+                                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
+                                        // noop
                                     }
                                 }.exhaustive
                             } else if (!composite.tiers.isInitialisedFor(KycTier.GOLD)) {

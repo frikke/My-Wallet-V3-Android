@@ -13,6 +13,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
@@ -21,6 +22,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -28,6 +30,7 @@ import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -37,6 +40,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables
@@ -88,7 +92,8 @@ class TransactionInteractor(
     private val hideDustFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val improvedPaymentUxFF: FeatureFlag,
-    private val dynamicAssetRepository: UniversalDynamicAssetRepository
+    private val dynamicAssetRepository: UniversalDynamicAssetRepository,
+    private val stakingService: StakingService
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -212,7 +217,25 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
+                    it.filter { acc ->
+                        acc is CryptoAccount &&
+                            acc.currency == targetAccount.currency &&
+                            acc != targetAccount &&
+                            acc.isFunded
+                    }
+                }
+            }
+            AssetAction.StakingDeposit -> {
+                require(targetAccount is StakingAccount)
+                require(targetAccount is CryptoAccount)
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&
@@ -382,7 +405,28 @@ class TransactionInteractor(
             dismissRecorder.isDismissed(prefsKey)
         }
 
-    fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
+    fun userAccessForFeature(feature: Feature): Single<FeatureAccess> =
+        identity.userAccessForFeature(feature)
+
+    fun checkShouldShowInterstitial(asset: AssetInfo, feature: Feature): Single<FeatureAccess> =
+        stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
+            if (limits.withdrawalsDisabled) {
+                stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                    if (accountBalance.totalBalance.isZero) {
+                        FeatureAccess.Blocked(
+                            BlockedReason.ShouldAcknowledgeStakingWithdrawal(
+                                bondingDays = limits.bondingDays,
+                                assetIconUrl = asset.logo
+                            )
+                        )
+                    } else FeatureAccess.Granted()
+                }
+            } else {
+                identity.userAccessForFeature(feature)
+            }
+        }
+
+    fun updateStakingExplainerAcknowledged(networkTicker: String) {}
 
     fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
         quickFillRoundingService.getQuickFillRoundingForAction(action)

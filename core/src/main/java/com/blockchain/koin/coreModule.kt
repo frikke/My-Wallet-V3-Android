@@ -22,6 +22,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.chains.dynamicselfcustody.data.CoinTypeStore
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
@@ -93,6 +94,7 @@ import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.core.staking.data.StakingRepository
 import com.blockchain.core.staking.data.datasources.StakingBalanceStore
 import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
+import com.blockchain.core.staking.data.datasources.StakingLimitsStore
 import com.blockchain.core.staking.data.datasources.StakingRatesStore
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.user.NabuUserDataManager
@@ -587,7 +589,15 @@ val coreModule = module {
                 currencyPrefs = get(),
                 assetCatalogue = get(),
                 remoteConfigService = get(),
-                subscriptionsStore = get()
+                subscriptionsStore = get(),
+                networkConfigsFF = get(coinNetworksFeatureFlag),
+                coinTypeStore = get()
+            )
+        }
+
+        scoped {
+            CoinTypeStore(
+                discoveryService = get()
             )
         }
 
@@ -615,6 +625,13 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            StakingLimitsStore(
+                stakingApiService = get(),
+                currencyPrefs = get()
+            )
+        }
+
         scoped<StakingService> {
             StakingRepository(
                 stakingRatesStore = get(),
@@ -622,7 +639,10 @@ val coreModule = module {
                 stakingBalanceStore = get(),
                 assetCatalogue = get(),
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
-                paymentTransactionHistoryStore = get()
+                paymentTransactionHistoryStore = get(),
+                stakingLimitsStore = get(),
+                currencyPrefs = get(),
+                stakingApi = get()
             )
         }
 

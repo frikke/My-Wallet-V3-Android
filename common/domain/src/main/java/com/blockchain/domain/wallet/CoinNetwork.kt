@@ -18,6 +18,7 @@ enum class NetworkType {
     EVM,
     BTC,
     XLM,
+    STX,
     NOT_SUPPORTED
 }
 

@@ -5,6 +5,7 @@ import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
 import com.blockchain.core.utils.RefreshUpdater
 import com.blockchain.core.utils.schedulers.applySchedulers
+import com.blockchain.domain.wallet.CoinType
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.rx.MainScheduler
 import com.blockchain.serialization.JsonSerializableAccount
@@ -12,7 +13,6 @@ import com.blockchain.utils.then
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bip44.HDWalletFactory
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.MasterKey
@@ -660,8 +660,8 @@ class PayloadDataManager internal constructor(
             payloadManager.getAccountTransactions(xpub, limit, offset)
         }
 
-    fun getDynamicHdAccount(coinConfiguration: CoinConfiguration) =
-        wallet.walletBody?.getDynamicHdAccount(coinConfiguration)
+    fun getDynamicHdAccount(coinType: CoinType) =
+        wallet.walletBody?.getDynamicHdAccount(coinType)
 
     /**
      * Returns the transaction notes for a given transaction hash. May return null if not found.

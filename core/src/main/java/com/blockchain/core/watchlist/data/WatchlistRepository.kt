@@ -8,13 +8,12 @@ import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.doOnData
+import com.blockchain.data.map
+import com.blockchain.outcome.toDataResource
 import com.blockchain.store.mapData
-import com.blockchain.utils.rxSingleOutcome
-import com.blockchain.utils.toDataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 
 typealias Watchlist = List<Currency>
 
@@ -48,28 +47,22 @@ class WatchlistRepository(
         }
     }
 
-    override suspend fun addToWatchlist(asset: Currency): Flow<DataResource<Unit>> {
-        return rxSingleOutcome {
-            watchlistApiService.addToWatchlist(asset.networkTicker)
-        }.toDataResource().doOnData {
-            // refresh store - will refresh any collectors of isAssetInWatchlist
-            getWatchlist(FreshnessStrategy.Fresh).collect()
-        }.mapData { /*Unit we don't care about return*/ }
+    override suspend fun addToWatchlist(asset: Currency): DataResource<Unit> {
+        return watchlistApiService.addToWatchlist(asset.networkTicker).toDataResource()
+            .doOnData { watchlistStore.invalidate() }
+            .map { /*Unit we don't care about return*/ }
     }
 
-    override suspend fun removeFromWatchlist(asset: Currency): Flow<DataResource<Unit>> {
-        return rxSingleOutcome {
-            watchlistApiService.removeFromWatchlist(asset.networkTicker)
-        }.toDataResource().doOnData {
-            // refresh store - will refresh any collectors of isAssetInWatchlist
-            getWatchlist(FreshnessStrategy.Fresh).collect()
-        }.mapData { /*Unit we don't care about return*/ }
+    override suspend fun removeFromWatchlist(asset: Currency): DataResource<Unit> {
+        return watchlistApiService.removeFromWatchlist(asset.networkTicker).toDataResource()
+            .doOnData { watchlistStore.invalidate() }
+            .map { /*Unit we don't care about return*/ }
     }
 
     override suspend fun updateWatchlist(
         asset: Currency,
         toggle: WatchlistToggle
-    ): Flow<DataResource<Unit>> {
+    ): DataResource<Unit> {
         return when (toggle) {
             WatchlistToggle.ADD -> addToWatchlist(asset)
             WatchlistToggle.REMOVE -> removeFromWatchlist(asset)

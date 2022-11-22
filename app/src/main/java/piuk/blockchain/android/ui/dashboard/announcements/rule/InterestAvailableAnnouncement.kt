@@ -12,7 +12,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 
 class InterestAvailableAnnouncement(
     dismissRecorder: DismissRecorder
@@ -43,7 +43,7 @@ class InterestAvailableAnnouncement(
                 iconImage = R.drawable.ic_interest_blue_circle,
                 ctaText = R.string.rewards_announcement_action,
                 ctaFunction = {
-                    analytics.logEvent(InterestAnalytics.InterestAnnouncementCta)
+                    analytics.logEvent(EarnAnalytics.InterestAnnouncementCta)
                     host.dismissAnnouncementCard()
                     host.startInterestDashboard()
                 },

@@ -82,7 +82,10 @@ enum class AssetAction(
     FiatDeposit(ActionOrigin.FROM_SOURCE),
 
     // Receive crypto to crypto
-    Sign(ActionOrigin.FROM_SOURCE);
+    Sign(ActionOrigin.FROM_SOURCE),
+
+    // Receive to a Staking account
+    StakingDeposit(ActionOrigin.FROM_SOURCE);
 }
 
 @Parcelize
@@ -124,6 +127,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
     is BlockedReason.Sanctions -> ActionState.LockedDueToSanctions(reason)
     is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
+    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> ActionState.Unavailable
 }
 
 interface Asset {

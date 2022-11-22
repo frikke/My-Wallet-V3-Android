@@ -11,6 +11,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -58,6 +59,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class UpdateActiveAssets(
         val assetList: List<Asset>,
+        val walletMode: WalletMode,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState
@@ -65,7 +67,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateAllAssetsAndBalances(
-        val assetList: List<DashboardAsset>
+        val assetList: List<DashboardAsset>,
+        val walletMode: WalletMode
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
 
@@ -264,6 +267,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         ): BrokerageCryptoAsset {
             val trend = historicPrices.map { it.rate.toFloat() }
             return old.copy(priceTrend = trend)
+        }
+
+        override fun isValidFor(oldState: DashboardState): Boolean {
+            return oldState.activeAssets.getOrNull(asset)?.let {
+                it is BrokerageCryptoAsset
+            } ?: false
         }
     }
 

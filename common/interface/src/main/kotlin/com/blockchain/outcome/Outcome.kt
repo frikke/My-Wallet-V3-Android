@@ -1,5 +1,6 @@
 package com.blockchain.outcome
 
+import com.blockchain.data.DataResource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -136,3 +137,16 @@ suspend fun <E, T1, T2, T3> zipOutcomes(
     p2: suspend () -> Outcome<E, T2>,
     p3: suspend () -> Outcome<E, T3>,
 ): Outcome<E, Triple<T1, T2, T3>> = zipOutcomes(p1, p2, p3) { r1, r2, r3 -> Triple(r1, r2, r3) }
+
+fun <E, R> Outcome<E, R>.toDataResource(): DataResource<R> {
+    return when (this) {
+        is Outcome.Success -> DataResource.Data(value)
+        is Outcome.Failure -> DataResource.Error(
+            when (failure) {
+                is Exception -> failure
+                is Throwable -> Exception(failure)
+                else -> Exception(failure.toString())
+            }
+        )
+    }
+}

@@ -77,9 +77,8 @@ const val URL_RUSSIA_SANCTIONS_EU8 =
 
 const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
 
-const val STAKING_LEARN_MORE = "https://support.blockchain.com/hc/en-us/sections/5954708914460-Staking"
-const val STAKING_WEB_APP = "https://login.blockchain.com/en/#/open/earn"
-
 const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"
 
 const val URL_JOIN_BLOCKCHAIN_CARD_WAITLIST = "https://www.blockchain.com/card"
+
+const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"

@@ -26,7 +26,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
-import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
@@ -41,8 +40,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedE
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
-import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
-import piuk.blockchain.android.urllinks.STAKING_WEB_APP
 import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 
@@ -57,8 +54,7 @@ class CoinViewActivityV2 :
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
-    KycUpgradeNowSheet.Host,
-    StakingAccountSheet.Host {
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -267,10 +263,6 @@ class CoinViewActivityV2 :
                     )
                 )
             }
-            is CoinviewNavigationEvent.ShowStakingAccountInterstitial -> {
-                showBottomSheet(StakingAccountSheet.newInstance(navigationEvent.assetIconUrl))
-            }
-
             CoinviewNavigationEvent.NavigateToSupport -> {
                 startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
                 finish()
@@ -282,6 +274,16 @@ class CoinViewActivityV2 :
 
             is CoinviewNavigationEvent.OpenAssetWebsite -> {
                 openUrl(navigationEvent.website)
+            }
+
+            is CoinviewNavigationEvent.NavigateToStakingDeposit -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.StakingDeposit,
+                        target = navigationEvent.cvAccount.account as TransactionTarget
+                    )
+                )
             }
         }
     }
@@ -393,14 +395,6 @@ class CoinViewActivityV2 :
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
         viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
-    }
-
-    override fun learnMoreClicked() {
-        openUrl(STAKING_LEARN_MORE)
-    }
-
-    override fun goToWebAppClicked() {
-        openUrl(STAKING_WEB_APP)
     }
 
     override fun onSheetClosed() {}

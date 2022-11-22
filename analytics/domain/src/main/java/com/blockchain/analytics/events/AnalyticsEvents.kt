@@ -199,6 +199,7 @@ enum class AnalyticsNames(val eventName: String) {
     INTEREST_VIEWED("Interest Viewed"),
     INTEREST_WITHDRAWAL_CLICKED("Interest Withdrawal Clicked"),
     INTEREST_WITHDRAWAL_VIEWED("Interest Withdrawal Viewed"),
+    STAKING_DEPOSIT_CLICKED("Staking Deposit Clicked"),
     ACCOUNT_PASSWORD_CHANGED("Account Password Changed"),
     CHANGE_PIN_CODE_CLICKED("Change Pin Clicked"),
     CHANGE_EMAIL_CLICKED("Email Change Clicked"),

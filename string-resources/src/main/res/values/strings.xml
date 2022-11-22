@@ -30,6 +30,7 @@
     <string name="common_remove">Remove</string>
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
+    <string name="common_stake">Stake</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_disconnect">Disconnect</string>
@@ -662,6 +663,7 @@
     <string name="tx_title_fee">Fee %s</string>
     <string name="tx_title_rewards">%s Rewards Earned</string>
     <string name="tx_title_add_with_ticker">Add %s</string>
+    <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
     <string name="tx_title_stake_earned">%s Earned</string>
     <string name="tx_title_stake_withdrawn">%s Unstaked</string>
@@ -823,6 +825,7 @@
     <string name="dashboard_asset_actions_receive_dsc">Accept or Share Your %1$s Address</string>
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
     <string name="dashboard_asset_actions_add_dsc">Add %1$s to your Rewards Account</string>
+    <string name="dashboard_asset_actions_add_staking_dsc">Add %1$s to your Staking Account</string>
     <string name="dashboard_asset_actions_add_title">Add</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
@@ -1438,6 +1441,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_send_sheet_title">Send from</string>
     <string name="select_deposit_source_title">Transfer from</string>
     <string name="select_interest_deposit_source_title">Add from</string>
+    <string name="select_staking_deposit_source_title">Stake from</string>
     <string name="select_withdraw_target_title">Withdraw to</string>
     <string name="select_send_source_title">Send from</string>
     <string name="select_target_source_no_search_results">No Wallets or Cryptos Match Your Search</string>
@@ -1729,10 +1733,23 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_confirmation_awaiting_nc_receiving_success_message">Your swap is being verified now by the %1$s &amp; the %2$s networks. You can check the progress of this transaction in the Activity section.</string>
     <string name="swap_confirmation_success_message">Your %1$s is now available in your Wallet.</string>
     <string name="send_confirmation_deposit_cta_button">Transfer Now</string>
+    <string name="send_confirmation_stake_cta_button">Stake Now</string>
     <string name="send_confirmation_rewards_tos_pp">I have read and agree to the <annotation link="interest_tos">Terms of Service</annotation> &amp; <annotation link="interest_pp">Privacy Policy</annotation>.</string>
     <string name="send_confirmation_rewards_holding_period_1">By accepting this, you agree to transfer&#160;</string>
     <string name="send_confirmation_rewards_holding_period_2">&#160; (%1$s) from your %2$s Wallet to your Rewards Account. An initial hold period of 7 days will be applied to your funds.</string>
+    <string name="staking_confirmation_bonding_period_1">I agree to transfer</string>
+    <string name="staking_confirmation_bonding_period_2">&#160;%1$s&#160;</string>
+    <string name="staking_confirmation_bonding_period_2_1">to my Staking Account.</string>
+    <string name="staking_confirmation_bonding_period_3">&#160;I understand that I can’t unstake until withdrawals are enabled on the %1$s network.</string>
+    <string name="staking_confirmation_bonding_period_4">&#160;Funds are subject to a bonding period of</string>
+    <string name="staking_confirmation_bonding_period_5">&#160;%1$d&#160;</string>
+    <plurals name="staking_confirmation_bonding_period_6">
+        <item quantity="one">day</item>
+        <item quantity="many">days</item>
+    </plurals>
+    <string name="staking_confirmation_bonding_period_7">&#160;before generating rewards.</string>
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
+    <string name="staking_confirmation_progress_title">Staking %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
     <string name="send_confirmation_success_title">%1$s Transferred</string>
     <string name="transfer_confirmation_awaiting_success_title">Transfer In Progress</string>
@@ -3390,6 +3407,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="blockchain_card_waitlist_announcement_title">Introducing the Blockchain.com Visa® Card</string>
     <string name="blockchain_card_waitlist_announcement_description">Spend your crypto or cash without fees. Earn 1%% back in crypto.</string>
     <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
+    <string name="bc_card_empty_statements_title">Your Statements Go Here</string>
+    <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
@@ -3409,4 +3428,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
+
+    <string name="staking_cannot_withdraw_title">Staking Considerations</string>
+    <!-- todo (dserrano): - STAKING - copy when ready -->
+    <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
+    <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+
+
 </resources>

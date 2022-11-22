@@ -84,6 +84,7 @@ interface NabuDataManager {
 
     fun resetUserKyc(): Completable
 }
+
 internal class NabuDataManagerImpl(
     private val nabuService: NabuService,
     private val retailWalletTokenService: RetailWalletTokenService,
@@ -305,7 +306,7 @@ internal class NabuDataManagerImpl(
         if (userRestored(throwable)) {
             recoverUserAndContinue(offlineToken)
         } else {
-            Single.error(throwable)
+            Single.error(throwable as Exception)
         }
 
     private fun recoverUserAndContinue(
@@ -322,5 +323,7 @@ internal class NabuDataManagerImpl(
             .subscribeOn(Schedulers.io())
             .flatMapObservable(nabuTokenStore::store)
             .singleOrError()
-            .onErrorResumeNext { recoverOrReturnError(it, offlineToken) }
+            .onErrorResumeNext {
+                recoverOrReturnError(it, offlineToken)
+            }
 }

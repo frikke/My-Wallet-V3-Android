@@ -307,6 +307,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
+    object ShowSourceSelection : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                errorState = TransactionErrorState.NONE,
+                currentStep = TransactionStep.SELECT_SOURCE,
+                nextEnabled = false
+            ).updateBackstack(oldState)
+    }
+
     object FetchFiatRates : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
@@ -715,6 +724,10 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(
                 ffImprovedPaymentUxEnabled = isLoadImprovedPaymentUxFeatureFlagEnabled
             )
+    }
+
+    class UpdateStakingWithdrawalSeen(val networkTicker: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 }
 

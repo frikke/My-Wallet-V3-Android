@@ -12,6 +12,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
@@ -20,17 +21,19 @@ import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
-import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingDepositOnChainTxEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
@@ -44,6 +47,8 @@ import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.staking.data.datasources.StakingBalanceStore
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
@@ -72,6 +77,8 @@ class TxProcessorFactory(
     private val userIdentity: UserIdentity,
     private val swapTransactionsCache: SwapTransactionsCache,
     private val plaidFeatureFlag: FeatureFlag,
+    private val stakingBalanceStore: StakingBalanceStore,
+    private val stakingService: StakingService
 ) {
     fun createProcessor(
         source: BlockchainAccount,
@@ -222,7 +229,6 @@ class TxProcessorFactory(
                     )
                 )
             )
-
             is CustodialInterestAccount ->
                 target.receiveAddress
                     .map {
@@ -233,6 +239,21 @@ class TxProcessorFactory(
                             engine = InterestDepositOnChainTxEngine(
                                 interestBalanceStore = interestBalanceStore,
                                 interestService = interestService,
+                                walletManager = walletManager,
+                                onChainEngine = engine
+                            )
+                        )
+                    }
+            is CustodialStakingAccount ->
+                target.receiveAddress
+                    .map {
+                        TransactionProcessor(
+                            exchangeRates = exchangeRates,
+                            sourceAccount = source,
+                            txTarget = it,
+                            engine = StakingDepositOnChainTxEngine(
+                                stakingBalanceStore = stakingBalanceStore,
+                                stakingService = stakingService,
                                 walletManager = walletManager,
                                 onChainEngine = engine
                             )
@@ -319,6 +340,20 @@ class TxProcessorFactory(
                     engine = InterestDepositTradingEngine(
                         interestBalanceStore = interestBalanceStore,
                         interestService = interestService,
+                        tradingStore = tradingStore,
+                        walletManager = walletManager
+                    )
+                )
+            )
+        is StakingAccount ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = StakingDepositTradingEngine(
+                        stakingBalanceStore = stakingBalanceStore,
+                        stakingService = stakingService,
                         tradingStore = tradingStore,
                         walletManager = walletManager
                     )

@@ -32,6 +32,7 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -55,9 +56,12 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.StakingAccountWithdrawWarning
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
+import piuk.blockchain.android.urllinks.ETH_STAKING_CONSIDERATIONS
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
+import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
 import timber.log.Timber
@@ -66,7 +70,8 @@ class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
     QuestionnaireSheet.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    StakingAccountWithdrawWarning.Host {
 
     private val scopeId: String by lazy {
         "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
@@ -91,6 +96,7 @@ class TransactionFlowActivity :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fraudService: FraudService by inject()
+    private lateinit var startingIntent: TransactionIntent
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -168,6 +174,7 @@ class TransactionFlowActivity :
             .map { intentMapper.map(it) }
             .subscribeBy(
                 onSuccess = { transactionIntent ->
+                    startingIntent = transactionIntent
                     model.process(transactionIntent)
                 },
                 onError = {
@@ -280,6 +287,10 @@ class TransactionFlowActivity :
                 is BlockedReason.NotEligible -> BlockedDueToNotEligibleSheet.newInstance(featureBlockedReason)
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
+                is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
+                    featureBlockedReason.assetIconUrl,
+                    featureBlockedReason.bondingDays
+                )
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )
@@ -297,15 +308,19 @@ class TransactionFlowActivity :
         }?.let {
             binding.txProgress.gone()
 
-            val transaction = supportFragmentManager.beginTransaction()
-                .addAnimationTransaction()
-                .replace(R.id.tx_flow_content, it, it.toString())
+            if (it is BottomSheetDialogFragment) {
+                showBottomSheet(it)
+            } else {
+                val transaction = supportFragmentManager.beginTransaction()
+                    .addAnimationTransaction()
+                    .replace(R.id.tx_flow_content, it, it.toString())
 
-            if (!supportFragmentManager.fragments.contains(it)) {
-                transaction.addToBackStack(it.toString())
+                if (!supportFragmentManager.fragments.contains(it)) {
+                    transaction.addToBackStack(it.toString())
+                }
+
+                transaction.commit()
             }
-
-            transaction.commit()
         }
     }
 
@@ -355,6 +370,18 @@ class TransactionFlowActivity :
             else -> CampaignType.None
         }
         startKycForResult.launch(KycNavHostActivity.newIntent(this, campaign))
+    }
+
+    override fun learnMoreClicked() {
+        openUrl(ETH_STAKING_CONSIDERATIONS)
+    }
+
+    override fun onNextClicked() {
+        model.process(TransactionIntent.ShowSourceSelection)
+    }
+
+    override fun onClose() {
+        dismissFlow()
     }
 
     override fun onSheetClosed() {

@@ -10,6 +10,7 @@ import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.coinnetworks.data.CoinNetworkDto
+import com.blockchain.api.coinnetworks.data.CoinTypeDto
 import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -133,6 +134,11 @@ class AssetDiscoveryApiService internal constructor(
             .map { response ->
                 response.networks.filter { it.type != NetworkType.NOT_SUPPORTED }
             }
+
+    suspend fun allCoinTypes(): Outcome<Exception, List<CoinTypeDto>> =
+        coinNetworkApi.getCoinNetworks().map { response ->
+            response.types.filter { it.type != NetworkType.NOT_SUPPORTED }
+        }
 
     suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
         api.getL2CurrenciesForL1()

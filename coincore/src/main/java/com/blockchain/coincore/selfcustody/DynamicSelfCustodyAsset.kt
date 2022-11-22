@@ -26,12 +26,12 @@ internal class DynamicSelfCustodyAsset(
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         rxSingle {
-            selfCustodyService.getCoinConfigurationFor(currency)?.let { coinConfiguration ->
+            selfCustodyService.getCoinTypeFor(currency)?.let { coinType ->
                 listOf(
                     DynamicNonCustodialAccount(
                         payloadManager,
                         currency,
-                        coinConfiguration,
+                        coinType,
                         addressResolver,
                         selfCustodyService,
                         exchangeRates,

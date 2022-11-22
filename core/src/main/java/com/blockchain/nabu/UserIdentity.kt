@@ -36,6 +36,7 @@ sealed class Feature {
     object DepositCrypto : Feature()
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
+    object DepositStaking : Feature()
 }
 
 data class BasicProfileInfo(
@@ -71,4 +72,5 @@ sealed class BlockedReason : Serializable {
         data class Unknown(override val message: String) : Sanctions()
     }
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
+    class ShouldAcknowledgeStakingWithdrawal(val bondingDays: Int, val assetIconUrl: String) : BlockedReason()
 }

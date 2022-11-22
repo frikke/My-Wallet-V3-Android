@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
@@ -81,6 +82,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
@@ -109,6 +111,7 @@ import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
 import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.MediumVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
@@ -2327,27 +2330,39 @@ fun Documents(
 
         SmallestVerticalSpacer()
 
-        if (cardStatements != null) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, Grey000),
-                elevation = 0.dp,
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                LazyColumn {
-                    itemsIndexed(cardStatements) { index, statement ->
-                        DefaultTableRow(
-                            primaryText = statement.date.toShortMonthYearDate(),
-                            onClick = { onViewStatement(statement) },
-                        )
+        when {
+            cardStatements == null -> {
+                CircularProgressBar()
+            }
 
-                        if (index < cardStatements.lastIndex)
-                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            cardStatements.isEmpty() -> {
+                SmallVerticalSpacer()
+
+                NoCardStatements()
+
+                SmallVerticalSpacer()
+            }
+
+            else -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    border = BorderStroke(1.dp, Grey000),
+                    elevation = 0.dp,
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    LazyColumn {
+                        itemsIndexed(cardStatements) { index, statement ->
+                            DefaultTableRow(
+                                primaryText = statement.date.toShortMonthYearDate(),
+                                onClick = { onViewStatement(statement) },
+                            )
+
+                            if (index < cardStatements.lastIndex)
+                                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        }
                     }
                 }
             }
-        } else {
-            CircularProgressBar()
         }
 
         SmallVerticalSpacer()
@@ -2359,7 +2374,7 @@ fun Documents(
             gravity = ComposeGravities.Start
         )
 
-        SmallestVerticalSpacer()
+        TinyVerticalSpacer()
 
         if (legalDocuments != null) {
             Card(
@@ -2372,6 +2387,10 @@ fun Documents(
                     itemsIndexed(legalDocuments) { index, document ->
                         DefaultTableRow(
                             primaryText = document.displayName,
+                            endImageResource = ImageResource.Local(
+                                id = R.drawable.ic_new_window,
+                                colorFilter = ColorFilter.tint(Grey400)
+                            ),
                             onClick = { onViewLegalDocument(document) },
                         )
 
@@ -2436,6 +2455,85 @@ fun PreviewDocuments() {
         onViewStatement = {},
         onViewLegalDocument = {}
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDocumentsNoStatements() {
+    Documents(
+        cardStatements = emptyList(),
+        legalDocuments = listOf(
+            BlockchainCardLegalDocument(
+                displayName = "Terms and Conditions",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+            BlockchainCardLegalDocument(
+                displayName = "Privacy Policy",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+            BlockchainCardLegalDocument(
+                displayName = "Fees and Limits",
+                name = "",
+                url = "",
+                version = "",
+                acceptedVersion = null,
+                required = false,
+                seen = false,
+            ),
+        ),
+        onViewStatement = {},
+        onViewLegalDocument = {}
+    )
+}
+
+@Composable
+fun NoCardStatements() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+    ) {
+        Image(
+            imageResource = ImageResource.Local(id = R.drawable.empty_statements_graphic),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        SmallVerticalSpacer()
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_empty_statements_title),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TinyVerticalSpacer()
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_empty_statements_description),
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Dark,
+            gravity = ComposeGravities.Centre,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewNoCardStatements() {
+    NoCardStatements()
 }
 
 @Composable

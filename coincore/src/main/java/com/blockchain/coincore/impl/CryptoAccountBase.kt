@@ -126,12 +126,13 @@ abstract class CryptoAccountBase : CryptoAccount {
             AssetAction.Send,
             AssetAction.Sell,
             AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
             AssetAction.Swap,
             AssetAction.Receive
         )
 
         internal val defaultCustodialActions = defaultNonCustodialActions + setOf(
-            AssetAction.Sell, AssetAction.Buy, AssetAction.InterestWithdraw
+            AssetAction.Buy, AssetAction.InterestWithdraw
         )
         internal val defaultActions = (defaultNonCustodialActions + defaultCustodialActions).toSet()
     }
@@ -345,6 +346,7 @@ abstract class CryptoNonCustodialAccount(
             AssetAction.Swap -> swapActionEligibility(isActiveAndFunded)
             AssetAction.Sell -> sellActionEligibility(isActiveAndFunded)
             AssetAction.InterestDeposit -> interestDepositActionEligibility(isActiveAndFunded)
+            AssetAction.StakingDeposit -> stakingDepositEligibility(isActiveAndFunded)
             AssetAction.ViewStatement,
             AssetAction.Buy,
             AssetAction.FiatWithdraw,
@@ -389,6 +391,26 @@ abstract class CryptoNonCustodialAccount(
                     else -> ActionState.Available
                 },
                 AssetAction.InterestDeposit
+            )
+        }
+    }
+
+    private fun stakingDepositEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
+        val stakingDepositEligibility = identity.userAccessForFeature(Feature.DepositStaking)
+
+        return Single.zip(
+            depositCryptoEligibility,
+            stakingDepositEligibility
+        ) { depositCryptoEligible, stakingDepositEligible ->
+            StateAwareAction(
+                when {
+                    depositCryptoEligible is FeatureAccess.Blocked -> depositCryptoEligible.toActionState()
+                    stakingDepositEligible is FeatureAccess.Blocked -> stakingDepositEligible.toActionState()
+                    !activeAndFunded -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.StakingDeposit
             )
         }
     }

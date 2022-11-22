@@ -200,11 +200,18 @@ interface SameCurrencyAccountGroup : AccountGroup {
     val currency: Currency
 
     override val balanceRx: Observable<AccountBalance>
-        get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle {
-            it.balanceRx.firstOrError()
-        }.reduce { a, v ->
-            AccountBalance.totalOf(a, v)
-        }.toObservable()
+        get() = if (accounts.isEmpty())
+            Observable.just(AccountBalance.zero(currency))
+        else
+            Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
+                account.balanceRx.map { balance ->
+                    mapOf(account to balance)
+                }
+            }.scan { a, v ->
+                a + v
+            }.map {
+                it.values.reduce { acc, accountBalance -> AccountBalance.totalOf(acc, accountBalance) }
+            }
 }
 
 interface MultipleCurrenciesAccountGroup : AccountGroup {
@@ -217,16 +224,24 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
             if (accounts.isEmpty())
                 Observable.just(AccountBalance.zero(baseCurrency))
             else
-                Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
-                    account.balanceRx.firstOrError()
-                }.reduce { a, v ->
-                    AccountBalance(
-                        total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
-                        withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
-                        pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
-                        exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
-                    )
-                }.toObservable()
+                Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
+                    account.balanceRx.map { balance ->
+                        mapOf(account to balance)
+                    }
+                }.scan { a, v ->
+                    a + v
+                }.map {
+                    it.values.reduce { a, v ->
+                        AccountBalance(
+                            total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+                            withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(
+                                v.withdrawable
+                            ),
+                            pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                            exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+                        )
+                    }
+                }
 
     /**
      * Balance is calculated in the selected fiat currency

@@ -1,10 +1,12 @@
 package com.blockchain.core.staking.data
 
+import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.staking.data.datasources.StakingBalanceStore
 import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
+import com.blockchain.core.staking.data.datasources.StakingLimitsStore
 import com.blockchain.core.staking.data.datasources.StakingRatesStore
 import com.blockchain.core.staking.domain.StakingActivity
 import com.blockchain.core.staking.domain.StakingActivityAttributes
@@ -12,6 +14,7 @@ import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.core.staking.domain.model.StakingAccountBalance
 import com.blockchain.core.staking.domain.model.StakingEligibility
+import com.blockchain.core.staking.domain.model.StakingLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
@@ -19,6 +22,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
+import com.blockchain.outcome.fold
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -28,11 +33,13 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Single
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.rxSingle
 
 class StakingRepository(
     private val stakingRatesStore: StakingRatesStore,
@@ -40,7 +47,10 @@ class StakingRepository(
     private val stakingBalanceStore: StakingBalanceStore,
     private val assetCatalogue: AssetCatalogue,
     private val stakingFeatureFlag: FeatureFlag,
-    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore
+    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
+    private val stakingLimitsStore: StakingLimitsStore,
+    private val currencyPrefs: CurrencyPrefs,
+    private val stakingApi: StakingApiService
 ) : StakingService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -89,7 +99,6 @@ class StakingRepository(
             )
         }
 
-    // TODO(dserrano) - STAKING - ask @Seba how this should be used in coinview
     override fun getEligibilityForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
@@ -102,6 +111,18 @@ class StakingRepository(
                     eligibility.reason.toIneligibilityReason()
                 }
             } ?: StakingEligibility.Ineligible.default()
+        }
+    }
+
+    override fun getStakingEligibility(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<StakingEligibility>> {
+        return stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
+            if (eligibilityMap.values.any { it.isEligible }) {
+                StakingEligibility.Eligible
+            } else {
+                StakingEligibility.Ineligible.default()
+            }
         }
     }
 
@@ -125,6 +146,60 @@ class StakingRepository(
                         transaction.toStakingActivity(currency)
                     }
             }
+
+    override fun getLimitsForAllAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, StakingLimits>>> =
+        stakingLimitsStore.stream(refreshStrategy).mapData { stakingLimits ->
+            stakingLimits.limits.entries.mapNotNull { (assetTicker, limits) ->
+                assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
+
+                    val minDepositFiatValue = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        limits.minDepositValue.toBigInteger()
+                    )
+
+                    val stakingLimit = StakingLimits(
+                        minDepositValue = minDepositFiatValue,
+                        bondingDays = limits.bondingDays,
+                        unbondingDays = limits.unbondingDays ?: 0,
+                        withdrawalsDisabled = limits.disabledWithdrawals ?: false
+                    )
+
+                    Pair(asset, stakingLimit)
+                }
+            }.toMap()
+        }
+
+    override suspend fun getAccountAddress(currency: Currency): DataResource<String> =
+        stakingApi.getAccountAddress(currency.networkTicker).fold(
+            onSuccess = {
+                DataResource.Data(it.address)
+            },
+            onFailure = {
+                DataResource.Error(it)
+            }
+        )
+
+    override fun getAccountAddressRx(currency: Currency): Single<String> =
+        rxSingle {
+            stakingApi.getAccountAddress(currency.networkTicker).fold(
+                onSuccess = {
+                    it.address
+                },
+                onFailure = {
+                    throw it
+                }
+            )
+        }
+
+    override fun getLimitsForAsset(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<StakingLimits>> =
+        getLimitsForAllAssets(refreshStrategy).mapData { mapAssetWithLimits ->
+            mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
+        }
 
     private fun TransactionResponse.toStakingActivity(currency: Currency): StakingActivity =
         StakingActivity(

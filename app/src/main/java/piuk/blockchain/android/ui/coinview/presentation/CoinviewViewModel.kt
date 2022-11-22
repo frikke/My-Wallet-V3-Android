@@ -862,23 +862,13 @@ class CoinviewViewModel(
                 check(modelState.accounts != null) { "AccountExplainerAcknowledged accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
-                if ((cvAccount is CoinviewAccount.Universal && cvAccount.filter == AssetFilter.Staking) ||
-                    cvAccount is CoinviewAccount.Custodial.Staking
-                ) {
-                    navigate(
-                        CoinviewNavigationEvent.ShowStakingAccountInterstitial(
-                            assetIconUrl = modelState.asset?.currency?.logo
-                        )
+                navigate(
+                    CoinviewNavigationEvent.ShowAccountActions(
+                        cvAccount = cvAccount,
+                        interestRate = cvAccount.interestRate(),
+                        actions = intent.actions
                     )
-                } else {
-                    navigate(
-                        CoinviewNavigationEvent.ShowAccountActions(
-                            cvAccount = cvAccount,
-                            interestRate = cvAccount.interestRate(),
-                            actions = intent.actions
-                        )
-                    )
-                }
+                )
             }
 
             is CoinviewIntent.AccountActionSelected -> {
@@ -1110,19 +1100,26 @@ class CoinviewViewModel(
 
     private fun updateWatchlist(asset: CryptoAsset, toggle: WatchlistToggle) {
         viewModelScope.launch {
-            watchlistService.updateWatchlist(asset = asset.currency, toggle = toggle)
-                .collectLatest { dataResource ->
-                    when (dataResource) {
-                        is DataResource.Error -> {
-                            updateState {
-                                it.copy(error = CoinviewError.WatchlistToggleError)
-                            }
-                        }
-                        else -> {
-                            /* n/a */
+            watchlistService.updateWatchlist(
+                asset = asset.currency,
+                toggle = toggle
+            ).let { dataResource ->
+                when (dataResource) {
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(error = CoinviewError.WatchlistToggleError)
                         }
                     }
+                    is DataResource.Data -> {
+                        loadWatchlistData(
+                            asset = asset,
+                        )
+                    }
+                    DataResource.Loading -> {
+                        // n/a
+                    }
                 }
+            }
         }
     }
 
@@ -1205,23 +1202,13 @@ class CoinviewViewModel(
                             )
                             markAsSeen()
                         } else {
-                            if ((account is CoinviewAccount.Universal && account.filter == AssetFilter.Staking) ||
-                                account is CoinviewAccount.Custodial.Staking
-                            ) {
-                                navigate(
-                                    CoinviewNavigationEvent.ShowStakingAccountInterstitial(
-                                        assetIconUrl = modelState.asset?.currency?.logo
-                                    )
+                            navigate(
+                                CoinviewNavigationEvent.ShowAccountActions(
+                                    cvAccount = account,
+                                    interestRate = account.interestRate(),
+                                    actions = actions
                                 )
-                            } else {
-                                navigate(
-                                    CoinviewNavigationEvent.ShowAccountActions(
-                                        cvAccount = account,
-                                        interestRate = account.interestRate(),
-                                        actions = actions
-                                    )
-                                )
-                            }
+                            )
                         }
                     }
                 }
@@ -1334,6 +1321,13 @@ class CoinviewViewModel(
                     cvAccount = account
                 )
             )
+
+            AssetAction.StakingDeposit ->
+                navigate(
+                    CoinviewNavigationEvent.NavigateToStakingDeposit(
+                        cvAccount = account
+                    )
+                )
 
             else -> throw IllegalStateException("Action $action is not supported in this flow")
         }

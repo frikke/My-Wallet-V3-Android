@@ -1,4 +1,4 @@
-package com.blockchain.coincore.impl.txEngine
+package com.blockchain.coincore.impl.txEngine.fiat
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
@@ -12,6 +12,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager

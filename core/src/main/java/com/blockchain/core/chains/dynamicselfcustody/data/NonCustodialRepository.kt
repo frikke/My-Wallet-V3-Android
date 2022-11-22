@@ -15,9 +15,13 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.domain.wallet.CoinType
+import com.blockchain.domain.wallet.NetworkType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -38,19 +42,46 @@ internal class NonCustodialRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteConfigService: RemoteConfigService
+    private val remoteConfigService: RemoteConfigService,
+    private val networkConfigsFF: FeatureFlag,
+    private val coinTypeStore: CoinTypeStore
 ) : NonCustodialService {
 
-    private val supportedCoins: Single<Map<String, CoinConfiguration>>
+    private val supportedCoins: Single<Map<String, CoinType>>
         get() = getAllSupportedCoins()
 
-    private fun getAllSupportedCoins(): Single<Map<String, CoinConfiguration>> {
-        return remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
-            jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
+    private fun getAllSupportedCoins(): Single<Map<String, CoinType>> {
+        return networkConfigsFF.enabled.flatMap { isEnabled ->
+            if (isEnabled) {
+                coinTypeStore.stream(FreshnessStrategy.Cached(false)).asSingle().map { coinTypes ->
+                    coinTypes.map { coinTypeDto ->
+                        coinTypeDto.derivations.map { derivationDto ->
+                            CoinType(
+                                network = coinTypeDto.type,
+                                type = derivationDto.coinType,
+                                purpose = derivationDto.purpose
+                            )
+                        }
+                    }
+                        .flatten()
+                        .associateBy { it.network.name }
+                }
+            } else {
+                remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
+                    jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
+                        .map {
+                            CoinType(
+                                network = NetworkType.valueOf(it.key),
+                                type = it.value.coinType,
+                                purpose = it.value.purpose
+                            )
+                        }.associateBy { it.network.name }
+                }
+            }
         }
     }
 
-    override suspend fun getCoinConfigurationFor(currency: Currency): CoinConfiguration? {
+    override suspend fun getCoinTypeFor(currency: Currency): CoinType? {
         return supportedCoins.await()[currency.networkTicker]
     }
 

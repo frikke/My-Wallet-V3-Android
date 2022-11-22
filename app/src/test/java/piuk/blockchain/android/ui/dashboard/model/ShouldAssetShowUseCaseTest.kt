@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import app.cash.turbine.test
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -58,19 +57,15 @@ class ShouldAssetShowUseCaseTest {
             every { total }.returns(Money.zero(currency))
         }
 
-        val account: BlockchainAccount = mockk {
-            every { balance }.returns(flowOf(accountBalance))
-        }
-
         coEvery { hideDustFF.coEnabled() }.returns(false)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
             flowOf(
                 DataResource.Data(false)
             )
         )
 
-        subject.invoke(currency, account).test {
+        subject.invoke(accountBalance).test {
             with(expectMostRecentItem()) {
                 assertEquals(true, this)
             }
@@ -78,8 +73,7 @@ class ShouldAssetShowUseCaseTest {
 
         coVerify { hideDustFF.coEnabled() }
         verify(exactly = 0) { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-        verify { account.balance }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -89,28 +83,22 @@ class ShouldAssetShowUseCaseTest {
             every { total }.returns(Money.zero(currency))
         }
 
-        val account: BlockchainAccount = mockk {
-            every { balance }.returns(flowOf(accountBalance))
-        }
-
         coEvery { hideDustFF.coEnabled() }.returns(true)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
             flowOf(
                 DataResource.Data(false)
             )
         )
 
-        subject.invoke(currency, account).test {
+        subject.invoke(accountBalance).test {
             with(expectMostRecentItem()) {
                 assertEquals(true, this)
             }
         }
 
         coVerify { hideDustFF.coEnabled() }
-        verify { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-        verify { account.balance }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -120,28 +108,22 @@ class ShouldAssetShowUseCaseTest {
             every { total }.returns(Money.zero(currency))
         }
 
-        val account: BlockchainAccount = mockk {
-            every { balance }.returns(flowOf(accountBalance))
-        }
-
         coEvery { hideDustFF.coEnabled() }.returns(true)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
             flowOf(
                 DataResource.Data(true)
             )
         )
 
-        subject.invoke(currency, account).test {
+        subject.invoke(accountBalance).test {
             with(expectMostRecentItem()) {
                 assertEquals(true, this)
             }
         }
 
         coVerify { hideDustFF.coEnabled() }
-        verify { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-        verify { account.balance }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -156,15 +138,11 @@ class ShouldAssetShowUseCaseTest {
                 every { totalFiat }.returns(dustBalance)
             }
 
-            val account: BlockchainAccount = mockk {
-                every { balance }.returns(flowOf(accountBalance))
-            }
-
             coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = true)
+                    currency, FreshnessStrategy.Cached(forceRefresh = false)
                 )
             }.returns(
                 flowOf(
@@ -172,7 +150,7 @@ class ShouldAssetShowUseCaseTest {
                 )
             )
 
-            subject.invoke(currency, account).test {
+            subject.invoke(accountBalance).test {
                 with(expectMostRecentItem()) {
                     assertEquals(false, this)
                 }
@@ -180,8 +158,7 @@ class ShouldAssetShowUseCaseTest {
 
             coVerify { hideDustFF.coEnabled() }
             verify { localSettingsPrefs.hideSmallBalancesEnabled }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-            verify { account.balance }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
@@ -197,15 +174,11 @@ class ShouldAssetShowUseCaseTest {
                 every { totalFiat }.returns(dustBalance)
             }
 
-            val account: BlockchainAccount = mockk {
-                every { balance }.returns(flowOf(accountBalance))
-            }
-
             coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = true)
+                    currency, FreshnessStrategy.Cached(forceRefresh = false)
                 )
             }.returns(
                 flowOf(
@@ -213,19 +186,18 @@ class ShouldAssetShowUseCaseTest {
                 )
             )
 
-            subject.invoke(currency, account).test {
+            subject.invoke(accountBalance).test {
                 with(expectMostRecentItem()) {
                     assertEquals(true, this)
                 }
             }
 
             coVerify { hideDustFF.coEnabled() }
-            verify { localSettingsPrefs.hideSmallBalancesEnabled }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-            verify { account.balance }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
+
     @Test
     fun `given both flag and pref are on and zero balance asset not in watchlist then asset should show`() =
         runTest {
@@ -234,15 +206,11 @@ class ShouldAssetShowUseCaseTest {
                 every { totalFiat }.returns(Money.zero(currency))
             }
 
-            val account: BlockchainAccount = mockk {
-                every { balance }.returns(flowOf(accountBalance))
-            }
-
             coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = true)
+                    currency, FreshnessStrategy.Cached(forceRefresh = false)
                 )
             }.returns(
                 flowOf(
@@ -250,16 +218,14 @@ class ShouldAssetShowUseCaseTest {
                 )
             )
 
-            subject.invoke(currency, account).test {
+            subject.invoke(accountBalance).test {
                 with(expectMostRecentItem()) {
                     assertEquals(true, this)
                 }
             }
 
             coVerify { hideDustFF.coEnabled() }
-            verify { localSettingsPrefs.hideSmallBalancesEnabled }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = true)) }
-            verify { account.balance }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
             verify { accountBalance.totalFiat }
         }
 }
