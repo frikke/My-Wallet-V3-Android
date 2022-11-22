@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.data.onErrorReturn
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -25,11 +26,14 @@ import com.blockchain.store.mapData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Currency
+import java.util.Locale
 
 class CustodialActivityDetailViewModel(
     private val activityTxId: String,
@@ -102,7 +106,7 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun CustodialTradingActivitySummaryItem.tradingDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        when (paymentMethodType) {
+        return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> {
                 cardService.getCardDetails(cardId = paymentMethodId)
                     .mapData { card ->
@@ -136,6 +140,14 @@ class CustodialActivityDetailViewModel(
                     )
                 )
             }
+        }.catch {
+            emit(
+                DataResource.Data(
+                    PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
+                )
+            )
+        }.onErrorReturn {
+            PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
         }.mapData { paymentDetails ->
             CustodialActivityDetail(
                 activity = this,
@@ -161,41 +173,40 @@ class CustodialActivityDetailViewModel(
                                         args = listOf(label, endDigits)
                                     )
                                 }
+                                paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
+                                    endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
+                                    TextValue.IntResValue(
+                                        value = R.string.credit_or_debit_card
+                                    )
+                                }
+                                paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
+                                    TextValue.StringValue(
+                                        value = label?.let {
+                                            Currency.getInstance(label).getDisplayName(Locale.getDefault())
+                                        } ?: ""
+                                    )
+                                }
+                                mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
+                                    TextValue.IntResValue(
+                                        value = R.string.google_pay
+                                    )
+                                }
+                                mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
+                                    TextValue.IntResValue(
+                                        value = R.string.apple_pay
+                                    )
+                                }
+                                else -> {
+                                    TextValue.IntResValue(
+                                        value = R.string.activity_details_payment_load_fail
+                                    )
+                                }
                             }
                         }
                     )
                 )
             )
         }
-
-        return flowOf(
-            DataResource.Data(
-                CustodialActivityDetail(
-                    activity = this,
-                    extras = listOf(
-                        //                        CustodialActivityDetailExtra(
-                        //                            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
-                        //                            value = with(paymentMethodDetails) {
-                        //                                when {
-                        //                                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
-                        //                                        R.string.google_pay
-                        //                                    )
-                        //                                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
-                        //                                        R.string.apple_pay
-                        //                                    )
-                        //                                    paymentMethodDetails.label.isNullOrBlank() -> TextValue.StringValue(
-                        //                                        account.currency.name
-                        //                                    )
-                        //                                    else -> TextValue.StringValue(
-                        //                                        "${paymentMethodDetails.label} ${paymentMethodDetails.endDigits}"
-                        //                                    )
-                        //                                }
-                        //                            }
-                        //                        )
-                    )
-                )
-            )
-        )
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

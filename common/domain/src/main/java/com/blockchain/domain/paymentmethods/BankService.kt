@@ -21,6 +21,7 @@ interface BankService {
 
     fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
 
+    @Deprecated("use flow getLinkedBank")
     fun getLinkedBank(id: String): Single<LinkedBank>
 
     fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>>

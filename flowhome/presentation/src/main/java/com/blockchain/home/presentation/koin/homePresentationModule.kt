@@ -45,7 +45,8 @@ val homePresentationModule = module {
             CustodialActivityDetailViewModel(
                 activityTxId = txId,
                 custodialActivityService = get(),
-                paymentMethodService = get()
+                paymentMethodService = get(),
+                cardService = get()
             )
         }
 
