@@ -94,7 +94,7 @@ class ActivityDetailsInteractor(
                     addPaymentDetailsToList(list, null, summaryItem)
                     list.toList()
                 }
-            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBank(
+            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBankLegacy(
                 summaryItem.paymentMethodId
             ).map {
                 it.toPaymentMethod()
@@ -143,7 +143,7 @@ class ActivityDetailsInteractor(
                     addPaymentDetailsToList(list, null, cacheTransaction)
                     list.toList()
                 }
-            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBank(cacheTransaction.paymentMethodId)
+            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBankLegacy(cacheTransaction.paymentMethodId)
                 .map {
                     it.toPaymentMethod()
                 }.map { paymentMethod ->

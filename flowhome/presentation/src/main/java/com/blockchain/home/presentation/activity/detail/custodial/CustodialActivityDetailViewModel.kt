@@ -10,6 +10,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.onErrorReturn
 import com.blockchain.data.updateDataWith
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
@@ -39,7 +40,8 @@ class CustodialActivityDetailViewModel(
     private val activityTxId: String,
     private val custodialActivityService: CustodialActivityService,
     private val paymentMethodService: PaymentMethodService,
-    private val cardService: CardService
+    private val cardService: CardService,
+    private val bankService: BankService
 ) : MviViewModel<
     ActivityDetailIntent<CustodialActivityDetail>,
     ActivityDetailViewState,
@@ -105,30 +107,19 @@ class CustodialActivityDetailViewModel(
         }
     }
 
+    /**
+     * fetch more detail when it's PAYMENT_CARD and BANK_TRANSFER
+     * otherwise default data
+     */
     private fun CustodialTradingActivitySummaryItem.tradingDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> {
                 cardService.getCardDetails(cardId = paymentMethodId)
-                    .mapData { card ->
-                        PaymentDetails(
-                            paymentMethodId = card.id,
-                            label = card.label(),
-                            endDigits = card.endDigits(),
-                            accountType = card.accountType(),
-                            paymentMethodType = card.type,
-                            mobilePaymentType = (card as? PaymentMethod.Card)?.mobilePaymentType
-                        )
-                    }
+                    .mapData { card -> card.toPaymentDetail()}
             }
             PaymentMethodType.BANK_TRANSFER -> {
-                flowOf(
-                    DataResource.Data(
-                        PaymentDetails(
-                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
-                            label = fundedFiat.currencyCode
-                        )
-                    )
-                )
+                bankService.getLinkedBank(id = paymentMethodId)
+                    .mapData { bank -> bank.toPaymentMethod().toPaymentDetail() }
             }
             else -> {
                 flowOf(
@@ -256,3 +247,13 @@ private fun PaymentMethod.accountType(): String? = when (this) {
     is PaymentMethod.Bank -> uiAccountType
     else -> null
 }
+
+private fun PaymentMethod.toPaymentDetail(): PaymentDetails = PaymentDetails(
+    paymentMethodId = id,
+    label = label(),
+    endDigits = endDigits(),
+    accountType = accountType(),
+    paymentMethodType = type,
+    mobilePaymentType = (this as? PaymentMethod.Card)?.mobilePaymentType
+)
+

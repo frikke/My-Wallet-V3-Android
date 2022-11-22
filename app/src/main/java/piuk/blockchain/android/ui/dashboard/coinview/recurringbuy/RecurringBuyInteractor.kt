@@ -23,7 +23,7 @@ class RecurringBuyInteractor(
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetailsLegacy(paymentMethodId)
                 .map { it }
-            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBank(paymentMethodId)
+            PaymentMethodType.BANK_TRANSFER -> bankService.getLinkedBankLegacy(paymentMethodId)
                 .map { it.toPaymentMethod() }
             PaymentMethodType.FUNDS -> Single.just(FundsAccount(currency = originCurrency))
 

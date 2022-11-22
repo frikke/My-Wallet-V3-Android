@@ -13,11 +13,9 @@ class LinkedCardsStore(
     private val paymentMethodsService: PaymentMethodsService,
 ) : Store<List<CardResponse>> by PersistedJsonSqlDelightStoreBuilder().build(
     storeId = STORE_ID,
-    fetcher = Fetcher.ofSingle(
-        mapper = {
-            paymentMethodsService.getCards(true)
-        },
-    ),
+    fetcher = Fetcher.ofSingle {
+        paymentMethodsService.getCards(cardProvidersSupported = true)
+    },
     dataSerializer = ListSerializer(CardResponse.serializer()),
     mediator = FreshnessMediator(Freshness.ofMinutes(5L))
 ) {

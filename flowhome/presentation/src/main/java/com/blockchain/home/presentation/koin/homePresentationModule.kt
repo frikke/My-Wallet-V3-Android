@@ -46,7 +46,8 @@ val homePresentationModule = module {
                 activityTxId = txId,
                 custodialActivityService = get(),
                 paymentMethodService = get(),
-                cardService = get()
+                cardService = get(),
+                bankService = get()
             )
         }
 

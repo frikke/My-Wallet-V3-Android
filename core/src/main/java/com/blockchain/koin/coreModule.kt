@@ -76,6 +76,7 @@ import com.blockchain.core.payload.PromptingSeedAccessAdapter
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.CardDetailsStore
+import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
@@ -512,6 +513,12 @@ val coreModule = module {
         }
 
         scoped {
+            LinkedBankStore(
+                paymentMethodsService = get()
+            )
+        }
+
+        scoped {
             PaymentMethodsEligibilityStore(
                 paymentMethodsService = get()
             )
@@ -538,6 +545,7 @@ val coreModule = module {
                 paymentMethodsStore = get(),
                 paymentMethodsService = get(),
                 cardDetailsStore= get(),
+                linkedBankStore  = get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),
                 googlePayManager = get(),

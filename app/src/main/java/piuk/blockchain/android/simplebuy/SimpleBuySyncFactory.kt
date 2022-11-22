@@ -139,7 +139,7 @@ class SimpleBuySyncFactory(
             }
         }
         isDefinedBankTransferPayment() -> {
-            bankService.getLinkedBank(paymentMethodId).flatMapMaybe {
+            bankService.getLinkedBankLegacy(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(

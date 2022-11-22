@@ -204,7 +204,7 @@ class PaymentsRepositoryTest {
         every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
 
         // ASSERT
-        subject.getLinkedBank(ID).test()
+        subject.getLinkedBankLegacy(ID).test()
             .assertValue {
                 it.id == "id" &&
                     it.currency == fiatCurrency &&
@@ -233,7 +233,7 @@ class PaymentsRepositoryTest {
         every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
 
         // ASSERT
-        subject.getLinkedBank(ID).test()
+        subject.getLinkedBankLegacy(ID).test()
             .assertError { it is IllegalArgumentException }
     }
 

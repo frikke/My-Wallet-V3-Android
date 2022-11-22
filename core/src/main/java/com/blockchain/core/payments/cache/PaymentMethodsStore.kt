@@ -16,11 +16,9 @@ class PaymentMethodsStore(
     PaymentMethodDetailsResponse
     > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = "PaymentMethodsStore",
-    fetcher = Fetcher.Keyed.ofOutcome(
-        mapper = { key ->
-            paymentsService.getPaymentMethodDetailsForId(key.paymentId)
-        },
-    ),
+    fetcher = Fetcher.Keyed.ofOutcome { key ->
+        paymentsService.getPaymentMethodDetailsForId(key.paymentId)
+    },
     dataSerializer = PaymentMethodDetailsResponse.serializer(),
     keySerializer = Key.serializer(),
     mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)

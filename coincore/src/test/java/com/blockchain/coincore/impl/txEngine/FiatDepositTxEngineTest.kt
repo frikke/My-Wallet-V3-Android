@@ -476,7 +476,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         ).thenReturn(
             Single.just(txId)
         )
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
@@ -534,7 +534,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         ).thenReturn(
             Single.error(exception)
         )
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
@@ -594,7 +594,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         )
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
             pendingTx, ""
@@ -657,7 +657,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         )
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
             pendingTx, ""
@@ -714,7 +714,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(pendingTx, "")
             .test()
@@ -767,7 +767,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(pendingTx, "")
             .test()
@@ -820,7 +820,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(pendingTx, "")
             .test()
@@ -873,7 +873,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(pendingTx, "")
             .test()
@@ -926,7 +926,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
-        whenever(bankService.getLinkedBank(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(pendingTx, "")
             .test()
@@ -959,7 +959,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -1005,7 +1005,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -1045,7 +1045,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -1201,7 +1201,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             on { partner }.thenReturn(BankPartner.YODLEE)
         }
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getLinkedBankLegacy(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
 
         // Act
         subject.start(
