@@ -1,13 +1,13 @@
 package info.blockchain.wallet.payload.data
 
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.domain.wallet.CoinType
 import com.blockchain.extensions.replace
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import info.blockchain.wallet.bip44.HDAccount
 import info.blockchain.wallet.bip44.HDWallet
 import info.blockchain.wallet.bip44.HDWalletFactory
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
@@ -341,7 +341,7 @@ class WalletBody(
         return null
     }
 
-    fun getDynamicHdAccount(coinConfiguration: CoinConfiguration) = HD.getDynamicAccount(coinConfiguration)
+    fun getDynamicHdAccount(coinType: CoinType) = HD.getDynamicAccount(coinType)
 
     fun updateSeedHex(doubleEncryptedSeedHex: String): WalletBody = WalletBody(
         version = version,

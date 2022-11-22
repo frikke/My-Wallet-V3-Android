@@ -1,5 +1,7 @@
 package info.blockchain.wallet.bip44;
 
+import com.blockchain.domain.wallet.CoinType;
+
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.*;
@@ -7,7 +9,6 @@ import org.bitcoinj.crypto.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration;
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount;
 import info.blockchain.wallet.keys.MasterKey;
 import info.blockchain.wallet.keys.MasterKeyImpl;
@@ -159,11 +160,11 @@ public class HDWallet {
         return strPath;
     }
 
-    public DynamicHDAccount getDynamicHdAccount(CoinConfiguration coinConfiguration) {
+    public DynamicHDAccount getDynamicHdAccount(CoinType coinType) {
         DeterministicKey dKey = HDKeyDerivation.deriveChildKey(
-            dkKey, coinConfiguration.getPurpose() | ChildNumber.HARDENED_BIT
+            dkKey, coinType.getPurpose() | ChildNumber.HARDENED_BIT
         );
-        return new DynamicHDAccount(params, dKey, coinConfiguration);
+        return new DynamicHDAccount(params, dKey, coinType);
     }
 
     public MasterKey getMasterKey() {

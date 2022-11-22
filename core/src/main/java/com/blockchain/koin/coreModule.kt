@@ -22,6 +22,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.chains.dynamicselfcustody.data.CoinTypeStore
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
@@ -583,7 +584,15 @@ val coreModule = module {
                 currencyPrefs = get(),
                 assetCatalogue = get(),
                 remoteConfigService = get(),
-                subscriptionsStore = get()
+                subscriptionsStore = get(),
+                networkConfigsFF = get(coinNetworksFeatureFlag),
+                coinTypeStore = get()
+            )
+        }
+
+        scoped {
+            CoinTypeStore(
+                discoveryService = get()
             )
         }
 

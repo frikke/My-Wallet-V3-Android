@@ -10,6 +10,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
@@ -20,7 +21,6 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
 import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
@@ -34,7 +34,7 @@ import org.spongycastle.util.encoders.Hex
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,
     assetInfo: AssetInfo,
-    coinConfiguration: CoinConfiguration,
+    coinType: CoinType,
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -42,7 +42,7 @@ class DynamicNonCustodialAccount(
     private val walletPreferences: WalletStatusPrefs
 ) : CryptoNonCustodialAccount(assetInfo), NetworkWallet {
 
-    private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinConfiguration)
+    private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinType)
         ?: throw IllegalStateException("Unsupported Coin Configuration!")
 
     override val receiveAddress: Single<ReceiveAddress>
