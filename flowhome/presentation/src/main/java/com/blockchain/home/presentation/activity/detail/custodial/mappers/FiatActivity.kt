@@ -104,8 +104,8 @@ internal fun FiatActivitySummaryItem.detailItems(
                 ),
                 trailing = listOf(
                     ActivityStackView.Tag(
-                        value = TextValue.IntResValue(state.value()),
-                        style = state.style()
+                        value = statusValue(),
+                        style = statusStyle()
                     )
                 )
             ),
@@ -168,13 +168,15 @@ internal fun FiatActivitySummaryItem.detailItems(
     )
 )
 
-@StringRes private fun TransactionState.value(): Int = when (this) {
-    TransactionState.COMPLETED -> R.string.activity_details_completed
-    TransactionState.PENDING -> R.string.activity_details_label_pending
-    TransactionState.FAILED -> R.string.activity_details_label_failed
-}
+private fun FiatActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
+    when (state) {
+        TransactionState.COMPLETED -> R.string.activity_details_completed
+        TransactionState.PENDING -> R.string.activity_details_label_pending
+        TransactionState.FAILED -> R.string.activity_details_label_failed
+    }
+)
 
-private fun TransactionState.style(): ActivityTagStyleState = when (this) {
+private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (state) {
     TransactionState.COMPLETED -> ActivityTagStyleState.Success
     TransactionState.PENDING -> ActivityTagStyleState.Info
     TransactionState.FAILED -> ActivityTagStyleState.Error
