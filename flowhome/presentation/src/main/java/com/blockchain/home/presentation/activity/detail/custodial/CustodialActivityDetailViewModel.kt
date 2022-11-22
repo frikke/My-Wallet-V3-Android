@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.detail.custodial
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -86,6 +87,9 @@ class CustodialActivityDetailViewModel(
                                     is CustodialTradingActivitySummaryItem -> {
                                         tradingDetail()
                                     }
+                                    is CustodialTransferActivitySummaryItem -> {
+                                        transferDetail()
+                                    }
                                     is FiatActivitySummaryItem -> {
                                         fiatDetail()
                                     }
@@ -115,7 +119,7 @@ class CustodialActivityDetailViewModel(
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> {
                 cardService.getCardDetails(cardId = paymentMethodId)
-                    .mapData { card -> card.toPaymentDetail()}
+                    .mapData { card -> card.toPaymentDetail() }
             }
             PaymentMethodType.BANK_TRANSFER -> {
                 bankService.getLinkedBank(id = paymentMethodId)
@@ -198,6 +202,17 @@ class CustodialActivityDetailViewModel(
                 )
             )
         }
+    }
+
+    private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(
+            DataResource.Data(
+                CustodialActivityDetail(
+                    activity = this,
+                    extras = emptyList()
+                )
+            )
+        )
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

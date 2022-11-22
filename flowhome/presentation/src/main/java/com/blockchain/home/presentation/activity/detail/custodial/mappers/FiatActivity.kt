@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
@@ -148,7 +147,7 @@ internal fun FiatActivitySummaryItem.detailItems(
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.StringValue(txId.abbreviate(TX_ID_MAX_LENGTH)),
+                        value = TextValue.StringValue(txId.abbreviate(MAX_ABBREVIATE_LENGTH)),
                         style = basicTitleStyle
                     )
                 )

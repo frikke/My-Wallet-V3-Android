@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -14,13 +15,15 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
+import com.blockchain.home.presentation.activity.list.custodial.mappers.iconSummary
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 
-internal const val TX_ID_MAX_LENGTH = 15
+internal const val MAX_ABBREVIATE_LENGTH = 15
+internal const val SIDE_ABBREVIATE_LENGTH = 4
 
 @DrawableRes internal fun ActivitySummaryItem.iconDetail() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconDetail()
-    //    is CustodialTransferActivitySummaryItem -> iconSummary()
+    is CustodialTransferActivitySummaryItem -> iconDetail()
     //    is CustodialInterestActivitySummaryItem -> iconSummary()
     //    is RecurringBuyActivitySummaryItem -> iconSummary()
     //    is TradeActivitySummaryItem -> iconSummary()
@@ -31,7 +34,7 @@ internal const val TX_ID_MAX_LENGTH = 15
 private fun ActivitySummaryItem.title(): TextValue {
     return when (this) {
         is CustodialTradingActivitySummaryItem -> title()
-        //        is CustodialTransferActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialTransferActivitySummaryItem -> title()
         //        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
@@ -43,7 +46,7 @@ private fun ActivitySummaryItem.title(): TextValue {
 private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
     return when (activity) {
         is CustodialTradingActivitySummaryItem -> activity.detailItems(extras)
-        //        is CustodialTransferActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialTransferActivitySummaryItem -> activity.detailItems(extras)
         //        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         //        is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())

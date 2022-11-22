@@ -1,7 +1,7 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
@@ -12,60 +12,36 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
-import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.nabu.datamanagers.TransactionState
+import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-@DrawableRes internal fun CustodialTradingActivitySummaryItem.iconDetail(): Int {
+@DrawableRes internal fun CustodialTransferActivitySummaryItem.iconDetail(): Int {
     return when (type) {
-        OrderType.BUY,
-        OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy_dark
-        OrderType.SELL -> R.drawable.ic_activity_sell_dark
+        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
+        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
     }
 }
 
-internal fun CustodialTradingActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
+internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
-        OrderType.BUY,
-        OrderType.RECURRING_BUY -> R.string.tx_title_bought
-        OrderType.SELL -> R.string.tx_title_sold
+        TransactionType.DEPOSIT -> R.string.tx_title_received
+        TransactionType.WITHDRAWAL -> R.string.tx_title_sent
     },
     args = listOf(asset.displayTicker)
 )
 
-internal fun CustodialTradingActivitySummaryItem.detailItems(
+internal fun CustodialTransferActivitySummaryItem.detailItems(
     extras: List<CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
-    // bought ----€10
+    // deposit ----€10
     // to/from ---- euro
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOfNotNull(
-            // Purchase ----€10
-            ActivityComponent.StackView(
-                id = toString(),
-                leading = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.IntResValue(
-                            when (type) {
-                                OrderType.BUY,
-                                OrderType.RECURRING_BUY -> R.string.activity_details_title_purchase
-                                OrderType.SELL -> R.string.activity_details_title_sale
-                            }
-                        ),
-                        style = basicTitleStyle.muted()
-                    )
-                ),
-                trailing = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
-                        style = basicTitleStyle
-                    )
-                )
-            ),
-            // Amount ---- 0.00503823 BTC
+        itemGroup = listOf(
+            // deposit ----€10
             ActivityComponent.StackView(
                 id = toString(),
                 leading = listOf(
@@ -81,33 +57,6 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                     )
                 )
             ),
-            // btc price ---- $34,183.91
-            price?.let { price ->
-                ActivityComponent.StackView(
-                    id = toString(),
-                    leading = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.IntResValue(
-                                value = R.string.quote_price,
-                                args = listOf(
-                                    when (type) {
-                                        OrderType.BUY,
-                                        OrderType.RECURRING_BUY -> asset.displayTicker
-                                        OrderType.SELL -> fundedFiat.currencyCode
-                                    }
-                                )
-                            ),
-                            style = basicTitleStyle.muted()
-                        )
-                    ),
-                    trailing = listOf(
-                        ActivityStackView.Text(
-                            value = TextValue.StringValue(price.toStringWithSymbol()),
-                            style = basicTitleStyle
-                        )
-                    )
-                )
-            },
             // fee ---- €12
             ActivityComponent.StackView(
                 id = toString(),
@@ -127,10 +76,11 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
         )
     ),
     // status ---- success
-    // to/from ---- euro
+    // from ---- Trading Account
+    // to ---- 0x49...ba41
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOf(
+        itemGroup = listOfNotNull(
             // status ---- success
             ActivityComponent.StackView(
                 id = toString(),
@@ -147,6 +97,73 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                     )
                 )
             ),
+            // from ---- Trading Account
+            run nullableFrom@{
+                ActivityComponent.StackView(
+                    id = toString(),
+                    leading = listOf(
+                        ActivityStackView.Text(
+                            value = TextValue.IntResValue(R.string.activity_details_from),
+                            style = basicTitleStyle.muted()
+                        )
+                    ),
+                    trailing = listOf(
+                        ActivityStackView.Text(
+                            value = when (type) {
+                                TransactionType.DEPOSIT -> {
+                                    if (recipientAddress.isNotBlank()) TextValue.StringValue(
+                                        recipientAddress.abbreviate(
+                                            startLength = SIDE_ABBREVIATE_LENGTH,
+                                            endLength = SIDE_ABBREVIATE_LENGTH
+                                        )
+                                    )
+                                    else {
+                                        return@nullableFrom null
+                                    }
+                                }
+                                TransactionType.WITHDRAWAL -> {
+                                    TextValue.StringValue(account.label)
+                                }
+                            },
+                            style = basicTitleStyle
+                        )
+                    )
+                )
+            },
+            // to ---- 0x49...ba41
+            run nullableTo@{
+                ActivityComponent.StackView(
+                    id = toString(),
+                    leading = listOf(
+                        ActivityStackView.Text(
+                            value = TextValue.IntResValue(R.string.activity_details_to),
+                            style = basicTitleStyle.muted()
+                        )
+                    ),
+                    trailing = listOf(
+                        ActivityStackView.Text(
+                            value = when (type) {
+                                TransactionType.DEPOSIT -> {
+                                    TextValue.StringValue(account.label)
+                                }
+                                TransactionType.WITHDRAWAL -> {
+                                    if (recipientAddress.isNotBlank()) {
+                                        TextValue.StringValue(
+                                            recipientAddress.abbreviate(
+                                                startLength = SIDE_ABBREVIATE_LENGTH,
+                                                endLength = SIDE_ABBREVIATE_LENGTH
+                                            )
+                                        )
+                                    } else {
+                                        return@nullableTo null
+                                    }
+                                }
+                            },
+                            style = basicTitleStyle
+                        )
+                    )
+                )
+            },
             // extra
             // payment method
             *extras.map { it.toActivityComponent() }.toTypedArray()
@@ -206,35 +223,16 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
     )
 )
 
-private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
-    when (status) {
-        OrderState.FINISHED -> R.string.activity_details_label_complete
-        OrderState.UNINITIALISED,
-        OrderState.INITIALISED,
-        OrderState.AWAITING_FUNDS,
-        OrderState.PENDING_EXECUTION,
-        OrderState.PENDING_CONFIRMATION -> when (type) {
-            OrderType.BUY,
-            OrderType.RECURRING_BUY -> {
-                if (status == OrderState.AWAITING_FUNDS) R.string.activity_details_label_pending
-                else R.string.activity_details_label_pending_execution
-            }
-            OrderType.SELL -> R.string.activity_details_label_pending
-        }
-        OrderState.CANCELED -> R.string.activity_details_label_cancelled
-        OrderState.UNKNOWN,
-        OrderState.FAILED -> R.string.activity_details_label_failed
+private fun CustodialTransferActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
+    when (state) {
+        TransactionState.COMPLETED -> R.string.activity_details_completed
+        TransactionState.PENDING -> R.string.activity_details_label_confirming
+        TransactionState.FAILED -> R.string.activity_details_label_failed
     }
 )
 
-private fun CustodialTradingActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (status) {
-    OrderState.FINISHED -> ActivityTagStyleState.Success
-    OrderState.UNINITIALISED,
-    OrderState.INITIALISED,
-    OrderState.AWAITING_FUNDS,
-    OrderState.PENDING_EXECUTION,
-    OrderState.PENDING_CONFIRMATION -> ActivityTagStyleState.Info
-    OrderState.CANCELED -> ActivityTagStyleState.Warning
-    OrderState.UNKNOWN,
-    OrderState.FAILED -> ActivityTagStyleState.Error
+private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (state) {
+    TransactionState.COMPLETED -> ActivityTagStyleState.Success
+    TransactionState.PENDING -> ActivityTagStyleState.Info
+    TransactionState.FAILED -> ActivityTagStyleState.Error
 }
