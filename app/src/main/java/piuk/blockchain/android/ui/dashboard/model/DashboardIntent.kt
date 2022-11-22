@@ -194,10 +194,17 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
             val oldAsset = oldState[asset]
             val newAsset = oldAsset.updateBalance(accountBalance = newBalance)
+                .updateFetchingBalanceState(false)
                 .shouldAssetShow(shouldAssetShow)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)
+            return oldState.copy(
+                activeAssets = newAssets,
+                isLoadingAssets = false,
+                isSwipingToRefresh = oldState.isSwipingToRefresh && newAssets.values.any {
+                    it.isFetchingBalance
+                }
+            )
         }
 
         override fun isValidFor(oldState: DashboardState): Boolean {
@@ -213,24 +220,24 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val newAsset = oldAsset.toErrorState()
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            return oldState.copy(activeAssets = newAssets)
+            return oldState.copy(
+                activeAssets = newAssets,
+                isSwipingToRefresh = oldState.isSwipingToRefresh && newAssets.values.any {
+                    it.isFetchingBalance
+                }
+            )
         }
     }
 
     class BalanceFetching(
         private val asset: Currency,
-        private val isFetching: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
-            val newAsset = oldAsset.updateFetchingBalanceState(isFetching)
+            val newAsset = oldAsset.updateFetchingBalanceState(true)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
-
             return oldState.copy(
                 activeAssets = newAssets,
-                isSwipingToRefresh = oldState.isSwipingToRefresh && oldState.activeAssets.values.any {
-                    it.isFetchingBalance
-                }
             )
         }
 
@@ -507,6 +514,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     object LoadStakingFlag : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
+    }
+
+    object DisposePricesAndBalances : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
     }
 
