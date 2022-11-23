@@ -145,14 +145,7 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return flowOf(
-            DataResource.Data(
-                CustodialActivityDetail(
-                    activity = this,
-                    extras = emptyList()
-                )
-            )
-        )
+        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

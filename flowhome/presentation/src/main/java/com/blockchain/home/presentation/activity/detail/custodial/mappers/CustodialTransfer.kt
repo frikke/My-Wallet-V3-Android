@@ -9,6 +9,7 @@ import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
@@ -236,3 +237,8 @@ private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyle
     TransactionState.PENDING -> ActivityTagStyleState.Info
     TransactionState.FAILED -> ActivityTagStyleState.Error
 }
+
+internal fun CustodialTransferActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
+    activity = this,
+    extras = emptyList()
+)
