@@ -1,5 +1,6 @@
-package com.blockchain.home.presentation.activity.common
+package com.blockchain.home.presentation.activity.list.custodial.mappers
 
+import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
@@ -7,11 +8,12 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.home.presentation.activity.list.custodial.mappers.icon
-import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingSubtitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.leadingTitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingSubtitle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.trailingTitle
+import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.home.presentation.activity.common.ActivityIconState
+import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.home.presentation.activity.common.ActivityTextColorState
+import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
+import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 
 internal val basicTitleStyle = ActivityTextStyleState(
     typography = ActivityTextTypographyState.Paragraph2,
@@ -25,13 +27,15 @@ internal val basicSubtitleStyle = ActivityTextStyleState(
     strikethrough = false
 )
 
-private fun ActivitySummaryItem.icon() = when (this) {
-    is CustodialTradingActivitySummaryItem -> icon()
-    is CustodialTransferActivitySummaryItem -> icon()
-    is CustodialInterestActivitySummaryItem -> icon()
-    is RecurringBuyActivitySummaryItem -> icon()
-    is TradeActivitySummaryItem -> icon()
-    is FiatActivitySummaryItem -> icon()
+internal fun ActivityTextStyleState.muted() = copy(color = ActivityTextColorState.Muted)
+
+@DrawableRes internal fun ActivitySummaryItem.iconSummary() = when (this) {
+    is CustodialTradingActivitySummaryItem -> iconSummary()
+    is CustodialTransferActivitySummaryItem -> iconSummary()
+    is CustodialInterestActivitySummaryItem -> iconSummary()
+    is RecurringBuyActivitySummaryItem -> iconSummary()
+    is TradeActivitySummaryItem -> iconSummary()
+    is FiatActivitySummaryItem -> iconSummary()
     else -> error("${this::class.simpleName} not supported")
 }
 
@@ -62,7 +66,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
 fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
     return ActivityComponent.StackView(
         id = txId,
-        leadingImage = ActivityIconState.SingleIcon.Local(icon()),
+        leadingImage = ActivityIconState.SingleIcon.Local(iconSummary()),
         leading = leading(),
         trailing = trailing()
     )

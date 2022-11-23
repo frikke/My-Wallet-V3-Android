@@ -1,5 +1,7 @@
 package com.blockchain.domain.paymentmethods
 
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -7,11 +9,18 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibili
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface PaymentMethodService {
-    suspend fun getPaymentMethodDetailsForId(
+    @Deprecated("use flow getPaymentMethodDetailsForId")
+    suspend fun getPaymentMethodDetailsForIdLegacy(
         paymentId: String
     ): Outcome<Exception, PaymentMethodDetails>
+
+    suspend fun getPaymentMethodDetailsForId(
+        paymentId: String,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<PaymentMethodDetails>>
 
     fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,

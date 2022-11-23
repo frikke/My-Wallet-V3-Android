@@ -1,26 +1,29 @@
 package com.blockchain.home.presentation.activity.list.custodial
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.data.DataResource
 import com.blockchain.data.filter
 import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
+import com.blockchain.home.activity.CustodialActivityService
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class CustodialActivityViewModel(
-    private val coincore: Coincore
+    private val custodialActivityService: CustodialActivityService
 ) : MviViewModel<
     ActivityIntent<ActivitySummaryItem>,
     ActivityViewState,
@@ -103,16 +106,15 @@ class CustodialActivityViewModel(
     }
 
     private fun loadData() {
-        coincore.allWalletsInMode(WalletMode.CUSTODIAL_ONLY)
-            .flatMap { accountGroup ->
-                accountGroup.activity
-            }
-            .doOnSubscribe {
-                updateState { it.copy(activityItems = DataResource.Loading) }
-            }
-            .subscribe { activity ->
-                updateState { it.copy(activityItems = DataResource.Data(activity)) }
-            }
+        viewModelScope.launch {
+            custodialActivityService.getAllActivity()
+                .onEach { dataResource ->
+                    updateState {
+                        it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
+                    }
+                }
+                .collect()
+        }
     }
 }
 

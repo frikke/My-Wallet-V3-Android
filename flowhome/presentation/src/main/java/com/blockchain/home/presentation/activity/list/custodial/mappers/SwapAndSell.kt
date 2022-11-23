@@ -6,8 +6,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.basicSubtitleStyle
-import com.blockchain.home.presentation.activity.common.basicTitleStyle
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CurrencyType
@@ -19,7 +17,7 @@ private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source
 private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-@DrawableRes internal fun TradeActivitySummaryItem.icon(): Int {
+@DrawableRes internal fun TradeActivitySummaryItem.iconSummary(): Int {
     return when {
         isSwapPair() -> R.drawable.ic_activity_swap
         isSellingPair() -> R.drawable.ic_activity_sell

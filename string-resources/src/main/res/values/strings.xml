@@ -75,6 +75,7 @@
     <string name="common_learn_more">Learn More</string>
     <string name="common_no_results_found">No results found</string>
     <string name="common_general">General</string>
+    <string name="common_status">Status</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -1572,6 +1573,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_historic_value_load_fail">Couldn’t load historic value information</string>
     <string name="activity_details_to_load_fail">Couldn’t load To address information</string>
     <string name="activity_details_from_load_fail">Couldn’t load From address information</string>
+    <string name="activity_details_copy_tx_id">Copy Transaction ID</string>
 
     <!-- Transfer -->
     <string name="transfer_wallets_empty_title">No crypto to send</string>

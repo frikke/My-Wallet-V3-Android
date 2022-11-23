@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 
 class PaymentMethodsEligibilityStore(
-    private val paymentMethodsService: PaymentMethodsService,
+    private val paymentMethodsService: PaymentMethodsService
 ) : KeyedStore<
     PaymentMethodsEligibilityStore.Key,
     List<PaymentMethodResponse>

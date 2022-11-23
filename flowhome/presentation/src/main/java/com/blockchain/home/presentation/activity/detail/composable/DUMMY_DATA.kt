@@ -21,8 +21,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
             main = R.drawable.ic_close_circle_dark,
             tag = R.drawable.ic_close_circle
         ),
-        title = "Swapped BTC -> ETH",
-        subtitle = "",
+        title = TextValue.StringValue("Swapped BTC -> ETH"),
+        subtitle = TextValue.StringValue("some subtitle"),
         detailItems = listOf(
             ActivityDetailGroup(
                 title = "title",
