@@ -97,6 +97,7 @@ class BlockchainCardRepositoryImplTest {
         price = price,
         brand = "VISA",
         type = "VIRTUAL",
+        remainingCards = 2
     )
 
     private val productResponseDomainModel = BlockchainCardProduct(
@@ -107,6 +108,7 @@ class BlockchainCardRepositoryImplTest {
         ),
         brand = BlockchainCardBrand.VISA,
         type = BlockchainCardType.VIRTUAL,
+        remainingCards = 2
     )
 
     private val cardResponseDto = CardDto(

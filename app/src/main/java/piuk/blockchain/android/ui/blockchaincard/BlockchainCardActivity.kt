@@ -75,7 +75,7 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
                 )
             }
             blockchainCardProducts.isNotEmpty() -> {
-                startOrderCardFlow(isInitialFlow = true)
+                startOrderCardFlow(isInitialFlow = true, products = blockchainCardProducts)
             }
             else -> {
                 throw IllegalStateException("Missing card or product data")
@@ -158,9 +158,9 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
         }
     }
 
-    override fun startOrderCardFlow(isInitialFlow: Boolean) {
-        if (blockchainCardProducts.isNotEmpty()) {
-            val fragment = BlockchainCardFragment.newInstance(blockchainCardProducts = blockchainCardProducts)
+    override fun startOrderCardFlow(isInitialFlow: Boolean, products: List<BlockchainCardProduct>) {
+        if (products.isNotEmpty()) {
+            val fragment = BlockchainCardFragment.newInstance(blockchainCardProducts = products)
 
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
@@ -182,7 +182,12 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
 
     override fun orderCardFlowComplete(blockchainCard: BlockchainCard) {
         finishOrderCardFlow()
-        startManageCardFlow(blockchainCardProducts, blockchainCardList, blockchainCard)
+
+        startManageCardFlow(
+            blockchainCardProducts = blockchainCardProducts,
+            blockchainCards = blockchainCardList,
+            preselectedCard = blockchainCard
+        )
     }
 
     override fun startManageCardFlow(

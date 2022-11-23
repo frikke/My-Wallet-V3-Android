@@ -871,13 +871,15 @@ private fun PreviewCardProductPicker() {
                         productCode = "PHYSICAL",
                         price = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
                         brand = BlockchainCardBrand.VISA,
-                        type = BlockchainCardType.PHYSICAL
+                        type = BlockchainCardType.PHYSICAL,
+                        remainingCards = 2
                     ),
                     BlockchainCardProduct(
                         productCode = "VIRTUAL",
                         price = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
                         brand = BlockchainCardBrand.VISA,
-                        type = BlockchainCardType.VIRTUAL
+                        type = BlockchainCardType.VIRTUAL,
+                        remainingCards = 2
                     )
                 ),
                 onContinue = {},
