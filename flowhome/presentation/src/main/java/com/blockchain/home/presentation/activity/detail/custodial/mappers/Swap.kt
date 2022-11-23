@@ -20,18 +20,19 @@ import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
 
-@DrawableRes internal fun TradeActivitySummaryItem.sellIconDetail(): Int {
-    return R.drawable.ic_activity_sell_dark
+@DrawableRes internal fun TradeActivitySummaryItem.swapIconDetail(): Int {
+    return R.drawable.ic_activity_swap_dark
 }
 
-internal fun TradeActivitySummaryItem.sellTitle(): TextValue = TextValue.IntResValue(
-    value = R.string.tx_title_sold,
+internal fun TradeActivitySummaryItem.swapTitle(): TextValue = TextValue.IntResValue(
+    value = R.string.tx_title_swapped,
     args = listOf(
-        currencyPair.source.displayTicker
+        currencyPair.source.displayTicker,
+        currencyPair.destination.displayTicker
     )
 )
 
-internal fun TradeActivitySummaryItem.sellDetailItems(
+internal fun TradeActivitySummaryItem.swapDetailItems(
     extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
@@ -39,23 +40,7 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
     ActivityDetailGroup(
         title = null,
         itemGroup = listOfNotNull(
-            // deposit ----€10
-            ActivityComponent.StackView(
-                id = toString(),
-                leading = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_title_sale),
-                        style = basicTitleStyle.muted()
-                    )
-                ),
-                trailing = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.StringValue(receivingValue.toStringWithSymbol()),
-                        style = basicTitleStyle
-                    )
-                )
-            ),
-            // Amount ----0.00503823 BTC
+            // Amount ---- 0.00503823 BTC
             ActivityComponent.StackView(
                 id = toString(),
                 leading = listOf(
@@ -66,21 +51,35 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.StringValue(sendingValue.toStringWithSymbol()),
+                        value = TextValue.StringValue(value.toStringWithSymbol()),
                         style = basicTitleStyle
                     )
                 )
             ),
-            // btc price ---- $34,183.91
+            // for ----- 0.06402229 ETH
+            ActivityComponent.StackView(
+                id = toString(),
+                leading = listOf(
+                    ActivityStackView.Text(
+                        value = TextValue.IntResValue(R.string.activity_details_swap_for),
+                        style = basicTitleStyle.muted()
+                    )
+                ),
+                trailing = listOf(
+                    ActivityStackView.Text(
+                        value = TextValue.StringValue(receivingValue.toStringWithSymbol()),
+                        style = basicTitleStyle
+                    )
+                )
+            ),
+
+            // Exchange rate ----- 1 ETH = 0.078706 BTC
             price?.let { price ->
                 ActivityComponent.StackView(
                     id = toString(),
                     leading = listOf(
                         ActivityStackView.Text(
-                            value = TextValue.IntResValue(
-                                value = R.string.quote_price,
-                                args = listOf(account.currency.displayTicker)
-                            ),
+                            value = TextValue.IntResValue(R.string.activity_details_exchange_rate),
                             style = basicTitleStyle.muted()
                         )
                     ),
@@ -88,15 +87,34 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
                         ActivityStackView.Text(
                             value = TextValue.IntResValue(
                                 value = R.string.activity_details_exchange_rate_value,
-                                args = listOf(price.toStringWithSymbol(), sendingValue.currencyCode)
+                                args = listOf(
+                                    price.toStringWithSymbol(),
+                                    sendingValue.currency.displayTicker
+                                )
                             ),
                             style = basicTitleStyle
                         )
                     )
                 )
             },
-            // fee ---- €12
-            extras[CustodialActivityDetailExtraKey.Fee]?.toActivityComponent()
+            // Fees ----- 0.06402229 ETH
+            extras[CustodialActivityDetailExtraKey.Fee]?.toActivityComponent(),
+            // Total ----- Total
+            ActivityComponent.StackView(
+                id = toString(),
+                leading = listOf(
+                    ActivityStackView.Text(
+                        value = TextValue.IntResValue(R.string.common_total),
+                        style = basicTitleStyle.muted()
+                    )
+                ),
+                trailing = listOf(
+                    ActivityStackView.Text(
+                        value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
+                        style = basicTitleStyle
+                    )
+                )
+            )
         )
     ),
     // status ---- success
@@ -140,23 +158,7 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
                 )
             ),
             // to ---- 0x49...ba41
-            ActivityComponent.StackView(
-                id = toString(),
-                leading = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_to),
-                        style = basicTitleStyle.muted()
-                    )
-                ),
-                trailing = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.StringValue(
-                            "${currencyPair.destination} ${sendingAccount.label}"
-                        ),
-                        style = basicTitleStyle
-                    )
-                )
-            )
+            extras[CustodialActivityDetailExtraKey.ToLabel]?.toActivityComponent()
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -245,14 +247,22 @@ private fun TradeActivitySummaryItem.statusStyle(): ActivityTagStyleState = when
     CustodialOrderState.FAILED -> ActivityTagStyleState.Error
 }
 
-internal fun TradeActivitySummaryItem.buildSellActivityDetail(
-    fee: Money
+internal fun TradeActivitySummaryItem.buildSwapActivityDetail(
+    fee: Money,
+    toLabel: String
 ) = CustodialActivityDetail(
     activity = this,
     extras = mapOf(
         CustodialActivityDetailExtraKey.Fee to CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.activity_details_buy_fee),
+            title = TextValue.IntResValue(
+                R.string.tx_confirmation_network_fee,
+                args = listOf(fee.currency.displayTicker)
+            ),
             value = TextValue.StringValue(fee.toStringWithSymbol())
+        ),
+        CustodialActivityDetailExtraKey.ToLabel to CustodialActivityDetailExtra(
+            title = TextValue.IntResValue(R.string.activity_details_to),
+            value = TextValue.StringValue(toLabel)
         )
     )
 )
