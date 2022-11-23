@@ -3233,6 +3233,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_shipping_address_input_title">Shipping Address</string>
     <string name="bc_card_kyc_commercial_address_not_accepted">PO Box or commercial address will not be accepted</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">Information secured with 256-bit encryption</string>
+    <string name="bc_card_add">Add Card</string>
 
 
     <!--  Sanctions  -->

@@ -87,6 +87,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         errorState = state.errorState,
         cardList = state.cardList,
+        cardProductList = state.cardProductList,
         currentCard = state.currentCard,
         defaultCardId = state.defaultCardId,
         selectedCardProduct = state.selectedCardProduct,
@@ -165,8 +166,22 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 )
             }
 
+            is BlockchainCardIntent.LoadProducts -> {
+                blockchainCardRepository.getProducts().fold(
+                    onSuccess = { cardProducts ->
+                        updateState {
+                            it.copy(cardProductList = cardProducts.filter { product -> product.remainingCards > 0 })
+                        }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to refresh card products")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
             is BlockchainCardIntent.OrderCard -> {
-                navigate(BlockchainCardNavigationEvent.OrderCard)
+                navigate(BlockchainCardNavigationEvent.OrderCard(modelState.cardProductList ?: emptyList()))
             }
 
             is BlockchainCardIntent.ManageCardDetails -> {

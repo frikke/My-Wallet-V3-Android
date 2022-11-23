@@ -44,6 +44,8 @@ import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.payments.cache.CardDetailsStore
+import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
@@ -146,6 +148,8 @@ class PaymentsRepositoryTest {
     private val paymentMethodsStore: PaymentMethodsStore = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
+    private val cardDetailsStore: CardDetailsStore = mockk(relaxed = true)
+    private val linkedBankStore: LinkedBankStore = mockk(relaxed = true)
     private val tradingService: TradingService = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
@@ -166,19 +170,21 @@ class PaymentsRepositoryTest {
     @Before
     fun setUp() {
         subject = PaymentsRepository(
-            paymentsService,
-            paymentMethodsStore,
-            paymentMethodsService,
-            linkedCardsStore,
-            tradingService,
-            assetCatalogue,
-            simpleBuyPrefs,
-            withdrawLocksCache,
-            googlePayManager,
-            environmentConfig,
-            fiatCurrenciesService,
-            googlePayFeatureFlag,
-            plaidFeatureFlag
+            paymentsService = paymentsService,
+            paymentMethodsStore = paymentMethodsStore,
+            paymentMethodsService = paymentMethodsService,
+            cardDetailsStore = cardDetailsStore,
+            linkedCardsStore = linkedCardsStore,
+            linkedBankStore = linkedBankStore,
+            tradingService = tradingService,
+            assetCatalogue = assetCatalogue,
+            simpleBuyPrefs = simpleBuyPrefs,
+            withdrawLocksCache = withdrawLocksCache,
+            googlePayManager = googlePayManager,
+            environmentConfig = environmentConfig,
+            fiatCurrenciesService = fiatCurrenciesService,
+            googlePayFeatureFlag = googlePayFeatureFlag,
+            plaidFeatureFlag = plaidFeatureFlag
         )
     }
 
@@ -187,11 +193,12 @@ class PaymentsRepositoryTest {
     // /////////////////////////////////////////
 
     @Test
-    fun `getLinkedBank() success`() {
+    fun `getLinkedBankLegacy() success`() = runTest {
         // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
         val linkedBankTransferResponse = LinkedBankTransferResponse(
             id = "id",
-            partner = CreateLinkBankResponse.YAPILY_PARTNER,
+            partner = YAPILY_PARTNER,
             state = LinkedBankTransferResponse.ACTIVE,
             currency = NETWORK_TICKER,
             details = null,
@@ -201,10 +208,12 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
 
         // ASSERT
         subject.getLinkedBankLegacy(ID).test()
+            .await()
             .assertValue {
                 it.id == "id" &&
                     it.currency == fiatCurrency &&
@@ -216,11 +225,49 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `getLinkedBank() YAPILY - missing callback path should throw error`() {
+    fun `getLinkedBank() success`() = runTest {
         // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
         val linkedBankTransferResponse = LinkedBankTransferResponse(
             id = "id",
-            partner = CreateLinkBankResponse.YAPILY_PARTNER,
+            partner = YAPILY_PARTNER,
+            state = LinkedBankTransferResponse.ACTIVE,
+            currency = NETWORK_TICKER,
+            details = null,
+            error = null,
+            attributes = LinkedBankTransferAttributesResponse(null, null, null, "callback"),
+            ux = null
+        )
+        val fiatCurrency: FiatCurrency = mockk()
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
+
+        // ASSERT
+        subject.getLinkedBank(ID).test {
+            awaitItem().run {
+                assertTrue { this is DataResource.Data }
+                (this as DataResource.Data).data.run {
+                    assertTrue {
+                        id == "id" &&
+                            currency == fiatCurrency &&
+                            partner == BankPartner.YAPILY &&
+                            state == LinkedBankState.ACTIVE &&
+                            errorStatus == LinkedBankErrorState.NONE &&
+                            callbackPath == "callback"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `getLinkedBankLegacy() YAPILY - missing callback path should throw error`() = runTest {
+        // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
+        val linkedBankTransferResponse = LinkedBankTransferResponse(
+            id = "id",
+            partner = YAPILY_PARTNER,
             state = LinkedBankTransferResponse.ACTIVE,
             currency = NETWORK_TICKER,
             details = null,
@@ -230,11 +277,40 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
 
         // ASSERT
         subject.getLinkedBankLegacy(ID).test()
-            .assertError { it is IllegalArgumentException }
+            .await()
+            .assertError { it is Exception }
+    }
+
+    @Test
+    fun `getLinkedBank() YAPILY - missing callback path should throw error`() = runTest {
+        // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
+        val linkedBankTransferResponse = LinkedBankTransferResponse(
+            id = "id",
+            partner = YAPILY_PARTNER,
+            state = LinkedBankTransferResponse.ACTIVE,
+            currency = NETWORK_TICKER,
+            details = null,
+            error = null,
+            attributes = null,
+            ux = null
+        )
+        val fiatCurrency: FiatCurrency = mockk()
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
+
+        // ASSERT
+        subject.getLinkedBank(ID).test {
+            expectMostRecentItem().run {
+                assertTrue { this is DataResource.Error }
+            }
+        }
     }
 
     @Test
@@ -1000,8 +1076,9 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `getCardDetails() should return card`() {
+    fun `getCardDetailsLegacy() should return card`() = runTest {
         // ARRANGE
+        val cardDetailsStoreFlow = MutableSharedFlow<DataResource<CardResponse>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -1009,10 +1086,12 @@ class PaymentsRepositoryTest {
             currency = NETWORK_TICKER
         )
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
-        every { paymentMethodsService.getCardDetails(ID) } returns Single.just(cardResponse)
+        every { cardDetailsStore.stream(any()) } returns cardDetailsStoreFlow
+        cardDetailsStoreFlow.emit(DataResource.Data(cardResponse))
 
         // ASSERT
         subject.getCardDetailsLegacy(ID).test()
+            .await()
             .assertValue {
                 it.limits == PaymentLimits(
                     BigInteger.ZERO,
@@ -1020,6 +1099,37 @@ class PaymentsRepositoryTest {
                     FiatCurrency.fromCurrencyCode(NETWORK_TICKER)
                 )
             }
+    }
+
+    @Test
+    fun `getCardDetails() should return card`() = runTest {
+        // ARRANGE
+        val cardDetailsStoreFlow = MutableSharedFlow<DataResource<CardResponse>>(replay = 1)
+        val cardResponse = CardResponse(
+            id = "id",
+            partner = "CARDPROVIDER",
+            state = CardResponse.ACTIVE,
+            currency = NETWORK_TICKER
+        )
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
+        every { cardDetailsStore.stream(any()) } returns cardDetailsStoreFlow
+        cardDetailsStoreFlow.emit(DataResource.Data(cardResponse))
+
+        // ASSERT
+        subject.getCardDetails(ID).test {
+            awaitItem().run {
+                assertTrue { this is DataResource.Data }
+                (this as DataResource.Data).data.run {
+                    assertTrue {
+                        limits == PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            FiatCurrency.fromCurrencyCode(NETWORK_TICKER)
+                        )
+                    }
+                }
+            }
+        }
     }
 
     @Test

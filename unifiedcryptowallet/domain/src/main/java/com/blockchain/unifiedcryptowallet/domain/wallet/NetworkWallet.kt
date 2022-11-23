@@ -34,12 +34,16 @@ interface NetworkWallet {
     val style: PubKeyStyle
         get() = PubKeyStyle.SINGLE
 
+    val pubKeyDescriptor: String
+        get() = LEGACY_DESCRIPTOR
+
     suspend fun publicKey(): String
 
     companion object {
         const val DEFAULT_SINGLE_ACCOUNT_INDEX = 0
         const val DEFAULT_ADDRESS_DESCRIPTOR = 0
         const val MULTIPLE_ADDRESSES_DESCRIPTOR = 1
+        const val LEGACY_DESCRIPTOR = "legacy"
     }
 }
 
@@ -80,6 +84,10 @@ class NetworkWalletGroup(
     suspend fun publicKey(): String {
         return parentChainNetwork.publicKey()
     }
+
+    fun pubKeyStyle(): PubKeyStyle = parentChainNetwork.style
+
+    fun pubKeyDescriptor(): String = parentChainNetwork.pubKeyDescriptor
 
     fun getNetworkWallet(currency: Currency): NetworkWallet? {
         return networkWallets.firstOrNull { it.currency.networkTicker == currency.networkTicker }

@@ -13,8 +13,10 @@ import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
+import com.blockchain.store.asSingle
 import com.blockchain.store.firstOutcome
 import com.blockchain.utils.rxSingleOutcome
+import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
@@ -24,7 +26,8 @@ class NonCustodialL2sDynamicAssetRepository(
     private val l2Store: NonCustodialL2sDynamicAssetStore,
     private val layerTwoFeatureFlag: Lazy<FeatureFlag>,
     private val coinNetworksFeatureFlag: Lazy<FeatureFlag>,
-    private val evmNetworksService: Lazy<EvmNetworksService>
+    private val evmNetworksService: Lazy<EvmNetworksService>,
+    private val coinNetworksStore: CoinNetworksStore
 ) {
     fun availableL2s(): Single<DynamicAssetList> {
         return layerTwoFeatureFlag.value.enabled.flatMap {
@@ -39,9 +42,18 @@ class NonCustodialL2sDynamicAssetRepository(
     fun otherEvmAssets(): Single<DynamicAssetList> {
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
-                discoveryService.otherEvmNetworks()
+                coinNetworksStore.stream(
+                    FreshnessStrategy.Cached(false)
+                )
+                    .asSingle()
                     .flatMap { evmNetworks ->
-                        getL1AssetsForNetworks(evmNetworks.mapNotNull { it.toEvmNetwork() })
+                        getL1AssetsForNetworks(
+                            evmNetworks.filter { network ->
+                                network.type == NetworkType.EVM &&
+                                    network.currency != CryptoCurrency.ETHER.networkTicker
+                            }
+                                .mapNotNull { it.toEvmNetwork() }
+                        )
                     }
             } else {
                 evmNetworksService.value.getSupportedNetworks()
@@ -55,9 +67,15 @@ class NonCustodialL2sDynamicAssetRepository(
     fun allEvmAssets(): Single<DynamicAssetList> {
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
-                discoveryService.supportedEvmNetworks()
+                coinNetworksStore.stream(
+                    FreshnessStrategy.Cached(false)
+                )
+                    .asSingle()
                     .flatMap { evmNetworks ->
-                        getL1AssetsForNetworks(evmNetworks.mapNotNull { it.toEvmNetwork() })
+                        getL1AssetsForNetworks(
+                            evmNetworks.filter { network -> network.type == NetworkType.EVM }
+                                .mapNotNull { it.toEvmNetwork() }
+                        )
                     }
             } else {
                 evmNetworksService.value.getSupportedNetworks()
@@ -88,9 +106,14 @@ class NonCustodialL2sDynamicAssetRepository(
     fun allEvmNetworks(): Single<List<EvmNetwork>> {
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
-                discoveryService.supportedEvmNetworks().map { coinNetworks ->
-                    coinNetworks.mapNotNull { network -> network.toEvmNetwork() }
-                }
+                coinNetworksStore.stream(
+                    FreshnessStrategy.Cached(false)
+                )
+                    .asSingle()
+                    .map { evmNetworks ->
+                        evmNetworks.filter { network -> network.type == NetworkType.EVM }
+                            .mapNotNull { it.toEvmNetwork() }
+                    }
             } else {
                 evmNetworksService.value.getSupportedNetworks().map {
                     it.plus(EthDataManager.ethChain)
@@ -102,7 +125,18 @@ class NonCustodialL2sDynamicAssetRepository(
     fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> {
         return coinNetworksFeatureFlag.value.enabled.flatMapMaybe { isEnabled ->
             if (isEnabled) {
-                discoveryService.getEvmNetworkForCurrency(currency).map { network -> network?.toEvmNetwork() }
+                coinNetworksStore.stream(
+                    FreshnessStrategy.Cached(false)
+                )
+                    .asSingle()
+                    .flatMapMaybe { evmNetworks ->
+                        evmNetworks.first { network ->
+                            network.type == NetworkType.EVM && network.currency == currency
+                        }
+                            .toEvmNetwork()?.let { evmNetwork ->
+                                Maybe.just(evmNetwork)
+                            } ?: Maybe.empty()
+                    }
             } else {
                 evmNetworksService.value.getSupportedNetworkForCurrency(currency)
             }
@@ -112,9 +146,16 @@ class NonCustodialL2sDynamicAssetRepository(
     fun otherEvmNetworks(): Single<List<EvmNetwork>> {
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
-                discoveryService.otherEvmNetworks().map { coinNetworks ->
-                    coinNetworks.mapNotNull { network -> network.toEvmNetwork() }
-                }
+                coinNetworksStore.stream(
+                    FreshnessStrategy.Cached(false)
+                )
+                    .asSingle()
+                    .map { evmNetworks ->
+                        evmNetworks.filter { network ->
+                            network.type == NetworkType.EVM && network.currency != CryptoCurrency.ETHER.networkTicker
+                        }
+                            .mapNotNull { it.toEvmNetwork() }
+                    }
             } else {
                 evmNetworksService.value.getSupportedNetworks()
             }
