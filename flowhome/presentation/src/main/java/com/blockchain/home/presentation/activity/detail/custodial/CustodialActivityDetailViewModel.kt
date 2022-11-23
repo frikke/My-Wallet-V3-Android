@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
@@ -19,8 +20,11 @@ import com.blockchain.home.activity.CustodialActivityService
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
+import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildASellActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
+import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellingPair
+import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.mapData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +36,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.await
 
 class CustodialActivityDetailViewModel(
     private val activityTxId: String,
@@ -80,15 +85,14 @@ class CustodialActivityDetailViewModel(
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
                                 when (this) {
-                                    is CustodialTradingActivitySummaryItem -> {
-                                        tradingDetail()
+                                    is CustodialTradingActivitySummaryItem -> tradingDetail()
+                                    is CustodialTransferActivitySummaryItem -> transferDetail()
+                                    is TradeActivitySummaryItem -> when {
+                                        isSellingPair() -> sellDetail()
+                                        isSwapPair() -> flowOf(DataResource.Loading) // todo
+                                        else -> error("unsupported")
                                     }
-                                    is CustodialTransferActivitySummaryItem -> {
-                                        transferDetail()
-                                    }
-                                    is FiatActivitySummaryItem -> {
-                                        fiatDetail()
-                                    }
+                                    is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
                                 }
@@ -146,6 +150,20 @@ class CustodialActivityDetailViewModel(
 
     private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private suspend fun TradeActivitySummaryItem.sellDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(
+            depositNetworkFee
+                .map { fee ->
+                    @Suppress("USELESS_CAST")
+                    DataResource.Data(buildASellActivityDetail(fee = fee)) as DataResource<CustodialActivityDetail>
+                }
+                .onErrorReturn {
+                    DataResource.Error(Exception(it))
+                }
+                .await()
+        )
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

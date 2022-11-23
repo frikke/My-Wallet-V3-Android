@@ -27,7 +27,7 @@ internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
                 TransactionType.DEPOSIT -> R.string.tx_title_deposited
                 TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
             },
-            args = listOf(asset.displayTicker)
+            args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
     )

@@ -24,7 +24,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingTitle(): ActivityStackV
                 TransactionType.DEPOSIT -> R.string.tx_title_received
                 TransactionType.WITHDRAWAL -> R.string.tx_title_sent
             },
-            args = listOf(asset.displayTicker)
+            args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
     )

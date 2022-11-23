@@ -31,7 +31,7 @@ internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue
         TransactionType.DEPOSIT -> R.string.tx_title_received
         TransactionType.WITHDRAWAL -> R.string.tx_title_sent
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun CustodialTransferActivitySummaryItem.detailItems(

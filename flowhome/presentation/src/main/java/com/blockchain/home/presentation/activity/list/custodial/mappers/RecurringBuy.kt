@@ -19,7 +19,7 @@ internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
             value = R.string.tx_title_bought,
-            args = listOf(asset.displayTicker)
+            args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
     )
