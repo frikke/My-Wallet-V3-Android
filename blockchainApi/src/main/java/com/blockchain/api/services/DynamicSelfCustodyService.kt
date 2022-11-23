@@ -139,6 +139,8 @@ class DynamicSelfCustodyService(
         txId: String,
         network: String,
         pubKey: String,
+        pubKeyStyle: PubKeyStyle,
+        pubKeyDescriptor: String,
         timeZone: String,
         locales: String,
         fiatCurrency: String
@@ -149,8 +151,8 @@ class DynamicSelfCustodyService(
             network = network,
             pubKey = ActivityPubKeyInfo(
                 pubKey = pubKey,
-                style = PubKeyStyle.SINGLE,
-                descriptor = "legacy"
+                style = pubKeyStyle,
+                descriptor = pubKeyDescriptor
             ),
             params = LocalisationParams(
                 timeZone = timeZone,
