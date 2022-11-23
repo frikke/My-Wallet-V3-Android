@@ -12,7 +12,9 @@ sealed interface PricesIntents : Intent<PricesModelState> {
         }
     }
 
-    data class FilterData(val filter: String) : PricesIntents
+    data class Search(val query: String) : PricesIntents
+
+    data class Filter(val filter: PricesFilter) : PricesIntents
 
     data class PricesItemClicked(
         val cryptoCurrency: AssetInfo,

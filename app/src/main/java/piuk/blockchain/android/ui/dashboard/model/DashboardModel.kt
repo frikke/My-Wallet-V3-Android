@@ -102,6 +102,10 @@ class DashboardModel(
                         process(DashboardIntent.UpdateStakingFlag(false))
                     }
                 )
+            is DashboardIntent.DisposePricesAndBalances -> {
+                interactor.disposeBalances()
+                null
+            }
             is DashboardIntent.ShowBankLinkingWithAlias,
             is DashboardIntent.ShowReferralSuccess,
             is DashboardIntent.BalanceUpdateError,

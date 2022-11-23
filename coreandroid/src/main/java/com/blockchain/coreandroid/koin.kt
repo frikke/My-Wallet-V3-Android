@@ -24,6 +24,7 @@ import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.PricesPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -61,6 +62,7 @@ val coreAndroidModule = module {
         bind(NotificationPrefs::class)
         bind(DashboardPrefs::class)
         bind(SecurityPrefs::class)
+        bind(PricesPrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
         bind(WalletStatusPrefs::class)

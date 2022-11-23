@@ -81,7 +81,14 @@ class PricesFragment :
                 viewState = it,
                 retryAction = ::loadAssetsAvailable,
                 pricesItemClicked = ::pricesItemClicked,
-                filterData = ::filterData
+                filterData = ::filterData,
+                filterAction = { filter ->
+                    viewModel.onIntent(
+                        PricesIntents.Filter(
+                            filter
+                        )
+                    )
+                }
             )
         }
     }
@@ -99,7 +106,7 @@ class PricesFragment :
     }
 
     private fun filterData(filter: String) {
-        viewModel.onIntent(PricesIntents.FilterData(filter))
+        viewModel.onIntent(PricesIntents.Search(filter))
     }
 
     companion object {

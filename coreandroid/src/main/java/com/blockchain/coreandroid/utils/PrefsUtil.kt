@@ -28,6 +28,7 @@ import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.PricesPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -63,6 +64,7 @@ class PrefsUtil(
     DashboardPrefs,
     SecurityPrefs,
     SecureChannelPrefs,
+    PricesPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
     TransactionPrefs,
@@ -759,6 +761,13 @@ class PrefsUtil(
         get() = getValue(SHOULD_SHOW_SMALL_BALANCES, false)
         set(value) = setValue(SHOULD_SHOW_SMALL_BALANCES, value)
 
+    override var latestPricesMode: String?
+        get() = getValue(PRICES_FILTER_MODE, "").takeIf { it.isNotEmpty() }
+        set(value) {
+            require(value != null)
+            setValue(PRICES_FILTER_MODE, value)
+        }
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -898,6 +907,8 @@ class PrefsUtil(
 
         // multiapp assets
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
+
+        private const val PRICES_FILTER_MODE = "prices_filter_mode"
     }
 }
 

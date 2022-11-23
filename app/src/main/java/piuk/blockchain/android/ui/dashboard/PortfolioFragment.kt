@@ -217,6 +217,7 @@ class PortfolioFragment :
     // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
     override fun onResume() {
         super.onResume()
+
         if (activeFiat != currencyPrefs.selectedFiatCurrency) {
             activeFiat = currencyPrefs.selectedFiatCurrency
             model.process(DashboardIntent.ResetDashboardAssets)
@@ -647,23 +648,9 @@ class PortfolioFragment :
         }
     }
 
-    // This method doesn't get called when we use the split portfolio/prices dashboard.
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (!hidden) {
-            model.process(
-                DashboardIntent.GetActiveAssets(
-                    loadSilently = activeFiat == currencyPrefs.selectedFiatCurrency
-                )
-            )
-            activeFiat = currencyPrefs.selectedFiatCurrency
-            model.process(DashboardIntent.FetchOnboardingSteps)
-        }
-    }
-
     override fun onPause() {
         saveAssetOrderingLegacy()
-
+        model.process(DashboardIntent.DisposePricesAndBalances)
         compositeDisposable.clear()
         super.onPause()
     }

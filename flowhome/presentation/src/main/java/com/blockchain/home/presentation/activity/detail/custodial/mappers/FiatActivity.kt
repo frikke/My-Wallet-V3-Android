@@ -4,12 +4,15 @@ import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
@@ -180,3 +183,30 @@ private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyleState = when 
     TransactionState.PENDING -> ActivityTagStyleState.Info
     TransactionState.FAILED -> ActivityTagStyleState.Error
 }
+
+internal fun FiatActivitySummaryItem.buildActivityDetail(
+    paymentMethod: PaymentMethodDetails
+) = CustodialActivityDetail(
+    activity = this,
+    extras = listOf(
+        CustodialActivityDetailExtra(
+            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+            value = with(paymentMethod) {
+                when {
+                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
+                        R.string.google_pay
+                    )
+                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
+                        R.string.apple_pay
+                    )
+                    label.isNullOrBlank() -> TextValue.StringValue(
+                        account.currency.name
+                    )
+                    else -> TextValue.StringValue(
+                        "$label $endDigits"
+                    )
+                }
+            }
+        )
+    )
+)

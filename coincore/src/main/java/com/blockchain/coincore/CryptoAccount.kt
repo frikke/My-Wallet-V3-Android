@@ -25,6 +25,20 @@ data class AccountBalance internal constructor(
         exchangeRate.convert(total)
     }
 
+    override fun equals(other: Any?): Boolean {
+        return (other is AccountBalance) && (other.total == total) && (other.withdrawable == withdrawable) &&
+            (other.pending == pending) && other.exchangeRate == exchangeRate
+    }
+
+    override fun hashCode(): Int {
+        var result = 17
+        result = 31 * result + total.hashCode()
+        result = 31 * result + withdrawable.hashCode()
+        result = 31 * result + pending.hashCode()
+        result = 31 * result + exchangeRate.hashCode()
+        return result
+    }
+
     companion object {
         internal fun from(balance: TradingAccountBalance, rate: ExchangeRate): AccountBalance {
             return AccountBalance(
