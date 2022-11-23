@@ -379,7 +379,8 @@ internal class BlockchainCardRepositoryImpl(
                 major = BigDecimal(price.value)
             ),
             brand = BlockchainCardBrand.valueOf(brand),
-            type = BlockchainCardType.valueOf(type)
+            type = BlockchainCardType.valueOf(type),
+            remainingCards = remainingCards,
         )
 
     private fun CardDto.toDomainModel(): BlockchainCard =

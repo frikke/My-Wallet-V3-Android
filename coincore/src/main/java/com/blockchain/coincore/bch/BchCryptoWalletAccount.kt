@@ -83,6 +83,9 @@ import org.bitcoinj.core.LegacyAddress
     override val index: Int
         get() = addressIndex
 
+    override val pubKeyDescriptor
+        get() = BCH_PUBKEY_DESCRIPTOR
+
     override val style: PubKeyStyle
         get() = PubKeyStyle.EXTENDED
 
@@ -195,5 +198,7 @@ import org.bitcoinj.core.LegacyAddress
             refreshTrigger = refreshTrigger,
             addressResolver = addressResolver
         )
+
+        const val BCH_PUBKEY_DESCRIPTOR = "p2pkh"
     }
 }

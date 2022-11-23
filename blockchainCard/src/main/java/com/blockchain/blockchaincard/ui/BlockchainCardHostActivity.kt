@@ -57,7 +57,7 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
 
     abstract fun startAddCardToGoogleWallet(pushTokenizeData: BlockchainCardGoogleWalletPushTokenizeData)
 
-    abstract fun startOrderCardFlow(isInitialFlow: Boolean = false)
+    abstract fun startOrderCardFlow(isInitialFlow: Boolean = false, products: List<BlockchainCardProduct>)
 
     abstract fun finishOrderCardFlow()
 

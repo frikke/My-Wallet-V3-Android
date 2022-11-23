@@ -7,7 +7,8 @@ data class ProductDto(
     val productCode: String,
     val price: PriceDto,
     val brand: String,
-    val type: String
+    val type: String,
+    val remainingCards: Int,
 )
 
 @Serializable

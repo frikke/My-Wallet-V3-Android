@@ -123,6 +123,7 @@ import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -304,6 +305,7 @@ class PaymentsRepository(
     ): Flow<DataResource<LinkedBank>> {
         return linkedBankStore.stream(freshnessStrategy.withKey(LinkedBankStore.Key(id)))
             .mapData { it.toDomainOrThrow() ?: error("map error") }
+            .catch { emit(DataResource.Error(Exception(it))) }
     }
 
     private fun LinkedBankTransferResponse.toDomainOrThrow() =

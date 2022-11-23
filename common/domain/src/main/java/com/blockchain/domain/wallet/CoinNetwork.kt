@@ -17,6 +17,7 @@ data class CoinNetwork(
 enum class NetworkType {
     EVM,
     BTC,
+    BCH,
     XLM,
     STX,
     NOT_SUPPORTED

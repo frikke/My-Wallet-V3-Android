@@ -4,6 +4,7 @@ import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -129,7 +130,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.OrderCard -> {
-                (navController.context as? BlockchainCardHostActivity)?.startOrderCardFlow()
+                (navController.context as? BlockchainCardHostActivity)?.startOrderCardFlow(
+                    isInitialFlow = false,
+                    products = navigationEvent.products
+                )
             }
 
             is BlockchainCardNavigationEvent.ManageCardDetails -> {
@@ -141,7 +145,13 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CardClosed -> {
-                (navController.context as? BlockchainCardHostActivity)?.finish()
+                val wasPopped = navController.popBackStack(
+                    route = BlockchainCardDestination.SelectCardDestination.route,
+                    inclusive = false
+                )
+
+                if (!wasPopped) destination = BlockchainCardDestination.SelectCardDestination
+                else destination = BlockchainCardDestination.NoDestination
             }
 
             is BlockchainCardNavigationEvent.ChooseFundingAccountAction -> {
@@ -301,7 +311,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     data class ViewCardSelector(val hasDefault: Boolean) : BlockchainCardNavigationEvent()
 
-    object OrderCard : BlockchainCardNavigationEvent()
+    data class OrderCard(val products: List<BlockchainCardProduct>) : BlockchainCardNavigationEvent()
 
     object ManageCard : BlockchainCardNavigationEvent()
 

@@ -77,6 +77,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object GoogleWalletAddCardFailed : BlockchainCardIntent()
     object LoadDefaultCard : BlockchainCardIntent()
     data class SaveCardAsDefault(val defaultCardId: String) : BlockchainCardIntent()
+    object LoadProducts : BlockchainCardIntent()
     object LoadCards : BlockchainCardIntent()
     object LoadCardOrderState : BlockchainCardIntent()
     object ActivateCard : BlockchainCardIntent()
