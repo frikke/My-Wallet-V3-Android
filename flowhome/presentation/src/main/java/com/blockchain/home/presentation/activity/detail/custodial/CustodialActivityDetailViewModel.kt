@@ -5,7 +5,6 @@ import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.onErrorReturn
@@ -13,19 +12,16 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
-import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.home.activity.CustodialActivityService
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
+import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.mapData
-import java.util.Currency
-import java.util.Locale
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -140,93 +136,14 @@ class CustodialActivityDetailViewModel(
         }.onErrorReturn {
             PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
         }.mapData { paymentDetails ->
-            CustodialActivityDetail(
-                activity = this,
-                extras = listOf(
-                    CustodialActivityDetailExtra(
-                        title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
-                        value = with(paymentDetails) {
-                            when {
-                                !endDigits.isNullOrEmpty() && !label.isNullOrEmpty() -> {
-                                    accountType?.let {
-                                        TextValue.IntResValue(
-                                            value = R.string.common_spaced_strings,
-                                            args = listOf(
-                                                label,
-                                                TextValue.IntResValue(
-                                                    value = R.string.payment_method_type_account_info,
-                                                    args = listOf(accountType, endDigits)
-                                                )
-                                            )
-                                        )
-                                    } ?: TextValue.IntResValue(
-                                        value = R.string.common_hyphenated_strings,
-                                        args = listOf(label, endDigits)
-                                    )
-                                }
-                                paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
-                                    endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
-                                    TextValue.IntResValue(
-                                        value = R.string.credit_or_debit_card
-                                    )
-                                }
-                                paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                                    TextValue.StringValue(
-                                        value = label?.let {
-                                            Currency.getInstance(label).getDisplayName(Locale.getDefault())
-                                        } ?: ""
-                                    )
-                                }
-                                mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
-                                    TextValue.IntResValue(
-                                        value = R.string.google_pay
-                                    )
-                                }
-                                mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
-                                    TextValue.IntResValue(
-                                        value = R.string.apple_pay
-                                    )
-                                }
-                                else -> {
-                                    TextValue.IntResValue(
-                                        value = R.string.activity_details_payment_load_fail
-                                    )
-                                }
-                            }
-                        }
-                    )
-                )
-            )
+            buildActivityDetail(paymentDetails)
         }
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return paymentMethodService.getPaymentMethodDetailsForId(paymentMethodId.orEmpty())
             .mapData { paymentMethodDetails ->
-                CustodialActivityDetail(
-                    activity = this,
-                    extras = listOf(
-                        CustodialActivityDetailExtra(
-                            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
-                            value = with(paymentMethodDetails) {
-                                when {
-                                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
-                                        R.string.google_pay
-                                    )
-                                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
-                                        R.string.apple_pay
-                                    )
-                                    paymentMethodDetails.label.isNullOrBlank() -> TextValue.StringValue(
-                                        account.currency.name
-                                    )
-                                    else -> TextValue.StringValue(
-                                        "${paymentMethodDetails.label} ${paymentMethodDetails.endDigits}"
-                                    )
-                                }
-                            }
-                        )
-                    )
-                )
+                buildActivityDetail(paymentMethodDetails)
             }
     }
 }
