@@ -112,6 +112,9 @@ import io.reactivex.rxjava3.core.Single
     override val descriptor: Int
         get() = MULTIPLE_ADDRESSES_DESCRIPTOR
 
+    override val pubKeyDescriptor
+        get() = BTC_PUBKEY_DESCRIPTOR
+
     override val style: PubKeyStyle
         get() = PubKeyStyle.EXTENDED
 
@@ -319,5 +322,7 @@ import io.reactivex.rxjava3.core.Single
         )
 
         private const val IMPORTED_ACCOUNT_NO_INDEX = Int.MAX_VALUE
+
+        private const val BTC_PUBKEY_DESCRIPTOR = "p2wpkh"
     }
 }

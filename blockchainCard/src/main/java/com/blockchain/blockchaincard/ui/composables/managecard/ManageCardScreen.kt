@@ -665,11 +665,13 @@ private fun PreviewGooglePayButton() {
 fun CardSelector(
     cards: List<BlockchainCard>,
     defaultCardId: String,
+    hasProductsAvailableToOrder: Boolean,
     onOrderCard: () -> Unit,
     onManageCard: (BlockchainCard) -> Unit,
     onViewCard: (BlockchainCard) -> Unit,
     onSetCardAsDefault: (String) -> Unit,
-    onRefreshCards: () -> Unit
+    onRefreshCards: () -> Unit,
+    onRefreshProducts: () -> Unit,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -677,6 +679,7 @@ fun CardSelector(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 onRefreshCards()
+                onRefreshProducts()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -714,14 +717,16 @@ fun CardSelector(
                 gravity = ComposeGravities.Start,
             )
 
-            MinimalButton(
-                text = "Add Card",
-                onClick = onOrderCard,
-                modifier = Modifier
-                    .wrapContentWidth(),
-                minHeight = 16.dp,
-                shape = AppTheme.shapes.small
-            )
+            if (hasProductsAvailableToOrder) {
+                MinimalButton(
+                    text = stringResource(R.string.bc_card_add),
+                    onClick = onOrderCard,
+                    modifier = Modifier
+                        .wrapContentWidth(),
+                    minHeight = 16.dp,
+                    shape = AppTheme.shapes.small
+                )
+            }
         }
 
         LazyColumn(
@@ -808,12 +813,14 @@ fun PreviewCardSelector() {
 
     CardSelector(
         cards = cards,
+        hasProductsAvailableToOrder = true,
         onManageCard = {},
         onViewCard = {},
         onOrderCard = {},
         defaultCardId = "",
         onSetCardAsDefault = {},
-        onRefreshCards = {}
+        onRefreshCards = {},
+        onRefreshProducts = {}
     )
 }
 

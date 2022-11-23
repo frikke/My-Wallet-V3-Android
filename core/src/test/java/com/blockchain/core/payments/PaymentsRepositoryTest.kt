@@ -283,7 +283,7 @@ class PaymentsRepositoryTest {
         // ASSERT
         subject.getLinkedBankLegacy(ID).test()
             .await()
-            .assertError { it is IllegalArgumentException }
+            .assertError { it is Exception }
     }
 
     @Test

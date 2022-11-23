@@ -11,6 +11,7 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.coincore.loader.CoinNetworksStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
@@ -246,7 +247,14 @@ val coincoreModule = module {
             l2Store = get(),
             layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) },
             coinNetworksFeatureFlag = lazy { get(coinNetworksFeatureFlag) },
-            evmNetworksService = lazy { payloadScope.get() }
+            evmNetworksService = lazy { payloadScope.get() },
+            coinNetworksStore = get()
+        )
+    }
+
+    single {
+        CoinNetworksStore(
+            discoveryService = get()
         )
     }
 

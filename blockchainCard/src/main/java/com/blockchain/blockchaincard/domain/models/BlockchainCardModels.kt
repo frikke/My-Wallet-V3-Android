@@ -18,7 +18,8 @@ data class BlockchainCardProduct(
     val productCode: String,
     val price: FiatValue,
     val brand: BlockchainCardBrand,
-    val type: BlockchainCardType
+    val type: BlockchainCardType,
+    val remainingCards: Int,
 ) : Parcelable
 
 @Parcelize

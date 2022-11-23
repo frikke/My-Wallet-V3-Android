@@ -37,7 +37,8 @@ val homePresentationModule = module {
         viewModel { (txId: String) ->
             PrivateKeyActivityDetailViewModel(
                 activityTxId = txId,
-                unifiedActivityService = get()
+                unifiedActivityService = get(),
+                networkWalletService = get()
             )
         }
 
