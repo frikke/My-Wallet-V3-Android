@@ -24,7 +24,8 @@ class CardDetailsStore(
     dataSerializer = CardResponse.serializer(),
     keySerializer = Key.serializer(),
     mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
-), KeyedFlushableDataSource<CardDetailsStore.Key> {
+),
+    KeyedFlushableDataSource<CardDetailsStore.Key> {
 
     @Serializable
     data class Key(

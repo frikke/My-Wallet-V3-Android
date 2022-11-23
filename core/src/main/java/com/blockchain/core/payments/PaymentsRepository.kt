@@ -117,15 +117,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import kotlinx.coroutines.rx3.rxSingle
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.rxSingle
 
 class PaymentsRepository(
     private val paymentsService: PaymentsService,
@@ -152,7 +151,6 @@ class PaymentsRepository(
     override suspend fun getPaymentMethodDetailsForIdLegacy(
         paymentId: String,
     ): Outcome<Exception, PaymentMethodDetails> {
-        // TODO Turn getAuthHeader() into a suspension function
         return paymentsService.getPaymentMethodDetailsForId(paymentId)
             .map { it.toPaymentDetails() }
     }

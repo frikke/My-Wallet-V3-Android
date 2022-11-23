@@ -24,6 +24,8 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.mapData
+import java.util.Currency
+import java.util.Locale
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -33,8 +35,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Currency
-import java.util.Locale
 
 class CustodialActivityDetailViewModel(
     private val activityTxId: String,
@@ -115,7 +115,7 @@ class CustodialActivityDetailViewModel(
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> {
                 cardService.getCardDetails(cardId = paymentMethodId)
-                    .mapData { card -> card.toPaymentDetail()}
+                    .mapData { card -> card.toPaymentDetail() }
             }
             PaymentMethodType.BANK_TRANSFER -> {
                 bankService.getLinkedBank(id = paymentMethodId)
@@ -256,4 +256,3 @@ private fun PaymentMethod.toPaymentDetail(): PaymentDetails = PaymentDetails(
     paymentMethodType = type,
     mobilePaymentType = (this as? PaymentMethod.Card)?.mobilePaymentType
 )
-

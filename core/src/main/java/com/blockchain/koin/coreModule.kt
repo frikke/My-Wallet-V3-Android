@@ -127,9 +127,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import java.util.UUID
 
 val coreModule = module {
 
@@ -544,8 +544,8 @@ val coreModule = module {
                 paymentsService = get(),
                 paymentMethodsStore = get(),
                 paymentMethodsService = get(),
-                cardDetailsStore= get(),
-                linkedBankStore  = get(),
+                cardDetailsStore = get(),
+                linkedBankStore = get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),
                 googlePayManager = get(),

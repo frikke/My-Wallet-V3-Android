@@ -21,5 +21,5 @@ class CustodialActivityStore(
                 }
         }
     ),
-    mediator = FreshnessMediator(Freshness.ofMinutes(30))
+    mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
 )
