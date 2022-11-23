@@ -6,6 +6,8 @@ import info.blockchain.balance.AssetInfo
 data class PricesViewState(
     val isLoading: Boolean,
     val isError: Boolean,
+    val selectedFilter: PricesFilter,
+    val availableFilters: List<PricesFilter>,
     val data: List<PriceItemViewState>,
 ) : ViewState
 

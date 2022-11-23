@@ -11,10 +11,10 @@ data class ServerSideUxErrorInfo(
     val statusUrl: String,
     val actions: List<ServerErrorAction>,
     val categories: List<String>
-)
+) : java.io.Serializable
 
 @Serializable
 data class ServerErrorAction(
     val title: String,
     val deeplinkPath: String
-)
+) : java.io.Serializable

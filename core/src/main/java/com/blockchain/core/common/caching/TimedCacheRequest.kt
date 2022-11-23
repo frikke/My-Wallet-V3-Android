@@ -5,7 +5,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-class TimedCacheRequest<T>(
+class TimedCacheRequest<T : Any>(
     private val cacheLifetimeSeconds: Long,
     private val refreshFn: () -> Single<T>
 ) {

@@ -13,6 +13,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.Search
+import com.blockchain.componentlib.filter.FilterState
+import com.blockchain.componentlib.filter.LabeledFilterState
+import com.blockchain.componentlib.filter.LabeledFiltersGroup
 import com.blockchain.componentlib.theme.AppTheme
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
@@ -24,6 +27,7 @@ import piuk.blockchain.android.ui.prices.presentation.composables.PricesScreenEr
 fun PricesScreen(
     viewState: PricesViewState,
     retryAction: () -> Unit,
+    filterAction: (PricesFilter) -> Unit,
     pricesItemClicked: (AssetInfo) -> Unit,
     filterData: (String) -> Unit,
 ) {
@@ -31,39 +35,78 @@ fun PricesScreen(
         when {
             isLoading -> PriceScreenLoading()
             isError -> PricesScreenError(retryAction)
-            else -> {
-                Column {
-                    Box(
-                        modifier = Modifier.padding(
-                            start = AppTheme.dimensions.standardSpacing,
-                            top = AppTheme.dimensions.tinySpacing,
-                            end = AppTheme.dimensions.standardSpacing,
-                            bottom = AppTheme.dimensions.smallSpacing
-                        )
-                    ) {
-                        Search(
-                            label = stringResource(R.string.search_coins_hint),
-                            onValueChange = filterData
-                        )
-                    }
+            else -> PricesScreenData(
+                pricesItemClicked,
+                filterData,
+                viewState.selectedFilter,
+                viewState.availableFilters,
+                filterAction,
+                viewState.data
+            )
+        }
+    }
+}
 
-                    LazyColumn {
-                        items(
-                            items = data,
-                        ) {
-                            PriceListItem(
-                                priceItem = it,
-                                onClick = { pricesItemClicked(it.assetInfo) }
-                            )
-                        }
+@Composable
+fun PricesScreenData(
+    pricesItemClicked: (AssetInfo) -> Unit,
+    filterData: (String) -> Unit,
+    selectedFilter: PricesFilter,
+    filters: List<PricesFilter>,
+    filterAction: (PricesFilter) -> Unit,
+    data: List<PriceItemViewState>
+) {
+    Column {
+        Box(
+            modifier = Modifier.padding(
+                start = AppTheme.dimensions.standardSpacing,
+                top = AppTheme.dimensions.tinySpacing,
+                end = AppTheme.dimensions.standardSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        ) {
+            Search(
+                label = stringResource(R.string.search_coins_hint),
+                onValueChange = filterData
+            )
+        }
+        if (filters.isNotEmpty()) {
+            LabeledFiltersGroup(
+                filters = filters.map { filter ->
+                    LabeledFilterState(
+                        text = stringResource(id = filter.title()),
+                        onSelected = { filterAction(filter) },
+                        state = if (selectedFilter == filter) FilterState.SELECTED else FilterState.UNSELECTED
+                    )
+                },
+                modifier = Modifier.padding(
+                    horizontal = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.smallSpacing
+                )
+            )
+        }
 
-                        item {
-                            Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
-                        }
-                    }
-                }
+        LazyColumn {
+            items(
+                items = data,
+            ) {
+                PriceListItem(
+                    priceItem = it,
+                    onClick = { pricesItemClicked(it.assetInfo) }
+                )
+            }
+
+            item {
+                Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
             }
         }
+    }
+}
+
+private fun PricesFilter.title(): Int {
+    return when (this) {
+        PricesFilter.All -> R.string.all_prices
+        PricesFilter.Tradable -> R.string.tradable
     }
 }
 
@@ -74,9 +117,11 @@ fun PreviewInterestDashboardScreenLoading() {
         PricesViewState(
             isLoading = true,
             isError = false,
+            selectedFilter = PricesFilter.All,
+            availableFilters = emptyList(),
             data = listOf()
         ),
-        {}, {}, {},
+        {}, {}, {}, {},
     )
 }
 
@@ -87,9 +132,11 @@ fun PreviewInterestDashboardScreenError() {
         PricesViewState(
             isLoading = false,
             isError = true,
+            selectedFilter = PricesFilter.All,
+            availableFilters = emptyList(),
             data = listOf()
         ),
-        {}, {}, {},
+        {}, {}, {}, {},
     )
 }
 
@@ -100,8 +147,10 @@ fun PreviewInterestDashboardScreenDataNoKyc() {
         PricesViewState(
             isLoading = false,
             isError = false,
+            selectedFilter = PricesFilter.All,
+            availableFilters = emptyList(),
             data = listOf()
         ),
-        {}, {}, {},
+        {}, {}, {}, {},
     )
 }

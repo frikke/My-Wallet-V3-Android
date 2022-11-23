@@ -179,8 +179,7 @@ import io.reactivex.rxjava3.core.Single
         val isArchived = this.isArchived
 
         return updateArchivedState(!isArchived)
-            .then { payloadDataManager.updateAllTransactions() }
-            .then { balanceRx.ignoreElements() }
+            .then { balanceRx.firstOrError().onErrorComplete().ignoreElement() }
             .doOnComplete { forceRefresh() }
     }
 

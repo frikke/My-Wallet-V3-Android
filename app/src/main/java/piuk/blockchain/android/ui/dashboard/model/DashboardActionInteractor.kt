@@ -72,6 +72,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -132,6 +133,8 @@ class DashboardActionInteractor(
         }.flatMapLatest { wMode ->
             coincore.activeAssets(wMode).map {
                 it to wMode
+            }.distinctUntilChangedBy { (assets, _) ->
+                assets.map { it.currency.networkTicker }
             }
         }
             .asObservable()
@@ -247,6 +250,7 @@ class DashboardActionInteractor(
         model: DashboardModel,
         walletMode: WalletMode
     ): List<Disposable> {
+        println("LALALA loadBalances")
         return assets.takeIf { it.isNotEmpty() }?.map { asset ->
             refreshAssetBalance(asset, model, walletMode).subscribeBy(onError = {
                 Timber.e(it)
@@ -280,34 +284,37 @@ class DashboardActionInteractor(
             .logGroupLoadError(currency, walletMode.defaultFilter())
             .flatMapObservable { group ->
                 group.balanceRx.debounce(500, TimeUnit.MILLISECONDS)
+                    .distinctUntilChanged()
                     .logBalanceLoadError(currency, walletMode.defaultFilter())
                     .flatMap { balance ->
-                        shouldAssetShowUseCase.invoke(balance).asObservable().map { shouldShow ->
+                        shouldAssetShowUseCase.invoke(balance).asObservable().distinctUntilChanged().map { shouldShow ->
                             balance to shouldShow
                         }
                     }
-            }
-            .doOnSubscribe {
-                Timber.i("Fetching balance for asset ${currency.displayTicker}")
-                model.process(DashboardIntent.BalanceFetching(currency, true))
-            }
-            .doOnError { e ->
-                Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
-                model.process(DashboardIntent.BalanceUpdateError(currency))
-            }
-            .doOnNext { (accountBalance, shouldAssetShow) ->
-                Timber.d("Got balance for ${currency.displayTicker}")
-                model.process(
-                    DashboardIntent.BalanceUpdate(
-                        asset = currency,
-                        newBalance = accountBalance,
-                        shouldAssetShow = shouldAssetShow
-                    )
-                )
-            }
-            .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
-            .map { (accountBalance, _) ->
-                accountBalance.total
+                    .doOnSubscribe {
+                        Timber.i("Fetching balance for asset ${currency.displayTicker}")
+                        model.process(DashboardIntent.BalanceFetching(currency))
+                    }
+                    .doOnError { e ->
+                        Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
+                        model.process(DashboardIntent.BalanceUpdateError(currency))
+                    }
+                    .doOnNext { (accountBalance, shouldAssetShow) ->
+                        Timber.d(
+                            "Got balance for ${currency.displayTicker} ---" +
+                                " ${accountBalance.total.toStringWithSymbol()}"
+                        )
+                        model.process(
+                            DashboardIntent.BalanceUpdate(
+                                asset = currency,
+                                newBalance = accountBalance,
+                                shouldAssetShow = shouldAssetShow
+                            )
+                        )
+                    }
+                    .map { (accountBalance, _) ->
+                        accountBalance.total
+                    }
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
@@ -936,6 +943,11 @@ class DashboardActionInteractor(
             Timber.e(it)
         }
     )
+
+    fun disposeBalances() {
+        balancesDisposable.clear()
+        activeAssetsDisposable.clear()
+    }
 
     fun getStakingFeatureFlag(): Single<Boolean> =
         stakingFeatureFlag.enabled

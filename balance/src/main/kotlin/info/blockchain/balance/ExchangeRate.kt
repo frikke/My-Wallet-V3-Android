@@ -3,7 +3,7 @@ package info.blockchain.balance
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-data class ExchangeRate(
+class ExchangeRate(
     private val rate: BigDecimal?,
     val from: Currency,
     val to: Currency
@@ -16,6 +16,19 @@ data class ExchangeRate(
                 rate.multiply(value.toBigDecimal())
             )
         } ?: UnknownValue.unknownValue(to)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is ExchangeRate) && (other.rate == rate) && (other.from.networkTicker == from.networkTicker) &&
+            (to.networkTicker == to.networkTicker)
+    }
+
+    override fun hashCode(): Int {
+        var result = 17
+        result = 31 * result + rate.hashCode()
+        result = 31 * result + from.networkTicker.hashCode()
+        result = 31 * result + to.networkTicker.hashCode()
+        return result
     }
 
     val price: Money

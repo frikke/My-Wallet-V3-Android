@@ -38,9 +38,9 @@ sealed class PartnerCredentials {
 }
 
 @Serializable
-sealed class CardRejectionState {
+sealed class CardRejectionState : java.io.Serializable {
     @Serializable
-    object NotRejected : CardRejectionState()
+    object NotRejected : CardRejectionState(), java.io.Serializable
 
     @Serializable
     data class MaybeRejected(
@@ -51,7 +51,7 @@ sealed class CardRejectionState {
         val iconUrl: String?,
         val statusIconUrl: String?,
         val analyticsCategories: List<String>
-    ) : CardRejectionState()
+    ) : CardRejectionState(), java.io.Serializable
 
     @Serializable
     data class AlwaysRejected(
@@ -62,7 +62,7 @@ sealed class CardRejectionState {
         val iconUrl: String?,
         val statusIconUrl: String?,
         val analyticsCategories: List<String>
-    ) : CardRejectionState()
+    ) : CardRejectionState(), java.io.Serializable
 }
 
 enum class CardRejectionCheckError {
