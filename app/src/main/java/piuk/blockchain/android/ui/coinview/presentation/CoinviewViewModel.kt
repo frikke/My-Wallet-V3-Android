@@ -49,6 +49,8 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistor
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
+import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
@@ -89,7 +91,6 @@ class CoinviewViewModel(
     private var loadQuickActionsJob: Job? = null
     private var loadRecurringBuyJob: Job? = null
     private var loadAssetInfoJob: Job? = null
-    private var loadAccountActionsJob: Job? = null
     private var snackbarMessageJob: Job? = null
 
     private val fiatCurrency: FiatCurrency
@@ -870,6 +871,7 @@ class CoinviewViewModel(
                     CoinviewNavigationEvent.ShowAccountActions(
                         cvAccount = cvAccount,
                         interestRate = cvAccount.interestRate(),
+                        stakingRate = cvAccount.stakingRate(),
                         actions = intent.actions,
                         cryptoBalance = balance.data,
                         fiatBalance = fiatBalance.data,
@@ -1212,6 +1214,7 @@ class CoinviewViewModel(
                                 CoinviewNavigationEvent.ShowAccountActions(
                                     cvAccount = account,
                                     interestRate = account.interestRate(),
+                                    stakingRate = account.stakingRate(),
                                     actions = actions,
                                     cryptoBalance = (account.cryptoBalance as DataResource.Data).data,
                                     fiatBalance = (account.fiatBalance as DataResource.Data).data
@@ -1313,9 +1316,19 @@ class CoinviewViewModel(
             )
 
             AssetAction.ViewStatement -> navigate(
-                CoinviewNavigationEvent.NavigateToInterestStatement(
-                    cvAccount = account
-                )
+                when {
+                    account.isInterestAccount() -> {
+                        CoinviewNavigationEvent.NavigateToInterestStatement(
+                            cvAccount = account
+                        )
+                    }
+                    account.isStakingAccount() -> {
+                        CoinviewNavigationEvent.NavigateToInterestStatement(
+                            cvAccount = account
+                        )
+                    }
+                    else -> throw IllegalStateException("ViewStatement is not supported for account $account")
+                }
             )
 
             AssetAction.InterestDeposit -> navigate(
@@ -1330,12 +1343,11 @@ class CoinviewViewModel(
                 )
             )
 
-            AssetAction.StakingDeposit ->
-                navigate(
-                    CoinviewNavigationEvent.NavigateToStakingDeposit(
-                        cvAccount = account
-                    )
+            AssetAction.StakingDeposit -> navigate(
+                CoinviewNavigationEvent.NavigateToStakingDeposit(
+                    cvAccount = account
                 )
+            )
 
             else -> throw IllegalStateException("Action $action is not supported in this flow")
         }

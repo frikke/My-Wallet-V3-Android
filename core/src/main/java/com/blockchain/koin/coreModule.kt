@@ -91,12 +91,6 @@ import com.blockchain.core.settings.SettingsEmailAndSyncUpdater
 import com.blockchain.core.settings.SettingsPhoneNumberUpdater
 import com.blockchain.core.settings.SettingsService
 import com.blockchain.core.settings.datastore.SettingsStore
-import com.blockchain.core.staking.data.StakingRepository
-import com.blockchain.core.staking.data.datasources.StakingBalanceStore
-import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
-import com.blockchain.core.staking.data.datasources.StakingLimitsStore
-import com.blockchain.core.staking.data.datasources.StakingRatesStore
-import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
@@ -604,45 +598,6 @@ val coreModule = module {
         scoped {
             NonCustodialSubscriptionsStore(
                 dynamicSelfCustodyService = get()
-            )
-        }
-
-        scoped {
-            StakingRatesStore(
-                stakingApiService = get()
-            )
-        }
-
-        scoped {
-            StakingEligibilityStore(
-                stakingApiService = get()
-            )
-        }
-
-        scoped {
-            StakingBalanceStore(
-                stakingApiService = get()
-            )
-        }
-
-        scoped {
-            StakingLimitsStore(
-                stakingApiService = get(),
-                currencyPrefs = get()
-            )
-        }
-
-        scoped<StakingService> {
-            StakingRepository(
-                stakingRatesStore = get(),
-                stakingEligibilityStore = get(),
-                stakingBalanceStore = get(),
-                assetCatalogue = get(),
-                stakingFeatureFlag = get(stakingAccountFeatureFlag),
-                paymentTransactionHistoryStore = get(),
-                stakingLimitsStore = get(),
-                currencyPrefs = get(),
-                stakingApi = get()
             )
         }
 

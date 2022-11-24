@@ -19,6 +19,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     data class ShowAccountActions(
         val cvAccount: CoinviewAccount,
         val interestRate: Double,
+        val stakingRate: Double,
         val fiatBalance: Money,
         val cryptoBalance: Money,
         val actions: List<StateAwareAction>
@@ -51,6 +52,10 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToInterestStatement(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToStakingStatement(
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 

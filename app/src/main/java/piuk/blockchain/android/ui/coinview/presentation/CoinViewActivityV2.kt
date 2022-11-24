@@ -131,6 +131,7 @@ class CoinViewActivityV2 :
                 navigateToAccountActions(
                     cvAccount = navigationEvent.cvAccount,
                     interestRate = navigationEvent.interestRate,
+                    stakingRate = navigationEvent.stakingRate,
                     actions = navigationEvent.actions,
                     balanceCrypto = navigationEvent.cryptoBalance,
                     fiatBalance = navigationEvent.fiatBalance,
@@ -231,6 +232,9 @@ class CoinViewActivityV2 :
                 showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
             }
 
+            is CoinviewNavigationEvent.NavigateToStakingStatement ->
+                showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+
             is CoinviewNavigationEvent.NavigateToInterestDeposit -> {
                 goToInterestDeposit(navigationEvent.cvAccount.account)
             }
@@ -312,6 +316,7 @@ class CoinViewActivityV2 :
     private fun navigateToAccountActions(
         cvAccount: CoinviewAccount,
         interestRate: Double,
+        stakingRate: Double,
         fiatBalance: Money,
         balanceCrypto: Money,
         actions: List<StateAwareAction>
@@ -322,6 +327,7 @@ class CoinViewActivityV2 :
                 balanceFiat = fiatBalance,
                 balanceCrypto = balanceCrypto,
                 interestRate = interestRate,
+                stakingRate = stakingRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )

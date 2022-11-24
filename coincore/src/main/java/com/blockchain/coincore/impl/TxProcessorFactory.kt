@@ -47,9 +47,9 @@ import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.staking.data.datasources.StakingBalanceStore
-import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.earn.data.dataresources.StakingBalanceStore
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager

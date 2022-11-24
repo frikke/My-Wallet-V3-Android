@@ -13,10 +13,10 @@ import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.walletmode.WalletMode

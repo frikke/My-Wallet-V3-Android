@@ -531,6 +531,7 @@ class CoinViewActivity :
                             balanceFiat = fiatBalance,
                             balanceCrypto = balance,
                             interestRate = interestRate,
+                            stakingRate = stakingRate,
                             stateAwareActions = state.actions
                         )
                     )

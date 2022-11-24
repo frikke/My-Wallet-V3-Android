@@ -830,7 +830,9 @@
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
     <string name="dashboard_asset_actions_summary_title_1">Rewards Summary</string>
+    <string name="dashboard_asset_actions_summary_staking_title">Staking Summary</string>
     <string name="dashboard_asset_actions_summary_dsc_1">View your accrued %1$s Rewards</string>
+    <string name="dashboard_asset_actions_summary_staking_dsc">View your accrued %1$s Earnings</string>
     <string name="dashboard_asset_actions_rewards_dsc_failed">Could not load Rewards details</string>
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
@@ -2960,6 +2962,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
+    <string name="actions_sheet_percentage_staking">%s%% APY</string>
 
     <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>

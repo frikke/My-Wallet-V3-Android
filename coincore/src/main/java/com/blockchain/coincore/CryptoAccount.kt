@@ -3,8 +3,8 @@ package com.blockchain.coincore
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.staking.domain.model.StakingAccountBalance
 import com.blockchain.data.DataResource
+import com.blockchain.earn.domain.models.StakingAccountBalance
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate

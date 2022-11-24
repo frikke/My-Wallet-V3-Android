@@ -76,7 +76,8 @@ sealed interface AssetDetailsItem {
         open val balance: Money,
         open val fiatBalance: Money,
         open val actions: Set<StateAwareAction>,
-        open val interestRate: Double
+        open val interestRate: Double,
+        open val stakingRate: Double
     ) : AssetDetailsItem
 
     /**
@@ -88,13 +89,15 @@ sealed interface AssetDetailsItem {
         override val balance: Money,
         override val fiatBalance: Money,
         override val actions: Set<StateAwareAction>,
-        override val interestRate: Double = Double.NaN
+        override val interestRate: Double = Double.NaN,
+        override val stakingRate: Double = Double.NaN
     ) : CryptoDetailsInfo(
         account = account,
         balance = balance,
         fiatBalance = fiatBalance,
         actions = actions,
-        interestRate = interestRate
+        interestRate = interestRate,
+        stakingRate = stakingRate
     )
 
     /**
@@ -110,7 +113,8 @@ sealed interface AssetDetailsItem {
         balance = balance,
         fiatBalance = fiatBalance,
         actions = actions,
-        interestRate = Double.NaN
+        interestRate = Double.NaN,
+        stakingRate = Double.NaN
     )
 
     data class CentralCta(

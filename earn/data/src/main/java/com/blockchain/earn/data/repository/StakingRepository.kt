@@ -1,23 +1,24 @@
-package com.blockchain.core.staking.data
+package com.blockchain.earn.data.repository
 
 import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.core.staking.data.datasources.StakingBalanceStore
-import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
-import com.blockchain.core.staking.data.datasources.StakingLimitsStore
-import com.blockchain.core.staking.data.datasources.StakingRatesStore
-import com.blockchain.core.staking.domain.StakingActivity
-import com.blockchain.core.staking.domain.StakingActivityAttributes
-import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.staking.domain.StakingState
-import com.blockchain.core.staking.domain.model.StakingAccountBalance
-import com.blockchain.core.staking.domain.model.StakingEligibility
-import com.blockchain.core.staking.domain.model.StakingLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.data.dataresources.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.StakingEligibilityStore
+import com.blockchain.earn.data.dataresources.StakingLimitsStore
+import com.blockchain.earn.data.dataresources.StakingRatesStore
+import com.blockchain.earn.domain.models.StakingAccountBalance
+import com.blockchain.earn.domain.models.StakingActivity
+import com.blockchain.earn.domain.models.StakingActivityAttributes
+import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.models.StakingTransactionBeneficiary
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
@@ -33,6 +34,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
@@ -211,6 +213,14 @@ class StakingRepository(
             extraAttributes = extraAttributes?.toDomain()
         )
 
+    private fun String.toTransactionType() =
+        when (this) {
+            TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
+            TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
+            TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
+            else -> TransactionSummary.TransactionType.UNKNOWN
+        }
+
     private fun String.toStakingState(): StakingState =
         when (this) {
             TransactionResponse.FAILED -> StakingState.FAILED
@@ -232,7 +242,10 @@ class StakingRepository(
         id = id,
         transactionHash = txHash,
         transferType = transferType,
-        beneficiary = beneficiary
+        beneficiary = StakingTransactionBeneficiary(
+            beneficiary?.accountRef,
+            beneficiary?.user
+        )
     )
 
     private fun StakingBalanceDto.toStakingBalance(currency: Currency): StakingAccountBalance =

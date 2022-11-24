@@ -1,4 +1,4 @@
-package com.blockchain.core.staking.domain.model
+package com.blockchain.domain.eligibility.model
 
 sealed interface StakingEligibility {
     object Eligible : StakingEligibility
