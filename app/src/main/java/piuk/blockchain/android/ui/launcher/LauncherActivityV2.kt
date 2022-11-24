@@ -10,7 +10,6 @@ import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
@@ -35,7 +34,8 @@ import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
-class LauncherActivity : MVIActivity<LauncherState>(), NavigationRouter<LaunchNavigationEvent> {
+class LauncherActivity
+class LauncherActivityV2 : MVIActivity<LauncherState>(), NavigationRouter<LaunchNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean = false
 
@@ -189,7 +189,7 @@ class LauncherActivity : MVIActivity<LauncherState>(), NavigationRouter<LaunchNa
             intentFromNotification: Boolean = false,
             notificationAnalyticsPayload: Map<String, String>? = null
         ): Intent =
-            Intent(context, LauncherActivity::class.java).apply {
+            Intent(context, LauncherActivityV2::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
                 notificationAnalyticsPayload?.keys?.forEach { key ->
                     notificationAnalyticsPayload[key]?.let { value ->

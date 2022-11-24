@@ -418,6 +418,7 @@ dependencies {
     implementation project(':nfts:data')
     implementation project(':nfts:domain')
     implementation project(':nfts:presentation')
+    implementation project(':membership:presentation')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

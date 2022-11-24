@@ -11,15 +11,13 @@
 
         <activity
             tools:node="replace"
-            android:name="piuk.blockchain.android.ui.launcher.LauncherActivity"
+            android:name="piuk.blockchain.android.ui.launcher.LauncherActivityV2"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:launchMode="singleTask">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
