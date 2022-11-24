@@ -3,17 +3,17 @@ package com.blockchain.home.presentation.activity.detail.composable
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
@@ -32,16 +32,16 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Purchase"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Purchase"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
                                 )
                             )
                         )
@@ -51,40 +51,40 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Amount"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("20/35 confirmations"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Network"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Transaction ID"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("0.00503823 BTC"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bitcoin Account"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Warning
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Warning
                                 )
                             )
                         )
@@ -94,17 +94,17 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Fees"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Free"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2,
-                                    ActivityTextColorState.Success
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Success
                                 )
                             )
                         )
@@ -114,22 +114,22 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Total"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("106.17"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("0.00534908 BTC"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
                                 )
                             )
                         )
@@ -144,15 +144,15 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Tag(
                                 value = TextValue.StringValue("Complete"),
-                                ActivityTagStyleState.Success
+                                ActivityTagStyle.Success
                             )
                         )
                     ),
@@ -161,16 +161,16 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Capital One •••• 0192"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
                                 )
                             )
                         )
@@ -180,21 +180,21 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("20/35 confirmations"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Tag(
                                 value = TextValue.StringValue("Pending"),
-                                ActivityTagStyleState.Warning
+                                ActivityTagStyle.Warning
                             )
                         )
                     )
@@ -208,16 +208,16 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                         leading = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Muted
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
                                 )
                             )
                         ),
                         trailing = listOf(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Capital One •••• 0192"),
-                                ActivityTextStyleState(
-                                    ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title
+                                ActivityTextStyle(
+                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
                                 )
                             )
                         )
@@ -225,7 +225,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                     ActivityComponent.Button(
                         id = "",
                         value = TextValue.StringValue("Copy Transaction ID"),
-                        style = ActivityButtonStyleState.Tertiary,
+                        style = ActivityButtonStyle.Tertiary,
                         action = ActivityButtonAction(
                             type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                             data = ""
@@ -239,7 +239,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
             ActivityComponent.Button(
                 id = "",
                 value = TextValue.StringValue("View on Etherscan"),
-                style = ActivityButtonStyleState.Primary,
+                style = ActivityButtonStyle.Primary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                     data = ""
@@ -249,7 +249,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
             ActivityComponent.Button(
                 id = "",
                 value = TextValue.StringValue("Speed Up"),
-                style = ActivityButtonStyleState.Secondary,
+                style = ActivityButtonStyle.Secondary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                     data = ""
@@ -258,7 +258,7 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
             ActivityComponent.Button(
                 id = "",
                 value = TextValue.StringValue("Cancel"),
-                style = ActivityButtonStyleState.Tertiary,
+                style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                     data = ""
