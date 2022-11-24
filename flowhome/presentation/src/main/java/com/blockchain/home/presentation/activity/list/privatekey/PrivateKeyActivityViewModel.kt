@@ -13,12 +13,10 @@ import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityModelState
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
-import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
-import com.blockchain.utils.toMonthAndYear
 import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -78,7 +76,9 @@ class PrivateKeyActivityViewModel(
         }
             // reduce to summary
             .map { (group, activities) ->
-                group to activities.sorted().map { it.summary.toActivityComponent(componentId = it.txId) }
+                group to activities.sorted().map {
+                    it.summary.toActivityComponent(componentId = it.txId)
+                }
             }
             .toMap()
             .toSortedMap(compareByDescending { it })

@@ -1,13 +1,8 @@
 package com.blockchain.home.presentation.activity.common
 
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 import com.blockchain.unifiedcryptowallet.domain.activity.model.StackComponent
 
 fun ActivityIcon.toStackedIcon() = when (this) {
