@@ -12,8 +12,8 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.core.recurringbuy.RecurringBuy
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody

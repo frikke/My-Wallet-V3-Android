@@ -10,8 +10,8 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.core.recurringbuy.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.core.recurringbuy.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo

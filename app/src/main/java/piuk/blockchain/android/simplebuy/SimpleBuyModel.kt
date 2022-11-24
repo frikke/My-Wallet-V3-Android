@@ -40,8 +40,8 @@ import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer

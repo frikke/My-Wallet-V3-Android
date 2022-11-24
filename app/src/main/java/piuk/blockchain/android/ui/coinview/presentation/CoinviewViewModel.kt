@@ -14,7 +14,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource

@@ -1,4 +1,4 @@
-package com.blockchain.core.recurringbuy
+package com.blockchain.core.recurringbuy.domain
 
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails

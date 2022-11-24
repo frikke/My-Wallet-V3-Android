@@ -46,7 +46,7 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.core.recurringbuy.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse

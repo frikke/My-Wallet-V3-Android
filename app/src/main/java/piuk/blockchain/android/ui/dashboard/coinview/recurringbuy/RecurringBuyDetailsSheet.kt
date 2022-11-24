@@ -13,8 +13,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.core.recurringbuy.RecurringBuy
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.toFormattedDateWithoutYear
 import info.blockchain.balance.AssetInfo

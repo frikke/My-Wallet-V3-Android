@@ -19,9 +19,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.core.recurringbuy.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.utils.unsafeLazy

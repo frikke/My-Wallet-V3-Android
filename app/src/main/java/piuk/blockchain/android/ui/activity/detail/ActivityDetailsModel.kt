@@ -12,8 +12,8 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money

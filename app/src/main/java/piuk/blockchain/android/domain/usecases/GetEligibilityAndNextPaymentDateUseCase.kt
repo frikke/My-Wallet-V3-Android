@@ -1,6 +1,6 @@
 package piuk.blockchain.android.domain.usecases
 
-import com.blockchain.core.recurringbuy.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.domain.repositories.TradeDataService

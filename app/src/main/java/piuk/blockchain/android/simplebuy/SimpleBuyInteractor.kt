@@ -49,7 +49,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.network.PollResult

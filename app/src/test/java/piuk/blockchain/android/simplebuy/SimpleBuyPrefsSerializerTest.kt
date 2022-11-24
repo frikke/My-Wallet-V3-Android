@@ -8,8 +8,8 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.RecurringBuyState
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks

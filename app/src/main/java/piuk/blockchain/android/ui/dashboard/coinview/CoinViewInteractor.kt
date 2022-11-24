@@ -33,7 +33,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.core.recurringbuy.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.store.asSingle

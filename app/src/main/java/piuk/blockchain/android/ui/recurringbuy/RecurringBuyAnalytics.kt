@@ -4,7 +4,7 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.core.recurringbuy.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable
