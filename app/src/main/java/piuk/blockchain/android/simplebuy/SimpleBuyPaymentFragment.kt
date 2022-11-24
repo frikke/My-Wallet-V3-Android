@@ -22,8 +22,8 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.core.recurringbuy.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar

@@ -48,8 +48,8 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.core.recurringbuy.RecurringBuy
+import com.blockchain.core.recurringbuy.RecurringBuyState
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels

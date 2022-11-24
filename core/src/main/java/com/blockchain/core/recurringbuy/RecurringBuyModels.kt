@@ -1,4 +1,4 @@
-package com.blockchain.nabu.models.data
+package com.blockchain.core.recurringbuy
 
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails

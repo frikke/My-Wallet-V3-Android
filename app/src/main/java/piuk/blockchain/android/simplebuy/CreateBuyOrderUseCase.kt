@@ -12,7 +12,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull

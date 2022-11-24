@@ -3,7 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 
 interface SimpleBuyScreen : SlidingModalBottomDialog.Host {

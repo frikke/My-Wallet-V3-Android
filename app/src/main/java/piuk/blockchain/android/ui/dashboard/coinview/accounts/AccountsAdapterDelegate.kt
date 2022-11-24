@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.coinview.accounts
 
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.core.recurringbuy.RecurringBuy
 import com.blockchain.wallet.DefaultLabels
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter

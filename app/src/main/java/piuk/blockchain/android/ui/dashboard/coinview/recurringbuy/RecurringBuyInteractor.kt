@@ -4,8 +4,8 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
-import com.blockchain.nabu.models.data.FundsAccount
-import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.core.recurringbuy.FundsAccount
+import com.blockchain.core.recurringbuy.RecurringBuy
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.domain.repositories.TradeDataService
 

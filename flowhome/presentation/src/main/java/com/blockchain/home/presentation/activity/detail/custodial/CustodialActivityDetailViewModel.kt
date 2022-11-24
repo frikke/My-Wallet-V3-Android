@@ -7,6 +7,7 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -100,13 +101,14 @@ class CustodialActivityDetailViewModel(
                             with(summaryDataResource.data) {
                                 when (this) {
                                     is CustodialTradingActivitySummaryItem -> tradingDetail()
-                                    is CustodialTransferActivitySummaryItem -> transferDetail()
+                                    is CustodialTransferActivitySummaryItem -> interestDetail()
+                                    is CustodialInterestActivitySummaryItem -> interestDetail()
+                                    is RecurringBuyActivitySummaryItem -> recurringBuyDetail()
                                     is TradeActivitySummaryItem -> when {
                                         isSellingPair() -> sellDetail()
                                         isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
-                                    is CustodialInterestActivitySummaryItem -> transferDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -163,7 +165,15 @@ class CustodialActivityDetailViewModel(
         }
     }
 
-    private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+    private fun CustodialTransferActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private fun RecurringBuyActivitySummaryItem.recurringBuyDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
@@ -235,10 +245,6 @@ class CustodialActivityDetailViewModel(
                 buildSwapActivityDetail(fee = feeData, toLabel = toLabelData)
             }
         }
-    }
-
-    private fun CustodialInterestActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
