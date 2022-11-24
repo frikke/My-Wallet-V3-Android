@@ -250,7 +250,6 @@ class DashboardActionInteractor(
         model: DashboardModel,
         walletMode: WalletMode
     ): List<Disposable> {
-        println("LALALA loadBalances")
         return assets.takeIf { it.isNotEmpty() }?.map { asset ->
             refreshAssetBalance(asset, model, walletMode).subscribeBy(onError = {
                 Timber.e(it)

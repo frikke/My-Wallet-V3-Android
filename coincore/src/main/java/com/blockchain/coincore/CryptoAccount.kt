@@ -4,6 +4,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.staking.domain.model.StakingAccountBalance
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -57,7 +58,7 @@ data class AccountBalance internal constructor(
                 total = first.total + second.total,
                 withdrawable = first.withdrawable + second.withdrawable,
                 pending = first.pending + second.pending,
-                exchangeRate = first.exchangeRate
+                exchangeRate = second.exchangeRate
             )
         }
 
@@ -219,12 +220,23 @@ interface SameCurrencyAccountGroup : AccountGroup {
         else
             Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
                 account.balanceRx.map { balance ->
-                    mapOf(account to balance)
+                    mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
+                }.onErrorResumeNext {
+                    Observable.just(mapOf(account to DataResource.Error(it as Exception)))
                 }
             }.scan { a, v ->
                 a + v
-            }.map {
-                it.values.reduce { acc, accountBalance -> AccountBalance.totalOf(acc, accountBalance) }
+            }.map { map ->
+                if (map.values.all { it is DataResource.Error } && map.size == accounts.size) {
+                    throw map.values.filterIsInstance<DataResource.Error>().first().error
+                } else {
+                    map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
+                        .fold(AccountBalance.zero(currency)) { acc, accountBalance ->
+                            AccountBalance.totalOf(
+                                acc, accountBalance
+                            )
+                        }
+                }
             }
 }
 

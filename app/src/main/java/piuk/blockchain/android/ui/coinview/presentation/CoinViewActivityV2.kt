@@ -18,6 +18,7 @@ import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -130,7 +131,9 @@ class CoinViewActivityV2 :
                 navigateToAccountActions(
                     cvAccount = navigationEvent.cvAccount,
                     interestRate = navigationEvent.interestRate,
-                    actions = navigationEvent.actions
+                    actions = navigationEvent.actions,
+                    balanceCrypto = navigationEvent.cryptoBalance,
+                    fiatBalance = navigationEvent.fiatBalance,
                 )
             }
 
@@ -309,13 +312,15 @@ class CoinViewActivityV2 :
     private fun navigateToAccountActions(
         cvAccount: CoinviewAccount,
         interestRate: Double,
+        fiatBalance: Money,
+        balanceCrypto: Money,
         actions: List<StateAwareAction>
     ) {
         showBottomSheet(
             AccountActionsBottomSheet.newInstance(
                 selectedAccount = cvAccount.account,
-                balanceFiat = cvAccount.fiatBalance,
-                balanceCrypto = cvAccount.cryptoBalance,
+                balanceFiat = fiatBalance,
+                balanceCrypto = balanceCrypto,
                 interestRate = interestRate,
                 stateAwareActions = actions.toTypedArray()
             )

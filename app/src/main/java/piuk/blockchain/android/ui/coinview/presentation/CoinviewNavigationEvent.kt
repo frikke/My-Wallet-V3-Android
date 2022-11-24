@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 
 sealed interface CoinviewNavigationEvent : NavigationEvent {
@@ -18,6 +19,8 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     data class ShowAccountActions(
         val cvAccount: CoinviewAccount,
         val interestRate: Double,
+        val fiatBalance: Money,
+        val cryptoBalance: Money,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 

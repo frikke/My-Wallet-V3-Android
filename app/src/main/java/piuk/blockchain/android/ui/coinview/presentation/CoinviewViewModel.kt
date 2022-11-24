@@ -17,6 +17,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrDefault
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
@@ -460,8 +461,8 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = account.label,
         subtitle = TextValue.StringValue(account.currency.displayTicker),
-        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
         logo = LogoSource.Remote(account.currency.logo),
         assetColor = asset.currency.colour
     )
@@ -476,8 +477,8 @@ class CoinviewViewModel(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
         ),
-        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
         logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -492,8 +493,8 @@ class CoinviewViewModel(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
         ),
-        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
         logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -505,8 +506,8 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultTradingWalletLabel(),
         subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
-        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -554,8 +555,8 @@ class CoinviewViewModel(
             }
             else -> error("${cvAccount.filter} Not a supported filter")
         },
-        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
         logo = LogoSource.Resource(
             when (cvAccount.filter) {
                 AssetFilter.Trading -> {
@@ -851,7 +852,8 @@ class CoinviewViewModel(
 
             is CoinviewIntent.AccountSelected -> {
                 check(modelState.asset != null) { "AccountSelected asset not initialized" }
-
+                require(intent.account.cryptoBalance is DataResource.Data)
+                require(intent.account.fiatBalance is DataResource.Data)
                 handleAccountSelected(
                     account = intent.account,
                     asset = modelState.asset
@@ -862,11 +864,15 @@ class CoinviewViewModel(
                 check(modelState.accounts != null) { "AccountExplainerAcknowledged accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
+                val balance = cvAccount.cryptoBalance as? DataResource.Data ?: return
+                val fiatBalance = cvAccount.fiatBalance as? DataResource.Data ?: return
                 navigate(
                     CoinviewNavigationEvent.ShowAccountActions(
                         cvAccount = cvAccount,
                         interestRate = cvAccount.interestRate(),
-                        actions = intent.actions
+                        actions = intent.actions,
+                        cryptoBalance = balance.data,
+                        fiatBalance = fiatBalance.data,
                     )
                 )
             }
@@ -1206,7 +1212,9 @@ class CoinviewViewModel(
                                 CoinviewNavigationEvent.ShowAccountActions(
                                     cvAccount = account,
                                     interestRate = account.interestRate(),
-                                    actions = actions
+                                    actions = actions,
+                                    cryptoBalance = (account.cryptoBalance as DataResource.Data).data,
+                                    fiatBalance = (account.fiatBalance as DataResource.Data).data
                                 )
                             )
                         }

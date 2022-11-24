@@ -199,3 +199,11 @@ fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T
         is DataResource.Data -> if (updated is DataResource.Data) updated else this
     }
 }
+
+fun <T> DataResource<T>.dataOrDefault(default: T): T {
+    return when (this) {
+        DataResource.Loading -> default
+        is DataResource.Error -> default
+        is DataResource.Data -> this.data
+    }
+}

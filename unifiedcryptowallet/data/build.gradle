@@ -7,6 +7,7 @@ dependencies {
     implementation project(":common:interface")
     implementation project(":blockchainApi")
     implementation project(":wallet")
+    implementation project(":logging:domain")
     implementation project(":store:caches:persistedjsonsqldelight")
     implementation project(":store:core")
     implementation project(":unifiedcryptowallet:domain")

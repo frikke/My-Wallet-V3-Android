@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.domain
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
@@ -15,6 +16,7 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.walletmode.WalletMode
@@ -25,11 +27,11 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
@@ -80,19 +82,18 @@ class LoadAssetAccountsUseCase(
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
             combineDataResources(
-                accounts,
                 prices,
                 interestRate,
                 stakingRate
-            ) { accountsData, pricesData, interestRateData, stakingRateData ->
-                val isTradeableAsset = accountsData.any {
+            ) { pricesData, interestRateData, stakingRateData ->
+                val isTradeableAsset = accounts.any {
                     it.account is NonCustodialAccount || it.account is CustodialTradingAccount
                 }
 
                 if (isTradeableAsset) {
                     val accountsList = mapAccounts(
                         walletMode = walletModeService.enabledWalletMode(),
-                        accounts = accountsData,
+                        accounts = accounts,
                         exchangeRate = pricesData.currentRate,
                         interestRate = interestRateData,
                         stakingRate = stakingRateData
@@ -105,10 +106,18 @@ class LoadAssetAccountsUseCase(
                     accountsList.accounts.forEach { account ->
                         totalCryptoBalance[account.filter] =
                             (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(
-                                account.cryptoBalance
+                                (account.cryptoBalance as? DataResource.Data<Money>)?.data
+                                    ?: Money.zero(asset.currency)
                             )
-                        totalCryptoMoneyAll = totalCryptoMoneyAll.plus(account.cryptoBalance)
-                        totalFiatBalance = totalFiatBalance.plus(account.fiatBalance)
+                        totalCryptoMoneyAll = totalCryptoMoneyAll.plus(
+                            (account.cryptoBalance as? DataResource.Data<Money>)?.data
+                                ?: Money.zero(asset.currency)
+                        )
+                        totalFiatBalance = totalFiatBalance.plus(
+                            (account.fiatBalance as? DataResource.Data<Money>)?.data ?: Money.zero(
+                                currencyPrefs.selectedFiatCurrency
+                            )
+                        )
                     }
 
                     totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
@@ -136,32 +145,30 @@ class LoadAssetAccountsUseCase(
 
     private suspend fun extractAccountDetails(
         accounts: List<SingleAccount>
-    ): Flow<DataResource<List<CoinviewAccountDetail>>> {
+    ): Flow<List<CoinviewAccountDetail>> {
         return accounts
             .filter { account ->
                 (account as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
             }
             .map { account ->
                 combine(
-                    account.balanceRx.asFlow().map { DataResource.Data(it) },
-                    flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }
+                    account.balance.map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
+                        emit(DataResource.Error(it as Exception))
+                    },
+                    flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }.catch {
+                        emit(DataResource.Data(emptySet()))
+                    }
                 ) { balance, actions ->
-
-                    combineDataResources(balance, actions) { balanceData, actionsData ->
-                        CoinviewAccountDetail(
-                            account = account,
-                            balance = balanceData.total,
-                            isAvailable = actionsData.any { it.state == ActionState.Available },
-                            isDefault = account.isDefault
-                        )
-                    }
+                    CoinviewAccountDetail(
+                        account = account,
+                        balance = balance.map { it.total },
+                        isAvailable = actions.data.any { it.state == ActionState.Available },
+                        isDefault = account.isDefault
+                    )
                 }
-            }
-            .run {
+            }.run {
                 combine(this) {
-                    combineDataResources(it.toList()) { accountsDetails: List<CoinviewAccountDetail> ->
-                        accountsDetails
-                    }
+                    it.toList()
                 }
             }
     }
@@ -190,7 +197,9 @@ class LoadAssetAccountsUseCase(
                         },
                         account = it.account,
                         cryptoBalance = it.balance,
-                        fiatBalance = exchangeRate.convert(it.balance),
+                        fiatBalance = it.balance.map {
+                            exchangeRate.convert(it)
+                        },
                         interestRate = interestRate,
                         isEnabled = it.isAvailable,
                         stakingRate = stakingRate
@@ -206,7 +215,9 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = exchangeRate.convert(it.balance)
+                                fiatBalance = it.balance.map {
+                                    exchangeRate.convert(it)
+                                },
                             )
                         }
                         is InterestAccount -> {
@@ -214,7 +225,9 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = exchangeRate.convert(it.balance),
+                                fiatBalance = it.balance.map {
+                                    exchangeRate.convert(it)
+                                },
                                 interestRate = interestRate
                             )
                         }
@@ -223,7 +236,9 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = exchangeRate.convert(it.balance),
+                                fiatBalance = it.balance.map {
+                                    exchangeRate.convert(it)
+                                },
                                 stakingRate = stakingRate
                             )
                         }
@@ -238,7 +253,9 @@ class LoadAssetAccountsUseCase(
                     CoinviewAccount.PrivateKey(
                         account = it.account,
                         cryptoBalance = it.balance,
-                        fiatBalance = exchangeRate.convert(it.balance),
+                        fiatBalance = it.balance.map {
+                            exchangeRate.convert(it)
+                        },
                         isEnabled = it.isAvailable
                     )
                 }.run { CoinviewAccounts.Defi(this) }

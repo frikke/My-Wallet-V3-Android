@@ -204,7 +204,13 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 isSwipingToRefresh = oldState.isSwipingToRefresh && newAssets.values.any {
                     it.isFetchingBalance
                 }
-            )
+            ).also {
+                println(
+                    "Got balance and should show ${it.isSwipingToRefresh} --- ${newAssets.values.filter {
+                        it.isFetchingBalance
+                    }.map { it.currency.networkTicker }}"
+                )
+            }
         }
 
         override fun isValidFor(oldState: DashboardState): Boolean {
