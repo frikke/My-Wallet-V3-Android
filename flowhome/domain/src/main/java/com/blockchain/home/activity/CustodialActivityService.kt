@@ -11,7 +11,7 @@ interface CustodialActivityService {
     ): Flow<DataResource<List<ActivitySummaryItem>>>
 
     fun getActivity(
-        txId: String,
+        id: String,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<ActivitySummaryItem>>
 }

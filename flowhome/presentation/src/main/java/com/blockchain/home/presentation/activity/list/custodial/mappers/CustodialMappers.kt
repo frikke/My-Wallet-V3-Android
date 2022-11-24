@@ -65,7 +65,9 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
 
 fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
     return ActivityComponent.StackView(
-        id = txId,
+        // hack for now - when interacting with interest there are 2 activities with the same txid
+        // but e.g. one is SEND the other is INTEREST DEPOSIT
+        id = "$txId|${this::class}",
         leadingImage = ActivityIconState.SingleIcon.Local(iconSummary()),
         leading = leading(),
         trailing = trailing()
