@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.allassets
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -13,6 +14,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.doOnError
 import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
@@ -29,6 +31,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
+import java.math.BigInteger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
@@ -105,13 +108,32 @@ class AssetsViewModel(
                             // filter accounts matching the search and custom filters predicate
                             searchTermPredicate && filtersPredicate
                         }
-                        .toHomeCryptoAssets()
-                        .let { accounts ->
-                            accounts.take(state.sectionSize.size)
-                        }
+                        .toHomeCryptoAssets().take(state.sectionSize.size)
                 },
-                fiatAssets = DataResource.Data(emptyList()),
+                fiatAssets = state.accounts.map { accounts ->
+                    accounts.filter { it.singleAccount is FiatAccount }.toHomeFiatAssets()
+                },
                 filters = filters
+            )
+        }
+    }
+
+    private fun List<ModelAccount>.toHomeFiatAssets(): List<FiatAssetState> {
+        return sortedWith(
+            compareByDescending<ModelAccount> {
+                it.singleAccount.currency.networkTicker ==
+                    currencyPrefs.selectedFiatCurrency.networkTicker
+            }
+                .thenByDescending {
+                    (it.balance as? DataResource.Data)?.data?.toBigInteger() ?: BigInteger.ZERO
+                }.thenBy {
+                    it.singleAccount.label
+                }
+        ).map {
+            FiatAssetState(
+                balance = it.balance,
+                icon = it.singleAccount.currency.logo,
+                name = it.singleAccount.label
             )
         }
     }
@@ -189,6 +211,11 @@ class AssetsViewModel(
                             accounts = DataResource.Loading
                         )
                     }
+                }.doOnError {
+                    /**
+                     * TODO Handle error for fetching accounts for wallet mode
+                     */
+                    println("Handling exception $it")
                 }
                 .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                 .distinctUntilChanged { old, new ->

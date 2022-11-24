@@ -23,7 +23,7 @@ class HomeAccountsRepository(
                 }.onStart {
                     emit(DataResource.Loading)
                 }.catch {
-                    DataResource.Error(it as Exception)
+                    emit(DataResource.Error(it as Exception))
                 }
         }
     }
