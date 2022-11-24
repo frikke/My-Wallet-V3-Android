@@ -3,10 +3,10 @@ package com.blockchain.home.presentation.activity.detail.custodial
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -105,6 +105,7 @@ class CustodialActivityDetailViewModel(
                                         isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
+                                    is CustodialInterestActivitySummaryItem -> transferDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -233,6 +234,10 @@ class CustodialActivityDetailViewModel(
                 buildSwapActivityDetail(fee = feeData, toLabel = toLabelData)
             }
         }
+    }
+
+    private fun CustodialInterestActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
