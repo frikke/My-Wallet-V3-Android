@@ -84,8 +84,9 @@ internal class XlmCryptoWalletAccount(
         xlmManager.getBalanceAndMin()
             .toObservable()
 
-    override suspend fun publicKey(): String {
-        return xlmManager.publicKey.await()
+    override suspend fun publicKey(): List<String> {
+        val pubKey = xlmManager.publicKey.await()
+        return listOf(pubKey)
     }
 
     override val index: Int

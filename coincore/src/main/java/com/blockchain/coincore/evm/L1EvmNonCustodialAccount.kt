@@ -61,8 +61,10 @@ class L1EvmNonCustodialAccount(
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
-    override suspend fun publicKey(): String =
-        ethDataManager.ehtAccount.publicKey ?: throw IllegalStateException(
+    override suspend fun publicKey(): List<String> =
+        ethDataManager.ehtAccount.publicKey?.let {
+            listOf(it)
+        } ?: throw IllegalStateException(
             "Public key for Eth account hasn't been derived"
         )
 

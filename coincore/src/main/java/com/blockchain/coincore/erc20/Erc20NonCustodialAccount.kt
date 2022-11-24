@@ -66,7 +66,7 @@ class Erc20NonCustodialAccount(
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
-    override suspend fun publicKey(): String {
+    override suspend fun publicKey(): List<String> {
         throw IllegalAccessException("Public key of an erc20 cannot be accessed use the L1")
     }
 

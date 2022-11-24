@@ -82,8 +82,10 @@ import kotlinx.coroutines.flow.flowOf
             flowOf(DataResource.Data(Money.fromMajor(currency, BigDecimal.ZERO)))
         }.asObservable()
 
-    override suspend fun publicKey(): String =
-        jsonAccount.publicKey ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
+    override suspend fun publicKey(): List<String> =
+        jsonAccount.publicKey?.let {
+            listOf(it)
+        } ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
 
     override val index: Int
         get() = NetworkWallet.DEFAULT_SINGLE_ACCOUNT_INDEX

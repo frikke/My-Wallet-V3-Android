@@ -70,8 +70,8 @@ import org.bitcoinj.core.LegacyAddress
                 BchAddress(address_ = it, label = label)
             }
 
-    override suspend fun publicKey(): String {
-        return internalAccount.xpubs().default.address
+    override suspend fun publicKey(): List<String> {
+        return listOf(internalAccount.xpubs().default.address)
     }
 
     override fun getOnChainBalance(): Observable<Money> =

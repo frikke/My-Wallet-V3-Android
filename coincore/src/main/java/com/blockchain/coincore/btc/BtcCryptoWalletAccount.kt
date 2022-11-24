@@ -102,8 +102,8 @@ import io.reactivex.rxjava3.core.Single
         payloadDataManager.getAddressBalanceRefresh(xpubs, false)
             .map { it }
 
-    override suspend fun publicKey(): String {
-        return xpubs.default.address
+    override suspend fun publicKey(): List<String> {
+        return xpubs.allAddresses()
     }
 
     override val index: Int

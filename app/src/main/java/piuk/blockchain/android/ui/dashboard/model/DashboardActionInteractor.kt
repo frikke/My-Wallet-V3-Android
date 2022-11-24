@@ -215,11 +215,13 @@ class DashboardActionInteractor(
         activeAssets: Set<Currency>,
         walletMode: WalletMode,
     ): Disposable {
-        loadBalances(activeAssets, model, walletMode).forEach {
+        loadBalances(activeAssets, model, walletMode)?.let {
             it.addTo(balancesDisposable)
         }
-        warmWalletModeBalanceCache()
-        warmProductsCache()
+        warmWalletModeBalanceCache().forEach {
+            it.addTo(balancesDisposable)
+        }
+        balancesDisposable += warmProductsCache()
         return balancesDisposable
     }
 
@@ -249,14 +251,17 @@ class DashboardActionInteractor(
         assets: Set<Currency>,
         model: DashboardModel,
         walletMode: WalletMode
-    ): List<Disposable> {
-        return assets.takeIf { it.isNotEmpty() }?.map { asset ->
-            refreshAssetBalance(asset, model, walletMode).subscribeBy(onError = {
+    ): Disposable? {
+        return if (assets.isNotEmpty()) {
+            val balances = assets.map {
+                refreshAssetBalance(it, model, walletMode)
+            }
+            Observable.merge(balances).subscribeBy(onError = {
                 Timber.e(it)
             })
-        } ?: kotlin.run {
+        } else {
             model.process(DashboardIntent.NoActiveAssets)
-            emptyList()
+            null
         }
     }
 
@@ -313,6 +318,9 @@ class DashboardActionInteractor(
                     }
                     .map { (accountBalance, _) ->
                         accountBalance.total
+                    }
+                    .onErrorReturn {
+                        Money.zero(currency)
                     }
             }
 

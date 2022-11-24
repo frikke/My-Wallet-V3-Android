@@ -20,6 +20,7 @@ interface NetworkWallet {
     val networkBalance: Flow<DataResource<NetworkBalance>>
     val isImported: Boolean
         get() = false
+
     /**
      * The descriptor field will need some explanation. Over time some currencies change the
      * way that keys are derived as well as how such keys are used. Most notably, Bitcoin uses
@@ -37,7 +38,7 @@ interface NetworkWallet {
     val pubKeyDescriptor: String
         get() = LEGACY_DESCRIPTOR
 
-    suspend fun publicKey(): String
+    suspend fun publicKey(): List<String>
 
     companion object {
         const val DEFAULT_SINGLE_ACCOUNT_INDEX = 0
@@ -70,7 +71,7 @@ class CryptoNetworkWallet(
     override val style: PubKeyStyle
         get() = config.style
 
-    override suspend fun publicKey(): String = pubKeyService.publicKey()
+    override suspend fun publicKey(): List<String> = pubKeyService.publicKey()
 }
 
 class NetworkWalletGroup(
@@ -81,7 +82,7 @@ class NetworkWalletGroup(
 
     private val balancesService: UnifiedBalancesService by scopedInject()
 
-    suspend fun publicKey(): String {
+    suspend fun publicKey(): List<String> {
         return parentChainNetwork.publicKey()
     }
 
@@ -97,7 +98,7 @@ class NetworkWalletGroup(
 data class NetworkConfig(val descriptor: Int, val style: PubKeyStyle)
 
 interface PublicKeyService {
-    suspend fun publicKey(): String
+    suspend fun publicKey(): List<String>
 }
 
 inline fun <reified T> KoinComponent.scopedInject(

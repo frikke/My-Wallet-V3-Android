@@ -401,8 +401,8 @@ private class NonCustodialTestAccount(
     override val index: Int
         get() = 1
 
-    override suspend fun publicKey(): String {
-        return ""
+    override suspend fun publicKey(): List<String> {
+        return listOf("")
     }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine = mock()

@@ -142,6 +142,6 @@ class DynamicNonCustodialAccount(
     override val index: Int
         get() = 0
 
-    override suspend fun publicKey(): String =
-        String(Hex.encode(internalAccount.address.pubKey))
+    override suspend fun publicKey(): List<String> =
+        listOf(String(Hex.encode(internalAccount.address.pubKey)))
 }
