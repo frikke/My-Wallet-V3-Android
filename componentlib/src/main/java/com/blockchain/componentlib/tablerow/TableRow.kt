@@ -14,8 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -67,10 +65,7 @@ fun TableRow(
     backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
-        paddingValues = PaddingValues(
-            horizontal = dimensionResource(R.dimen.standard_spacing),
-            vertical = dimensionResource(R.dimen.medium_spacing)
-        ),
+        paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         content = content,
         contentStart = contentStart,
         contentEnd = contentEnd,

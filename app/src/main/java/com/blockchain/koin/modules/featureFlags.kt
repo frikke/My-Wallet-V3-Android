@@ -7,6 +7,7 @@ import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.coinNetworksFeatureFlag
@@ -268,6 +269,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_google_wallet",
                 "Google Wallet"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(blockchainMembershipsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_memberships",
+                "Blockchain.com Memberships"
             )
         )
     }.bind(FeatureFlag::class)

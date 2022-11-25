@@ -1955,7 +1955,7 @@
     <string name="funds_locked_summary_available_send">Disponível para envio</string>
     <string name="funds_locked_summary_on_hold">%s Em espera</string>
     <string name="funds_locked_summary_details">Veja Detalhes</string>
-    <string name="funds_locked_summary_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir, entretanto, entre as suas contas Trading, Rewards e Exchange. <annotation link="learn_more"> Saiba mais → </annotation></string>
+    <string name="funds_locked_summary_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir, entretanto, entre as suas contas Trading, Rewards e Exchange.</string>
     <string name="funds_locked_details_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir entre as suas contas Trading, Rewards e Exchange entretanto.</string>
     <string name="funds_locked_details_contact_support">Vê algo que não parece certo? <annotation link="contact_support"> Contacte o apoio ao cliente </annotation></string>
     <string name="funds_locked__details_title_date">RETIDO ATÉ</string>

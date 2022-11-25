@@ -85,6 +85,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
     private val referralRepository: ReferralRepository = mock()
     private val ethDataManager: EthDataManager = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val membershipsFF: FeatureFlag = mock()
     private val earnEnabledFF: FeatureFlag = mock()
     private val coincore: Coincore = mock()
     private val walletModeService: WalletModeService = mock()
@@ -130,6 +131,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
             referralRepository = referralRepository,
             ethDataManager = ethDataManager,
             stakingAccountFlag = stakingFF,
+            membershipFlag = membershipsFF,
             coincore = coincore,
             earnOnNavBarFlag = earnEnabledFF,
             walletModeService = walletModeService
@@ -299,12 +301,13 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
             val referralMock = mock<ReferralInfo.Data>()
             whenever(referralRepository.fetchReferralData()).thenReturn(Outcome.Success(referralMock))
             whenever(referralPrefs.hasReferralIconBeenClicked).thenReturn(true)
+            whenever(membershipsFF.coEnabled()).thenReturn(false)
 
             interactor.checkReferral()
                 .test()
                 .await()
                 .assertComplete()
-                .assertValue(ReferralState(referralMock, true))
+                .assertValue(ReferralState(referralMock, true, areMembershipsEnabled = false))
         }
     }
 

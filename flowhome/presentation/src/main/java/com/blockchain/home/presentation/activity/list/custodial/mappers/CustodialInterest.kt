@@ -6,7 +6,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
@@ -38,11 +38,11 @@ internal fun CustodialInterestActivitySummaryItem.leadingTitle(): ActivityStackV
 }
 
 internal fun CustodialInterestActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (status) {
+    val color: ActivityTextColor = when (status) {
         InterestState.REJECTED,
-        InterestState.REFUNDED -> ActivityTextColorState.Warning
-        InterestState.FAILED -> ActivityTextColorState.Error
-        else -> ActivityTextColorState.Muted
+        InterestState.REFUNDED -> ActivityTextColor.Warning
+        InterestState.FAILED -> ActivityTextColor.Error
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
@@ -69,9 +69,9 @@ private fun CustodialInterestActivitySummaryItem.trailingStrikethrough() = when 
 }
 
 internal fun CustodialInterestActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (status) {
-        InterestState.COMPLETE -> ActivityTextColorState.Title
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (status) {
+        InterestState.COMPLETE -> ActivityTextColor.Title
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(

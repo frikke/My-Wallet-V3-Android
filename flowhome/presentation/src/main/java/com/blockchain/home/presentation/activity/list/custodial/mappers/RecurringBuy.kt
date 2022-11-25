@@ -5,9 +5,9 @@ import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
@@ -26,10 +26,10 @@ internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {
 }
 
 internal fun RecurringBuyActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (transactionState) {
-        OrderState.CANCELED -> ActivityTextColorState.Warning
-        OrderState.FAILED -> ActivityTextColorState.Error
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (transactionState) {
+        OrderState.CANCELED -> ActivityTextColor.Warning
+        OrderState.FAILED -> ActivityTextColor.Error
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
@@ -60,9 +60,9 @@ private fun RecurringBuyActivitySummaryItem.trailingStrikethrough() = when (tran
 }
 
 internal fun RecurringBuyActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (transactionState) {
-        OrderState.FINISHED -> ActivityTextColorState.Title
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (transactionState) {
+        OrderState.FINISHED -> ActivityTextColor.Title
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(

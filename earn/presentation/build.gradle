@@ -1,0 +1,31 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlin-parcelize'
+
+android {
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+}
+
+dependencies {
+    implementation project(':earn:domain')
+    implementation project(':balance')
+    implementation project(':coincore')
+    implementation project(':commonarch')
+    implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':common:presentation')
+    implementation project(':analytics:domain')
+    implementation project(':core')
+    implementation project(':string-resources')
+
+    // Compose
+    implementation Libraries.accompanistFlowLayout
+    implementation Libraries.composeUiPoolingContainer
+    implementation Libraries.accompanistSwipeRefresh
+
+    // Rx
+    implementation Libraries.rxJava
+    implementation Libraries.rxjava3Coroutines
+}

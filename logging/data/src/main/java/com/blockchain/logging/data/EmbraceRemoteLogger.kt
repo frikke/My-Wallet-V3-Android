@@ -26,6 +26,12 @@ class EmbraceRemoteLogger(
         }
     }
 
+    override fun logUserId(userId: String) {
+        checkEmbrace {
+            embrace.setUserIdentifier(userId)
+        }
+    }
+
     override fun logEvent(message: String) {
         checkEmbrace {
             embrace.logBreadcrumb(message)

@@ -68,6 +68,14 @@ fun <T> Flow<DataResource<T>>.doOnData(f: (T) -> Unit): Flow<DataResource<T>> {
     }
 }
 
+fun <T> Flow<DataResource<T>>.doOnError(f: (Exception) -> Unit): Flow<DataResource<T>> {
+    return map { dataResource ->
+        dataResource.also {
+            if (it is DataResource.Error) f(it.error)
+        }
+    }
+}
+
 fun <T> DataResource<T>.doOnError(f: (Exception) -> Unit): DataResource<T> {
     return also {
         if (this is DataResource.Error) f(this.error)
@@ -197,5 +205,13 @@ fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T
         DataResource.Loading -> updated
         is DataResource.Error -> updated
         is DataResource.Data -> if (updated is DataResource.Data) updated else this
+    }
+}
+
+fun <T> DataResource<T>.dataOrDefault(default: T): T {
+    return when (this) {
+        DataResource.Loading -> default
+        is DataResource.Error -> default
+        is DataResource.Data -> this.data
     }
 }
