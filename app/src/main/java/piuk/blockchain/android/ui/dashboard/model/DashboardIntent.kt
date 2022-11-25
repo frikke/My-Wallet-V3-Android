@@ -14,7 +14,6 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.ExchangeRate
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
@@ -93,33 +92,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
-    class AssetPriceUpdate(
-        val currency: Currency,
-        val price: ExchangeRate
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            val updatedActiveList = if (oldState.activeAssets.contains(currency)) {
-                val oldAsset = oldState.activeAssets[currency]
-                val newAsset = updateAsset(oldAsset, price)
-                oldState.activeAssets.copy(patchAsset = newAsset)
-            } else {
-                oldState.activeAssets
-            }
-            return oldState.copy(
-                activeAssets = updatedActiveList
-            )
-        }
-
-        private fun updateAsset(
-            old: DashboardAsset,
-            rate: ExchangeRate
-        ): DashboardAsset {
-            return old.updateExchangeRate(
-                rate = rate
-            )
-        }
-    }
-
     object NoActiveAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(isLoadingAssets = false)
     }
@@ -194,6 +166,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
             val oldAsset = oldState[asset]
             val newAsset = oldAsset.updateBalance(accountBalance = newBalance)
+                .updateExchangeRate(newBalance.exchangeRate)
                 .updateFetchingBalanceState(false)
                 .shouldAssetShow(shouldAssetShow)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
@@ -206,9 +179,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 }
             ).also {
                 println(
-                    "Got balance and should show ${it.isSwipingToRefresh} --- ${newAssets.values.filter {
+                    "Got balance and should show ${it.isSwipingToRefresh} --- ${
+                    newAssets.values.filter {
                         it.isFetchingBalance
-                    }.map { it.currency.networkTicker }}"
+                    }.map { it.currency.networkTicker }
+                    }"
                 )
             }
         }
@@ -237,10 +212,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class BalanceFetching(
         private val asset: Currency,
+        private val isFetching: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
-            val newAsset = oldAsset.updateFetchingBalanceState(true)
+            val newAsset = oldAsset.updateFetchingBalanceState(isFetching)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
             return oldState.copy(
                 activeAssets = newAssets,

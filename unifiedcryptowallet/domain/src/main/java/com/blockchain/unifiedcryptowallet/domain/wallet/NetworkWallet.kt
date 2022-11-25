@@ -21,24 +21,10 @@ interface NetworkWallet {
     val isImported: Boolean
         get() = false
 
-    /**
-     * The descriptor field will need some explanation. Over time some currencies change the
-     * way that keys are derived as well as how such keys are used. Most notably, Bitcoin uses
-     * a new derivation for SegWit, and the addresses are derived differently, etc etc. A big part of the
-     * refactor to add SegWit to our wallet was to add this model, that each account can have multiple xpubs,
-     * and this descriptor field is that same abstraction. One needs to continue to monitor all addresses,
-     * as previous old addresses may receive funds in the future.
-     */
-    val descriptor: Int
-        get() = DEFAULT_ADDRESS_DESCRIPTOR
-
-    val style: PubKeyStyle
-        get() = PubKeyStyle.SINGLE
-
     val pubKeyDescriptor: String
         get() = LEGACY_DESCRIPTOR
 
-    suspend fun publicKey(): List<String>
+    suspend fun publicKey(): List<PublicKey>
 
     companion object {
         const val DEFAULT_SINGLE_ACCOUNT_INDEX = 0
@@ -47,6 +33,21 @@ interface NetworkWallet {
         const val LEGACY_DESCRIPTOR = "legacy"
     }
 }
+
+data class PublicKey(
+    val address: String,
+    /**
+     * The descriptor field will need some explanation. Over time some currencies change the
+     * way that keys are derived as well as how such keys are used. Most notably, Bitcoin uses
+     * a new derivation for SegWit, and the addresses are derived differently, etc etc. A big part of the
+     * refactor to add SegWit to our wallet was to add this model, that each account can have multiple xpubs,
+     * and this descriptor field is that same abstraction. One needs to continue to monitor all addresses,
+     * as previous old addresses may receive funds in the future.
+     */
+    val descriptor: Int,
+
+    val style: PubKeyStyle
+)
 
 class CryptoNetworkWallet(
     override val currency: Currency,
@@ -65,13 +66,13 @@ class CryptoNetworkWallet(
     override val label: String
         get() = _label ?: defaultLabels.getAllNonCustodialWalletsLabel()
 
-    override val descriptor: Int
-        get() = config.descriptor
-
-    override val style: PubKeyStyle
-        get() = config.style
-
-    override suspend fun publicKey(): List<String> = pubKeyService.publicKey()
+    override suspend fun publicKey(): List<PublicKey> = pubKeyService.publicKey().map {
+        PublicKey(
+            address = it,
+            descriptor = config.descriptor,
+            style = config.style,
+        )
+    }
 }
 
 class NetworkWalletGroup(
@@ -82,11 +83,11 @@ class NetworkWalletGroup(
 
     private val balancesService: UnifiedBalancesService by scopedInject()
 
-    suspend fun publicKey(): List<String> {
+    suspend fun publicKey(): List<PublicKey> {
         return parentChainNetwork.publicKey()
     }
 
-    fun pubKeyStyle(): PubKeyStyle = parentChainNetwork.style
+    fun pubKeyStyle(): PubKeyStyle = PubKeyStyle.SINGLE
 
     fun pubKeyDescriptor(): String = parentChainNetwork.pubKeyDescriptor
 

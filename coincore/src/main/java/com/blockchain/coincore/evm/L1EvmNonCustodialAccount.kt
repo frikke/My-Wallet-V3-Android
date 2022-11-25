@@ -19,12 +19,15 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -61,9 +64,15 @@ class L1EvmNonCustodialAccount(
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
-    override suspend fun publicKey(): List<String> =
+    override suspend fun publicKey(): List<PublicKey> =
         ethDataManager.ehtAccount.publicKey?.let {
-            listOf(it)
+            listOf(
+                PublicKey(
+                    address = it,
+                    descriptor = NetworkWallet.DEFAULT_ADDRESS_DESCRIPTOR,
+                    style = PubKeyStyle.SINGLE
+                )
+            )
         } ?: throw IllegalStateException(
             "Public key for Eth account hasn't been derived"
         )

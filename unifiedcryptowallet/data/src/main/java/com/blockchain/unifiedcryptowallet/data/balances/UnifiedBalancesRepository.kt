@@ -8,7 +8,6 @@ import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.map
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.preferences.CurrencyPrefs
@@ -20,6 +19,7 @@ import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -108,7 +108,7 @@ internal class UnifiedBalancesRepository(
         }
     }
 
-    private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkWallet, List<String>>): CommonResponse {
+    private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkWallet, List<PublicKey>>): CommonResponse {
 
         val subscriptions = networkAccountsPubKeys.keys.map {
             check(networkAccountsPubKeys[it] != null)
@@ -120,9 +120,9 @@ internal class UnifiedBalancesRepository(
                 ),
                 pubKeys = networkAccountsPubKeys[it]!!.map { pubKey ->
                     PubKeyInfo(
-                        pubKey = pubKey,
-                        style = it.style,
-                        descriptor = it.descriptor
+                        pubKey = pubKey.address,
+                        style = pubKey.style,
+                        descriptor = pubKey.descriptor
                     )
                 }
             )

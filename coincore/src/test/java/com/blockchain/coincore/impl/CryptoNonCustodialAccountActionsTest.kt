@@ -21,6 +21,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
@@ -401,8 +402,8 @@ private class NonCustodialTestAccount(
     override val index: Int
         get() = 1
 
-    override suspend fun publicKey(): List<String> {
-        return listOf("")
+    override suspend fun publicKey(): List<PublicKey> {
+        return listOf()
     }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine = mock()

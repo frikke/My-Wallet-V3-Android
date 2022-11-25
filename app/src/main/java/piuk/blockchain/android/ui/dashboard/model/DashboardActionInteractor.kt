@@ -21,7 +21,6 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.settings.SettingsDataManager
-import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -48,6 +47,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.rxMaybeOutcome
@@ -299,7 +299,7 @@ class DashboardActionInteractor(
                     }
                     .doOnSubscribe {
                         Timber.i("Fetching balance for asset ${currency.displayTicker}")
-                        model.process(DashboardIntent.BalanceFetching(currency))
+                        model.process(DashboardIntent.BalanceFetching(currency, true))
                     }
                     .doOnError { e ->
                         Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
@@ -317,6 +317,9 @@ class DashboardActionInteractor(
                                 shouldAssetShow = shouldAssetShow
                             )
                         )
+                    }
+                    .doFinally {
+                        model.process(DashboardIntent.BalanceFetching(currency, false))
                     }
                     .map { (accountBalance, _) ->
                         accountBalance.total
@@ -338,45 +341,24 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
+    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable? =
         when (asset) {
             is BrokerageCryptoAsset -> refreshPricesWith24HDelta(model, asset.currency as AssetInfo)
             is BrokerageFiatAsset,
-            is DefiAsset -> refreshPrice(model, asset.currency)
-        }.also {
+            is DefiAsset -> null
+        }?.also {
             balancesDisposable += it
         }
 
-    private fun refreshPrice(model: DashboardModel, currency: Currency): Disposable =
-        exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
-            .map { price ->
-                DashboardIntent.AssetPriceUpdate(currency, price)
-            }
-            .subscribeBy(
-                onSuccess = { model.process(it) },
-                onError = {
-                    model.process(DashboardIntent.BalanceUpdateError(currency))
-                }
-            )
-
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable {
         return if (asset.startDate != null) {
-            coincore[asset].lastDayTrend().asObservable()
+            coincore[asset].lastDayTrend().asObservable().firstOrError()
         } else {
-            Observable.just(DataResource.Data(FLATLINE_CHART))
+            Single.just(FLATLINE_CHART)
         }
             .subscribeBy(
-                onNext = { dataResource ->
-                    when (dataResource) {
-                        is DataResource.Data -> {
-                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
-                        }
-                        is DataResource.Error -> {
-                            Timber.e(dataResource.error)
-                        }
-                        DataResource.Loading -> {
-                        }
-                    }
+                onSuccess = { dataResource ->
+                    model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource))
                 }
             ).also {
                 balancesDisposable += it
