@@ -7,7 +7,6 @@ import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
@@ -17,6 +16,7 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
@@ -207,7 +207,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
             ActivityComponent.Button(
                 id = toString(),
                 value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
-                style = ActivityButtonStyleState.Tertiary,
+                style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
                     data = txId

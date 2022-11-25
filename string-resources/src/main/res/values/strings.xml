@@ -15,6 +15,7 @@
     <string name="common_receive">Receive</string>
     <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_add">Add</string>
     <string name="common_add_cash">Add Cash</string>
     <string name="common_cash_out">Cash Out</string>
     <string name="common_withdraw">Withdraw</string>
@@ -830,7 +831,9 @@
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
     <string name="dashboard_asset_actions_summary_title_1">Rewards Summary</string>
+    <string name="dashboard_asset_actions_summary_staking_title">Staking Summary</string>
     <string name="dashboard_asset_actions_summary_dsc_1">View your accrued %1$s Rewards</string>
+    <string name="dashboard_asset_actions_summary_staking_dsc">View your accrued %1$s Earnings</string>
     <string name="dashboard_asset_actions_rewards_dsc_failed">Could not load Rewards details</string>
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
@@ -2508,7 +2511,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="funds_locked_summary_available_withdraw">Available to Withdraw</string>
     <string name="funds_locked_summary_on_hold">%s On Hold</string>
     <string name="funds_locked_summary_details">See Details</string>
-    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime. <annotation link="learn_more">Learn more →</annotation></string>
+    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
 
     <!-- LocksInfo activity details -->
     <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
@@ -2517,8 +2520,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="funds_locked_details_title_amount">AMOUNT</string>
     <string name="funds_locked_details_total">Total</string>
     <string name="funds_locked_details_toolbar">On Hold</string>
-    <string name="funds_locked_details_title">%s On Hold</string>
-    <string name="funds_locked_details_learn_more">Learn More</string>
+    <string name="funds_locked_details_title">Total On Hold</string>
+    <string name="funds_locked_details_item_action_buy_title">Bought %1$s</string>
+    <string name="funds_locked_details_item_action_deposit_title">Deposited %1$s</string>
+    <string name="funds_locked_details_item_action_available">Available %1$s</string>
 
     <!-- LocksInfo deposit checkout -->
     <string name="funds_locked_warning">For security purposes, a %s holding period will be applied to your funds. We will notify you once the funds are available.</string>
@@ -2963,6 +2968,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
+    <string name="actions_sheet_percentage_staking">%s%% APY</string>
 
     <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
@@ -3438,6 +3444,21 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
     <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_summary_title">%1$s Staking Rewards</string>
+    <string name="staking_summary_total_earned">Total Earned</string>
+    <string name="staking_summary_view_activity">View activity</string>
+    <string name="staking_summary_total_staked">Staked</string>
+    <string name="staking_summary_total_bonding">Bonding</string>
+    <string name="staking_summary_rate">Current rate</string>
+    <string name="staking_summary_rate_value">%1$s%%</string>
+    <string name="staking_summary_payment_frequency">Payment frequency</string>
+    <string name="staking_summary_payment_frequency_daily">Daily</string>
+    <string name="staking_summary_payment_frequency_weekly">Weekly</string>
+    <string name="staking_summary_payment_frequency_monthly">Monthly</string>
+    <string name="staking_summary_payment_frequency_unknown">Unknown</string>
+    <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
+    <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
+    <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
 
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>

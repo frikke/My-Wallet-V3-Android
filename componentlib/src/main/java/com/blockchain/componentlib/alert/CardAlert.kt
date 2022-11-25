@@ -82,7 +82,7 @@ fun CardAlert(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_spacing))
+                .padding(dimensionResource(R.dimen.small_spacing))
                 .background(AppTheme.colors.light)
                 .clip(AppTheme.shapes.small)
 
@@ -91,26 +91,33 @@ fun CardAlert(
                 modifier = Modifier.background(AppTheme.colors.light)
             ) {
                 Row {
-                    Text(
-                        modifier = Modifier
-                            .background(AppTheme.colors.light)
-                            .weight(1f, true),
-                        text = title,
-                        style = AppTheme.typography.body2,
-                        color = typeColor
-                    )
+                    if (title.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier
+                                .background(AppTheme.colors.light)
+                                .weight(1f, true),
+                            text = title,
+                            style = AppTheme.typography.body2,
+                            color = typeColor
+                        )
+                    }
                     if (isDismissable) {
                         CardCloseButton(onClick = onClose)
                     }
                 }
-                Text(
-                    modifier = Modifier
-                        .background(AppTheme.colors.light)
-                        .padding(top = dimensionResource(id = R.dimen.tiny_spacing)),
-                    text = subtitle,
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.title
-                )
+
+                if (subtitle.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier
+                            .background(AppTheme.colors.light)
+                            .padding(
+                                top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
+                            ),
+                        text = subtitle,
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.title
+                    )
+                }
 
                 if (primaryCta != null) {
                     Row(
@@ -226,6 +233,25 @@ fun SuccessCardAlert_TwoButtons() {
                     text = "Secondary button",
                     onClick = {}
                 )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SuccessCardAlert_NoTitle() {
+    AppTheme {
+        AppSurface {
+            CardAlert(
+                title = "",
+                subtitle = "Subtitle",
+                alertType = AlertType.Default,
+                primaryCta = CardButton(
+                    text = "Primary button",
+                    onClick = {}
+                ),
+                isDismissable = false,
             )
         }
     }

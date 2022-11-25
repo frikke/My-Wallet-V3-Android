@@ -24,8 +24,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.interest.domain.model.InterestState
-import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.models.StakingState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.presentation.koin.scopedInject

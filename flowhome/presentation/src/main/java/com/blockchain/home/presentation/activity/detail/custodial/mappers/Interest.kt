@@ -5,10 +5,8 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
@@ -16,8 +14,9 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicSubtitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
-import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -147,7 +146,7 @@ internal fun CustodialInterestActivitySummaryItem.detailItems(
             ActivityComponent.Button(
                 id = toString(),
                 value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
-                style = ActivityButtonStyleState.Tertiary,
+                style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
                     data = txId
@@ -171,16 +170,16 @@ private fun CustodialInterestActivitySummaryItem.statusValue(): TextValue = Text
     }
 )
 
-private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (status) {
+private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
     InterestState.REFUNDED,
     InterestState.COMPLETE,
     InterestState.UNKNOWN,
-    InterestState.CLEARED -> ActivityTagStyleState.Success
+    InterestState.CLEARED -> ActivityTagStyle.Success
     InterestState.PROCESSING,
     InterestState.PENDING,
-    InterestState.MANUAL_REVIEW -> ActivityTagStyleState.Info
+    InterestState.MANUAL_REVIEW -> ActivityTagStyle.Info
     InterestState.REJECTED,
-    InterestState.FAILED -> ActivityTagStyleState.Error
+    InterestState.FAILED -> ActivityTagStyle.Error
 }
 
 private fun CustodialInterestActivitySummaryItem.pendingConfirmations(): TextValue? = when {

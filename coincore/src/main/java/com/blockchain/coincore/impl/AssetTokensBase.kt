@@ -21,10 +21,10 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.staking.domain.model.StakingEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.stakingAccountFeatureFlag
@@ -208,6 +208,15 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     Single.just(0.0)
                 }
             }
+
+    final override fun stakingRate(): Single<Double> =
+        stakingService.getEligibilityForAsset(currency).asSingle().flatMap {
+            if (it is StakingEligibility.Eligible) {
+                stakingService.getRateForAsset(currency).asSingle()
+            } else {
+                Single.just(0.0)
+            }
+        }
 
     final override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         accounts.flatMapMaybe {

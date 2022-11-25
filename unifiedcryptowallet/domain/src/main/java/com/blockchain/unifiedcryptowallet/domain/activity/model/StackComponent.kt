@@ -2,7 +2,13 @@ package com.blockchain.unifiedcryptowallet.domain.activity.model
 
 // text
 enum class ActivityTextTypography {
-    Paragraph2, Caption1
+    Display,
+    Title1, Title2, Title3,
+    Subheading,
+    Body1, Body2,
+    Paragraph1, Paragraph2,
+    Caption1, Caption2,
+    Micro
 }
 
 enum class ActivityTextColor {
@@ -12,12 +18,12 @@ enum class ActivityTextColor {
 data class ActivityTextStyle(
     val typography: ActivityTextTypography,
     val color: ActivityTextColor,
-    val strikethrough: Boolean
+    val strikethrough: Boolean = false
 )
 
 // tag
 enum class ActivityTagStyle {
-    Success, Warning
+    Default, Success, Info, Warning, Error
 }
 
 // component

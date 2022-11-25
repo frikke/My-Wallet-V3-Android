@@ -11,13 +11,16 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -84,8 +87,15 @@ internal class XlmCryptoWalletAccount(
         xlmManager.getBalanceAndMin()
             .toObservable()
 
-    override suspend fun publicKey(): String {
-        return xlmManager.publicKey.await()
+    override suspend fun publicKey(): List<PublicKey> {
+        val pubKey = xlmManager.publicKey.await()
+        return listOf(
+            PublicKey(
+                address = pubKey,
+                descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
+                style = PubKeyStyle.SINGLE
+            )
+        )
     }
 
     override val index: Int

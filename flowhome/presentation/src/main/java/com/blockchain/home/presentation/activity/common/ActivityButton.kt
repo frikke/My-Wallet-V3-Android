@@ -10,14 +10,9 @@ import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 
 // button
-enum class ActivityButtonStyleState {
-    Primary,
-    Secondary,
-    Tertiary
-}
-
 @Composable
 fun ActivityDetailButton(
     data: ActivityComponent.Button,
@@ -28,21 +23,21 @@ fun ActivityDetailButton(
     val onClick: () -> Unit = { onClick?.invoke() }
 
     when (data.style) {
-        ActivityButtonStyleState.Primary -> {
+        ActivityButtonStyle.Primary -> {
             PrimaryButton(
                 modifier = modifier,
                 text = text.value(),
                 onClick = onClick
             )
         }
-        ActivityButtonStyleState.Secondary -> {
+        ActivityButtonStyle.Secondary -> {
             SecondaryButton(
                 modifier = modifier,
                 text = text.value(),
                 onClick = onClick
             )
         }
-        ActivityButtonStyleState.Tertiary -> {
+        ActivityButtonStyle.Tertiary -> {
             TertiaryButton(
                 modifier = modifier,
                 text = text.value(),
@@ -59,7 +54,7 @@ fun PreviewActivityDetailButton_Primary() {
         data = ActivityComponent.Button(
             id = "",
             value = TextValue.StringValue("Primary"),
-            style = ActivityButtonStyleState.Primary,
+            style = ActivityButtonStyle.Primary,
             action = ActivityButtonAction(
                 type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                 data = ""
@@ -76,7 +71,7 @@ fun PreviewActivityDetailButton_Secondary() {
         data = ActivityComponent.Button(
             id = "",
             value = TextValue.StringValue("Secondary"),
-            style = ActivityButtonStyleState.Secondary,
+            style = ActivityButtonStyle.Secondary,
             action = ActivityButtonAction(
                 type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                 data = ""
@@ -93,7 +88,7 @@ fun PreviewActivityDetailButton_Tertiary() {
         data = ActivityComponent.Button(
             id = "",
             value = TextValue.StringValue("Tertiary"),
-            style = ActivityButtonStyleState.Tertiary,
+            style = ActivityButtonStyle.Tertiary,
             action = ActivityButtonAction(
                 type = ActivityButtonAction.ActivityButtonActionType.OpenUrl,
                 data = ""

@@ -12,6 +12,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
@@ -303,8 +304,9 @@ class CoinViewInteractor(
             accounts,
             load24hPriceDelta(asset),
             asset.interestRate(),
+            asset.stakingRate(),
             watchlistDataManager.isAssetInWatchlist(asset.currency)
-        ) { accounts, prices, interestRate, isAddedToWatchlist ->
+        ) { accounts, prices, interestRate, stakingRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
             val tradeableAsset = accounts.any {
@@ -318,7 +320,7 @@ class CoinViewInteractor(
                 )
             } else {
                 val accountsList = mapAccounts(
-                    accounts, prices.currentRate, interestRate
+                    accounts, prices.currentRate, interestRate, stakingRate
                 )
                 var totalCryptoMoneyAll = Money.zero(asset.currency)
                 val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
@@ -358,7 +360,8 @@ class CoinViewInteractor(
     private fun mapAccounts(
         accounts: List<DetailsItem>,
         exchangeRate: ExchangeRate,
-        interestRate: Double = Double.NaN
+        interestRate: Double = Double.NaN,
+        stakingRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
 
         val accountComparator = object : Comparator<DetailsItem> {
@@ -371,7 +374,8 @@ class CoinViewInteractor(
                     detailItem.account is NonCustodialAccount && detailItem.isDefault -> 0
                     detailItem.account is TradingAccount -> 1
                     detailItem.account is InterestAccount -> 2
-                    detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 3
+                    detailItem.account is StakingAccount -> 3
+                    detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 4
                     else -> Int.MAX_VALUE
                 }
             }
@@ -388,6 +392,7 @@ class CoinViewInteractor(
                         filter = when (it.account) {
                             is TradingAccount -> AssetFilter.Trading
                             is InterestAccount -> AssetFilter.Interest
+                            is StakingAccount -> AssetFilter.Staking
                             // todo (othman) should be removed once universal mode is removed
                             is NonCustodialAccount -> AssetFilter.NonCustodial
                             else -> error("account type not supported")
@@ -398,7 +403,8 @@ class CoinViewInteractor(
                         actions = it.actions.filter { action ->
                             action.action != AssetAction.InterestDeposit
                         }.toSet(),
-                        interestRate = interestRate
+                        interestRate = interestRate,
+                        stakingRate = stakingRate
                     )
                 }
                 WalletMode.NON_CUSTODIAL_ONLY -> {

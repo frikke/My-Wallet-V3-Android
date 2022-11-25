@@ -6,6 +6,8 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrDefault
+import com.blockchain.data.map
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -91,7 +93,7 @@ data class CoinviewModelState(
                 val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
 
                 val isValidBalance = if (isPositiveBalanceRequired) {
-                    account.cryptoBalance.isPositive
+                    account.cryptoBalance.map { it.isPositive }.dataOrDefault(false)
                 } else {
                     true
                 }

@@ -11,23 +11,23 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 
-internal val basicTitleStyle = ActivityTextStyleState(
-    typography = ActivityTextTypographyState.Paragraph2,
-    color = ActivityTextColorState.Title,
+internal val basicTitleStyle = ActivityTextStyle(
+    typography = ActivityTextTypography.Paragraph2,
+    color = ActivityTextColor.Title,
     strikethrough = false
 )
 
-internal val basicSubtitleStyle = ActivityTextStyleState(
-    typography = ActivityTextTypographyState.Caption1,
-    color = ActivityTextColorState.Muted,
+internal val basicSubtitleStyle = ActivityTextStyle(
+    typography = ActivityTextTypography.Caption1,
+    color = ActivityTextColor.Muted,
     strikethrough = false
 )
 
-internal fun ActivityTextStyleState.muted() = copy(color = ActivityTextColorState.Muted)
+internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
 
 @DrawableRes internal fun ActivitySummaryItem.iconSummary() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconSummary()

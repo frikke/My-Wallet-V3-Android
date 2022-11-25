@@ -11,6 +11,7 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
@@ -18,6 +19,8 @@ import com.blockchain.outcome.getOrThrow
 import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -142,6 +145,12 @@ class DynamicNonCustodialAccount(
     override val index: Int
         get() = 0
 
-    override suspend fun publicKey(): String =
-        String(Hex.encode(internalAccount.address.pubKey))
+    override suspend fun publicKey(): List<PublicKey> =
+        listOf(
+            PublicKey(
+                address = String(Hex.encode(internalAccount.address.pubKey)),
+                descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
+                style = PubKeyStyle.SINGLE,
+            )
+        )
 }

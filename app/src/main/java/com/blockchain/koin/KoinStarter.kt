@@ -14,6 +14,8 @@ import com.blockchain.core.price.pricesModule
 import com.blockchain.coreandroid.coreAndroidModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
+import com.blockchain.earn.data.koin.earnDataModule
+import com.blockchain.earn.koin.earnPresentationModule
 import com.blockchain.home.data.koin.homeDataModule
 import com.blockchain.home.presentation.koin.homePresentationModule
 import com.blockchain.koin.modules.apiInterceptorsModule
@@ -171,6 +173,7 @@ object KoinStarter {
                     fraudDataModule,
                     nftDataModule, nftPresentationModule,
                     multiAppModule,
+                    earnDataModule, earnPresentationModule
                 )
             )
         }
