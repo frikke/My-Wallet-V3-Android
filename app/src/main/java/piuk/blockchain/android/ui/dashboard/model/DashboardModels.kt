@@ -77,7 +77,10 @@ data class DefiAsset(
     override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
         this.copy(shouldAssetShow = shouldAssetShow)
 
-    override fun toErrorState(): DashboardAsset = this.copy(hasBalanceError = true)
+    override fun toErrorState(): DashboardAsset = this.copy(
+        hasBalanceError = true,
+        isFetchingBalance = false
+    )
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
 

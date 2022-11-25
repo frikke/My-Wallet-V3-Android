@@ -6,10 +6,10 @@ import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import org.koin.java.KoinJavaComponent
 
@@ -34,9 +34,9 @@ internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
 }
 
 internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
-        TransactionState.FAILED -> ActivityTextColorState.Error
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (state) {
+        TransactionState.FAILED -> ActivityTextColor.Error
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
@@ -55,9 +55,9 @@ private fun FiatActivitySummaryItem.trailingStrikethrough() = when (state) {
 }
 
 internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
-        TransactionState.COMPLETED -> ActivityTextColorState.Title
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (state) {
+        TransactionState.COMPLETED -> ActivityTextColor.Title
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(

@@ -5,9 +5,9 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 
 @DrawableRes internal fun CustodialTransferActivitySummaryItem.iconSummary(): Int {
@@ -31,10 +31,10 @@ internal fun CustodialTransferActivitySummaryItem.leadingTitle(): ActivityStackV
 }
 
 internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
+    val color: ActivityTextColor = when (state) {
         TransactionState.COMPLETED,
-        TransactionState.PENDING -> ActivityTextColorState.Muted
-        TransactionState.FAILED -> ActivityTextColorState.Error
+        TransactionState.PENDING -> ActivityTextColor.Muted
+        TransactionState.FAILED -> ActivityTextColor.Error
     }
 
     return ActivityStackView.Text(
@@ -53,10 +53,10 @@ private fun CustodialTransferActivitySummaryItem.trailingStrikethrough() = when 
 }
 
 internal fun CustodialTransferActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
-        TransactionState.COMPLETED -> ActivityTextColorState.Title
+    val color: ActivityTextColor = when (state) {
+        TransactionState.COMPLETED -> ActivityTextColor.Title
         TransactionState.PENDING,
-        TransactionState.FAILED -> ActivityTextColorState.Muted
+        TransactionState.FAILED -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(

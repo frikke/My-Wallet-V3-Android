@@ -30,6 +30,9 @@ class FirebaseRemoteLogger : RemoteLogger {
         }
     }
 
+    override fun logUserId(userId: String) {
+    }
+
     override fun logEvent(message: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
             firebaseInstance?.log(message)

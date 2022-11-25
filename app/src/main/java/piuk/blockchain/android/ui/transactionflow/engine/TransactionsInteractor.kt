@@ -22,13 +22,13 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature

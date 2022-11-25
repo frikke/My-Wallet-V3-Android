@@ -23,6 +23,7 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBO
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
+import timber.log.Timber
 
 class AssetMap(private val map: Map<Currency, DashboardAsset>) :
     Map<Currency, DashboardAsset> by map {
@@ -137,6 +138,11 @@ data class DashboardState(
     val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden,
     val isStakingEnabled: Boolean = false
 ) : MviState, DashboardBalanceStateHost {
+
+    init {
+        val loadingAssets = activeAssets.values.filter { it.isFetchingBalance }.map { it.currency.networkTicker }
+        Timber.i("Fetching balances for assets: $loadingAssets")
+    }
 
     override val dashboardBalance: DashboardBalance?
         get() = when {

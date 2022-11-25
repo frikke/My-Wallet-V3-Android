@@ -14,13 +14,21 @@ import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.earn.staking.StakingSummaryBottomSheet
+import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
+import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
@@ -54,7 +62,8 @@ class CoinViewActivityV2 :
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    StakingSummaryBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -130,7 +139,10 @@ class CoinViewActivityV2 :
                 navigateToAccountActions(
                     cvAccount = navigationEvent.cvAccount,
                     interestRate = navigationEvent.interestRate,
-                    actions = navigationEvent.actions
+                    stakingRate = navigationEvent.stakingRate,
+                    actions = navigationEvent.actions,
+                    balanceCrypto = navigationEvent.cryptoBalance,
+                    fiatBalance = navigationEvent.fiatBalance,
                 )
             }
 
@@ -228,6 +240,13 @@ class CoinViewActivityV2 :
                 showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
             }
 
+            is CoinviewNavigationEvent.NavigateToStakingStatement ->
+                showBottomSheet(
+                    StakingSummaryBottomSheet.newInstance(
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker
+                    )
+                )
+
             is CoinviewNavigationEvent.NavigateToInterestDeposit -> {
                 goToInterestDeposit(navigationEvent.cvAccount.account)
             }
@@ -309,14 +328,18 @@ class CoinViewActivityV2 :
     private fun navigateToAccountActions(
         cvAccount: CoinviewAccount,
         interestRate: Double,
+        stakingRate: Double,
+        fiatBalance: Money,
+        balanceCrypto: Money,
         actions: List<StateAwareAction>
     ) {
         showBottomSheet(
             AccountActionsBottomSheet.newInstance(
                 selectedAccount = cvAccount.account,
-                balanceFiat = cvAccount.fiatBalance,
-                balanceCrypto = cvAccount.cryptoBalance,
+                balanceFiat = fiatBalance,
+                balanceCrypto = balanceCrypto,
                 interestRate = interestRate,
+                stakingRate = stakingRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )
@@ -395,6 +418,37 @@ class CoinViewActivityV2 :
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
         viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
+    }
+
+    override fun openExternalUrl(url: String) {
+        openUrl(url)
+    }
+
+    override fun launchStakingWithdrawal(currency: Currency) {
+        // TODO - disabled for now
+    }
+
+    override fun launchStakingDeposit(currency: Currency) {
+        viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(currency))
+    }
+
+    override fun goToStakingActivity(currency: Currency) {
+        viewModel.onIntent(CoinviewIntent.LaunchStakingActivity(currency))
+    }
+
+    override fun showStakingLoadingError(error: StakingError) {
+        BlockchainSnackbar.make(
+            view = window.decorView.rootView,
+            message = when (error) {
+                StakingError.UnknownAsset -> getString(
+                    R.string.staking_summary_sheet_error_unknown_asset, args.networkTicker
+                )
+                StakingError.Other -> getString(R.string.staking_summary_sheet_error_other)
+                StakingError.None -> getString(R.string.empty)
+            },
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun onSheetClosed() {}

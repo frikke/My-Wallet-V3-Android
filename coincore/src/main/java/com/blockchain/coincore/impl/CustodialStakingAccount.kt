@@ -17,11 +17,11 @@ import com.blockchain.coincore.toActionState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.staking.domain.StakingActivity
-import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.earn.domain.models.StakingActivity
+import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -166,7 +166,6 @@ class CustodialStakingAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    // TODO(dserrano) - STAKING - add withdraw & summary
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
@@ -183,6 +182,7 @@ class CustodialStakingAccount(
                         },
                         AssetAction.StakingDeposit
                     ),
+                    StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
                     StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
                 )
             }.exhaustive

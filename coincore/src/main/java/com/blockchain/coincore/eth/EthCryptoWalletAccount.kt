@@ -16,6 +16,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -23,6 +24,7 @@ import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -82,14 +84,19 @@ import kotlinx.coroutines.flow.flowOf
             flowOf(DataResource.Data(Money.fromMajor(currency, BigDecimal.ZERO)))
         }.asObservable()
 
-    override suspend fun publicKey(): String =
-        jsonAccount.publicKey ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
+    override suspend fun publicKey(): List<PublicKey> =
+        jsonAccount.publicKey?.let {
+            listOf(
+                PublicKey(
+                    address = it,
+                    descriptor = MULTIPLE_ADDRESSES_DESCRIPTOR,
+                    style = PubKeyStyle.SINGLE
+                )
+            )
+        } ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
 
     override val index: Int
         get() = NetworkWallet.DEFAULT_SINGLE_ACCOUNT_INDEX
-
-    override val descriptor: Int
-        get() = MULTIPLE_ADDRESSES_DESCRIPTOR
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())

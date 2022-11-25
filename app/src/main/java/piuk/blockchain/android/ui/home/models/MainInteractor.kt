@@ -74,6 +74,7 @@ class MainInteractor internal constructor(
     private val referralRepository: ReferralRepository,
     private val ethDataManager: EthDataManager,
     private val stakingAccountFlag: FeatureFlag,
+    private val membershipFlag: FeatureFlag,
     private val coincore: Coincore,
     private val walletModeService: WalletModeService,
     private val earnOnNavBarFlag: FeatureFlag
@@ -163,9 +164,21 @@ class MainInteractor internal constructor(
         }
 
     fun checkReferral(): Single<ReferralState> = rxSingle {
+        val areMembershipsEnabled = membershipFlag.coEnabled()
         referralRepository.fetchReferralData().fold(
-            onSuccess = { ReferralState(it, referralPrefs.hasReferralIconBeenClicked) },
-            onFailure = { ReferralState(ReferralInfo.NotAvailable, false) }
+            onSuccess = { info ->
+                ReferralState(
+                    referralInfo = info,
+                    hasReferralBeenClicked = referralPrefs.hasReferralIconBeenClicked,
+                    areMembershipsEnabled = areMembershipsEnabled
+                )
+            },
+            onFailure = {
+                ReferralState(
+                    referralInfo = ReferralInfo.NotAvailable,
+                    hasReferralBeenClicked = false
+                )
+            }
         )
     }
 

@@ -32,11 +32,11 @@ fun BalanceTableRow(
     titleEnd: AnnotatedString? = null,
     bodyStart: AnnotatedString? = null,
     bodyEnd: AnnotatedString? = null,
-    startImageResource: ImageResource,
+    startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = ImageResource.None,
     isInlineTags: Boolean = false,
-    tags: List<TagViewState>,
-    onClick: () -> Unit
+    tags: List<TagViewState> = emptyList(),
+    onClick: () -> Unit = {}
 ) {
 
     TableRow(
@@ -146,6 +146,41 @@ fun BalanceTableRow_Local_ImageStart() {
                     id = R.drawable.ic_blockchain,
                 ),
                 tags = emptyList()
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BalanceTableRow_Texts() {
+    AppTheme {
+        AppSurface {
+            BalanceTableRow(
+                titleStart = buildAnnotatedString { append("Some title here") },
+                bodyStart = buildAnnotatedString { append("Some body here") },
+                titleEnd = buildAnnotatedString { append("100 BTC") },
+                bodyEnd = buildAnnotatedString { append("$100") },
+                onClick = {},
+                tags = emptyList(),
+                startImageResource = ImageResource.None
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BalanceTableRow_TitleStart_TwoEnd() {
+    AppTheme {
+        AppSurface {
+            BalanceTableRow(
+                titleStart = buildAnnotatedString { append("Some title here") },
+                titleEnd = buildAnnotatedString { append("100 BTC") },
+                bodyEnd = buildAnnotatedString { append("$100") },
+                onClick = {},
+                tags = emptyList(),
+                startImageResource = ImageResource.None
             )
         }
     }

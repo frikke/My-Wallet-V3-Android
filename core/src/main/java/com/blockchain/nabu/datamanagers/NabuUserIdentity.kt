@@ -2,13 +2,13 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.staking.domain.model.StakingEligibility
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
+import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BasicProfileInfo

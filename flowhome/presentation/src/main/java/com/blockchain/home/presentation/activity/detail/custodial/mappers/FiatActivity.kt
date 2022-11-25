@@ -6,10 +6,8 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
@@ -19,6 +17,8 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
@@ -159,7 +159,7 @@ internal fun FiatActivitySummaryItem.detailItems(
             ActivityComponent.Button(
                 id = toString(),
                 value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
-                style = ActivityButtonStyleState.Tertiary,
+                style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
                     data = txId
@@ -177,10 +177,10 @@ private fun FiatActivitySummaryItem.statusValue(): TextValue = TextValue.IntResV
     }
 )
 
-private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (state) {
-    TransactionState.COMPLETED -> ActivityTagStyleState.Success
-    TransactionState.PENDING -> ActivityTagStyleState.Info
-    TransactionState.FAILED -> ActivityTagStyleState.Error
+private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
+    TransactionState.COMPLETED -> ActivityTagStyle.Success
+    TransactionState.PENDING -> ActivityTagStyle.Info
+    TransactionState.FAILED -> ActivityTagStyle.Error
 }
 
 internal fun FiatActivitySummaryItem.buildActivityDetail(

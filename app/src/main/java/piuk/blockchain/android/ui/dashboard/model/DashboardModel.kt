@@ -112,7 +112,6 @@ class DashboardModel(
             is DashboardIntent.PriceHistoryUpdate,
             is DashboardIntent.ClearAnnouncement,
             is DashboardIntent.ShowAnnouncement,
-            is DashboardIntent.AssetPriceUpdate,
             is DashboardIntent.ShowFiatAssetDetails,
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,
