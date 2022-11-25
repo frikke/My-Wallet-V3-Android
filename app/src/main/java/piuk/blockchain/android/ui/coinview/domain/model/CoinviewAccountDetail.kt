@@ -5,6 +5,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 
@@ -13,7 +14,7 @@ import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
  */
 class CoinviewAccountDetail(
     val account: BlockchainAccount,
-    val balance: Money,
+    val balance: DataResource<Money>,
     val isAvailable: Boolean,
     val isDefault: Boolean = false
 ) : Comparable<CoinviewAccountDetail> {

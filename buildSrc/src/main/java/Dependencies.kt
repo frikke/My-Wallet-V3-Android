@@ -50,6 +50,7 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
+    const val googleServicesPlaces = "2.7.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googleServicesCoroutines = "1.6.4"

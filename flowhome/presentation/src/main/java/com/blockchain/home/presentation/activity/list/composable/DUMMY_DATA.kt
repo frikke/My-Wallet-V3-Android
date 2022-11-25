@@ -6,10 +6,10 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
-import com.blockchain.home.presentation.activity.common.ActivityTextStyleState
-import com.blockchain.home.presentation.activity.common.ActivityTextTypographyState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 import java.util.Calendar
 
 val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = DataResource.Data(
@@ -24,21 +24,21 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         TextValue.StringValue("Sent Bitcoin"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         TextValue.StringValue("85% confirmed"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Muted)
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         TextValue.StringValue("-10.00"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         TextValue.StringValue("-0.00893208 ETH"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Muted)
                     )
                 )
             ),
@@ -51,32 +51,32 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Sent Bitcoin"),
-                        style = ActivityTextStyleState(
-                            ActivityTextTypographyState.Paragraph2,
-                            ActivityTextColorState.Title
+                        style = ActivityTextStyle(
+                            ActivityTextTypography.Paragraph2,
+                            ActivityTextColor.Title
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("RBF transaction"),
-                        style = ActivityTextStyleState(
-                            ActivityTextTypographyState.Caption1,
-                            ActivityTextColorState.Error
+                        style = ActivityTextStyle(
+                            ActivityTextTypography.Caption1,
+                            ActivityTextColor.Error
                         )
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-25.00"),
-                        style = ActivityTextStyleState(
-                            ActivityTextTypographyState.Paragraph2,
-                            ActivityTextColorState.Muted
+                        style = ActivityTextStyle(
+                            ActivityTextTypography.Paragraph2,
+                            ActivityTextColor.Muted
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("0.00025 BTC"),
-                        style = ActivityTextStyleState(
-                            ActivityTextTypographyState.Caption1,
-                            ActivityTextColorState.Muted
+                        style = ActivityTextStyle(
+                            ActivityTextTypography.Caption1,
+                            ActivityTextColor.Muted
                         )
                     )
                 )
@@ -92,21 +92,21 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Sent Bitcoin"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("June 14"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Muted)
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-10.00"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Muted)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Muted)
                     )
                 )
             ),
@@ -119,26 +119,26 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Sent Bitcoin"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Canceled"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Warning)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Warning)
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-10.00"),
-                        ActivityTextStyleState(
-                            ActivityTextTypographyState.Paragraph2,
-                            ActivityTextColorState.Muted, true
+                        ActivityTextStyle(
+                            ActivityTextTypography.Paragraph2,
+                            ActivityTextColor.Muted, true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
-                        ActivityTextStyleState(
-                            ActivityTextTypographyState.Caption1,
-                            ActivityTextColorState.Muted, true
+                        ActivityTextStyle(
+                            ActivityTextTypography.Caption1,
+                            ActivityTextColor.Muted, true
                         )
                     )
                 )
@@ -154,26 +154,26 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                 leading = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Sent Bitcoin"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Paragraph2, ActivityTextColorState.Title)
+                        ActivityTextStyle(ActivityTextTypography.Paragraph2, ActivityTextColor.Title)
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("Declined"),
-                        ActivityTextStyleState(ActivityTextTypographyState.Caption1, ActivityTextColorState.Warning)
+                        ActivityTextStyle(ActivityTextTypography.Caption1, ActivityTextColor.Warning)
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-10.00"),
-                        ActivityTextStyleState(
-                            ActivityTextTypographyState.Paragraph2,
-                            ActivityTextColorState.Muted, true
+                        ActivityTextStyle(
+                            ActivityTextTypography.Paragraph2,
+                            ActivityTextColor.Muted, true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
-                        ActivityTextStyleState(
-                            ActivityTextTypographyState.Caption1,
-                            ActivityTextColorState.Muted, true
+                        ActivityTextStyle(
+                            ActivityTextTypography.Caption1,
+                            ActivityTextColor.Muted, true
                         )
                     )
                 )

@@ -8,8 +8,8 @@ import kotlinx.serialization.modules.subclass
 
 @Serializable
 data class ActivityTextStyleDto(
-    @SerialName("style")
-    val style: String,
+    @SerialName("typography")
+    val typography: String,
     @SerialName("color")
     val color: String,
     @SerialName("strikethrough")

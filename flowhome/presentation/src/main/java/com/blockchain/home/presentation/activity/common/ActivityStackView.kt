@@ -7,60 +7,55 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 
-// styles - use domain ones instead to map
-// text
-enum class ActivityTextTypographyState {
-    Paragraph2, Caption1
+@Composable
+fun ActivityTextTypography.toComposable() = when (this) {
+    ActivityTextTypography.Display -> AppTheme.typography.display
+    ActivityTextTypography.Title1 -> AppTheme.typography.title1
+    ActivityTextTypography.Title2 -> AppTheme.typography.title2
+    ActivityTextTypography.Title3 -> AppTheme.typography.title3
+    ActivityTextTypography.Subheading -> AppTheme.typography.subheading
+    ActivityTextTypography.Body1 -> AppTheme.typography.body1
+    ActivityTextTypography.Body2 -> AppTheme.typography.body2
+    ActivityTextTypography.Paragraph1 -> AppTheme.typography.paragraph1
+    ActivityTextTypography.Paragraph2 -> AppTheme.typography.paragraph2
+    ActivityTextTypography.Caption1 -> AppTheme.typography.caption1
+    ActivityTextTypography.Caption2 -> AppTheme.typography.caption2
+    ActivityTextTypography.Micro -> AppTheme.typography.micro1
 }
 
 @Composable
-fun ActivityTextTypographyState.toComposable() = when (this) {
-    ActivityTextTypographyState.Paragraph2 -> AppTheme.typography.paragraph2
-    ActivityTextTypographyState.Caption1 -> AppTheme.typography.caption1
+fun ActivityTextColor.toComposable() = when (this) {
+    ActivityTextColor.Title -> AppTheme.colors.title
+    ActivityTextColor.Muted -> AppTheme.colors.muted
+    ActivityTextColor.Success -> AppTheme.colors.success
+    ActivityTextColor.Error -> AppTheme.colors.error
+    ActivityTextColor.Warning -> AppTheme.colors.warning
 }
-
-enum class ActivityTextColorState {
-    Title, Muted, Success, Error, Warning
-}
-
-@Composable
-fun ActivityTextColorState.toComposable() = when (this) {
-    ActivityTextColorState.Title -> AppTheme.colors.title
-    ActivityTextColorState.Muted -> AppTheme.colors.muted
-    ActivityTextColorState.Success -> AppTheme.colors.success
-    ActivityTextColorState.Error -> AppTheme.colors.error
-    ActivityTextColorState.Warning -> AppTheme.colors.warning
-}
-
-data class ActivityTextStyleState(
-    val typography: ActivityTextTypographyState,
-    val color: ActivityTextColorState,
-    val strikethrough: Boolean = false
-)
 
 // tag
-enum class ActivityTagStyleState {
-    Success, Info, Warning, Error
-}
-
-fun ActivityTagStyleState.toTagType() = when (this) {
-    ActivityTagStyleState.Success -> TagType.Success()
-    ActivityTagStyleState.Info -> TagType.InfoAlt()
-    ActivityTagStyleState.Warning -> TagType.Warning()
-    ActivityTagStyleState.Error -> TagType.Error()
+fun ActivityTagStyle.toTagType() = when (this) {
+    ActivityTagStyle.Default -> TagType.Default()
+    ActivityTagStyle.Success -> TagType.Success()
+    ActivityTagStyle.Info -> TagType.InfoAlt()
+    ActivityTagStyle.Warning -> TagType.Warning()
+    ActivityTagStyle.Error -> TagType.Error()
 }
 
 // component
 sealed interface ActivityStackView {
     data class Text(
         val value: TextValue,
-        val style: ActivityTextStyleState
+        val style: ActivityTextStyle
     ) : ActivityStackView
 
     data class Tag(
         val value: TextValue,
-        val style: ActivityTagStyleState
+        val style: ActivityTagStyle
     ) : ActivityStackView
 }
 

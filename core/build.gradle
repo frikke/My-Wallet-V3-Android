@@ -18,6 +18,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
+    implementation project(':earn:domain')
 
     api project(':balance')
 

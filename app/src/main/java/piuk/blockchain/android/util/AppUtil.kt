@@ -10,10 +10,11 @@ import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 
 class AppUtil(
@@ -23,7 +24,8 @@ class AppUtil(
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,
-    private val walletStatusPrefs: WalletStatusPrefs
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val unifiedActivityService: UnifiedActivityService
 ) : AppUtilAPI {
     override fun logout(isIntercomEnabled: Boolean) {
         pinRepository.clearPin()
@@ -50,6 +52,7 @@ class AppUtil(
         remoteLogger.logEvent("Clearing credentials")
         payloadScopeWiper.wipe()
         sessionPrefs.clear()
+        unifiedActivityService.clearCache()
     }
 
     fun clearCredentialsAndRestart() {
@@ -59,7 +62,7 @@ class AppUtil(
 
     fun restartApp() {
         context.startActivity(
-            Intent(context, LauncherActivity::class.java).apply {
+            Intent(context, LauncherActivityV2::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )

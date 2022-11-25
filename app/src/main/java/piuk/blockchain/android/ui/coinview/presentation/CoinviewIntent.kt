@@ -8,6 +8,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
+import info.blockchain.balance.Currency
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -152,4 +153,7 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
             return modelState.assetInfo is DataResource.Data
         }
     }
+
+    data class LaunchStakingDepositFlow(val currency: Currency) : CoinviewIntent
+    data class LaunchStakingActivity(val currency: Currency) : CoinviewIntent
 }

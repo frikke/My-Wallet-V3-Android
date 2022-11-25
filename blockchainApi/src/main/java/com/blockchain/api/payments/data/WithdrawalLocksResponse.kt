@@ -19,7 +19,8 @@ data class LockPeriod(
     @SerialName("amount")
     val localCurrencyAmount: LocalCurrencyAmount,
     @SerialName("expiresAt")
-    val expiresAt: String
+    val expiresAt: String,
+    val bought: LocalCurrencyAmount?,
 )
 
 @Serializable

@@ -78,7 +78,8 @@ fun Coinview(
             totalBalance = state.totalBalance,
             accounts = state.accounts,
             onAccountClick = { account ->
-                viewModel.onIntent(CoinviewIntent.AccountSelected(account))
+                if (account.isClickable)
+                    viewModel.onIntent(CoinviewIntent.AccountSelected(account))
             },
             onLockedAccountClick = {
                 viewModel.onIntent(CoinviewIntent.LockedAccountSelected)

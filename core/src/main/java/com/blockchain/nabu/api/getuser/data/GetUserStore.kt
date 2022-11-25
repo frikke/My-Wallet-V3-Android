@@ -3,6 +3,7 @@ package com.blockchain.nabu.api.getuser.data
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit
 class GetUserStore(
     private val nabuService: NabuService,
     private val userReporter: NabuUserReporter,
+    private val remoteLogger: RemoteLogger,
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
     private val sessionInfo: SessionInfo,
@@ -35,6 +37,7 @@ class GetUserStore(
                         userReporter.reportUserId(user.id)
                         userReporter.reportUser(user)
                         trust.setUserId(user.id)
+                        remoteLogger.logUserId(user.id)
                         walletReporter.reportWalletGuid(payloadDataManager.guid)
                         sessionInfo.setUserId(user.id)
                     }

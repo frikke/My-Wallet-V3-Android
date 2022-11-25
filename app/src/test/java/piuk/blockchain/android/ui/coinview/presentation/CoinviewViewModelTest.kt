@@ -127,8 +127,8 @@ class CoinviewViewModelTest {
 
         every { coinviewAccount.account } returns blockchainAccount
         every { coinviewAccount.isEnabled } returns true
-        every { coinviewAccount.fiatBalance } returns money
-        every { coinviewAccount.cryptoBalance } returns money
+        every { coinviewAccount.fiatBalance } returns DataResource.Data(money)
+        every { coinviewAccount.cryptoBalance } returns DataResource.Data(money)
 
         every { fiatCurrency.symbol } returns fiatCurrencySymbol
         every { currencyPrefs.selectedFiatCurrency } returns fiatCurrency

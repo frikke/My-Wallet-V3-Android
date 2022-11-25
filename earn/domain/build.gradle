@@ -1,0 +1,12 @@
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+dependencies {
+    implementation project(':common:interface')
+    implementation project(':common:domain')
+    implementation project(':balance')
+    implementation project(':wallet')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.rxJava
+}
