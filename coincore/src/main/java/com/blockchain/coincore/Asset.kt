@@ -161,6 +161,7 @@ interface Asset {
 interface CryptoAsset : Asset {
     override val currency: AssetInfo
     fun interestRate(): Single<Double>
+    fun stakingRate(): Single<Double>
 }
 
 interface MultipleWalletsAsset {

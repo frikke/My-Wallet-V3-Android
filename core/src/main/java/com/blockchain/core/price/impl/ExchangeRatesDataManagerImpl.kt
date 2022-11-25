@@ -96,8 +96,11 @@ internal class ExchangeRatesDataManagerImpl(
             }
     }
 
-    override fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate> =
-        priceStore.getCurrentPriceForAsset(fromAsset, userFiat, FreshnessStrategy.Cached(forceRefresh = true))
+    override fun exchangeRateToUserFiat(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<ExchangeRate> =
+        priceStore.getCurrentPriceForAsset(fromAsset, userFiat, freshnessStrategy)
             .asObservable()
             .map {
                 ExchangeRate(

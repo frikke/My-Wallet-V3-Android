@@ -5,8 +5,8 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
-import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.staking.domain.model.StakingLimits
+import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money

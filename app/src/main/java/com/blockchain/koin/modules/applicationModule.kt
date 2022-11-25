@@ -186,7 +186,8 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            walletStatusPrefs = get()
+            walletStatusPrefs = get(),
+            unifiedActivityService = payloadScope.get()
         )
     }.bind(AppUtilAPI::class)
 

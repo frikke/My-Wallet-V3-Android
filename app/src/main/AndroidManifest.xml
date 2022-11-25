@@ -32,6 +32,7 @@
         android:name=".BlockchainApplication"
         android:allowBackup="true"
         android:backupAgent="com.blockchain.coreandroid.utils.CloudBackupAgent"
+        android:enabled="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${APP_NAME}"
@@ -41,21 +42,19 @@
         tools:replace="android:label, android:allowBackup, android:theme">
 
         <activity
-            android:name=".ui.launcher.LauncherActivity"
+            android:name=".ui.launcher.LauncherActivityV2"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Splash">
-
+            android:theme="@style/AppTheme.Splash"
+            android:exported="true">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -277,6 +276,55 @@
             android:label="LinkRedirectActivity"
             android:theme="@style/Theme.AppCompat"
             tools:replace="android:theme" />
+
+        <!-- MEMBERSHIPS -->
+        <activity android:name=".ui.membership.AppIconUpdateActivity" />
+        <activity android:name=".ui.membership.MembershipActivity" />
+        <activity android:name="com.blockchain.membership.presentation.MembershipHubActivity" />
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.launcher.LauncherActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.membership.LauncherOneAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_blockchain_blue_circle"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.membership.LauncherTwoAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_blockchain"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- /end -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

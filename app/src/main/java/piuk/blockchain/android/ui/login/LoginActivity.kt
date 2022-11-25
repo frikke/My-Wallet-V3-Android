@@ -40,7 +40,7 @@ import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedView
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -287,7 +287,7 @@ class LoginActivity :
     private fun restartToLauncherActivity() {
         fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
-            Intent(this, LauncherActivity::class.java).apply {
+            Intent(this, LauncherActivityV2::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )

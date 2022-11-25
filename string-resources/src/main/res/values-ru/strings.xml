@@ -1957,7 +1957,7 @@
     <string name="funds_locked_summary_available_send">Доступно для отправки</string>
     <string name="funds_locked_summary_on_hold">%s на удержании</string>
     <string name="funds_locked_summary_details">Просмотреть подробности</string>
-    <string name="funds_locked_summary_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange. <annotation link="learn_more">Подробнее →</annotation></string>
+    <string name="funds_locked_summary_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange.</string>
     <string name="funds_locked_details_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange.</string>
     <string name="funds_locked_details_contact_support">Что-то не так? <annotation link="contact_support">Свяжитесь со службой поддержки</annotation></string>
     <string name="funds_locked__details_title_date">УДЕРЖИВАЕТСЯ ДО</string>

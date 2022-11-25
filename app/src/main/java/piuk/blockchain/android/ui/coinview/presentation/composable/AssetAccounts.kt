@@ -36,6 +36,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
+import com.blockchain.data.DataResource
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -372,7 +373,7 @@ private val previewBlockchainAccount = object : BlockchainAccount {
 
 val previewCvAccount: CoinviewAccount = CoinviewAccount.PrivateKey(
     account = previewBlockchainAccount,
-    cryptoBalance = Money.zero(CryptoCurrency.BTC),
-    fiatBalance = Money.zero(CryptoCurrency.BTC),
+    cryptoBalance = DataResource.Data(Money.zero(CryptoCurrency.BTC)),
+    fiatBalance = DataResource.Data(Money.zero(CryptoCurrency.BTC)),
     isEnabled = false
 )

@@ -371,6 +371,7 @@ class CoinViewInteractorTest {
             on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDeltaLegacy() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
+            on { stakingRate() }.thenReturn(Single.just(5.0))
         }
         whenever(watchlistDataManager.isAssetInWatchlist(asset.currency)).thenReturn(Single.just(true))
 
@@ -395,7 +396,7 @@ class CoinViewInteractorTest {
         ) {}
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(watchlistDataManager.isAssetInWatchlist(testAsset)).thenReturn(Single.just(true))
-
+        whenever(asset.stakingRate()).thenReturn(Single.just(0.0))
         val test = subject.loadAccountDetails(asset).test()
 
         test.assertValue {

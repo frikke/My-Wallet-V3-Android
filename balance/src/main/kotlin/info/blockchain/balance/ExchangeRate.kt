@@ -19,8 +19,10 @@ class ExchangeRate(
     }
 
     override fun equals(other: Any?): Boolean {
-        return (other is ExchangeRate) && (other.rate == rate) && (other.from.networkTicker == from.networkTicker) &&
-            (to.networkTicker == to.networkTicker)
+        return (other is ExchangeRate) &&
+            (other.rate == rate) &&
+            (other.from.networkTicker == from.networkTicker) &&
+            (other.to.networkTicker == to.networkTicker)
     }
 
     override fun hashCode(): Int {

@@ -1,0 +1,30 @@
+plugins {
+    id 'kotlinx-serialization'
+}
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
+
+android {
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+}
+
+
+dependencies {
+    implementation project(':earn:domain')
+    implementation project(':blockchainApi')
+    implementation project(':common:interface')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':balance')
+    implementation project(':core')
+    implementation project(':blockchainApi')
+    implementation project(':wallet')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+
+    // json
+    implementation Libraries.kotlinJson
+}

@@ -14,6 +14,7 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 
 fun ActivityIconState.toStackedIcon() = when (this) {
     is ActivityIconState.OverlappingPair.Local -> StackedIcon.OverlappingPair(
@@ -57,7 +58,7 @@ sealed interface ActivityComponent {
     data class Button(
         override val id: String,
         val value: TextValue,
-        val style: ActivityButtonStyleState,
+        val style: ActivityButtonStyle,
         val action: ActivityButtonAction
     ) : ActivityComponent
 }

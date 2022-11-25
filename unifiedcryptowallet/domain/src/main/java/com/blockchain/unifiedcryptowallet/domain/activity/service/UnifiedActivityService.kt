@@ -27,4 +27,6 @@ interface UnifiedActivityService {
         timeZone: String,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<ActivityDetailGroups>>
+
+    fun clearCache()
 }

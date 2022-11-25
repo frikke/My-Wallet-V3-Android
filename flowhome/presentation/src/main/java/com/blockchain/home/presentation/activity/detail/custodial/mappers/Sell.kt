@@ -4,10 +4,8 @@ import androidx.annotation.DrawableRes
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.activity.common.ActivityButtonStyleState
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTagStyleState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
@@ -16,6 +14,8 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTit
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
@@ -203,7 +203,7 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
             ActivityComponent.Button(
                 id = toString(),
                 value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
-                style = ActivityButtonStyleState.Tertiary,
+                style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
                     data = txId
@@ -230,19 +230,19 @@ private fun TradeActivitySummaryItem.statusValue(): TextValue = TextValue.IntRes
     }
 )
 
-private fun TradeActivitySummaryItem.statusStyle(): ActivityTagStyleState = when (state) {
-    CustodialOrderState.FINISHED -> ActivityTagStyleState.Success
+private fun TradeActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
+    CustodialOrderState.FINISHED -> ActivityTagStyle.Success
     CustodialOrderState.CREATED,
     CustodialOrderState.PENDING_EXECUTION,
     CustodialOrderState.PENDING_CONFIRMATION,
     CustodialOrderState.PENDING_LEDGER,
     CustodialOrderState.PENDING_DEPOSIT,
     CustodialOrderState.PENDING_WITHDRAWAL,
-    CustodialOrderState.FINISH_DEPOSIT -> ActivityTagStyleState.Info
-    CustodialOrderState.CANCELED -> ActivityTagStyleState.Warning
+    CustodialOrderState.FINISH_DEPOSIT -> ActivityTagStyle.Info
+    CustodialOrderState.CANCELED -> ActivityTagStyle.Warning
     CustodialOrderState.EXPIRED,
     CustodialOrderState.UNKNOWN,
-    CustodialOrderState.FAILED -> ActivityTagStyleState.Error
+    CustodialOrderState.FAILED -> ActivityTagStyle.Error
 }
 
 internal fun TradeActivitySummaryItem.buildSellActivityDetail(

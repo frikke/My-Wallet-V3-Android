@@ -1,6 +1,7 @@
 package com.blockchain.unifiedcryptowallet.domain.activity.model
 
 import java.util.Calendar
+import kotlin.math.sign
 
 data class UnifiedActivityItem(
     val txId: String,
@@ -10,7 +11,12 @@ data class UnifiedActivityItem(
     val summary: ActivityDataItem,
     val status: String,
     val date: Calendar?
-)
+) : Comparable<UnifiedActivityItem> {
+
+    override fun compareTo(other: UnifiedActivityItem): Int {
+        return ((other.date?.timeInMillis ?: 0L) - (date?.timeInMillis ?: 0L)).sign
+    }
+}
 
 sealed interface ActivityDetailGroups {
     data class GroupedItems(

@@ -20,6 +20,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -70,8 +72,14 @@ import org.bitcoinj.core.LegacyAddress
                 BchAddress(address_ = it, label = label)
             }
 
-    override suspend fun publicKey(): String {
-        return internalAccount.xpubs().default.address
+    override suspend fun publicKey(): List<PublicKey> {
+        return listOf(
+            PublicKey(
+                address = internalAccount.xpubs().default.address,
+                style = PubKeyStyle.EXTENDED,
+                descriptor = DEFAULT_ADDRESS_DESCRIPTOR
+            )
+        )
     }
 
     override fun getOnChainBalance(): Observable<Money> =
@@ -85,9 +93,6 @@ import org.bitcoinj.core.LegacyAddress
 
     override val pubKeyDescriptor
         get() = BCH_PUBKEY_DESCRIPTOR
-
-    override val style: PubKeyStyle
-        get() = PubKeyStyle.EXTENDED
 
     override val activity: Single<ActivitySummaryList>
         get() = bchManager.getAddressTransactions(

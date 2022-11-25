@@ -75,8 +75,7 @@ android {
                 'es',
                 'fr',
                 'pt',
-                'ru',
-                'tr'
+                'ru'
     }
 
     bundle {
@@ -418,6 +417,11 @@ dependencies {
     implementation project(':nfts:data')
     implementation project(':nfts:domain')
     implementation project(':nfts:presentation')
+    implementation project(':membership:presentation')
+
+    implementation project(':earn:data')
+    implementation project(':earn:domain')
+    implementation project(':earn:presentation')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
