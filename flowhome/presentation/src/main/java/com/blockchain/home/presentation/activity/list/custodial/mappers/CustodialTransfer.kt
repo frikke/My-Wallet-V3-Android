@@ -19,7 +19,13 @@ import com.blockchain.utils.toFormattedDate
 
 internal fun CustodialTransferActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.StringValue("ffffffff"),
+        value = TextValue.IntResValue(
+            value = when (type) {
+                TransactionType.DEPOSIT -> R.string.tx_title_received
+                TransactionType.WITHDRAWAL -> R.string.tx_title_sent
+            },
+            args = listOf(account.currency.displayTicker)
+        ),
         style = basicTitleStyle
     )
 }

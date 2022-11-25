@@ -21,7 +21,14 @@ import java.util.Date
 
 internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.StringValue("ffffffff"),
+        value = TextValue.IntResValue(
+            value = when (type) {
+                OrderType.BUY,
+                OrderType.RECURRING_BUY -> R.string.tx_title_bought
+                OrderType.SELL -> R.string.tx_title_sold
+            },
+            args = listOf(account.currency.displayTicker)
+        ),
         style = basicTitleStyle
     )
 }

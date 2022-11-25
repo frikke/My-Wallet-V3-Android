@@ -24,7 +24,15 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 
 internal fun CustodialInterestActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.StringValue("ffffffff"),
+        value = TextValue.IntResValue(
+            value = when (type) {
+                TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_added
+                TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
+                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_rewards
+                else -> R.string.tx_title_transferred
+            },
+            args = listOf(account.currency.displayTicker)
+        ),
         style = basicTitleStyle
     )
 }
