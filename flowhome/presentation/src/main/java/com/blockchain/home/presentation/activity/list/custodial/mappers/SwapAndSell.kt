@@ -27,23 +27,7 @@ internal fun TradeActivitySummaryItem.isSellingPair(): Boolean =
 
 internal fun TradeActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value =
-        when {
-            isSwapPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_swapped,
-                args = listOf(
-                    currencyPair.source.displayTicker,
-                    currencyPair.destination.displayTicker
-                )
-            )
-            isSellingPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_sold,
-                args = listOf(
-                    currencyPair.source.displayTicker
-                )
-            )
-            else -> error("unsupported")
-        },
+        value =TextValue.StringValue("ffffffff"),
         style = basicTitleStyle
     )
 }

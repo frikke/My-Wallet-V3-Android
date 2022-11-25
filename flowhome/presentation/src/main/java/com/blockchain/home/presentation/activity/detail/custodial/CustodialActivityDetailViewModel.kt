@@ -12,6 +12,7 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
@@ -58,7 +59,8 @@ class CustodialActivityDetailViewModel(
     private val cardService: CardService,
     private val bankService: BankService,
     private val coincore: Coincore,
-    private val defaultLabels: DefaultLabels
+    private val defaultLabels: DefaultLabels,
+    private val recurringBuyService: RecurringBuyService
 ) : MviViewModel<
     ActivityDetailIntent<CustodialActivityDetail>,
     ActivityDetailViewState,
@@ -174,6 +176,17 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun RecurringBuyActivitySummaryItem.recurringBuyDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        viewModelScope.launch {
+            println("-------- recurringBuyId $recurringBuyId")
+
+            recurringBuyId?.let { recurringBuyId ->
+                recurringBuyService.getRecurringBuyForId(id = recurringBuyId)
+                    .onEach {
+                        println("-------- it $it")
+                    }
+                    .collect()
+            } ?: flowOf(DataResource.Error(Exception("recurringBuyId not found")))
+        }
         return flowOf(DataResource.Data(buildActivityDetail()))
     }
 

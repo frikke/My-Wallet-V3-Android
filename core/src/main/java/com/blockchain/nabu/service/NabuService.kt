@@ -421,12 +421,6 @@ class NabuService internal constructor(
         body = body
     ).wrapErrorMessage()
 
-    fun getRecurringBuyForId(
-        recurringBuyId: String
-    ) = nabu.getRecurringBuyById(
-        recurringBuyId = recurringBuyId
-    ).wrapErrorMessage()
-
     fun cancelRecurringBuy(
         id: String
     ) = nabu.cancelRecurringBuy(

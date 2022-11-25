@@ -50,7 +50,8 @@ val homePresentationModule = module {
                 cardService = get(),
                 bankService = get(),
                 coincore = get(),
-                defaultLabels = get()
+                defaultLabels = get(),
+                recurringBuyService = get()
             )
         }
 

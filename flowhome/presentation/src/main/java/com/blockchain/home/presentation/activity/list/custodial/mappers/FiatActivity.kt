@@ -22,13 +22,7 @@ import org.koin.java.KoinJavaComponent
 
 internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.IntResValue(
-            value = when (type) {
-                TransactionType.DEPOSIT -> R.string.tx_title_deposited
-                TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
-            },
-            args = listOf(account.currency.displayTicker)
-        ),
+        value = TextValue.StringValue("ffffffff"),
         style = basicTitleStyle
     )
 }

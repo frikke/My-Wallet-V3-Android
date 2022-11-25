@@ -80,6 +80,9 @@ import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
+import com.blockchain.core.recurringbuy.data.RecurringBuyRepository
+import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
@@ -127,9 +130,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.util.UUID
 
 val coreModule = module {
 
@@ -254,6 +257,19 @@ val coreModule = module {
         scoped {
             SddEligibilityStore(
                 nabuService = get()
+            )
+        }
+
+        scoped {
+            RecurringBuyWithIdStore(
+                nabu = get()
+            )
+        }
+
+        scoped<RecurringBuyService> {
+            RecurringBuyRepository(
+                recurringBuyWithIdStore = get(),
+                assetCatalogue = get()
             )
         }
 
