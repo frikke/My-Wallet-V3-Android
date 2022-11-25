@@ -47,4 +47,8 @@ class UnifiedActivityCache(
             )
         }
     }
+
+    override fun clearActivityCache() {
+        activityQueries.deleteAll()
+    }
 }

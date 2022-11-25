@@ -97,6 +97,8 @@ class UnifiedActivityRepository(
             }
     }
 
+    override fun clearCache() = activityCache.clearActivityCache()
+
     private fun ActivityItem.toUnifiedActivityItem(): UnifiedActivityItem? {
         return json.decodeFromString<ActivityViewItemDto>(summary_view)
             .toActivityViewItem()?.let { summary ->
