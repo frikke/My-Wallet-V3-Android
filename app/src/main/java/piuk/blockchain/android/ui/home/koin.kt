@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.home
 
 import com.blockchain.analytics.TraitsService
+import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
@@ -60,6 +61,7 @@ val mainModule = module {
                 referralRepository = get(),
                 ethDataManager = get(),
                 stakingAccountFlag = get(stakingAccountFeatureFlag),
+                membershipFlag = get(blockchainMembershipsFeatureFlag),
                 coincore = get(),
                 walletModeService = get(),
                 earnOnNavBarFlag = get(earnTabFeatureFlag)

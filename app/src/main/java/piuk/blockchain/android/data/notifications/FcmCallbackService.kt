@@ -34,7 +34,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -121,7 +121,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     /**
-     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
+     * Redirects the user to the [LauncherActivityV2] if [foreground] is set to true, otherwise to
      * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
      * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      *
@@ -179,7 +179,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                 )
             )
             else -> Maybe.just(
-                LauncherActivity.newInstance(
+                LauncherActivityV2.newInstance(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)

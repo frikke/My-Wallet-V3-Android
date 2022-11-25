@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.R
@@ -131,26 +133,26 @@ fun HomeAssetsScreen(
             is DataResource.Data -> {
                 if (fiatAssets.data.isNotEmpty()) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-                    Column(
-                        modifier = Modifier.background(
-                            color = AppTheme.colors.background,
-                            shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
-                        )
+                    Card(
+                        backgroundColor = AppTheme.colors.background,
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        elevation = 0.dp
                     ) {
-                        fiatAssets.data.forEachIndexed { index, fiatAsset ->
-                            BalanceChangeTableRow(
-                                name = fiatAsset.name,
-                                value = fiatAsset.balance.map {
-                                    it.toStringWithSymbol()
-                                },
-                                icon = ImageResource.Remote(fiatAsset.icon),
-                                onClick = {
-                                }
-                            )
+                        Column {
+                            fiatAssets.data.forEachIndexed { index, fiatAsset ->
+                                BalanceChangeTableRow(
+                                    name = fiatAsset.name,
+                                    value = fiatAsset.balance.map {
+                                        it.toStringWithSymbol()
+                                    },
+                                    icon = ImageResource.Remote(fiatAsset.icon),
+                                    onClick = {
+                                    }
+                                )
 
-                            if (index < fiatAssets.data.lastIndex) {
-                                Divider()
+                                if (index < fiatAssets.data.lastIndex) {
+                                    Divider()
+                                }
                             }
                         }
                     }

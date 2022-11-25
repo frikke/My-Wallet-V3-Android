@@ -89,6 +89,7 @@ val nabuModule = module {
                 nabuService = get(),
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
+                remoteLogger = get(),
                 walletReporter = get(uniqueId),
                 sessionInfo = SessionInfo,
                 payloadDataManager = get()

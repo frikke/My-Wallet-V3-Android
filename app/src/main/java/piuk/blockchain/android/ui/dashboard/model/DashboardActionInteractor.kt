@@ -21,7 +21,6 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.settings.SettingsDataManager
-import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -48,6 +47,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.rxMaybeOutcome
@@ -72,6 +72,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -93,6 +94,7 @@ import timber.log.Timber
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DashboardActionInteractor(
     private val coincore: Coincore,
     private val payloadManager: PayloadDataManager,
@@ -215,11 +217,13 @@ class DashboardActionInteractor(
         activeAssets: Set<Currency>,
         walletMode: WalletMode,
     ): Disposable {
-        loadBalances(activeAssets, model, walletMode).forEach {
+        loadBalances(activeAssets, model, walletMode)?.let {
             it.addTo(balancesDisposable)
         }
-        warmWalletModeBalanceCache()
-        warmProductsCache()
+        warmWalletModeBalanceCache().forEach {
+            it.addTo(balancesDisposable)
+        }
+        balancesDisposable += warmProductsCache()
         return balancesDisposable
     }
 
@@ -249,15 +253,17 @@ class DashboardActionInteractor(
         assets: Set<Currency>,
         model: DashboardModel,
         walletMode: WalletMode
-    ): List<Disposable> {
-        println("LALALA loadBalances")
-        return assets.takeIf { it.isNotEmpty() }?.map { asset ->
-            refreshAssetBalance(asset, model, walletMode).subscribeBy(onError = {
+    ): Disposable? {
+        return if (assets.isNotEmpty()) {
+            val balances = assets.map {
+                refreshAssetBalance(it, model, walletMode)
+            }
+            Observable.merge(balances).subscribeBy(onError = {
                 Timber.e(it)
             })
-        } ?: kotlin.run {
+        } else {
             model.process(DashboardIntent.NoActiveAssets)
-            emptyList()
+            null
         }
     }
 
@@ -293,7 +299,7 @@ class DashboardActionInteractor(
                     }
                     .doOnSubscribe {
                         Timber.i("Fetching balance for asset ${currency.displayTicker}")
-                        model.process(DashboardIntent.BalanceFetching(currency))
+                        model.process(DashboardIntent.BalanceFetching(currency, true))
                     }
                     .doOnError { e ->
                         Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
@@ -312,8 +318,14 @@ class DashboardActionInteractor(
                             )
                         )
                     }
+                    .doFinally {
+                        model.process(DashboardIntent.BalanceFetching(currency, false))
+                    }
                     .map { (accountBalance, _) ->
                         accountBalance.total
+                    }
+                    .onErrorReturn {
+                        Money.zero(currency)
                     }
             }
 
@@ -329,45 +341,24 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
+    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable? =
         when (asset) {
             is BrokerageCryptoAsset -> refreshPricesWith24HDelta(model, asset.currency as AssetInfo)
             is BrokerageFiatAsset,
-            is DefiAsset -> refreshPrice(model, asset.currency)
-        }.also {
+            is DefiAsset -> null
+        }?.also {
             balancesDisposable += it
         }
 
-    private fun refreshPrice(model: DashboardModel, currency: Currency): Disposable =
-        exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
-            .map { price ->
-                DashboardIntent.AssetPriceUpdate(currency, price)
-            }
-            .subscribeBy(
-                onSuccess = { model.process(it) },
-                onError = {
-                    model.process(DashboardIntent.BalanceUpdateError(currency))
-                }
-            )
-
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable {
         return if (asset.startDate != null) {
-            coincore[asset].lastDayTrend().asObservable()
+            coincore[asset].lastDayTrend().asObservable().firstOrError()
         } else {
-            Observable.just(DataResource.Data(FLATLINE_CHART))
+            Single.just(FLATLINE_CHART)
         }
             .subscribeBy(
-                onNext = { dataResource ->
-                    when (dataResource) {
-                        is DataResource.Data -> {
-                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
-                        }
-                        is DataResource.Error -> {
-                            Timber.e(dataResource.error)
-                        }
-                        DataResource.Loading -> {
-                        }
-                    }
+                onSuccess = { dataResource ->
+                    model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource))
                 }
             ).also {
                 balancesDisposable += it

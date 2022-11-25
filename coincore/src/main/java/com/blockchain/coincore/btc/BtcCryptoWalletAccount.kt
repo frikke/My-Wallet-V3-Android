@@ -21,7 +21,9 @@ import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.utils.mapList
 import com.blockchain.utils.then
 import info.blockchain.balance.CryptoCurrency
@@ -29,6 +31,7 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
+import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Completable
@@ -102,21 +105,32 @@ import io.reactivex.rxjava3.core.Single
         payloadDataManager.getAddressBalanceRefresh(xpubs, false)
             .map { it }
 
-    override suspend fun publicKey(): String {
-        return xpubs.default.address
+    override suspend fun publicKey(): List<PublicKey> {
+        val segwitXpub = xpubs.forDerivation(XPub.Format.SEGWIT)
+        val legacyXpub = xpubs.forDerivation(XPub.Format.LEGACY)
+        return listOfNotNull(
+            segwitXpub?.let { xpub ->
+                PublicKey(
+                    address = xpub.address,
+                    descriptor = MULTIPLE_ADDRESSES_DESCRIPTOR,
+                    style = PubKeyStyle.EXTENDED
+                )
+            },
+            legacyXpub?.let { xpub ->
+                PublicKey(
+                    address = xpub.address,
+                    descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
+                    style = PubKeyStyle.EXTENDED
+                )
+            }
+        )
     }
 
     override val index: Int
         get() = hdAccountIndex
 
-    override val descriptor: Int
-        get() = MULTIPLE_ADDRESSES_DESCRIPTOR
-
     override val pubKeyDescriptor
         get() = BTC_PUBKEY_DESCRIPTOR
-
-    override val style: PubKeyStyle
-        get() = PubKeyStyle.EXTENDED
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(

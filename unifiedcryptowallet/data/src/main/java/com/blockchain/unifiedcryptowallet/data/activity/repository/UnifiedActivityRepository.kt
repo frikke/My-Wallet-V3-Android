@@ -97,6 +97,8 @@ class UnifiedActivityRepository(
             }
     }
 
+    override fun clearCache() = activityCache.clearActivityCache()
+
     private fun ActivityItem.toUnifiedActivityItem(): UnifiedActivityItem? {
         return json.decodeFromString<ActivityViewItemDto>(summary_view)
             .toActivityViewItem()?.let { summary ->
@@ -107,8 +109,7 @@ class UnifiedActivityRepository(
                     blockExplorerUrl = external_url,
                     summary = summary,
                     status = status,
-                    date = Calendar.getInstance()
-                        .apply { set(Calendar.MILLISECOND, timestamp.toInt()) }
+                    date = Calendar.getInstance().apply { timeInMillis = timestamp * 1000 }
                 )
             }
     }

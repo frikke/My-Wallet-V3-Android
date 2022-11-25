@@ -110,6 +110,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
+import piuk.blockchain.android.ui.membership.MembershipActivity
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.prices.presentation.PricesFragment
 import piuk.blockchain.android.ui.prices.presentation.PricesNavigationEvent
@@ -343,9 +344,13 @@ class MainActivity :
                 contentDescription = R.string.accessibility_referral,
                 color = null
             ) {
-                model.process(MainIntent.ReferralIconClicked)
-                showReferralBottomSheet(referralState.referralInfo)
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Portfolio))
+                if (referralState.areMembershipsEnabled) {
+                    startActivity(MembershipActivity.newIntent(this))
+                } else {
+                    model.process(MainIntent.ReferralIconClicked)
+                    showReferralBottomSheet(referralState.referralInfo)
+                    analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Portfolio))
+                }
             }
         } else {
             null

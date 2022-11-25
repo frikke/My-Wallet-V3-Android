@@ -16,6 +16,10 @@ class CompoundRemoteLogger(
         remoteLoggers.forEach { it.init(context) }
     }
 
+    override fun logUserId(userId: String) {
+        remoteLoggers.forEach { it.logUserId(userId) }
+    }
+
     override fun logEvent(message: String) {
         Timber.i("Logging event: $message")
         remoteLoggers.forEach { it.logEvent(message) }
