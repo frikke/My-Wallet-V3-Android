@@ -3,14 +3,14 @@ package com.blockchain.home.presentation.allassets
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.domain.AssetFilter
 import info.blockchain.balance.Money
 
 data class AssetsViewState(
     val balance: DataResource<WalletBalance>,
     val cryptoAssets: DataResource<List<CryptoAssetState>>,
     val fiatAssets: DataResource<List<FiatAssetState>>,
-    val filters: List<AssetFilterStatus>
+    val filters: List<AssetFilter>
 ) : ViewState
 
 sealed interface HomeAsset {

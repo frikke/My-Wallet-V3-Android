@@ -44,7 +44,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
@@ -92,8 +92,8 @@ fun CryptoAssets(
 fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<CryptoAssetState>>,
     onSearchTermEntered: (String) -> Unit,
-    filters: List<AssetFilterStatus>,
-    onFiltersConfirmed: (List<AssetFilterStatus>) -> Unit
+    filters: List<AssetFilter>,
+    onFiltersConfirmed: (List<AssetFilter>) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,

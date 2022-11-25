@@ -2,7 +2,7 @@ package com.blockchain.home.presentation.allassets
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.SectionSize
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
@@ -16,5 +16,5 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
         }
     }
 
-    data class UpdateFilters(val filters: List<AssetFilterStatus>) : AssetsIntent
+    data class UpdateFilters(val filters: List<AssetFilter>) : AssetsIntent
 }
