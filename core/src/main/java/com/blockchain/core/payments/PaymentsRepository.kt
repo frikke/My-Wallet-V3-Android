@@ -92,6 +92,7 @@ import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.safeLet
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
@@ -167,7 +168,12 @@ class PaymentsRepository(
                     locks = locks.locks.map { lock ->
                         FundsLock(
                             amount = Money.fromMinor(localCurrency, lock.value.toBigInteger()),
-                            date = lock.date.toZonedDateTime()
+                            date = lock.date.toZonedDateTime(),
+                            buyAmount = safeLet(lock.buyCurrency, lock.buyValue) { currency, value ->
+                                assetCatalogue.fromNetworkTicker(currency)?.let {
+                                    Money.fromMinor(it, value.toBigInteger())
+                                }
+                            },
                         )
                     }
                 )

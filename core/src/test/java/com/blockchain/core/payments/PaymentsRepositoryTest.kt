@@ -99,6 +99,7 @@ import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
@@ -139,6 +140,7 @@ class PaymentsRepositoryTest {
         private const val AUTH = "auth"
         private const val ID = "id"
         private const val NETWORK_TICKER = "GBP"
+        private const val BUY_NETWORK_TICKER = "BTC"
         private const val APPLICATION_ID = "applicationId"
     }
 
@@ -245,12 +247,15 @@ class PaymentsRepositoryTest {
             NETWORK_TICKER,
             "1000",
             listOf(
-                CollateralLock(NETWORK_TICKER, "10", date)
+                CollateralLock(NETWORK_TICKER, "10", date, BUY_NETWORK_TICKER, "1000")
             )
         )
         val localCurrency =
-            mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+            mockk<FiatCurrency>(relaxed = true) { every { networkTicker } returns (NETWORK_TICKER) }
+        val buyCurrency =
+            mockk<CryptoCurrency>(relaxed = true) { every { networkTicker } returns (BUY_NETWORK_TICKER) }
         every { withdrawLocksCache.withdrawLocks() } returns Single.just(locks)
+        every { assetCatalogue.fromNetworkTicker(BUY_NETWORK_TICKER) } returns buyCurrency
 
         // ASSERT
         subject.getWithdrawalLocks(localCurrency).test()
@@ -260,7 +265,8 @@ class PaymentsRepositoryTest {
                     listOf(
                         FundsLock(
                             Money.fromMinor(localCurrency, BigInteger("10")),
-                            date.toZonedDateTime()
+                            date.toZonedDateTime(),
+                            Money.fromMinor(buyCurrency, BigInteger("1000")),
                         )
                     )
                 )

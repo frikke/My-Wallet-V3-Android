@@ -1956,7 +1956,7 @@
     <string name="funds_locked_summary_available_send">Disponible pour envoyer</string>
     <string name="funds_locked_summary_on_hold">%s en attente</string>
     <string name="funds_locked_summary_details">Afficher les détails</string>
-    <string name="funds_locked_summary_text">Les fonds nouvellement ajoutés sont soumis à une période de détention. Dans l\'intervalle, vous pouvez effectuer des transferts entre vos comptes Trading, Rewards et Exchange. <annotation link="learn_more">En savoir plus →</annotation></string>
+    <string name="funds_locked_summary_text">Les fonds nouvellement ajoutés sont soumis à une période de détention. Dans l\'intervalle, vous pouvez effectuer des transferts entre vos comptes Trading, Rewards et Exchange.</string>
     <string name="funds_locked_details_text">Les fonds nouvellement ajoutés sont sujets à une période de détention. Dans l\'intervalle, vous pouvez effectuer des transferts entre vos comptes Trading, Récompenses et Exchange.</string>
     <string name="funds_locked_details_contact_support">Vous voyez quelque chose qui ne va pas ? <annotation link="contact_support">Contacter le service d\'assistance</annotation></string>
     <string name="funds_locked__details_title_date">DÉTENUS JUSQU\'AU</string>

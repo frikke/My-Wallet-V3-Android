@@ -2508,7 +2508,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="funds_locked_summary_available_withdraw">Available to Withdraw</string>
     <string name="funds_locked_summary_on_hold">%s On Hold</string>
     <string name="funds_locked_summary_details">See Details</string>
-    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime. <annotation link="learn_more">Learn more →</annotation></string>
+    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
 
     <!-- LocksInfo activity details -->
     <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
@@ -2517,8 +2517,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="funds_locked_details_title_amount">AMOUNT</string>
     <string name="funds_locked_details_total">Total</string>
     <string name="funds_locked_details_toolbar">On Hold</string>
-    <string name="funds_locked_details_title">%s On Hold</string>
-    <string name="funds_locked_details_learn_more">Learn More</string>
+    <string name="funds_locked_details_title">Total On Hold</string>
+    <string name="funds_locked_details_item_action_buy_title">Bought %1$s</string>
+    <string name="funds_locked_details_item_action_deposit_title">Deposited %1$s</string>
+    <string name="funds_locked_details_item_action_available">Available %1$s</string>
 
     <!-- LocksInfo deposit checkout -->
     <string name="funds_locked_warning">For security purposes, a %s holding period will be applied to your funds. We will notify you once the funds are available.</string>
