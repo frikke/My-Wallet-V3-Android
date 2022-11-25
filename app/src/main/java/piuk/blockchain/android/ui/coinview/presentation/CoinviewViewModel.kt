@@ -988,7 +988,22 @@ class CoinviewViewModel(
                 check(modelState.assetInfo is DataResource.Data) { "assetInfo not initialized" }
                 navigate(CoinviewNavigationEvent.OpenAssetWebsite(modelState.assetInfo.data.website))
             }
+
+            is CoinviewIntent.LaunchStakingDepositFlow ->
+                navigate(CoinviewNavigationEvent.NavigateToStakingDeposit(getStakingAccount(modelState.accounts)))
+
+            is CoinviewIntent.LaunchStakingActivity ->
+                navigate(CoinviewNavigationEvent.NavigateToActivity(getStakingAccount(modelState.accounts)))
         }
+    }
+
+    private fun getStakingAccount(accounts: CoinviewAccounts?): CoinviewAccount {
+        require(accounts != null) { "getStakingAccount - accounts not initialized" }
+        require(accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.Staking>().isNotEmpty()) {
+            "getStakingAccount no staking account source found"
+        }
+
+        return modelState.accounts!!.accounts.first { it is CoinviewAccount.Custodial.Staking }
     }
 
     // //////////////////////
@@ -1323,9 +1338,7 @@ class CoinviewViewModel(
                         )
                     }
                     account.isStakingAccount() -> {
-                        CoinviewNavigationEvent.NavigateToInterestStatement(
-                            cvAccount = account
-                        )
+                        CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount = account)
                     }
                     else -> throw IllegalStateException("ViewStatement is not supported for account $account")
                 }

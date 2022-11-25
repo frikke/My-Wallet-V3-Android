@@ -12,6 +12,7 @@ import com.blockchain.earn.data.dataresources.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.StakingRatesStore
+import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.domain.models.StakingAccountBalance
 import com.blockchain.earn.domain.models.StakingActivity
 import com.blockchain.earn.domain.models.StakingActivityAttributes
@@ -20,7 +21,6 @@ import com.blockchain.earn.domain.models.StakingState
 import com.blockchain.earn.domain.models.StakingTransactionBeneficiary
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.outcome.fold
@@ -165,7 +165,8 @@ class StakingRepository(
                         minDepositValue = minDepositFiatValue,
                         bondingDays = limits.bondingDays,
                         unbondingDays = limits.unbondingDays ?: 0,
-                        withdrawalsDisabled = limits.disabledWithdrawals ?: false
+                        withdrawalsDisabled = limits.disabledWithdrawals ?: false,
+                        rewardsFrequency = limits.rewardFrequency.toRewardsFrequency()
                     )
 
                     Pair(asset, stakingLimit)
@@ -201,6 +202,14 @@ class StakingRepository(
     ): Flow<DataResource<StakingLimits>> =
         getLimitsForAllAssets(refreshStrategy).mapData { mapAssetWithLimits ->
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
+        }
+
+    private fun String.toRewardsFrequency(): EarnRewardsFrequency =
+        when (this) {
+            DAILY -> EarnRewardsFrequency.Daily
+            WEEKLY -> EarnRewardsFrequency.Weekly
+            MONTHLY -> EarnRewardsFrequency.Monthly
+            else -> EarnRewardsFrequency.Unknown
         }
 
     private fun TransactionResponse.toStakingActivity(currency: Currency): StakingActivity =
@@ -252,8 +261,9 @@ class StakingRepository(
         StakingAccountBalance(
             totalBalance = Money.fromMinor(currency, totalBalance.toBigInteger()),
             lockedBalance = Money.fromMinor(currency, lockedBalance.toBigInteger()),
-            pendingDeposit = Money.fromMinor(currency, pendingDeposit.toBigInteger()),
-            pendingWithdrawal = Money.fromMinor(currency, pendingWithdrawal.toBigInteger())
+            pendingDeposit = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
+            pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
+            totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger())
         )
 
     private fun String.toIneligibilityReason(): StakingEligibility.Ineligible {
@@ -269,5 +279,9 @@ class StakingRepository(
 
     companion object {
         private const val STAKING_PRODUCT_NAME = "STAKING"
+
+        private const val DAILY = "Daily"
+        private const val WEEKLY = "Weekly"
+        private const val MONTHLY = "Monthly"
     }
 }

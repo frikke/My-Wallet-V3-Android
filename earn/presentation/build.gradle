@@ -17,6 +17,8 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:presentation')
     implementation project(':analytics:domain')
+    implementation project(':core')
+    implementation project(':string-resources')
 
     // Compose
     implementation Libraries.accompanistFlowLayout

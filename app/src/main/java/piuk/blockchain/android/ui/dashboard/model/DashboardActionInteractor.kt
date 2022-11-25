@@ -72,6 +72,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -93,6 +94,7 @@ import timber.log.Timber
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DashboardActionInteractor(
     private val coincore: Coincore,
     private val payloadManager: PayloadDataManager,

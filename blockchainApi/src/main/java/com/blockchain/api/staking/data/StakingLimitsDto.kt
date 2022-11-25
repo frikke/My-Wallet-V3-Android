@@ -12,5 +12,6 @@ data class StakingLimitsDto(
     val minDepositValue: String,
     val bondingDays: Int,
     val unbondingDays: Int?,
-    val disabledWithdrawals: Boolean?
+    val disabledWithdrawals: Boolean?,
+    val rewardFrequency: String
 )
