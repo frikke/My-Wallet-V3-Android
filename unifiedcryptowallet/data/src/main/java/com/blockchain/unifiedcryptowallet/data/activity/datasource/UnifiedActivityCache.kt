@@ -6,6 +6,7 @@ import com.blockchain.api.selfcustody.activity.ActivityResponse
 import com.blockchain.api.services.ActivityCacheService
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -18,6 +19,7 @@ class UnifiedActivityCache(
     fun getActivity(): Flow<List<ActivityItem>> {
         return activityQueries.selectAllActivity()
             .asFlow()
+            .distinctUntilChanged()
             .map {
                 it.executeAsList()
             }

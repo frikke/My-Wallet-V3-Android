@@ -5,8 +5,8 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.home.presentation.activity.common.ActivityTextColorState
 import com.blockchain.nabu.datamanagers.CustodialOrderState
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CurrencyType
 import java.util.Date
@@ -49,11 +49,11 @@ internal fun TradeActivitySummaryItem.leadingTitle(): ActivityStackView {
 }
 
 internal fun TradeActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
+    val color: ActivityTextColor = when (state) {
         CustodialOrderState.EXPIRED,
-        CustodialOrderState.CANCELED -> ActivityTextColorState.Warning
-        CustodialOrderState.FAILED -> ActivityTextColorState.Error
-        else -> ActivityTextColorState.Muted
+        CustodialOrderState.CANCELED -> ActivityTextColor.Warning
+        CustodialOrderState.FAILED -> ActivityTextColor.Error
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
@@ -70,9 +70,9 @@ private fun TradeActivitySummaryItem.trailingStrikethrough() = when (state) {
 }
 
 internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColorState = when (state) {
-        CustodialOrderState.FINISHED -> ActivityTextColorState.Title
-        else -> ActivityTextColorState.Muted
+    val color: ActivityTextColor = when (state) {
+        CustodialOrderState.FINISHED -> ActivityTextColor.Title
+        else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(

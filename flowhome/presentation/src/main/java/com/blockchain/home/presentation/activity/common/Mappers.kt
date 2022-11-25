@@ -1,13 +1,8 @@
 package com.blockchain.home.presentation.activity.common
 
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
 import com.blockchain.unifiedcryptowallet.domain.activity.model.StackComponent
 
 fun ActivityIcon.toStackedIcon() = when (this) {
@@ -25,45 +20,15 @@ fun ActivityIcon.toStackedIcon() = when (this) {
     ActivityIcon.None -> ActivityIconState.None
 }
 
-fun ActivityTextTypography.toTextTypography() = when (this) {
-    ActivityTextTypography.Paragraph2 -> ActivityTextTypographyState.Paragraph2
-    ActivityTextTypography.Caption1 -> ActivityTextTypographyState.Caption1
-}
-
-fun ActivityTextColor.toTextColor() = when (this) {
-    ActivityTextColor.Title -> ActivityTextColorState.Title
-    ActivityTextColor.Muted -> ActivityTextColorState.Muted
-    ActivityTextColor.Success -> ActivityTextColorState.Success
-    ActivityTextColor.Error -> ActivityTextColorState.Error
-    ActivityTextColor.Warning -> ActivityTextColorState.Warning
-}
-
-fun ActivityTextStyle.toTextStyle() = ActivityTextStyleState(
-    typography = typography.toTextTypography(),
-    color = color.toTextColor(),
-    strikethrough = strikethrough
-)
-
-fun ActivityTagStyle.toTagStyle() = when (this) {
-    ActivityTagStyle.Success -> ActivityTagStyleState.Success
-    ActivityTagStyle.Warning -> ActivityTagStyleState.Warning
-}
-
-fun ActivityButtonStyle.toButtonStyle() = when (this) {
-    ActivityButtonStyle.Primary -> ActivityButtonStyleState.Primary
-    ActivityButtonStyle.Secondary -> ActivityButtonStyleState.Secondary
-    ActivityButtonStyle.Tertiary -> ActivityButtonStyleState.Tertiary
-}
-
 fun StackComponent.toStackView() = when (this) {
     is StackComponent.Text -> ActivityStackView.Text(
         value = TextValue.StringValue(value),
-        style = style.toTextStyle()
+        style = style
     )
 
     is StackComponent.Tag -> ActivityStackView.Tag(
         value = TextValue.StringValue(value),
-        style = style.toTagStyle()
+        style = style
     )
 }
 
@@ -81,7 +46,7 @@ fun ActivityDataItem.toActivityComponent(componentId: String = this.toString()) 
     is ActivityDataItem.Button -> ActivityComponent.Button(
         id = componentId,
         value = TextValue.StringValue(value),
-        style = style.toButtonStyle(),
+        style = style,
         action = action
     )
 }
