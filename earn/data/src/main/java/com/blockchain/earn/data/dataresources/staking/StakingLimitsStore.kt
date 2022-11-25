@@ -1,4 +1,4 @@
-package com.blockchain.earn.data.dataresources
+package com.blockchain.earn.data.dataresources.staking
 
 import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.staking.data.StakingLimitsMapDto

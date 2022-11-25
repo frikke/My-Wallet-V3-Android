@@ -1,25 +1,26 @@
-package com.blockchain.core.interest.data
+package com.blockchain.earn.data.repository
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
-import com.blockchain.core.interest.data.datasources.InterestLimitsStore
-import com.blockchain.core.interest.data.datasources.InterestRateStore
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.domain.model.InterestActivity
-import com.blockchain.core.interest.domain.model.InterestActivityAttributes
-import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.core.interest.domain.model.InterestLimits
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
+import com.blockchain.earn.data.dataresources.interest.InterestLimitsStore
+import com.blockchain.earn.data.dataresources.interest.InterestRateStore
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.models.interest.InterestActivity
+import com.blockchain.earn.domain.models.interest.InterestActivityAttributes
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.models.interest.InterestLimits
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.interest.InterestTransactionBeneficiary
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
@@ -333,7 +334,10 @@ private fun TransactionAttributesResponse.toDomain() = InterestActivityAttribute
     id = id,
     transactionHash = txHash,
     transferType = transferType,
-    beneficiary = beneficiary
+    beneficiary = InterestTransactionBeneficiary(
+        beneficiary?.accountRef,
+        beneficiary?.user
+    )
 )
 
 private fun String.toInterestState(): InterestState =

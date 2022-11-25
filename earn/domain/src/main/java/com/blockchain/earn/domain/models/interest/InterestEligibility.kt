@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.domain.model
+package com.blockchain.earn.domain.models.interest
 
 sealed interface InterestEligibility {
     object Eligible : InterestEligibility

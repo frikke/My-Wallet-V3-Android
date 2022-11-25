@@ -1,4 +1,4 @@
-package com.blockchain.earn.domain.models
+package com.blockchain.earn.domain.models.staking
 
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money

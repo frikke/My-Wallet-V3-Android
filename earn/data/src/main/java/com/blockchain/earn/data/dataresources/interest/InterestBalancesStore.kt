@@ -1,7 +1,7 @@
-package com.blockchain.earn.data.dataresources
+package com.blockchain.earn.data.dataresources.interest
 
-import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.staking.data.StakingBalanceDto
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -11,19 +11,19 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
-class StakingBalanceStore(
-    private val stakingApiService: StakingApiService,
-) : Store<Map<String, StakingBalanceDto>> by PersistedJsonSqlDelightStoreBuilder()
+class InterestBalancesStore(
+    private val interestApiService: InterestApiService,
+) : Store<Map<String, InterestAccountBalanceDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
-        fetcher = Fetcher.Keyed.ofOutcome(
+        fetcher = Fetcher.ofSingle(
             mapper = {
-                stakingApiService.getStakingBalances()
+                interestApiService.getAccountBalances()
             }
         ),
         dataSerializer = MapSerializer(
             keySerializer = String.serializer(),
-            valueSerializer = StakingBalanceDto.serializer()
+            valueSerializer = InterestAccountBalanceDto.serializer()
         ),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
@@ -34,6 +34,6 @@ class StakingBalanceStore(
     }
 
     companion object {
-        private const val STORE_ID = "StakingBalanceStore"
+        private const val STORE_ID = "InterestBalancesStore"
     }
 }

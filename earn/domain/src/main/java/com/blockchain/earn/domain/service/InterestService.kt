@@ -1,11 +1,11 @@
-package com.blockchain.core.interest.domain
+package com.blockchain.earn.domain.service
 
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.domain.model.InterestActivity
-import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.models.interest.InterestActivity
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.models.interest.InterestLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable

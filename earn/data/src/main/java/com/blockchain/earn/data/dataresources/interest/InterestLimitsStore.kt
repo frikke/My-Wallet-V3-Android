@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.data.datasources
+package com.blockchain.earn.data.dataresources.interest
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
@@ -10,7 +10,6 @@ import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
-import kotlinx.serialization.builtins.serializer
 
 class InterestLimitsStore(
     private val interestApiService: InterestApiService,

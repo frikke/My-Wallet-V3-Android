@@ -1,6 +1,5 @@
-package com.blockchain.core.interest.domain.model
+package com.blockchain.earn.domain.models.interest
 
-import com.blockchain.nabu.models.responses.simplebuy.TransactionBeneficiaryResponse
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.util.Date
@@ -33,5 +32,10 @@ data class InterestActivityAttributes(
     val id: String? = null,
     val transactionHash: String? = null,
     val transferType: String? = null,
-    val beneficiary: TransactionBeneficiaryResponse? = null
+    val beneficiary: InterestTransactionBeneficiary? = null
+)
+
+data class InterestTransactionBeneficiary(
+    val accountRef: String?,
+    val user: String?
 )

@@ -1,4 +1,4 @@
-package com.blockchain.earn.domain.models
+package com.blockchain.earn.domain.models.staking
 
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary

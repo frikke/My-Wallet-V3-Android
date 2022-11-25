@@ -1,7 +1,6 @@
 package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.core.buy.domain.SimpleBuyService
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.data.DataResource
@@ -11,6 +10,7 @@ import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess

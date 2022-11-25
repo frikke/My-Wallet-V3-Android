@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.data.datasources
+package com.blockchain.earn.data.dataresources.interest
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestEligibilityDto

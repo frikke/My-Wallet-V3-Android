@@ -1,18 +1,18 @@
-package com.blockchain.core.store
+package com.blockchain.earn.data
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
-import com.blockchain.core.interest.data.datasources.InterestLimitsStore
-import com.blockchain.core.interest.data.datasources.InterestRateStore
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
+import com.blockchain.earn.data.dataresources.interest.InterestLimitsStore
+import com.blockchain.earn.data.dataresources.interest.InterestRateStore
+import com.blockchain.earn.data.repository.InterestRepository
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory

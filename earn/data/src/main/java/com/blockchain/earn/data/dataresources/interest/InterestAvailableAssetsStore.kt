@@ -1,7 +1,7 @@
-package com.blockchain.earn.data.dataresources
+package com.blockchain.earn.data.dataresources.interest
 
-import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.staking.data.StakingRatesDto
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -9,17 +9,17 @@ import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
 
-class StakingRatesStore(
-    private val stakingApiService: StakingApiService,
-) : Store<StakingRatesDto> by PersistedJsonSqlDelightStoreBuilder()
+class InterestAvailableAssetsStore(
+    private val interestApiService: InterestApiService
+) : Store<InterestAvailableTickersDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
-        fetcher = Fetcher.Keyed.ofOutcome(
+        fetcher = Fetcher.ofSingle(
             mapper = {
-                stakingApiService.getStakingRates()
+                interestApiService.getAvailableTickersForInterest()
             }
         ),
-        dataSerializer = StakingRatesDto.serializer(),
+        dataSerializer = InterestAvailableTickersDto.serializer(),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     FlushableDataSource {
@@ -29,6 +29,6 @@ class StakingRatesStore(
     }
 
     companion object {
-        private const val STORE_ID = "StakingRatesStore"
+        private const val STORE_ID = "InterestAvailableAssetsStore"
     }
 }

@@ -4,8 +4,8 @@ import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.wallet.DefaultLabels
