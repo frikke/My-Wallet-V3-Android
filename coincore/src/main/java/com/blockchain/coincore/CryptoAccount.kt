@@ -1,10 +1,12 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.earn.domain.models.StakingAccountBalance
+import com.google.common.graph.ElementOrder.sorted
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -198,21 +200,39 @@ interface AccountGroup : BlockchainAccount {
     override val hasTransactions: Boolean
         get() = true
 
-    private fun allActivities(): Single<ActivitySummaryList> =
-        Single.just(accounts).flattenAsObservable { it }
+    private fun allActivities(): Single<ActivitySummaryList> {
+        println("------------- interestService.getActivity accounts size --- ${accounts.filterIsInstance<CustodialInterestAccount>().size}")
+
+        return Single.just(accounts).flattenAsObservable { it }
             .flatMapSingle { account ->
                 account.activity
                     .onErrorResumeNext { Single.just(emptyList()) }
             }
             .map {
-                println("------------- interestService.getActivity allActivities ${it}")
+                println("------------- interestService.getActivity allActivities 1 --- ${it}")
 
                 it
             }
             .reduce { a, l -> a + l }
+            .doOnError {
+                println("------------- interestService.getActivity allActivities 2 err --- ${it}")
+            }
+            .map {
+                println("------------- interestService.getActivity allActivities 2 --- ${it}")
+
+                it
+            }
             .defaultIfEmpty(emptyList())
             .map { it.distinct() }
             .map { it.sorted() }
+            .map {
+                println("------------- interestService.getActivity allActivities reduce ${it}")
+
+                it
+            }
+            .doOnError { println("------------- interestService.getActivity allActivities reduce error ${it}") }
+    }
+
 }
 
 interface SameCurrencyAccountGroup : AccountGroup {

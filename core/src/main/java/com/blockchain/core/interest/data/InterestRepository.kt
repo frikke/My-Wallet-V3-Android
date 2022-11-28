@@ -27,6 +27,7 @@ import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesRespo
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
+import com.blockchain.store.asSingle
 import com.blockchain.store.filterNotLoading
 import com.blockchain.store.flatMapData
 import com.blockchain.store.getDataOrThrow
@@ -263,7 +264,7 @@ internal class InterestRepository(
     // activity
     override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
         return getActivityFlow(asset)
-            .asObservable().firstOrError()
+            .asSingle()
             .doOnError { println("------------- getActivity error") }
             .map {
                 println("------------- getActivity ${it.size}")
@@ -292,40 +293,35 @@ internal class InterestRepository(
 //                        transaction.toInterestActivity(asset, null)
 //                    }
             }
-//            .flatMapLatest {
-//                flowOf(it.map {
-//                    it.map {
-//                            transaction ->
-//                                                transaction.toInterestActivity(asset, null)
-//
-//                    }
-//                })
-//            }
             .flatMapData {
                 println("------------- ${it.size}")
-                val flows = it.map { transaction ->
-                    historicRateFetcher.fetch2(
-                        asset,
-                        currencyPrefs.selectedFiatCurrency,
-                        (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,
-                        CryptoValue.fromMinor(asset, transaction.amountMinor.toBigInteger())
-                    ).filterNotLoading().map {
-                        println("------------- fiat ${it}")
-                        transaction to it
+                if(it.isEmpty()){
+                    flowOf(DataResource.Data(emptyList()))
+                } else {
+                    val flows = it.map { transaction ->
+                        historicRateFetcher.fetch2(
+                            asset,
+                            currencyPrefs.selectedFiatCurrency,
+                            (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,
+                            CryptoValue.fromMinor(asset, transaction.amountMinor.toBigInteger())
+                        ).filterNotLoading().map {
+                            println("------------- fiat ${it}")
+                            transaction to it
+                        }
                     }
-                }
-                combine(flows) {
-                    println("------------- combine ${it.size}")
+                    combine(flows) {
+                        println("------------- combine ${it.size}")
 
-                    it.map { (transaction, money) ->
-                        println("------------- money ${ (money as? DataResource.Data)?.data?.toStringWithSymbol()}")
+                        it.map { (transaction, money) ->
+                            println("------------- money ${ (money as? DataResource.Data)?.data?.toStringWithSymbol()}")
 
-                        transaction.toInterestActivity(asset, (money as? DataResource.Data)?.data)
+                            transaction.toInterestActivity(asset, (money as? DataResource.Data)?.data)
+                        }
+                    }.map {
+                        println("------------- combine map ${it.size}")
+
+                        DataResource.Data(it)
                     }
-                }.map {
-                    println("------------- combine map ${it.size}")
-
-                    DataResource.Data(it)
                 }
             }
             .map {
