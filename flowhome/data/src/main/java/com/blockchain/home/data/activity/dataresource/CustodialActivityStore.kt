@@ -15,9 +15,18 @@ class CustodialActivityStore(
     storeId = "CustodialActivityStore",
     fetcher = Fetcher.ofSingle(
         mapper = {
+            println("------------- interestService.getActivity Store call")
+
             coincore.allWalletsInMode(WalletMode.CUSTODIAL_ONLY)
                 .flatMap { accountGroup ->
                     accountGroup.activity
+                }
+                .map {
+                    println("------------- interestService.getActivity Store map ${it}")
+                    it
+                }
+                .doOnError {
+                    println("------------- interestService.getActivity Store doOnError ${it}")
                 }
         }
     ),

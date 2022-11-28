@@ -99,6 +99,10 @@ class CustodialInterestAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = interestService.getActivity(currency)
+            .map {
+                println("------------- interestService.getActivity ${it.size}")
+                it
+            }
             .onErrorReturn { emptyList() }
             .mapList { interestActivity ->
                 interestActivityToSummary(asset = currency, interestActivity = interestActivity)
@@ -123,7 +127,8 @@ class CustodialInterestAccount(
                 ?: interestActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = interestActivity.extraAttributes?.address ?: ""
+            recipientAddress = interestActivity.extraAttributes?.address ?: "",
+            fiatValue = interestActivity.fiatValue
         )
 
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {

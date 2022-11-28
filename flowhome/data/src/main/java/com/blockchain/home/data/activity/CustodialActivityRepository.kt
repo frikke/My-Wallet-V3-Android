@@ -8,6 +8,7 @@ import com.blockchain.home.data.activity.dataresource.CustodialActivityStore
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 
 class CustodialActivityRepository(
     private val custodialActivityStore: CustodialActivityStore
@@ -16,6 +17,11 @@ class CustodialActivityRepository(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<ActivitySummaryItem>>> {
         return custodialActivityStore.stream(freshnessStrategy)
+            .map {
+                println("------------- interestService.getActivity Store ${it}")
+
+                it
+            }
     }
 
     override fun getActivity(

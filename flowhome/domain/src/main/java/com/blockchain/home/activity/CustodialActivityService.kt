@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CustodialActivityService {
     fun getAllActivity(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<List<ActivitySummaryItem>>>
 
     fun getActivity(

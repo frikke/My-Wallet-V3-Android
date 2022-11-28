@@ -244,7 +244,8 @@ val coreModule = module {
                 interestRateStore = get(),
                 paymentTransactionHistoryStore = get(),
                 currencyPrefs = get(),
-                interestApiService = get()
+                interestApiService = get(),
+                historicRateFetcher = get()
             )
         }
 

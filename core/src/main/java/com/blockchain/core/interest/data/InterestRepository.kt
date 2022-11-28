@@ -17,14 +17,18 @@ import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.map
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
+import com.blockchain.store.filterNotLoading
+import com.blockchain.store.flatMapData
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -37,10 +41,16 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.util.Calendar
 import java.util.Date
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import java.util.stream.Collectors.toList
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -51,7 +61,8 @@ internal class InterestRepository(
     private val interestRateStore: InterestRateStore,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val interestApiService: InterestApiService
+    private val interestApiService: InterestApiService,
+    private val historicRateFetcher: HistoricRateFetcher
 ) : InterestService {
 
     // balances
@@ -253,6 +264,11 @@ internal class InterestRepository(
     override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
         return getActivityFlow(asset)
             .asObservable().firstOrError()
+            .doOnError { println("------------- getActivity error") }
+            .map {
+                println("------------- getActivity ${it.size}")
+                it
+            }
     }
 
     override fun getActivityFlow(
@@ -271,10 +287,54 @@ internal class InterestRepository(
                         assetCatalogue.fromNetworkTicker(
                             transaction.amount.symbol
                         )?.networkTicker == asset.networkTicker
-                    }.map { transaction ->
-                        transaction.toInterestActivity(asset)
                     }
+//                    .map { transaction ->
+//                        transaction.toInterestActivity(asset, null)
+//                    }
             }
+//            .flatMapLatest {
+//                flowOf(it.map {
+//                    it.map {
+//                            transaction ->
+//                                                transaction.toInterestActivity(asset, null)
+//
+//                    }
+//                })
+//            }
+            .flatMapData {
+                println("------------- ${it.size}")
+                val flows = it.map { transaction ->
+                    historicRateFetcher.fetch2(
+                        asset,
+                        currencyPrefs.selectedFiatCurrency,
+                        (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,
+                        CryptoValue.fromMinor(asset, transaction.amountMinor.toBigInteger())
+                    ).filterNotLoading().map {
+                        println("------------- fiat ${it}")
+                        transaction to it
+                    }
+                }
+                combine(flows) {
+                    println("------------- combine ${it.size}")
+
+                    it.map { (transaction, money) ->
+                        println("------------- money ${ (money as? DataResource.Data)?.data?.toStringWithSymbol()}")
+
+                        transaction.toInterestActivity(asset, (money as? DataResource.Data)?.data)
+                    }
+                }.map {
+                    println("------------- combine map ${it.size}")
+
+                    DataResource.Data(it)
+                }
+            }
+            .map {
+                println("------------- final -- map ${it}")
+
+                it
+            }
+            .catch { println("------------- $it") }
+            .filterNotLoading()
     }
 
     // withdrawal
@@ -316,14 +376,15 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         lockedBalance = Money.zero(asset)
     )
 
-private fun TransactionResponse.toInterestActivity(asset: AssetInfo): InterestActivity =
+private fun TransactionResponse.toInterestActivity(asset: AssetInfo, fiatValue: Money?): InterestActivity =
     InterestActivity(
         value = CryptoValue.fromMinor(asset, amountMinor.toBigInteger()),
         id = id,
         insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         state = state.toInterestState(),
         type = type.toTransactionType(),
-        extraAttributes = extraAttributes?.toDomain()
+        extraAttributes = extraAttributes?.toDomain(),
+        fiatValue = fiatValue
     )
 
 private fun TransactionAttributesResponse.toDomain() = InterestActivityAttributes(

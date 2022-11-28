@@ -13,7 +13,6 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 
 data class AccountBalance internal constructor(
@@ -204,6 +203,11 @@ interface AccountGroup : BlockchainAccount {
             .flatMapSingle { account ->
                 account.activity
                     .onErrorResumeNext { Single.just(emptyList()) }
+            }
+            .map {
+                println("------------- interestService.getActivity allActivities ${it}")
+
+                it
             }
             .reduce { a, l -> a + l }
             .defaultIfEmpty(emptyList())
