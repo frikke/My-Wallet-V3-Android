@@ -27,6 +27,13 @@ interface InterestService {
     ): Observable<Map<AssetInfo, InterestAccountBalance>>
 
     /**
+     * Returns a map composed of each [AssetInfo] with its [InterestAccountBalance]
+     */
+    fun getBalancesFlow(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, InterestAccountBalance>>>
+
+    /**
      * Returns [InterestAccountBalance] for [asset]
      */
     fun getBalanceFor(
@@ -142,6 +149,10 @@ interface InterestService {
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Double>>
+
+    fun getAllInterestRates(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     /**
      * Returns the address for [asset]

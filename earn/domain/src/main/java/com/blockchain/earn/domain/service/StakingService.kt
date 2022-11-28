@@ -22,6 +22,10 @@ interface StakingService {
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<Set<AssetInfo>>
 
+    fun getBalanceForAllAssets(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, StakingAccountBalance>>>
+
     fun getBalanceForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
@@ -31,6 +35,14 @@ interface StakingService {
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Double>>
+
+    fun getRatesForAllAssets(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, Double>>>
+
+    fun getEligibilityForAssets(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, StakingEligibility>>>
 
     fun getEligibilityForAsset(
         currency: Currency,

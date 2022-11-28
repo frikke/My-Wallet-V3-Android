@@ -5,8 +5,10 @@ import com.blockchain.api.interest.data.InterestAddressDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestRateDto
+import com.blockchain.api.interest.data.InterestRatesDto
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
@@ -36,6 +38,11 @@ internal interface InterestApiInterface {
     fun getInterestRates(
         @Query("ccy") cryptoCurrencyTicker: String
     ): Single<Response<InterestRateDto>>
+
+    @GET("earn/rates-user")
+    suspend fun getAllInterestRates(
+        @Query("product") product: String = "SAVINGS"
+    ): Outcome<Exception, InterestRatesDto>
 
     @GET("payments/accounts/savings")
     fun getAddress(

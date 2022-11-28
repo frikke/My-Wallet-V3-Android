@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,7 +25,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.earn.R
-import com.blockchain.earn.dashboard.viewmodel.EarnDashboardError
+import com.blockchain.earn.dashboard.viewmodel.DashboardState
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
@@ -75,19 +76,27 @@ fun EarnDashboardScreen(
     val viewState: EarnDashboardViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        when {
-            state.isLoading -> EarnDashboardLoading()
-            state.needsToCompleteKyc -> {
-            }
-            state.earnDashboardError != EarnDashboardError.None -> {
-            }
-            else -> EarnDashboard(state)
-        }
+        EarnDashboard(state)
     }
 }
 
 @Composable
 fun EarnDashboard(state: EarnDashboardViewState) {
+    when (val s = state.dashboardState) {
+        DashboardState.Loading -> EarnDashboardLoading()
+        is DashboardState.ShowError -> {
+            Text("ShowError ${s.error}")
+        }
+        DashboardState.ShowKyc -> {
+            Text("ShowKyc")
+        }
+        is DashboardState.EarningAndDiscover -> {
+            Text("EarningAndDiscover discover - ${s.discover.size} earning - ${s.earning.size}")
+        }
+        is DashboardState.OnlyDiscover -> {
+            Text("OnlyDiscover")
+        }
+    }
 }
 
 @Composable

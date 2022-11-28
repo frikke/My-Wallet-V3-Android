@@ -37,6 +37,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.dashboard.EarnDashboardFragment
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
@@ -102,7 +103,6 @@ import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -424,11 +424,11 @@ class MainActivity :
     }
 
     private fun launchEarn() {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_earn))
         updateSelectedNavigationItem(NavigationItem.Earn)
 
         supportFragmentManager.showFragment(
-            fragment = InterestDashboardFragment.newInstance(),
+            fragment = EarnDashboardFragment.newInstance(),
             reloadFragment = false
         )
     }

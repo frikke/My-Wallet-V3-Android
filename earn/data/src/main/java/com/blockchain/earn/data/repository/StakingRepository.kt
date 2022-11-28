@@ -72,6 +72,17 @@ class StakingRepository(
             it.rates[currency.networkTicker]?.rate ?: 0.0
         }
 
+    override fun getRatesForAllAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, Double>>> =
+        stakingRatesStore.stream(refreshStrategy).mapData { rates ->
+            rates.rates.mapNotNull { (ticker, rateDto) ->
+                (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo)?.let { asset ->
+                    asset to rateDto.rate
+                }
+            }.toMap()
+        }
+
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> =
         flow {
             if (stakingFeatureFlag.coEnabled()) {
@@ -101,11 +112,22 @@ class StakingRepository(
             )
         }
 
+    override fun getBalanceForAllAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, StakingAccountBalance>>> =
+        stakingBalanceStore.stream(refreshStrategy).mapData { mapAssetTickerWithBalance ->
+            mapAssetTickerWithBalance.mapNotNull { (assetTicker, balanceDto) ->
+                (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                    asset to balanceDto.toStakingBalance(asset)
+                }
+            }.toMap()
+        }
+
     override fun getEligibilityForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<StakingEligibility>> {
-        return stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
+    ): Flow<DataResource<StakingEligibility>> =
+        stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
             eligibilityMap[currency.networkTicker]?.let { eligibility ->
                 if (eligibility.isEligible) {
                     StakingEligibility.Eligible
@@ -114,7 +136,21 @@ class StakingRepository(
                 }
             } ?: StakingEligibility.Ineligible.default()
         }
-    }
+
+    override fun getEligibilityForAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, StakingEligibility>>> =
+        stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
+            eligibilityMap.mapNotNull { (assetTicker, eligibilityDto) ->
+                (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                    asset to if (eligibilityDto.isEligible) {
+                        StakingEligibility.Eligible
+                    } else {
+                        eligibilityDto.reason.toIneligibilityReason()
+                    }
+                }
+            }.toMap()
+        }
 
     override fun getStakingEligibility(
         refreshStrategy: FreshnessStrategy

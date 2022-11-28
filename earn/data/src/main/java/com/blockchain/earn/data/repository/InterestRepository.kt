@@ -12,6 +12,7 @@ import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsSt
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
 import com.blockchain.earn.data.dataresources.interest.InterestLimitsStore
+import com.blockchain.earn.data.dataresources.interest.InterestRateForAllStore
 import com.blockchain.earn.data.dataresources.interest.InterestRateStore
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.interest.InterestActivity
@@ -50,13 +51,14 @@ internal class InterestRepository(
     private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
     private val interestLimitsStore: InterestLimitsStore,
     private val interestRateStore: InterestRateStore,
+    private val interestAllRatesStore: InterestRateForAllStore,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
     private val interestApiService: InterestApiService
 ) : InterestService {
 
     // balances
-    private fun getBalancesFlow(
+    override fun getBalancesFlow(
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, InterestAccountBalance>>> {
         return interestBalancesStore.stream(refreshStrategy)
@@ -243,6 +245,17 @@ internal class InterestRepository(
         return interestRateStore.stream(refreshStrategy.withKey(InterestRateStore.Key(asset.networkTicker)))
             .mapData { interestRateResponse -> interestRateResponse.rate }
     }
+
+    override fun getAllInterestRates(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, Double>>> =
+        interestAllRatesStore.stream(refreshStrategy).mapData { rates ->
+            rates.rates.mapNotNull { (ticker, rateDto) ->
+                (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo)?.let { asset ->
+                    asset to rateDto.rate
+                }
+            }.toMap()
+        }
 
     // address
     override fun getAddress(asset: AssetInfo): Single<String> {

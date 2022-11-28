@@ -4,6 +4,7 @@ import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsSt
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
 import com.blockchain.earn.data.dataresources.interest.InterestLimitsStore
+import com.blockchain.earn.data.dataresources.interest.InterestRateForAllStore
 import com.blockchain.earn.data.dataresources.interest.InterestRateStore
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
@@ -90,6 +91,12 @@ val earnDataModule = module {
             )
         }
 
+        scoped {
+            InterestRateForAllStore(
+                interestApiService = get(),
+            )
+        }
+
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
@@ -100,7 +107,8 @@ val earnDataModule = module {
                 interestRateStore = get(),
                 paymentTransactionHistoryStore = get(),
                 currencyPrefs = get(),
-                interestApiService = get()
+                interestApiService = get(),
+                interestAllRatesStore = get()
             )
         }
     }
