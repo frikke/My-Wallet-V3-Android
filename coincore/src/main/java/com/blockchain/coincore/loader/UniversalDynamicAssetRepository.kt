@@ -4,18 +4,22 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.wallet.CoinNetwork
-import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import com.blockchain.store.mapData
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 class UniversalDynamicAssetRepository(
     private val dominantL1Assets: Set<AssetInfo>,
     private val discoveryService: AssetDiscoveryApiService,
-    private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository
+    private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository,
+    private val coinNetworksStore: CoinNetworksStore
 ) : DynamicAssetsService {
     override fun availableCryptoAssets(): Single<List<AssetInfo>> {
         return Single.zip(
@@ -63,22 +67,23 @@ class UniversalDynamicAssetRepository(
     // Returns the list of EvmNetworks from the coin networks service except Ethereum
     override fun otherEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.otherEvmNetworks()
 
-    override suspend fun allNetworks(): Outcome<Exception, List<CoinNetwork>> {
-        return discoveryService.allNetworks().map { coinNetworks ->
-            coinNetworks.map { coinNetworkDto ->
-                CoinNetwork(
-                    explorerUrl = coinNetworkDto.explorerUrl,
-                    currency = coinNetworkDto.currency,
-                    network = coinNetworkDto.network,
-                    name = coinNetworkDto.name,
-                    type = coinNetworkDto.type,
-                    chainId = coinNetworkDto.identifiers.chainId,
-                    nodeUrls = coinNetworkDto.nodeUrls,
-                    feeCurrencies = coinNetworkDto.feeCurrencies,
-                    isMemoSupported = coinNetworkDto.isMemoSupported
-                )
+    override fun allNetworks(): Flow<DataResource<List<CoinNetwork>>> {
+        return coinNetworksStore.stream(FreshnessStrategy.Cached(false))
+            .mapData { coinNetworks ->
+                coinNetworks.map { coinNetworkDto ->
+                    CoinNetwork(
+                        explorerUrl = coinNetworkDto.explorerUrl,
+                        currency = coinNetworkDto.currency,
+                        network = coinNetworkDto.network,
+                        name = coinNetworkDto.name,
+                        type = coinNetworkDto.type,
+                        chainId = coinNetworkDto.identifiers.chainId,
+                        nodeUrls = coinNetworkDto.nodeUrls,
+                        feeCurrencies = coinNetworkDto.feeCurrencies,
+                        isMemoSupported = coinNetworkDto.isMemoSupported
+                    )
+                }
             }
-        }
     }
 }
 

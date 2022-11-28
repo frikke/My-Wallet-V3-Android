@@ -7,7 +7,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
@@ -16,6 +15,7 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.store.flatMapData
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -89,18 +90,19 @@ class ActivityDetailViewModel(
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
                                 // todo(othman) real values
-                                val networkWalletGroup = networkWalletService.networkWalletGroup(network)
-                                val pubKeyStyle = networkWalletGroup?.pubKeyStyle() ?: PubKeyStyle.SINGLE
-                                val pubKeyDescriptor = networkWalletGroup?.pubKeyDescriptor() ?: "legacy"
-                                unifiedActivityService.getActivityDetails(
-                                    txId = txId,
-                                    network = network,
-                                    pubKey = pubkey,
-                                    pubKeyStyle = pubKeyStyle,
-                                    pubKeyDescriptor = pubKeyDescriptor,
-                                    locales = "en-GB;q=1.0, en",
-                                    timeZone = "Europe/London"
-                                )
+                                networkWalletService.networkWalletGroup(network).flatMapData { networkWalletGroup ->
+                                    val pubKeyStyle = networkWalletGroup.pubKeyStyle()
+                                    val pubKeyDescriptor = networkWalletGroup.pubKeyDescriptor()
+                                    unifiedActivityService.getActivityDetails(
+                                        txId = txId,
+                                        network = network,
+                                        pubKey = pubkey,
+                                        pubKeyStyle = pubKeyStyle,
+                                        pubKeyDescriptor = pubKeyDescriptor,
+                                        locales = "en-GB;q=1.0, en",
+                                        timeZone = "Europe/London"
+                                    )
+                                }
                             }
                         }
                         is DataResource.Error -> flowOf(DataResource.Error(summaryDataResource.error))
