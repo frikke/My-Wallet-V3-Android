@@ -12,8 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,17 +25,16 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.tablerow.FlexibleToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.home.model.AssetFilter
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.extensions.replace
+import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.R
-import com.blockchain.utils.replaceInList
 
 @Composable
 fun CryptoAssetsFilters(
-    filters: List<AssetFilterStatus>,
-    onConfirmClick: (List<AssetFilterStatus>) -> Unit
+    filters: List<AssetFilter>,
+    onConfirmClick: (List<AssetFilter>) -> Unit
 ) {
-    val editableFilters = remember { filters.toMutableStateList() }
+    val editableFilters = remember { mutableStateOf(filters) }
 
     Column(
         modifier = Modifier
@@ -79,19 +78,18 @@ fun CryptoAssetsFilters(
             elevation = 0.dp
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                editableFilters.forEach { assetFilter ->
-                    FlexibleToggleTableRow(
-                        paddingValues = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
-                        isChecked = assetFilter.isEnabled,
-                        primaryText = stringResource(R.string.assets_filter_small_balances),
-                        onCheckedChange = { isChecked ->
-                            editableFilters.replaceInList(
-                                replacement = assetFilter.copy(isEnabled = isChecked),
-                                where = { it.filter == assetFilter.filter }
+                editableFilters.value.forEach { assetFilter ->
+                    when (assetFilter) {
+                        is AssetFilter.ShowSmallBalances -> SmallBalancesFilter(assetFilter) { isChecked ->
+                            editableFilters.value = editableFilters.value.replace(
+                                assetFilter,
+                                AssetFilter.ShowSmallBalances(isChecked)
                             )
-                        },
-                        backgroundColor = Color.Transparent
-                    )
+                        }
+                        is AssetFilter.SearchFilter -> {
+                            // Do nothing
+                        }
+                    }
                 }
             }
         }
@@ -101,9 +99,22 @@ fun CryptoAssetsFilters(
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.assets_filter_confirmation),
-            onClick = { onConfirmClick(editableFilters) }
+            onClick = { onConfirmClick(editableFilters.value) }
         )
     }
+}
+
+@Composable
+fun SmallBalancesFilter(assetFilter: AssetFilter.ShowSmallBalances, onCheckedChanged: (Boolean) -> Unit) {
+    FlexibleToggleTableRow(
+        paddingValues = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
+        isChecked = assetFilter.enabled,
+        primaryText = stringResource(R.string.assets_filter_small_balances),
+        onCheckedChange = { isChecked ->
+            onCheckedChanged(isChecked)
+        },
+        backgroundColor = Color.Transparent
+    )
 }
 
 @Preview(backgroundColor = 0xF281DF, showBackground = true)
@@ -111,7 +122,7 @@ fun CryptoAssetsFilters(
 fun CryptoAssetsFiltersScreen() {
     CryptoAssetsFilters(
         filters = listOf(
-            AssetFilterStatus(filter = AssetFilter.ShowSmallBalances, isEnabled = true)
+            AssetFilter.ShowSmallBalances(true)
         ),
         onConfirmClick = {}
     )

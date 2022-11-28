@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -13,7 +12,7 @@ import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
-import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -38,7 +37,6 @@ class NabuUserIdentityTest {
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
     private val bindFeatureFlag: FeatureFlag = mock()
-    private val stakingService: StakingService = mock()
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
@@ -47,8 +45,7 @@ class NabuUserIdentityTest {
         kycService = kycService,
         eligibilityService = eligibilityService,
         userService = userService,
-        bindFeatureFlag = bindFeatureFlag,
-        stakingService = stakingService
+        bindFeatureFlag = bindFeatureFlag
     )
 
     @Test

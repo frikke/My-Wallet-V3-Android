@@ -20,13 +20,14 @@ import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
+import com.blockchain.home.domain.AssetFilter
+import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.home.model.AssetFilter
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -49,7 +50,7 @@ class AssetsViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val filterService: MultiAppAssetsFilterService
+    private val filterService: FiltersService
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState()
 ) {
@@ -71,42 +72,7 @@ class AssetsViewModel(
                         .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
                         .filter { modelAccount ->
                             // create search term filter predicate
-                            val searchTermPredicate = if (state.filterTerm.isEmpty()) {
-                                true
-                            } else {
-                                with(modelAccount.singleAccount.currency) {
-                                    displayTicker.contains(state.filterTerm, ignoreCase = true) ||
-                                        name.contains(state.filterTerm, ignoreCase = true)
-                                }
-                            }
-                            // create predicate for all filters
-                            val filtersPredicate = filters.map { assetFilter ->
-                                when (assetFilter.filter) {
-                                    AssetFilter.ShowSmallBalances -> {
-                                        if (assetFilter.isEnabled) {
-                                            // auto pass check
-                                            true
-                                        } else {
-                                            // filter out small balances
-                                            fun Money.isHighBalance(): Boolean {
-                                                return this >= Money.fromMajor(
-                                                    currency,
-                                                    AssetFilter.ShowSmallBalances.MinimumBalance
-                                                )
-                                            }
-
-                                            (modelAccount.usdBalance.map { it.isHighBalance() } as? DataResource.Data)
-                                                ?.data.let { isHighBalance ->
-                                                    // if null (e.g. loading), or true -> pass
-                                                    isHighBalance != false
-                                                }
-                                        }
-                                    }
-                                }
-                            }.all { it /*if all filters are true*/ }
-
-                            // filter accounts matching the search and custom filters predicate
-                            searchTermPredicate && filtersPredicate
+                            modelAccount.shouldBeFiltered(state)
                         }
                         .toHomeCryptoAssets().take(state.sectionSize.size)
                 },
@@ -181,18 +147,23 @@ class AssetsViewModel(
 
             is AssetsIntent.LoadFilters -> {
                 updateState {
-                    it.copy(filters = filterService.toFilterStatus())
+                    it.copy(
+                        filters = filterService.filters() + AssetFilter.SearchFilter()
+                    )
                 }
             }
 
             is AssetsIntent.FilterSearch -> {
                 updateState {
-                    it.copy(filterTerm = intent.term)
+                    it.copy(
+                        filters = it.filters.minus { it is AssetFilter.SearchFilter }
+                            .plus(AssetFilter.SearchFilter(intent.term))
+                    )
                 }
             }
 
             is AssetsIntent.UpdateFilters -> {
-                filterService.fromFilterStatus(intent.filters)
+                filterService.updateFilters(intent.filters)
                 updateState {
                     it.copy(filters = intent.filters)
                 }
@@ -307,10 +278,14 @@ class AssetsViewModel(
                         ?: balances.first { it is DataResource.Loading }
                 balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
-                        it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data ->
+                        it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data -> {
+
+                            val exchangeRate24hWithDelta = (it.exchangeRate24hWithDelta as DataResource.Data).data
+                            val balance = (it.balance as DataResource.Data).data
                             DataResource.Data(
-                                it.exchangeRate24hWithDelta.data.previousRate.convert(it.balance.data)
+                                exchangeRate24hWithDelta.previousRate.convert(balance)
                             )
+                        }
                         it.balance is DataResource.Error -> it.balance
                         it.exchangeRate24hWithDelta is DataResource.Error -> it.exchangeRate24hWithDelta
                         else -> DataResource.Loading
@@ -350,6 +325,10 @@ class AssetsViewModel(
             )
         }
     }
+}
+
+private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
+    return state.filters.all { it.shouldFilterOut(this) }
 }
 
 private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
@@ -417,6 +396,7 @@ private fun DataResource<List<ModelAccount>>.withPricing(
         )
     }
 }
+/*
 
 private fun MultiAppAssetsFilterService.toFilterStatus(): List<AssetFilterStatus> {
     val allFilters = listOf<AssetFilter>(AssetFilter.ShowSmallBalances)
@@ -438,3 +418,4 @@ private fun MultiAppAssetsFilterService.fromFilterStatus(filters: List<AssetFilt
         }
     }
 }
+*/

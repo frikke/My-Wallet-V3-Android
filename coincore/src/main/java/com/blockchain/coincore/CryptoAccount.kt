@@ -2,9 +2,9 @@ package com.blockchain.coincore
 
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
-import com.blockchain.earn.domain.models.StakingAccountBalance
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -13,7 +13,6 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 
 data class AccountBalance internal constructor(

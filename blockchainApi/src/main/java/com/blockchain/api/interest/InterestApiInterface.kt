@@ -22,8 +22,10 @@ internal interface InterestApiInterface {
     @GET("savings/instruments")
     fun getAvailableTickersForInterest(): Single<InterestAvailableTickersDto>
 
-    @GET("eligible/product/savings")
-    fun getTickersEligibility(): Single<Map<String, InterestEligibilityDto>>
+    @GET("earn/eligible")
+    fun getTickersEligibility(
+        @Query("product") product: String = "SAVINGS"
+    ): Single<Map<String, InterestEligibilityDto>>
 
     @GET("savings/limits")
     fun getTickersLimits(

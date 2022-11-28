@@ -3,9 +3,9 @@ package com.blockchain.earn.domain.service
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.model.StakingEligibility
-import com.blockchain.earn.domain.models.StakingAccountBalance
-import com.blockchain.earn.domain.models.StakingActivity
-import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingActivity
+import com.blockchain.earn.domain.models.staking.StakingLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single

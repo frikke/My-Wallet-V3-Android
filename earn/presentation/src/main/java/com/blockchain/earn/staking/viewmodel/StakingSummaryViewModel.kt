@@ -8,8 +8,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.earn.domain.models.StakingAccountBalance
-import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
