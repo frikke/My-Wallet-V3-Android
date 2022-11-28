@@ -237,7 +237,8 @@ val coincoreModule = module {
                 CryptoCurrency.XLM
             ),
             discoveryService = get(),
-            l2sDynamicAssetRepository = get()
+            l2sDynamicAssetRepository = get(),
+            coinNetworksStore = get()
         )
     }.bind(DynamicAssetsService::class)
 

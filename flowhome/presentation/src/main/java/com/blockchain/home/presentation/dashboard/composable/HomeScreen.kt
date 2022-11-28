@@ -52,6 +52,10 @@ fun HomeScreen(
         }
 
         item {
+            HelpAndSupport()
+        }
+
+        item {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
         }
     }

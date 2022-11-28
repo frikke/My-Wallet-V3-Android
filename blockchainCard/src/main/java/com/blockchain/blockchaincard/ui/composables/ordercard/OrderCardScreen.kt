@@ -731,7 +731,8 @@ fun CardProductPicker(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        var selectedProduct by remember { mutableStateOf(cardProducts.first()) }
+        val orderedCardProducts = cardProducts.sortedByDescending { it.remainingCards }
+        var selectedProduct by remember { mutableStateOf(orderedCardProducts.first()) }
 
         Column(
             horizontalAlignment = CenterHorizontally,
@@ -745,12 +746,12 @@ fun CardProductPicker(
             LaunchedEffect(pagerState) {
                 // Collect from the pager state a snapshotFlow reading the currentPage
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect { page ->
-                    selectedProduct = cardProducts[page]
+                    selectedProduct = orderedCardProducts[page]
                 }
             }
 
-            HorizontalPager(count = cardProducts.size, state = pagerState) { page ->
-                val productImage = when (cardProducts[page].type) {
+            HorizontalPager(count = orderedCardProducts.size, state = pagerState) { page ->
+                val productImage = when (orderedCardProducts[page].type) {
                     BlockchainCardType.VIRTUAL -> R.drawable.card_front_virtual_big
                     BlockchainCardType.PHYSICAL -> R.drawable.card_front_physical_big
                 }
@@ -849,8 +850,15 @@ fun CardProductPicker(
 
             Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
+            val isUsable = selectedProduct.remainingCards > 0
+            val buttonText = when {
+                isUsable -> stringResource(id = R.string.common_continue)
+                else -> stringResource(id = R.string.bc_card_currently_active)
+            }
+
             PrimaryButton(
-                text = stringResource(id = R.string.common_continue),
+                text = buttonText,
+                state = if (isUsable) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = {
                     onContinue(selectedProduct)
                 },

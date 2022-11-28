@@ -17,8 +17,8 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRates
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
