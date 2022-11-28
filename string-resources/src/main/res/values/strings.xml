@@ -1543,7 +1543,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_title_received_1">Received</string>
     <string name="activity_details_title_sent_1">Sent</string>
     <string name="activity_details_title_bought">Bought</string>
+    <string name="activity_details_title_purchase">Purchase</string>
     <string name="activity_details_title_sold">Sold</string>
+    <string name="activity_details_title_sale">Sale</string>
     <string name="activity_details_title_swapped">Swapped</string>
     <string name="activity_details_title_deposit">Transfer</string>
     <string name="activity_details_title_rewards_earned">Rewards Earned</string>

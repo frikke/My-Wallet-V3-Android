@@ -108,7 +108,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.SILVER))
         whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
-        whenever(cardService.getLinkedCards(CardStatus.ACTIVE)).thenReturn(Single.just(listOf(CARD)))
+        whenever(cardService.getLinkedCardsLegacy(CardStatus.ACTIVE)).thenReturn(Single.just(listOf(CARD)))
 
         val test = subject.invoke(REQUEST).test()
 
@@ -128,7 +128,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         verify(paymentMethodService)
             .getAvailablePaymentMethodsTypes(REQUEST.currency, REQUEST.fetchSddLimits, REQUEST.onlyEligible)
         verify(userIdentity).isVerifiedFor(Feature.SimplifiedDueDiligence)
-        verify(cardService).getLinkedCards(CardStatus.ACTIVE)
+        verify(cardService).getLinkedCardsLegacy(CardStatus.ACTIVE)
     }
 
     companion object {

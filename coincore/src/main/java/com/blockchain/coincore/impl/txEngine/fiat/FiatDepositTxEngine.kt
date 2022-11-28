@@ -215,7 +215,7 @@ class FiatDepositTxEngine(
 
     private fun checkSettlementBeforeDeposit(it: ReceiveAddress, pendingTx: PendingTx) =
         bankService.checkSettlement(it.address, pendingTx.amount)
-            .zipWith(bankService.getLinkedBank(it.address))
+            .zipWith(bankService.getLinkedBankLegacy(it.address))
             .flatMap { (settlement, linkedBank) ->
                 val isYodleeUpgradeRequired = linkedBank.partner == BankPartner.YODLEE &&
                     settlement.settlementReason == SettlementReason.REQUIRES_UPDATE
@@ -273,7 +273,7 @@ class FiatDepositTxEngine(
                 (bankTransferDetails.status as? BankTransferStatus.Error)?.error?.let { errorCode ->
                     Completable.error(TransactionError.FiatDepositError(errorCode))
                 } ?: run {
-                    bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
+                    bankService.getLinkedBankLegacy(bankTransferDetails.id).map { linkedBank ->
                         bankTransferDetails.authorisationUrl?.let {
                             BankPaymentApproval(
                                 paymentId,

@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ActivityDetailViewModel(
+class PrivateKeyActivityDetailViewModel(
     private val activityTxId: String,
     private val unifiedActivityService: UnifiedActivityService,
     private val networkWalletService: NetworkWalletService

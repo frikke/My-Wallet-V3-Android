@@ -124,7 +124,7 @@ class SimpleBuySyncFactory(
 
     private fun BuySellOrder.toSimpleBuyStateMaybe(): Maybe<SimpleBuyState> = when {
         isDefinedCardPayment() -> {
-            cardService.getCardDetails(paymentMethodId).flatMapMaybe {
+            cardService.getCardDetailsLegacy(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     this.toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(
@@ -139,7 +139,7 @@ class SimpleBuySyncFactory(
             }
         }
         isDefinedBankTransferPayment() -> {
-            bankService.getLinkedBank(paymentMethodId).flatMapMaybe {
+            bankService.getLinkedBankLegacy(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(

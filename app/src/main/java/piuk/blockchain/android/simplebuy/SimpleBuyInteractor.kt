@@ -399,7 +399,7 @@ class SimpleBuyInteractor(
         }
 
     fun pollForBankLinkingCompleted(id: String): Single<LinkedBank> = PollService(
-        bankService.getLinkedBank(id)
+        bankService.getLinkedBankLegacy(id)
     ) {
         it.isLinkingInFinishedState()
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
@@ -407,7 +407,7 @@ class SimpleBuyInteractor(
     }
 
     fun pollForLinkedBankState(id: String, partner: BankPartner?): Single<PollResult<LinkedBank>> = PollService(
-        bankService.getLinkedBank(id)
+        bankService.getLinkedBankLegacy(id)
     ) {
         if (partner == BankPartner.YAPILY) {
             it.authorisationUrl.isNotEmpty() && it.callbackPath.isNotEmpty()
@@ -549,7 +549,7 @@ class SimpleBuyInteractor(
 
     fun pollForCardStatus(cardId: String): Single<CardIntent.CardUpdated> =
         PollService(
-            cardService.getCardDetails(cardId)
+            cardService.getCardDetailsLegacy(cardId)
         ) {
             it.status == CardStatus.BLOCKED ||
                 it.status == CardStatus.EXPIRED ||
@@ -564,7 +564,7 @@ class SimpleBuyInteractor(
         paymentMethodService.getEligiblePaymentMethodTypes(fiatCurrency = fiatCurrency)
 
     fun getLinkedBankInfo(paymentMethodId: String) =
-        bankService.getLinkedBank(paymentMethodId)
+        bankService.getLinkedBankLegacy(paymentMethodId)
 
     fun fetchOrder(orderId: String) = custodialWalletManager.getBuyOrder(orderId)
 
@@ -680,7 +680,7 @@ class SimpleBuyInteractor(
         }
 
     fun loadLinkedCards(): Single<List<LinkedPaymentMethod.Card>> =
-        paymentsRepository.getLinkedCards(
+        paymentsRepository.getLinkedCardsLegacy(
             CardStatus.PENDING,
             CardStatus.ACTIVE
         )

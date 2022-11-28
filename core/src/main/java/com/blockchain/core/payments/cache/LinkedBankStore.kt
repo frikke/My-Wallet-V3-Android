@@ -1,7 +1,7 @@
 package com.blockchain.core.payments.cache
 
-import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
-import com.blockchain.api.services.PaymentsService
+import com.blockchain.api.payments.data.LinkedBankTransferResponse
+import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
@@ -10,24 +10,24 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.serialization.Serializable
 
-class PaymentMethodsStore(
-    private val paymentsService: PaymentsService
-) : KeyedStore<PaymentMethodsStore.Key,
-    PaymentMethodDetailsResponse
+class LinkedBankStore(
+    private val paymentMethodsService: PaymentMethodsService
+) : KeyedStore<LinkedBankStore.Key,
+    LinkedBankTransferResponse
     > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
-    storeId = "PaymentMethodsStore",
-    fetcher = Fetcher.Keyed.ofOutcome { key ->
-        paymentsService.getPaymentMethodDetailsForId(key.paymentId)
+    storeId = "LinkedBankStore",
+    fetcher = Fetcher.Keyed.ofSingle { key ->
+        paymentMethodsService.getLinkedBank(id = key.id)
     },
-    dataSerializer = PaymentMethodDetailsResponse.serializer(),
+    dataSerializer = LinkedBankTransferResponse.serializer(),
     keySerializer = Key.serializer(),
     mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
 ),
-    KeyedFlushableDataSource<PaymentMethodsStore.Key> {
+    KeyedFlushableDataSource<LinkedBankStore.Key> {
 
     @Serializable
     data class Key(
-        val paymentId: String
+        val id: String
     )
 
     override fun invalidate(param: Key) {

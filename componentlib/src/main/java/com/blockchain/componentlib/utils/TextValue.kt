@@ -29,6 +29,9 @@ fun TextValue.value(): String {
                         is Int -> {
                             LocalContext.current.getStringMaybe(it)
                         }
+                        is TextValue -> {
+                            it.value()
+                        }
                         else -> it.toString()
                     }
                 }.toTypedArray()
