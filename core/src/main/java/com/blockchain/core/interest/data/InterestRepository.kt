@@ -21,7 +21,6 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.map
 import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
@@ -43,15 +42,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.Calendar
 import java.util.Date
-import java.util.stream.Collectors.toList
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -263,13 +258,7 @@ internal class InterestRepository(
 
     // activity
     override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
-        return getActivityFlow(asset)
-            .asSingle()
-            .doOnError { println("------------- getActivity error") }
-            .map {
-                println("------------- getActivity ${it.size}")
-                it
-            }
+        return getActivityFlow(asset).asSingle()
     }
 
     override fun getActivityFlow(
@@ -289,13 +278,9 @@ internal class InterestRepository(
                             transaction.amount.symbol
                         )?.networkTicker == asset.networkTicker
                     }
-//                    .map { transaction ->
-//                        transaction.toInterestActivity(asset, null)
-//                    }
             }
             .flatMapData {
-                println("------------- ${it.size}")
-                if(it.isEmpty()){
+                if (it.isEmpty()) {
                     flowOf(DataResource.Data(emptyList()))
                 } else {
                     val flows = it.map { transaction ->
@@ -305,32 +290,18 @@ internal class InterestRepository(
                             (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,
                             CryptoValue.fromMinor(asset, transaction.amountMinor.toBigInteger())
                         ).filterNotLoading().map {
-                            println("------------- fiat ${it}")
                             transaction to it
                         }
                     }
                     combine(flows) {
-                        println("------------- combine ${it.size}")
-
                         it.map { (transaction, money) ->
-                            println("------------- money ${ (money as? DataResource.Data)?.data?.toStringWithSymbol()}")
-
                             transaction.toInterestActivity(asset, (money as? DataResource.Data)?.data)
                         }
                     }.map {
-                        println("------------- combine map ${it.size}")
-
                         DataResource.Data(it)
                     }
                 }
             }
-            .map {
-                println("------------- final -- map ${it}")
-
-                it
-            }
-            .catch { println("------------- $it") }
-            .filterNotLoading()
     }
 
     // withdrawal

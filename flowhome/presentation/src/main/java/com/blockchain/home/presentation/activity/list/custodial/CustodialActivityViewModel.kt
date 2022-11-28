@@ -109,8 +109,6 @@ class CustodialActivityViewModel(
         viewModelScope.launch {
             custodialActivityService.getAllActivity()
                 .onEach { dataResource ->
-                    println("------------- custodialActivityService ${dataResource}")
-
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
                     }

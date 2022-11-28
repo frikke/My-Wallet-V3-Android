@@ -17,11 +17,6 @@ class CustodialActivityRepository(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<ActivitySummaryItem>>> {
         return custodialActivityStore.stream(freshnessStrategy)
-            .map {
-                println("------------- interestService.getActivity Store ${it}")
-
-                it
-            }
     }
 
     override fun getActivity(
