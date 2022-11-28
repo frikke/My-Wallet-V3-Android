@@ -170,7 +170,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 blockchainCardRepository.getProducts().fold(
                     onSuccess = { cardProducts ->
                         updateState {
-                            it.copy(cardProductList = cardProducts.filter { product -> product.remainingCards > 0 })
+                            it.copy(cardProductList = cardProducts)
                         }
                     },
                     onFailure = { error ->

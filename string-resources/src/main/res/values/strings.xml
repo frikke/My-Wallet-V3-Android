@@ -3177,12 +3177,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="visit_faq">Visit our FAQ</string>
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
-    <string name="terminate_card">Terminate Card</string>
-    <string name="terminate_card_number">Terminate card ending in %1s ?</string>
+    <string name="terminate_card">Close Card</string>
+    <string name="terminate_card_number">Close card ending in %1s ?</string>
     <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
-    <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
+    <string name="terminate_card_confirm_description">Please Type ‘CLOSE’ to permanently close your card</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
-    <string name="terminate_card_confirmation_text">TERMINATE</string>
+    <string name="terminate_card_confirmation_text">CLOSE</string>
     <string name="address_updated">Billing Address Updated</string>
     <string name="address_update_success">Address Successfully Updated</string>
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
@@ -3375,7 +3375,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_status_unactivated">Unactivated</string>
     <string name="bc_card_status_active">Ready to use</string>
     <string name="bc_card_status_locked">Locked</string>
-    <string name="bc_card_status_terminated">Terminated</string>
+    <string name="bc_card_status_terminated">Closed</string>
     <string name="bc_card_order_processing">Processing</string>
     <string name="bc_card_order_processed">Processed</string>
     <string name="bc_card_order_shipped">Shipped</string>
@@ -3416,6 +3416,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
     <string name="bc_card_empty_statements_title">Your Statements Go Here</string>
     <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
+    <string name="bc_card_currently_active">Currently Active</string>
+    <string name="bc_card_limit_reached">Current card limit reached</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
