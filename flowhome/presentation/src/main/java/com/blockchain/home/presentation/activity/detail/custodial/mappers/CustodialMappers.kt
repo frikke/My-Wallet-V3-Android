@@ -15,7 +15,6 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.iconSummary
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 
 internal const val MAX_ABBREVIATE_LENGTH = 15
