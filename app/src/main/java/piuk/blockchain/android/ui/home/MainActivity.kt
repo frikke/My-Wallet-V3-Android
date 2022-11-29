@@ -37,7 +37,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.dashboard.EarnDashboardFragment
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
@@ -58,6 +60,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -102,7 +105,6 @@ import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -124,7 +126,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
-import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -150,7 +151,8 @@ class MainActivity :
     KycUpgradeNowSheet.Host,
     NftHost,
     InterestSummarySheet.Host,
-    NavigationRouter<PricesNavigationEvent> {
+    NavigationRouter<PricesNavigationEvent>,
+    EarnDashboardFragment.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -258,7 +260,6 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.LoadFeatureFlags)
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
 
@@ -268,7 +269,7 @@ class MainActivity :
             }
         }
 
-        model.process(MainIntent.RefreshTabs)
+        model.process(MainIntent.LoadFeatureFlags)
     }
 
     override fun onResume() {
@@ -765,6 +766,7 @@ class MainActivity :
                         )
                 }
             }
+            is ViewToLaunch.GoToActivityForAccount -> goToActivityFor(view.account)
             is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
                 if (view.account is LaunchFlowForAccount.SourceAccount) {
                     showBottomSheet(
@@ -1211,6 +1213,22 @@ class MainActivity :
                     LaunchFlowForAccount.SourceAccount(fromAccount), AssetAction.InterestWithdraw
                 )
             )
+        )
+    }
+
+    override fun launchStakingWithdrawal(currency: Currency) {
+        // TODO(dserrano) - STAKING - not yet implemented
+    }
+
+    override fun launchStakingDeposit(currency: Currency) {
+        model.process(
+            MainIntent.SelectStakingAccountForAction(currency, AssetAction.StakingDeposit)
+        )
+    }
+
+    override fun goToStakingActivity(currency: Currency) {
+        model.process(
+            MainIntent.SelectStakingAccountForAction(currency, AssetAction.ViewActivity)
         )
     }
 

@@ -28,11 +28,13 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
@@ -61,7 +63,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Compa
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -96,7 +97,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract

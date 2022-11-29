@@ -47,6 +47,7 @@ import com.blockchain.payments.googlepay.manager.request.BillingAddressParameter
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import com.blockchain.utils.unsafeLazy
@@ -77,7 +78,6 @@ import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS

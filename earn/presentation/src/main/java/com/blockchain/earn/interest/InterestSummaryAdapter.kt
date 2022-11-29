@@ -1,12 +1,14 @@
-package piuk.blockchain.android.ui.interest
+package com.blockchain.earn.interest
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.earn.databinding.ItemInterestSummaryBinding
 import kotlin.properties.Delegates
-import piuk.blockchain.android.databinding.ItemInterestSummaryBinding
 
+@SuppressLint("NotifyDataSetChanged")
 class InterestSummaryAdapter : RecyclerView.Adapter<InterestSummaryAdapter.ViewHolder>() {
 
     var items: List<InterestSummarySheet.InterestSummaryInfoItem> by Delegates.observable(
@@ -17,7 +19,7 @@ class InterestSummaryAdapter : RecyclerView.Adapter<InterestSummaryAdapter.ViewH
         }
     }
 
-    class ViewHolder(private val binding: ItemInterestSummaryBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(binding: ItemInterestSummaryBinding) : RecyclerView.ViewHolder(binding.root) {
         val key: TextView = binding.title
         val value: TextView = binding.description
     }

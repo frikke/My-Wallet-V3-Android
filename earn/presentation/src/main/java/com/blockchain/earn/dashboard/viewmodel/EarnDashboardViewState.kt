@@ -1,11 +1,12 @@
 package com.blockchain.earn.dashboard.viewmodel
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
 data class EarnDashboardViewState(
-    val dashboardState: DashboardState
+    val dashboardState: DashboardState,
+    val queryBy: String,
+    val filterBy: EarnDashboardListFilter
 ) : ViewState
 
 sealed class EarnDashboardError {
@@ -16,26 +17,40 @@ sealed class EarnDashboardError {
 sealed class DashboardState {
     object Loading : DashboardState()
     object ShowKyc : DashboardState()
-    class ShowError(val error: EarnDashboardError) : DashboardState()
-    class OnlyDiscover(val discover: List<EarnAsset>) : DashboardState()
-    class EarningAndDiscover(val earning: List<EarnAsset>, val discover: List<EarnAsset>) : DashboardState()
+    data class ShowError(val error: EarnDashboardError) : DashboardState()
+    data class OnlyDiscover(val discover: List<EarnAsset>) : DashboardState()
+    data class EarningAndDiscover(val earning: List<EarnAsset>, val discover: List<EarnAsset>) : DashboardState()
 }
 
 data class EarnAsset(
-    val asset: AssetInfo,
+    val assetTicker: String,
+    val assetName: String,
+    val iconUrl: String,
     val rate: Double,
     val eligibility: EarnEligibility,
     val balanceCrypto: Money,
-    val balanceFiat: Money
+    val balanceFiat: Money,
+    val type: EarnType
 )
+
+sealed class EarnType {
+    object Staking : EarnType()
+    object Rewards : EarnType()
+}
 
 sealed class EarnEligibility {
     object Eligible : EarnEligibility()
-    class NotEligible(val reason: EarnIneligibleReason) : EarnEligibility()
+    data class NotEligible(val reason: EarnIneligibleReason) : EarnEligibility()
 }
 
 enum class EarnIneligibleReason {
     REGION,
     KYC_TIER,
     OTHER
+}
+
+enum class EarnDashboardListFilter {
+    All,
+    Staking,
+    Rewards
 }

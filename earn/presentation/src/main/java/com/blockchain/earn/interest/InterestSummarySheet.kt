@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.interest
+package com.blockchain.earn.interest
 
 import android.content.DialogInterface
 import android.view.LayoutInflater
@@ -15,10 +15,15 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRates
+import com.blockchain.earn.EarnAnalytics
+import com.blockchain.earn.R
+import com.blockchain.earn.databinding.DialogSheetInterestDetailsBinding
 import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
@@ -32,11 +37,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import timber.log.Timber
 
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
@@ -87,7 +87,9 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
             interestDetailsSheetHeader.text = asset.name
             interestDetailsLabel.text = asset.name
 
-            interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
+            interestDetailsAssetWithIcon.apply {
+                image = ImageResource.Remote((account as CryptoAccount).currency.logo)
+            }
 
             disposables += coincore.walletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
                 accounts.filter { account -> account is CryptoAccount && account.currency == asset }
@@ -103,13 +105,6 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(EarnAnalytics.InterestSummaryDepositCta)
-                            analytics.logEvent(
-                                CoinViewAnalytics.RewardsWithdrawOrAddClicked(
-                                    origin = LaunchOrigin.COIN_VIEW,
-                                    currency = asset.networkTicker,
-                                    type = CoinViewAnalytics.Companion.Type.ADD
-                                )
-                            )
                             host.goToInterestDeposit(account)
                             dismiss()
                         }
@@ -161,13 +156,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         )
                     )
                     analytics.logEvent(EarnAnalytics.InterestSummaryWithdrawCta)
-                    analytics.logEvent(
-                        CoinViewAnalytics.RewardsWithdrawOrAddClicked(
-                            origin = LaunchOrigin.COIN_VIEW,
-                            currency = asset.networkTicker,
-                            type = CoinViewAnalytics.Companion.Type.WITHDRAW
-                        )
-                    )
+
                     host.goToInterestWithdraw(account)
                     dismiss()
                 }

@@ -4,32 +4,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.R
-import com.blockchain.earn.dashboard.viewmodel.DashboardState
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
+import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.staking.StakingSummaryBottomSheet
+import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.koin.payloadScope
+import com.google.android.material.snackbar.Snackbar
+import info.blockchain.balance.Currency
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -37,7 +31,22 @@ import org.koin.core.scope.Scope
 class EarnDashboardFragment :
     MVIFragment<EarnDashboardViewState>(),
     KoinScopeComponent,
-    NavigationRouter<EarnDashboardNavigationEvent> {
+    NavigationRouter<EarnDashboardNavigationEvent>,
+    InterestSummarySheet.Host,
+    StakingSummaryBottomSheet.Host {
+
+    interface Host {
+        fun goToActivityFor(account: BlockchainAccount)
+        fun goToInterestDeposit(toAccount: BlockchainAccount)
+        fun goToInterestWithdraw(fromAccount: BlockchainAccount)
+        fun launchStakingWithdrawal(currency: Currency)
+        fun launchStakingDeposit(currency: Currency)
+        fun goToStakingActivity(currency: Currency)
+    }
+
+    private val host: Host by lazy {
+        activity as? Host ?: error("Parent activity is not an EarnDashboardFragment.Host")
+    }
 
     override val scope: Scope
         get() = payloadScope
@@ -57,64 +66,75 @@ class EarnDashboardFragment :
     override fun onStateUpdated(state: EarnDashboardViewState) {
     }
 
-    override fun route(navigationEvent: EarnDashboardNavigationEvent) {
+    override fun route(navigationEvent: EarnDashboardNavigationEvent) =
+        when (navigationEvent) {
+            is EarnDashboardNavigationEvent.OpenRewardsSummarySheet -> {
+                openInterestSummarySheet(navigationEvent.account)
+            }
+
+            is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> {
+                openStakingSummarySheet(navigationEvent.assetTicker)
+            }
+        }
+
+    private fun openInterestSummarySheet(account: CryptoAccount) {
+        showBottomSheet(InterestSummarySheet.newInstance(account))
+    }
+
+    private fun openStakingSummarySheet(assetTicker: String) {
+        showBottomSheet(StakingSummaryBottomSheet.newInstance(assetTicker))
     }
 
     companion object {
         fun newInstance() = EarnDashboardFragment()
     }
-}
 
-@Composable
-fun EarnDashboardScreen(
-    viewModel: EarnDashboardViewModel
-) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    override fun goToActivityFor(account: BlockchainAccount) {
+        host.goToActivityFor(account)
     }
-    val viewState: EarnDashboardViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    viewState?.let { state ->
-        EarnDashboard(state)
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        host.goToInterestDeposit(toAccount)
     }
-}
 
-@Composable
-fun EarnDashboard(state: EarnDashboardViewState) {
-    when (val s = state.dashboardState) {
-        DashboardState.Loading -> EarnDashboardLoading()
-        is DashboardState.ShowError -> {
-            Text("ShowError ${s.error}")
-        }
-        DashboardState.ShowKyc -> {
-            Text("ShowKyc")
-        }
-        is DashboardState.EarningAndDiscover -> {
-            Text("EarningAndDiscover discover - ${s.discover.size} earning - ${s.earning.size}")
-        }
-        is DashboardState.OnlyDiscover -> {
-            Text("OnlyDiscover")
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        host.goToInterestWithdraw(fromAccount)
+    }
+
+    override fun openExternalUrl(url: String) {
+        requireContext().openUrl(url)
+    }
+
+    override fun launchStakingWithdrawal(currency: Currency) {
+        host.launchStakingWithdrawal(currency)
+    }
+
+    override fun launchStakingDeposit(currency: Currency) {
+        host.launchStakingDeposit(currency)
+    }
+
+    override fun showStakingLoadingError(error: StakingError) {
+        view?.let {
+            BlockchainSnackbar.make(
+                view = it,
+                message = when (error) {
+                    is StakingError.UnknownAsset -> getString(
+                        R.string.staking_summary_sheet_error_unknown_asset, error.assetTicker
+                    )
+                    StakingError.Other -> getString(R.string.staking_summary_sheet_error_other)
+                    StakingError.None -> getString(R.string.empty)
+                },
+                duration = Snackbar.LENGTH_SHORT,
+                type = SnackbarType.Error
+            ).show()
         }
     }
-}
 
-@Composable
-fun EarnDashboardLoading() {
-    Column(modifier = Modifier.padding(dimensionResource(R.dimen.standard_spacing))) {
-        ShimmerLoadingTableRow(false)
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
+    override fun goToStakingAccountActivity(currency: Currency) {
+        host.goToStakingActivity(currency)
+    }
 
-        ShimmerLoadingTableRow(false)
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
+    override fun onSheetClosed() {
+        // do nothing
     }
 }

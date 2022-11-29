@@ -1,8 +1,13 @@
-package piuk.blockchain.android.ui.transactionflow.analytics
+package com.blockchain.earn
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.coincore.BankAccount
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.TransactionTarget
 import info.blockchain.balance.Money
 import java.io.Serializable
 
@@ -94,5 +99,25 @@ sealed class EarnAnalytics(
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"
         private const val INPUT_AMOUNT = "input_amount"
         private const val INTEREST_RATE = "interest_rate"
+    }
+}
+
+enum class TxFlowAnalyticsAccountType {
+    TRADING, USERKEY, SAVINGS, EXTERNAL;
+
+    companion object {
+        fun fromAccount(account: BlockchainAccount): TxFlowAnalyticsAccountType =
+            when (account) {
+                is TradingAccount,
+                is BankAccount -> TRADING
+                is InterestAccount -> SAVINGS
+                else -> USERKEY
+            }
+
+        fun fromTransactionTarget(transactionTarget: TransactionTarget): TxFlowAnalyticsAccountType {
+            (transactionTarget as? BlockchainAccount)?.let {
+                return fromAccount(it)
+            } ?: return EXTERNAL
+        }
     }
 }

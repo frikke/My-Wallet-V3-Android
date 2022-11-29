@@ -28,4 +28,6 @@ dependencies {
     // Rx
     implementation Libraries.rxJava
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxAndroid
+    implementation Libraries.rxKotlin
 }

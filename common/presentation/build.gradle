@@ -1,4 +1,4 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     buildFeatures {

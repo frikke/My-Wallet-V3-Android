@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.customviews
+package com.blockchain.presentation.customviews
 
 import android.content.Context
 import android.graphics.Canvas
@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.R
+import com.blockchain.common.R
 
 class BlockchainListDividerDecor(context: Context) : RecyclerView.ItemDecoration() {
 

@@ -5,9 +5,9 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import info.blockchain.balance.AssetInfo
 import java.io.Serializable
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.analytics.toCategory
 
 sealed class TransferAnalyticsEvent(

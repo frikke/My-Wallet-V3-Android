@@ -1,7 +1,9 @@
 package com.blockchain.earn.dashboard.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -19,12 +21,14 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
+import kotlinx.coroutines.rx3.awaitSingle
 
 class EarnDashboardViewModel(
     private val coincore: Coincore,
@@ -32,7 +36,8 @@ class EarnDashboardViewModel(
     private val interestService: InterestService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<EarnDashboardIntent,
     EarnDashboardViewState,
     EarnDashboardModelState,
@@ -48,20 +53,53 @@ class EarnDashboardViewModel(
 
     override fun reduce(state: EarnDashboardModelState): EarnDashboardViewState = state.run {
         EarnDashboardViewState(
-            dashboardState = reduceDashboardState(isLoading, error, earnData)
+            dashboardState = reduceDashboardState(isLoading, error, earnData, filterBy, queryBy),
+            filterBy = filterBy,
+            queryBy = queryBy
         )
     }
 
-    override suspend fun handleIntent(modelState: EarnDashboardModelState, intent: EarnDashboardIntent) {
+    override suspend fun handleIntent(modelState: EarnDashboardModelState, intent: EarnDashboardIntent) =
         when (intent) {
             is EarnDashboardIntent.LoadEarn -> loadEarn()
+            is EarnDashboardIntent.UpdateListFilter -> updateState {
+                it.copy(
+                    filterBy = intent.filter
+                )
+            }
+            is EarnDashboardIntent.UpdateSearchQuery -> updateState {
+                it.copy(
+                    queryBy = intent.searchTerm
+                )
+            }
+            is EarnDashboardIntent.ItemSelected ->
+                when (intent.earnAsset.type) {
+                    EarnType.Rewards -> {
+                        getAccountForInterest(intent)
+                    }
+                    EarnType.Staking -> navigate(
+                        EarnDashboardNavigationEvent.OpenStakingSummarySheet(intent.earnAsset.assetTicker)
+                    )
+                }
+        }
+
+    private suspend fun getAccountForInterest(intent: EarnDashboardIntent.ItemSelected) {
+        assetCatalogue.fromNetworkTicker(intent.earnAsset.assetTicker)?.let {
+            navigate(
+                EarnDashboardNavigationEvent.OpenRewardsSummarySheet(
+                    coincore[it].accountGroup(AssetFilter.Interest).awaitSingle().accounts.first() as CryptoAccount
+                )
+            )
         }
     }
 
     private fun reduceDashboardState(
         isLoading: Boolean,
         error: EarnDashboardError,
-        earnData: CombinedEarnData?
+        earnData: CombinedEarnData?,
+        // TODO(dserrano) - STAKING - filters for both lists should be independent - next PR
+        filterBy: EarnDashboardListFilter,
+        queryBy: String
     ): DashboardState {
         if (isLoading) {
             return DashboardState.Loading
@@ -86,59 +124,79 @@ class EarnDashboardViewModel(
             val earningList = mutableListOf<EarnAsset>()
             val discoverList = mutableListOf<EarnAsset>()
             earnData.stakingEligibility.map { (asset, eligibility) ->
-
                 val balance = earnData.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
                 if (balance.isPositive) {
                     earningList.add(
                         EarnAsset(
-                            asset,
-                            earnData.stakingRates[asset] ?: 0.0,
-                            eligibility.toEarnEligibility(),
-                            balance,
-                            balance.toUserFiat(exchangeRatesDataManager)
+                            assetTicker = asset.networkTicker,
+                            assetName = asset.name,
+                            iconUrl = asset.logo,
+                            rate = earnData.stakingRates[asset] ?: 0.0,
+                            eligibility = eligibility.toEarnEligibility(),
+                            balanceCrypto = balance,
+                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                            type = EarnType.Staking
                         )
                     )
                 } else {
                     discoverList.add(
                         EarnAsset(
-                            asset,
-                            earnData.stakingRates[asset] ?: 0.0,
-                            eligibility.toEarnEligibility(),
-                            balance,
-                            balance.toUserFiat(exchangeRatesDataManager)
+                            assetTicker = asset.networkTicker,
+                            assetName = asset.name,
+                            iconUrl = asset.logo,
+                            rate = earnData.stakingRates[asset] ?: 0.0,
+                            eligibility = eligibility.toEarnEligibility(),
+                            balanceCrypto = balance,
+                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                            type = EarnType.Staking
                         )
                     )
                 }
             }
 
             earnData.interestEligibility.map { (asset, eligibility) ->
-
                 val balance = earnData.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
 
                 if (balance.isPositive) {
                     earningList.add(
                         EarnAsset(
-                            asset,
-                            earnData.interestRates[asset] ?: 0.0,
-                            eligibility.toEarnEligibility(),
-                            balance,
-                            balance.toUserFiat(exchangeRatesDataManager)
+                            assetTicker = asset.networkTicker,
+                            assetName = asset.name,
+                            iconUrl = asset.logo,
+                            rate = earnData.interestRates[asset] ?: 0.0,
+                            eligibility = eligibility.toEarnEligibility(),
+                            balanceCrypto = balance,
+                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                            type = EarnType.Rewards
                         )
                     )
                 } else {
                     discoverList.add(
                         EarnAsset(
-                            asset,
-                            earnData.interestRates[asset] ?: 0.0,
-                            eligibility.toEarnEligibility(),
-                            balance,
-                            balance.toUserFiat(exchangeRatesDataManager)
+                            assetTicker = asset.networkTicker,
+                            assetName = asset.name,
+                            iconUrl = asset.logo,
+                            rate = earnData.interestRates[asset] ?: 0.0,
+                            eligibility = eligibility.toEarnEligibility(),
+                            balanceCrypto = balance,
+                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                            type = EarnType.Rewards
                         )
                     )
                 }
             }
+
+            val sortedEarningList = when (filterBy) {
+                EarnDashboardListFilter.All -> earningList
+                EarnDashboardListFilter.Staking -> earningList.filter { it.type == EarnType.Staking }
+                EarnDashboardListFilter.Rewards -> earningList.filter { it.type == EarnType.Rewards }
+            }.filter {
+                queryBy.isEmpty() || it.assetName.contains(queryBy, true) ||
+                    it.assetTicker.contains(queryBy, true)
+            }
+
             return DashboardState.EarningAndDiscover(
-                earningList, discoverList
+                sortedEarningList, discoverList
             )
         } else {
             val discoverList = mutableListOf<EarnAsset>()
@@ -149,11 +207,14 @@ class EarnDashboardViewModel(
 
                 discoverList.add(
                     EarnAsset(
-                        asset,
-                        earnData.stakingRates[asset] ?: 0.0,
-                        eligibility.toEarnEligibility(),
-                        balance,
-                        balance.toUserFiat(exchangeRatesDataManager)
+                        assetTicker = asset.networkTicker,
+                        assetName = asset.name,
+                        iconUrl = asset.logo,
+                        rate = earnData.stakingRates[asset] ?: 0.0,
+                        eligibility = eligibility.toEarnEligibility(),
+                        balanceCrypto = balance,
+                        balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                        type = EarnType.Staking
                     )
                 )
             }
@@ -164,14 +225,18 @@ class EarnDashboardViewModel(
 
                 discoverList.add(
                     EarnAsset(
-                        asset,
-                        earnData.interestRates[asset] ?: 0.0,
-                        eligibility.toEarnEligibility(),
-                        balance,
-                        balance.toUserFiat(exchangeRatesDataManager)
+                        assetTicker = asset.networkTicker,
+                        assetName = asset.name,
+                        iconUrl = asset.logo,
+                        rate = earnData.interestRates[asset] ?: 0.0,
+                        eligibility = eligibility.toEarnEligibility(),
+                        balanceCrypto = balance,
+                        balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+                        type = EarnType.Rewards
                     )
                 )
             }
+
             return DashboardState.OnlyDiscover(discoverList)
         }
     }

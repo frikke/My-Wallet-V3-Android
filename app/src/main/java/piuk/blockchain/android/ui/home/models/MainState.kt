@@ -77,6 +77,7 @@ sealed class ViewToLaunch {
     object ShowReferralSheet : ViewToLaunch()
     class LaunchTxFlowWithAccountForAction(val account: LaunchFlowForAccount, val action: AssetAction) : ViewToLaunch()
     class LaunchRewardsSummaryFromDeepLink(val account: LaunchFlowForAccount) : ViewToLaunch()
+    class GoToActivityForAccount(val account: BlockchainAccount) : ViewToLaunch()
 }
 
 sealed class LaunchFlowForAccount {

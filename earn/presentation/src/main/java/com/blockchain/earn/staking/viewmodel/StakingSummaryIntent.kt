@@ -5,5 +5,5 @@ import info.blockchain.balance.Currency
 
 sealed interface StakingSummaryIntent : Intent<StakingSummaryModelState> {
     class LoadData(val currency: Currency) : StakingSummaryIntent
-    object StakingSummaryLoadError : StakingSummaryIntent
+    class StakingSummaryLoadError(val assetTicker: String) : StakingSummaryIntent
 }

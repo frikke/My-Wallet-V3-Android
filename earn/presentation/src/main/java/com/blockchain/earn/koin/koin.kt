@@ -24,7 +24,8 @@ val earnPresentationModule = module {
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get(),
                 interestService = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                assetCatalogue = get()
             )
         }
     }

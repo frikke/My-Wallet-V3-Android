@@ -12,6 +12,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.earn.TxFlowAnalyticsAccountType
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -24,12 +26,10 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentReceiveBinding
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
