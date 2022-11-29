@@ -16,13 +16,13 @@ data class AssetsViewState(
 ) : ViewState
 
 sealed interface HomeAsset {
-    val icon: String
+    val icon: List<String>
     val name: String
     val balance: DataResource<Money>
 }
 
 data class CryptoAssetState(
-    override val icon: String,
+    override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
@@ -30,7 +30,7 @@ data class CryptoAssetState(
 ) : HomeAsset
 
 data class FiatAssetState(
-    override val icon: String,
+    override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>
 ) : HomeAsset

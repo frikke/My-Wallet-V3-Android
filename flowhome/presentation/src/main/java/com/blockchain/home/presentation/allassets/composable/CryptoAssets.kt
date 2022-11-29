@@ -36,11 +36,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
@@ -205,7 +207,24 @@ fun CryptoAssetsList(
                             it.toStringWithSymbol()
                         },
                         valueChange = cryptoAsset.change,
-                        icon = ImageResource.Remote(cryptoAsset.icon),
+                        contentStart = {
+                            CustomStackedIcon(
+                                icon = if (cryptoAsset.icon.size == 2) {
+                                    StackedIcon.SmallTag(
+                                        main = ImageResource.Remote(
+                                            cryptoAsset.icon[0]
+                                        ),
+                                        tag = ImageResource.Remote(
+                                            cryptoAsset.icon[1]
+                                        )
+                                    )
+                                } else {
+                                    StackedIcon.SingleIcon(
+                                        icon = ImageResource.Remote(cryptoAsset.icon[0])
+                                    )
+                                }
+                            )
+                        },
                         onClick = { /*todo coinview*/ }
                     )
                     if (index < cryptoAssets.lastIndex) {
@@ -239,21 +258,21 @@ fun PreviewCryptoAssetsScreen() {
         cryptoAssets = DataResource.Data(
             listOf(
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal()))
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Down(2.32)),

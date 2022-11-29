@@ -28,6 +28,8 @@ import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -48,6 +50,7 @@ import kotlinx.coroutines.launch
 class AssetsViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
+    private val assetCatalogue: AssetCatalogue,
     private val exchangeRates: ExchangeRatesDataManager,
     private val filterService: FiltersService
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
@@ -97,7 +100,7 @@ class AssetsViewModel(
         ).map {
             FiatAssetState(
                 balance = it.balance,
-                icon = it.singleAccount.currency.logo,
+                icon = listOf(it.singleAccount.currency.logo),
                 name = it.singleAccount.label
             )
         }
@@ -118,7 +121,12 @@ class AssetsViewModel(
 
         return grouped.values.map {
             CryptoAssetState(
-                icon = it.first().singleAccount.currency.logo,
+                icon = listOfNotNull(
+                    it.first().singleAccount.currency.logo,
+                    (it.first().singleAccount.currency as? AssetInfo)?.l1chainTicker?.let {
+                        assetCatalogue.fromNetworkTicker(it)?.logo
+                    }
+                ),
                 name = it.first().singleAccount.currency.name,
                 balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),

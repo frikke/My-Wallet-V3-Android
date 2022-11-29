@@ -18,7 +18,7 @@ sealed interface AssetFilter {
 
     data class ShowSmallBalances(val enabled: Boolean) : AssetFilter {
         override fun shouldFilterOut(modelAccount: ModelAccount): Boolean =
-            !enabled ||
+            enabled ||
                 (modelAccount.usdBalance as? DataResource.Data<Money>)?.data?.let {
                     it >= Money.fromMajor(
                         FiatCurrency.Dollars, 1.toBigDecimal()
@@ -29,6 +29,7 @@ sealed interface AssetFilter {
     data class SearchFilter(private val query: String = "") : AssetFilter {
         override fun shouldFilterOut(modelAccount: ModelAccount): Boolean {
             return query.isEmpty() ||
+                modelAccount.singleAccount.currency.name.contains(query, true) ||
                 modelAccount.singleAccount.currency.networkTicker.contains(query, true) ||
                 modelAccount.singleAccount.currency.displayTicker.contains(query, true)
         }
