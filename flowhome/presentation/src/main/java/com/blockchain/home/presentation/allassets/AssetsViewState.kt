@@ -3,11 +3,13 @@ package com.blockchain.home.presentation.allassets
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
+import com.blockchain.data.combineDataResources
 import com.blockchain.home.domain.AssetFilter
 import info.blockchain.balance.Money
+import info.blockchain.balance.percentageDelta
 
 data class AssetsViewState(
-    val balance: DataResource<WalletBalance>,
+    val balance: WalletBalance,
     val cryptoAssets: DataResource<List<CryptoAssetState>>,
     val fiatAssets: DataResource<List<FiatAssetState>>,
     val filters: List<AssetFilter>
@@ -34,7 +36,11 @@ data class FiatAssetState(
 ) : HomeAsset
 
 data class WalletBalance(
-    val balance: Money,
-    val balanceDifference24h: Money,
-    val percentChange: ValueChange
-)
+    val balance: DataResource<Money>,
+    val cryptoBalanceDifference24h: DataResource<Money>,
+) {
+    val percentChange: DataResource<ValueChange>
+        get() = combineDataResources(balance, cryptoBalanceDifference24h) { now, yesterday ->
+            ValueChange.fromValue(now.percentageDelta(yesterday))
+        }
+}

@@ -3428,6 +3428,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
     <string name="ma_home_need_help">Need help?</string>
+    <string name="chat_with_support">Need help?</string>
+    <string name="view_support_center">View Support center</string>
     <string name="ma_home_activity_title">Activity</string>
     <string name="view">View</string>
 

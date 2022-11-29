@@ -31,7 +31,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import info.blockchain.balance.percentageDelta
 import java.math.BigInteger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -303,27 +302,25 @@ class AssetsViewModel(
     }
 
     private fun Iterable<ModelAccount>.totalAccounts(): Money {
-        return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
+        return map {
+            it.fiatBalance
+        }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
             .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
                 acc.plus(t)
             }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
-        return combineDataResources(
-            totalBalance(),
-            // the difference is calculated with crypto balance only
-            // as we don't support historic rates for fiat
-            filter { it.singleAccount is CryptoAccount }.totalBalance(),
-            totalCryptoBalance24hAgo()
-        ) { balanceNow, cryptoBalanceNow, cryptoBalance24hAgo ->
-            WalletBalance(
-                balance = balanceNow,
-                balanceDifference24h = cryptoBalanceNow.minus(cryptoBalance24hAgo).abs(),
-                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(cryptoBalance24hAgo))
-            )
-        }
+    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): WalletBalance {
+        val cryptoBalanceNow = filter { it.singleAccount is CryptoAccount }.totalBalance()
+        val cryptoBalance24hAgo = totalCryptoBalance24hAgo()
+
+        return WalletBalance(
+            balance = totalBalance(),
+            cryptoBalanceDifference24h = combineDataResources(cryptoBalanceNow, cryptoBalance24hAgo) { now, yesterday ->
+                now.minus(yesterday).abs()
+            }
+        )
     }
 }
 
@@ -396,26 +393,3 @@ private fun DataResource<List<ModelAccount>>.withPricing(
         )
     }
 }
-/*
-
-private fun MultiAppAssetsFilterService.toFilterStatus(): List<AssetFilterStatus> {
-    val allFilters = listOf<AssetFilter>(AssetFilter.ShowSmallBalances)
-
-    return allFilters.map { filter ->
-        AssetFilterStatus(
-            filter = filter,
-            isEnabled = when (filter) {
-                AssetFilter.ShowSmallBalances -> shouldShowSmallBalances
-            }
-        )
-    }
-}
-
-private fun MultiAppAssetsFilterService.fromFilterStatus(filters: List<AssetFilterStatus>) {
-    filters.forEach { assetFilter ->
-        when (assetFilter.filter) {
-            AssetFilter.ShowSmallBalances -> shouldShowSmallBalances = assetFilter.isEnabled
-        }
-    }
-}
-*/

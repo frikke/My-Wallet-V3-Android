@@ -40,12 +40,12 @@ fun HelpAndSupport() {
         ) {
             Column {
                 DefaultTableRow(
-                    primaryText = "Chat with support",
+                    primaryText = stringResource(R.string.chat_with_support),
                     onClick = {}
                 )
                 Divider()
                 DefaultTableRow(
-                    primaryText = "View support center",
+                    primaryText = stringResource(R.string.view_support_center),
                     onClick = {}
                 )
             }
