@@ -1,11 +1,8 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
-import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.domain.paymentmethods.model.MobilePaymentType
-import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
@@ -22,22 +19,22 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-@DrawableRes internal fun FiatActivitySummaryItem.iconDetail(): Int {
+@DrawableRes internal fun CustodialTransferActivitySummaryItem.iconDetail(): Int {
     return when (type) {
         TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
         TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
     }
 }
 
-internal fun FiatActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
+internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
-        TransactionType.DEPOSIT -> R.string.tx_title_deposited
-        TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
+        TransactionType.DEPOSIT -> R.string.tx_title_received
+        TransactionType.WITHDRAWAL -> R.string.tx_title_sent
     },
     args = listOf(asset.displayTicker)
 )
 
-internal fun FiatActivitySummaryItem.detailItems(
+internal fun CustodialTransferActivitySummaryItem.detailItems(
     extras: List<CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
@@ -50,12 +47,7 @@ internal fun FiatActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(
-                            when (type) {
-                                TransactionType.DEPOSIT -> R.string.common_deposit
-                                TransactionType.WITHDRAWAL -> R.string.fiat_funds_detail_withdraw_title
-                            }
-                        ),
+                        value = TextValue.IntResValue(R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -66,24 +58,18 @@ internal fun FiatActivitySummaryItem.detailItems(
                     )
                 )
             ),
-
-            // to/from ---- euro
+            // fee ---- €12
             ActivityComponent.StackView(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(
-                            when (type) {
-                                TransactionType.DEPOSIT -> R.string.common_to
-                                TransactionType.WITHDRAWAL -> R.string.common_from
-                            }
-                        ),
+                        value = TextValue.IntResValue(R.string.activity_details_buy_fee),
                         style = basicTitleStyle.muted()
                     )
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.StringValue(account.label),
+                        value = TextValue.StringValue(fee.toStringWithSymbol()),
                         style = basicTitleStyle
                     )
                 )
@@ -91,10 +77,11 @@ internal fun FiatActivitySummaryItem.detailItems(
         )
     ),
     // status ---- success
-    // to/from ---- euro
+    // from ---- Trading Account
+    // to ---- 0x49...ba41
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOf(
+        itemGroup = listOfNotNull(
             // status ---- success
             ActivityComponent.StackView(
                 id = toString(),
@@ -111,6 +98,73 @@ internal fun FiatActivitySummaryItem.detailItems(
                     )
                 )
             ),
+            // from ---- Trading Account
+            run nullableFrom@{
+                ActivityComponent.StackView(
+                    id = toString(),
+                    leading = listOf(
+                        ActivityStackView.Text(
+                            value = TextValue.IntResValue(R.string.activity_details_from),
+                            style = basicTitleStyle.muted()
+                        )
+                    ),
+                    trailing = listOf(
+                        ActivityStackView.Text(
+                            value = when (type) {
+                                TransactionType.DEPOSIT -> {
+                                    if (recipientAddress.isNotBlank()) TextValue.StringValue(
+                                        recipientAddress.abbreviate(
+                                            startLength = SIDE_ABBREVIATE_LENGTH,
+                                            endLength = SIDE_ABBREVIATE_LENGTH
+                                        )
+                                    )
+                                    else {
+                                        return@nullableFrom null
+                                    }
+                                }
+                                TransactionType.WITHDRAWAL -> {
+                                    TextValue.StringValue(account.label)
+                                }
+                            },
+                            style = basicTitleStyle
+                        )
+                    )
+                )
+            },
+            // to ---- 0x49...ba41
+            run nullableTo@{
+                ActivityComponent.StackView(
+                    id = toString(),
+                    leading = listOf(
+                        ActivityStackView.Text(
+                            value = TextValue.IntResValue(R.string.activity_details_to),
+                            style = basicTitleStyle.muted()
+                        )
+                    ),
+                    trailing = listOf(
+                        ActivityStackView.Text(
+                            value = when (type) {
+                                TransactionType.DEPOSIT -> {
+                                    TextValue.StringValue(account.label)
+                                }
+                                TransactionType.WITHDRAWAL -> {
+                                    if (recipientAddress.isNotBlank()) {
+                                        TextValue.StringValue(
+                                            recipientAddress.abbreviate(
+                                                startLength = SIDE_ABBREVIATE_LENGTH,
+                                                endLength = SIDE_ABBREVIATE_LENGTH
+                                            )
+                                        )
+                                    } else {
+                                        return@nullableTo null
+                                    }
+                                }
+                            },
+                            style = basicTitleStyle
+                        )
+                    )
+                )
+            },
             // extra
             // payment method
             *extras.map { it.toActivityComponent() }.toTypedArray()
@@ -170,43 +224,21 @@ internal fun FiatActivitySummaryItem.detailItems(
     )
 )
 
-private fun FiatActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
+private fun CustodialTransferActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
         TransactionState.COMPLETED -> R.string.activity_details_completed
-        TransactionState.PENDING -> R.string.activity_details_label_pending
+        TransactionState.PENDING -> R.string.activity_details_label_confirming
         TransactionState.FAILED -> R.string.activity_details_label_failed
     }
 )
 
-private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
+private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     TransactionState.COMPLETED -> ActivityTagStyle.Success
     TransactionState.PENDING -> ActivityTagStyle.Info
     TransactionState.FAILED -> ActivityTagStyle.Error
 }
 
-internal fun FiatActivitySummaryItem.buildActivityDetail(
-    paymentMethod: PaymentMethodDetails
-) = CustodialActivityDetail(
+internal fun CustodialTransferActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
     activity = this,
-    extras = listOf(
-        CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
-            value = with(paymentMethod) {
-                when {
-                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
-                        R.string.google_pay
-                    )
-                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
-                        R.string.apple_pay
-                    )
-                    label.isNullOrBlank() -> TextValue.StringValue(
-                        account.currency.name
-                    )
-                    else -> TextValue.StringValue(
-                        "$label $endDigits"
-                    )
-                }
-            }
-        )
-    )
+    extras = emptyList()
 )
