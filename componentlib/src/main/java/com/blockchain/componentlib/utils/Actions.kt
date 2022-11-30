@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.blockchain.componentlib.R
-import kotlinx.coroutines.flow.SharedFlow
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
@@ -58,6 +57,6 @@ fun Context.shareTextWithSubject(text: String, subject: String) {
 }
 
 @Composable
-fun Share(text : String, subject: String) {
+fun Share(text: String, subject: String) {
     LocalContext.current.shareTextWithSubject(text = text, subject = subject)
 }

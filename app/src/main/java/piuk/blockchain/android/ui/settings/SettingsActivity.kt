@@ -17,7 +17,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency
