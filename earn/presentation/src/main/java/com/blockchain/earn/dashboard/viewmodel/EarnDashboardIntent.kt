@@ -7,4 +7,5 @@ sealed interface EarnDashboardIntent : Intent<EarnDashboardModelState> {
     class UpdateSearchQuery(val searchTerm: String) : EarnDashboardIntent
     class ItemSelected(val earnAsset: EarnAsset) : EarnDashboardIntent
     object LoadEarn : EarnDashboardIntent
+    object LoadSilently : EarnDashboardIntent
 }

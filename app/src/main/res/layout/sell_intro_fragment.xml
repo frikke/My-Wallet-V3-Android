@@ -48,7 +48,7 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <piuk.blockchain.android.ui.customviews.EmptyStateView
+    <com.blockchain.presentation.customviews.EmptyStateView
         android:id="@+id/sell_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

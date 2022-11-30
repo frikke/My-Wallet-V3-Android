@@ -48,6 +48,7 @@ import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import com.blockchain.utils.unsafeLazy
@@ -85,7 +86,6 @@ import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getFormattedDepositTerms
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
-import piuk.blockchain.android.util.disableBackPress
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),

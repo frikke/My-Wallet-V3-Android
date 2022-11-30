@@ -53,6 +53,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -80,7 +81,6 @@ import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountAction
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity

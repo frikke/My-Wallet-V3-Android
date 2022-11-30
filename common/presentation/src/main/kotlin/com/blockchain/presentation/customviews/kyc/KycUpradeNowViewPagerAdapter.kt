@@ -1,12 +1,14 @@
-package piuk.blockchain.android.ui.dashboard.sheets
+package com.blockchain.presentation.customviews.kyc
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.common.R
+import com.blockchain.common.databinding.ItemKycUpgradeNowBasicBinding
+import com.blockchain.common.databinding.ItemKycUpgradeNowVerifiedBinding
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -15,10 +17,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.eligibility.model.TransactionsLimit
-import kotlinx.android.extensions.LayoutContainer
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ItemKycUpgradeNowBasicBinding
-import piuk.blockchain.android.databinding.ItemKycUpgradeNowVerifiedBinding
 
 sealed class ViewPagerItem(
     val tab: KycUpgradeNowSheet.ViewPagerTab
@@ -27,20 +25,21 @@ sealed class ViewPagerItem(
         val isBasicApproved: Boolean,
         val transactionsLimit: TransactionsLimit
     ) : ViewPagerItem(KycUpgradeNowSheet.ViewPagerTab.BASIC)
+
     object Verified : ViewPagerItem(KycUpgradeNowSheet.ViewPagerTab.VERIFIED)
 }
 
 class KycCtaViewPagerAdapter(
     private val basicClicked: () -> Unit,
     private val verifyClicked: () -> Unit
-) : ListAdapter<ViewPagerItem, KycCtaViewPagerAdapter.KycVH>(DIFF_UTIL) {
+) : ListAdapter<ViewPagerItem, RecyclerView.ViewHolder>(DIFF_UTIL) {
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is ViewPagerItem.Basic -> R.layout.item_kyc_upgrade_now_basic
         ViewPagerItem.Verified -> R.layout.item_kyc_upgrade_now_verified
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KycVH = when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         R.layout.item_kyc_upgrade_now_basic ->
             KycBasicVH(
                 ItemKycUpgradeNowBasicBinding.inflate(LayoutInflater.from(parent.context), parent, false),
@@ -53,24 +52,22 @@ class KycCtaViewPagerAdapter(
         else -> throw IllegalStateException()
     }
 
-    override fun onBindViewHolder(holder: KycVH, position: Int, payloads: MutableList<Any>) =
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) =
         if (holder is KycBasicVH && payloads.isNotEmpty()) {
             payloads.forEach {
                 if (it is IsBasicApprovedChangedPayload) holder.isBasicApprovedChanged(it.isBasicApproved)
             }
         } else onBindViewHolder(holder, position)
 
-    override fun onBindViewHolder(holder: KycVH, position: Int) = when (holder) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) = when (holder) {
         is KycBasicVH -> holder.bind(getItem(position) as ViewPagerItem.Basic)
-        is KycVerifiedVH -> holder.bind()
+        else -> (holder as KycVerifiedVH).bind()
     }
-
-    sealed class KycVH(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer
 
     class KycBasicVH(
         private val binding: ItemKycUpgradeNowBasicBinding,
         private val basicClicked: () -> Unit
-    ) : KycVH(binding.root) {
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun isBasicApprovedChanged(isBasicApproved: Boolean) = with(binding) {
             rowTier.apply {
@@ -149,7 +146,7 @@ class KycCtaViewPagerAdapter(
     class KycVerifiedVH(
         private val binding: ItemKycUpgradeNowVerifiedBinding,
         private val verifyClicked: () -> Unit
-    ) : KycVH(binding.root) {
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(): Unit = with(binding) {
             rowTier.apply {
                 startImageResource = ImageResource.LocalWithBackground(

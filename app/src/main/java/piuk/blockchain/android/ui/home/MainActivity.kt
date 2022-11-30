@@ -49,7 +49,9 @@ import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -91,7 +93,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
@@ -131,7 +132,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :

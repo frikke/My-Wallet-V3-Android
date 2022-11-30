@@ -15,6 +15,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.R
+import com.blockchain.earn.dashboard.viewmodel.EarnDashboardIntent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
@@ -22,6 +23,7 @@ import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.Currency
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,7 +35,8 @@ class EarnDashboardFragment :
     KoinScopeComponent,
     NavigationRouter<EarnDashboardNavigationEvent>,
     InterestSummarySheet.Host,
-    StakingSummaryBottomSheet.Host {
+    StakingSummaryBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     interface Host {
         fun goToActivityFor(account: BlockchainAccount)
@@ -42,6 +45,7 @@ class EarnDashboardFragment :
         fun launchStakingWithdrawal(currency: Currency)
         fun launchStakingDeposit(currency: Currency)
         fun goToStakingActivity(currency: Currency)
+        fun startKycClicked()
     }
 
     private val host: Host by lazy {
@@ -58,9 +62,14 @@ class EarnDashboardFragment :
             setContent {
                 bindViewModel(viewModel, this@EarnDashboardFragment, ModelConfigArgs.NoArgs)
 
-                EarnDashboardScreen(viewModel)
+                EarnDashboardScreen(viewModel, childFragmentManager)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onIntent(EarnDashboardIntent.LoadSilently)
     }
 
     override fun onStateUpdated(state: EarnDashboardViewState) {
@@ -132,6 +141,10 @@ class EarnDashboardFragment :
 
     override fun goToStakingAccountActivity(currency: Currency) {
         host.goToStakingActivity(currency)
+    }
+
+    override fun startKycClicked() {
+        host.startKycClicked()
     }
 
     override fun onSheetClosed() {

@@ -19,6 +19,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.braintreepayments.cardform.utils.CardType
 import java.util.Calendar
 import java.util.Date
@@ -36,7 +37,6 @@ import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.openUrl
 
 class AddNewCardFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(),

@@ -3468,6 +3468,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_dashboard_filter_rewards">Rewards</string>
     <string name="staking_dashboard_search">Search coins</string>
     <string name="staking_dashboard_no_results">No results</string>
+    <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_dashboard_tab_earning">Earning</string>
+    <string name="earn_dashboard_tab_discover">Discover</string>
+    <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
+    <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
 
 
     <string name="all_prices">All Prices</string>

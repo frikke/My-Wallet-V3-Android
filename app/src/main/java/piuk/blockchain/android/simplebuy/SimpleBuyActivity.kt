@@ -34,6 +34,8 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.presentation.checkValidUrlAndOpen
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
@@ -59,7 +61,6 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -71,7 +72,6 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
-import piuk.blockchain.android.util.checkValidUrlAndOpen
 
 class SimpleBuyActivity :
     BlockchainActivity(),

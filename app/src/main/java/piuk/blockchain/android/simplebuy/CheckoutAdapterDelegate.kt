@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutClickableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
@@ -21,7 +22,6 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.util.animateColor
-import piuk.blockchain.android.util.getResolvedColor
 
 class CheckoutAdapterDelegate(
     onToggleChanged: (Boolean) -> Unit,

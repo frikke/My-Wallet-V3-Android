@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.getResolvedColor
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Scheduler
@@ -19,7 +20,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAssetExpandableBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 import timber.log.Timber
 
 data class ExpandableCryptoItem(

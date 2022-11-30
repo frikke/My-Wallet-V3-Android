@@ -20,7 +20,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -35,7 +34,6 @@ class EarnDashboardViewModel(
     private val stakingService: StakingService,
     private val interestService: InterestService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val currencyPrefs: CurrencyPrefs,
     private val userIdentity: UserIdentity,
     private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<EarnDashboardIntent,
@@ -62,6 +60,7 @@ class EarnDashboardViewModel(
     override suspend fun handleIntent(modelState: EarnDashboardModelState, intent: EarnDashboardIntent) =
         when (intent) {
             is EarnDashboardIntent.LoadEarn -> loadEarn()
+            is EarnDashboardIntent.LoadSilently -> collectEarnData(false)
             is EarnDashboardIntent.UpdateListFilter -> updateState {
                 it.copy(
                     filterBy = intent.filter
@@ -248,6 +247,10 @@ class EarnDashboardViewModel(
             )
         }
 
+        collectEarnData(true)
+    }
+
+    private suspend fun collectEarnData(showLoading: Boolean) {
         val accessMap = try {
             userIdentity.userAccessForFeatures(
                 listOf(Feature.DepositStaking, Feature.DepositInterest)
@@ -302,7 +305,7 @@ class EarnDashboardViewModel(
                 }
                 DataResource.Loading -> {
                     updateState {
-                        it.copy(isLoading = true)
+                        it.copy(isLoading = showLoading)
                     }
                 }
             }

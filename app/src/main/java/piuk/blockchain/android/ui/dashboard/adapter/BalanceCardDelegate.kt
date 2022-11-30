@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.presentation.getResolvedColor
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.PieData
@@ -19,7 +20,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate(
     private val assetResources: AssetResources,

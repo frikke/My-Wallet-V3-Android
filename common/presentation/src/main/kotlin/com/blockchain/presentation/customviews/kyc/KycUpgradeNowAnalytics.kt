@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.sheets
+package com.blockchain.presentation.customviews.kyc
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames

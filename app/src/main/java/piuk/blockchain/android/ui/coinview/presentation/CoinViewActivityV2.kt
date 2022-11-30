@@ -22,6 +22,8 @@ import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.openUrl
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -41,14 +43,12 @@ import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountAction
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
-import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 
 // TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete

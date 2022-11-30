@@ -23,6 +23,7 @@ import com.blockchain.coincore.FeeState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.presentation.getResolvedColor
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -33,7 +34,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.urllinks.URL_TX_FEES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.getResolvedColor
 
 class EditFeesControl @JvmOverloads constructor(
     ctx: Context,

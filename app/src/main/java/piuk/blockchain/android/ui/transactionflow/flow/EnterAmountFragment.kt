@@ -21,6 +21,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -45,7 +46,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState

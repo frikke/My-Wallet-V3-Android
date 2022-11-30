@@ -27,6 +27,7 @@ import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
+import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.FiatCurrency
@@ -35,7 +36,6 @@ import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
 

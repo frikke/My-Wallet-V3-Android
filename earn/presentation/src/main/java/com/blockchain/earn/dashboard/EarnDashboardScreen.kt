@@ -3,6 +3,7 @@ package com.blockchain.earn.dashboard
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,11 +16,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ComposeColors
@@ -33,6 +37,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.filter.FilterState
 import com.blockchain.componentlib.filter.LabeledFilterState
 import com.blockchain.componentlib.filter.LabeledFiltersGroup
+import com.blockchain.componentlib.system.EmbeddedFragment
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tag.TagType
@@ -46,10 +51,13 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardListFilter
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
 import com.blockchain.earn.dashboard.viewmodel.EarnType
+import com.blockchain.presentation.customviews.EmptyStateView
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 
 @Composable
 fun EarnDashboardScreen(
-    viewModel: EarnDashboardViewModel
+    viewModel: EarnDashboardViewModel,
+    fragmentManager: FragmentManager
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -58,13 +66,22 @@ fun EarnDashboardScreen(
     val viewState: EarnDashboardViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        EarnDashboard(state, filterAction = {
-            viewModel.onIntent(EarnDashboardIntent.UpdateListFilter(it))
-        }, queryFilter = {
-            viewModel.onIntent(EarnDashboardIntent.UpdateSearchQuery(it))
-        }, onItemClicked = {
-            viewModel.onIntent(EarnDashboardIntent.ItemSelected(it))
-        })
+        EarnDashboard(
+            state = state,
+            filterAction = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateListFilter(it))
+            },
+            queryFilter = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateSearchQuery(it))
+            },
+            onItemClicked = {
+                viewModel.onIntent(EarnDashboardIntent.ItemSelected(it))
+            },
+            onRefreshData = {
+                viewModel.onIntent(EarnDashboardIntent.LoadEarn)
+            },
+            fragmentManager = fragmentManager
+        )
     }
 }
 
@@ -73,22 +90,22 @@ fun EarnDashboard(
     state: EarnDashboardViewState,
     filterAction: (EarnDashboardListFilter) -> Unit,
     queryFilter: (String) -> Unit,
-    onItemClicked: (EarnAsset) -> Unit
+    onItemClicked: (EarnAsset) -> Unit,
+    onRefreshData: () -> Unit,
+    fragmentManager: FragmentManager
 ) {
     when (val s = state.dashboardState) {
         DashboardState.Loading -> EarnDashboardLoading()
-        is DashboardState.ShowError -> {
-            Text("ShowError ${s.error}")
-        }
-        DashboardState.ShowKyc -> {
-            Text("ShowKyc")
-        }
-        is DashboardState.EarningAndDiscover -> {
-            EarningAndDiscover(s, state.filterBy, filterAction, queryFilter, onItemClicked)
-        }
-        is DashboardState.OnlyDiscover -> {
-            DashboardState.OnlyDiscover(s.discover)
-        }
+        is DashboardState.ShowError -> EarnLoadError(onRefreshData)
+        DashboardState.ShowKyc -> EarnKycRequired(fragmentManager)
+        is DashboardState.EarningAndDiscover -> EarningAndDiscover(
+            state = s,
+            filterBy = state.filterBy,
+            filterAction = filterAction,
+            queryFilter = queryFilter,
+            onItemClicked = onItemClicked
+        )
+        is DashboardState.OnlyDiscover -> DashboardState.OnlyDiscover(s.discover)
     }
 }
 
@@ -104,7 +121,10 @@ fun EarningAndDiscover(
 
     Column {
         TabLayoutLarge(
-            items = listOf("Earning", "Discover"),
+            items = listOf(
+                stringResource(id = R.string.earn_dashboard_tab_earning),
+                stringResource(id = R.string.earn_dashboard_tab_discover)
+            ),
             selectedItemIndex = selectedTab.index,
             hasBottomShadow = true,
             onItemSelected = {
@@ -146,7 +166,11 @@ private fun EarningScreen(
                 LabeledFilterState(
                     text = stringResource(id = filter.title()),
                     onSelected = { filterAction(filter) },
-                    state = if (filterBy == filter) FilterState.SELECTED else FilterState.UNSELECTED
+                    state = if (filterBy == filter) {
+                        FilterState.SELECTED
+                    } else {
+                        FilterState.UNSELECTED
+                    }
                 )
             },
             modifier = Modifier.padding(
@@ -157,6 +181,7 @@ private fun EarningScreen(
 
         if (searchedText.isNotEmpty() && state.earning.isEmpty()) {
             SimpleText(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = stringResource(R.string.staking_dashboard_no_results),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
@@ -182,8 +207,8 @@ private fun EarningScreen(
                                 tags = listOf(
                                     TagViewState(
                                         when (it.type) {
-                                            EarnType.Rewards -> "Passive Rewards"
-                                            EarnType.Staking -> "Staking Rewards"
+                                            EarnType.Rewards -> stringResource(id = R.string.earn_rewards_label_passive)
+                                            EarnType.Staking -> stringResource(id = R.string.earn_rewards_label_staking)
                                         },
                                         TagType.Default()
                                     )
@@ -238,4 +263,29 @@ fun EarnDashboardLoading() {
         ShimmerLoadingTableRow(true)
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
     }
+}
+
+@Composable
+fun EarnLoadError(onRefresh: () -> Unit) {
+    AndroidView(
+        factory = { context ->
+            EmptyStateView(context).apply {
+                setDetails(
+                    title = R.string.earn_dashboard_error_title,
+                    description = R.string.earn_dashboard_error_desc,
+                    action = { onRefresh() },
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun EarnKycRequired(fm: FragmentManager) {
+    EmbeddedFragment(
+        modifier = Modifier.fillMaxSize(),
+        fragment = KycUpgradeNowSheet.newInstance(),
+        fragmentManager = fm,
+        tag = "KycNow"
+    )
 }

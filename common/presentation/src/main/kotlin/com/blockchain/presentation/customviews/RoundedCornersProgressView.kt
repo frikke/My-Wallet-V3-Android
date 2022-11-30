@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.customviews
+package com.blockchain.presentation.customviews
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,8 +8,8 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.FloatRange
 import androidx.core.content.ContextCompat
+import com.blockchain.common.R
 import kotlin.math.min
-import piuk.blockchain.android.R
 
 class RoundedCornersProgressView : View {
     constructor(context: Context) : super(context)

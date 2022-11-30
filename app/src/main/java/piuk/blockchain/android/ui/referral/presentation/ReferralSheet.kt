@@ -15,6 +15,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.copyToClipboard
+import com.blockchain.presentation.shareTextWithSubject
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -22,8 +24,6 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
-import piuk.blockchain.android.util.copyToClipboard
-import piuk.blockchain.android.util.shareTextWithSubject
 
 class ReferralSheet :
     MVIBottomSheet<ReferralViewState>(),

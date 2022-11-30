@@ -27,6 +27,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.openUrl
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -52,7 +53,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetSelectedEve
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
-import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
 class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRouter<SellNavigation>, KoinScopeComponent {
@@ -252,9 +252,12 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     private fun renderSellError() {
         with(binding) {
             sellAccountsContainer.gone()
-            sellEmpty.setDetails {
-                viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = true))
-            }
+            sellEmpty.setDetails(
+                action = {
+                    viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = true))
+                },
+                onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            )
             sellEmpty.visible()
         }
     }
@@ -264,12 +267,12 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
             sellAccountsContainer.gone()
 
             sellEmpty.setDetails(
-                R.string.sell_intro_empty_title,
-                R.string.sell_intro_empty_label,
-                ctaText = R.string.buy_now
-            ) {
-                host.onSellListEmptyCta()
-            }
+                title = R.string.sell_intro_empty_title,
+                description = R.string.sell_intro_empty_label,
+                ctaText = R.string.buy_now,
+                action = { host.onSellListEmptyCta() },
+                onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            )
             sellEmpty.visible()
         }
     }
