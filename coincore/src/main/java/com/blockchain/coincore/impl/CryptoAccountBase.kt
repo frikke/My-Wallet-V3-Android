@@ -450,7 +450,7 @@ abstract class CryptoNonCustodialAccount(
  * so all the methods on this can just delegate directly
  * to the (required) CryptoSingleAccountCustodialBase
  */
-class CryptoAccountTradingGroup(
+class CryptoAccountCustodialSingleGroup(
     override val label: String,
     override val accounts: SingleAccountList,
 ) : SameCurrencyAccountGroup {

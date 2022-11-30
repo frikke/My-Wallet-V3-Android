@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
 import com.blockchain.componentlib.theme.AppSurface
@@ -171,7 +172,7 @@ fun BalanceTableRow_Texts() {
 
 @Preview
 @Composable
-fun BalanceTableRow_TitleStart_TwoEnd() {
+fun BalanceTableRow_TitleStart_No_Body_Start() {
     AppTheme {
         AppSurface {
             BalanceTableRow(
@@ -181,6 +182,47 @@ fun BalanceTableRow_TitleStart_TwoEnd() {
                 onClick = {},
                 tags = emptyList(),
                 startImageResource = ImageResource.None
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BalanceTableRow_TitleStart_Tags() {
+    AppTheme {
+        AppSurface {
+            BalanceTableRow(
+                titleStart = buildAnnotatedString { append("Some title here") },
+                titleEnd = buildAnnotatedString { append("100 BTC") },
+                bodyEnd = buildAnnotatedString { append("$100") },
+                bodyStart = buildAnnotatedString { append("Some body here") },
+                onClick = {},
+                tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_blockchain,
+                ),
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BalanceTableRow_TitleStart_Tags_Inline() {
+    AppTheme {
+        AppSurface {
+            BalanceTableRow(
+                titleStart = buildAnnotatedString { append("Some title here") },
+                titleEnd = buildAnnotatedString { append("100 BTC") },
+                bodyEnd = buildAnnotatedString { append("$100") },
+                bodyStart = buildAnnotatedString { append("Some body here") },
+                onClick = {},
+                tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
+                isInlineTags = true,
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_blockchain,
+                ),
             )
         }
     }

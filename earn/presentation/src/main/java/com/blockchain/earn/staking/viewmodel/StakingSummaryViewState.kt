@@ -22,8 +22,8 @@ data class StakingSummaryViewState(
     val rewardsFrequency: EarnRewardsFrequency
 ) : ViewState
 
-enum class StakingError {
-    UnknownAsset,
-    Other,
-    None
+sealed class StakingError {
+    class UnknownAsset(val assetTicker: String) : StakingError()
+    object Other : StakingError()
+    object None : StakingError()
 }

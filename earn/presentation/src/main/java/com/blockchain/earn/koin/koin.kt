@@ -22,9 +22,9 @@ val earnPresentationModule = module {
                 coincore = get(),
                 stakingService = get(),
                 exchangeRatesDataManager = get(),
-                currencyPrefs = get(),
                 interestService = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                assetCatalogue = get()
             )
         }
     }

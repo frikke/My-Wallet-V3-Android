@@ -10,9 +10,10 @@ import info.blockchain.balance.AssetInfo
 
 data class EarnDashboardModelState(
     val isLoading: Boolean = true,
-    val hasAccessToFeature: Boolean = false,
     val error: EarnDashboardError = EarnDashboardError.None,
-    val earnData: CombinedEarnData? = null
+    val earnData: CombinedEarnData? = null,
+    val queryBy: String = "",
+    val filterBy: EarnDashboardListFilter = EarnDashboardListFilter.All
 ) : ModelState
 
 data class CombinedEarnData(

@@ -16,7 +16,7 @@
         android:padding="@dimen/very_small_spacing"
         android:background="@drawable/rounded_view_blue_border">
 
-        <piuk.blockchain.android.ui.customviews.RoundedCornersProgressView
+        <com.blockchain.presentation.customviews.RoundedCornersProgressView
             android:id="@+id/progress_steps"
             android:layout_width="48dp"
             android:layout_height="48dp"

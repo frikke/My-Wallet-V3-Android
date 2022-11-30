@@ -1,10 +1,10 @@
-package piuk.blockchain.android.ui.dashboard.sheets
+package com.blockchain.presentation.customviews.kyc
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import piuk.blockchain.android.databinding.ViewTransactionsLeftBinding
+import com.blockchain.common.databinding.ViewTransactionsLeftBinding
 
 class TransactionsLeftCard @JvmOverloads constructor(
     ctx: Context,

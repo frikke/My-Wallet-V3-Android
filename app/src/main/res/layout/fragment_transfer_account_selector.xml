@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <piuk.blockchain.android.ui.customviews.EmptyStateView
+    <com.blockchain.presentation.customviews.EmptyStateView
         android:id="@+id/account_selector_empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

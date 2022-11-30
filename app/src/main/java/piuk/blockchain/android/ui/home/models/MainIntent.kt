@@ -9,6 +9,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.Currency
 
 sealed class MainIntent : MviIntent<MainState> {
     data class PerformInitialChecks(val deeplinkIntent: Intent) : MainIntent() {
@@ -149,6 +150,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class SelectRewardsAccountForAsset(val cryptoTicker: String) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectStakingAccountForAction(val currency: Currency, val assetAction: AssetAction) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

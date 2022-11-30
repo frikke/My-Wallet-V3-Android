@@ -63,7 +63,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <piuk.blockchain.android.ui.dashboard.sheets.TransactionsLeftCard
+    <com.blockchain.presentation.customviews.kyc.TransactionsLeftCard
         android:id="@+id/card_transactions_left"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

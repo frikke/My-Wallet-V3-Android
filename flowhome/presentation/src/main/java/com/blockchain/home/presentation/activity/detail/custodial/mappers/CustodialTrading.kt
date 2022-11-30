@@ -193,7 +193,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 ),
                 trailing = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.StringValue(txId.abbreviate(TX_ID_MAX_LENGTH)),
+                        value = TextValue.StringValue(txId.abbreviate(MAX_ABBREVIATE_LENGTH)),
                         style = basicTitleStyle
                     )
                 )

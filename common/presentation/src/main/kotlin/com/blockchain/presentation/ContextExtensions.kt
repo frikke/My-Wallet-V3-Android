@@ -1,11 +1,10 @@
-package piuk.blockchain.android.util
+package com.blockchain.presentation
 
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
@@ -17,18 +16,11 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import com.blockchain.common.R
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
-import piuk.blockchain.android.R
-
-fun Context.loadInterMedium(): Typeface =
-    ResourcesCompat.getFont(this, R.font.inter_medium)!!
-
-fun Context.loadInterSemibold(): Typeface =
-    ResourcesCompat.getFont(this, R.font.inter_semibold)!!
 
 fun Context.getResolvedColor(@ColorRes color: Int): Int = ContextCompat.getColor(this, color)
 

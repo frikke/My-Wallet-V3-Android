@@ -31,7 +31,9 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -46,7 +48,6 @@ import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -61,7 +62,6 @@ import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
 import piuk.blockchain.android.urllinks.ETH_STAKING_CONSIDERATIONS
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
-import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
 import timber.log.Timber

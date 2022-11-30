@@ -10,6 +10,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
@@ -31,6 +32,7 @@ import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -247,6 +249,12 @@ class MainInteractor internal constructor(
                     LaunchFlowForAccount.SourceAccount(interestAccount)
                 }
         } ?: Single.just(LaunchFlowForAccount.NoAccount)
+
+    fun selectStakingAccountForCurrency(currency: Currency): Single<BlockchainAccount> =
+        coincore[currency].accountGroup(AssetFilter.Staking).toSingle()
+            .map {
+                it.accounts.first() as CustodialStakingAccount
+            }
 
     fun getEnabledWalletMode(): Observable<WalletMode> =
         walletModeService.walletMode.asObservable()

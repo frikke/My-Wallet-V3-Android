@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.customviews
+package com.blockchain.presentation.customviews
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,11 +6,10 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.blockchain.common.R
+import com.blockchain.common.databinding.ViewEmptyStateBinding
 import com.blockchain.componentlib.viewextensions.visibleIf
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ViewEmptyStateBinding
-import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.util.getResolvedDrawable
+import com.blockchain.presentation.getResolvedDrawable
 
 class EmptyStateView @JvmOverloads constructor(
     context: Context,
@@ -26,7 +25,8 @@ class EmptyStateView @JvmOverloads constructor(
         @DrawableRes icon: Int = R.drawable.ic_wallet_intro_image,
         @StringRes ctaText: Int = R.string.common_empty_cta,
         contactSupportEnabled: Boolean = false,
-        action: () -> Unit
+        action: () -> Unit,
+        onContactSupport: () -> Unit = {}
     ) {
         with(binding) {
             viewEmptyTitle.text = context.getString(title)
@@ -40,7 +40,7 @@ class EmptyStateView @JvmOverloads constructor(
                 contactSupportEnabled
             }
             viewEmptySupportCta.setOnClickListener {
-                context.startActivity(SupportCentreActivity.newIntent(context))
+                onContactSupport()
             }
         }
     }

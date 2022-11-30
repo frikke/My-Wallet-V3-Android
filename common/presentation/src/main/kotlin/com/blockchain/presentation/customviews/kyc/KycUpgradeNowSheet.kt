@@ -1,9 +1,11 @@
-package piuk.blockchain.android.ui.dashboard.sheets
+package com.blockchain.presentation.customviews.kyc
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.common.R
+import com.blockchain.common.databinding.DialogSheetKycUpgradeNowBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
@@ -23,8 +25,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.DialogSheetKycUpgradeNowBinding
 
 class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
 
@@ -102,40 +102,56 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         val viewPagerAdapter = KycCtaViewPagerAdapter(
             basicClicked = {
                 ctaClicked = true
-                logAnalytics(AnalyticsType.GetBasicClicked)
+                logAnalytics(
+                    AnalyticsType.GetBasicClicked
+                )
                 startKycClicked()
             },
             verifyClicked = {
                 ctaClicked = true
-                logAnalytics(AnalyticsType.GetVerifiedClicked)
+                logAnalytics(
+                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.AnalyticsType.GetVerifiedClicked
+                )
                 startKycClicked()
             }
         ).apply {
-            val initialItems = ViewPagerTab.values().toList().toItems(isBasicApproved = false)
+            val initialItems =
+                com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().toList()
+                    .toItems(isBasicApproved = false)
             submitList(initialItems)
         }
 
         viewPager.adapter = viewPagerAdapter
         tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (ViewPagerTab.values()[position]) {
-                ViewPagerTab.BASIC -> getString(R.string.kyc_upgrade_now_tab_basic)
-                ViewPagerTab.VERIFIED -> getString(R.string.kyc_upgrade_now_tab_verified)
-            }
+            tab.text =
+                when (com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values()[position]) {
+                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.BASIC -> getString(
+                        R.string.kyc_upgrade_now_tab_basic
+                    )
+                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.VERIFIED -> getString(
+                        R.string.kyc_upgrade_now_tab_verified
+                    )
+                }
         }
         tabLayoutMediator.attach()
-        viewPager.setCurrentItem(ViewPagerTab.values().indexOf(initialTab), false)
+        viewPager.setCurrentItem(
+            com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().indexOf(initialTab),
+            false
+        )
 
         disposables +=
             getHighestTierAndIsSdd.subscribeBy(
                 onSuccess = { (highestTier, _) ->
                     val isAtleastSilver = highestTier != KycTier.BRONZE
-                    val items = ViewPagerTab.values().toList().toItems(isBasicApproved = isAtleastSilver)
+                    val items =
+                        com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().toList()
+                            .toItems(isBasicApproved = isAtleastSilver)
                     viewPagerAdapter.submitList(items)
                 },
                 onError = {}
             )
 
-        logAnalytics(AnalyticsType.Viewed)
+        logAnalytics(com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.AnalyticsType.Viewed)
     }
 
     private fun startKycClicked() {

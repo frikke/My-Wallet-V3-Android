@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.detail.custodial
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -82,6 +83,9 @@ class CustodialActivityDetailViewModel(
                                     is CustodialTradingActivitySummaryItem -> {
                                         tradingDetail()
                                     }
+                                    is CustodialTransferActivitySummaryItem -> {
+                                        transferDetail()
+                                    }
                                     is FiatActivitySummaryItem -> {
                                         fiatDetail()
                                     }
@@ -138,6 +142,10 @@ class CustodialActivityDetailViewModel(
         }.mapData { paymentDetails ->
             buildActivityDetail(paymentDetails)
         }
+    }
+
+    private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
