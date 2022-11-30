@@ -876,7 +876,7 @@ class DashboardActionInteractor(
 
     private fun getReferralData(): Single<ReferralInfo> =
         rxSingle(Schedulers.io().asCoroutineDispatcher()) {
-            referralService.fetchReferralData()
+            referralService.fetchReferralDataLegacy()
                 .getOrDefault(ReferralInfo.NotAvailable)
         }.onErrorResumeWith { ReferralInfo.NotAvailable }
 

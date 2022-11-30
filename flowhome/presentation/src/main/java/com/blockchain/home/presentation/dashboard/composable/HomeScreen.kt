@@ -52,6 +52,10 @@ fun HomeScreen(
         }
 
         item {
+            Referral()
+        }
+
+        item {
             HelpAndSupport()
         }
 

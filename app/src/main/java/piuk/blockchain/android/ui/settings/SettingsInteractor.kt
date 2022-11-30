@@ -54,7 +54,7 @@ class SettingsInteractor internal constructor(
 
     private fun getReferralData(): Single<ReferralInfo> {
         return rxSingle {
-            referralService.fetchReferralData()
+            referralService.fetchReferralDataLegacy()
                 .getOrDefault(ReferralInfo.NotAvailable)
         }
             .onErrorResumeWith { ReferralInfo.NotAvailable }

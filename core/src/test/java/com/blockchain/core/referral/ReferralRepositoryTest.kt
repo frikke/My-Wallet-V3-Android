@@ -66,7 +66,7 @@ class ReferralRepositoryTest {
             promotionInfo = null
         )
 
-        val result = referralRepository.fetchReferralData()
+        val result = referralRepository.fetchReferralDataLegacy()
 
         assertEquals(Outcome.Success(expectedData), result)
     }
@@ -76,7 +76,7 @@ class ReferralRepositoryTest {
         whenever(referralApiService.getReferralCode(FIAT))
             .doReturn(Outcome.Success(null))
 
-        val result = referralRepository.fetchReferralData()
+        val result = referralRepository.fetchReferralDataLegacy()
 
         assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
     }
@@ -90,7 +90,7 @@ class ReferralRepositoryTest {
         whenever(referralApiService.getReferralCode(FIAT))
             .doReturn(Outcome.Failure(apiError))
 
-        val result = referralRepository.fetchReferralData()
+        val result = referralRepository.fetchReferralDataLegacy()
 
         assertEquals(Outcome.Failure(apiError), result)
     }

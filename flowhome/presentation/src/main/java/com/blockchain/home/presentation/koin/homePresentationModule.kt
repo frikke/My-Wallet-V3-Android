@@ -6,6 +6,7 @@ import com.blockchain.home.presentation.activity.list.custodial.CustodialActivit
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
+import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -57,6 +58,12 @@ val homePresentationModule = module {
             QuickActionsViewModel(
                 walletModeService = get(superAppModeService),
                 userFeaturePermissionService = get(),
+            )
+        }
+
+        viewModel {
+            ReferralViewModel(
+                referralService = get()
             )
         }
     }

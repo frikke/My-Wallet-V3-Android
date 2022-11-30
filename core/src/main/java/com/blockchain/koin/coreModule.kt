@@ -74,6 +74,7 @@ import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.core.referral.ReferralRepository
+import com.blockchain.core.referral.dataresource.ReferralStore
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
@@ -114,9 +115,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.util.UUID
 
 val coreModule = module {
 
@@ -526,8 +527,14 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            ReferralStore(
+                referralApi = get()
+            )
+        }
         factory {
             ReferralRepository(
+                referralStore = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
             )
