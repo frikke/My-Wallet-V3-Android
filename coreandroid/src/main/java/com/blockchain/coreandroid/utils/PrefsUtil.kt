@@ -24,7 +24,6 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -81,8 +80,7 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs,
-    MultiAppAssetsFilterService {
+    BlockchainCardPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -756,10 +754,6 @@ class PrefsUtil(
     override var defaultCardId: String
         get() = getValue(DEFAULT_BLOCKCHAIN_CARD_ID, "")
         set(value) = setValue(DEFAULT_BLOCKCHAIN_CARD_ID, value)
-
-    override var shouldShowSmallBalances: Boolean
-        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, false)
-        set(value) = setValue(SHOULD_SHOW_SMALL_BALANCES, value)
 
     override var latestPricesMode: String?
         get() = getValue(PRICES_FILTER_MODE, "").takeIf { it.isNotEmpty() }

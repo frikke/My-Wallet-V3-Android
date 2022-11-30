@@ -17,7 +17,7 @@ interface UnifiedActivityService {
         txId: String
     ): Flow<DataResource<UnifiedActivityItem>>
 
-    suspend fun getActivityDetails(
+    fun getActivityDetails(
         txId: String,
         network: String,
         pubKey: String,

@@ -27,7 +27,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money

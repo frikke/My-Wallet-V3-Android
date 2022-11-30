@@ -88,24 +88,21 @@ class AccountInteractor internal constructor(
                 blockchainCardRepository.getProducts()
                     .mapError { it }
                     .map { products ->
-
-                        val usableProducts = products.filter { it.remainingCards > 0 }
-
                         if (cards.isNotEmpty()) {
                             val defaultCardId = blockchainCardRepository.getDefaultCard()
                             cards.find { it.id == defaultCardId }?.let { defaultCard ->
                                 BlockchainCardOrderState.Ordered(
-                                    cardProducts = usableProducts,
+                                    cardProducts = products,
                                     cards = cards,
                                     defaultCard = defaultCard
                                 )
                             } ?: BlockchainCardOrderState.Ordered(
-                                cardProducts = usableProducts,
+                                cardProducts = products,
                                 cards = cards
                             )
                         } else {
                             if (products.isNotEmpty())
-                                BlockchainCardOrderState.Eligible(usableProducts)
+                                BlockchainCardOrderState.Eligible(products)
                             else
                                 BlockchainCardOrderState.NotEligible
                         }

@@ -57,13 +57,6 @@ import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
-import com.blockchain.core.interest.data.datasources.InterestLimitsStore
-import com.blockchain.core.interest.data.datasources.InterestRateStore
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
@@ -199,51 +192,6 @@ val coreModule = module {
                 api = get(),
             )
         }.bind(FiatCurrenciesService::class)
-
-        scoped {
-            InterestBalancesStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestAvailableAssetsStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestEligibilityStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestLimitsStore(
-                interestApiService = get(),
-                currencyPrefs = get()
-            )
-        }
-
-        scoped {
-            InterestRateStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped<InterestService> {
-            InterestRepository(
-                assetCatalogue = get(),
-                interestBalancesStore = get(),
-                interestEligibilityStore = get(),
-                interestAvailableAssetsStore = get(),
-                interestLimitsStore = get(),
-                interestRateStore = get(),
-                paymentTransactionHistoryStore = get(),
-                currencyPrefs = get(),
-                interestApiService = get()
-            )
-        }
 
         scoped {
             SddEligibilityStore(

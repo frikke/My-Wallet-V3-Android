@@ -1,9 +1,9 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue

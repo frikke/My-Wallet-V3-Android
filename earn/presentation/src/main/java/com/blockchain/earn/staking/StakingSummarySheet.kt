@@ -39,7 +39,7 @@ import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.R
-import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import info.blockchain.balance.Currency

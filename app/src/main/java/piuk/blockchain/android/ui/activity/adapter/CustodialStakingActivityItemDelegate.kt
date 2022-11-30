@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo

@@ -1,7 +1,7 @@
 package com.blockchain.earn.staking.viewmodel
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
-import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 

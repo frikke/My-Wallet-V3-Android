@@ -8,17 +8,17 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.domain.eligibility.model.StakingEligibility
-import com.blockchain.earn.data.dataresources.StakingBalanceStore
-import com.blockchain.earn.data.dataresources.StakingEligibilityStore
-import com.blockchain.earn.data.dataresources.StakingLimitsStore
-import com.blockchain.earn.data.dataresources.StakingRatesStore
-import com.blockchain.earn.domain.models.EarnRewardsFrequency
-import com.blockchain.earn.domain.models.StakingAccountBalance
-import com.blockchain.earn.domain.models.StakingActivity
-import com.blockchain.earn.domain.models.StakingActivityAttributes
-import com.blockchain.earn.domain.models.StakingLimits
-import com.blockchain.earn.domain.models.StakingState
-import com.blockchain.earn.domain.models.StakingTransactionBeneficiary
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
+import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
+import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
+import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingActivity
+import com.blockchain.earn.domain.models.staking.StakingActivityAttributes
+import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.earn.domain.models.staking.StakingTransactionBeneficiary
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
@@ -72,6 +72,17 @@ class StakingRepository(
             it.rates[currency.networkTicker]?.rate ?: 0.0
         }
 
+    override fun getRatesForAllAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, Double>>> =
+        stakingRatesStore.stream(refreshStrategy).mapData { rates ->
+            rates.rates.mapNotNull { (ticker, rateDto) ->
+                (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo)?.let { asset ->
+                    asset to rateDto.rate
+                }
+            }.toMap()
+        }
+
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> =
         flow {
             if (stakingFeatureFlag.coEnabled()) {
@@ -101,11 +112,22 @@ class StakingRepository(
             )
         }
 
+    override fun getBalanceForAllAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, StakingAccountBalance>>> =
+        stakingBalanceStore.stream(refreshStrategy).mapData { mapAssetTickerWithBalance ->
+            mapAssetTickerWithBalance.mapNotNull { (assetTicker, balanceDto) ->
+                (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                    asset to balanceDto.toStakingBalance(asset)
+                }
+            }.toMap()
+        }
+
     override fun getEligibilityForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<StakingEligibility>> {
-        return stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
+    ): Flow<DataResource<StakingEligibility>> =
+        stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
             eligibilityMap[currency.networkTicker]?.let { eligibility ->
                 if (eligibility.isEligible) {
                     StakingEligibility.Eligible
@@ -114,7 +136,21 @@ class StakingRepository(
                 }
             } ?: StakingEligibility.Ineligible.default()
         }
-    }
+
+    override fun getEligibilityForAssets(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, StakingEligibility>>> =
+        stakingEligibilityStore.stream(refreshStrategy).mapData { eligibilityMap ->
+            eligibilityMap.mapNotNull { (assetTicker, eligibilityDto) ->
+                (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                    asset to if (eligibilityDto.isEligible) {
+                        StakingEligibility.Eligible
+                    } else {
+                        eligibilityDto.reason.toIneligibilityReason()
+                    }
+                }
+            }.toMap()
+        }
 
     override fun getStakingEligibility(
         refreshStrategy: FreshnessStrategy

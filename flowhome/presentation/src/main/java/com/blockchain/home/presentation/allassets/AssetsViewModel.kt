@@ -20,17 +20,19 @@ import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
+import com.blockchain.home.domain.AssetFilter
+import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.home.model.AssetFilter
-import com.blockchain.home.model.AssetFilterStatus
+import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import info.blockchain.balance.percentageDelta
 import java.math.BigInteger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -48,8 +50,9 @@ import kotlinx.coroutines.launch
 class AssetsViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
+    private val assetCatalogue: AssetCatalogue,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val filterService: MultiAppAssetsFilterService
+    private val filterService: FiltersService
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState()
 ) {
@@ -71,42 +74,7 @@ class AssetsViewModel(
                         .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
                         .filter { modelAccount ->
                             // create search term filter predicate
-                            val searchTermPredicate = if (state.filterTerm.isEmpty()) {
-                                true
-                            } else {
-                                with(modelAccount.singleAccount.currency) {
-                                    displayTicker.contains(state.filterTerm, ignoreCase = true) ||
-                                        name.contains(state.filterTerm, ignoreCase = true)
-                                }
-                            }
-                            // create predicate for all filters
-                            val filtersPredicate = filters.map { assetFilter ->
-                                when (assetFilter.filter) {
-                                    AssetFilter.ShowSmallBalances -> {
-                                        if (assetFilter.isEnabled) {
-                                            // auto pass check
-                                            true
-                                        } else {
-                                            // filter out small balances
-                                            fun Money.isHighBalance(): Boolean {
-                                                return this >= Money.fromMajor(
-                                                    currency,
-                                                    AssetFilter.ShowSmallBalances.MinimumBalance
-                                                )
-                                            }
-
-                                            (modelAccount.usdBalance.map { it.isHighBalance() } as? DataResource.Data)
-                                                ?.data.let { isHighBalance ->
-                                                    // if null (e.g. loading), or true -> pass
-                                                    isHighBalance != false
-                                                }
-                                        }
-                                    }
-                                }
-                            }.all { it /*if all filters are true*/ }
-
-                            // filter accounts matching the search and custom filters predicate
-                            searchTermPredicate && filtersPredicate
+                            modelAccount.shouldBeFiltered(state)
                         }
                         .toHomeCryptoAssets().take(state.sectionSize.size)
                 },
@@ -132,7 +100,7 @@ class AssetsViewModel(
         ).map {
             FiatAssetState(
                 balance = it.balance,
-                icon = it.singleAccount.currency.logo,
+                icon = listOf(it.singleAccount.currency.logo),
                 name = it.singleAccount.label
             )
         }
@@ -153,7 +121,12 @@ class AssetsViewModel(
 
         return grouped.values.map {
             CryptoAssetState(
-                icon = it.first().singleAccount.currency.logo,
+                icon = listOfNotNull(
+                    it.first().singleAccount.currency.logo,
+                    (it.first().singleAccount.currency as? AssetInfo)?.l1chainTicker?.let {
+                        assetCatalogue.fromNetworkTicker(it)?.logo
+                    }
+                ),
                 name = it.first().singleAccount.currency.name,
                 balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
@@ -181,18 +154,23 @@ class AssetsViewModel(
 
             is AssetsIntent.LoadFilters -> {
                 updateState {
-                    it.copy(filters = filterService.toFilterStatus())
+                    it.copy(
+                        filters = filterService.filters() + AssetFilter.SearchFilter()
+                    )
                 }
             }
 
             is AssetsIntent.FilterSearch -> {
                 updateState {
-                    it.copy(filterTerm = intent.term)
+                    it.copy(
+                        filters = it.filters.minus { it is AssetFilter.SearchFilter }
+                            .plus(AssetFilter.SearchFilter(intent.term))
+                    )
                 }
             }
 
             is AssetsIntent.UpdateFilters -> {
-                filterService.fromFilterStatus(intent.filters)
+                filterService.updateFilters(intent.filters)
                 updateState {
                     it.copy(filters = intent.filters)
                 }
@@ -307,10 +285,14 @@ class AssetsViewModel(
                         ?: balances.first { it is DataResource.Loading }
                 balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
-                        it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data ->
+                        it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data -> {
+
+                            val exchangeRate24hWithDelta = (it.exchangeRate24hWithDelta as DataResource.Data).data
+                            val balance = (it.balance as DataResource.Data).data
                             DataResource.Data(
-                                it.exchangeRate24hWithDelta.data.previousRate.convert(it.balance.data)
+                                exchangeRate24hWithDelta.previousRate.convert(balance)
                             )
+                        }
                         it.balance is DataResource.Error -> it.balance
                         it.exchangeRate24hWithDelta is DataResource.Error -> it.exchangeRate24hWithDelta
                         else -> DataResource.Loading
@@ -328,28 +310,30 @@ class AssetsViewModel(
     }
 
     private fun Iterable<ModelAccount>.totalAccounts(): Money {
-        return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
+        return map {
+            it.fiatBalance
+        }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
             .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
                 acc.plus(t)
             }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): DataResource<WalletBalance> {
-        return combineDataResources(
-            totalBalance(),
-            // the difference is calculated with crypto balance only
-            // as we don't support historic rates for fiat
-            filter { it.singleAccount is CryptoAccount }.totalBalance(),
-            totalCryptoBalance24hAgo()
-        ) { balanceNow, cryptoBalanceNow, cryptoBalance24hAgo ->
-            WalletBalance(
-                balance = balanceNow,
-                balanceDifference24h = cryptoBalanceNow.minus(cryptoBalance24hAgo).abs(),
-                percentChange = ValueChange.fromValue(cryptoBalanceNow.percentageDelta(cryptoBalance24hAgo))
-            )
-        }
+    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): WalletBalance {
+        val cryptoBalanceNow = filter { it.singleAccount is CryptoAccount }.totalBalance()
+        val cryptoBalance24hAgo = totalCryptoBalance24hAgo()
+
+        return WalletBalance(
+            balance = totalBalance(),
+            cryptoBalanceDifference24h = combineDataResources(cryptoBalanceNow, cryptoBalance24hAgo) { now, yesterday ->
+                now.minus(yesterday).abs()
+            }
+        )
     }
+}
+
+private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
+    return state.filters.all { it.shouldFilterOut(this) }
 }
 
 private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
@@ -415,26 +399,5 @@ private fun DataResource<List<ModelAccount>>.withPricing(
                 )
             )
         )
-    }
-}
-
-private fun MultiAppAssetsFilterService.toFilterStatus(): List<AssetFilterStatus> {
-    val allFilters = listOf<AssetFilter>(AssetFilter.ShowSmallBalances)
-
-    return allFilters.map { filter ->
-        AssetFilterStatus(
-            filter = filter,
-            isEnabled = when (filter) {
-                AssetFilter.ShowSmallBalances -> shouldShowSmallBalances
-            }
-        )
-    }
-}
-
-private fun MultiAppAssetsFilterService.fromFilterStatus(filters: List<AssetFilterStatus>) {
-    filters.forEach { assetFilter ->
-        when (assetFilter.filter) {
-            AssetFilter.ShowSmallBalances -> shouldShowSmallBalances = assetFilter.isEnabled
-        }
     }
 }

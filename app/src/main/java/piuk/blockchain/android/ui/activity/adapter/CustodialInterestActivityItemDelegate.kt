@@ -7,8 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.historic.HistoricRateFetcher
+import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo

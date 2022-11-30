@@ -13,12 +13,12 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
@@ -34,6 +34,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
@@ -335,18 +336,21 @@ class Coincore internal constructor(
 }
 
 internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
-    override suspend fun allNetworkWallets(): List<NetworkWallet> =
-        coincore.allWallets().map { it.accounts }.map { accounts ->
-            accounts.filterIsInstance<NetworkWallet>().filter {
-                (it.currency as? AssetInfo)?.let { assetInfo ->
-                    assetInfo.l1chainTicker == null
-                } ?: false
-            }
-        }.await()
+    override fun allNetworkWallets(): Flow<List<NetworkWallet>> =
+        flow {
+            val walletNetworks = coincore.allWallets().map { it.accounts }.map { accounts ->
+                accounts.filterIsInstance<NetworkWallet>().filter {
+                    (it.currency as? AssetInfo)?.let { assetInfo ->
+                        assetInfo.l1chainTicker == null
+                    } ?: false
+                }
+            }.await()
+            emit(walletNetworks)
+        }
 }
 
 internal class CoinNetworksRepository(private val dynamicAssetService: DynamicAssetsService) : CoinNetworksService {
-    override suspend fun allCoinNetworks(): Outcome<Exception, List<CoinNetwork>> {
+    override fun allCoinNetworks(): Flow<DataResource<List<CoinNetwork>>> {
         return dynamicAssetService.allNetworks()
     }
 }

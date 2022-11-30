@@ -8,8 +8,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.earn.domain.models.StakingAccountBalance
-import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
@@ -35,7 +35,7 @@ class StakingSummaryViewModel(
         viewModelScope.launch {
             coincore[args.cryptoTicker]?.let {
                 onIntent(StakingSummaryIntent.LoadData(it.currency))
-            } ?: onIntent(StakingSummaryIntent.StakingSummaryLoadError)
+            } ?: onIntent(StakingSummaryIntent.StakingSummaryLoadError(args.cryptoTicker))
         }
     }
 
@@ -61,9 +61,9 @@ class StakingSummaryViewModel(
     override suspend fun handleIntent(modelState: StakingSummaryModelState, intent: StakingSummaryIntent) {
         when (intent) {
             is StakingSummaryIntent.LoadData -> loadStakingDetails(intent.currency)
-            StakingSummaryIntent.StakingSummaryLoadError -> updateState {
+            is StakingSummaryIntent.StakingSummaryLoadError -> updateState {
                 it.copy(
-                    errorState = StakingError.UnknownAsset
+                    errorState = StakingError.UnknownAsset(intent.assetTicker)
                 )
             }
         }

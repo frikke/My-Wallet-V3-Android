@@ -13,8 +13,8 @@ import com.blockchain.coincore.fiat.FiatAccountGroup
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.impl.CryptoAccountCustodialSingleGroup
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
-import com.blockchain.coincore.impl.CryptoAccountTradingGroup
 import com.blockchain.coincore.impl.CryptoExchangeAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import info.blockchain.balance.Currency
@@ -64,7 +64,7 @@ class AccountIcon(
             is AllWalletsAccount -> R.drawable.ic_all_wallets_white
             is AllCustodialWalletsAccount -> R.drawable.ic_portfolio
             is AllNonCustodialWalletsAccount -> R.drawable.ic_defi_wallet
-            is CryptoAccountTradingGroup -> null
+            is CryptoAccountCustodialSingleGroup -> null
             is CryptoAccountNonCustodialGroup -> null
             is FiatAccountGroup -> null
             else -> throw IllegalArgumentException("$account is not a valid group")
@@ -78,7 +78,7 @@ class AccountIcon(
                 is AllNonCustodialWalletsAccount,
                 is AllCustodialWalletsAccount -> null
                 is FiatAccount,
-                is CryptoAccountTradingGroup -> account.accounts[0].currency
+                is CryptoAccountCustodialSingleGroup -> account.accounts[0].currency
                 is CryptoAccountNonCustodialGroup -> account.asset
                 else -> throw IllegalArgumentException("$account is not a valid group")
             }

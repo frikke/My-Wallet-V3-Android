@@ -18,13 +18,13 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.presentation.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityReceiveDetailsBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveMemoView
 import piuk.blockchain.android.util.copyToClipboardWithConfirmationDialog

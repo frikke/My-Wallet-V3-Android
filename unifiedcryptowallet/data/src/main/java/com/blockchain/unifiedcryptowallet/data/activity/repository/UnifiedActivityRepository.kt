@@ -73,7 +73,7 @@ class UnifiedActivityRepository(
             .onStart { emit(DataResource.Loading) }
     }
 
-    override suspend fun getActivityDetails(
+    override fun getActivityDetails(
         txId: String,
         network: String,
         pubKey: String,

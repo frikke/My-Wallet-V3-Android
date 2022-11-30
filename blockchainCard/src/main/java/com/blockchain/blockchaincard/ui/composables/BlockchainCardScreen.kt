@@ -281,7 +281,9 @@ fun BlockchainCardNavHost(
                             CardSelector(
                                 cards = cardList,
                                 defaultCardId = state.defaultCardId,
-                                hasProductsAvailableToOrder = state.cardProductList?.isNotEmpty() ?: false,
+                                hasProductsAvailableToOrder = state.cardProductList?.any { product ->
+                                    product.remainingCards > 0
+                                } ?: false,
                                 onOrderCard = {
                                     viewModel.onIntent(BlockchainCardIntent.OrderCard)
                                 },
