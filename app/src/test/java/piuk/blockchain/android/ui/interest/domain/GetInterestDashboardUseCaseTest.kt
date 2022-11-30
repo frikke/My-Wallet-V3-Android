@@ -45,13 +45,13 @@ class GetInterestDashboardUseCaseTest {
         totalInterest = Money.fromMajor(BTC, 200.toBigDecimal()),
         totalBalance = Money.fromMajor(BTC, 200.toBigDecimal()),
         pendingInterest = mockk(), pendingDeposit = mockk(), lockedBalance = mockk(),
-        hasTransactions = mockk(relaxed = true)
+        hasTransactions = mockk(relaxed = true), dashboardDisplay = Money.fromMajor(BTC, 200.toBigDecimal()),
     )
     private val interestAccountBalanceEth = InterestAccountBalance(
         totalInterest = Money.fromMajor(ETHER, 300.toBigDecimal()),
         totalBalance = Money.fromMajor(ETHER, 300.toBigDecimal()),
         pendingInterest = mockk(), pendingDeposit = mockk(), lockedBalance = mockk(),
-        hasTransactions = mockk(relaxed = true)
+        hasTransactions = mockk(relaxed = true), dashboardDisplay = Money.fromMajor(ETHER, 300.toBigDecimal()),
     )
 
     private val exchangeRateBtc = ExchangeRate(1.toBigDecimal(), BTC, USD)

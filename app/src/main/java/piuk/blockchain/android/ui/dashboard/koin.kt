@@ -6,6 +6,8 @@ import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
+import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.swapSourceOrder
@@ -80,6 +82,8 @@ val dashboardModule = module {
                 cowboysPrefs = get(),
                 productsEligibilityStore = get(),
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
+                totalDisplayBalanceFF = get(paymentUxTotalDisplayBalanceFeatureFlag),
+                assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
                 shouldAssetShowUseCase = get()
             )
         }
@@ -87,6 +91,7 @@ val dashboardModule = module {
         factory {
             ShouldAssetShowUseCase(
                 hideDustFeatureFlag = get(hideDustFeatureFlag),
+                assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
                 localSettingsPrefs = get(),
                 watchlistService = get()
             )

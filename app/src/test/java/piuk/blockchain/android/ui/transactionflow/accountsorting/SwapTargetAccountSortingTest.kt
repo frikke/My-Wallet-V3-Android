@@ -521,6 +521,7 @@ class SwapTargetAccountSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(mock, BigInteger.valueOf(balance)),
+                            dashboardDisplay = Money.fromMinor(mock, BigInteger.valueOf(balance)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true

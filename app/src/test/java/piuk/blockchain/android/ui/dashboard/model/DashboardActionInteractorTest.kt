@@ -78,6 +78,8 @@ class DashboardActionInteractorTest {
     private val referralService: ReferralService = mock()
     private val cowboysPrefs: CowboysPrefs = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val totalDisplayBalanceFF: FeatureFlag = mock()
+    private val assetDisplayBalanceFF: FeatureFlag = mock()
     private val shouldAssetShowUseCase: ShouldAssetShowUseCase = mock()
 
     @get:Rule
@@ -119,7 +121,9 @@ class DashboardActionInteractorTest {
             referralService = referralService,
             cowboysPrefs = cowboysPrefs,
             stakingFeatureFlag = stakingFF,
-            shouldAssetShowUseCase = shouldAssetShowUseCase
+            shouldAssetShowUseCase = shouldAssetShowUseCase,
+            totalDisplayBalanceFF = totalDisplayBalanceFF,
+            assetDisplayBalanceFF = assetDisplayBalanceFF,
         )
 
         whenever(shouldAssetShowUseCase.invoke(any())).thenReturn(flowOf(true))

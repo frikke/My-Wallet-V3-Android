@@ -123,29 +123,40 @@ class DashboardActionInteractor(
     private val referralService: ReferralService,
     private val cowboysPrefs: CowboysPrefs,
     private val stakingFeatureFlag: FeatureFlag,
-    private val shouldAssetShowUseCase: ShouldAssetShowUseCase
+    private val totalDisplayBalanceFF: FeatureFlag,
+    private val assetDisplayBalanceFF: FeatureFlag,
+    private val shouldAssetShowUseCase: ShouldAssetShowUseCase,
 ) {
     private val activeAssetsDisposable = CompositeDisposable()
     private val balancesDisposable = CompositeDisposable()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.onEach {
-            balancesDisposable.clear()
-            model.process(DashboardIntent.ClearAnnouncement)
-        }.flatMapLatest { wMode ->
-            coincore.activeAssets(wMode).map {
-                it to wMode
-            }.distinctUntilChangedBy { (assets, _) ->
-                assets.map { it.currency.networkTicker }
+        Singles.zip(totalDisplayBalanceFF.enabled, assetDisplayBalanceFF.enabled)
+            .flatMapObservable { (totalDisplayBalanceFFEnabled, assetDisplayBalanceFFEnabled) ->
+                walletModeService.walletMode.onEach {
+                    balancesDisposable.clear()
+                    model.process(DashboardIntent.ClearAnnouncement)
+                }.flatMapLatest { wMode ->
+                    coincore.activeAssets(wMode).map {
+                        it to wMode
+                    }.distinctUntilChangedBy { (assets, _) ->
+                        assets.map { it.currency.networkTicker }
+                    }
+                }.map { assetsPair ->
+                    val ffPair = totalDisplayBalanceFFEnabled to assetDisplayBalanceFFEnabled
+                    Pair(assetsPair, ffPair)
+                }.asObservable()
             }
-        }
-            .asObservable()
             .subscribeBy(
-                onNext = { (activeAssets, mode) ->
+                onNext = { (assetsPair, ffPair) ->
+                    val (activeAssets, mode) = assetsPair
+                    val (totalDisplayBalanceFFEnabled, assetDisplayBalanceFFEnabled) = ffPair
                     model.process(
                         DashboardIntent.UpdateActiveAssets(
                             assetList = activeAssets,
-                            walletMode = mode
+                            walletMode = mode,
+                            totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
+                            assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
                         )
                     )
                 },
@@ -160,29 +171,49 @@ class DashboardActionInteractor(
                 activeAssetsDisposable.add(it)
             }
 
-    fun fetchAccounts(assets: List<Asset>, model: DashboardModel, walletMode: WalletMode) {
+    fun fetchAccounts(
+        assets: List<Asset>,
+        model: DashboardModel,
+        walletMode: WalletMode,
+        totalDisplayBalanceFFEnabled: Boolean,
+        assetDisplayBalanceFFEnabled: Boolean,
+    ) {
         return model.process(
             DashboardIntent.UpdateAllAssetsAndBalances(
                 assetList = assets.map { asset ->
-                    asset.toDashboardAsset(walletMode)
+                    asset.toDashboardAsset(
+                        walletMode,
+                        totalDisplayBalanceFFEnabled,
+                        assetDisplayBalanceFFEnabled,
+                    )
                 },
                 walletMode = walletMode
             )
         )
     }
 
-    private fun Asset.toDashboardAsset(walletMode: WalletMode): DashboardAsset {
+    private fun Asset.toDashboardAsset(
+        walletMode: WalletMode,
+        totalDisplayBalanceFFEnabled: Boolean,
+        assetDisplayBalanceFFEnabled: Boolean,
+    ): DashboardAsset {
         return when (this) {
             is CryptoAsset -> when (walletMode) {
                 WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(this.currency)
+                WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(
+                    this.currency,
+                    totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
+                    assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
+                )
                 WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(this.currency)
             }
             is FiatAsset -> when (walletMode) {
                 WalletMode.UNIVERSAL,
                 WalletMode.CUSTODIAL_ONLY -> BrokerageFiatAsset(
                     currency = this.currency,
-                    fiatAccount = this.custodialAccount
+                    fiatAccount = this.custodialAccount,
+                    totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
+                    assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
                 )
                 WalletMode.NON_CUSTODIAL_ONLY -> throw IllegalStateException(
                     "fiats are not supported in Non custodial mode"

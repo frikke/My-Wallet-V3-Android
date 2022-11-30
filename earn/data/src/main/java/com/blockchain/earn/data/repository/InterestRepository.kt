@@ -318,6 +318,7 @@ private fun InterestAccountBalanceDto.toInterestBalance(asset: AssetInfo) =
         pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit.toBigInteger()),
         totalInterest = CryptoValue.fromMinor(asset, totalInterest.toBigInteger()),
         lockedBalance = CryptoValue.fromMinor(asset, lockedBalance.toBigInteger()),
+        dashboardDisplay = CryptoValue.fromMinor(asset, mainBalanceToDisplay.toBigInteger()),
         hasTransactions = true
     )
 
@@ -327,7 +328,8 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         pendingInterest = Money.zero(asset),
         pendingDeposit = Money.zero(asset),
         totalInterest = Money.zero(asset),
-        lockedBalance = Money.zero(asset)
+        lockedBalance = Money.zero(asset),
+        dashboardDisplay = Money.zero(asset),
     )
 
 private fun TransactionResponse.toInterestActivity(asset: AssetInfo): InterestActivity =

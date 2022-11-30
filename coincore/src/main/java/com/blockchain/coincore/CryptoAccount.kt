@@ -19,6 +19,7 @@ data class AccountBalance internal constructor(
     val total: Money,
     val withdrawable: Money,
     val pending: Money,
+    val dashboardDisplay: Money,
     val exchangeRate: ExchangeRate,
 ) {
     val totalFiat: Money by lazy {
@@ -45,6 +46,7 @@ data class AccountBalance internal constructor(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }
@@ -57,6 +59,7 @@ data class AccountBalance internal constructor(
                 total = first.total + second.total,
                 withdrawable = first.withdrawable + second.withdrawable,
                 pending = first.pending + second.pending,
+                dashboardDisplay = first.dashboardDisplay + second.dashboardDisplay,
                 exchangeRate = second.exchangeRate
             )
         }
@@ -66,6 +69,7 @@ data class AccountBalance internal constructor(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
                 pending = balance.pendingDeposit,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }
@@ -75,6 +79,7 @@ data class AccountBalance internal constructor(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
 
@@ -83,6 +88,7 @@ data class AccountBalance internal constructor(
                 total = Money.zero(assetInfo),
                 withdrawable = Money.zero(assetInfo),
                 pending = Money.zero(assetInfo),
+                dashboardDisplay = Money.zero(assetInfo),
                 exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
             )
     }
@@ -93,6 +99,7 @@ fun List<AccountBalance>.total(currency: Currency): AccountBalance = fold(Accoun
         total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
         withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
         pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+        dashboardDisplay = a.exchangeRate.convert(a.dashboardDisplay) + v.exchangeRate.convert(v.dashboardDisplay),
         exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
     )
 }
@@ -263,6 +270,8 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
                                 v.withdrawable
                             ),
                             pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                            dashboardDisplay = a.exchangeRate.convert(a.dashboardDisplay) +
+                                v.exchangeRate.convert(v.dashboardDisplay),
                             exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
                         )
                     }

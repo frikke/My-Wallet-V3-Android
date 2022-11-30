@@ -59,6 +59,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     class UpdateActiveAssets(
         val assetList: List<Asset>,
         val walletMode: WalletMode,
+        val totalDisplayBalanceFFEnabled: Boolean,
+        val assetDisplayBalanceFFEnabled: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState

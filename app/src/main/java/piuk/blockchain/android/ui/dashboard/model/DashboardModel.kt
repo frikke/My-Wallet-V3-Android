@@ -50,7 +50,9 @@ class DashboardModel(
                 interactor.fetchAccounts(
                     intent.assetList,
                     this,
-                    intent.walletMode
+                    intent.walletMode,
+                    intent.totalDisplayBalanceFFEnabled,
+                    intent.assetDisplayBalanceFFEnabled,
                 )
                 null
             }

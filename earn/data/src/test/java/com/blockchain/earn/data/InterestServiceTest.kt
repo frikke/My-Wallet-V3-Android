@@ -72,7 +72,8 @@ class InterestServiceTest {
         pendingDeposit = "3",
         totalInterest = "4",
         pendingWithdrawal = "5",
-        lockedBalance = "6"
+        lockedBalance = "6",
+        mainBalanceToDisplay = "7",
     )
 
     private val interestAccountBalance = InterestAccountBalance(
@@ -81,6 +82,7 @@ class InterestServiceTest {
         pendingDeposit = CryptoValue.fromMinor(cryptoCurrency, 3.toBigInteger()),
         totalInterest = CryptoValue.fromMinor(cryptoCurrency, 4.toBigInteger()),
         lockedBalance = CryptoValue.fromMinor(cryptoCurrency, 6.toBigInteger()),
+        dashboardDisplay = CryptoValue.fromMinor(cryptoCurrency, 7.toBigInteger()),
         hasTransactions = true
     )
 

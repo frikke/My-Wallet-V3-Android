@@ -502,6 +502,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

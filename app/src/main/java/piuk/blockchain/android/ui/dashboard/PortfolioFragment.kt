@@ -270,7 +270,9 @@ class PortfolioFragment :
         )
 
         val cryptoAssets = newState.displayableAssets.filterNot { it is BrokerageFiatAsset }.sortedWith(
-            compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
+            compareByDescending<DashboardAsset> {
+                it.fiatBalance(useDisplayBalance = it.assetDisplayBalanceFFEnabled)?.toBigInteger()
+            }
                 .thenByDescending {
                     it.currency.index
                 }
