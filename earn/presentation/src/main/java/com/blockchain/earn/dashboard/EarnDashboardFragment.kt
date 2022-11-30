@@ -19,6 +19,7 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardIntent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
+import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -84,7 +85,42 @@ class EarnDashboardFragment :
             is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> {
                 openStakingSummarySheet(navigationEvent.assetTicker)
             }
+            // TODO(dserrano) - STAKING - ask for copy for KYC and OTHER
+            is EarnDashboardNavigationEvent.OpenBlockedForKycSheet -> showBlockedAccessSheet(
+                getString(R.string.earn_access_blocked_other_title),
+                getString(
+                    R.string.earn_access_blocked_other_paragraph,
+                    when (navigationEvent.earnType) {
+                        EarnType.Rewards -> getString(R.string.earn_rewards_label_passive)
+                        EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
+                    }
+                )
+            )
+            is EarnDashboardNavigationEvent.OpenBlockedForOtherSheet -> showBlockedAccessSheet(
+                getString(R.string.earn_access_blocked_other_title),
+                getString(
+                    R.string.earn_access_blocked_other_paragraph,
+                    when (navigationEvent.earnType) {
+                        EarnType.Rewards -> getString(R.string.earn_rewards_label_passive)
+                        EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
+                    }
+                )
+            )
+            is EarnDashboardNavigationEvent.OpenBlockedForRegionSheet -> showBlockedAccessSheet(
+                title = getString(R.string.earn_access_blocked_region_title),
+                paragraph = getString(
+                    R.string.earn_access_blocked_region_paragraph,
+                    when (navigationEvent.earnType) {
+                        EarnType.Rewards -> getString(R.string.earn_rewards_label_passive)
+                        EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
+                    }
+                )
+            )
         }
+
+    private fun showBlockedAccessSheet(title: String, paragraph: String) {
+        showBottomSheet(EarnAccessBlockedBottomSheet.newInstance(title, paragraph))
+    }
 
     private fun openInterestSummarySheet(account: CryptoAccount) {
         showBottomSheet(InterestSummarySheet.newInstance(account))

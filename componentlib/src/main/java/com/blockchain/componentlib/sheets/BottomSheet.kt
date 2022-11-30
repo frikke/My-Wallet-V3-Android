@@ -307,3 +307,26 @@ fun TopAndBottomButtonsSheet() {
         }
     }
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PrimaryAndMinimalButtonSheet() {
+    AppTheme {
+        AppSurface {
+            BottomSheetTwoButtons(
+                onCloseClick = {},
+                title = "NoButtonBottomSheet",
+                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
+                subtitle = "NoButtonBottomSheetSubtitle",
+                button1 = BottomSheetButton(
+                    type = ButtonType.MINIMAL,
+                    onClick = {}, text = "Learn More"
+                ),
+                button2 = BottomSheetButton(
+                    type = ButtonType.PRIMARY,
+                    onClick = {}, text = "Ok"
+                )
+            )
+        }
+    }
+}

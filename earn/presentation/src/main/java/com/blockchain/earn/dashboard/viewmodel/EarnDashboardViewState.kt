@@ -5,8 +5,10 @@ import info.blockchain.balance.Money
 
 data class EarnDashboardViewState(
     val dashboardState: DashboardState,
-    val queryBy: String,
-    val filterBy: EarnDashboardListFilter
+    val earningTabQueryBy: String,
+    val earningTabFilterBy: EarnDashboardListFilter,
+    val discoverTabQueryBy: String,
+    val discoverTabFilterBy: EarnDashboardListFilter
 ) : ViewState
 
 sealed class EarnDashboardError {

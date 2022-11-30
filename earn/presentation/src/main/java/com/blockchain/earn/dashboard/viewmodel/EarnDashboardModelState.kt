@@ -12,8 +12,10 @@ data class EarnDashboardModelState(
     val isLoading: Boolean = true,
     val error: EarnDashboardError = EarnDashboardError.None,
     val earnData: CombinedEarnData? = null,
-    val queryBy: String = "",
-    val filterBy: EarnDashboardListFilter = EarnDashboardListFilter.All
+    val earningTabQueryBy: String = "",
+    val earningTabFilterBy: EarnDashboardListFilter = EarnDashboardListFilter.All,
+    val discoverTabQueryBy: String = "",
+    val discoverTabFilterBy: EarnDashboardListFilter = EarnDashboardListFilter.All
 ) : ModelState
 
 data class CombinedEarnData(

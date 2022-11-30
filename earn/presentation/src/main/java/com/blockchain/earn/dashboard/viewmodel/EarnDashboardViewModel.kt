@@ -51,9 +51,19 @@ class EarnDashboardViewModel(
 
     override fun reduce(state: EarnDashboardModelState): EarnDashboardViewState = state.run {
         EarnDashboardViewState(
-            dashboardState = reduceDashboardState(isLoading, error, earnData, filterBy, queryBy),
-            filterBy = filterBy,
-            queryBy = queryBy
+            dashboardState = reduceDashboardState(
+                isLoading = isLoading,
+                error = error,
+                earnData = earnData,
+                earningTabFilterBy = earningTabFilterBy,
+                earningTabQueryBy = earningTabQueryBy,
+                discoverTabFilterBy = discoverTabFilterBy,
+                discoverTabQueryBy = discoverTabQueryBy
+            ),
+            earningTabFilterBy = earningTabFilterBy,
+            earningTabQueryBy = earningTabQueryBy,
+            discoverTabFilterBy = discoverTabFilterBy,
+            discoverTabQueryBy = discoverTabQueryBy
         )
     }
 
@@ -61,29 +71,66 @@ class EarnDashboardViewModel(
         when (intent) {
             is EarnDashboardIntent.LoadEarn -> loadEarn()
             is EarnDashboardIntent.LoadSilently -> collectEarnData(false)
-            is EarnDashboardIntent.UpdateListFilter -> updateState {
+            is EarnDashboardIntent.UpdateEarningTabListFilter -> updateState {
                 it.copy(
-                    filterBy = intent.filter
+                    earningTabFilterBy = intent.filter
                 )
             }
-            is EarnDashboardIntent.UpdateSearchQuery -> updateState {
+            is EarnDashboardIntent.UpdateEarningTabSearchQuery -> updateState {
                 it.copy(
-                    queryBy = intent.searchTerm
+                    earningTabQueryBy = intent.searchTerm
                 )
             }
-            is EarnDashboardIntent.ItemSelected ->
-                when (intent.earnAsset.type) {
-                    EarnType.Rewards -> {
-                        getAccountForInterest(intent)
-                    }
-                    EarnType.Staking -> navigate(
-                        EarnDashboardNavigationEvent.OpenStakingSummarySheet(intent.earnAsset.assetTicker)
+            is EarnDashboardIntent.UpdateDiscoverTabListFilter -> updateState {
+                it.copy(
+                    discoverTabFilterBy = intent.filter
+                )
+            }
+            is EarnDashboardIntent.UpdateDiscoverTabSearchQuery -> updateState {
+                it.copy(
+                    discoverTabQueryBy = intent.searchTerm
+                )
+            }
+            is EarnDashboardIntent.DiscoverItemSelected -> {
+                when (val eligibility = intent.earnAsset.eligibility) {
+                    EarnEligibility.Eligible -> showSummaryForEarnType(
+                        earnType = intent.earnAsset.type,
+                        assetTicker = intent.earnAsset.assetTicker
                     )
+                    is EarnEligibility.NotEligible -> {
+                        when (eligibility.reason) {
+                            EarnIneligibleReason.REGION -> navigate(
+                                EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type)
+                            )
+                            EarnIneligibleReason.KYC_TIER -> navigate(
+                                EarnDashboardNavigationEvent.OpenBlockedForKycSheet(intent.earnAsset.type)
+                            )
+                            EarnIneligibleReason.OTHER -> navigate(
+                                EarnDashboardNavigationEvent.OpenBlockedForOtherSheet(intent.earnAsset.type)
+                            )
+                        }
+                    }
                 }
+            }
+            is EarnDashboardIntent.EarningItemSelected ->
+                showSummaryForEarnType(
+                    earnType = intent.earnAsset.type,
+                    assetTicker = intent.earnAsset.assetTicker
+                )
         }
 
-    private suspend fun getAccountForInterest(intent: EarnDashboardIntent.ItemSelected) {
-        assetCatalogue.fromNetworkTicker(intent.earnAsset.assetTicker)?.let {
+    private suspend fun showSummaryForEarnType(earnType: EarnType, assetTicker: String) =
+        when (earnType) {
+            EarnType.Rewards -> {
+                getAccountForInterest(assetTicker)
+            }
+            EarnType.Staking -> navigate(
+                EarnDashboardNavigationEvent.OpenStakingSummarySheet(assetTicker)
+            )
+        }
+
+    private suspend fun getAccountForInterest(assetTicker: String) {
+        assetCatalogue.fromNetworkTicker(assetTicker)?.let {
             navigate(
                 EarnDashboardNavigationEvent.OpenRewardsSummarySheet(
                     coincore[it].accountGroup(AssetFilter.Interest).awaitSingle().accounts.first() as CryptoAccount
@@ -96,149 +143,163 @@ class EarnDashboardViewModel(
         isLoading: Boolean,
         error: EarnDashboardError,
         earnData: CombinedEarnData?,
-        // TODO(dserrano) - STAKING - filters for both lists should be independent - next PR
-        filterBy: EarnDashboardListFilter,
-        queryBy: String
-    ): DashboardState {
-        if (isLoading) {
-            return DashboardState.Loading
-        }
+        earningTabFilterBy: EarnDashboardListFilter,
+        earningTabQueryBy: String,
+        discoverTabFilterBy: EarnDashboardListFilter,
+        discoverTabQueryBy: String
+    ): DashboardState =
+        when {
+            isLoading -> DashboardState.Loading
+            error != EarnDashboardError.None -> DashboardState.ShowError(error)
+            else -> earnData?.let { data ->
+                val hasStakingBalance = data.stakingBalances.values.any { it.totalBalance.isPositive }
+                val hasInterestBalance = data.interestBalances.values.any { it.totalBalance.isPositive }
 
-        if (error != EarnDashboardError.None) {
-            return DashboardState.ShowError(error)
-        }
+                if (data.interestFeatureAccess !is FeatureAccess.Granted && !hasInterestBalance &&
+                    data.stakingFeatureAccess !is FeatureAccess.Granted && !hasStakingBalance
+                ) {
+                    return DashboardState.ShowKyc
+                }
 
-        require(earnData != null)
-
-        val hasStakingBalance = earnData.stakingBalances.values.any { it.totalBalance.isPositive }
-        val hasInterestBalance = earnData.interestBalances.values.any { it.totalBalance.isPositive }
-
-        if (earnData.interestFeatureAccess !is FeatureAccess.Granted && !hasInterestBalance &&
-            earnData.stakingFeatureAccess !is FeatureAccess.Granted && !hasStakingBalance
-        ) {
-            return DashboardState.ShowKyc
-        }
-
-        if (hasStakingBalance || hasInterestBalance) {
-            val earningList = mutableListOf<EarnAsset>()
-            val discoverList = mutableListOf<EarnAsset>()
-            earnData.stakingEligibility.map { (asset, eligibility) ->
-                val balance = earnData.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
-                if (balance.isPositive) {
-                    earningList.add(
-                        EarnAsset(
-                            assetTicker = asset.networkTicker,
-                            assetName = asset.name,
-                            iconUrl = asset.logo,
-                            rate = earnData.stakingRates[asset] ?: 0.0,
-                            eligibility = eligibility.toEarnEligibility(),
-                            balanceCrypto = balance,
-                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                            type = EarnType.Staking
-                        )
+                return if (hasStakingBalance || hasInterestBalance) {
+                    splitEarningAndDiscoverData(
+                        data, earningTabFilterBy, earningTabQueryBy, discoverTabFilterBy, discoverTabQueryBy
                     )
                 } else {
-                    discoverList.add(
-                        EarnAsset(
-                            assetTicker = asset.networkTicker,
-                            assetName = asset.name,
-                            iconUrl = asset.logo,
-                            rate = earnData.stakingRates[asset] ?: 0.0,
-                            eligibility = eligibility.toEarnEligibility(),
-                            balanceCrypto = balance,
-                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                            type = EarnType.Staking
-                        )
-                    )
+                    buildDiscoverList(data, discoverTabFilterBy, discoverTabQueryBy)
                 }
-            }
+            } ?: DashboardState.Loading
+        }
 
-            earnData.interestEligibility.map { (asset, eligibility) ->
-                val balance = earnData.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
+    private fun buildDiscoverList(
+        data: CombinedEarnData,
+        discoverTabFilterBy: EarnDashboardListFilter,
+        discoverTabQueryBy: String
+    ): DashboardState.OnlyDiscover {
+        val discoverList = mutableListOf<EarnAsset>()
 
-                if (balance.isPositive) {
-                    earningList.add(
-                        EarnAsset(
-                            assetTicker = asset.networkTicker,
-                            assetName = asset.name,
-                            iconUrl = asset.logo,
-                            rate = earnData.interestRates[asset] ?: 0.0,
-                            eligibility = eligibility.toEarnEligibility(),
-                            balanceCrypto = balance,
-                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                            type = EarnType.Rewards
-                        )
-                    )
-                } else {
-                    discoverList.add(
-                        EarnAsset(
-                            assetTicker = asset.networkTicker,
-                            assetName = asset.name,
-                            iconUrl = asset.logo,
-                            rate = earnData.interestRates[asset] ?: 0.0,
-                            eligibility = eligibility.toEarnEligibility(),
-                            balanceCrypto = balance,
-                            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                            type = EarnType.Rewards
-                        )
-                    )
-                }
-            }
-
-            val sortedEarningList = when (filterBy) {
-                EarnDashboardListFilter.All -> earningList
-                EarnDashboardListFilter.Staking -> earningList.filter { it.type == EarnType.Staking }
-                EarnDashboardListFilter.Rewards -> earningList.filter { it.type == EarnType.Rewards }
-            }.filter {
-                queryBy.isEmpty() || it.assetName.contains(queryBy, true) ||
-                    it.assetTicker.contains(queryBy, true)
-            }
-
-            return DashboardState.EarningAndDiscover(
-                sortedEarningList, discoverList
+        data.stakingEligibility.map { (asset, eligibility) ->
+            val balance = data.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
+            discoverList.add(
+                asset.createStakingAsset(
+                    balance = balance,
+                    stakingRate = data.stakingRates[asset],
+                    eligibility = eligibility
+                )
             )
-        } else {
-            val discoverList = mutableListOf<EarnAsset>()
-
-            earnData.stakingEligibility.map { (asset, eligibility) ->
-
-                val balance = earnData.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
-
-                discoverList.add(
-                    EarnAsset(
-                        assetTicker = asset.networkTicker,
-                        assetName = asset.name,
-                        iconUrl = asset.logo,
-                        rate = earnData.stakingRates[asset] ?: 0.0,
-                        eligibility = eligibility.toEarnEligibility(),
-                        balanceCrypto = balance,
-                        balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                        type = EarnType.Staking
-                    )
-                )
-            }
-
-            earnData.interestEligibility.map { (asset, eligibility) ->
-
-                val balance = earnData.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
-
-                discoverList.add(
-                    EarnAsset(
-                        assetTicker = asset.networkTicker,
-                        assetName = asset.name,
-                        iconUrl = asset.logo,
-                        rate = earnData.interestRates[asset] ?: 0.0,
-                        eligibility = eligibility.toEarnEligibility(),
-                        balanceCrypto = balance,
-                        balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-                        type = EarnType.Rewards
-                    )
-                )
-            }
-
-            return DashboardState.OnlyDiscover(discoverList)
         }
+
+        data.interestEligibility.map { (asset, eligibility) ->
+            val balance = data.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
+            discoverList.add(
+                asset.createRewardsAsset(
+                    balance = balance,
+                    rewardsRate = data.interestRates[asset],
+                    eligibility = eligibility
+                )
+            )
+        }
+
+        return DashboardState.OnlyDiscover(
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy)
+        )
     }
+
+    private fun splitEarningAndDiscoverData(
+        data: CombinedEarnData,
+        earningTabFilterBy: EarnDashboardListFilter,
+        earningTabQueryBy: String,
+        discoverTabFilterBy: EarnDashboardListFilter,
+        discoverTabQueryBy: String
+    ): DashboardState.EarningAndDiscover {
+        val earningList = mutableListOf<EarnAsset>()
+        val discoverList = mutableListOf<EarnAsset>()
+
+        data.stakingEligibility.map { (asset, eligibility) ->
+            val balance = data.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
+            if (balance.isPositive) {
+                earningList.add(
+                    asset.createStakingAsset(
+                        balance = balance,
+                        stakingRate = data.stakingRates[asset],
+                        eligibility = eligibility
+                    )
+                )
+            } else {
+                discoverList.add(
+                    asset.createStakingAsset(
+                        balance = balance,
+                        stakingRate = data.stakingRates[asset],
+                        eligibility = eligibility
+                    )
+                )
+            }
+        }
+
+        data.interestEligibility.map { (asset, eligibility) ->
+            val balance = data.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
+
+            if (balance.isPositive) {
+                earningList.add(
+                    asset.createRewardsAsset(
+                        balance = balance,
+                        rewardsRate = data.interestRates[asset],
+                        eligibility = eligibility
+                    )
+                )
+            } else {
+                discoverList.add(
+                    asset.createRewardsAsset(
+                        balance = balance,
+                        rewardsRate = data.interestRates[asset],
+                        eligibility = eligibility
+                    )
+                )
+            }
+        }
+
+        return DashboardState.EarningAndDiscover(
+            earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy),
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy)
+        )
+    }
+
+    private fun AssetInfo.createStakingAsset(balance: Money, stakingRate: Double?, eligibility: StakingEligibility) =
+        EarnAsset(
+            assetTicker = networkTicker,
+            assetName = name,
+            iconUrl = logo,
+            rate = stakingRate ?: 0.0,
+            eligibility = eligibility.toEarnEligibility(),
+            balanceCrypto = balance,
+            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+            type = EarnType.Staking
+        )
+
+    private fun AssetInfo.createRewardsAsset(balance: Money, rewardsRate: Double?, eligibility: InterestEligibility) =
+        EarnAsset(
+            assetTicker = networkTicker,
+            assetName = name,
+            iconUrl = logo,
+            rate = rewardsRate ?: 0.0,
+            eligibility = eligibility.toEarnEligibility(),
+            balanceCrypto = balance,
+            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
+            type = EarnType.Rewards
+        )
+
+    private fun List<EarnAsset>.sortListByFilterAndQuery(
+        filter: EarnDashboardListFilter,
+        query: String
+    ): List<EarnAsset> =
+        when (filter) {
+            EarnDashboardListFilter.All -> this
+            EarnDashboardListFilter.Staking -> this.filter { it.type == EarnType.Staking }
+            EarnDashboardListFilter.Rewards -> this.filter { it.type == EarnType.Rewards }
+        }.filter {
+            query.isEmpty() || it.assetName.contains(query, true) ||
+                it.assetTicker.contains(query, true)
+        }
 
     private suspend fun loadEarn() {
         updateState {
