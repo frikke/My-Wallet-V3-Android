@@ -20,7 +20,8 @@ fun HomeScreen(
     listState: LazyListState,
     assetActionsNavigation: AssetActionsNavigation,
     openCryptoAssets: () -> Unit,
-    openActivity: () -> Unit
+    openActivity: () -> Unit,
+    openReferral: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -52,7 +53,9 @@ fun HomeScreen(
         }
 
         item {
-            Referral()
+            Referral(
+                openReferral = openReferral
+            )
         }
 
         item {

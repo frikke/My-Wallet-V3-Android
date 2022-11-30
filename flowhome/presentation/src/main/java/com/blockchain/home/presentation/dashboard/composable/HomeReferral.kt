@@ -18,8 +18,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
@@ -28,7 +26,8 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun Referral(
-    viewModel: ReferralViewModel = getViewModel(scope = payloadScope)
+    viewModel: ReferralViewModel = getViewModel(scope = payloadScope),
+    openReferral: () -> Unit
 ) {
     val viewState: ReferralViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -37,12 +36,16 @@ fun Referral(
         onDispose { }
     }
 
-    ReferralScreen(referralPrompt = viewState.referralInfo)
+    ReferralScreen(
+        referralPrompt = viewState.referralInfo,
+        openReferral = openReferral
+    )
 }
 
 @Composable
 fun ReferralScreen(
-    referralPrompt: DataResource<ReferralInfo>
+    referralPrompt: DataResource<ReferralInfo>,
+    openReferral: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -66,12 +69,14 @@ fun ReferralScreen(
                         ImageResource.Remote(announcementInfo.iconUrl)
                     } else {
                         ImageResource.None
-                    }
+                    },
+                    onClick = openReferral
                 )
             } ?: CustomBackgroundCard(
                 title = stringResource(id = R.string.referral_program),
                 subtitle = referralData.rewardSubtitle,
-                backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue)
+                backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue),
+                onClick = openReferral
             )
         }
     }
@@ -81,6 +86,7 @@ fun ReferralScreen(
 @Composable
 fun PreviewReferralScreen() {
     ReferralScreen(
-        DataResource.Loading
+        DataResource.Loading,
+        {}
     )
 }

@@ -389,7 +389,7 @@ class MainActivity :
     private fun showReferralBottomSheet(info: ReferralInfo) {
         if (info is ReferralInfo.Data) {
             showBottomSheet(
-                ReferralSheet.newInstance(info)
+                ReferralSheet.newInstance()
             )
         }
     }

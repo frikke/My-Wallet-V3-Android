@@ -205,10 +205,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         )
     }
 
-    override fun goToReferralCode(referral: ReferralInfo.Data) {
-        showBottomSheet(
-            ReferralSheet.newInstance(referral)
-        )
+    override fun goToReferralCode() {
+        showBottomSheet(ReferralSheet.newInstance())
     }
 
     override fun goToGeneralSettings() {
@@ -281,7 +279,7 @@ interface SettingsNavigator {
     )
 
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
-    fun goToReferralCode(referral: ReferralInfo.Data)
+    fun goToReferralCode()
     fun goToGeneralSettings()
 }
 

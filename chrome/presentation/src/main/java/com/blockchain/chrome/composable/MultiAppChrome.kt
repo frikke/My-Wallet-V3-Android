@@ -85,7 +85,8 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
-    openActivity: () -> Unit
+    openActivity: () -> Unit,
+    openReferral: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -116,6 +117,7 @@ fun MultiAppChrome(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
+                openReferral = openReferral,
                 assetActionsNavigation = assetActionsNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
@@ -139,6 +141,7 @@ fun MultiAppChromeScreen(
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     openActivity: () -> Unit,
+    openReferral: () -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
@@ -630,6 +633,7 @@ fun MultiAppChromeScreen(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
+                openReferral = openReferral,
                 assetActionsNavigation = assetActionsNavigation
             )
         }

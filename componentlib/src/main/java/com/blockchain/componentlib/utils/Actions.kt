@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.blockchain.componentlib.R
+import kotlinx.coroutines.flow.SharedFlow
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
@@ -42,4 +43,21 @@ fun OpenUrl(
     url: String
 ) {
     LocalContext.current.openUrl(url = url)
+}
+
+fun Context.shareTextWithSubject(text: String, subject: String) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, text)
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    startActivity(shareIntent)
+}
+
+@Composable
+fun Share(text : String, subject: String) {
+    LocalContext.current.shareTextWithSubject(text = text, subject = subject)
 }
