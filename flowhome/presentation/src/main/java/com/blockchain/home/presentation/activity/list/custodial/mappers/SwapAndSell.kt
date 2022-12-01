@@ -11,10 +11,10 @@ import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CurrencyType
 import java.util.Date
 
-private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source.type == CurrencyType.CRYPTO &&
+internal fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source.type == CurrencyType.CRYPTO &&
     currencyPair.destination.type == CurrencyType.CRYPTO && currencyPair.source != currencyPair.destination
 
-private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
+internal fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
 @DrawableRes internal fun TradeActivitySummaryItem.iconSummary(): Int {

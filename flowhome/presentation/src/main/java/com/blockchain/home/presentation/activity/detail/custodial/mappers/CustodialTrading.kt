@@ -39,7 +39,7 @@ internal fun CustodialTradingActivitySummaryItem.title(): TextValue = TextValue.
         OrderType.RECURRING_BUY -> R.string.tx_title_bought
         OrderType.SELL -> R.string.tx_title_sold
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun CustodialTradingActivitySummaryItem.detailItems(
@@ -99,7 +99,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                                 args = listOf(
                                     when (type) {
                                         OrderType.BUY,
-                                        OrderType.RECURRING_BUY -> asset.displayTicker
+                                        OrderType.RECURRING_BUY -> account.currency.displayTicker
                                         OrderType.SELL -> fundedFiat.currencyCode
                                     }
                                 )

@@ -27,7 +27,7 @@ internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackVi
                 OrderType.RECURRING_BUY -> R.string.tx_title_bought
                 OrderType.SELL -> R.string.tx_title_sold
             },
-            args = listOf(asset.displayTicker)
+            args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
     )

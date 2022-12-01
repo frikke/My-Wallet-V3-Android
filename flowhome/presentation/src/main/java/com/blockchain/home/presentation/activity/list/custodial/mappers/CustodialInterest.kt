@@ -31,7 +31,7 @@ internal fun CustodialInterestActivitySummaryItem.leadingTitle(): ActivityStackV
                 TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_rewards
                 else -> R.string.tx_title_transferred
             },
-            args = listOf(asset.displayTicker)
+            args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
     )

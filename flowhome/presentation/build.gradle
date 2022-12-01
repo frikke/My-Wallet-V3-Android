@@ -63,6 +63,7 @@ dependencies {
 
     // rx
     implementation Libraries.rxKotlin
+    implementation Libraries.rxjava3Coroutines
 
     // test
     testImplementation project(':testutils')

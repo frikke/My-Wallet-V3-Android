@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -34,7 +33,7 @@ internal fun FiatActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
         TransactionType.DEPOSIT -> R.string.tx_title_deposited
         TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun FiatActivitySummaryItem.detailItems(
