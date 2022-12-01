@@ -236,6 +236,7 @@ fun StakingSummarySheet(
                         onDepositPressed(it)
                     }
                 },
+                state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
                 icon = ImageResource.Local(R.drawable.ic_deposit)
             )
         }
@@ -313,7 +314,8 @@ fun StakingSummaryPreview() {
                     earnedFiat = null,
                     stakingRate = 5.0,
                     isWithdrawable = false,
-                    rewardsFrequency = EarnRewardsFrequency.Weekly
+                    rewardsFrequency = EarnRewardsFrequency.Weekly,
+                    canDeposit = false
                 ),
                 {},
                 {},

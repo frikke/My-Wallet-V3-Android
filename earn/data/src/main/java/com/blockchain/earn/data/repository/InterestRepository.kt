@@ -318,7 +318,9 @@ private fun InterestAccountBalanceDto.toInterestBalance(asset: AssetInfo) =
         pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit.toBigInteger()),
         totalInterest = CryptoValue.fromMinor(asset, totalInterest.toBigInteger()),
         lockedBalance = CryptoValue.fromMinor(asset, lockedBalance.toBigInteger()),
-        dashboardDisplay = CryptoValue.fromMinor(asset, mainBalanceToDisplay.toBigInteger()),
+        dashboardDisplay = mainBalanceToDisplay?.let {
+            Money.fromMinor(asset, it.toBigInteger())
+        } ?: Money.zero(asset),
         hasTransactions = true
     )
 

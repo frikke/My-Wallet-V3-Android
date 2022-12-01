@@ -85,27 +85,6 @@ class EarnDashboardFragment :
             is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> {
                 openStakingSummarySheet(navigationEvent.assetTicker)
             }
-            // TODO(dserrano) - STAKING - ask for copy for KYC and OTHER
-            is EarnDashboardNavigationEvent.OpenBlockedForKycSheet -> showBlockedAccessSheet(
-                getString(R.string.earn_access_blocked_other_title),
-                getString(
-                    R.string.earn_access_blocked_other_paragraph,
-                    when (navigationEvent.earnType) {
-                        EarnType.Rewards -> getString(R.string.earn_rewards_label_passive)
-                        EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
-                    }
-                )
-            )
-            is EarnDashboardNavigationEvent.OpenBlockedForOtherSheet -> showBlockedAccessSheet(
-                getString(R.string.earn_access_blocked_other_title),
-                getString(
-                    R.string.earn_access_blocked_other_paragraph,
-                    when (navigationEvent.earnType) {
-                        EarnType.Rewards -> getString(R.string.earn_rewards_label_passive)
-                        EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
-                    }
-                )
-            )
             is EarnDashboardNavigationEvent.OpenBlockedForRegionSheet -> showBlockedAccessSheet(
                 title = getString(R.string.earn_access_blocked_region_title),
                 paragraph = getString(

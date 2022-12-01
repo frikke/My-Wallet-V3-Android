@@ -300,7 +300,9 @@ class StakingRepository(
             pendingDeposit = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
             pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
             totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger()),
-            dashboardDisplay = Money.fromMinor(currency, mainBalanceToDisplay.toBigInteger()),
+            dashboardDisplay = mainBalanceToDisplay?.let {
+                Money.fromMinor(currency, it.toBigInteger())
+            } ?: Money.zero(currency)
         )
 
     private fun String.toIneligibilityReason(): StakingEligibility.Ineligible {
