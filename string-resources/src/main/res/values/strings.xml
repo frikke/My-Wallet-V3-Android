@@ -3477,8 +3477,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
     <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
     <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
-    <string name="earn_access_blocked_other_title">We can’t let you do that</string>
-    <string name="earn_access_blocked_other_paragraph">%1$s are currently unavailable. Please contact support if you believe this to be an error.</string>
 
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>

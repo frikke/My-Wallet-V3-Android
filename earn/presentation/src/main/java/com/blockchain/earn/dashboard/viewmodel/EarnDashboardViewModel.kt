@@ -92,24 +92,14 @@ class EarnDashboardViewModel(
                 )
             }
             is EarnDashboardIntent.DiscoverItemSelected -> {
-                when (val eligibility = intent.earnAsset.eligibility) {
+                when (intent.earnAsset.eligibility) {
                     EarnEligibility.Eligible -> showSummaryForEarnType(
                         earnType = intent.earnAsset.type,
                         assetTicker = intent.earnAsset.assetTicker
                     )
-                    is EarnEligibility.NotEligible -> {
-                        when (eligibility.reason) {
-                            EarnIneligibleReason.REGION -> navigate(
-                                EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type)
-                            )
-                            EarnIneligibleReason.KYC_TIER -> navigate(
-                                EarnDashboardNavigationEvent.OpenBlockedForKycSheet(intent.earnAsset.type)
-                            )
-                            EarnIneligibleReason.OTHER -> navigate(
-                                EarnDashboardNavigationEvent.OpenBlockedForOtherSheet(intent.earnAsset.type)
-                            )
-                        }
-                    }
+                    is EarnEligibility.NotEligible -> navigate(
+                        EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type)
+                    )
                 }
             }
             is EarnDashboardIntent.EarningItemSelected ->

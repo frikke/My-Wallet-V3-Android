@@ -15,5 +15,6 @@ data class StakingSummaryModelState(
     val totalEarned: Money? = null,
     val stakingRate: Double = 0.0,
     val isWithdrawable: Boolean = true,
-    val frequency: EarnRewardsFrequency = EarnRewardsFrequency.Unknown
+    val frequency: EarnRewardsFrequency = EarnRewardsFrequency.Unknown,
+    val canDeposit: Boolean = false
 ) : ModelState
