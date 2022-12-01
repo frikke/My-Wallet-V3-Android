@@ -3,21 +3,27 @@ package com.blockchain.commonarch.presentation.base
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.auth.LogoutTimer
+import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.R
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.instrumentation.InstrumentationScaffold
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SecurityPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -84,6 +90,32 @@ abstract class BlockchainActivity : ToolBarActivity() {
             },
             true
         )
+    }
+
+    override fun setContentView(view: View?) {
+        val view = if (BuildConfig.DEBUG) {
+            // Some activities are calling setContentView twice, once on specific activity onCreate and another on
+            // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
+            if (view?.parent != null) return
+
+            val wrapper = FrameLayout(this).apply {
+                val params =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                layoutParams = params
+            }
+            val composeView = ComposeView(this).apply {
+                setContent {
+                    InstrumentationScaffold {
+                    }
+                }
+            }
+            wrapper.addView(view)
+            wrapper.addView(composeView)
+            wrapper
+        } else {
+            view
+        }
+        super.setContentView(view)
     }
 
     /**

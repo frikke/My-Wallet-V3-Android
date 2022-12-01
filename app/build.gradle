@@ -391,6 +391,8 @@ dependencies {
     implementation project(':store:persisters:persistedjsonsqldelight')
     implementation project(':blockchainCard')
     implementation project(':addressVerification')
+    implementation project(':instrumentation:data')
+    implementation project(':instrumentation:presentation')
 
     implementation project(':appMaintenance:data')
     implementation project(':appMaintenance:domain')

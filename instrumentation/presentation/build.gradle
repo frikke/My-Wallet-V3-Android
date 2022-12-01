@@ -1,0 +1,29 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+
+android {
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java'
+            }
+
+        }
+        test {
+            java {
+                srcDirs 'src/test'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation project(':componentlib')
+    implementation project(':instrumentation:data')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+
+    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
+}
