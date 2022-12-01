@@ -3420,6 +3420,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
     <string name="bc_card_currently_active">Currently Active</string>
     <string name="bc_card_limit_reached">Current card limit reached</string>
+    <string name="bc_card_pin_updated_title">PIN was successfully updated</string>
+    <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
