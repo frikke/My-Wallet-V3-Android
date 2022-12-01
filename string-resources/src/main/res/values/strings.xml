@@ -3444,10 +3444,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_cta">Go to Web App</string>
 
     <string name="staking_cannot_withdraw_title">Staking Considerations</string>
-    <!-- todo (dserrano): - STAKING - copy when ready -->
-    <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
-    <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
-    <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nWhile unstaking and withdrawing ETH isn’t currently available, it will be supported in a future upgrade.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_summary_title">%1$s Staking Rewards</string>
     <string name="staking_summary_total_earned">Total Earned</string>
     <string name="staking_summary_view_activity">View activity</string>
@@ -3469,7 +3466,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_dashboard_search">Search coins</string>
     <string name="staking_dashboard_no_results">No results</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
     <string name="earn_dashboard_tab_earning">Earning</string>
     <string name="earn_dashboard_tab_discover">Discover</string>
     <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>

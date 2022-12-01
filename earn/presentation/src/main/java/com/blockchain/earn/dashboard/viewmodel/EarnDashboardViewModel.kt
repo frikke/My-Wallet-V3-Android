@@ -117,27 +117,9 @@ class EarnDashboardViewModel(
                     earnType = intent.earnAsset.type,
                     assetTicker = intent.earnAsset.assetTicker
                 )
+            is EarnDashboardIntent.CarouselLearnMoreSelected ->
+                navigate(EarnDashboardNavigationEvent.OpenUrl(intent.url))
         }
-
-    private suspend fun showSummaryForEarnType(earnType: EarnType, assetTicker: String) =
-        when (earnType) {
-            EarnType.Rewards -> {
-                getAccountForInterest(assetTicker)
-            }
-            EarnType.Staking -> navigate(
-                EarnDashboardNavigationEvent.OpenStakingSummarySheet(assetTicker)
-            )
-        }
-
-    private suspend fun getAccountForInterest(assetTicker: String) {
-        assetCatalogue.fromNetworkTicker(assetTicker)?.let {
-            navigate(
-                EarnDashboardNavigationEvent.OpenRewardsSummarySheet(
-                    coincore[it].accountGroup(AssetFilter.Interest).awaitSingle().accounts.first() as CryptoAccount
-                )
-            )
-        }
-    }
 
     private fun reduceDashboardState(
         isLoading: Boolean,
@@ -163,13 +145,41 @@ class EarnDashboardViewModel(
 
                 return if (hasStakingBalance || hasInterestBalance) {
                     splitEarningAndDiscoverData(
-                        data, earningTabFilterBy, earningTabQueryBy, discoverTabFilterBy, discoverTabQueryBy
+                        data = data,
+                        earningTabFilterBy = earningTabFilterBy,
+                        earningTabQueryBy = earningTabQueryBy,
+                        discoverTabFilterBy = discoverTabFilterBy,
+                        discoverTabQueryBy = discoverTabQueryBy
                     )
                 } else {
-                    buildDiscoverList(data, discoverTabFilterBy, discoverTabQueryBy)
+                    buildDiscoverList(
+                        data = data,
+                        discoverTabFilterBy = discoverTabFilterBy,
+                        discoverTabQueryBy = discoverTabQueryBy
+                    )
                 }
             } ?: DashboardState.Loading
         }
+
+    private suspend fun showSummaryForEarnType(earnType: EarnType, assetTicker: String) =
+        when (earnType) {
+            EarnType.Rewards -> {
+                getAccountForInterest(assetTicker)
+            }
+            EarnType.Staking -> navigate(
+                EarnDashboardNavigationEvent.OpenStakingSummarySheet(assetTicker)
+            )
+        }
+
+    private suspend fun getAccountForInterest(assetTicker: String) {
+        assetCatalogue.fromNetworkTicker(assetTicker)?.let {
+            navigate(
+                EarnDashboardNavigationEvent.OpenRewardsSummarySheet(
+                    coincore[it].accountGroup(AssetFilter.Interest).awaitSingle().accounts.first() as CryptoAccount
+                )
+            )
+        }
+    }
 
     private fun buildDiscoverList(
         data: CombinedEarnData,
@@ -177,7 +187,6 @@ class EarnDashboardViewModel(
         discoverTabQueryBy: String
     ): DashboardState.OnlyDiscover {
         val discoverList = mutableListOf<EarnAsset>()
-
         data.stakingEligibility.map { (asset, eligibility) ->
             val balance = data.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
             discoverList.add(
@@ -201,7 +210,7 @@ class EarnDashboardViewModel(
         }
 
         return DashboardState.OnlyDiscover(
-            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy)
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate()
         )
     }
 
@@ -259,8 +268,8 @@ class EarnDashboardViewModel(
         }
 
         return DashboardState.EarningAndDiscover(
-            earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy),
-            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy)
+            earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy).sortByBalance(),
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate()
         )
     }
 
@@ -300,6 +309,12 @@ class EarnDashboardViewModel(
             query.isEmpty() || it.assetName.contains(query, true) ||
                 it.assetTicker.contains(query, true)
         }
+
+    private fun List<EarnAsset>.sortByRate(): List<EarnAsset> =
+        this.sortedByDescending { it.rate }
+
+    private fun List<EarnAsset>.sortByBalance(): List<EarnAsset> =
+        this.sortedByDescending { it.balanceFiat }
 
     private suspend fun loadEarn() {
         updateState {

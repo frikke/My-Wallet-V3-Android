@@ -415,7 +415,6 @@ class TransactionInteractor(
                     if (accountBalance.totalBalance.isZero) {
                         FeatureAccess.Blocked(
                             BlockedReason.ShouldAcknowledgeStakingWithdrawal(
-                                bondingDays = limits.bondingDays,
                                 assetIconUrl = asset.logo
                             )
                         )

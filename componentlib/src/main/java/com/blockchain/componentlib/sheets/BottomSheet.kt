@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import com.blockchain.componentlib.button.DestructiveMinimalButton
 import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -53,8 +55,8 @@ fun BottomSheetTwoButtons(
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = {
-            button1.toBottomSheetButtonComposable(Modifier.fillMaxWidth()).invoke()
-            button2.toBottomSheetButtonComposable(Modifier.fillMaxWidth()).invoke()
+            button1.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
+            button2.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
         isDarkTheme = isDarkTheme,
         shouldShowHeaderDivider = shouldShowHeaderDivider,
@@ -81,7 +83,7 @@ fun BottomSheetOneButton(
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = {
-            button.toBottomSheetButtonComposable(Modifier.fillMaxWidth()).invoke()
+            button.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
         isDarkTheme = isDarkTheme,
         shouldShowHeaderDivider = shouldShowHeaderDivider,
@@ -187,6 +189,7 @@ private fun BottomSheet(
                     .wrapContentHeight()
                     .padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 content = buttonsContent
             )
             Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
@@ -201,9 +204,14 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
             ButtonType.PRIMARY -> PrimaryButton(
                 text = text,
                 onClick = onClick,
-                modifier = modifier
+                modifier = modifier.fillMaxWidth()
             )
             ButtonType.MINIMAL -> MinimalButton(
+                text = text,
+                onClick = onClick,
+                modifier = modifier.fillMaxWidth()
+            )
+            ButtonType.SMALL_MINIMAL -> SmallMinimalButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier
@@ -211,13 +219,13 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
             ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveMinimalButton(
                 text = text,
                 onClick = onClick,
-                modifier = modifier
+                modifier = modifier.fillMaxWidth()
             )
             ButtonType.DESTRUCTIVE_PRIMARY ->
                 DestructivePrimaryButton(
                     text = text,
                     onClick = onClick,
-                    modifier = modifier
+                    modifier = modifier.fillMaxWidth()
                 )
         }
     }
@@ -230,7 +238,7 @@ data class BottomSheetButton(
 )
 
 enum class ButtonType {
-    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY
+    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY, SMALL_MINIMAL
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
@@ -320,6 +328,29 @@ fun PrimaryAndMinimalButtonSheet() {
                 subtitle = "NoButtonBottomSheetSubtitle",
                 button1 = BottomSheetButton(
                     type = ButtonType.MINIMAL,
+                    onClick = {}, text = "Learn More"
+                ),
+                button2 = BottomSheetButton(
+                    type = ButtonType.PRIMARY,
+                    onClick = {}, text = "Ok"
+                )
+            )
+        }
+    }
+}
+
+@Preview()
+@Composable
+fun PrimaryAndSmallMinimalButtonSheet() {
+    AppTheme {
+        AppSurface {
+            BottomSheetTwoButtons(
+                onCloseClick = {},
+                title = "NoButtonBottomSheet",
+                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
+                subtitle = "NoButtonBottomSheetSubtitle",
+                button1 = BottomSheetButton(
+                    type = ButtonType.SMALL_MINIMAL,
                     onClick = {}, text = "Learn More"
                 ),
                 button2 = BottomSheetButton(

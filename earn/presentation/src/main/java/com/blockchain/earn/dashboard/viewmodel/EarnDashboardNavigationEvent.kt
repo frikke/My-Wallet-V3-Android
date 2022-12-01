@@ -9,4 +9,5 @@ sealed class EarnDashboardNavigationEvent : NavigationEvent {
     class OpenBlockedForRegionSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()
     class OpenBlockedForKycSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()
     class OpenBlockedForOtherSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()
+    class OpenUrl(val url: String) : EarnDashboardNavigationEvent()
 }

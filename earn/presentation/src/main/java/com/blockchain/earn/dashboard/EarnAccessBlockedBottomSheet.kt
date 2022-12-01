@@ -32,7 +32,7 @@ class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
             showTitleInHeader = false,
             subtitle = paragraph,
             button1 = BottomSheetButton(
-                type = ButtonType.MINIMAL,
+                type = ButtonType.SMALL_MINIMAL,
                 onClick = {
                     context.openUrl(LEARN_MORE_URL)
                 },
@@ -50,7 +50,7 @@ class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
     companion object {
         private const val TITLE = "TITLE"
         private const val PARAGRAPH = "PARAGRAPH"
-        private const val LEARN_MORE_URL = "https://www.blockchain.com"
+        private const val LEARN_MORE_URL = "https://support.blockchain.com/hc/en-us/articles/360018751932"
 
         fun newInstance(title: String, paragraph: String) = EarnAccessBlockedBottomSheet().apply {
             arguments = Bundle().apply {

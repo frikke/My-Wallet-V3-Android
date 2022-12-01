@@ -116,6 +116,7 @@ class EarnDashboardFragment :
                     }
                 )
             )
+            is EarnDashboardNavigationEvent.OpenUrl -> openExternalUrl(navigationEvent.url)
         }
 
     private fun showBlockedAccessSheet(title: String, paragraph: String) {
