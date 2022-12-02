@@ -180,7 +180,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = accountBalance,
-            dashboardDisplay = accountBalance,
             pendingInterest = Money.zero(TEST_ASSET),
             pendingDeposit = Money.zero(TEST_ASSET),
             totalInterest = Money.zero(TEST_ASSET),

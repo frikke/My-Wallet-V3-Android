@@ -9,7 +9,6 @@ data class StakingAccountBalance(
     val pendingDeposit: Money,
     val pendingWithdrawal: Money,
     val totalRewards: Money,
-    val dashboardDisplay: Money,
 ) {
     val availableBalance = totalBalance - lockedBalance
 
@@ -21,7 +20,6 @@ data class StakingAccountBalance(
                 pendingDeposit = Money.zero(currency),
                 pendingWithdrawal = Money.zero(currency),
                 totalRewards = Money.zero(currency),
-                dashboardDisplay = Money.zero(currency),
             )
     }
 }

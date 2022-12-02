@@ -9,7 +9,6 @@ data class InterestAccountBalance(
     val pendingDeposit: Money,
     val totalInterest: Money,
     val lockedBalance: Money,
-    val dashboardDisplay: Money,
     val hasTransactions: Boolean = false,
 ) {
     val actionableBalance: CryptoValue
