@@ -20,6 +20,7 @@ enum class NetworkType {
     BCH,
     XLM,
     STX,
+    SOL,
     NOT_SUPPORTED
 }
 

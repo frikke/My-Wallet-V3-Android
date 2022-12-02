@@ -164,7 +164,7 @@ public class HDWallet {
         DeterministicKey dKey = HDKeyDerivation.deriveChildKey(
             dkKey, coinType.getPurpose() | ChildNumber.HARDENED_BIT
         );
-        return new DynamicHDAccount(params, dKey, coinType);
+        return new DynamicHDAccount(hd_seed, params, dKey, coinType);
     }
 
     public MasterKey getMasterKey() {
