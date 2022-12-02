@@ -3460,6 +3460,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
     <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
+    <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
+    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a 10.0%% Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Rewards</string>
