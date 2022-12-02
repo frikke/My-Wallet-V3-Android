@@ -144,8 +144,7 @@ val nabuModule = module {
                 simpleBuyEligibilityProvider = get(),
                 eligibilityService = get(),
                 userService = get(),
-                bindFeatureFlag = get(bindFeatureFlag),
-                stakingService = get()
+                bindFeatureFlag = get(bindFeatureFlag)
             )
         }.bind(UserIdentity::class)
 

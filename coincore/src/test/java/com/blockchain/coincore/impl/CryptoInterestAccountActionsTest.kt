@@ -3,11 +3,11 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -180,6 +180,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = accountBalance,
+            dashboardDisplay = accountBalance,
             pendingInterest = Money.zero(TEST_ASSET),
             pendingDeposit = Money.zero(TEST_ASSET),
             totalInterest = Money.zero(TEST_ASSET),

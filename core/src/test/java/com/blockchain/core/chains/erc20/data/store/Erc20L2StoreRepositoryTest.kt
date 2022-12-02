@@ -6,7 +6,6 @@ import com.blockchain.api.ethereum.evm.EvmBalanceResponse
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
-import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -26,12 +25,10 @@ import org.junit.Test
 
 class Erc20L2StoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val ethDataManager = mockk<EthDataManager>()
     private val erc20L2DataSource = mockk<Erc20L2DataSource>()
 
     private val erc20L2StoreService: Erc20L2StoreService = Erc20L2StoreRepository(
         assetCatalogue = assetCatalogue,
-        ethDataManager = ethDataManager,
         erc20L2DataSource = erc20L2DataSource
     )
 
@@ -94,7 +91,6 @@ class Erc20L2StoreRepositoryTest {
         every { erc20L2DataSource.invalidate(any()) } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO_NATIVE", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative
-        every { ethDataManager.accountAddress } returns "accountHash"
     }
 
     @Test

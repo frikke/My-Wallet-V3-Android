@@ -39,7 +39,7 @@ import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.R
-import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import info.blockchain.balance.Currency
@@ -236,6 +236,7 @@ fun StakingSummarySheet(
                         onDepositPressed(it)
                     }
                 },
+                state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
                 icon = ImageResource.Local(R.drawable.ic_deposit)
             )
         }
@@ -313,7 +314,8 @@ fun StakingSummaryPreview() {
                     earnedFiat = null,
                     stakingRate = 5.0,
                     isWithdrawable = false,
-                    rewardsFrequency = EarnRewardsFrequency.Weekly
+                    rewardsFrequency = EarnRewardsFrequency.Weekly,
+                    canDeposit = false
                 ),
                 {},
                 {},

@@ -4,13 +4,14 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.data.DataResource
 import com.blockchain.domain.wallet.CoinNetwork
-import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface DynamicAssetsService {
     fun availableCryptoAssets(): Single<List<AssetInfo>>
@@ -19,10 +20,10 @@ interface DynamicAssetsService {
     fun allEvmNetworks(): Single<List<EvmNetwork>>
     fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
     fun otherEvmNetworks(): Single<List<EvmNetwork>>
-    suspend fun allNetworks(): Outcome<Exception, List<CoinNetwork>>
+    fun allNetworks(): Flow<DataResource<List<CoinNetwork>>>
 }
 
-internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo? =
+internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
     parentChain?.let { chain ->
         val pChain = evmChains.find { it == chain } ?: kotlin.run {
             when (chain) {

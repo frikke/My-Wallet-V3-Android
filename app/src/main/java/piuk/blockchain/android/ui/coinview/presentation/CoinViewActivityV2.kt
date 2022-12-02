@@ -16,11 +16,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.openUrl
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -40,15 +43,12 @@ import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountAction
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
-import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 
 // TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
@@ -393,6 +393,14 @@ class CoinViewActivityV2 :
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (toAccount as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.ADD
+            )
+        )
+
         startActivity(
             TransactionFlowActivity.newIntent(
                 context = this,
@@ -403,6 +411,14 @@ class CoinViewActivityV2 :
     }
 
     override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (fromAccount as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.WITHDRAW
+            )
+        )
+
         startActivity(
             TransactionFlowActivity.newIntent(
                 context = this,
@@ -425,23 +441,23 @@ class CoinViewActivityV2 :
     }
 
     override fun launchStakingWithdrawal(currency: Currency) {
-        // TODO - disabled for now
+        // TODO(dserrano) - STAKING - not yet implemented
     }
 
     override fun launchStakingDeposit(currency: Currency) {
         viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(currency))
     }
 
-    override fun goToStakingActivity(currency: Currency) {
+    override fun goToStakingAccountActivity(currency: Currency) {
         viewModel.onIntent(CoinviewIntent.LaunchStakingActivity(currency))
     }
 
-    override fun showStakingLoadingError(error: StakingError) {
+    override fun showStakingLoadingError(error: StakingError) =
         BlockchainSnackbar.make(
             view = window.decorView.rootView,
             message = when (error) {
-                StakingError.UnknownAsset -> getString(
-                    R.string.staking_summary_sheet_error_unknown_asset, args.networkTicker
+                is StakingError.UnknownAsset -> getString(
+                    R.string.staking_summary_sheet_error_unknown_asset, error.assetTicker
                 )
                 StakingError.Other -> getString(R.string.staking_summary_sheet_error_other)
                 StakingError.None -> getString(R.string.empty)
@@ -449,7 +465,6 @@ class CoinViewActivityV2 :
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
         ).show()
-    }
 
     override fun onSheetClosed() {}
     // host calls/

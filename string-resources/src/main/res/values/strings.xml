@@ -3179,12 +3179,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="visit_faq">Visit our FAQ</string>
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
-    <string name="terminate_card">Terminate Card</string>
-    <string name="terminate_card_number">Terminate card ending in %1s ?</string>
+    <string name="terminate_card">Close Card</string>
+    <string name="terminate_card_number">Close card ending in %1s ?</string>
     <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
-    <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
+    <string name="terminate_card_confirm_description">Please Type ‘CLOSE’ to permanently close your card</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
-    <string name="terminate_card_confirmation_text">TERMINATE</string>
+    <string name="terminate_card_confirmation_text">CLOSE</string>
     <string name="address_updated">Billing Address Updated</string>
     <string name="address_update_success">Address Successfully Updated</string>
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
@@ -3377,7 +3377,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_status_unactivated">Unactivated</string>
     <string name="bc_card_status_active">Ready to use</string>
     <string name="bc_card_status_locked">Locked</string>
-    <string name="bc_card_status_terminated">Terminated</string>
+    <string name="bc_card_status_terminated">Closed</string>
     <string name="bc_card_order_processing">Processing</string>
     <string name="bc_card_order_processed">Processed</string>
     <string name="bc_card_order_shipped">Shipped</string>
@@ -3418,6 +3418,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
     <string name="bc_card_empty_statements_title">Your Statements Go Here</string>
     <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
+    <string name="bc_card_currently_active">Currently Active</string>
+    <string name="bc_card_limit_reached">Current card limit reached</string>
+    <string name="bc_card_pin_updated_title">PIN was successfully updated</string>
+    <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
@@ -3425,6 +3429,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+    <string name="ma_home_need_help">Need help?</string>
+    <string name="chat_with_support">Need help?</string>
+    <string name="view_support_center">View Support center</string>
     <string name="ma_home_activity_title">Activity</string>
     <string name="view">View</string>
 
@@ -3439,10 +3446,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_cta">Go to Web App</string>
 
     <string name="staking_cannot_withdraw_title">Staking Considerations</string>
-    <!-- todo (dserrano): - STAKING - copy when ready -->
-    <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
-    <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
-    <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nWhile unstaking and withdrawing ETH isn’t currently available, it will be supported in a future upgrade.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_summary_title">%1$s Staking Rewards</string>
     <string name="staking_summary_total_earned">Total Earned</string>
     <string name="staking_summary_view_activity">View activity</string>
@@ -3458,8 +3462,28 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
     <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
+    <string name="earn_dashboard_filter_all">All</string>
+    <string name="earn_dashboard_filter_staking">Staking</string>
+    <string name="earn_dashboard_filter_rewards">Rewards</string>
+    <string name="staking_dashboard_search">Search coins</string>
+    <string name="staking_dashboard_no_results">No results</string>
+    <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
+    <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
+    <string name="earn_dashboard_tab_earning">Earning</string>
+    <string name="earn_dashboard_tab_discover">Discover</string>
+    <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
+    <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
+    <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
+    <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
 
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>
+
+    <string name="buy_crypto_today">Buy crypto today</string>
+    <string name="complete_your_profile">Complete your profile</string>
+    <string name="other_amount">Other amount</string>
+    <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
 
 </resources>

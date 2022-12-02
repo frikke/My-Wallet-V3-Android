@@ -14,8 +14,6 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
@@ -24,6 +22,8 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject

@@ -15,7 +15,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.earn.data.dataresources.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.storedatasource.FlushableDataSource

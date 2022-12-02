@@ -16,9 +16,9 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.storedatasource.FlushableDataSource

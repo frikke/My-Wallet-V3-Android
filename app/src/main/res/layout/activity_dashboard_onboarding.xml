@@ -29,7 +29,7 @@
         app:layout_constraintGuide_end="@dimen/standard_spacing"
         />
 
-    <piuk.blockchain.android.ui.customviews.RoundedCornersProgressView
+    <com.blockchain.presentation.customviews.RoundedCornersProgressView
         android:id="@+id/progress_steps"
         android:layout_width="48dp"
         android:layout_height="48dp"

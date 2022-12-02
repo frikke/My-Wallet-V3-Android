@@ -8,13 +8,13 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutSingleValueExpandableBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 
 class ExpandableSingleValueConfirmationAdapter(private val mapper: TxConfirmReadOnlyMapperCheckout) :
     AdapterDelegate<TxConfirmationValue> {

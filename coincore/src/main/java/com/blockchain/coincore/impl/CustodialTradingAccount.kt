@@ -116,6 +116,7 @@ class CustodialTradingAccount(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

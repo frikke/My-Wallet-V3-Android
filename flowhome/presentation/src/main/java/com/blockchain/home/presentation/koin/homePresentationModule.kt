@@ -18,7 +18,8 @@ val homePresentationModule = module {
                 homeAccountsService = get(),
                 currencyPrefs = get(),
                 exchangeRates = get(),
-                filterService = get()
+                filterService = get(),
+                assetCatalogue = get()
             )
         }
 

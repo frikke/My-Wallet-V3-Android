@@ -1,9 +1,9 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
@@ -50,6 +50,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             pendingInterest = 90.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 70.testValue(TEST_ASSET),
@@ -80,6 +81,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 0.testValue(TEST_ASSET),
+            dashboardDisplay = 0.testValue(TEST_ASSET),
             pendingInterest = 0.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 0.testValue(TEST_ASSET),
@@ -116,6 +118,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             pendingInterest = 90.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 70.testValue(TEST_ASSET),

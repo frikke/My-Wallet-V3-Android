@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
@@ -14,14 +15,17 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -145,7 +149,15 @@ fun HomeAssetsScreen(
                                     value = fiatAsset.balance.map {
                                         it.toStringWithSymbol()
                                     },
-                                    icon = ImageResource.Remote(fiatAsset.icon),
+                                    contentStart = {
+                                        Image(
+                                            imageResource = ImageResource.Remote(fiatAsset.icon[0]),
+                                            modifier = Modifier
+                                                .align(Alignment.CenterVertically)
+                                                .size(dimensionResource(R.dimen.standard_spacing)),
+                                            defaultShape = CircleShape
+                                        )
+                                    },
                                     onClick = {
                                     }
                                 )
@@ -169,21 +181,21 @@ fun PreviewHomeAccounts() {
         cryptoAssets = DataResource.Data(
             listOf(
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 128.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal()))
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 555.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Down(2.32)),
@@ -194,12 +206,12 @@ fun PreviewHomeAccounts() {
         fiatAssets = DataResource.Data(
             listOf(
                 FiatAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "US Dollar",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
                 ),
                 FiatAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Euro",
                     balance = DataResource.Loading,
                 )
@@ -226,21 +238,21 @@ fun PreviewHomeAccounts_LoadingFiat() {
         cryptoAssets = DataResource.Data(
             listOf(
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal()))
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
                 CryptoAssetState(
-                    icon = "",
+                    icon = listOf(""),
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Down(2.32)),

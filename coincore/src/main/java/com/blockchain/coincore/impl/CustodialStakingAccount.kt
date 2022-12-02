@@ -19,8 +19,8 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.earn.domain.models.StakingActivity
-import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.models.staking.StakingActivity
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
@@ -38,7 +38,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 
 class CustodialStakingAccount(
@@ -108,6 +107,7 @@ class CustodialStakingAccount(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

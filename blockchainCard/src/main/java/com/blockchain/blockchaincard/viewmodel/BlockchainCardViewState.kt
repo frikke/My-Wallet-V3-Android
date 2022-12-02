@@ -44,4 +44,5 @@ data class BlockchainCardViewState(
     val cardStatements: List<BlockchainCardStatement>? = null,
     val shippingAddress: BlockchainCardAddress? = null,
     val kycStatus: BlockchainCardKycStatus? = null,
+    val setPinUrl: String? = null,
 ) : ViewState

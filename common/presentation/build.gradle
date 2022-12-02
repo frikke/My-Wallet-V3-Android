@@ -1,4 +1,4 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     buildFeatures {
@@ -15,6 +15,10 @@ dependencies {
     implementation project(':logging:domain')
     implementation project(':common:interface')
     implementation project(':balance')
+    implementation project(':common:domain')
+    implementation project(':core')
+    implementation project(':commonarch')
+    implementation project(':analytics:domain')
 
     // Compose
     implementation Libraries.composeUi
@@ -31,4 +35,5 @@ dependencies {
     implementation Libraries.rxJava
     implementation Libraries.rxAndroid
     implementation Libraries.koin
+    implementation Libraries.rxKotlin
 }

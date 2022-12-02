@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -22,12 +23,12 @@ import com.blockchain.componentlib.theme.AppTheme
 fun SmallTagIcon(
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background
+    borderColor: Color = AppTheme.colors.background,
+    mainIconSize: Dp = 24.dp
 ) {
-    val borderSize = AppTheme.dimensions.composeSmallestSpacing
-    val mainIconSize = AppTheme.dimensions.standardSpacing
-    val tagIconSize = AppTheme.dimensions.verySmallSpacing
-    val overlap = 10.dp
+    val borderSize = mainIconSize.div(12f)
+    val tagIconSize = mainIconSize.div(2)
+    val overlap = mainIconSize.times(.4f)
 
     Box(
         modifier = Modifier

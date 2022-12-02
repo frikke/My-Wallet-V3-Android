@@ -4,9 +4,9 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestLimits
-import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.earn.domain.models.interest.InterestLimits
+import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.service.InterestService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow

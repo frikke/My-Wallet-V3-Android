@@ -7,6 +7,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
 import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 

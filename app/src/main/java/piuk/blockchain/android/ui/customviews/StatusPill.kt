@@ -6,9 +6,9 @@ import android.os.Build
 import android.util.AttributeSet
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatTextView
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
 
 class StatusPill(context: Context, attrs: AttributeSet) : AppCompatTextView(context, attrs) {
 

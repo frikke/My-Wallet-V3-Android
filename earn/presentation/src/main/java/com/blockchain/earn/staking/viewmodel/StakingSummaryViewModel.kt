@@ -8,8 +8,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.earn.domain.models.StakingAccountBalance
-import com.blockchain.earn.domain.models.StakingLimits
+import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
@@ -35,7 +36,7 @@ class StakingSummaryViewModel(
         viewModelScope.launch {
             coincore[args.cryptoTicker]?.let {
                 onIntent(StakingSummaryIntent.LoadData(it.currency))
-            } ?: onIntent(StakingSummaryIntent.StakingSummaryLoadError)
+            } ?: onIntent(StakingSummaryIntent.StakingSummaryLoadError(args.cryptoTicker))
         }
     }
 
@@ -54,16 +55,17 @@ class StakingSummaryViewModel(
             earnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
             stakingRate = stakingRate,
             isWithdrawable = isWithdrawable,
-            rewardsFrequency = state.frequency
+            rewardsFrequency = state.frequency,
+            canDeposit = canDeposit
         )
     }
 
     override suspend fun handleIntent(modelState: StakingSummaryModelState, intent: StakingSummaryIntent) {
         when (intent) {
             is StakingSummaryIntent.LoadData -> loadStakingDetails(intent.currency)
-            StakingSummaryIntent.StakingSummaryLoadError -> updateState {
+            is StakingSummaryIntent.StakingSummaryLoadError -> updateState {
                 it.copy(
-                    errorState = StakingError.UnknownAsset
+                    errorState = StakingError.UnknownAsset(intent.assetTicker)
                 )
             }
         }
@@ -80,27 +82,31 @@ class StakingSummaryViewModel(
         combine(
             stakingService.getBalanceForAsset(currency),
             stakingService.getLimitsForAsset(currency as AssetInfo),
-            stakingService.getRateForAsset(currency)
-        ) { balance, limits, rate ->
-            combineDataResources(balance, limits, rate) { b, l, r ->
-                StakingSummaryData(b, l, r)
+            stakingService.getRateForAsset(currency),
+            stakingService.getEligibilityForAsset(currency)
+        ) { balance, limits, rate, eligibility ->
+            combineDataResources(balance, limits, rate, eligibility) { b, l, r, e ->
+                StakingSummaryData(b, l, r, e)
             }
         }.collectLatest { summary ->
             when (summary) {
                 is DataResource.Data -> updateState {
-                    it.copy(
-                        errorState = StakingError.None,
-                        isLoading = false,
-                        balance = summary.data.balance.totalBalance,
-                        staked = summary.data.balance.totalBalance
-                            .minus(summary.data.balance.pendingDeposit)
-                            .minus(summary.data.balance.pendingWithdrawal),
-                        bonding = summary.data.balance.pendingDeposit,
-                        totalEarned = summary.data.balance.totalRewards,
-                        stakingRate = summary.data.rate,
-                        frequency = summary.data.limits.rewardsFrequency,
-                        isWithdrawable = !summary.data.limits.withdrawalsDisabled
-                    )
+                    with(summary.data) {
+                        it.copy(
+                            errorState = StakingError.None,
+                            isLoading = false,
+                            balance = balance.totalBalance,
+                            staked = balance.totalBalance
+                                .minus(balance.pendingDeposit)
+                                .minus(balance.pendingWithdrawal),
+                            bonding = balance.pendingDeposit,
+                            totalEarned = balance.totalRewards,
+                            stakingRate = rate,
+                            frequency = limits.rewardsFrequency,
+                            isWithdrawable = !limits.withdrawalsDisabled,
+                            canDeposit = stakingEligibility is StakingEligibility.Eligible
+                        )
+                    }
                 }
                 is DataResource.Error -> updateState {
                     it.copy(isLoading = false, errorState = StakingError.Other)
@@ -119,5 +125,6 @@ data class StakingSummaryArgs(
 private data class StakingSummaryData(
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
-    val rate: Double
+    val rate: Double,
+    val stakingEligibility: StakingEligibility
 )

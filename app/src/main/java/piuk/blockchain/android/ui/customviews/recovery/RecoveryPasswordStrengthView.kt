@@ -5,12 +5,12 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.animation.DecelerateInterpolator
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
 import info.blockchain.wallet.util.PasswordUtil
 import kotlin.math.roundToInt
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewRecoveryPasswordStrengthBinding
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
 
 private enum class PasswordStrengthLevel(val label: Int, val drawable: Int, val color: Int) {
     Weak(

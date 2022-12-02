@@ -240,6 +240,7 @@ abstract class CryptoNonCustodialAccount(
                         pending = it.unconfirmedBalance,
                         exchangeRate = it.exchangeRate,
                         withdrawable = it.balance,
+                        dashboardDisplay = it.balance,
                     )
                 }
             } else {
@@ -251,6 +252,7 @@ abstract class CryptoNonCustodialAccount(
                         total = balance,
                         withdrawable = balance,
                         pending = Money.zero(currency),
+                        dashboardDisplay = balance,
                         exchangeRate = rate
                     )
                 }
@@ -450,7 +452,7 @@ abstract class CryptoNonCustodialAccount(
  * so all the methods on this can just delegate directly
  * to the (required) CryptoSingleAccountCustodialBase
  */
-class CryptoAccountTradingGroup(
+class CryptoAccountCustodialSingleGroup(
     override val label: String,
     override val accounts: SingleAccountList,
 ) : SameCurrencyAccountGroup {
