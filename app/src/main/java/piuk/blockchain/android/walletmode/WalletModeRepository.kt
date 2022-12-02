@@ -1,58 +1,44 @@
 package piuk.blockchain.android.walletmode
 
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.blockchain.walletmode.WalletModeStore
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(DelicateCoroutinesApi::class)
 class WalletModeRepository(
     private val walletModeStore: WalletModeStore,
-    private val featureFlag: IntegratedFeatureFlag,
 ) : WalletModeService {
-    private var walletModesEnabled = false
-    private var _walletMode: MutableStateFlow<WalletMode> = MutableStateFlow(WalletMode.UNIVERSAL)
 
-    init {
-        GlobalScope.launch {
-            while (true) {
-                walletModesEnabled = featureFlag.coEnabled()
-                /**
-                 * If its universal then update to the enabled.
-                 */
-                _walletMode.compareAndSet(WalletMode.UNIVERSAL, enabledWalletMode())
-                delay(ONE_HOUR_MILLIS)
-            }
-        }
-    }
+    private val _walletMode: MutableSharedFlow<WalletMode> = MutableSharedFlow(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     override fun enabledWalletMode(): WalletMode {
-        if (!walletModesEnabled)
-            return WalletMode.UNIVERSAL
-
         return walletModeStore.walletMode
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun reset() {
-        _walletMode = MutableStateFlow(enabledWalletMode())
+        _walletMode.resetReplayCache()
     }
 
     override val walletMode: Flow<WalletMode>
-        get() = _walletMode
+        get() = _walletMode.distinctUntilChanged()
+
+    override fun start() {
+        _walletMode.tryEmit(enabledWalletMode())
+    }
 
     override fun updateEnabledWalletMode(type: WalletMode) {
         walletModeStore.updateWalletMode(type).also {
-            _walletMode.value = type
+            _walletMode.tryEmit(type)
         }
     }
 
     override fun availableModes(): List<WalletMode> = WalletMode.values().toList()
 }
-
-private const val ONE_HOUR_MILLIS = 3600000L

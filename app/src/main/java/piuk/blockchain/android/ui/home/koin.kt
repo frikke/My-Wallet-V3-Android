@@ -5,7 +5,6 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
-import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
@@ -88,7 +87,8 @@ val mainModule = module {
                 walletModeService = get(),
                 payloadManager = get(),
                 walletModeBalanceService = get(),
-                walletStatusPrefs = get()
+                walletStatusPrefs = get(),
+                walletModePrefs = get()
             )
         }
 
@@ -108,6 +108,14 @@ val mainModule = module {
             )
         }
     }
+
+    single {
+        WalletModePrefStore(
+            walletModePrefs = get(),
+            walletModeStrategy = get()
+        )
+    }.bind(WalletModeStore::class)
+
     factory {
         WalletModeTraitsRepository(
             walletModeService = lazy { get() }
@@ -121,15 +129,8 @@ val mainModule = module {
     }.bind(WalletModeService::class)
 
     single {
-        WalletModePrefStore(
-            sharedPreferences = get()
-        )
-    }.bind(WalletModeStore::class)
-
-    single {
         WalletModeRepository(
-            walletModeStore = get(),
-            featureFlag = get(superAppFeatureFlag)
+            walletModeStore = get()
         )
     }.bind(WalletModeService::class)
 }

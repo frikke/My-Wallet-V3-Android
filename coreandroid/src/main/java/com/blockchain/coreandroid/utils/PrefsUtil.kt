@@ -36,6 +36,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -63,6 +64,7 @@ class PrefsUtil(
     DashboardPrefs,
     SecurityPrefs,
     SecureChannelPrefs,
+    WalletModePrefs,
     PricesPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
@@ -903,7 +905,26 @@ class PrefsUtil(
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
 
         private const val PRICES_FILTER_MODE = "prices_filter_mode"
+
+        private const val WALLET_MODE_LEGACY_KEY = "WALLET_MODE"
+        private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
+        private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
     }
+
+    override val legacyWalletMode: String
+        get() = getValue(WALLET_MODE_LEGACY_KEY, "")
+
+    override var currentWalletMode: String
+        get() = getValue(WALLET_MODE_KEY, "")
+        set(value) {
+            setValue(WALLET_MODE_KEY, value)
+        }
+
+    override var userDefaultedToPKW: Boolean
+        get() = getValue(USER_DEFAULTED_TO_PKW, false)
+        set(value) {
+            setValue(USER_DEFAULTED_TO_PKW, value)
+        }
 }
 
 fun BrowserIdentity.pubKeyHash() = Sha256Hash.of(Hex.decode(this.pubkey)).toString()

@@ -168,6 +168,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
+import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 
 val applicationModule = module {
@@ -881,6 +882,12 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
+
+    single {
+        DefaultWalletModeStrategy(
+            walletModePrefs = get()
+        )
+    }
 }
 
 fun getCardProcessors(): List<CardProcessor> {

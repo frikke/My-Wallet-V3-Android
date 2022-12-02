@@ -81,6 +81,7 @@ class AssetsViewModel(
                     accounts.filter { it.singleAccount is FiatAccount }.toHomeFiatAssets()
                 },
                 filters = filters
+
             )
         }
     }
