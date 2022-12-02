@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 
 sealed class DashboardOnboardingIntent : MviIntent<DashboardOnboardingState> {
 

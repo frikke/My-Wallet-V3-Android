@@ -56,7 +56,6 @@ class AssetsViewModel(
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState()
 ) {
-
     private var accountsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {

@@ -26,6 +26,7 @@ import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -80,7 +81,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics

@@ -3485,5 +3485,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="complete_your_profile">Complete your profile</string>
     <string name="other_amount">Other amount</string>
     <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
+    <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
+    <string name="transfer_from_your_trading_account">Transfer from your Trading Account, send from any exchange, or ask a friend!</string>
 
 </resources>

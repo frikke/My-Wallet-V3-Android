@@ -6,6 +6,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.utils.unsafeLazy
@@ -17,7 +18,6 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX

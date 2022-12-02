@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
@@ -39,9 +38,11 @@ import com.blockchain.home.presentation.R
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 
-@Preview
 @Composable
-fun EmptyStateCards() {
+fun CustodialEmptyStateCards(
+    onboardingLaunch: () -> Unit,
+    buy: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,55 +53,57 @@ fun EmptyStateCards() {
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             elevation = 3.dp
         ) {
-            TableRow(content = {
-                val progress = 0
-                Box {
-                    Canvas(modifier = Modifier.size(50.dp), onDraw = {
-                        drawCircle(
-                            color = Grey000,
-                            style = Stroke(
-                                width = 12f
+            TableRow(
+                content = {
+                    val progress = 0
+                    Box {
+                        Canvas(modifier = Modifier.size(50.dp), onDraw = {
+                            drawCircle(
+                                color = Grey000,
+                                style = Stroke(
+                                    width = 12f
+                                )
                             )
-                        )
-                        drawArc(
-                            color = Color.Blue,
-                            startAngle = -90f,
-                            sweepAngle = progress.times(360f).div(3f),
-                            useCenter = false,
-                            style = Stroke(
-                                width = 12f
+                            drawArc(
+                                color = Color.Blue,
+                                startAngle = -90f,
+                                sweepAngle = progress.times(360f).div(3f),
+                                useCenter = false,
+                                style = Stroke(
+                                    width = 12f
+                                )
                             )
+                        })
+
+                        Text(
+                            modifier = Modifier.align(Center),
+                            text = "$progress/3",
+                            color = AppTheme.colors.primary,
+                            style = AppTheme.typography.paragraphMono
                         )
-                    })
+                    }
 
-                    Text(
-                        modifier = Modifier.align(Center),
-                        text = "$progress/3",
-                        color = AppTheme.colors.primary,
-                        style = AppTheme.typography.paragraphMono
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.padding(
-                        start = AppTheme.dimensions.smallSpacing
-                    )
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.complete_your_profile),
-                        style = AppTheme.typography.caption1,
-                        color = Grey400
-                    )
-                    Text(
-                        text = stringResource(id = R.string.buy_crypto_today),
-                        style = AppTheme.typography.body2,
-                        color = Grey900
-                    )
-                }
-            })
+                    Column(
+                        modifier = Modifier.padding(
+                            start = AppTheme.dimensions.smallSpacing
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.complete_your_profile),
+                            style = AppTheme.typography.caption1,
+                            color = Grey400
+                        )
+                        Text(
+                            text = stringResource(id = R.string.buy_crypto_today),
+                            style = AppTheme.typography.body2,
+                            color = Grey900
+                        )
+                    }
+                }, onContentClicked = onboardingLaunch
+            )
         }
 
-        Spacer(modifier = Modifier.padding(vertical = 32.dp))
+        Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.standard_spacing)))
         Card(
             backgroundColor = AppTheme.colors.background,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
@@ -145,7 +148,9 @@ fun EmptyStateCards() {
                                     style = AppTheme.typography.paragraphMono
                                 )
                             },
-                            onClick = {},
+                            onClick = {
+                                buy()
+                            },
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)
                         )
@@ -158,6 +163,7 @@ fun EmptyStateCards() {
                     ),
                     text = stringResource(id = R.string.other_amount),
                     onClick = {
+                        buy()
                     }
                 )
             }

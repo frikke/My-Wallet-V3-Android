@@ -1,10 +1,13 @@
 package piuk.blockchain.android.ui.home
 
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import com.blockchain.coincore.AssetAction
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import org.koin.androidx.compose.get
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
 class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : AssetActionsNavigation {
@@ -14,6 +17,17 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
                 ActionActivity.ActivityResult.StartKyc -> launchKyc()
                 is ActionActivity.ActivityResult.StartReceive -> launchReceive()
                 ActionActivity.ActivityResult.StartBuyIntro -> launchBuy()
+                null -> {
+                }
+            }
+        }
+
+    private val activityResultDashboardOnboarding =
+        activity?.registerForActivityResult(DashboardOnboardingActivity.BlockchainActivityResultContract()) { result ->
+            when (result) {
+                DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
+                    launchBuy()
+                }
                 null -> {
                 }
             }
@@ -33,5 +47,11 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
 
     override fun navigate(assetAction: AssetAction) {
         return actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = assetAction, null))
+    }
+
+    override fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>) {
+        activityResultDashboardOnboarding?.launch(
+            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps)
+        )
     }
 }

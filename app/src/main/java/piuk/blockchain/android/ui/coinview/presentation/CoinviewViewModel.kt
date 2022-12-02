@@ -17,7 +17,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrDefault
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
@@ -462,8 +462,8 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = account.label,
         subtitle = TextValue.StringValue(account.currency.displayTicker),
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Remote(account.currency.logo),
         assetColor = asset.currency.colour
     )
@@ -478,8 +478,8 @@ class CoinviewViewModel(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
         ),
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -494,8 +494,8 @@ class CoinviewViewModel(
             R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
         ),
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -507,8 +507,8 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultTradingWalletLabel(),
         subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
         assetColor = asset.currency.colour
     )
@@ -556,8 +556,8 @@ class CoinviewViewModel(
             }
             else -> error("${cvAccount.filter} Not a supported filter")
         },
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrDefault(""),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(
             when (cvAccount.filter) {
                 AssetFilter.Trading -> {

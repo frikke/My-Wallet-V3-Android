@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
@@ -15,7 +16,6 @@ import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor

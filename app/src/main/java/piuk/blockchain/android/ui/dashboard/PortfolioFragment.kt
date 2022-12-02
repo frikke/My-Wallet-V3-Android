@@ -27,6 +27,9 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
@@ -48,9 +51,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.simplebuy.BuySellClicked

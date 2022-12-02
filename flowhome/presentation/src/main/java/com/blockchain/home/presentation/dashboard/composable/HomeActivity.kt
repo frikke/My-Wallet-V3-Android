@@ -110,24 +110,26 @@ fun HomeActivityScreen(
             .fillMaxWidth()
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(R.string.ma_home_activity_title),
-                style = AppTheme.typography.body2,
-                color = Grey700
-            )
+        if ((activity as? DataResource.Data)?.data?.isNotEmpty() == true) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.ma_home_activity_title),
+                    style = AppTheme.typography.body2,
+                    color = Grey700
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
 
-            Text(
-                modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
-                text = stringResource(R.string.see_all),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.primary,
-            )
+                Text(
+                    modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
+                    text = stringResource(R.string.see_all),
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.primary,
+                )
+            }
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
-
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         when (activity) {
             DataResource.Loading -> {

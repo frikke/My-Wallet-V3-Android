@@ -2,6 +2,9 @@ package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -80,23 +83,4 @@ class GetDashboardOnboardingStepsUseCase(
 
     private fun hasBoughtCrypto(): Single<Boolean> =
         tradeDataService.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
-}
-
-data class CompletableDashboardOnboardingStep(
-    val step: DashboardOnboardingStep,
-    val state: DashboardOnboardingStepState
-) {
-    val isCompleted: Boolean = state == DashboardOnboardingStepState.COMPLETE
-}
-
-enum class DashboardOnboardingStepState {
-    INCOMPLETE,
-    PENDING,
-    COMPLETE
-}
-
-enum class DashboardOnboardingStep {
-    UPGRADE_TO_GOLD,
-    LINK_PAYMENT_METHOD,
-    BUY
 }

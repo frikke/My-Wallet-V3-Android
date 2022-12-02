@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
@@ -11,8 +13,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.LinkAccess
 
 class DashboardOnboardingModel(
