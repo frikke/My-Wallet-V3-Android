@@ -12,11 +12,11 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.Money
@@ -27,13 +27,13 @@ class OnChainSwapTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    swapTransactionsCache: SwapTransactionsCache,
+    swapTransactionsStore: SwapTransactionsStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
-    quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache
+    quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore
 ) {
 
     override val flushableDataSources: List<FlushableDataSource>
