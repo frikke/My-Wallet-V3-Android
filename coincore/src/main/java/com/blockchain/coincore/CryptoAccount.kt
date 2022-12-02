@@ -69,7 +69,7 @@ data class AccountBalance internal constructor(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
                 pending = balance.pendingDeposit,
-                dashboardDisplay = balance.dashboardDisplay,
+                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
         }
@@ -79,7 +79,7 @@ data class AccountBalance internal constructor(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
-                dashboardDisplay = balance.dashboardDisplay,
+                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
 

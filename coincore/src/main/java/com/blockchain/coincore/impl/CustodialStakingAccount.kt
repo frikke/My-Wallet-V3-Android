@@ -107,7 +107,7 @@ class CustodialStakingAccount(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
-                dashboardDisplay = balance.dashboardDisplay,
+                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

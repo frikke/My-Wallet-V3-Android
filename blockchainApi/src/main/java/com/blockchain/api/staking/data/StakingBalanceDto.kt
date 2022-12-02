@@ -25,5 +25,4 @@ data class StakingBalanceDto(
     val unbondingWithdrawals: String,
     @SerialName("locked")
     val lockedBalance: String,
-    val mainBalanceToDisplay: String? // This is be available + processing payments(ie haven't settled yet)
 )

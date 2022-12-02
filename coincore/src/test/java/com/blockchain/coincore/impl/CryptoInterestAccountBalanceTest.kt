@@ -50,7 +50,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
-            dashboardDisplay = 100.testValue(TEST_ASSET),
             pendingInterest = 90.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 70.testValue(TEST_ASSET),
@@ -81,7 +80,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 0.testValue(TEST_ASSET),
-            dashboardDisplay = 0.testValue(TEST_ASSET),
             pendingInterest = 0.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 0.testValue(TEST_ASSET),
@@ -118,7 +116,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
-            dashboardDisplay = 100.testValue(TEST_ASSET),
             pendingInterest = 90.testValue(TEST_ASSET),
             pendingDeposit = 80.testValue(TEST_ASSET),
             totalInterest = 70.testValue(TEST_ASSET),
