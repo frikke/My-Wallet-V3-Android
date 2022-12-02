@@ -6,7 +6,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
