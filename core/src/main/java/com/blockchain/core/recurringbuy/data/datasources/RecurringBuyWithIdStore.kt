@@ -16,10 +16,11 @@ internal class RecurringBuyWithIdStore(
     private val nabu: Nabu
 ) : KeyedStore<RecurringBuyWithIdStore.Key, List<RecurringBuyResponse>> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
-        storeId = STORE_ID,
+        storeId = "RecurringBuyWithIdStore",
         fetcher = Fetcher.Keyed.ofSingle { key ->
             nabu.getRecurringBuyById(
-                recurringBuyId = key.recurringBuyId
+                recurringBuyId = key.recurringBuyId,
+                states = ACTIVE + ",$INACTIVE".takeIf { key.includeInactive }.orEmpty()
             ).wrapErrorMessage()
         },
         keySerializer = Key.serializer(),
@@ -31,6 +32,7 @@ internal class RecurringBuyWithIdStore(
     @Serializable
     data class Key(
         val recurringBuyId: String,
+        val includeInactive: Boolean
     )
 
     override fun invalidate(param: Key) {
@@ -42,6 +44,7 @@ internal class RecurringBuyWithIdStore(
     }
 
     companion object {
-        private const val STORE_ID = "InterestRateStore"
+        private val ACTIVE = "ACTIVE"
+        private val INACTIVE = "INACTIVE"
     }
 }

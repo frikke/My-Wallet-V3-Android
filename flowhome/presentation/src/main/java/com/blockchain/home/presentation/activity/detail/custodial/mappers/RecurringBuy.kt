@@ -1,10 +1,11 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import android.os.Build
+import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -13,17 +14,22 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
+import com.blockchain.home.presentation.activity.detail.custodial.PaymentDetails
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.blockchain.utils.toFormattedString
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
+import java.util.Date
 import java.util.Locale
 
 @DrawableRes internal fun RecurringBuyActivitySummaryItem.iconDetail(): Int {
@@ -99,68 +105,37 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
         )
     ),
     // status ---- success
-    // from ---- Trading Account
-    // to ---- 0x49...ba41
+    // frequency ---- Twice a Month On Thursday
+    // next payment date ---- 01:41 PM on Nov 3, 2022
+    // Payment Method ---- MASTERCARD EUROPE - 0029
     ActivityDetailGroup(
         title = null,
         itemGroup = listOfNotNull(
             // status ---- success
-            //            ActivityComponent.StackView(
-            //                id = toString(),
-            //                leading = listOfNotNull(
-            //                    ActivityStackView.Text(
-            //                        value = TextValue.IntResValue(R.string.common_status),
-            //                        style = basicTitleStyle.muted()
-            //                    ),
-            //                    pendingConfirmations()?.let { pendingConfirmations: TextValue ->
-            //                        ActivityStackView.Text(
-            //                            value = pendingConfirmations,
-            //                            style = basicSubtitleStyle.muted()
-            //                        )
-            //                    }
-            //                ),
-            //                trailing = listOf(
-            //                    ActivityStackView.Tag(
-            //                        value = statusValue(),
-            //                        style = statusStyle()
-            //                    )
-            //                )
-            //            ),
             ActivityComponent.StackView(
                 id = toString(),
-                leading = listOf(
+                leading = listOfNotNull(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.recurring_buy_frequency_label_1),
+                        value = TextValue.IntResValue(R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
                 trailing = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.IntResValue(
-                            value = R.string.common_spaced_strings,
-                            args = listOf(
-                                "recurringBuyFrequency.title()", "frequency.value()"
-                            )
-                        ),
-                        style = basicTitleStyle
+                    ActivityStackView.Tag(
+                        value = statusValue(),
+                        style = statusStyle()
                     )
                 )
             ),
-            ActivityComponent.StackView(
-                id = toString(),
-                leading = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.recurring_buy_details_next_payment),
-                        style = basicTitleStyle.muted()
-                    )
-                ),
-                trailing = listOf(
-                    ActivityStackView.Text(
-                        value = TextValue.StringValue("date.toFormattedString()"),
-                        style = basicTitleStyle
-                    )
-                )
-            ),
+
+            // frequency ---- Twice a Month On Thursday
+            extras[CustodialActivityDetailExtraKey.Frequency]?.toActivityComponent(),
+
+            // next payment date ---- 01:41 PM on Nov 3, 2022
+            extras[CustodialActivityDetailExtraKey.NextPaymentDate]?.toActivityComponent(),
+
+            // Payment Method ---- MASTERCARD EUROPE - 0029
+            extras[CustodialActivityDetailExtraKey.PaymentDetail]?.toActivityComponent()
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -228,7 +203,12 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
     }
 }
 
-fun RecurringBuyFrequency.value(dateTime: ZonedDateTime): TextValue {
+@SuppressLint("NewApi") // todo fix for < api 26
+fun RecurringBuyFrequency.value(date: Date): TextValue {
+    val dateTime = ZonedDateTime.ofInstant(
+        date.toInstant(),
+        ZoneId.systemDefault()
+    )
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             TextValue.IntResValue(
@@ -237,31 +217,23 @@ fun RecurringBuyFrequency.value(dateTime: ZonedDateTime): TextValue {
             )
         }
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                TextValue.IntResValue(
-                    value = R.string.recurring_buy_frequency_subtitle,
-                    args = listOf(
-                        dateTime.dayOfWeek
-                            .getDisplayName(TextStyle.FULL, Locale.getDefault())
-                            .toString().capitalizeFirstChar()
-                    )
+            TextValue.IntResValue(
+                value = R.string.recurring_buy_frequency_subtitle,
+                args = listOf(
+                    dateTime.dayOfWeek
+                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                        .toString().capitalizeFirstChar()
                 )
-            } else {
-                TODO("VERSION.SDK_INT < O")
-            }
+            )
         }
         RecurringBuyFrequency.MONTHLY -> {
             if (dateTime.isLastDayOfTheMonth()) {
                 TextValue.IntResValue(R.string.recurring_buy_frequency_subtitle_monthly_last_day)
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    TextValue.IntResValue(
-                        value = R.string.recurring_buy_frequency_subtitle_monthly,
-                        args = listOf(dateTime.dayOfMonth.toString())
-                    )
-                } else {
-                    TODO("VERSION.SDK_INT < O")
-                }
+                TextValue.IntResValue(
+                    value = R.string.recurring_buy_frequency_subtitle_monthly,
+                    args = listOf(dateTime.dayOfMonth.toString())
+                )
             }
         }
         RecurringBuyFrequency.ONE_TIME,
@@ -269,7 +241,52 @@ fun RecurringBuyFrequency.value(dateTime: ZonedDateTime): TextValue {
     }
 }
 
-internal fun RecurringBuyActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
+private fun RecurringBuyActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
+    when (transactionState) {
+        OrderState.FINISHED -> R.string.activity_details_label_complete
+        OrderState.PENDING_CONFIRMATION,
+        OrderState.PENDING_EXECUTION,
+        OrderState.AWAITING_FUNDS -> R.string.activity_details_label_confirming
+        OrderState.CANCELED -> R.string.activity_details_label_cancelled
+        OrderState.UNINITIALISED,
+        OrderState.INITIALISED,
+        OrderState.UNKNOWN,
+        OrderState.FAILED -> R.string.activity_details_label_failed
+    }
+)
+
+private fun RecurringBuyActivitySummaryItem.statusStyle(): ActivityTagStyle = when (transactionState) {
+    OrderState.FINISHED -> ActivityTagStyle.Success
+    OrderState.PENDING_CONFIRMATION,
+    OrderState.PENDING_EXECUTION,
+    OrderState.AWAITING_FUNDS -> ActivityTagStyle.Info
+    OrderState.CANCELED -> ActivityTagStyle.Warning
+    OrderState.UNINITIALISED,
+    OrderState.INITIALISED,
+    OrderState.UNKNOWN,
+    OrderState.FAILED -> ActivityTagStyle.Error
+}
+
+internal fun RecurringBuyActivitySummaryItem.buildActivityDetail(
+    recurringBuy: RecurringBuy,
+    paymentDetails: PaymentDetails
+) = CustodialActivityDetail(
     activity = this,
-    extras = emptyMap()
+    extras = mapOf(
+        CustodialActivityDetailExtraKey.NextPaymentDate to CustodialActivityDetailExtra(
+            title = TextValue.IntResValue(R.string.recurring_buy_details_next_payment),
+            value = TextValue.StringValue(recurringBuy.nextPaymentDate.toFormattedString())
+        ),
+        CustodialActivityDetailExtraKey.Frequency to CustodialActivityDetailExtra(
+            title = TextValue.IntResValue(R.string.recurring_buy_frequency_label_1),
+            value = TextValue.IntResValue(
+                value = R.string.common_spaced_strings,
+                args = listOf(
+                    recurringBuy.recurringBuyFrequency.title(),
+                    recurringBuy.recurringBuyFrequency.value(recurringBuy.nextPaymentDate)
+                )
+            )
+        ),
+        CustodialActivityDetailExtraKey.PaymentDetail to paymentDetails.toExtra()
+    )
 )

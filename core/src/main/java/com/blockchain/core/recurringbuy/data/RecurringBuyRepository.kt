@@ -20,9 +20,14 @@ internal class RecurringBuyRepository(
 
     override fun getRecurringBuyForId(
         id: String,
+        includeInactive: Boolean,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<RecurringBuy>> {
-        return recurringBuyWithIdStore.stream(freshnessStrategy.withKey(RecurringBuyWithIdStore.Key(id)))
+        return recurringBuyWithIdStore.stream(
+            freshnessStrategy.withKey(
+                RecurringBuyWithIdStore.Key(recurringBuyId = id, includeInactive = includeInactive)
+            )
+        )
             .mapData {
                 it.first().toRecurringBuy(assetCatalogue) ?: error("No recurring buy")
             }

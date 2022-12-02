@@ -122,6 +122,7 @@ class CustodialActivityDetailViewModel(
                     }
                 }
                 .onEach { dataResource ->
+                    println("------- dataResource $dataResource")
                     updateState {
                         it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
                     }
@@ -135,34 +136,10 @@ class CustodialActivityDetailViewModel(
      * otherwise default data
      */
     private fun CustodialTradingActivitySummaryItem.tradingDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return when (paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> {
-                cardService.getCardDetails(cardId = paymentMethodId)
-                    .mapData { card -> card.toPaymentDetail() }
-            }
-            PaymentMethodType.BANK_TRANSFER -> {
-                bankService.getLinkedBank(id = paymentMethodId)
-                    .mapData { bank -> bank.toPaymentMethod().toPaymentDetail() }
-            }
-            else -> {
-                flowOf(
-                    DataResource.Data(
-                        PaymentDetails(
-                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
-                            label = fundedFiat.currencyCode
-                        )
-                    )
-                )
-            }
-        }.catch {
-            emit(
-                DataResource.Data(
-                    PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
-                )
-            )
-        }.onErrorReturn {
-            PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
-        }.mapData { paymentDetails ->
+        return paymentMethodType.paymentMethod(
+            paymentMethodId = paymentMethodId,
+            fundedFiat = fundedFiat
+        ).mapData { paymentDetails ->
             buildActivityDetail(paymentDetails)
         }
     }
@@ -176,18 +153,20 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun RecurringBuyActivitySummaryItem.recurringBuyDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        viewModelScope.launch {
-            println("-------- recurringBuyId $recurringBuyId")
+        return recurringBuyId?.let {
+            val recurringBuyFlow = recurringBuyService.getRecurringBuyForId(id = it, includeInactive = true)
 
-            recurringBuyId?.let { recurringBuyId ->
-                recurringBuyService.getRecurringBuyForId(id = recurringBuyId)
-                    .onEach {
-                        println("-------- it $it")
-                    }
-                    .collect()
-            } ?: flowOf(DataResource.Error(Exception("recurringBuyId not found")))
-        }
-        return flowOf(DataResource.Data(buildActivityDetail()))
+            val paymentDetailFlow = paymentMethodType.paymentMethod(
+                paymentMethodId = paymentMethodId,
+                fundedFiat = fundedFiat
+            )
+
+            combine(recurringBuyFlow, paymentDetailFlow) { recurringBuy, paymentDetail ->
+                combineDataResources(recurringBuy, paymentDetail) { recurringBuyData, paymentDetailData ->
+                    buildActivityDetail(recurringBuy = recurringBuyData, paymentDetails = paymentDetailData)
+                }
+            }
+        } ?: flowOf(DataResource.Error(Exception("recurringBuyId not found")))
     }
 
     private suspend fun TradeActivitySummaryItem.sellDetail(): Flow<DataResource<CustodialActivityDetail>> {
@@ -265,6 +244,40 @@ class CustodialActivityDetailViewModel(
             .mapData { paymentMethodDetails ->
                 buildActivityDetail(paymentMethodDetails)
             }
+    }
+
+    private fun PaymentMethodType.paymentMethod(
+        paymentMethodId: String,
+        fundedFiat: Money
+    ): Flow<DataResource<PaymentDetails>> {
+        return when (this) {
+            PaymentMethodType.PAYMENT_CARD -> {
+                cardService.getCardDetails(cardId = paymentMethodId)
+                    .mapData { card -> card.toPaymentDetail() }
+            }
+            PaymentMethodType.BANK_TRANSFER -> {
+                bankService.getLinkedBank(id = paymentMethodId)
+                    .mapData { bank -> bank.toPaymentMethod().toPaymentDetail() }
+            }
+            else -> {
+                flowOf(
+                    DataResource.Data(
+                        PaymentDetails(
+                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
+                            label = fundedFiat.currencyCode
+                        )
+                    )
+                )
+            }
+        }.catch {
+            emit(
+                DataResource.Data(
+                    PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
+                )
+            )
+        }.onErrorReturn {
+            PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
+        }
     }
 }
 

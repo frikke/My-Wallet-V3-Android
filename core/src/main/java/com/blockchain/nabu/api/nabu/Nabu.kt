@@ -317,7 +317,8 @@ internal interface Nabu {
 
     @GET(NABU_RECURRING_BUY_LIST)
     fun getRecurringBuyById(
-        @Query("id") recurringBuyId: String
+        @Query("id") recurringBuyId: String,
+        @Query("states") states: String
     ): Single<List<RecurringBuyResponse>>
 
     @DELETE("$NABU_RECURRING_BUY/{id}/cancel")

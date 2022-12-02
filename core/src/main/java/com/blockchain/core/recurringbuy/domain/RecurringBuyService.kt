@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface RecurringBuyService {
     fun getRecurringBuyForId(
         id: String,
+        includeInactive: Boolean = false,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<RecurringBuy>>
 
