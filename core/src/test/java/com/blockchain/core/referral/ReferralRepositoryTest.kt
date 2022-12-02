@@ -1,12 +1,17 @@
 package com.blockchain.core.referral
 
+import app.cash.turbine.test
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
+import com.blockchain.core.referral.dataresource.ReferralResponseWrapper
+import com.blockchain.core.referral.dataresource.ReferralStore
+import com.blockchain.data.DataResource
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -14,6 +19,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import kotlin.test.assertEquals
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -41,20 +47,20 @@ class ReferralRepositoryTest {
     private val currencyPrefs: CurrencyPrefs = mock {
         on { selectedFiatCurrency } doReturn mockFiat
     }
-
     private val referralApiService: ReferralApiService = mock()
+    private val referralStore: ReferralStore = mock()
 
     private lateinit var referralRepository: ReferralRepository
 
     @Before
     fun setUp() = runBlocking {
-        referralRepository = ReferralRepository(referralApiService, currencyPrefs)
+        referralRepository = ReferralRepository(referralStore, referralApiService, currencyPrefs)
     }
 
     @Test
-    fun `should fetch available referral info`() = runBlocking {
-        whenever(referralApiService.getReferralCode(FIAT))
-            .doReturn(Outcome.Success(referralResponse))
+    fun `should fetch available referral info legacy`() = runBlocking {
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(referralResponse))))
 
         val expectedData = ReferralInfo.Data(
             rewardTitle = referralResponse.rewardTitle,
@@ -72,13 +78,61 @@ class ReferralRepositoryTest {
     }
 
     @Test
-    fun `should fetch referral info not available`() = runBlocking {
-        whenever(referralApiService.getReferralCode(FIAT))
-            .doReturn(Outcome.Success(null))
+    fun `should fetch available referral info`() = runBlocking {
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(referralResponse))))
+
+        val expectedData = ReferralInfo.Data(
+            rewardTitle = referralResponse.rewardTitle,
+            rewardSubtitle = referralResponse.rewardSubtitle,
+            criteria = referralResponse.criteria,
+            code = referralResponse.code,
+            campaignId = "UK rewards",
+            announcementInfo = null,
+            promotionInfo = null
+        )
+
+        referralRepository.fetchReferralData().test {
+            expectMostRecentItem().run {
+                assertEquals(DataResource.Data(expectedData), this)
+            }
+        }
+    }
+
+    @Test
+    fun `should fetch referral info not available legacy`() = runBlocking {
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(null))))
 
         val result = referralRepository.fetchReferralDataLegacy()
 
         assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
+    }
+
+    @Test
+    fun `should fetch referral info not available`() = runBlocking {
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(null))))
+
+        referralRepository.fetchReferralData().test {
+            expectMostRecentItem().run {
+                assertEquals(DataResource.Data(ReferralInfo.NotAvailable), this)
+            }
+        }
+    }
+
+    @Test
+    fun `should fetch referral info other errors legacy`() = runBlocking {
+        val apiError: NabuApiException = mock {
+            on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
+        }
+
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Error(apiError)))
+
+        val result = referralRepository.fetchReferralDataLegacy()
+
+        assertEquals(Outcome.Failure(apiError), result)
     }
 
     @Test
@@ -87,12 +141,14 @@ class ReferralRepositoryTest {
             on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
         }
 
-        whenever(referralApiService.getReferralCode(FIAT))
-            .doReturn(Outcome.Failure(apiError))
+        whenever(referralStore.stream(any()))
+            .doReturn(flowOf(DataResource.Error(apiError)))
 
-        val result = referralRepository.fetchReferralDataLegacy()
-
-        assertEquals(Outcome.Failure(apiError), result)
+        referralRepository.fetchReferralData().test {
+            expectMostRecentItem().run {
+                assertEquals(DataResource.Error(apiError), this)
+            }
+        }
     }
 
     @Test
