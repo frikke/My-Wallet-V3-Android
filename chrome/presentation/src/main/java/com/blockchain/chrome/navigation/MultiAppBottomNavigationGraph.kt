@@ -12,6 +12,7 @@ import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.prices.composable.PricesScreen
 
 @Composable
 fun MultiAppBottomNavigationHost(
@@ -45,12 +46,18 @@ fun MultiAppBottomNavigationHost(
                 refreshComplete = refreshComplete
             )
         }
-        composable(ChromeBottomNavigationItem.Trade.route) {
-            DemoScreen(
+        composable(ChromeBottomNavigationItem.Prices.route) {
+            val listState = rememberLazyListState()
+            ChromeScreen(
                 modifier = modifier,
-                tag = "Trade",
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Trade, it)) },
+                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
                 isPullToRefreshEnabled = enableRefresh,
+                content = {
+                    PricesScreen(
+                        listState = listState
+                    )
+                },
+                listState = listState,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
             )

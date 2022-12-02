@@ -188,7 +188,7 @@
 
     <!-- SuperApp -->
     <string name="chrome_navigation_home">Home</string>
-    <string name="chrome_navigation_trade">Trade</string>
+    <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
 
