@@ -64,7 +64,8 @@ suspend fun <T> instrument(vararg responses: Pair<String, T>, fallback: (suspend
     }
 
     @Suppress("UNCHECKED_CAST")
-    val pickedInstrumentedResponse = myInstrumentedRequest?.pickedResponse?.get() as? InstrumentedResponse.Model<T>
+    val pickedInstrumentedResponse =
+        myInstrumentedRequest?.pickedResponse?.orElse(null) as? InstrumentedResponse.Model<T>
     return pickedInstrumentedResponse?.model ?: fallback!!.invoke()
 }
 
