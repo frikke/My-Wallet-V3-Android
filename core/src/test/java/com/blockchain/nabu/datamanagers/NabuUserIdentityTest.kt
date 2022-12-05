@@ -54,6 +54,7 @@ class NabuUserIdentityTest {
             val eligibility = ProductEligibility(
                 product = EligibleProduct.BUY,
                 canTransact = true,
+                isDefault = false,
                 maxTransactionsCap = TransactionsLimit.Unlimited,
                 reasonNotEligible = null
             )
@@ -76,6 +77,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.SWAP,
             canTransact = true,
+            isDefault = false,
             maxTransactionsCap = transactionsLimit,
             reasonNotEligible = null
         )
@@ -93,6 +95,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_CRYPTO,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.InsufficientTier.Tier2Required
         )
@@ -110,6 +113,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.SELL,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
@@ -127,6 +131,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_FIAT,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
@@ -144,6 +149,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_INTEREST,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
@@ -161,6 +167,7 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.WITHDRAW_FIAT,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )

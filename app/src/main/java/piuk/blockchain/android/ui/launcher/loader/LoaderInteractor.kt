@@ -3,12 +3,17 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.domain.eligibility.model.ProductEligibility
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
@@ -16,7 +21,9 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.then
 import com.blockchain.walletmode.WalletMode
@@ -38,6 +45,7 @@ import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
+import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
@@ -49,6 +57,10 @@ class LoaderInteractor(
     private val walletModeService: WalletModeService,
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatusPrefs,
+    private val walletModePrefs: WalletModePrefs,
+    private val defaultWalletModeStrategy: DefaultWalletModeStrategy,
+    private val productsEligibilityStore: ProductsEligibilityStore,
+    private val walletModeServices: List<WalletModeService>,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
@@ -95,7 +107,9 @@ class LoaderInteractor(
             }.flatMapCompletable {
                 syncFiatCurrencies(it)
             }.then {
-                saveInitialCountry()
+                saveInitialCountry().then {
+                    setUpWalletModeIfNeeded()
+                }
             }.then {
                 updateUserFiatIfNotSet()
             }.then {
@@ -127,6 +141,46 @@ class LoaderInteractor(
                     emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
                 }
             )
+    }
+
+    private fun setUpWalletModeIfNeeded(): Completable {
+        val walletModeCompletable = try {
+            WalletMode.valueOf(walletModePrefs.currentWalletMode)
+            Completable.complete()
+        } catch (e: Exception) {
+            productsEligibilityStore.stream(FreshnessStrategy.Cached(false))
+                .asSingle().doOnSuccess {
+                    it.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.let { eligibility ->
+                        defaultWalletModeStrategy.updateProductEligibility(eligibility)
+                    } ?: kotlin.run {
+                        defaultWalletModeStrategy.updateProductEligibility(
+                            ProductEligibility(
+                                product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
+                                canTransact = true,
+                                isDefault = false,
+                                maxTransactionsCap = TransactionsLimit.Unlimited,
+                                reasonNotEligible = null
+                            )
+                        )
+                    }
+                }.doOnError {
+                    defaultWalletModeStrategy.updateProductEligibility(
+                        ProductEligibility(
+                            product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
+                            canTransact = true,
+                            isDefault = false,
+                            maxTransactionsCap = TransactionsLimit.Unlimited,
+                            reasonNotEligible = null
+                        )
+                    )
+                }.ignoreElement().onErrorComplete()
+        }
+
+        return walletModeCompletable.doOnComplete {
+            walletModeServices.forEach {
+                it.start()
+            }
+        }
     }
 
     private fun invalidateExperiments() = experimentsStore.markAsStale()

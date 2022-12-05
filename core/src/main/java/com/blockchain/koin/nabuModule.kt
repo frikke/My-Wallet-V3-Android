@@ -245,9 +245,7 @@ val nabuModule = module {
     }
 
     single {
-        UserTagsRepository(
-            walletModeService = get()
-        )
+        UserTagsRepository()
     }.bind(TagsService::class)
 
     factory {
