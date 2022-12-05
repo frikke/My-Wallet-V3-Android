@@ -39,6 +39,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun BalanceChangeTableRow(
     name: String,
+    subtitle: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -54,11 +55,23 @@ fun BalanceChangeTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = name,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
+                Column {
+                    Text(
+                        text = name,
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.title
+                    )
+
+                    subtitle?.let {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                        Text(
+                            text = subtitle,
+                            style = AppTheme.typography.paragraph1,
+                            color = AppTheme.colors.muted
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.weight(1F))
 
@@ -180,6 +193,7 @@ fun PreviewBalanceChangeTableRow() {
         AppSurface {
             BalanceChangeTableRow(
                 name = "Bitcoin",
+                subtitle = "BTC",
                 value = DataResource.Data("$1,000.00"),
                 contentStart = {
                     ImageResource.Local(

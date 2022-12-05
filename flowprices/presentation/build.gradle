@@ -29,6 +29,10 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':common:interface')
+    implementation project(':core')
+    implementation project(':coincore')
+    implementation project(':store:core')
 
     // android
     implementation Libraries.design

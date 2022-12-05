@@ -13,6 +13,7 @@ import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.composable.PricesScreen
+import com.blockchain.prices.prices.composable.Prices
 
 @Composable
 fun MultiAppBottomNavigationHost(
@@ -53,7 +54,7 @@ fun MultiAppBottomNavigationHost(
                 updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
                 isPullToRefreshEnabled = enableRefresh,
                 content = {
-                    PricesScreen(
+                    Prices(
                         listState = listState
                     )
                 },

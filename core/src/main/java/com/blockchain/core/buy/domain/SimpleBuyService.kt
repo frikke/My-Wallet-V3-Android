@@ -4,10 +4,10 @@ import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import kotlinx.coroutines.flow.Flow
 
 interface SimpleBuyService {
-
     fun getEligibility(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<SimpleBuyEligibility>>
@@ -19,4 +19,8 @@ interface SimpleBuyService {
     fun getPairs(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<List<SimpleBuyPair>>>
+
+    fun getSupportedBuySellCryptoCurrencies(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<List<CurrencyPair>>>
 }

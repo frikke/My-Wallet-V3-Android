@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.prices.prices.composable.Prices
 
 @Composable
 fun PricesScreen(
@@ -26,6 +27,10 @@ fun PricesScreen(
                 RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             ),
     ) {
+        item {
+//            Prices()
+        }
+
         item {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
         }
