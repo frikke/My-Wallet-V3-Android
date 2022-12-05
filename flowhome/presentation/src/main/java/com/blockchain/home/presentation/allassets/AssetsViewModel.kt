@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -33,7 +34,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.math.BigInteger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
@@ -68,17 +68,14 @@ class AssetsViewModel(
         return with(state) {
             AssetsViewState(
                 balance = accounts.walletBalance(),
-                cryptoAssets = state.accounts.map { modelAccounts ->
+                assets = state.accounts.map { modelAccounts ->
                     modelAccounts
-                        .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
                         .filter { modelAccount ->
                             // create search term filter predicate
                             modelAccount.shouldBeFiltered(state)
                         }
-                        .toHomeCryptoAssets().take(state.sectionSize.size)
-                },
-                fiatAssets = state.accounts.map { accounts ->
-                    accounts.filter { it.singleAccount is FiatAccount }.toHomeFiatAssets()
+                        .toHomeAssets()
+                        .allFiatAndSectionCrypto(state.sectionSize.size)
                 },
                 filters = filters
 
@@ -86,27 +83,13 @@ class AssetsViewModel(
         }
     }
 
-    private fun List<ModelAccount>.toHomeFiatAssets(): List<FiatAssetState> {
-        return sortedWith(
-            compareByDescending<ModelAccount> {
-                it.singleAccount.currency.networkTicker ==
-                    currencyPrefs.selectedFiatCurrency.networkTicker
-            }
-                .thenByDescending {
-                    (it.balance as? DataResource.Data)?.data?.toBigInteger() ?: BigInteger.ZERO
-                }.thenBy {
-                    it.singleAccount.label
-                }
-        ).map {
-            FiatAssetState(
-                balance = it.balance,
-                icon = listOf(it.singleAccount.currency.logo),
-                name = it.singleAccount.label
-            )
-        }
+    private fun List<HomeAsset>.allFiatAndSectionCrypto(sectionSize: Int): List<HomeAsset> {
+        val fiats = filterIsInstance<FiatAssetState>()
+        val cryptos = filter { it !in fiats }
+        return cryptos.take(sectionSize).plus(fiats)
     }
 
-    private fun List<ModelAccount>.toHomeCryptoAssets(): List<CryptoAssetState> {
+    private fun List<ModelAccount>.toHomeAssets(): List<HomeAsset> {
         val grouped = sortedWith(
             compareByDescending<ModelAccount> { it.singleAccount.currency.index }
                 .thenBy {
@@ -119,30 +102,49 @@ class AssetsViewModel(
                 }
             )
 
-        return grouped.values.map {
-            CryptoAssetState(
-                icon = listOfNotNull(
-                    it.first().singleAccount.currency.logo,
-                    (it.first().singleAccount.currency as? AssetInfo)?.l1chainTicker?.let {
-                        assetCatalogue.fromNetworkTicker(it)?.logo
-                    }
-                ),
-                name = it.first().singleAccount.currency.name,
-                balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
-                fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                change = it.first().exchangeRate24hWithDelta.map { value ->
-                    ValueChange.fromValue(value.delta24h)
-                }
-            )
+        return grouped.values.map { accounts ->
+            accounts.toHomeAsset()
         }.sortedWith(
-            object : Comparator<CryptoAssetState> {
-                override fun compare(p0: CryptoAssetState, p1: CryptoAssetState): Int {
+            object : Comparator<HomeAsset> {
+                override fun compare(p0: HomeAsset, p1: HomeAsset): Int {
                     val p0Balance = (p0.fiatBalance as? DataResource.Data) ?: return 0
                     val p1Balance = (p1.fiatBalance as? DataResource.Data) ?: return 0
                     return p1Balance.data.compareTo(p0Balance.data)
                 }
             }
         )
+    }
+
+    private fun List<ModelAccount>.toHomeAsset(): HomeAsset {
+        require(this.map { it.singleAccount.currency.networkTicker }.distinct().size == 1)
+        return when (val first = first().singleAccount) {
+            is NonCustodialAccount -> NonCustodialAssetState(
+                icon = listOfNotNull(
+                    first.currency.logo,
+                    (first.currency as? AssetInfo)?.l1chainTicker?.let { l1 ->
+                        assetCatalogue.fromNetworkTicker(l1)?.logo
+                    }
+                ),
+                name = first.currency.name,
+                balance = map { acc -> acc.balance }.sumAvailableBalances(),
+                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+            )
+            is FiatAccount -> FiatAssetState(
+                icon = listOf(first.currency.logo),
+                name = first.label,
+                balance = map { acc -> acc.balance }.sumAvailableBalances(),
+                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+            )
+            else -> CustodialAssetState(
+                icon = listOf(first.currency.logo),
+                name = first.currency.name,
+                balance = map { acc -> acc.balance }.sumAvailableBalances(),
+                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                change = this.first().exchangeRate24hWithDelta.map { value ->
+                    ValueChange.fromValue(value.delta24h)
+                }
+            )
+        }
     }
 
     override suspend fun handleIntent(modelState: AssetsModelState, intent: AssetsIntent) {

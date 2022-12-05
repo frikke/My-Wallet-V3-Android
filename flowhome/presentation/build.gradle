@@ -44,6 +44,7 @@ dependencies {
 
     // coroutines
     implementation Libraries.androidCoroutines
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.lifecycleViewModelExtensions
 
     // koin

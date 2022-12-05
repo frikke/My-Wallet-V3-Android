@@ -38,7 +38,7 @@ class HomeAccountsRepository(
         val activeAssets = unifiedBalancesService.balances().mapData {
             it.map { balance ->
                 coincore[balance.currency]
-            }
+            }.toSet()
         }
 
         return activeAssets.flatMapData { assets ->

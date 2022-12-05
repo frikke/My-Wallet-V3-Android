@@ -17,6 +17,7 @@ import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
+import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
@@ -538,7 +539,7 @@ val applicationModule = module {
                 cardService = get(),
                 tradeDataService = get()
             )
-        }
+        }.bind(OnBoardingStepsService::class)
 
         factory<TradeDataService> {
             TradeDataRepository(

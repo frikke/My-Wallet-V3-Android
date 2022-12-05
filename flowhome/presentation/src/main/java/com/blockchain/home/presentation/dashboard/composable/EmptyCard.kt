@@ -10,6 +10,7 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenIntent
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewState
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.getViewModel
@@ -18,8 +19,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun EmptyCard(
     onReceive: () -> Unit,
-    onBuy: () -> Unit,
-    onboardingLaunch: () -> Unit,
+    assetActionsNavigation: AssetActionsNavigation,
     homeAssetsViewModel: AssetsViewModel,
     pkwActivityViewModel: PrivateKeyActivityViewModel,
     custodialActivityViewModel: CustodialActivityViewModel,
@@ -46,8 +46,7 @@ fun EmptyCard(
 
     when (viewState.mode) {
         WalletMode.CUSTODIAL_ONLY -> CustodialEmptyStateCards(
-            onboardingLaunch,
-            onBuy
+            assetActionsNavigation
         )
         WalletMode.NON_CUSTODIAL_ONLY -> NonCustodialEmptyStateCard(
             onReceive

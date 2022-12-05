@@ -5,6 +5,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
+import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -14,6 +15,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class GetDashboardOnboardingStepsUseCase(
@@ -23,7 +25,7 @@ class GetDashboardOnboardingStepsUseCase(
     private val bankService: BankService,
     private val cardService: CardService,
     private val tradeDataService: TradeDataService
-) : UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
+) : OnBoardingStepsService, UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
 
     override fun execute(parameter: Unit): Single<List<CompletableDashboardOnboardingStep>> =
         if (dashboardPrefs.isOnboardingComplete) {
@@ -83,4 +85,8 @@ class GetDashboardOnboardingStepsUseCase(
 
     private fun hasBoughtCrypto(): Single<Boolean> =
         tradeDataService.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
+
+    override suspend fun onBoardingSteps(): List<CompletableDashboardOnboardingStep> {
+        return execute(Unit).await()
+    }
 }
