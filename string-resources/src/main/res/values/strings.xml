@@ -32,6 +32,7 @@
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_stake">Stake</string>
+    <string name="common_earn">Earn</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_disconnect">Disconnect</string>
@@ -3489,5 +3490,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
     <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
     <string name="transfer_from_your_trading_account">Transfer from your Trading Account, send from any exchange, or ask a friend!</string>
+    <string name="earn_up_to">Earn up to 10%</string>
+    <string name="put_your_crypto_to_work">Put your crypto to work</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
@@ -51,7 +53,7 @@ fun BalanceTableRow(
             Image(
                 imageResource = startImageResource,
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
                     .size(dimensionResource(R.dimen.standard_spacing)),
                 defaultShape = RoundedCornerShape(2.dp)
             )
@@ -72,87 +74,29 @@ fun BalanceTableRow(
                 modifier = Modifier
                     .padding(start = startPadding, end = endPadding)
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.Center,
             ) {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    Text(
-                        text = titleStart,
-                        style = AppTheme.typography.body2,
-                        modifier = if (postStartTitleImageResource == ImageResource.None) {
-                            Modifier.weight(1f)
-                        } else {
-                            Modifier.wrapContentWidth()
-                        },
-                        textAlign = TextAlign.Start,
-                        color = AppTheme.colors.title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                if (bodyStart != null || (tags.isNotEmpty() && isInlineTags)) {
+                    TitleAndBodyTableRow(
+                        titleStart,
+                        titleEnd,
+                        bodyStart,
+                        isInlineTags,
+                        postStartTitleImageResource,
+                        postStartTitleImageResourceOnClick,
+                        tags,
+                        bodyEnd
                     )
-
-                    if (postStartTitleImageResource != ImageResource.None) {
-                        Image(
-                            imageResource = postStartTitleImageResource,
-                            modifier = Modifier
-                                .padding(AppTheme.dimensions.smallestSpacing)
-                                .clickable(onClick = postStartTitleImageResourceOnClick)
-                                .size(AppTheme.dimensions.smallSpacing)
-                        )
-                    }
-
-                    if (titleEnd != null) {
-                        Text(
-                            text = titleEnd,
-                            style = AppTheme.typography.body2,
-                            modifier = if (postStartTitleImageResource == ImageResource.None) {
-                                Modifier.wrapContentSize()
-                            } else {
-                                Modifier.weight(1f)
-                            },
-                            textAlign = TextAlign.End,
-                            color = AppTheme.colors.title
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        bodyStart?.let {
-                            Text(
-                                text = bodyStart,
-                                style = AppTheme.typography.paragraph1,
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .align(Alignment.CenterVertically),
-                                color = AppTheme.colors.body
-                            )
-                        }
-                        if (isInlineTags) {
-                            TagsRow(
-                                tags = tags,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                    }
-                    if (bodyEnd != null) {
-                        Text(
-                            text = bodyEnd,
-                            style = AppTheme.typography.paragraph1,
-                            modifier = Modifier.wrapContentSize(),
-                            color = AppTheme.colors.body
-                        )
-                    }
-                }
+                } else
+                    SingleTitleTableRow(
+                        titleStart,
+                        titleEnd,
+                        postStartTitleImageResource,
+                        postStartTitleImageResourceOnClick,
+                        bodyEnd
+                    )
             }
         },
         contentEnd = {
@@ -185,6 +129,165 @@ fun BalanceTableRow(
     )
 }
 
+@Composable
+private fun TitleAndBodyTableRow(
+    titleStart: AnnotatedString,
+    titleEnd: AnnotatedString?,
+    bodyStart: AnnotatedString?,
+    isInlineTags: Boolean,
+    postStartTitleImageResource: ImageResource,
+    postStartTitleImageResourceOnClick: () -> Unit,
+    tags: List<TagViewState>,
+    bodyEnd: AnnotatedString?
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Text(
+            text = titleStart,
+            style = AppTheme.typography.body2,
+            modifier = if (postStartTitleImageResource == ImageResource.None) {
+                Modifier.weight(1f)
+            } else {
+                Modifier.wrapContentWidth()
+            },
+            textAlign = TextAlign.Start,
+            color = AppTheme.colors.title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        if (postStartTitleImageResource != ImageResource.None) {
+            Image(
+                imageResource = postStartTitleImageResource,
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.smallestSpacing)
+                    .clickable(onClick = postStartTitleImageResourceOnClick)
+                    .size(AppTheme.dimensions.smallSpacing)
+            )
+        }
+
+        if (titleEnd != null) {
+            Text(
+                text = titleEnd,
+                style = AppTheme.typography.body2,
+                modifier = if (postStartTitleImageResource == ImageResource.None) {
+                    Modifier.wrapContentSize()
+                } else {
+                    Modifier.weight(1f)
+                },
+                textAlign = TextAlign.End,
+                color = AppTheme.colors.title
+            )
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Row(
+            modifier = Modifier.weight(1f)
+        ) {
+            bodyStart?.let {
+                Text(
+                    text = bodyStart,
+                    style = AppTheme.typography.paragraph1,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .align(CenterVertically),
+                    color = AppTheme.colors.body
+                )
+            }
+            if (isInlineTags) {
+                TagsRow(
+                    tags = tags,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+        if (bodyEnd != null) {
+            Text(
+                text = bodyEnd,
+                style = AppTheme.typography.paragraph1,
+                modifier = Modifier.wrapContentSize(),
+                color = AppTheme.colors.body
+            )
+        }
+    }
+}
+
+@Composable
+private fun SingleTitleTableRow(
+    titleStart: AnnotatedString,
+    titleEnd: AnnotatedString?,
+    postStartTitleImageResource: ImageResource,
+    postStartTitleImageResourceOnClick: () -> Unit,
+    bodyEnd: AnnotatedString?
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = titleStart,
+            style = AppTheme.typography.body2,
+            modifier = if (postStartTitleImageResource == ImageResource.None) {
+                Modifier
+                    .weight(1f)
+            } else {
+                Modifier.wrapContentWidth()
+            },
+            textAlign = TextAlign.Start,
+            color = AppTheme.colors.title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        if (postStartTitleImageResource != ImageResource.None) {
+            Image(
+                imageResource = postStartTitleImageResource,
+                alignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.smallestSpacing)
+                    .clickable(onClick = postStartTitleImageResourceOnClick)
+                    .size(AppTheme.dimensions.smallSpacing)
+                    .weight(1f)
+            )
+        }
+        Column {
+            if (titleEnd != null) {
+                Text(
+                    text = titleEnd,
+                    style = AppTheme.typography.body2,
+                    modifier = if (postStartTitleImageResource == ImageResource.None) {
+                        Modifier.wrapContentSize()
+                    } else {
+                        Modifier.wrapContentSize()
+                    }.align(Alignment.End),
+                    textAlign = TextAlign.End,
+                    color = AppTheme.colors.title
+                )
+            }
+            if (bodyEnd != null) {
+                Text(
+                    text = bodyEnd,
+                    style = AppTheme.typography.paragraph1,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .align(Alignment.End),
+                    color = AppTheme.colors.body
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun BalanceTableRow_Local_ImageStart() {
@@ -211,6 +314,9 @@ fun BalanceTableRow_Local_ImageEnd() {
             BalanceTableRow(
                 titleStart = buildAnnotatedString { append("Some title here") },
                 bodyStart = buildAnnotatedString { append("Some body here") },
+                postStartTitleImageResource = ImageResource.Local(
+                    id = R.drawable.ic_blockchain,
+                ),
                 onClick = {},
                 endImageResource = ImageResource.Local(
                     id = R.drawable.ic_blockchain,
@@ -250,7 +356,9 @@ fun BalanceTableRow_TitleStart_No_Body_Start() {
                 bodyEnd = buildAnnotatedString { append("$100") },
                 onClick = {},
                 tags = emptyList(),
-                startImageResource = ImageResource.None
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_blockchain,
+                )
             )
         }
     }

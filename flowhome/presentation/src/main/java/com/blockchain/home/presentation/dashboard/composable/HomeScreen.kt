@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
@@ -54,6 +55,10 @@ fun HomeScreen(
             HomeAssets(
                 openAllAssets = openCryptoAssets
             )
+        }
+
+        item {
+            EarnAssets()
         }
 
         item {
