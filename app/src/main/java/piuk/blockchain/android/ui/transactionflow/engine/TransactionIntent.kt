@@ -699,6 +699,23 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             )
     }
 
+    class UpdatePrivateKeyAccountsFilterState(private val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+    }
+
+    class UpdatePrivateKeyFilter(val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+
+        override fun isValidFor(oldState: TransactionState): Boolean =
+            isPkwAccountFilterActive != oldState.isPkwAccountFilterActive
+    }
+
     object LoadDepositTerms : TransactionIntent() {
 
         override fun isValidFor(oldState: TransactionState): Boolean = oldState.depositTerms == null

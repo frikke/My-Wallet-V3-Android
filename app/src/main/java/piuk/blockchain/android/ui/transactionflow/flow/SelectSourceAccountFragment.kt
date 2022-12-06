@@ -76,12 +76,19 @@ class SelectSourceAccountFragment :
                 }
             }
 
-            assetAction?.let {
-                if (customiser.selectSourceShouldHaveSearch(it)) {
-                    binding.setupSearch()
-                } else {
-                    with(binding) {
+            with(binding) {
+                assetAction?.let {
+                    if (customiser.selectSourceShouldHaveSearch(it)) {
+                        setupSearch()
+                    } else {
                         sourceSelectSearch.gone()
+                    }
+
+                    if (customiser.shouldShowSourceAccountWalletsSwitch(it)) {
+                        pkwSwitchLayout.visible()
+                        pkwAccountsSwitch.onCheckChanged = { isChecked ->
+                            model.process(TransactionIntent.UpdatePrivateKeyFilter(isChecked))
+                        }
                     }
                 }
             }
@@ -120,6 +127,8 @@ class SelectSourceAccountFragment :
 
         availableSources = newState.availableSources
         linkingBankState = newState.linkBankState
+
+        binding.pkwAccountsSwitch.isChecked = newState.isPkwAccountFilterActive
     }
 
     private fun FragmentTxAccountSelectorBinding.setupSearch() {

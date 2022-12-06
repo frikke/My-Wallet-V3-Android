@@ -126,6 +126,12 @@ class PrefsUtil(
             setValue(KEY_SHOW_TRADING_ON_PKW_MODE, value)
         }
 
+    override var showPkwAccountsOnTradingMode: Boolean
+        get() = getValue(KEY_SHOW_PKW_ON_TRADING_MODE, true)
+        set(value) {
+            setValue(KEY_SHOW_PKW_ON_TRADING_MODE, value)
+        }
+
     override var isOnboardingComplete: Boolean
         get() = getValue(KEY_ONBOARDING_COMPLETE, false)
         set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)
@@ -811,6 +817,7 @@ class PrefsUtil(
         private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
         private const val KEY_RESTORED_WALLET = "restored_wallet"
         private const val KEY_SHOW_TRADING_ON_PKW_MODE = "SHOW_TRADING_ON_PKW_MODE"
+        private const val KEY_SHOW_PKW_ON_TRADING_MODE = "KEY_SHOW_PKW_ON_TRADING_MODE"
 
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
         private const val KEY_EMAIL = "KEY_EMAIL"
