@@ -2,14 +2,16 @@ package com.blockchain.prices.prices
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
@@ -36,12 +38,13 @@ class PricesViewModel(
     private val pricesPrefs: PricesPrefs,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val simpleBuyService: SimpleBuyService
 ) : MviViewModel<PricesIntents,
     PricesViewState,
     PricesModelState,
     NavigationEvent,
     ModelConfigArgs.NoArgs>(
-    PricesModelState(tradableCurrencies = emptyList())
+    PricesModelState()
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -50,9 +53,26 @@ class PricesViewModel(
         return PricesViewState(
             availableFilters = state.filters,
             selectedFilter = state.filterBy,
-            data = state.data.mapList {
-                it.toPriceItemViewModel()
-            }
+            data = state.data
+                .filter { assetPriceInfo ->
+                    state.tradableCurrencies.map {
+                        it.contains(assetPriceInfo.assetInfo.networkTicker)
+                    }.dataOrElse(false)
+                }.map {
+                    it.sortedWith(
+                        compareByDescending<AssetPriceInfo> { assetPriceInfo ->
+                            state.tradableCurrencies.map {
+                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                            }.dataOrElse(false)
+                        }.thenByDescending {
+                            it.price.map { it.marketCap }.dataOrElse(null)
+                        }.thenBy {
+                            it.assetInfo.name
+                        }
+                    )
+                }.mapList {
+                    it.toPriceItemViewModel()
+                }
 
             //            state.data.filter {
             //                state.filterBy == PricesFilter.All || it.isTradingAccount == true
@@ -104,18 +124,23 @@ class PricesViewModel(
 
     private fun loadAvailableAssets() {
         viewModelScope.launch {
-            try {
-                loadAssetsAndPrices()
-                    .onEach { prices ->
-                        updateState {
-                            it.copy(data = it.data.updateDataWith(prices))
-                        }
-                    }.collect()
-            } catch (e: Exception) {
-                //                updateState {
-                //                    modelState.copy(isError = true, isLoadingData = false, data = emptyList(), fiatCurrency = null)
-                //                }
-            }
+            simpleBuyService.getSupportedBuySellCryptoCurrencies()
+                .onEach { dataResource ->
+                    updateState {
+                        modelState.copy(tradableCurrencies = dataResource.mapList { it.source.networkTicker })
+                    }
+                }
+                .collect()
+        }
+
+        viewModelScope.launch {
+            loadAssetsAndPrices()
+                .onEach { prices ->
+                    updateState {
+                        it.copy(data = it.data.updateDataWith(prices))
+                    }
+                }.collect()
+
             //            walletModeService.walletMode.collectLatest {
             //                updateState { state ->
             //                    if (it != WalletMode.UNIVERSAL) {

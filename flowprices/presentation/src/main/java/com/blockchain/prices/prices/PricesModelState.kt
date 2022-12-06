@@ -8,7 +8,7 @@ import info.blockchain.balance.Currency
 
 data class PricesModelState(
     val filters: List<PricesFilter> = emptyList(),
-    val tradableCurrencies: List<String>,
+    val tradableCurrencies: DataResource<List<String>> = DataResource.Loading,
     val data: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
     val queryBy: String = "",
     val filterBy: PricesFilter = PricesFilter.All

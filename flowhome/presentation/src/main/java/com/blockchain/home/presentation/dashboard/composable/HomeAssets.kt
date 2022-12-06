@@ -128,8 +128,7 @@ fun HomeAssetsScreen(
 
         when (fiatAssets) {
             DataResource.Loading -> {
-                ShimmerLoadingTableRow()
-                ShimmerLoadingTableRow()
+                ShimmerLoadingCard()
             }
             is DataResource.Error -> {
                 // todo
