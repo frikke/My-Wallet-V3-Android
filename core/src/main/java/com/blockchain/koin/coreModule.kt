@@ -72,6 +72,7 @@ import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.core.referral.ReferralRepository
+import com.blockchain.core.referral.dataresource.ReferralStore
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
@@ -525,8 +526,14 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            ReferralStore(
+                referralApi = get()
+            )
+        }
         factory {
             ReferralRepository(
+                referralStore = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
             )

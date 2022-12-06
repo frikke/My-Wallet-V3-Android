@@ -573,7 +573,7 @@ class PortfolioFragment :
                         onClick = {
                             if (cowboysState.referralData is ReferralInfo.Data) {
                                 analytics.logEvent(CowboysAnalytics.ReferFriendAnnouncementClicked)
-                                showBottomSheet(ReferralSheet.newInstance(cowboysState.referralData))
+                                showBottomSheet(ReferralSheet.newInstance())
                             }
                         },
                         isDismissable = true,

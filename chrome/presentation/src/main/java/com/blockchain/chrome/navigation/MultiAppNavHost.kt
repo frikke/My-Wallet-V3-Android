@@ -24,7 +24,7 @@ fun MultiAppNavHost(
         chrome(navController, assetActionsNavigation)
 
         // home screens
-        homeGraph()
+        homeGraph(onBackPressed = navController::popBackStack)
     }
 }
 
@@ -37,6 +37,9 @@ private fun NavGraphBuilder.chrome(navController: NavHostController, assetAction
             },
             openActivity = {
                 navController.navigate(HomeDestination.Activity)
+            },
+            openReferral = {
+                navController.navigate(HomeDestination.Referral)
             }
         )
     }
