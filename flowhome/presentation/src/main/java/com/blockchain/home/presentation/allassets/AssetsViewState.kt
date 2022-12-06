@@ -50,14 +50,16 @@ interface HomeCryptoAsset : HomeAsset
 data class WalletBalance(
     val balance: DataResource<Money>,
     private val cryptoBalanceDifference24h: DataResource<Money>,
+    private val cryptoBalanceNow: DataResource<Money>,
 ) {
 
     val balanceDifference: BalanceDifferenceConfig
-        get() = combineDataResources(balance, cryptoBalanceDifference24h) { now, difference ->
+        get() = combineDataResources(cryptoBalanceNow, cryptoBalanceDifference24h) { now, yesterday ->
+            val difference = now.minus(yesterday)
             if (now.isZero && difference.isZero)
                 BalanceDifferenceConfig()
             else
-                ValueChange.fromValue(now.percentageDelta(difference)).takeIf { !it.value.isNaN() }
+                ValueChange.fromValue(now.percentageDelta(yesterday)).takeIf { !it.value.isNaN() }
                     ?.let { valueChange ->
                         BalanceDifferenceConfig(
                             "${valueChange.indicator} " +

@@ -58,7 +58,7 @@ fun HomeScreen(
         }
 
         item {
-            EarnAssets()
+            EarnAssets(assetActionsNavigation = assetActionsNavigation)
         }
 
         item {

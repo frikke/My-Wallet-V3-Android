@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.tablerow.TableRow
@@ -30,10 +29,12 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 
-@Preview
 @Composable
-fun EarnAssets() {
+fun EarnAssets(
+    assetActionsNavigation: AssetActionsNavigation
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,9 +114,7 @@ fun EarnAssets() {
                             )
                         },
                         onClick = {
-                            /**
-                             * TODO Interest dashboard
-                             */
+                            assetActionsNavigation.earnRewards()
                         },
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)

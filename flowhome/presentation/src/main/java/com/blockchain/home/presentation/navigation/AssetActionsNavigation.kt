@@ -8,5 +8,6 @@ import info.blockchain.balance.Money
 interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
     fun buyCrypto(currency: AssetInfo, amount: Money?)
+    fun earnRewards()
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
 }

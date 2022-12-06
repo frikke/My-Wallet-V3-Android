@@ -14,7 +14,6 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
-import com.blockchain.data.combineDataResources
 import com.blockchain.data.doOnError
 import com.blockchain.data.filter
 import com.blockchain.data.flatMap
@@ -44,7 +43,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 class AssetsViewModel(
@@ -185,13 +183,7 @@ class AssetsViewModel(
         accountsJob?.cancel()
         accountsJob = viewModelScope.launch {
             homeAccountsService.accounts()
-                .onStart {
-                    updateState { state ->
-                        state.copy(
-                            accounts = DataResource.Loading
-                        )
-                    }
-                }.doOnError {
+                .doOnError {
                     /**
                      * TODO Handle error for fetching accounts for wallet mode
                      */
@@ -203,22 +195,11 @@ class AssetsViewModel(
                     val newAssets = new.data.map { it.currency.networkTicker }
                     newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
                 }
-                .onEach { data ->
-                    updateState { state ->
-                        state.copy(
-                            accounts = DataResource.Data(
-                                data.data.map { account ->
-                                    ModelAccount(
-                                        singleAccount = account,
-                                        balance = DataResource.Loading,
-                                        exchangeRate24hWithDelta = DataResource.Loading,
-                                        fiatBalance = DataResource.Loading,
-                                        usdRate = DataResource.Loading
-                                    )
-                                }
-                            )
-                        )
-                    }
+                .map { accounts ->
+                    updateAccountsIfNeeded(
+                        accounts.data,
+                        modelState.accounts
+                    )
                 }
                 .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                 .flatMapLatest { accounts ->
@@ -265,6 +246,64 @@ class AssetsViewModel(
                     }
                     merge(usdRate, balances, exchangeRates)
                 }.collect()
+        }
+    }
+
+    /**
+     * Check the current model state and the new accounts and updates only if its needed.
+     * Returns the updated state accounts
+     */
+    private fun updateAccountsIfNeeded(
+        accounts: List<SingleAccount>,
+        stateAccounts: DataResource<List<ModelAccount>>
+    ): DataResource<List<SingleAccount>> {
+        when (stateAccounts) {
+            is DataResource.Loading,
+            is DataResource.Error -> {
+                updateState {
+                    it.copy(
+                        accounts = DataResource.Data(
+                            accounts.map { account ->
+                                ModelAccount(
+                                    singleAccount = account,
+                                    balance = DataResource.Loading,
+                                    exchangeRate24hWithDelta = DataResource.Loading,
+                                    fiatBalance = DataResource.Loading,
+                                    usdRate = DataResource.Loading
+                                )
+                            }
+                        )
+                    )
+                }
+                return DataResource.Data(accounts)
+            }
+            is DataResource.Data -> {
+                val modelAccounts = stateAccounts.data
+                if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
+                    .containsAll(
+                            accounts.map { it.currency.networkTicker }
+                        )
+                ) {
+                    return DataResource.Data(modelAccounts.map { it.singleAccount })
+                } else {
+                    updateState {
+                        it.copy(
+                            accounts = DataResource.Data(
+                                accounts.map { account ->
+                                    ModelAccount(
+                                        singleAccount = account,
+                                        balance = DataResource.Loading,
+                                        exchangeRate24hWithDelta = DataResource.Loading,
+                                        fiatBalance = DataResource.Loading,
+                                        usdRate = DataResource.Loading
+                                    )
+                                }
+                            )
+                        )
+                    }
+                    return DataResource.Data(accounts)
+                }
+            }
         }
     }
 
@@ -327,9 +366,8 @@ class AssetsViewModel(
 
         return WalletBalance(
             balance = totalBalance(),
-            cryptoBalanceDifference24h = combineDataResources(cryptoBalanceNow, cryptoBalance24hAgo) { now, yesterday ->
-                now.minus(yesterday).abs()
-            }
+            cryptoBalanceDifference24h = cryptoBalance24hAgo,
+            cryptoBalanceNow = cryptoBalanceNow
         )
     }
 }

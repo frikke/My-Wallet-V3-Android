@@ -11,6 +11,7 @@ import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
+import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
 class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : AssetActionsNavigation {
@@ -58,6 +59,14 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
                 context = activity,
                 asset = currency,
                 preselectedAmount = amount?.toBigDecimal().toString()
+            )
+        )
+    }
+
+    override fun earnRewards() {
+        activity!!.startActivity(
+            InterestDashboardActivity.newInstance(
+                activity
             )
         )
     }
