@@ -106,7 +106,7 @@ class CustodialActivityDetailViewModel(
                                         isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
-                                    is CustodialInterestActivitySummaryItem -> transferDetail()
+                                    is CustodialInterestActivitySummaryItem -> interestDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -237,7 +237,7 @@ class CustodialActivityDetailViewModel(
         }
     }
 
-    private fun CustodialInterestActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
