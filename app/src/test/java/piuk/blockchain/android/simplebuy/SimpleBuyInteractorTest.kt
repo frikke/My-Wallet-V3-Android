@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.limits.LimitsDataManager
@@ -24,7 +25,6 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.payments.core.CardAcquirer
@@ -59,7 +59,7 @@ class SimpleBuyInteractorTest {
     private val withdrawLocksRepository: WithdrawLocksRepository = mock()
     private val analytics: Analytics = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
-    private val eligibilityProvider: SimpleBuyEligibilityProvider = mock()
+    private val simpleBuyService: SimpleBuyService = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val coincore: Coincore = mock()
     private val userIdentity: UserIdentity = mock()
@@ -106,7 +106,7 @@ class SimpleBuyInteractorTest {
             limitsDataManager = limitsDataManager,
             coincore = coincore,
             userIdentity = userIdentity,
-            eligibilityProvider = eligibilityProvider,
+            simpleBuyService = simpleBuyService,
             bankLinkingPrefs = bankLinkingPrefs,
             analytics = analytics,
             exchangeRatesDataManager = exchangeRatesDataManager,

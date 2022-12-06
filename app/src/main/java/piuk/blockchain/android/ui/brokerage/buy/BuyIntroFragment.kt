@@ -44,6 +44,8 @@ import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
+import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
@@ -307,7 +309,7 @@ class BuyIntroFragment :
     }
 
     override fun startKycClicked() {
-        navigator().launchKyc(CampaignType.SimpleBuy)
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, MainActivity.KYC_STARTED)
     }
 
     override fun onDestroyView() {

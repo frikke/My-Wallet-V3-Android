@@ -143,7 +143,7 @@ fun ReferralScreenData(
                     .clickable(true, onClick = onBackPressed)
             ) {
                 Image(
-                    ImageResource.Local(id = R.drawable.ic_arrow_back_blue)
+                    imageResource = ImageResource.Local(id = R.drawable.ic_arrow_back_blue)
                 )
             }
 

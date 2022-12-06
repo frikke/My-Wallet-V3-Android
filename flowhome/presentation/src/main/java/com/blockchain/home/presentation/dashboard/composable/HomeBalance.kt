@@ -16,13 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.system.ShimmerLoadingBox
-import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.combineDataResources
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.allassets.BalanceDifferenceConfig
 import com.blockchain.home.presentation.allassets.WalletBalance
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
@@ -52,8 +51,7 @@ fun BalanceScreen(
         TotalBalance(balance = walletBalance.balance)
 
         BalanceDifference(
-            balanceDifference = walletBalance.cryptoBalanceDifference24h,
-            percentChange = walletBalance.percentChange
+            balanceDifference = walletBalance.balanceDifference,
         )
     }
 }
@@ -89,35 +87,15 @@ fun ColumnScope.TotalBalance(balance: DataResource<Money>) {
 
 @Composable
 fun ColumnScope.BalanceDifference(
-    balanceDifference: DataResource<Money>,
-    percentChange: DataResource<ValueChange>
+    balanceDifference: BalanceDifferenceConfig,
 ) {
-    val difference = combineDataResources(
-        balanceDifference,
-        percentChange
-    ) { balanceDifferenceData, percentChangeData -> balanceDifferenceData to percentChangeData }
-
-    when (difference) {
-        DataResource.Loading -> {
-            // n/a
-        }
-
-        is DataResource.Data -> {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-            difference.data.let { (balanceDifference, percentChange) ->
-                Text(
-                    text =
-                    "${percentChange.indicator} ${balanceDifference.toStringWithSymbol()} (${percentChange.value}%)",
-                    style = AppTheme.typography.paragraph2,
-                    color = percentChange.color
-                )
-            }
-        }
-
-        is DataResource.Error -> {
-            // todo(othman) checking with Ethan
-        }
+    if (balanceDifference.text.isNotEmpty()) {
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Text(
+            text = balanceDifference.text,
+            style = AppTheme.typography.paragraph2,
+            color = balanceDifference.color
+        )
     }
 }
 
@@ -129,6 +107,7 @@ fun PreviewBalanceScreen() {
         WalletBalance(
             balance = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
             cryptoBalanceDifference24h = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         )
     )
 }
@@ -140,6 +119,7 @@ fun PreviewBalanceScreenLoading() {
         walletBalance = WalletBalance(
             balance = DataResource.Loading,
             cryptoBalanceDifference24h = DataResource.Loading,
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         )
     )
 }

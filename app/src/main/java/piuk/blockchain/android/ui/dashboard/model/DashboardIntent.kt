@@ -9,13 +9,13 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import java.io.Serializable
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
@@ -59,6 +59,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     class UpdateActiveAssets(
         val assetList: List<Asset>,
         val walletMode: WalletMode,
+        val totalDisplayBalanceFFEnabled: Boolean,
+        val assetDisplayBalanceFFEnabled: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState

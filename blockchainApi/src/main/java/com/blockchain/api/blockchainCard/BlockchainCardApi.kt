@@ -8,6 +8,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardKycStatusDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardKycUpdateRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardSetPinURLResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
@@ -138,4 +139,9 @@ internal interface BlockchainCardApi {
     suspend fun updateKyc(
         @Body kycUpdateRequest: BlockchainCardKycUpdateRequestDto
     ): Outcome<Exception, BlockchainCardKycStatusDto>
+
+    @GET("card-issuing/cards/{cardId}/pin-widget-url")
+    suspend fun getSetPinUrl(
+        @Path("cardId") cardId: String,
+    ): Outcome<Exception, BlockchainCardSetPinURLResponseDto>
 }

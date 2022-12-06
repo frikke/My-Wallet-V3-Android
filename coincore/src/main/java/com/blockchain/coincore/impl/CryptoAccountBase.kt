@@ -202,7 +202,7 @@ abstract class CryptoNonCustodialAccount(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadDataManager: PayloadDataManager by scopedInject()
     private val unifiedBalancesService: UnifiedBalancesService by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val unifiedBalancesFeatureFlag: FeatureFlag by inject(unifiedBalancesFlag)
     private val identity: UserIdentity by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
@@ -240,6 +240,7 @@ abstract class CryptoNonCustodialAccount(
                         pending = it.unconfirmedBalance,
                         exchangeRate = it.exchangeRate,
                         withdrawable = it.balance,
+                        dashboardDisplay = it.balance,
                     )
                 }
             } else {
@@ -251,6 +252,7 @@ abstract class CryptoNonCustodialAccount(
                         total = balance,
                         withdrawable = balance,
                         pending = Money.zero(currency),
+                        dashboardDisplay = balance,
                         exchangeRate = rate
                     )
                 }

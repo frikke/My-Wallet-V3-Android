@@ -288,8 +288,7 @@ class TransactionFlowActivity :
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
-                    featureBlockedReason.assetIconUrl,
-                    featureBlockedReason.bondingDays
+                    featureBlockedReason.assetIconUrl
                 )
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"

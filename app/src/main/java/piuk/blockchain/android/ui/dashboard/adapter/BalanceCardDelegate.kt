@@ -122,7 +122,9 @@ private class BalanceCardViewHolder(
 
             val entries = ArrayList<PieEntry>().apply {
                 assets.forEach { assetState ->
-                    val point = assetState.fiatBalance?.toFloat() ?: 0f
+                    val point = assetState.fiatBalance(
+                        useDisplayBalance = assetState.assetDisplayBalanceFFEnabled
+                    )?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
             }

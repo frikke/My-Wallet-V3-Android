@@ -77,6 +77,7 @@ import io.reactivex.rxjava3.core.Single
                     total = balance,
                     withdrawable = balance,
                     pending = Money.zero(currency),
+                    dashboardDisplay = balance,
                     exchangeRate = rate
                 )
             }

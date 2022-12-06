@@ -110,13 +110,13 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             verifyClicked = {
                 ctaClicked = true
                 logAnalytics(
-                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.AnalyticsType.GetVerifiedClicked
+                    AnalyticsType.GetVerifiedClicked
                 )
                 startKycClicked()
             }
         ).apply {
             val initialItems =
-                com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().toList()
+                ViewPagerTab.values().toList()
                     .toItems(isBasicApproved = false)
             submitList(initialItems)
         }
@@ -124,18 +124,18 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         viewPager.adapter = viewPagerAdapter
         tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text =
-                when (com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values()[position]) {
-                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.BASIC -> getString(
+                when (ViewPagerTab.values()[position]) {
+                    ViewPagerTab.BASIC -> getString(
                         R.string.kyc_upgrade_now_tab_basic
                     )
-                    com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.VERIFIED -> getString(
+                    ViewPagerTab.VERIFIED -> getString(
                         R.string.kyc_upgrade_now_tab_verified
                     )
                 }
         }
         tabLayoutMediator.attach()
         viewPager.setCurrentItem(
-            com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().indexOf(initialTab),
+            ViewPagerTab.values().indexOf(initialTab),
             false
         )
 
@@ -144,14 +144,14 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                 onSuccess = { (highestTier, _) ->
                     val isAtleastSilver = highestTier != KycTier.BRONZE
                     val items =
-                        com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.ViewPagerTab.values().toList()
+                        ViewPagerTab.values().toList()
                             .toItems(isBasicApproved = isAtleastSilver)
                     viewPagerAdapter.submitList(items)
                 },
                 onError = {}
             )
 
-        logAnalytics(com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet.AnalyticsType.Viewed)
+        logAnalytics(AnalyticsType.Viewed)
     }
 
     private fun startKycClicked() {

@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -12,6 +11,7 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -34,11 +34,11 @@ internal fun FiatActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
         TransactionType.DEPOSIT -> R.string.tx_title_deposited
         TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun FiatActivitySummaryItem.detailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
     // to/from ---- euro
@@ -94,7 +94,7 @@ internal fun FiatActivitySummaryItem.detailItems(
     // to/from ---- euro
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOf(
+        itemGroup = listOfNotNull(
             // status ---- success
             ActivityComponent.StackView(
                 id = toString(),
@@ -111,9 +111,8 @@ internal fun FiatActivitySummaryItem.detailItems(
                     )
                 )
             ),
-            // extra
             // payment method
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            extras[CustodialActivityDetailExtraKey.PaymentMethod]?.toActivityComponent()
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -188,8 +187,8 @@ internal fun FiatActivitySummaryItem.buildActivityDetail(
     paymentMethod: PaymentMethodDetails
 ) = CustodialActivityDetail(
     activity = this,
-    extras = listOf(
-        CustodialActivityDetailExtra(
+    extras = mapOf(
+        CustodialActivityDetailExtraKey.PaymentMethod to CustodialActivityDetailExtra(
             title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
             value = with(paymentMethod) {
                 when {

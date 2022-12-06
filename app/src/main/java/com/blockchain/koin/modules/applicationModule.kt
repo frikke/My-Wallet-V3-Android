@@ -17,6 +17,7 @@ import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
+import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
@@ -168,6 +169,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
+import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 
 val applicationModule = module {
@@ -437,7 +439,7 @@ val applicationModule = module {
                 limitsDataManager = get(),
                 coincore = get(),
                 userIdentity = get(),
-                eligibilityProvider = get(),
+                simpleBuyService = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
                 exchangeRatesDataManager = get(),
@@ -472,7 +474,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 fiatCurrenciesService = get(),
-                buyOrdersCache = get(),
+                buyOrdersStore = get(),
                 serializer = get(),
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
@@ -537,7 +539,7 @@ val applicationModule = module {
                 cardService = get(),
                 tradeDataService = get()
             )
-        }
+        }.bind(OnBoardingStepsService::class)
 
         factory<TradeDataService> {
             TradeDataRepository(
@@ -881,6 +883,12 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
+
+    single {
+        DefaultWalletModeStrategy(
+            walletModePrefs = get()
+        )
+    }
 }
 
 fun getCardProcessors(): List<CardProcessor> {

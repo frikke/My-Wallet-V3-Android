@@ -61,10 +61,6 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
         arguments?.getString(ASSET_ICON_URL)
     }
 
-    private val bondingDays: Int? by lazy {
-        arguments?.getInt(ASSET_BONDING_DAYS)
-    }
-
     interface Host : HostedBottomSheet.Host {
         fun learnMoreClicked()
         fun onNextClicked()
@@ -79,19 +75,16 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
             onLearnMoreClicked = host::learnMoreClicked,
             onNext = host::onNextClicked,
             assetIcon = assetIconUrl?.let { ImageResource.Remote(it) } ?: ImageResource.Local(R.drawable.ic_blockchain),
-            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer),
-            bondingDays = bondingDays ?: 0
+            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer)
         )
     }
 
     companion object {
         private const val ASSET_ICON_URL = "ASSET_ICON_URL"
-        private const val ASSET_BONDING_DAYS = "ASSET_BONDING_DAYS"
-        fun newInstance(assetIconUrl: String?, bondingDays: Int) =
+        fun newInstance(assetIconUrl: String?) =
             StakingAccountWithdrawWarning().apply {
                 arguments = Bundle().apply {
                     putString(ASSET_ICON_URL, assetIconUrl)
-                    putInt(ASSET_BONDING_DAYS, bondingDays)
                 }
             }
     }
@@ -105,14 +98,9 @@ fun StakingAccountInfo(
     onLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
     assetIcon: ImageResource,
-    accountTypeIcon: ImageResource,
-    bondingDays: Int
+    accountTypeIcon: ImageResource
 ) {
-    val items = listOf(
-        InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph_1)),
-        InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph_2, bondingDays)),
-        InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph_3, bondingDays))
-    )
+    val items = listOf(InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph)))
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     val scroll = rememberScrollState(0)
@@ -255,8 +243,7 @@ fun StakingInfo() {
                 {},
                 {},
                 ImageResource.Local(R.drawable.ic_blockchain),
-                ImageResource.Local(R.drawable.ic_staking_explainer),
-                2
+                ImageResource.Local(R.drawable.ic_staking_explainer)
             )
         }
     }

@@ -21,13 +21,11 @@ import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.CreateNabuTokenAdapter
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.NabuCachedEligibilityProvider
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManagerImpl
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.NabuUserSyncUpdateUserWalletInfoWithJWT
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsNabuUserReporter
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsWalletReporter
@@ -36,10 +34,8 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletM
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
-import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
-import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProvider
-import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProviderImpl
+import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityStore
+import com.blockchain.nabu.datamanagers.repositories.swap.CustodialTradingPairsStore
 import com.blockchain.nabu.metadata.AccountCredentialsMetadata
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
 import com.blockchain.nabu.service.NabuService
@@ -123,10 +119,7 @@ val nabuModule = module {
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
-                buyOrdersCache = get(),
-                pairsCache = get(),
                 simpleBuyService = get(),
-                swapOrdersCache = get(),
                 paymentMethodsEligibilityStore = get(),
                 fiatCurrenciesService = get()
             )
@@ -141,32 +134,12 @@ val nabuModule = module {
                 custodialWalletManager = get(),
                 interestService = get(),
                 kycService = get(),
-                simpleBuyEligibilityProvider = get(),
+                simpleBuyService = get(),
                 eligibilityService = get(),
                 userService = get(),
                 bindFeatureFlag = get(bindFeatureFlag)
             )
         }.bind(UserIdentity::class)
-
-        factory {
-            NabuCachedEligibilityProvider(
-                nabuService = get(),
-            )
-        }.bind(SimpleBuyEligibilityProvider::class)
-
-        factory {
-            TradingPairsProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-            )
-        }.bind(TradingPairsProvider::class)
-
-        factory {
-            SwapActivityProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-            )
-        }.bind(SwapActivityProvider::class)
 
         factory(uniqueUserAnalytics) {
             UniqueAnalyticsNabuUserReporter(
@@ -217,8 +190,21 @@ val nabuModule = module {
 
         scoped {
             CustodialRepository(
-                pairsProvider = get(),
-                activityProvider = get()
+                pairsStore = get(),
+                swapActivityStore = get(),
+                assetCatalogue = get()
+            )
+        }
+
+        scoped {
+            CustodialSwapActivityStore(
+                nabuService = get()
+            )
+        }
+
+        scoped {
+            CustodialTradingPairsStore(
+                nabuService = get()
             )
         }
 
@@ -245,9 +231,7 @@ val nabuModule = module {
     }
 
     single {
-        UserTagsRepository(
-            walletModeService = get()
-        )
+        UserTagsRepository()
     }.bind(TagsService::class)
 
     factory {

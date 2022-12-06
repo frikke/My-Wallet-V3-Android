@@ -19,7 +19,8 @@ data class StakingSummaryViewState(
     val earnedFiat: Money?,
     val stakingRate: Double,
     val isWithdrawable: Boolean,
-    val rewardsFrequency: EarnRewardsFrequency
+    val rewardsFrequency: EarnRewardsFrequency,
+    val canDeposit: Boolean
 ) : ViewState
 
 sealed class StakingError {

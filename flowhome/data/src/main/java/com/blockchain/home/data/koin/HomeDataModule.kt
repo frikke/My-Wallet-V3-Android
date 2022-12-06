@@ -16,6 +16,7 @@ val homeDataModule = module {
     scope(payloadScopeQualifier) {
         scoped {
             HomeAccountsRepository(
+                unifiedBalancesService = get(),
                 coincore = get(),
                 walletModeService = get(superAppModeService)
             )
@@ -25,7 +26,7 @@ val homeDataModule = module {
             CustodialActivityStore(coincore = get())
         }
 
-        factory <CustodialActivityService> {
+        factory<CustodialActivityService> {
             CustodialActivityRepository(custodialActivityStore = get())
         }
     }

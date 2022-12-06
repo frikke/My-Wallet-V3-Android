@@ -9,9 +9,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewUiTourBinding
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 
 class UiTourView @JvmOverloads constructor(
     ctx: Context,

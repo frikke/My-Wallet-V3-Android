@@ -8,6 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -21,7 +22,8 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 private fun StyledText(
     text: String,
-    style: ViewStyle.TextStyle
+    style: ViewStyle.TextStyle,
+    textAlign: TextAlign
 ) {
     Text(
         text = text,
@@ -29,6 +31,7 @@ private fun StyledText(
             textDecoration = style.textDecoration()
         ),
         color = style.color,
+        textAlign = textAlign
     )
 }
 
@@ -51,7 +54,7 @@ fun CustomTableRow(
 
             Column {
                 leadingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(viewType)
+                    SingleComponent(viewType, isTrailing = false)
 
                     if (index < leadingComponents.lastIndex) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
@@ -66,7 +69,7 @@ fun CustomTableRow(
                 horizontalAlignment = Alignment.End
             ) {
                 trailingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(viewType)
+                    SingleComponent(viewType = viewType, isTrailing = true)
 
                     if (index < trailingComponents.lastIndex) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
@@ -79,12 +82,16 @@ fun CustomTableRow(
 }
 
 @Composable
-private fun SingleComponent(viewType: ViewType) {
+private fun SingleComponent(
+    viewType: ViewType,
+    isTrailing: Boolean
+) {
     when (viewType) {
         is ViewType.Text -> {
             StyledText(
                 text = viewType.value,
-                style = viewType.style
+                style = viewType.style,
+                textAlign = if (isTrailing) TextAlign.End else TextAlign.Start
             )
         }
 

@@ -32,6 +32,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -62,6 +63,7 @@ val coreAndroidModule = module {
         bind(DashboardPrefs::class)
         bind(SecurityPrefs::class)
         bind(PricesPrefs::class)
+        bind(WalletModePrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
         bind(WalletStatusPrefs::class)

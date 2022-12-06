@@ -165,7 +165,7 @@ class MainActivity :
         get() = binding.mainToolbar
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val mvpPrefs: SuperAppMvpPrefs by inject()
 
     @Deprecated("Use MVI loop instead")
@@ -231,7 +231,9 @@ class MainActivity :
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
-        val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
+        val startUiTour = intent.getBooleanExtra(
+            START_UI_TOUR_KEY, false
+        ) && walletModeService.enabledWalletMode() != WalletMode.NON_CUSTODIAL_ONLY
         intent.removeExtra(START_UI_TOUR_KEY)
 
         if (intent.hasExtra(SHOW_SWAP) &&

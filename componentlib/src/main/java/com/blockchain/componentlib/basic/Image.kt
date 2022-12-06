@@ -26,14 +26,16 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 @Composable
 fun Image(
+    modifier: Modifier = Modifier,
     imageResource: ImageResource,
     defaultShape: Shape = CircleShape,
-    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit
 ) {
     when (imageResource) {
         is ImageResource.Local ->
             androidx.compose.foundation.Image(
+                alignment = alignment,
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
@@ -44,6 +46,7 @@ fun Image(
             )
         is ImageResource.LocalWithResolvedBitmap ->
             androidx.compose.foundation.Image(
+                alignment = alignment,
                 painter = rememberAsyncImagePainter(imageResource.bitmap),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
@@ -53,6 +56,7 @@ fun Image(
             )
         is ImageResource.LocalWithResolvedDrawable ->
             androidx.compose.foundation.Image(
+                alignment = alignment,
                 painter = rememberDrawablePainter(imageResource.drawable),
                 contentDescription = imageResource.contentDescription,
                 modifier = imageResource.shape?.let {
@@ -64,6 +68,7 @@ fun Image(
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
+                alignment = alignment,
                 painter = rememberAsyncImagePainter(imageResource.url),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
@@ -124,6 +129,7 @@ fun Image(
                     painter = painterResource(imageResource.id),
                     contentDescription = imageResource.contentDescription,
                     modifier = modifier,
+                    alignment = alignment,
                     colorFilter = ColorFilter.tint(filterColor),
                     contentScale = contentScale,
                 )

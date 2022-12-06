@@ -14,7 +14,7 @@ import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
-import com.blockchain.core.buy.BuyOrdersCache
+import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -71,7 +71,7 @@ import timber.log.Timber
 
 class SimpleBuyModel(
     fiatCurrenciesService: FiatCurrenciesService,
-    private val buyOrdersCache: BuyOrdersCache,
+    private val buyOrdersStore: BuyOrdersStore,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
@@ -1046,7 +1046,7 @@ class SimpleBuyModel(
                 selectedPaymentMethod = selectedPaymentMethod,
                 recurringBuyFrequency = recurringBuyFrequency
             ).trackProgress(activityIndicator)
-                .doOnTerminate { buyOrdersCache.invalidate() }
+                .doOnTerminate { buyOrdersStore.invalidate() }
         ).subscribeBy(
             onSuccess =
             {
@@ -1146,7 +1146,7 @@ class SimpleBuyModel(
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId, googlePayAddress)
             .map { it }
             .trackProgress(activityIndicator)
-            .doOnTerminate { buyOrdersCache.invalidate() }
+            .doOnTerminate { buyOrdersStore.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     triggerIntentsAfterOrderConfirmed(buySellOrder)

@@ -28,6 +28,8 @@ import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountAct
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.SetPinPage
+import com.blockchain.blockchaincard.ui.composables.managecard.SetPinSuccess
 import com.blockchain.blockchaincard.ui.composables.managecard.Support
 import com.blockchain.blockchaincard.ui.composables.managecard.SupportPage
 import com.blockchain.blockchaincard.ui.composables.managecard.TerminateCard
@@ -363,11 +365,14 @@ fun BlockchainCardNavHost(
                 state?.currentCard?.let { card ->
                     ManageCardDetails(
                         last4digits = card.last4,
+                        cardStatus = card.status,
                         onToggleLockCard = { isChecked: Boolean ->
                             if (isChecked) viewModel.onIntent(BlockchainCardIntent.LockCard)
                             else viewModel.onIntent(BlockchainCardIntent.UnlockCard)
                         },
-                        cardStatus = card.status,
+                        onChangePin = {
+                            viewModel.onIntent(BlockchainCardIntent.SetPin)
+                        },
                         onSeePersonalDetails = { viewModel.onIntent(BlockchainCardIntent.SeePersonalDetails) },
                         onSeeTransactionControls = { viewModel.onIntent(BlockchainCardIntent.SeeTransactionControls) },
                         onSeeSupport = { viewModel.onIntent(BlockchainCardIntent.SeeSupport) },
@@ -576,6 +581,23 @@ fun BlockchainCardNavHost(
                         }
                     )
                 }
+            }
+
+            composable(BlockchainCardDestination.SetPinDestination) {
+                SetPinPage(
+                    setPinUrl = state?.setPinUrl,
+                    onPinSetSuccess = {
+                        viewModel.onIntent(BlockchainCardIntent.OnPinSetSuccess)
+                    }
+                )
+            }
+
+            composable(BlockchainCardDestination.SetPinSuccessDestination) {
+                SetPinSuccess(
+                    onFinish = {
+                        viewModel.onIntent(BlockchainCardIntent.OnFinishSetPin)
+                    }
+                )
             }
         }
     }

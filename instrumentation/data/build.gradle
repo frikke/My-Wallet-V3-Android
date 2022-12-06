@@ -1,0 +1,14 @@
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+dependencies {
+    implementation project(':logging:domain')
+    implementation project(':common:network')
+    implementation project(':common:interface')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.rxjava3Coroutines
+
+    implementation Libraries.retrofit
+    implementation Libraries.okHttp
+}

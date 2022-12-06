@@ -327,7 +327,7 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         pendingInterest = Money.zero(asset),
         pendingDeposit = Money.zero(asset),
         totalInterest = Money.zero(asset),
-        lockedBalance = Money.zero(asset)
+        lockedBalance = Money.zero(asset),
     )
 
 private fun TransactionResponse.toInterestActivity(asset: AssetInfo): InterestActivity =

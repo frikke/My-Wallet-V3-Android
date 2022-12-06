@@ -1,7 +1,6 @@
 package com.blockchain.koin
 
 import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.access.PinRepositoryImpl
@@ -10,9 +9,8 @@ import com.blockchain.core.asset.data.dataresources.AssetInformationStore
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.core.auth.WalletAuthService
-import com.blockchain.core.buy.BuyOrdersCache
-import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.buy.data.SimpleBuyRepository
+import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
 import com.blockchain.core.buy.domain.SimpleBuyService
@@ -67,7 +65,7 @@ import com.blockchain.core.payload.PayloadDataManagerSeedAccessAdapter
 import com.blockchain.core.payload.PayloadService
 import com.blockchain.core.payload.PromptingSeedAccessAdapter
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.payments.WithdrawLocksCache
+import com.blockchain.core.payments.WithdrawLocksStore
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -107,6 +105,7 @@ import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
@@ -207,10 +206,6 @@ val coreModule = module {
         }
 
         scoped {
-            BuyPairsCache(nabuService = get())
-        }
-
-        scoped {
             BuyPairsStore(nabuService = get())
         }
 
@@ -223,7 +218,10 @@ val coreModule = module {
         scoped<SimpleBuyService> {
             SimpleBuyRepository(
                 simpleBuyEligibilityStore = get(),
-                buyPairsStore = get()
+                buyPairsStore = get(),
+                buyOrdersStore = get(),
+                swapOrdersStore = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -240,13 +238,15 @@ val coreModule = module {
         }
 
         scoped {
-            SwapTransactionsCache(
+            SwapTransactionsStore(
                 nabuService = get(),
             )
         }
 
         scoped {
-            BuyOrdersCache(nabuService = get())
+            BuyOrdersStore(
+                nabuService = get()
+            )
         }
 
         factory {
@@ -299,7 +299,6 @@ val coreModule = module {
         scoped<Erc20L2StoreService> {
             Erc20L2StoreRepository(
                 assetCatalogue = get(),
-                ethDataManager = get(),
                 erc20L2DataSource = get()
             )
         }
@@ -468,7 +467,7 @@ val coreModule = module {
         }
 
         scoped {
-            WithdrawLocksCache(
+            WithdrawLocksStore(
                 paymentsService = get(),
                 currencyPrefs = get()
             )
@@ -493,7 +492,7 @@ val coreModule = module {
                 simpleBuyPrefs = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
-                withdrawLocksCache = get(),
+                withdrawLocksStore = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
                 fiatCurrenciesService = get(),

@@ -5,7 +5,6 @@ import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
-import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.KeyedFreshnessStrategy
@@ -22,7 +21,6 @@ import kotlinx.coroutines.rx3.asObservable
 
 internal class Erc20L2StoreRepository(
     private val assetCatalogue: AssetCatalogue,
-    private val ethDataManager: EthDataManager,
     private val erc20L2DataSource: Erc20L2DataSource
 ) : Erc20L2StoreService {
 
@@ -33,7 +31,9 @@ internal class Erc20L2StoreRepository(
         return erc20L2DataSource
             .streamData(refreshStrategy)
             .mapData {
-                it.addresses.firstOrNull { it.address == ethDataManager.accountAddress }
+                // It's ok to take first here, by the time we support multiple ETH addresses we'll be using
+                // unified balances anyway.
+                it.addresses.firstOrNull()
                     ?.balances?.mapNotNull { balance ->
                         val asset = if (balance.contractAddress == NonCustodialEvmService.NATIVE_IDENTIFIER) {
                             assetCatalogue.assetInfoFromNetworkTicker(networkTicker)

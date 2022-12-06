@@ -12,6 +12,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
@@ -26,6 +27,7 @@ class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
     private val payloadManager: PayloadDataManager,
+    private val walletModePrefs: WalletModePrefs,
     walletStatusPrefs: WalletStatusPrefs,
 ) :
     MviViewModel<
@@ -55,8 +57,21 @@ class WalletModeSelectionViewModel(
                 } ?: BalanceState.Loading,
                 showBrokerageBalanceWarning = anyBrokerageBalanceFailed,
                 defiWalletBalance = defiBalance?.let {
-                    if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
-                        BalanceState.ActivationRequired
+                    if (state.enabledWalletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                        BalanceState.Data(it)
+                    } else if (walletModePrefs.userDefaultedToPKW && shouldBackupPhraseForMode(
+                            WalletMode.NON_CUSTODIAL_ONLY
+                        )
+                    ) {
+                        BalanceState.PhraseRecoveryRequired(
+                            activationRequired = false,
+                            balance = it
+                        )
+                    } else if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
+                        BalanceState.PhraseRecoveryRequired(
+                            activationRequired = true,
+                            balance = it
+                        )
                     } else {
                         BalanceState.Data(it)
                     }
@@ -169,7 +184,9 @@ class WalletModeSelectionViewModel(
             WalletMode.NON_CUSTODIAL_ONLY -> defiBalance?.isZero == true
             else -> false
         }
-        return isWalletEligibleForActivation && shouldBackupPhraseForMode(walletMode)
+        return isWalletEligibleForActivation &&
+            shouldBackupPhraseForMode(walletMode) &&
+            !walletModePrefs.userDefaultedToPKW
     }
 }
 
@@ -208,7 +225,7 @@ data class WalletModeSelectionModelState(
 sealed class BalanceState {
     object Loading : BalanceState()
     data class Data(val money: Money) : BalanceState()
-    object ActivationRequired : BalanceState()
+    data class PhraseRecoveryRequired(val balance: Money, val activationRequired: Boolean) : BalanceState()
 }
 
 sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {

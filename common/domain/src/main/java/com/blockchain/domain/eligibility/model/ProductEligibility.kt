@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ProductEligibility(
     val product: EligibleProduct,
     val canTransact: Boolean,
+    val isDefault: Boolean,
     val maxTransactionsCap: TransactionsLimit,
     val reasonNotEligible: ProductNotEligibleReason?
 ) {
@@ -14,6 +15,7 @@ data class ProductEligibility(
             ProductEligibility(
                 product = product,
                 canTransact = true,
+                isDefault = false,
                 maxTransactionsCap = TransactionsLimit.Unlimited,
                 reasonNotEligible = null
             )

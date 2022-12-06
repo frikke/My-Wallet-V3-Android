@@ -70,8 +70,9 @@ fun OutlinedButton(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    backgroundColour: Color = Color.Unspecified
 ) {
-    var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
+    var backgroundColor by remember { mutableStateOf(backgroundColour) }
     var borderColor by remember {
         mutableStateOf(
             if (isDarkTheme) defaultBorderDarkColor else defaultBorderLightColor

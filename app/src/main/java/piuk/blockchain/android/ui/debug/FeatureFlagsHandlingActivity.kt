@@ -23,8 +23,6 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.serialization.SerializationException
@@ -51,7 +49,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
-    private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val getUserStore: GetUserStore by scopedInject()
     private val kycTiersStore: KycTiersStore by scopedInject()
@@ -96,32 +93,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
             firebaseToken.text = notificationPrefs.firebaseToken
-
-            radioDefi.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
-                    showSnackbar("Currency mode changed to Non custodial")
-                }
-            }
-
-            radioTrading.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(WalletMode.CUSTODIAL_ONLY)
-                    showSnackbar("Currency mode changed to Trading")
-                }
-            }
-
-            radioBoth.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(
-                        WalletMode.UNIVERSAL
-                    )
-                    showSnackbar("Currency mode changed to Trading + Pkw")
-                }
-            }
-            radioBoth.isChecked = walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL
-            radioTrading.isChecked = walletModeService.enabledWalletMode() == WalletMode.CUSTODIAL_ONLY
-            radioDefi.isChecked = walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY
 
             brokerageErrorSwitch.setOnCheckedChangeListener { _, isChecked ->
                 brokerageErrorInput.visibleIf { isChecked }

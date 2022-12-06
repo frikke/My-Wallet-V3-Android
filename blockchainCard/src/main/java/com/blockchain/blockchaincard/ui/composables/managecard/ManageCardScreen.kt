@@ -1078,8 +1078,9 @@ private fun PreviewCardSelectorItem() {
 @Composable
 fun ManageCardDetails(
     last4digits: String,
-    onToggleLockCard: (Boolean) -> Unit,
     cardStatus: BlockchainCardStatus,
+    onToggleLockCard: (Boolean) -> Unit,
+    onChangePin: () -> Unit,
     onSeePersonalDetails: () -> Unit,
     onSeeTransactionControls: () -> Unit,
     onSeeSupport: () -> Unit,
@@ -1179,6 +1180,13 @@ fun ManageCardDetails(
 
                 // Support
                 DefaultTableRow(
+                    primaryText = stringResource(R.string.change_pin_code),
+                    onClick = onChangePin,
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Support
+                DefaultTableRow(
                     primaryText = stringResource(R.string.support),
                     onClick = onSeeSupport,
                 )
@@ -1197,7 +1205,7 @@ fun ManageCardDetails(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {}, {}, {}, {})
+    ManageCardDetails("***3458", BlockchainCardStatus.ACTIVE, {}, {}, {}, {}, {}, {}, {}, {})
 }
 
 @Composable
@@ -3107,4 +3115,92 @@ fun CardActivationPage(cardActivationUrl: String?, onCardActivated: () -> Unit) 
                 .padding(top = AppTheme.dimensions.smallSpacing)
         )
     } ?: CircularProgressBar()
+}
+
+@Composable
+fun SetPinPage(setPinUrl: String?, onPinSetSuccess: () -> Unit) {
+    setPinUrl?.let { url ->
+        Webview(
+            url = url,
+            urlRedirectHandler = { redirectUrl ->
+                if (redirectUrl == "https://blockchain.com/app/card-issuing/pinset") {
+                    onPinSetSuccess()
+                    true // don't load the URL
+                } else {
+                    false // proceed loading the redirect
+                }
+            },
+            useWideViewPort = false,
+            modifier = Modifier
+                .padding(top = AppTheme.dimensions.smallSpacing)
+        )
+    } ?: Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressBar(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+@Composable
+fun SetPinSuccess(onFinish: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.standardSpacing)
+    ) {
+        Box(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.pin_set_success_badge),
+                    contentDescription = stringResource(R.string.bc_card_pin_updated_title),
+                    modifier = Modifier.wrapContentWidth(),
+                )
+
+                SmallVerticalSpacer()
+
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.bc_card_pin_updated_title),
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.bc_card_pin_updated_description),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre
+                )
+            }
+        }
+
+        Box(modifier = Modifier.weight(1f)) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PrimaryButton(
+                    text = stringResource(id = R.string.common_ok),
+                    state = ButtonState.Enabled,
+                    onClick = onFinish,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSetPinSuccess() {
+    SetPinSuccess {}
 }
