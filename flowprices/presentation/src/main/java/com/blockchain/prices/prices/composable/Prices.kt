@@ -3,6 +3,7 @@ package com.blockchain.prices.prices.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,12 +27,14 @@ import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.tag.button.TagButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.R
 import com.blockchain.prices.prices.PriceItemViewState
+import com.blockchain.prices.prices.PricesFilter
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
@@ -50,19 +53,27 @@ fun Prices(
     }
 
     PricesScreen(
+        viewState.availableFilters,
+        viewState.selectedFilter,
         viewState.data,
         listState = listState,
         onSearchTermEntered = { term ->
             viewModel.onIntent(PricesIntents.FilterSearch(term = term))
+        },
+        onFilterSelected = { filter ->
+            viewModel.onIntent(PricesIntents.Filter(filter = filter))
         }
     )
 }
 
 @Composable
 fun PricesScreen(
+    filters: List<PricesFilter>,
+    selectedFilter: PricesFilter,
     data: DataResource<List<PriceItemViewState>>,
     listState: LazyListState,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    onFilterSelected: (PricesFilter) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -74,9 +85,12 @@ fun PricesScreen(
             }
             is DataResource.Data -> {
                 CryptoAssetsList(
+                    filters = filters,
+                    selectedFilter = selectedFilter,
                     cryptoPrices = data.data,
                     listState = listState,
-                    onSearchTermEntered = onSearchTermEntered
+                    onSearchTermEntered = onSearchTermEntered,
+                    onFilterSelected = onFilterSelected
                 )
             }
             is DataResource.Error -> {
@@ -87,14 +101,34 @@ fun PricesScreen(
 
 @Composable
 fun ColumnScope.CryptoAssetsList(
+    filters: List<PricesFilter>,
+    selectedFilter: PricesFilter,
     cryptoPrices: List<PriceItemViewState>,
     listState: LazyListState,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    onFilterSelected: (PricesFilter) -> Unit
 ) {
     CancelableOutlinedSearch(
         onValueChange = onSearchTermEntered,
         placeholder = stringResource(R.string.search)
     )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+    Row {
+        filters.forEachIndexed { index, filter ->
+            TagButton(
+                modifier = Modifier.weight(1F),
+                text = filter.name,
+                selected = filter == selectedFilter,
+                onClick = { onFilterSelected(filter) }
+            )
+
+            if (index < filters.lastIndex) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            }
+        }
+    }
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 

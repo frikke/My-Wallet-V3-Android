@@ -55,16 +55,27 @@ class PricesViewModel(
             availableFilters = state.filters,
             selectedFilter = state.filterBy,
             data = state.data
-                .filter {  assetPriceInfo ->
+                .filter { assetPriceInfo ->
                     state.filterTerm.isEmpty() ||
                         assetPriceInfo.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
                         assetPriceInfo.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
                 }
                 .filter { assetPriceInfo ->
-                    state.tradableCurrencies.map {
-                        it.contains(assetPriceInfo.assetInfo.networkTicker)
-                    }.dataOrElse(false)
-                }.map {
+                    when (state.filterBy) {
+                        PricesFilter.All -> {
+                            true
+                        }
+                        PricesFilter.Tradable -> {
+                            state.tradableCurrencies.map {
+                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                            }.dataOrElse(false)
+                        }
+                        PricesFilter.Favorites -> {
+                            true
+                        }
+                    }
+                }
+                .map {
                     it.sortedWith(
                         compareByDescending<AssetPriceInfo> { assetPriceInfo ->
                             state.tradableCurrencies.map {
@@ -97,6 +108,7 @@ class PricesViewModel(
     override suspend fun handleIntent(modelState: PricesModelState, intent: PricesIntents) {
         when (intent) {
             is PricesIntents.LoadAssetsAvailable -> {
+                loadFilters()
                 loadAvailableAssets()
             }
 
@@ -137,32 +149,47 @@ class PricesViewModel(
                 }
                 .collect()
         }
+    }
 
+    private fun loadFilters() {
+        updateState {
+            it.copy(
+                filters = listOf(
+                    PricesFilter.All, PricesFilter.Favorites, PricesFilter.Tradable
+                )
+            )
+        }
+        // we should define which filters are for each wallet mode
+        // atm they are the same - uncomment once they are different
         //        viewModelScope.launch {
-        //
-        //            loadAssetsAndPrices()
-        //                .onEach { prices ->
+        //            walletModeService.walletMode
+        //                .onEach {
         //                    updateState {
-        //                        it.copy(data = it.data.updateDataWith(prices))
+        //                        it.copy(
+        //                            filters = listOf(
+        //                                PricesFilter.All, PricesFilter.Favorites, PricesFilter.Tradable
+        //                            )
+        //                        )
         //                    }
-        //                }.collect()
+        //                }
+        //                .collect()
+        //        }
         //
-        //            //            walletModeService.walletMode.collectLatest {
-        //            //                updateState { state ->
-        //            //                    if (it != WalletMode.UNIVERSAL) {
-        //            //                        state.copy(
-        //            //                            filters = listOf(
-        //            //                                PricesFilter.All, PricesFilter.Tradable
-        //            //                            ),
-        //            //                            filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
-        //            //                        )
-        //            //                    } else {
-        //            //                        state.copy(
-        //            //                            filters = emptyList()
-        //            //                        )
-        //            //                    }
-        //            //                }
-        //            //            }
+        //        collectLatest {
+        //            updateState { state ->
+        //                if (it != WalletMode.UNIVERSAL) {
+        //                    state.copy(
+        //                        filters = listOf(
+        //                            PricesFilter.All, PricesFilter.Tradable
+        //                        ),
+        //                        filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
+        //                    )
+        //                } else {
+        //                    state.copy(
+        //                        filters = emptyList()
+        //                    )
+        //                }
+        //            }
         //        }
     }
 
@@ -199,7 +226,14 @@ class PricesViewModel(
 
             combine(assetPriceInfoList) {
                 it.toList()
-            }.map { DataResource.Data(it) }
+            }.map {
+                //                if (it.any { it.price is DataResource.Loading }) {
+                //                    DataResource.Loading
+                //                } else {
+                DataResource.Data(it)
+                //                }
+
+            }
         }
         //        val supportedBuyCurrencies = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
         //        return supportedBuyCurrencies.doOnSuccess { tradableCurrencies ->
@@ -241,25 +275,6 @@ class PricesViewModel(
     private fun handlePriceItemClicked(cryptoCurrency: AssetInfo) {
         //        navigate(PricesNavigationEvent.CoinView(cryptoCurrency))
     }
-}
-
-//private fun PricesModelState.updateAssets(assetPriceInfo: List<AssetPriceInfo>): PricesModelState {
-//    require(this.fiatCurrency != null)
-//    return copy(
-//        data = assetPriceInfo.map { priceInfo ->
-//            PricesItem(
-//                isTradingAccount = tradableCurrencies.contains(priceInfo.assetInfo.networkTicker),
-//                assetInfo = priceInfo.assetInfo,
-//                hasError = priceInfo.price == null,
-//                currency = this.fiatCurrency,
-//                priceWithDelta = priceInfo.price
-//            )
-//        }
-//    )
-//}
-
-enum class PricesFilter {
-    All, Tradable
 }
 
 fun Money?.format(cryptoCurrency: Currency) =
