@@ -27,6 +27,7 @@ import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -54,6 +55,11 @@ class PricesViewModel(
             availableFilters = state.filters,
             selectedFilter = state.filterBy,
             data = state.data
+                .filter {  assetPriceInfo ->
+                    state.filterTerm.isEmpty() ||
+                        assetPriceInfo.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
+                        assetPriceInfo.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
+                }
                 .filter { assetPriceInfo ->
                     state.tradableCurrencies.map {
                         it.contains(assetPriceInfo.assetInfo.networkTicker)
@@ -73,20 +79,6 @@ class PricesViewModel(
                 }.mapList {
                     it.toPriceItemViewModel()
                 }
-
-            //            state.data.filter {
-            //                state.filterBy == PricesFilter.All || it.isTradingAccount == true
-            //            }.filter {
-            //                state.queryBy.isEmpty() ||
-            //                    it.assetInfo.displayTicker.contains(state.queryBy, ignoreCase = true) ||
-            //                    it.assetInfo.name.contains(state.queryBy, ignoreCase = true)
-            //            }.sortedWith(
-            //                compareByDescending<PricesItem> { it.isTradingAccount }
-            //                    .thenByDescending { it.priceWithDelta?.marketCap }
-            //                    .thenBy { it.assetInfo.name }
-            //            ).map {
-            //                it.toPriceItemViewModel()
-            //            }
         )
     }
 
@@ -107,7 +99,12 @@ class PricesViewModel(
             is PricesIntents.LoadAssetsAvailable -> {
                 loadAvailableAssets()
             }
-            is PricesIntents.Search -> searchData(intent.query)
+
+            is PricesIntents.FilterSearch -> {
+                updateState {
+                    it.copy(filterTerm = intent.term)
+                }
+            }
 
             is PricesIntents.PricesItemClicked -> {
                 handlePriceItemClicked(
@@ -130,34 +127,43 @@ class PricesViewModel(
                         modelState.copy(tradableCurrencies = dataResource.mapList { it.source.networkTicker })
                     }
                 }
-                .collect()
-        }
-
-        viewModelScope.launch {
-            loadAssetsAndPrices()
+                .flatMapLatest {
+                    loadAssetsAndPrices()
+                }
                 .onEach { prices ->
                     updateState {
                         it.copy(data = it.data.updateDataWith(prices))
                     }
-                }.collect()
-
-            //            walletModeService.walletMode.collectLatest {
-            //                updateState { state ->
-            //                    if (it != WalletMode.UNIVERSAL) {
-            //                        state.copy(
-            //                            filters = listOf(
-            //                                PricesFilter.All, PricesFilter.Tradable
-            //                            ),
-            //                            filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
-            //                        )
-            //                    } else {
-            //                        state.copy(
-            //                            filters = emptyList()
-            //                        )
-            //                    }
-            //                }
-            //            }
+                }
+                .collect()
         }
+
+        //        viewModelScope.launch {
+        //
+        //            loadAssetsAndPrices()
+        //                .onEach { prices ->
+        //                    updateState {
+        //                        it.copy(data = it.data.updateDataWith(prices))
+        //                    }
+        //                }.collect()
+        //
+        //            //            walletModeService.walletMode.collectLatest {
+        //            //                updateState { state ->
+        //            //                    if (it != WalletMode.UNIVERSAL) {
+        //            //                        state.copy(
+        //            //                            filters = listOf(
+        //            //                                PricesFilter.All, PricesFilter.Tradable
+        //            //                            ),
+        //            //                            filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
+        //            //                        )
+        //            //                    } else {
+        //            //                        state.copy(
+        //            //                            filters = emptyList()
+        //            //                        )
+        //            //                    }
+        //            //                }
+        //            //            }
+        //        }
     }
 
     private fun initialSelectedFilter(latestPricesMode: String?, walletMode: WalletMode): PricesFilter {
@@ -231,8 +237,6 @@ class PricesViewModel(
     //                )
     //            }
     //    }
-
-    private fun searchData(query: String) = updateState { it.copy(queryBy = query) }
 
     private fun handlePriceItemClicked(cryptoCurrency: AssetInfo) {
         //        navigate(PricesNavigationEvent.CoinView(cryptoCurrency))

@@ -51,14 +51,18 @@ fun Prices(
 
     PricesScreen(
         viewState.data,
-        listState = listState
+        listState = listState,
+        onSearchTermEntered = { term ->
+            viewModel.onIntent(PricesIntents.FilterSearch(term = term))
+        }
     )
 }
 
 @Composable
 fun PricesScreen(
     data: DataResource<List<PriceItemViewState>>,
-    listState: LazyListState
+    listState: LazyListState,
+    onSearchTermEntered: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -69,7 +73,11 @@ fun PricesScreen(
             DataResource.Loading -> {
             }
             is DataResource.Data -> {
-                CryptoAssetsList(data.data, listState)
+                CryptoAssetsList(
+                    cryptoPrices = data.data,
+                    listState = listState,
+                    onSearchTermEntered = onSearchTermEntered
+                )
             }
             is DataResource.Error -> {
             }
@@ -80,10 +88,11 @@ fun PricesScreen(
 @Composable
 fun ColumnScope.CryptoAssetsList(
     cryptoPrices: List<PriceItemViewState>,
-    listState: LazyListState
+    listState: LazyListState,
+    onSearchTermEntered: (String) -> Unit
 ) {
     CancelableOutlinedSearch(
-        onValueChange = {  },
+        onValueChange = onSearchTermEntered,
         placeholder = stringResource(R.string.search)
     )
 

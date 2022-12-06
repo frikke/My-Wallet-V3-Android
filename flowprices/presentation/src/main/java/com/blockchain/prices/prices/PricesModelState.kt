@@ -10,7 +10,7 @@ data class PricesModelState(
     val filters: List<PricesFilter> = emptyList(),
     val tradableCurrencies: DataResource<List<String>> = DataResource.Loading,
     val data: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
-    val queryBy: String = "",
+    val filterTerm: String = "",
     val filterBy: PricesFilter = PricesFilter.All
 ) : ModelState
 
