@@ -11,8 +11,8 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.domain.eligibility.model.StakingEligibility
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
@@ -23,8 +23,7 @@ import kotlinx.parcelize.Parcelize
 class StakingSummaryViewModel(
     private val coincore: Coincore,
     private val stakingService: StakingService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MviViewModel<StakingSummaryIntent,
     StakingSummaryViewState,
     StakingSummaryModelState,
@@ -54,6 +53,7 @@ class StakingSummaryViewModel(
             earnedCrypto = totalEarned,
             earnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
             stakingRate = stakingRate,
+            commissionRate = stakingCommission,
             isWithdrawable = isWithdrawable,
             rewardsFrequency = state.frequency,
             canDeposit = canDeposit
@@ -82,7 +82,7 @@ class StakingSummaryViewModel(
         combine(
             stakingService.getBalanceForAsset(currency),
             stakingService.getLimitsForAsset(currency as AssetInfo),
-            stakingService.getRateForAsset(currency),
+            stakingService.getRatesForAsset(currency),
             stakingService.getEligibilityForAsset(currency)
         ) { balance, limits, rate, eligibility ->
             combineDataResources(balance, limits, rate, eligibility) { b, l, r, e ->
@@ -101,7 +101,8 @@ class StakingSummaryViewModel(
                                 .minus(balance.pendingWithdrawal),
                             bonding = balance.pendingDeposit,
                             totalEarned = balance.totalRewards,
-                            stakingRate = rate,
+                            stakingRate = rates.rate,
+                            stakingCommission = rates.commission,
                             frequency = limits.rewardsFrequency,
                             isWithdrawable = !limits.withdrawalsDisabled,
                             canDeposit = stakingEligibility is StakingEligibility.Eligible
@@ -125,6 +126,6 @@ data class StakingSummaryArgs(
 private data class StakingSummaryData(
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
-    val rate: Double,
+    val rates: StakingRates,
     val stakingEligibility: StakingEligibility
 )

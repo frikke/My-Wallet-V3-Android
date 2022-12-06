@@ -120,13 +120,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             endTag = when (selectedAccount) {
                                 is InterestAccount -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_rewards, interestRate.toString()),
+                                        getString(R.string.actions_sheet_percentage_rate, interestRate.toString()),
                                         TagType.Success()
                                     )
                                 }
                                 is StakingAccount -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_staking, stakingRate.toString()),
+                                        getString(R.string.actions_sheet_percentage_rate, stakingRate.toString()),
                                         TagType.Success()
                                     )
                                 }

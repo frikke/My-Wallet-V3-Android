@@ -212,7 +212,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun stakingRate(): Single<Double> =
         stakingService.getEligibilityForAsset(currency).asSingle().flatMap {
             if (it is StakingEligibility.Eligible) {
-                stakingService.getRateForAsset(currency).asSingle()
+                stakingService.getRatesForAsset(currency).asSingle().map { it.rate }
             } else {
                 Single.just(0.0)
             }

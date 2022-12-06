@@ -59,6 +59,8 @@ fun SnackbarAlert(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColour)
+            // prevents click throughs to views underneath the snack bar
+            .clickable(true, onClick = {})
             .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp),
     ) {
 

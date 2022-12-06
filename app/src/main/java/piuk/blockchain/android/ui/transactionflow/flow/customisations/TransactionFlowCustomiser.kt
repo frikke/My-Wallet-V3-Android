@@ -18,6 +18,7 @@ import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
@@ -1409,10 +1410,9 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount || (
-                    state.selectedTarget is CustodialInterestAccount &&
-                        state.action == AssetAction.InterestDeposit
-                    )
+                if (state.sendingAccount is LinkedBankAccount ||
+                    (state.selectedTarget is CustodialInterestAccount && state.action == AssetAction.InterestDeposit) ||
+                    (state.selectedTarget is CustodialStakingAccount && state.action == AssetAction.StakingDeposit)
                 ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {

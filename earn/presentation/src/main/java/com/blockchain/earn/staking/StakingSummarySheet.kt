@@ -148,7 +148,7 @@ fun StakingSummarySheet(
                         bodyEnd = buildAnnotatedString {
                             append(state.bondingCrypto?.toStringWithSymbol().orEmpty())
                         },
-                        postStartTitleImageResource = ImageResource.Local(R.drawable.ic_information),
+                        postStartTitleImageResource = ImageResource.Local(R.drawable.ic_info),
                         postStartTitleImageResourceOnClick = {
                             snackbarState = InfoSnackbarState.BondingInfo
                         }
@@ -164,7 +164,7 @@ fun StakingSummarySheet(
                     titleEnd = buildAnnotatedString {
                         append(stringResource(R.string.staking_summary_rate_value, state.stakingRate.toString()))
                     },
-                    postStartTitleImageResource = ImageResource.Local(R.drawable.ic_information),
+                    postStartTitleImageResource = ImageResource.Local(R.drawable.ic_info),
                     postStartTitleImageResourceOnClick = {
                         snackbarState = InfoSnackbarState.RateInfo
                     }
@@ -277,7 +277,9 @@ fun StakingSummarySheet(
             when (snackbarState) {
                 is InfoSnackbarState.RateInfo -> {
                     SnackbarAlert(
-                        message = stringResource(R.string.staking_summary_rate_explanation),
+                        message = stringResource(
+                            R.string.staking_summary_rate_explanation, state.commissionRate.toString()
+                        ),
                         actionLabel = stringResource(R.string.common_ok),
                         onActionClicked = {
                             snackbarState = InfoSnackbarState.Hidden
@@ -371,6 +373,7 @@ fun StakingSummaryPreview() {
                     earnedCrypto = null,
                     earnedFiat = null,
                     stakingRate = 5.0,
+                    commissionRate = 1.0,
                     isWithdrawable = false,
                     rewardsFrequency = EarnRewardsFrequency.Weekly,
                     canDeposit = false

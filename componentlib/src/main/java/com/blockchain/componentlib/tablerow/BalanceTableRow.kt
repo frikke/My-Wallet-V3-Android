@@ -68,12 +68,57 @@ fun BalanceTableRow(
             } else {
                 dimensionResource(R.dimen.zero_spacing)
             }
+
             Column(
                 modifier = Modifier
                     .padding(start = startPadding, end = endPadding)
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    Text(
+                        text = titleStart,
+                        style = AppTheme.typography.body2,
+                        modifier = if (postStartTitleImageResource == ImageResource.None) {
+                            Modifier.weight(1f)
+                        } else {
+                            Modifier.wrapContentWidth()
+                        },
+                        textAlign = TextAlign.Start,
+                        color = AppTheme.colors.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    if (postStartTitleImageResource != ImageResource.None) {
+                        Image(
+                            imageResource = postStartTitleImageResource,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(AppTheme.dimensions.smallestSpacing)
+                                .clickable(onClick = postStartTitleImageResourceOnClick)
+                                .size(AppTheme.dimensions.smallSpacing)
+                        )
+                    }
+
+                    if (titleEnd != null) {
+                        Text(
+                            text = titleEnd,
+                            style = AppTheme.typography.body2,
+                            modifier = if (postStartTitleImageResource == ImageResource.None) {
+                                Modifier.wrapContentSize()
+                            } else {
+                                Modifier.weight(1f)
+                            },
+                            textAlign = TextAlign.End,
+                            color = AppTheme.colors.title
+                        )
+                    }
+                }
 
                 Row(
                     modifier = Modifier
@@ -310,7 +355,7 @@ fun BalanceTableRow_TitleStart_Tags_NoBodyStart() {
                 tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
                 startImageResource = ImageResource.Local(
                     id = R.drawable.ic_blockchain,
-                ),
+                )
             )
         }
     }
@@ -332,7 +377,7 @@ fun BalanceTableRow_PostTitleImageResource() {
                 ),
                 postStartTitleImageResource = ImageResource.Local(
                     id = R.drawable.ic_blockchain,
-                ),
+                )
             )
         }
     }

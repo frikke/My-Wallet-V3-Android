@@ -1211,7 +1211,7 @@
     <string name="sell_enter_amount_min_error">%1$s mín.</string>
     <string name="sell_enter_amount_max_error">%1$s máx.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para vender con las tarifas de red actuales.</string>
-    <string name="send_enter_amount_deposit_max">Cantidad máxima para una transferencia</string>
+    <string name="send_enter_amount_deposit_max">Transferir máx</string>
     <string name="send_enter_amount_min_deposit">Se requiere una transferencia mínima de %1$s</string>
     <string name="send_enter_amount_min_send">Se requiere un envío mínimo de %1$s</string>
     <string name="send_enter_amount_max_limit_from_custodial_info">El envío desde cuentas comerciales no puede superar %1$s %2$s. Le quedan %3$s.</string>
@@ -2659,7 +2659,7 @@
     <string name="bc_card_transaction_funding">Financiación</string>
     <string name="bc_card_transaction_chargeback">Devolución de cargos</string>
     <string name="wallet_connect_switch_network">Cambiar de red</string>
-    <string name="default_label_staking_wallet">Cuenta de inversiones</string>
+    <string name="default_label_staking_wallet">Cuenta de Staking</string>
     <string name="default_label_custodial_wallets">Cuentas</string>
     <string name="ma_home_assets_title">Activos</string>
     <string name="add_to_google_pay">Añadir a Google Pay</string>
