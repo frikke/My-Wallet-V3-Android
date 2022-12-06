@@ -12,6 +12,7 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.detail.custodial.PaymentDetails
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
@@ -43,7 +44,7 @@ internal fun CustodialTradingActivitySummaryItem.title(): TextValue = TextValue.
 )
 
 internal fun CustodialTradingActivitySummaryItem.detailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // bought ----€10
     // to/from ---- euro
@@ -137,7 +138,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
     // to/from ---- euro
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOf(
+        itemGroup = listOfNotNull(
             // status ---- success
             ActivityComponent.StackView(
                 id = toString(),
@@ -154,9 +155,8 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                     )
                 )
             ),
-            // extra
-            // payment method
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            // payment detail
+            extras[CustodialActivityDetailExtraKey.PaymentDetail]?.toActivityComponent()
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -250,8 +250,8 @@ internal fun CustodialTradingActivitySummaryItem.buildActivityDetail(
     paymentDetails: PaymentDetails
 ) = CustodialActivityDetail(
     activity = this,
-    extras = listOf(
-        CustodialActivityDetailExtra(
+    extras = mapOf(
+        CustodialActivityDetailExtraKey.PaymentDetail to CustodialActivityDetailExtra(
             title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
             value = with(paymentDetails) {
                 when {

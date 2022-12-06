@@ -64,7 +64,9 @@ val homePresentationModule = module {
                 custodialActivityService = get(),
                 paymentMethodService = get(),
                 cardService = get(),
-                bankService = get()
+                bankService = get(),
+                coincore = get(),
+                defaultLabels = get()
             )
         }
 

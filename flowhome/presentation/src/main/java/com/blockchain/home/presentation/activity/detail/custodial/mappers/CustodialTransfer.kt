@@ -9,6 +9,7 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -35,7 +36,7 @@ internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue
 )
 
 internal fun CustodialTransferActivitySummaryItem.detailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
     // to/from ---- euro
@@ -164,10 +165,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                         )
                     )
                 )
-            },
-            // extra
-            // payment method
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            }
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -240,5 +238,5 @@ private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyle
 
 internal fun CustodialTransferActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
     activity = this,
-    extras = emptyList()
+    extras = emptyMap()
 )

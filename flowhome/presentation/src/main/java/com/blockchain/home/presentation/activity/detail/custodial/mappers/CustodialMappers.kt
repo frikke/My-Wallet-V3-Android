@@ -30,8 +30,8 @@ internal const val SIDE_ABBREVIATE_LENGTH = 4
     //    is RecurringBuyActivitySummaryItem -> iconSummary()
     is TradeActivitySummaryItem -> when {
         isSellingPair() -> sellIconDetail()
-        isSwapPair() -> R.drawable.ic_filter
-        else -> R.drawable.ic_filter
+        isSwapPair() -> swapIconDetail()
+        else -> error("not supported")
     }
     is FiatActivitySummaryItem -> iconDetail()
     else -> /*error("${this::class.simpleName} not supported")*/ R.drawable.ic_filter // todo temp
@@ -45,7 +45,7 @@ private fun ActivitySummaryItem.title(): TextValue {
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> when {
             isSellingPair() -> sellTitle()
-            isSwapPair() -> TextValue.StringValue("not implemented")
+            isSwapPair() -> swapTitle()
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> title()
@@ -61,7 +61,7 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> when {
             activity.isSellingPair() -> activity.sellDetailItems(extras)
-            activity.isSwapPair() -> emptyList()
+            activity.isSwapPair() -> activity.swapDetailItems(extras)
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> activity.detailItems(extras)
