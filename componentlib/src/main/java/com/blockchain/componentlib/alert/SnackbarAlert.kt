@@ -4,9 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
@@ -14,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,19 +59,16 @@ fun SnackbarAlert(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColour)
-            .padding(horizontal = dimensionResource(R.dimen.medium_spacing), vertical = 14.dp),
-        horizontalArrangement = if (icon != null) {
-            Arrangement.Start
-        } else {
-            Arrangement.SpaceBetween
-        }
+            .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp),
     ) {
 
         icon?.let {
             Image(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_spacing)),
+                    .padding(
+                        end = AppTheme.dimensions.verySmallSpacing
+                    ),
                 painter = painterResource(id = icon),
                 contentDescription = null
             )
@@ -81,24 +76,25 @@ fun SnackbarAlert(
 
         Text(
             text = message,
-            modifier = Modifier.align(alignment = Alignment.CenterVertically),
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .weight(1f),
             style = AppTheme.typography.paragraph1,
+            textAlign = TextAlign.Start,
             color = textColour
         )
 
         if (actionLabel.isNotEmpty()) {
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
             Text(
                 text = actionLabel.toUpperCase(Locale.current),
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(start = dimensionResource(R.dimen.standard_spacing))
+                    .weight(0.3f)
                     .clickable {
                         onActionClicked()
                     },
                 style = AppTheme.typography.paragraph2,
+                textAlign = TextAlign.End,
                 color = Blue400,
             )
         }
@@ -122,6 +118,21 @@ fun Snackbar_withAction() {
         AppSurface {
             SnackbarAlert(
                 message = "Snackbar message",
+                actionLabel = "action"
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun Snackbar_withAction_LongMessage() {
+    AppTheme {
+        AppSurface {
+            SnackbarAlert(
+                message = "Snackbar messageSnackbar messageSnackbar message" +
+                    "Snackbar messageSnackbar messageSnackbar messageSnackbar messageSnackbar" +
+                    " message",
                 actionLabel = "action"
             )
         }

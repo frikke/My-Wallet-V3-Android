@@ -34,6 +34,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -41,6 +44,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,6 +98,7 @@ import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.DropdownMenuSearch
 import com.blockchain.componentlib.control.Radio
 import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.control.TabLayoutLarge
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.divider.VerticalDivider
 import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
@@ -115,6 +120,7 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.MediumVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
@@ -131,6 +137,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
+import kotlinx.coroutines.launch
 
 @Composable
 fun ManageCard(
@@ -697,70 +704,142 @@ fun CardSelector(
         }
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = AppTheme.dimensions.smallSpacing
-            )
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SimpleText(
-                text = stringResource(R.string.my_card),
-                style = ComposeTypographies.Body2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
-            )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-            if (hasProductsAvailableToOrder) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing
+                )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.my_cards),
+                    style = ComposeTypographies.Body2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start,
+                )
+
+                val cardLimitMessage = stringResource(id = R.string.bc_card_limit_reached)
+
                 MinimalButton(
                     text = stringResource(R.string.bc_card_add),
-                    onClick = onOrderCard,
+                    onClick = {
+                        if (hasProductsAvailableToOrder) onOrderCard()
+                        else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = cardLimitMessage
+                                )
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .wrapContentWidth(),
                     minHeight = 16.dp,
                     shape = AppTheme.shapes.small
                 )
             }
-        }
 
-        LazyColumn(
-            modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-        ) {
-            itemsIndexed(items = cards) { index, card ->
-                CardSelectorItem(
-                    cardType = card.type,
-                    last4digits = card.last4,
-                    cardStatus = card.status,
-                    expDate = card.expiry,
-                    isSelected = selectedIndex == index,
-                    isDefault = defaultCardId == card.id,
-                    onManageCard = {
-                        selectedIndex = index
-                        onManageCard(card)
-                    },
-                    onViewCard = {
-                        selectedIndex = index
-                        onViewCard(card)
-                    },
-                    onSetCardAsDefault = { setAsDefault ->
-                        if (setAsDefault) onSetCardAsDefault(card.id)
-                        else onSetCardAsDefault("")
-                    },
-                    modifier = Modifier.clickable {
-                        selectedIndex = index
-                    }
-                )
+            TinyVerticalSpacer()
+
+            val tabs = listOf(
+                stringResource(id = BlockchainCardStatus.ACTIVE.getStringResource()),
+                stringResource(id = BlockchainCardStatus.TERMINATED.getStringResource())
+            )
+
+            val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
+            val closedCards = cards.filter { it.status == BlockchainCardStatus.TERMINATED }
+            var selectedTabIndex by remember(cards) {
+                if (activeCards.isEmpty() && closedCards.isNotEmpty()) mutableStateOf(1)
+                else mutableStateOf(0)
+            }
+            val cardsToDisplay = if (selectedTabIndex == 0) activeCards else closedCards
+
+            TabLayoutLarge(
+                items = tabs,
+                onItemSelected = { index -> selectedTabIndex = index },
+                modifier = Modifier.fillMaxWidth(),
+                selectedItemIndex = selectedTabIndex,
+                hasBottomShadow = false
+            )
+
+            LazyColumn(
+                modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+            ) {
+                itemsIndexed(items = cardsToDisplay) { index, card ->
+                    CardSelectorItem(
+                        cardType = card.type,
+                        last4digits = card.last4,
+                        cardStatus = card.status,
+                        expDate = card.expiry,
+                        isSelected = selectedIndex == index,
+                        isDefault = defaultCardId == card.id,
+                        onManageCard = {
+                            selectedIndex = index
+                            onManageCard(card)
+                        },
+                        onViewCard = {
+                            selectedIndex = index
+                            onViewCard(card)
+                        },
+                        onSetCardAsDefault = { setAsDefault ->
+                            if (setAsDefault) onSetCardAsDefault(card.id)
+                            else onSetCardAsDefault("")
+                        },
+                        modifier = Modifier.clickable {
+                            selectedIndex = index
+                        }
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+        // TODO (labreu): Add this to the componentLib later (design is a bit different from what we have at the moment)
+        SnackbarHost(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(AppTheme.dimensions.smallSpacing),
+            hostState = snackbarHostState,
+            snackbar = { snackbarData ->
+                Snackbar(
+                    action = {},
+                    backgroundColor = Dark800,
+                    shape = AppTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppTheme.dimensions.tinySpacing),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_alert_white),
+                            contentDescription = stringResource(R.string.bc_card_limit_reached),
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+
+                        TinyHorizontalSpacer()
+
+                        SimpleText(
+                            text = snackbarData.message,
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Light,
+                            gravity = ComposeGravities.Centre
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -999,8 +1078,9 @@ private fun PreviewCardSelectorItem() {
 @Composable
 fun ManageCardDetails(
     last4digits: String,
-    onToggleLockCard: (Boolean) -> Unit,
     cardStatus: BlockchainCardStatus,
+    onToggleLockCard: (Boolean) -> Unit,
+    onChangePin: () -> Unit,
     onSeePersonalDetails: () -> Unit,
     onSeeTransactionControls: () -> Unit,
     onSeeSupport: () -> Unit,
@@ -1100,6 +1180,13 @@ fun ManageCardDetails(
 
                 // Support
                 DefaultTableRow(
+                    primaryText = stringResource(R.string.change_pin_code),
+                    onClick = onChangePin,
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Support
+                DefaultTableRow(
                     primaryText = stringResource(R.string.support),
                     onClick = onSeeSupport,
                 )
@@ -1118,7 +1205,7 @@ fun ManageCardDetails(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {}, {}, {}, {})
+    ManageCardDetails("***3458", BlockchainCardStatus.ACTIVE, {}, {}, {}, {}, {}, {}, {}, {})
 }
 
 @Composable
@@ -3028,4 +3115,92 @@ fun CardActivationPage(cardActivationUrl: String?, onCardActivated: () -> Unit) 
                 .padding(top = AppTheme.dimensions.smallSpacing)
         )
     } ?: CircularProgressBar()
+}
+
+@Composable
+fun SetPinPage(setPinUrl: String?, onPinSetSuccess: () -> Unit) {
+    setPinUrl?.let { url ->
+        Webview(
+            url = url,
+            urlRedirectHandler = { redirectUrl ->
+                if (redirectUrl == "https://blockchain.com/app/card-issuing/pinset") {
+                    onPinSetSuccess()
+                    true // don't load the URL
+                } else {
+                    false // proceed loading the redirect
+                }
+            },
+            useWideViewPort = false,
+            modifier = Modifier
+                .padding(top = AppTheme.dimensions.smallSpacing)
+        )
+    } ?: Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressBar(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+@Composable
+fun SetPinSuccess(onFinish: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.standardSpacing)
+    ) {
+        Box(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.pin_set_success_badge),
+                    contentDescription = stringResource(R.string.bc_card_pin_updated_title),
+                    modifier = Modifier.wrapContentWidth(),
+                )
+
+                SmallVerticalSpacer()
+
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.bc_card_pin_updated_title),
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.bc_card_pin_updated_description),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre
+                )
+            }
+        }
+
+        Box(modifier = Modifier.weight(1f)) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PrimaryButton(
+                    text = stringResource(id = R.string.common_ok),
+                    state = ButtonState.Enabled,
+                    onClick = onFinish,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSetPinSuccess() {
+    SetPinSuccess {}
 }

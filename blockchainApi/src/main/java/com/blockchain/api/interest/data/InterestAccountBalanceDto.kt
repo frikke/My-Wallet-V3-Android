@@ -16,5 +16,5 @@ data class InterestAccountBalanceDto(
     @SerialName("pendingWithdrawal")
     val pendingWithdrawal: String,
     @SerialName("locked")
-    val lockedBalance: String
+    val lockedBalance: String,
 )

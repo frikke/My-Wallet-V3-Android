@@ -126,4 +126,6 @@ interface BlockchainCardRepository {
     suspend fun getKycStatus(): Outcome<BlockchainCardError, BlockchainCardKycStatus>
 
     suspend fun updateKyc(kycUpdate: BlockchainCardKycUpdate): Outcome<BlockchainCardError, BlockchainCardKycStatus>
+
+    suspend fun getSetPinUrl(cardId: String): Outcome<BlockchainCardError, String>
 }

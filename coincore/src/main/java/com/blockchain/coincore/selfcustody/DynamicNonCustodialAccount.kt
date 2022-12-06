@@ -11,6 +11,7 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
+import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -37,7 +38,7 @@ import org.spongycastle.util.encoders.Hex
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,
     assetInfo: AssetInfo,
-    coinType: CoinType,
+    val coinType: CoinType,
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -53,7 +54,7 @@ class DynamicNonCustodialAccount(
 
     private suspend fun getReceiveAddress() = nonCustodialService.getAddresses(listOf(currency.networkTicker))
         .getOrThrow().find {
-            it.pubKey == String(Hex.encode(internalAccount.address.pubKey)) && it.default
+            it.pubKey == xpubAddress && it.default
         }?.let { nonCustodialDerivedAddress ->
             DynamicNonCustodialAddress(
                 address = nonCustodialDerivedAddress.address,
@@ -103,12 +104,21 @@ class DynamicNonCustodialAccount(
     override fun setAsDefault(): Completable = Completable.complete()
 
     override val xpubAddress: String
-        get() = internalAccount.bitcoinSerializedBase58Address
+        get() = if (coinType.network == NetworkType.SOL || coinType.network == NetworkType.XLM) {
+            String(Hex.encode(internalAccount.bip39PubKey))
+        } else {
+            String(Hex.encode(internalAccount.address.pubKey))
+        }
 
     override val hasStaticAddress: Boolean = false
 
     fun getSigningKey(): SigningKey {
-        return internalAccount.signingKey
+        return if (coinType.network == NetworkType.SOL || coinType.network == NetworkType.XLM) {
+            // TODO(dtverdota): signing preimages with the correct key (internalAccount.bip39Key)
+            internalAccount.signingKey
+        } else {
+            internalAccount.signingKey
+        }
     }
 
     override fun getOnChainBalance(): Observable<out Money> = rxSingle {
@@ -139,7 +149,7 @@ class DynamicNonCustodialAccount(
         nonCustodialService.subscribe(
             currency = currency.networkTicker,
             label = label,
-            addresses = listOf(String(Hex.encode(internalAccount.address.pubKey)))
+            addresses = listOf(xpubAddress)
         )
 
     override val index: Int
@@ -148,7 +158,7 @@ class DynamicNonCustodialAccount(
     override suspend fun publicKey(): List<PublicKey> =
         listOf(
             PublicKey(
-                address = String(Hex.encode(internalAccount.address.pubKey)),
+                address = xpubAddress,
                 descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
                 style = PubKeyStyle.SINGLE,
             )

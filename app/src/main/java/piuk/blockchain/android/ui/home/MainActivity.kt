@@ -37,6 +37,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.EarnAnalytics
+import com.blockchain.earn.dashboard.EarnDashboardFragment
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
@@ -46,7 +49,9 @@ import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -57,6 +62,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -87,7 +93,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
@@ -101,8 +106,6 @@ import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -124,13 +127,11 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
-import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
@@ -150,7 +151,8 @@ class MainActivity :
     KycUpgradeNowSheet.Host,
     NftHost,
     InterestSummarySheet.Host,
-    NavigationRouter<PricesNavigationEvent> {
+    NavigationRouter<PricesNavigationEvent>,
+    EarnDashboardFragment.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -163,7 +165,7 @@ class MainActivity :
         get() = binding.mainToolbar
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val mvpPrefs: SuperAppMvpPrefs by inject()
 
     @Deprecated("Use MVI loop instead")
@@ -229,7 +231,9 @@ class MainActivity :
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
-        val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
+        val startUiTour = intent.getBooleanExtra(
+            START_UI_TOUR_KEY, false
+        ) && walletModeService.enabledWalletMode() != WalletMode.NON_CUSTODIAL_ONLY
         intent.removeExtra(START_UI_TOUR_KEY)
 
         if (intent.hasExtra(SHOW_SWAP) &&
@@ -258,7 +262,6 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.LoadFeatureFlags)
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
 
@@ -268,7 +271,7 @@ class MainActivity :
             }
         }
 
-        model.process(MainIntent.RefreshTabs)
+        model.process(MainIntent.LoadFeatureFlags)
     }
 
     override fun onResume() {
@@ -424,11 +427,11 @@ class MainActivity :
     }
 
     private fun launchEarn() {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_earn))
         updateSelectedNavigationItem(NavigationItem.Earn)
 
         supportFragmentManager.showFragment(
-            fragment = InterestDashboardFragment.newInstance(),
+            fragment = EarnDashboardFragment.newInstance(),
             reloadFragment = false
         )
     }
@@ -765,6 +768,7 @@ class MainActivity :
                         )
                 }
             }
+            is ViewToLaunch.GoToActivityForAccount -> goToActivityFor(view.account)
             is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
                 if (view.account is LaunchFlowForAccount.SourceAccount) {
                     showBottomSheet(
@@ -1211,6 +1215,22 @@ class MainActivity :
                     LaunchFlowForAccount.SourceAccount(fromAccount), AssetAction.InterestWithdraw
                 )
             )
+        )
+    }
+
+    override fun launchStakingWithdrawal(currency: Currency) {
+        // TODO(dserrano) - STAKING - not yet implemented
+    }
+
+    override fun launchStakingDeposit(currency: Currency) {
+        model.process(
+            MainIntent.SelectStakingAccountForAction(currency, AssetAction.StakingDeposit)
+        )
+    }
+
+    override fun goToStakingActivity(currency: Currency) {
+        model.process(
+            MainIntent.SelectStakingAccountForAction(currency, AssetAction.ViewActivity)
         )
     }
 

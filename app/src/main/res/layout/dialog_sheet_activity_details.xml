@@ -57,7 +57,7 @@
         tools:background="@drawable/bkgd_green_100_rounded"
         tools:text="Completed" />
 
-    <piuk.blockchain.android.ui.customviews.RoundedCornersProgressView
+    <com.blockchain.presentation.customviews.RoundedCornersProgressView
         android:id="@+id/confirmation_progress"
         android:layout_width="32dp"
         android:layout_height="32dp"

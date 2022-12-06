@@ -14,7 +14,6 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
@@ -27,6 +26,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.TransferQuote
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -52,7 +52,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
-    private val swapTransactionsCache: SwapTransactionsCache = mock()
+    private val swapTransactionsStore: SwapTransactionsStore = mock()
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -75,7 +75,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,
         userIdentity = userIdentity,
-        swapTransactionsCache = swapTransactionsCache,
+        swapTransactionsStore = swapTransactionsStore,
     )
 
     @Before
@@ -554,6 +554,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
+                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = Money.zero(totalBalance.currency),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

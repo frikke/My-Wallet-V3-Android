@@ -412,6 +412,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
     ): Erc20NonCustodialAccount {
         val accountBalance = AccountBalance(
             total = totalBalance,
+            dashboardDisplay = totalBalance,
             pending = 0.testValue(),
             withdrawable = actionable,
             exchangeRate = ExchangeRate(

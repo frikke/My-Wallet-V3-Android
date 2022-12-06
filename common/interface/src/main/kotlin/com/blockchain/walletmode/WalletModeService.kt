@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface WalletModeService {
     fun enabledWalletMode(): WalletMode
+    fun start()
     val walletMode: Flow<WalletMode>
     fun reset()
     fun updateEnabledWalletMode(type: WalletMode)

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,18 +66,30 @@ fun QuickActionsRow(quickActions: List<QuickAction>, onClick: (AssetAction) -> U
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable(onClick = {
-                    onClick(quickAction.action)
+                    if (quickAction.enabled)
+                        onClick(quickAction.action)
+                    else {
+                        // do nothing
+                    }
                 })
             ) {
                 Image(
-                    modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
+                    modifier = Modifier
+                        .padding(top = 2.dp, bottom = 2.dp)
+                        .alpha(
+                            if (quickAction.enabled) 1f else .6f
+                        ),
                     imageResource = ImageResource.Local(quickAction.icon)
                 )
                 Text(
                     text = stringResource(id = quickAction.title),
                     style = AppTheme.typography.caption1,
                     color = AppTheme.colors.muted,
-                    modifier = Modifier.padding(bottom = 2.dp)
+                    modifier = Modifier
+                        .padding(bottom = 2.dp)
+                        .alpha(
+                            if (quickAction.enabled) 1f else .6f
+                        )
                 )
             }
         }
@@ -93,15 +106,18 @@ fun QuickActionsPreview() {
                     QuickAction(
                         title = R.string.common_buy,
                         icon = R.drawable.ic_buy,
-                        action = AssetAction.Swap
+                        action = AssetAction.Swap,
+                        enabled = false
                     ),
                     QuickAction(
                         title = R.string.common_buy,
                         icon = R.drawable.ic_buy,
+                        enabled = true,
                         action = AssetAction.Swap
                     ),
                     QuickAction(
                         title = R.string.common_buy,
+                        enabled = false,
                         icon = R.drawable.ic_buy,
                         action = AssetAction.Swap
                     )

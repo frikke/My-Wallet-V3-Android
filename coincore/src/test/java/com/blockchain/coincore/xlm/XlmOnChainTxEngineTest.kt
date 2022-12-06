@@ -493,10 +493,10 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
+                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = CryptoValue.zero(ASSET),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency),
-
                     )
                 )
             )

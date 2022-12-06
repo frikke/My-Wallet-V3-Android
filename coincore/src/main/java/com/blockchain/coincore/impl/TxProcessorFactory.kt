@@ -38,22 +38,22 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.earn.data.dataresources.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Single
 
@@ -75,7 +75,7 @@ class TxProcessorFactory(
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val userIdentity: UserIdentity,
-    private val swapTransactionsCache: SwapTransactionsCache,
+    private val swapTransactionsStore: SwapTransactionsStore,
     private val plaidFeatureFlag: FeatureFlag,
     private val stakingBalanceStore: StakingBalanceStore,
     private val stakingService: StakingService
@@ -289,7 +289,7 @@ class TxProcessorFactory(
                                 limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
                                 engine = engine,
-                                swapTransactionsCache = swapTransactionsCache
+                                swapTransactionsStore = swapTransactionsStore
                             )
                         )
                     )
@@ -386,7 +386,7 @@ class TxProcessorFactory(
                         limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity,
-                        swapTransactionsCache = swapTransactionsCache
+                        swapTransactionsStore = swapTransactionsStore
                     )
                 )
             )

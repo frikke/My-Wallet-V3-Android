@@ -19,11 +19,11 @@ import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.onErrorReturn
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
@@ -102,7 +102,7 @@ internal class DynamicAssetLoader(
             currency is FiatCurrency -> FiatAsset(currency)
             else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
         }.also {
-            check(currency !in assetMap.keys) { "Asset already loaded" }
+            check(currency !in assetMap.keys) { "Asset already loaded ${currency.networkTicker}" }
             assetMap[currency] = it
         }
 

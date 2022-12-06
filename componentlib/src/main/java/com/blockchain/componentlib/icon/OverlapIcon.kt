@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -21,12 +22,12 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun OverlapIcon(
     icon: StackedIcon.OverlappingPair,
+    iconSize: Dp,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
-    val iconSize = 18.dp
-    val overlap = 6.dp
+    val overlap = (iconSize.value.div(3)).dp
 
     Box(
         modifier = Modifier
@@ -63,6 +64,7 @@ fun PreviewOverlapIcons() {
             front = ImageResource.Local(R.drawable.ic_close_circle_dark),
             back = ImageResource.Local(R.drawable.ic_close_circle)
         ),
-        borderColor = AppTheme.colors.light
+        borderColor = AppTheme.colors.light,
+        iconSize = 18.dp
     )
 }

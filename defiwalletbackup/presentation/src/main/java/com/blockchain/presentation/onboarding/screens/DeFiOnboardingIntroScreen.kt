@@ -92,7 +92,7 @@ fun DeFiOnboardingIntroScreen(
 
                 Spacer(modifier = Modifier.weight(1F))
 
-                Image(ImageResource.Local(R.drawable.ic_defi_onboarding))
+                Image(imageResource = ImageResource.Local(R.drawable.ic_defi_onboarding))
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 

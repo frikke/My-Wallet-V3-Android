@@ -29,6 +29,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance = AccountBalance(
             total = 100.testValue(),
+            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
@@ -60,6 +61,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance1 = AccountBalance(
             total = 100.testValue(),
+            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
@@ -71,6 +73,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
 
         val accountBalance2 = AccountBalance(
             total = 50.testValue(),
+            dashboardDisplay = 50.testValue(),
             pending = 0.testValue(),
             withdrawable = 40.testValue(),
             exchangeRate = TEST_TO_USER_RATE

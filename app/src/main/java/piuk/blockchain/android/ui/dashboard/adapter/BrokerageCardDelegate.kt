@@ -101,8 +101,13 @@ private class AssetCardViewHolder(
 
             showContent()
 
-            fiatBalance.text = state.fiatBalance.format(fiatCurrency)
-            cryptoBalance.text = state.accountBalance?.total.format(state.currency)
+            fiatBalance.text =
+                state.fiatBalance(useDisplayBalance = state.assetDisplayBalanceFFEnabled).format(fiatCurrency)
+            cryptoBalance.text = if (state.assetDisplayBalanceFFEnabled) {
+                state.accountBalance?.dashboardDisplay.format(state.currency)
+            } else {
+                state.accountBalance?.total.format(state.currency)
+            }
 
             price.text = state.accountBalance?.exchangeRate?.price.format(fiatCurrency)
 

@@ -368,6 +368,13 @@ internal class BlockchainCardRepositoryImpl(
             response.toDomainModel()
         }.wrapBlockchainCardError()
 
+    override suspend fun getSetPinUrl(
+        cardId: String
+    ): Outcome<BlockchainCardError, String> =
+        blockchainCardService.getSetPinUrl(cardId).map { response ->
+            response.url
+        }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //

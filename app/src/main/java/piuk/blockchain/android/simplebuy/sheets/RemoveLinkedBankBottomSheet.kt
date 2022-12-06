@@ -13,6 +13,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -22,8 +24,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.RemoveBankBottomSheetBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
 
 class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomSheetBinding>() {
 

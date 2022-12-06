@@ -123,6 +123,7 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                 Observable.just(
                     AccountBalance(
                         total = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
+                        dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
                         withdrawable = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
                         pending = Money.zero(CryptoCurrency.ETHER),
                         exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER),
@@ -260,6 +261,9 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                         total = Money.fromMinor(
                             CryptoCurrency.ETHER, 65.toBigInteger()
                         ),
+                        dashboardDisplay = Money.fromMinor(
+                            CryptoCurrency.ETHER, 65.toBigInteger()
+                        ),
                         pending = Money.fromMinor(
                             CryptoCurrency.ETHER, 65.toBigInteger()
                         ),
@@ -317,6 +321,9 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                             CryptoCurrency.ETHER, 68645465.toBigInteger()
                         ),
                         total = Money.fromMinor(
+                            CryptoCurrency.ETHER, 68645465.toBigInteger()
+                        ),
+                        dashboardDisplay = Money.fromMinor(
                             CryptoCurrency.ETHER, 68645465.toBigInteger()
                         ),
                         pending = Money.fromMinor(

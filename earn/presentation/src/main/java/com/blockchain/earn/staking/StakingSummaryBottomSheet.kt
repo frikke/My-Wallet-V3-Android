@@ -37,7 +37,7 @@ class StakingSummaryBottomSheet :
         fun launchStakingWithdrawal(currency: Currency)
         fun launchStakingDeposit(currency: Currency)
         fun showStakingLoadingError(error: StakingError)
-        fun goToStakingActivity(currency: Currency)
+        fun goToStakingAccountActivity(currency: Currency)
     }
 
     override val host: Host by lazy {
@@ -87,7 +87,7 @@ class StakingSummaryBottomSheet :
                     },
                     onViewActivityPressed = { currency ->
                         dismiss()
-                        host.goToStakingActivity(currency)
+                        host.goToStakingAccountActivity(currency)
                     }
                 )
             }

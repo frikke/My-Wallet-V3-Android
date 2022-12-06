@@ -29,7 +29,7 @@ fun NftComingSoonScreen() {
     ) {
         Spacer(modifier = Modifier.weight(0.6F))
 
-        Image(ImageResource.Local(R.drawable.ic_nft_hero))
+        Image(imageResource = ImageResource.Local(R.drawable.ic_nft_hero))
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 

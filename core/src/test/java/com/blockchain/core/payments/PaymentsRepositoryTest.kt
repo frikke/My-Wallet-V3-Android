@@ -116,6 +116,7 @@ import junit.framework.Assert.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -164,7 +165,7 @@ class PaymentsRepositoryTest {
         every { enabled } returns Single.just(true)
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
-    private val withdrawLocksCache: WithdrawLocksCache = mockk()
+    private val withdrawLocksStore: WithdrawLocksStore = mockk()
     private val fiatCurrenciesService: FiatCurrenciesService = mockk()
 
     private lateinit var subject: PaymentsRepository
@@ -181,7 +182,7 @@ class PaymentsRepositoryTest {
             tradingService = tradingService,
             assetCatalogue = assetCatalogue,
             simpleBuyPrefs = simpleBuyPrefs,
-            withdrawLocksCache = withdrawLocksCache,
+            withdrawLocksStore = withdrawLocksStore,
             googlePayManager = googlePayManager,
             environmentConfig = environmentConfig,
             fiatCurrenciesService = fiatCurrenciesService,
@@ -330,7 +331,7 @@ class PaymentsRepositoryTest {
             mockk<FiatCurrency>(relaxed = true) { every { networkTicker } returns (NETWORK_TICKER) }
         val buyCurrency =
             mockk<CryptoCurrency>(relaxed = true) { every { networkTicker } returns (BUY_NETWORK_TICKER) }
-        every { withdrawLocksCache.withdrawLocks() } returns Single.just(locks)
+        every { withdrawLocksStore.stream(any()) } returns flowOf(DataResource.Data(locks))
         every { assetCatalogue.fromNetworkTicker(BUY_NETWORK_TICKER) } returns buyCurrency
 
         // ASSERT

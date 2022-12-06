@@ -16,6 +16,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
@@ -28,7 +29,6 @@ import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
-import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class CardVerificationFragment :

@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView

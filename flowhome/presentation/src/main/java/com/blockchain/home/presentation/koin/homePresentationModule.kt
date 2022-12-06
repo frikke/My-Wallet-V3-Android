@@ -5,6 +5,8 @@ import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyAct
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
+import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
+import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
@@ -18,7 +20,21 @@ val homePresentationModule = module {
                 homeAccountsService = get(),
                 currencyPrefs = get(),
                 exchangeRates = get(),
-                filterService = get()
+                filterService = get(),
+                assetCatalogue = get()
+            )
+        }
+
+        viewModel { (
+            homeVm: AssetsViewModel,
+            pkwActivityViewModel: PrivateKeyActivityViewModel,
+            custodialActivityViewModel: CustodialActivityViewModel
+        ) ->
+            EmptyScreenViewModel(
+                homeAssetsViewModel = homeVm,
+                walletModeService = get(superAppModeService),
+                pkwActivityViewModel = pkwActivityViewModel,
+                custodialActivityViewModel = custodialActivityViewModel
             )
         }
 
@@ -58,6 +74,16 @@ val homePresentationModule = module {
             QuickActionsViewModel(
                 walletModeService = get(superAppModeService),
                 userFeaturePermissionService = get(),
+                coincore = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        viewModel {
+            CustodialEmptyCardViewModel(
+                fiatCurrenciesService = get(),
+                userFeaturePermissionService = get(),
+                onBoardingStepsService = get()
             )
         }
     }

@@ -208,7 +208,7 @@ fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T
     }
 }
 
-fun <T> DataResource<T>.dataOrDefault(default: T): T {
+fun <T> DataResource<T>.dataOrElse(default: T): T {
     return when (this) {
         DataResource.Loading -> default
         is DataResource.Error -> default

@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TrendingPair
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.getResolvedDrawable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,7 +20,6 @@ import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedDrawable
 
 class TrendingPairsView(
     context: Context,

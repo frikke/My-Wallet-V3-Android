@@ -10,6 +10,7 @@ class ProductEligibilityResponse(
     val buy: BuyEligibilityResponse?,
     val swap: SwapEligibilityResponse?,
     val sell: DefaultEligibilityResponse?,
+    val useTradingAccount: UseTradingAccountsResponse?,
     val depositFiat: DefaultEligibilityResponse?,
     val depositCrypto: DefaultEligibilityResponse?,
     val depositInterest: DefaultEligibilityResponse?,
@@ -60,4 +61,10 @@ class SwapEligibilityResponse(
 class DefaultEligibilityResponse(
     val enabled: Boolean,
     val reasonNotEligible: ReasonNotEligibleResponse?
+)
+
+@Serializable
+class UseTradingAccountsResponse(
+    val enabled: Boolean,
+    val defaultProduct: Boolean
 )

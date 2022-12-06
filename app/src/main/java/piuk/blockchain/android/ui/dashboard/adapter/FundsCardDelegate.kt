@@ -60,7 +60,9 @@ private class FundsCardViewHolder(
             val item = fiats.funds[0]
             singleLayoutBinding.apply {
                 fundsUserFiatBalance.visibleIf { selectedFiat != item.currency }
-                fundsUserFiatBalance.text = item.fiatBalance?.toStringWithSymbol()
+                fundsUserFiatBalance.text = item.fiatBalance(
+                    useDisplayBalance = item.assetDisplayBalanceFFEnabled
+                )?.toStringWithSymbol()
                 binding.fundsSingleItem.setOnClickListener {
                     onFundsItemClicked(item.fiatAccount)
                 }
@@ -125,8 +127,9 @@ private class MultipleFundsAdapter(
                 }
                 borderedFundsTitle.text = currency.name
                 borderedFundsFiatTicker.text = currency.displayTicker
-                borderedFundsBalance.text =
-                    item.fiatBalance?.toStringWithSymbol()
+                borderedFundsBalance.text = item.fiatBalance(
+                    useDisplayBalance = item.assetDisplayBalanceFFEnabled
+                )?.toStringWithSymbol()
                 borderedFundsIcon.setIcon(currency)
             }
         }

@@ -179,3 +179,8 @@ data class BlockchainCardKycUpdateRequestDto(
     val address: ResidentialAddressDto?,
     val ssn: String?
 )
+
+@Serializable
+data class BlockchainCardSetPinURLResponseDto(
+    val url: String
+)

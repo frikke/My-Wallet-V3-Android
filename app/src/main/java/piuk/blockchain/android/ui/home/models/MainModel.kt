@@ -330,7 +330,35 @@ class MainModel(
                             )
                         }
                     )
-            is MainIntent.UpdateFlags,
+            is MainIntent.SelectStakingAccountForAction -> interactor.selectStakingAccountForCurrency(intent.currency)
+                .subscribeBy(
+                    onSuccess = { account ->
+                        when (val action = intent.assetAction) {
+                            AssetAction.StakingDeposit -> process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                        LaunchFlowForAccount.TargetAccount(account as TransactionTarget), action
+                                    )
+                                )
+                            )
+                            AssetAction.ViewActivity ->
+                                process(
+                                    MainIntent.UpdateViewToLaunch(ViewToLaunch.GoToActivityForAccount(account))
+                                )
+
+                            else -> {
+                                // do nothing
+                            }
+                        }
+                    },
+                    onError = {
+                        Timber.e("Error getting default account for Staking ${it.message}")
+                    }
+                )
+            is MainIntent.UpdateFlags -> {
+                process(MainIntent.RefreshTabs)
+                null
+            }
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,
             is MainIntent.UpdateViewToLaunch,

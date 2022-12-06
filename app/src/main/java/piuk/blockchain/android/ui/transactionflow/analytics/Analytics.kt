@@ -21,6 +21,8 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.EarnAnalytics
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.Currency
@@ -774,26 +776,6 @@ fun TransactionTarget.toCategory(): String =
         is BankAccount -> WALLET_TYPE_BANK
         else -> WALLET_TYPE_UNKNOWN
     }
-
-enum class TxFlowAnalyticsAccountType {
-    TRADING, USERKEY, SAVINGS, EXTERNAL;
-
-    companion object {
-        fun fromAccount(account: BlockchainAccount): TxFlowAnalyticsAccountType =
-            when (account) {
-                is TradingAccount,
-                is BankAccount -> TRADING
-                is InterestAccount -> SAVINGS
-                else -> USERKEY
-            }
-
-        fun fromTransactionTarget(transactionTarget: TransactionTarget): TxFlowAnalyticsAccountType {
-            (transactionTarget as? BlockchainAccount)?.let {
-                return fromAccount(it)
-            } ?: return EXTERNAL
-        }
-    }
-}
 
 private fun FeeLevel.toAnalyticsFee(): AnalyticsFeeType =
     when (this) {

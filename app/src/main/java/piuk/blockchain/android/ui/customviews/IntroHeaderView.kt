@@ -7,10 +7,10 @@ import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.presentation.getResolvedDrawable
 import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewIntroHeaderBinding
-import piuk.blockchain.android.util.getResolvedDrawable
 
 class IntroHeaderView @JvmOverloads constructor(
     context: Context,

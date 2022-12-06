@@ -24,5 +24,5 @@ data class StakingBalanceDto(
     @SerialName("unbondingWithdrawals")
     val unbondingWithdrawals: String,
     @SerialName("locked")
-    val lockedBalance: String
+    val lockedBalance: String,
 )

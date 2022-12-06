@@ -19,6 +19,7 @@ dependencies {
     // android
     implementation project(':common:interface')
     implementation project(':coincore')
+    implementation project(':unifiedcryptowallet:domain')
     implementation project(':flowhome:domain')
     implementation project(':store:core')
     implementation project(':store:caches:inmemory')
@@ -31,6 +32,7 @@ dependencies {
     implementation Libraries.koinAndroid
     implementation Libraries.koin
     implementation Libraries.koinCompose
+    implementation Libraries.rxjava3Coroutines
 
     // rx
     implementation Libraries.rxKotlin
