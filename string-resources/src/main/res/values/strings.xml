@@ -3425,6 +3425,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
+    <string name="show_pkw_accounts">Show Private Key wallets</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
     <string name="add_to_google_pay">Add to Google Pay</string>
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>

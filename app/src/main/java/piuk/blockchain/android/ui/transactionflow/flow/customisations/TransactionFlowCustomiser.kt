@@ -27,6 +27,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -1394,6 +1395,13 @@ class TransactionFlowCustomiserImpl(
     override fun selectSourceShouldHaveSearch(action: AssetAction): Boolean =
         when (action) {
             AssetAction.Swap -> true
+            else -> false
+        }
+
+    override fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean =
+        when (action) {
+            AssetAction.StakingDeposit,
+            AssetAction.InterestDeposit -> walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL
             else -> false
         }
 

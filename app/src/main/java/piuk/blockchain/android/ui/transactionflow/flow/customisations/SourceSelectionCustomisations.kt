@@ -15,4 +15,5 @@ interface SourceSelectionCustomisations {
     fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator
     fun getLinkingSourceForAction(state: TransactionState): BankAuthSource
     fun selectSourceShouldHaveSearch(action: AssetAction): Boolean
+    fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean
 }
