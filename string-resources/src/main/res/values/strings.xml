@@ -2967,8 +2967,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
 
     <!-- Bottom sheet actions -->
-    <string name="actions_sheet_percentage_rewards">%s%% APR</string>
-    <string name="actions_sheet_percentage_staking">%s%% APY</string>
+    <string name="actions_sheet_percentage_rate">Rate: %s%%</string>
 
     <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
@@ -3465,10 +3464,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
     <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
-    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a 10.0%% Blockchain.com fee. Users receive the displayed rate.</string>
+    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Rewards</string>
+    <string name="earn_dashboard_filter_rewards">Passive</string>
     <string name="staking_dashboard_search">Search coins</string>
     <string name="staking_dashboard_no_results">No results</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>

@@ -26,7 +26,7 @@ class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
         BottomSheetTwoButtons(
             onCloseClick = { dismiss() },
             title = title,
-            headerImageResource = ImageResource.Local(R.drawable.ic_lock),
+            headerImageResource = ImageResource.Local(R.drawable.ic_region),
             shouldShowHeaderDivider = false,
             subtitleAlign = TextAlign.Center,
             showTitleInHeader = false,

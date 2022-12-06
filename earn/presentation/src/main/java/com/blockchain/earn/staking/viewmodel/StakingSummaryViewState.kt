@@ -18,6 +18,7 @@ data class StakingSummaryViewState(
     val earnedCrypto: Money?,
     val earnedFiat: Money?,
     val stakingRate: Double,
+    val commissionRate: Double,
     val isWithdrawable: Boolean,
     val rewardsFrequency: EarnRewardsFrequency,
     val canDeposit: Boolean

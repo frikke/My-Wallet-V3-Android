@@ -23,6 +23,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -1202,7 +1203,7 @@ class MainActivity :
         model.process(
             MainIntent.UpdateViewToLaunch(
                 ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                    LaunchFlowForAccount.SourceAccount(toAccount), AssetAction.InterestDeposit
+                    LaunchFlowForAccount.TargetAccount(toAccount as TransactionTarget), AssetAction.InterestDeposit
                 )
             )
         )

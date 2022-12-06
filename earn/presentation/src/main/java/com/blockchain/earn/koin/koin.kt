@@ -12,8 +12,7 @@ val earnPresentationModule = module {
             StakingSummaryViewModel(
                 coincore = get(),
                 stakingService = get(),
-                exchangeRatesDataManager = get(),
-                currencyPrefs = get()
+                exchangeRatesDataManager = get()
             )
         }
 
