@@ -1,6 +1,7 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
 import android.os.Parcelable
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,7 @@ interface ModelState
 /**
  * Emitted view state for view consumption
  */
+@Stable
 interface ViewState
 
 /**

@@ -38,7 +38,7 @@ interface StakingService {
     ): Flow<DataResource<StakingRates>>
 
     fun getRatesForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     fun getEligibilityForAssets(

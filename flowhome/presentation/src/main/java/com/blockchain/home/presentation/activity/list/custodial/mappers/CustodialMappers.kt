@@ -3,11 +3,13 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
@@ -36,6 +38,7 @@ internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
     is RecurringBuyActivitySummaryItem -> iconSummary()
     is TradeActivitySummaryItem -> iconSummary()
     is FiatActivitySummaryItem -> iconSummary()
+    is CustodialStakingActivitySummaryItem -> R.drawable.ic_activity_buy
     else -> error("${this::class.simpleName} not supported")
 }
 
@@ -47,7 +50,7 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
         is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
-        else -> error("${this::class.simpleName} not supported")
+        else -> emptyList()
     }
 }
 
@@ -59,7 +62,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
         is RecurringBuyActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is TradeActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is FiatActivitySummaryItem -> listOfNotNull(trailingTitle(), trailingSubtitle())
-        else -> error("${this::class.simpleName} not supported")
+        else -> emptyList()
     }
 }
 

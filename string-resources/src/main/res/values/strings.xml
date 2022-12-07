@@ -3494,5 +3494,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="transfer_from_your_trading_account">Transfer from your Trading Account, send from any exchange, or ask a friend!</string>
     <string name="earn_up_to">Earn up to 10%</string>
     <string name="put_your_crypto_to_work">Put your crypto to work</string>
+    <string name="staking_asset">Staked %1s</string>
+    <string name="earn_rate_apy">%1$s%% APY</string>
 
 </resources>
