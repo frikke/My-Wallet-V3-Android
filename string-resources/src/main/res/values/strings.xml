@@ -2838,12 +2838,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="ui_tour_prices_title">Discover New Coins</string>
     <string name="ui_tour_middle_button_title">Instantly Trade</string>
     <string name="ui_tour_activity_title">See All Transactions</string>
+    <string name="ui_tour_earn_title">Earn Rewards</string>
     <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
 
     <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
     <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
     <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
     <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
+    <string name="ui_tour_earn_subtitle">Put your crypto to work by passively investing, securing your favourite networks and more.</string>
     <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
 
     <!-- Pin screen -->

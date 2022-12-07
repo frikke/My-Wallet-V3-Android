@@ -267,7 +267,6 @@ class MainActivity :
             model.process(MainIntent.CheckReferralCode)
 
             if (startUiTour) {
-                binding.uiTour.host = this
                 showUiTour()
             }
         }
@@ -1107,6 +1106,7 @@ class MainActivity :
     private fun showUiTour() {
         analytics.logEvent(UiTourAnalytics.Viewed)
         binding.uiTour.apply {
+            host = this@MainActivity
             alpha = 0f
             visible()
             animate()
@@ -1118,7 +1118,8 @@ class MainActivity :
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
         binding.uiTour.apply {
-            analytics.logEvent(UiTourAnalytics.Dismissed(currentStep))
+            logHideUi()
+
             animate()
                 .alpha(0f)
                 .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())

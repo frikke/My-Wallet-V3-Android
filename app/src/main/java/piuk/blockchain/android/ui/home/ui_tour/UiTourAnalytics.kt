@@ -22,11 +22,32 @@ sealed class UiTourAnalytics : AnalyticsEvent {
         override val params: Map<String, Serializable> = mapOf("step" to step.toAnalyticsId())
     }
 
+    class NewTourCtaClicked(val step: NewUiTourStep) : UiTourAnalytics() {
+        override val event: String = AnalyticsNames.UI_TOUR_CTA_CLICKED.eventName
+        override val params: Map<String, Serializable> = mapOf("step" to step.toAnalyticsId())
+    }
+    class NewTourProgressClicked(val step: NewUiTourStep) : UiTourAnalytics() {
+        override val event: String = AnalyticsNames.UI_TOUR_PROGRESS_CLICKED.eventName
+        override val params: Map<String, Serializable> = mapOf("step" to step.toAnalyticsId())
+    }
+    class NewTourDismissed(val step: NewUiTourStep) : UiTourAnalytics() {
+        override val event: String = AnalyticsNames.UI_TOUR_DISMISSED.eventName
+        override val params: Map<String, Serializable> = mapOf("step" to step.toAnalyticsId())
+    }
+
     protected fun UiTourStep.toAnalyticsId(): Int = when (this) {
         UiTourStep.BUY_AND_SELL -> 4
         UiTourStep.PRICES -> 2
         UiTourStep.MIDDLE_BUTTON -> 3
         UiTourStep.ACTIVITY -> 5
         UiTourStep.BUYER_HANDHOLD -> 6
+    }
+
+    protected fun NewUiTourStep.toAnalyticsId(): Int = when (this) {
+        NewUiTourStep.EARN -> 4
+        NewUiTourStep.PRICES -> 2
+        NewUiTourStep.MIDDLE_BUTTON -> 3
+        NewUiTourStep.ACTIVITY -> 5
+        NewUiTourStep.BUYER_HANDHOLD -> 6
     }
 }
