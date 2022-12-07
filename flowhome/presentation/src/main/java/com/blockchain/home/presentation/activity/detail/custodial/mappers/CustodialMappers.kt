@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -29,6 +30,7 @@ internal const val SIDE_ABBREVIATE_LENGTH = 4
     is CustodialTradingActivitySummaryItem -> iconDetail()
     is CustodialTransferActivitySummaryItem -> iconDetail()
     is CustodialInterestActivitySummaryItem -> iconDetail()
+    is CustodialStakingActivitySummaryItem -> iconDetail()
     is RecurringBuyActivitySummaryItem -> iconDetail()
     is TradeActivitySummaryItem -> when {
         isSellingPair() -> sellIconDetail()
@@ -44,6 +46,7 @@ private fun ActivitySummaryItem.title(): TextValue {
         is CustodialTradingActivitySummaryItem -> title()
         is CustodialTransferActivitySummaryItem -> title()
         is CustodialInterestActivitySummaryItem -> title()
+        is CustodialStakingActivitySummaryItem -> title()
         is RecurringBuyActivitySummaryItem -> title()
         is TradeActivitySummaryItem -> when {
             isSellingPair() -> sellTitle()
@@ -60,6 +63,7 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
         is CustodialTradingActivitySummaryItem -> activity.detailItems(extras)
         is CustodialTransferActivitySummaryItem -> activity.detailItems(extras)
         is CustodialInterestActivitySummaryItem -> activity.detailItems(extras)
+        is CustodialStakingActivitySummaryItem -> activity.detailItems(extras)
         is RecurringBuyActivitySummaryItem -> activity.detailItems(extras)
         is TradeActivitySummaryItem -> when {
             activity.isSellingPair() -> activity.sellDetailItems(extras)
@@ -76,6 +80,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
         is CustodialTradingActivitySummaryItem -> emptyList()
         is CustodialTransferActivitySummaryItem -> emptyList()
         is CustodialInterestActivitySummaryItem -> emptyList()
+        is CustodialStakingActivitySummaryItem -> emptyList()
         is RecurringBuyActivitySummaryItem -> emptyList()
         is TradeActivitySummaryItem -> emptyList()
         is FiatActivitySummaryItem -> emptyList()
