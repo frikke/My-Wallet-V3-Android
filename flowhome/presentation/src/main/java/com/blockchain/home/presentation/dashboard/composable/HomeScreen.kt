@@ -37,50 +37,50 @@ fun HomeScreen(
                 RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             ),
     ) {
-//        item {
-//            Balance()
-//        }
-//
-//        item {
-//            QuickActions(assetActionsNavigation = assetActionsNavigation)
-//        }
-//        item {
-//            EmptyCard(
-//                onboardingLaunch = {
-//                    assetActionsNavigation.onBoardingNavigation(
-//                        DashboardOnboardingStep.values().map { step ->
-//                            CompletableDashboardOnboardingStep(
-//                                step = step,
-//                                state = DashboardOnboardingStepState.INCOMPLETE
-//                            )
-//                        }
-//                    )
-//                },
-//                onReceive = { assetActionsNavigation.navigate(AssetAction.Receive) },
-//                onBuy = { assetActionsNavigation.navigate(AssetAction.Buy) },
-//                homeAssetsViewModel = getViewModel(scope = payloadScope),
-//                pkwActivityViewModel = getViewModel(scope = payloadScope),
-//                custodialActivityViewModel = getViewModel(scope = payloadScope)
-//            )
-//        }
-//        item {
-//            HomeAssets(
-//                openAllAssets = openCryptoAssets
-//            )
-//        }
+        item {
+            Balance()
+        }
 
-//        item {
-//            HomeActivity(
-//                openAllActivity = openActivity
-//            )
-//        }
+        item {
+            QuickActions(assetActionsNavigation = assetActionsNavigation)
+        }
+        item {
+            EmptyCard(
+                onboardingLaunch = {
+                    assetActionsNavigation.onBoardingNavigation(
+                        DashboardOnboardingStep.values().map { step ->
+                            CompletableDashboardOnboardingStep(
+                                step = step,
+                                state = DashboardOnboardingStepState.INCOMPLETE
+                            )
+                        }
+                    )
+                },
+                onReceive = { assetActionsNavigation.navigate(AssetAction.Receive) },
+                onBuy = { assetActionsNavigation.navigate(AssetAction.Buy) },
+                homeAssetsViewModel = getViewModel(scope = payloadScope),
+                pkwActivityViewModel = getViewModel(scope = payloadScope),
+                custodialActivityViewModel = getViewModel(scope = payloadScope)
+            )
+        }
+        item {
+            HomeAssets(
+                openAllAssets = openCryptoAssets
+            )
+        }
 
-//        item {
-//            HelpAndSupport()
-//        }
-//
-//        item {
-//            Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
-//        }
+        item {
+            HomeActivity(
+                openAllActivity = openActivity
+            )
+        }
+
+        item {
+            HelpAndSupport()
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
+        }
     }
 }

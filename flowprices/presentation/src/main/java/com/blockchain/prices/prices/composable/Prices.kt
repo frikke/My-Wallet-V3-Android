@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.button.TagButton
@@ -46,7 +47,7 @@ fun Prices(
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PricesIntents.LoadAssetsAvailable)
+        viewModel.onIntent(PricesIntents.LoadData())
         onDispose { }
     }
 
@@ -80,6 +81,7 @@ fun PricesScreen(
     ) {
         when (data) {
             DataResource.Loading -> {
+                ShimmerLoadingCard()
             }
             is DataResource.Data -> {
                 CryptoAssetsList(

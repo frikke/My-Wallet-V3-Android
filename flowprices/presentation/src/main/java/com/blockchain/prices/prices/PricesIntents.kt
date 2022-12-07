@@ -5,7 +5,11 @@ import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetInfo
 
 sealed interface PricesIntents : Intent<PricesModelState> {
-    object LoadAssetsAvailable : PricesIntents
+    data class LoadData(val forceRefresh: Boolean = false) : PricesIntents {
+        override fun isValidFor(modelState: PricesModelState): Boolean {
+            return forceRefresh || modelState.data !is DataResource.Data
+        }
+    }
 
     data class FilterSearch(val term: String) : PricesIntents {
         override fun isValidFor(modelState: PricesModelState): Boolean {
