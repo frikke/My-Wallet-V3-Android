@@ -2,6 +2,7 @@ package com.blockchain.core.watchlist.data
 
 import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.services.WatchlistApiService.Companion.FAVOURITE_TAG
+import com.blockchain.core.user.Watchlist
 import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
@@ -15,15 +16,13 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 
-typealias Watchlist = List<Currency>
-
 class WatchlistRepository(
     private val watchlistStore: WatchlistStore,
     private val watchlistApiService: WatchlistApiService,
     private val assetCatalogue: AssetCatalogue
 ) : WatchlistService {
 
-    private fun getWatchlist(freshnessStrategy: FreshnessStrategy): Flow<DataResource<Watchlist>> {
+    override fun getWatchlist(freshnessStrategy: FreshnessStrategy): Flow<DataResource<List<Currency>>> {
         return watchlistStore.stream(freshnessStrategy).mapData { watchlistDto ->
             val watchlist = mutableListOf<Currency>()
 

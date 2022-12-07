@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.dataOrElse
@@ -19,17 +20,19 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.PricesPrefs
 import com.blockchain.store.flatMapData
+import com.blockchain.store.mapData
+import com.blockchain.store.mapListData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency.BTC
+import info.blockchain.balance.CryptoCurrency.ETHER
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class PricesViewModel(
@@ -39,7 +42,8 @@ class PricesViewModel(
     private val pricesPrefs: PricesPrefs,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    private val simpleBuyService: SimpleBuyService
+    private val simpleBuyService: SimpleBuyService,
+    private val watchlistService: WatchlistService
 ) : MviViewModel<PricesIntents,
     PricesViewState,
     PricesModelState,
@@ -71,7 +75,9 @@ class PricesViewModel(
                             }.dataOrElse(false)
                         }
                         PricesFilter.Favorites -> {
-                            true
+                            state.watchlist.map {
+                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                            }.dataOrElse(false)
                         }
                     }
                 }
@@ -133,21 +139,27 @@ class PricesViewModel(
 
     private fun loadAvailableAssets() {
         viewModelScope.launch {
-            simpleBuyService.getSupportedBuySellCryptoCurrencies()
-                .onEach { dataResource ->
-                    updateState {
-                        modelState.copy(tradableCurrencies = dataResource.mapList { it.source.networkTicker })
-                    }
+            val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+                .mapListData { it.source.networkTicker }
+
+            val watchlistFlow = watchlistService.getWatchlist()
+                .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
+
+            val pricesFlow = loadAssetsAndPrices()
+
+            combine(
+                tradableCurrenciesFlow,
+                watchlistFlow,
+                pricesFlow
+            ) { tradableCurrencies, watchlist, prices ->
+                updateState {
+                    modelState.copy(
+                        tradableCurrencies = it.tradableCurrencies.updateDataWith(tradableCurrencies),
+                        watchlist = it.watchlist.updateDataWith(watchlist),
+                        data = it.data.updateDataWith(prices)
+                    )
                 }
-                .flatMapLatest {
-                    loadAssetsAndPrices()
-                }
-                .onEach { prices ->
-                    updateState {
-                        it.copy(data = it.data.updateDataWith(prices))
-                    }
-                }
-                .collect()
+            }.collect()
         }
     }
 
@@ -274,6 +286,10 @@ class PricesViewModel(
 
     private fun handlePriceItemClicked(cryptoCurrency: AssetInfo) {
         //        navigate(PricesNavigationEvent.CoinView(cryptoCurrency))
+    }
+
+    companion object {
+        val defaultWatchlist = listOf(BTC, ETHER)
     }
 }
 

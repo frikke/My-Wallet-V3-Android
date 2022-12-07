@@ -7,6 +7,10 @@ import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 
 interface WatchlistService {
+    fun getWatchlist(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<List<Currency>>>
+
     fun isAssetInWatchlist(
         asset: Currency,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)

@@ -1,11 +1,9 @@
 package com.blockchain.prices.prices.composable
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -139,12 +137,7 @@ fun ColumnScope.CryptoAssetsList(
     ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Color(0XFFF1F2F7),
-                    RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                ),
+            modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(
                 items = cryptoPrices,
@@ -168,10 +161,6 @@ fun ColumnScope.CryptoAssetsList(
                     }
                 }
             )
-
-            item {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
-            }
         }
 
     }
