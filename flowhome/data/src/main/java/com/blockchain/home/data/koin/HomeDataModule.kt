@@ -8,7 +8,6 @@ import com.blockchain.home.data.activity.dataresource.CustodialActivityStore
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.superAppModeService
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -17,8 +16,7 @@ val homeDataModule = module {
         scoped {
             HomeAccountsRepository(
                 unifiedBalancesService = get(),
-                coincore = get(),
-                walletModeService = get(superAppModeService)
+                coincore = get()
             )
         }.bind(HomeAccountsService::class)
 

@@ -78,50 +78,6 @@ fun BalanceTableRow(
                     .wrapContentHeight(),
                 verticalArrangement = Arrangement.Center,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    Text(
-                        text = titleStart,
-                        style = AppTheme.typography.body2,
-                        modifier = if (postStartTitleImageResource == ImageResource.None) {
-                            Modifier.weight(1f)
-                        } else {
-                            Modifier.wrapContentWidth()
-                        },
-                        textAlign = TextAlign.Start,
-                        color = AppTheme.colors.title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    if (postStartTitleImageResource != ImageResource.None) {
-                        Image(
-                            imageResource = postStartTitleImageResource,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(AppTheme.dimensions.smallestSpacing)
-                                .clickable(onClick = postStartTitleImageResourceOnClick)
-                                .size(AppTheme.dimensions.smallSpacing)
-                        )
-                    }
-
-                    if (titleEnd != null) {
-                        Text(
-                            text = titleEnd,
-                            style = AppTheme.typography.body2,
-                            modifier = if (postStartTitleImageResource == ImageResource.None) {
-                                Modifier.wrapContentSize()
-                            } else {
-                                Modifier.weight(1f)
-                            },
-                            textAlign = TextAlign.End,
-                            color = AppTheme.colors.title
-                        )
-                    }
-                }
 
                 if (bodyStart != null || (tags.isNotEmpty() && isInlineTags)) {
                     TitleAndBodyTableRow(

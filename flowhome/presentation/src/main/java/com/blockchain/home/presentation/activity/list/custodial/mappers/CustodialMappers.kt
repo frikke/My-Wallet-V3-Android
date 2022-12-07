@@ -39,7 +39,7 @@ internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
     is TradeActivitySummaryItem -> iconSummary()
     is FiatActivitySummaryItem -> iconSummary()
     is CustodialStakingActivitySummaryItem -> R.drawable.ic_activity_buy
-    else -> error("${this::class.simpleName} not supported")
+    else -> R.drawable.ic_activity_buy
 }
 
 private fun ActivitySummaryItem.leading(): List<ActivityStackView> {

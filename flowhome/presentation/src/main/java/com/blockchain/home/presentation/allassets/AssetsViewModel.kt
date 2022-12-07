@@ -28,6 +28,8 @@ import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
@@ -50,9 +52,10 @@ class AssetsViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val assetCatalogue: AssetCatalogue,
     private val exchangeRates: ExchangeRatesDataManager,
+    private val walletModeService: WalletModeService,
     private val filterService: FiltersService
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    AssetsModelState()
+    AssetsModelState(walletMode = WalletMode.CUSTODIAL_ONLY)
 ) {
     private var accountsJob: Job? = null
 
@@ -182,70 +185,81 @@ class AssetsViewModel(
     private fun loadAccounts() {
         accountsJob?.cancel()
         accountsJob = viewModelScope.launch {
-            homeAccountsService.accounts()
-                .doOnError {
-                    /**
-                     * TODO Handle error for fetching accounts for wallet mode
-                     */
-                    println("Handling exception $it")
+            walletModeService.walletMode.onEach { walletMode ->
+                if (walletMode != modelState.walletMode) {
+                    updateState {
+                        it.copy(
+                            walletMode = walletMode,
+                            accounts = DataResource.Loading
+                        )
+                    }
                 }
-                .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-                .distinctUntilChanged { old, new ->
-                    val oldAssets = old.data.map { it.currency.networkTicker }
-                    val newAssets = new.data.map { it.currency.networkTicker }
-                    newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
-                }
-                .map { accounts ->
-                    updateAccountsIfNeeded(
-                        accounts.data,
-                        modelState.accounts
-                    )
-                }
-                .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-                .flatMapLatest { accounts ->
-                    val balances = accounts.data.map { account ->
-                        account.balance.distinctUntilChanged()
-                            .map { DataResource.Data(it) as DataResource<AccountBalance> to account }
-                            .catch { t ->
-                                emit(DataResource.Error(t as Exception) to account)
+            }.flatMapLatest {
+                homeAccountsService.accounts(it)
+                    .doOnError {
+                        /**
+                         * TODO Handle error for fetching accounts for wallet mode
+                         */
+                        println("Handling exception $it")
+                    }
+                    .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+                    .distinctUntilChanged { old, new ->
+                        val oldAssets = old.data.map { it.currency.networkTicker }
+                        val newAssets = new.data.map { it.currency.networkTicker }
+                        newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
+                    }
+                    .map { accounts ->
+                        updateAccountsIfNeeded(
+                            accounts.data,
+                            modelState.accounts
+                        )
+                    }
+                    .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+                    .flatMapLatest { accounts ->
+                        val balances = accounts.data.map { account ->
+                            account.balance.distinctUntilChanged()
+                                .map { DataResource.Data(it) as DataResource<AccountBalance> to account }
+                                .catch { t ->
+                                    emit(DataResource.Error(t as Exception) to account)
+                                }
+                        }.merge().onEach { (balance, account) ->
+                            updateState { state ->
+                                state.copy(
+                                    accounts = state.accounts.withBalancedAccount(
+                                        account = account,
+                                        balance = balance,
+                                    )
+                                )
                             }
-                    }.merge().onEach { (balance, account) ->
-                        updateState { state ->
-                            state.copy(
-                                accounts = state.accounts.withBalancedAccount(
-                                    account = account,
-                                    balance = balance,
-                                )
-                            )
                         }
-                    }
 
-                    val usdRate = accounts.data.map { account ->
-                        exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
-                            .map { it to account }
-                    }.merge().onEach { (usdExchangeRate, account) ->
-                        updateState { state ->
-                            state.copy(
-                                accounts = state.accounts.withUsdRate(
-                                    account = account,
-                                    usdRate = usdExchangeRate
+                        val usdRate = accounts.data.map { account ->
+                            exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
+                                .map { it to account }
+                        }.merge().onEach { (usdExchangeRate, account) ->
+                            updateState { state ->
+                                state.copy(
+                                    accounts = state.accounts.withUsdRate(
+                                        account = account,
+                                        usdRate = usdExchangeRate
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    val exchangeRates = accounts.data.map { account ->
-                        exchangeRates.getPricesWith24hDelta(fromAsset = account.currency)
-                            .map { it to account }
-                    }.merge().onEach { (price, account) ->
-                        updateState { state ->
-                            state.copy(
-                                accounts = state.accounts.withPricing(account, price)
-                            )
+                        val exchangeRates = accounts.data.map { account ->
+                            exchangeRates.getPricesWith24hDelta(fromAsset = account.currency)
+                                .map { it to account }
+                        }.merge().onEach { (price, account) ->
+                            updateState { state ->
+                                state.copy(
+                                    accounts = state.accounts.withPricing(account, price)
+                                )
+                            }
                         }
+                        merge(usdRate, balances, exchangeRates)
                     }
-                    merge(usdRate, balances, exchangeRates)
-                }.collect()
+            }.collect()
         }
     }
 

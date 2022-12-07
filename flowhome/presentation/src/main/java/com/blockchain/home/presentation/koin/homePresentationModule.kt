@@ -23,7 +23,8 @@ val homePresentationModule = module {
                 currencyPrefs = get(),
                 exchangeRates = get(),
                 filterService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                walletModeService = get(superAppModeService)
             )
         }
 
