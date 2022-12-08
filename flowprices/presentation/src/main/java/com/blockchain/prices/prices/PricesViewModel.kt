@@ -57,7 +57,6 @@ class PricesViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: PricesModelState): PricesViewState {
-        //        println("---------- reduce")
         return PricesViewState(
             availableFilters = state.filters,
             selectedFilter = state.filterBy,
@@ -132,11 +131,6 @@ class PricesViewModel(
                 }
             }
 
-            is PricesIntents.PricesItemClicked -> {
-                handlePriceItemClicked(
-                    cryptoCurrency = intent.cryptoCurrency
-                )
-            }
             is PricesIntents.Filter -> {
                 updateState {
                     it.copy(filterBy = intent.filter)
@@ -185,6 +179,8 @@ class PricesViewModel(
     }
 
     private suspend fun loadAssetsAndPrices(): Flow<DataResource<List<AssetPriceInfo>>> {
+        // todo(othman) have to check why flow is behaving strange - for now keeping rx
+
         //        return coincore.availableCryptoAssetsFlow().flatMapData {
         //            val assetPriceInfoList = it.map { assetInfo ->
         //                exchangeRatesDataManager
@@ -244,15 +240,11 @@ class PricesViewModel(
             }
     }
 
-    private fun handlePriceItemClicked(cryptoCurrency: AssetInfo) {
-        //        navigate(PricesNavigationEvent.CoinView(cryptoCurrency))
-    }
-
     companion object {
         val defaultWatchlist = listOf(BTC, ETHER)
     }
 }
 
-fun Money?.format(cryptoCurrency: Currency) =
+private fun Money?.format(cryptoCurrency: Currency) =
     this?.toStringWithSymbol()
         ?: Money.zero(cryptoCurrency).toStringWithSymbol()

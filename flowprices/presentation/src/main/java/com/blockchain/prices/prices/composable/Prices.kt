@@ -55,9 +55,9 @@ fun Prices(
     }
 
     PricesScreen(
-        viewState.availableFilters,
-        viewState.selectedFilter,
-        viewState.data,
+        filters = viewState.availableFilters,
+        selectedFilter = viewState.selectedFilter,
+        data = viewState.data,
         listState = listState,
         onSearchTermEntered = { term ->
             viewModel.onIntent(PricesIntents.FilterSearch(term = term))
