@@ -61,14 +61,16 @@ import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun Activity() {
+fun Activity(
+    onBackPressed: () -> Unit
+) {
     val walletMode by get<WalletModeService>(superAppModeService).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialActivity()
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity()
+            WalletMode.CUSTODIAL_ONLY -> CustodialActivity(onBackPressed = onBackPressed)
+            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity(onBackPressed = onBackPressed)
             else -> error("unsupported")
         }
     }
@@ -77,6 +79,7 @@ fun Activity() {
 @Composable
 fun CustodialActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+    onBackPressed: () -> Unit
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -90,12 +93,14 @@ fun CustodialActivity(
         onSearchTermEntered = { term ->
             viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
+        onBackPressed = onBackPressed
     )
 }
 
 @Composable
 fun PrivateKeyActivity(
-    viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
+    viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope),
+    onBackPressed: () -> Unit
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -109,6 +114,7 @@ fun PrivateKeyActivity(
         onSearchTermEntered = { term ->
             viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
+        onBackPressed = onBackPressed
     )
 }
 
@@ -116,7 +122,8 @@ fun PrivateKeyActivity(
 @Composable
 fun ActivityScreen(
     activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    onBackPressed: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -164,7 +171,7 @@ fun ActivityScreen(
         ) {
             NavigationBar(
                 title = stringResource(R.string.ma_home_activity_title),
-                onBackButtonClick = { },
+                onBackButtonClick = onBackPressed,
             )
 
             Column(
@@ -293,6 +300,7 @@ private fun Calendar.format(): String {
 fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DUMMY_DATA,
-        onSearchTermEntered = {}
+        onSearchTermEntered = {},
+        onBackPressed = {}
     )
 }
