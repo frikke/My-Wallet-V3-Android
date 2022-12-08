@@ -66,11 +66,11 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
+import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
-import kotlin.math.min
 
 @Composable
 private fun rememberToolbarState(): CollapsingToolbarState {

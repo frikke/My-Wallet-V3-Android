@@ -82,7 +82,6 @@ fun BalanceChangeTableRow(
                                 DefaultTag(text = networkTag)
                             }
                         }
-
                     }
                 }
 

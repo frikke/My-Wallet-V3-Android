@@ -21,7 +21,6 @@ import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -57,13 +56,13 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
@@ -172,7 +171,6 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
-import java.io.File
 
 val applicationModule = module {
 
