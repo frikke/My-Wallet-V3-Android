@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.combine
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeBalanceRepository(
-    private var walletModeService: WalletModeService,
+    private val walletModeService: WalletModeService,
     private val balanceStore: WalletModeBalanceCache,
     private val currencyPrefs: CurrencyPrefs,
 ) : WalletModeBalanceService {
