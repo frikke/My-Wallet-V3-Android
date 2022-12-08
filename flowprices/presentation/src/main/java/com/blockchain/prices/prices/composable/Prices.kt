@@ -2,7 +2,6 @@ package com.blockchain.prices.prices.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,7 +25,8 @@ import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.tag.button.TagButton
+import com.blockchain.componentlib.tag.button.TagButtonRow
+import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -38,6 +38,7 @@ import com.blockchain.prices.prices.PricesFilter
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
+import com.blockchain.prices.prices.nameRes
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
 
@@ -124,20 +125,11 @@ fun ColumnScope.PricesScreenData(
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-    Row {
-        filters.forEachIndexed { index, filter ->
-            TagButton(
-                modifier = Modifier.weight(1F),
-                text = filter.name,
-                selected = filter == selectedFilter,
-                onClick = { onFilterSelected(filter) }
-            )
-
-            if (index < filters.lastIndex) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            }
-        }
-    }
+    TagButtonRow(
+        selected = selectedFilter,
+        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) },
+        onClick = { filter -> onFilterSelected(filter) }
+    )
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
