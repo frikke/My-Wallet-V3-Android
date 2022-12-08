@@ -12,7 +12,6 @@ import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.prices.composable.PricesScreen
 import com.blockchain.prices.prices.composable.Prices
 
 @Composable

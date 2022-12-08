@@ -4,8 +4,8 @@ import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.BuyOrderList
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import kotlinx.coroutines.flow.Flow
 

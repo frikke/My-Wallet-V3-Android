@@ -2,7 +2,6 @@ package com.blockchain.core.watchlist.data
 
 import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.services.WatchlistApiService.Companion.FAVOURITE_TAG
-import com.blockchain.core.user.Watchlist
 import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle

@@ -164,6 +164,5 @@ fun ColumnScope.CryptoAssetsList(
                 }
             )
         }
-
     }
 }

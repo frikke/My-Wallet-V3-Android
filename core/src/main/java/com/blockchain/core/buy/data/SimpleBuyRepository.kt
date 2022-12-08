@@ -35,8 +35,8 @@ import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import kotlinx.coroutines.flow.Flow
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 class SimpleBuyRepository(
     private val simpleBuyEligibilityStore: SimpleBuyEligibilityStore,

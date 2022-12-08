@@ -209,16 +209,17 @@ class PricesViewModel(
         //
         //            }
         //        }
-        return flowOf(coincore.availableCryptoAssets()
-            .flatMap { assets ->
-                Single.concat(
-                    assets.map { fetchAssetPrice(it) }
-                ).toList()
-            }
-            .map {
-                DataResource.Data(it)
-            }
-            .await()
+        return flowOf(
+            coincore.availableCryptoAssets()
+                .flatMap { assets ->
+                    Single.concat(
+                        assets.map { fetchAssetPrice(it) }
+                    ).toList()
+                }
+                .map {
+                    DataResource.Data(it)
+                }
+                .await()
         )
     }
 
