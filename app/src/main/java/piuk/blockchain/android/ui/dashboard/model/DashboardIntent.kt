@@ -90,32 +90,29 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    class GetAssetPrice(val asset: AssetInfo) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState = oldState
-    }
-
     object NoActiveAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(isLoadingAssets = false)
     }
 
-    class AssetPriceWithDeltaUpdate(
-        val asset: AssetInfo,
-        private val prices24HrWithDelta: Prices24HrWithDelta,
+    class AssetsPriceWithDeltaUpdate(
+        val pricedAssets: Map<AssetInfo, Prices24HrWithDelta>,
         // Only fetch day historical prices for active assets, the ones with balance, to draw the small graph
         val shouldFetchDayHistoricalPrices: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val oldAsset = oldState.activeAssets[asset]
-            val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
-            val updatedActiveList = oldState.activeAssets.copy(patchAsset = newAsset)
+
+            val newAssets = pricedAssets.map {
+                val oldAsset = oldState.activeAssets[it.key]
+                updateAsset(oldAsset, it.value)
+            }
 
             return oldState.copy(
-                activeAssets = updatedActiveList
+                activeAssets = oldState.activeAssets.copy(newAssets)
             )
         }
 
         override fun isValidFor(oldState: DashboardState): Boolean =
-            oldState.activeAssets[asset] is BrokerageCryptoAsset
+            pricedAssets.all { oldState.activeAssets[it.key] is BrokerageCryptoAsset }
 
         private fun updateAsset(
             old: DashboardAsset,
@@ -152,6 +149,30 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     object ResetDashboardAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(activeAssets = oldState.activeAssets.reset())
+        }
+    }
+
+    class BalanceUpdateForAssets(
+        val models: List<BalanceUpdateModel>
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            val newBalancedAssets = models.map {
+                if (it.hasError)
+                    return@map oldState[it.currency].toErrorState()
+                else {
+                    val oldAsset = oldState[it.currency]
+                    val newAsset = oldAsset.updateBalance(accountBalance = it.balance)
+                        .updateExchangeRate(it.balance.exchangeRate)
+                        .updateFetchingBalanceState(false)
+                        .shouldAssetShow(it.shouldShow)
+                    newAsset
+                }
+            }
+            return oldState.copy(
+                activeAssets = oldState.activeAssets.copy(newBalancedAssets),
+                isLoadingAssets = false,
+                isSwipingToRefresh = false
+            )
         }
     }
 
@@ -231,25 +252,29 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class RefreshPrices(
-        val asset: DashboardAsset,
+        val assets: List<DashboardAsset>,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
     class PriceHistoryUpdate(
-        val asset: AssetInfo,
-        private val historicPrices: HistoricalRateList
+        private val historicPricedAssets: Map<AssetInfo, HistoricalRateList>
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            return if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset] as? BrokerageCryptoAsset ?: throw IllegalStateException(
-                    "Historic prices are only supported for brokerage"
-                )
-                val newAsset = updateAsset(oldAsset, historicPrices)
-                oldState.copy(activeAssets = oldState.activeAssets.copy(patchAsset = newAsset))
-            } else {
-                oldState
+            val assets = historicPricedAssets.mapNotNull {
+                if (oldState.activeAssets.contains(it.key)) {
+                    val oldAsset =
+                        oldState.activeAssets[it.key] as? BrokerageCryptoAsset ?: throw IllegalStateException(
+                            "Historic prices are only supported for brokerage"
+                        )
+                    updateAsset(oldAsset, it.value)
+                } else null
             }
+
+            return if (assets.isNotEmpty()) {
+                oldState.copy(activeAssets = oldState.activeAssets.copy(assets))
+            } else
+                oldState
         }
 
         private fun updateAsset(
@@ -261,9 +286,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
 
         override fun isValidFor(oldState: DashboardState): Boolean {
-            return oldState.activeAssets.getOrNull(asset)?.let {
-                it is BrokerageCryptoAsset
-            } ?: false
+            return historicPricedAssets.all {
+                oldState.activeAssets.getOrNull(it.key)?.let { asset ->
+                    asset is BrokerageCryptoAsset
+                } ?: false
+            }
         }
     }
 
@@ -363,7 +390,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                dashboardNavigationAction = DashboardNavigationAction.BackUpBeforeSend(BackupDetails(account, action))
+                dashboardNavigationAction = DashboardNavigationAction.BackUpBeforeSend(
+                    BackupDetails(account, action)
+                )
             )
     }
 
