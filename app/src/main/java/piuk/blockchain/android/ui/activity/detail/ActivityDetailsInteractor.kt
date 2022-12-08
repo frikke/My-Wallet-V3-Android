@@ -28,6 +28,7 @@ import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -501,6 +502,7 @@ class ActivityDetailsInteractor(
     fun loadFeeItems(
         item: NonCustodialActivitySummaryItem
     ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+        .asSingle()
         .flatMap { fiatValue ->
             getTransactionsMapForFeeItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -533,6 +535,7 @@ class ActivityDetailsInteractor(
     fun loadReceivedItems(
         item: NonCustodialActivitySummaryItem
     ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+        .asSingle()
         .flatMap { fiatValue ->
             getTransactionsMapForReceivedItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -565,6 +568,7 @@ class ActivityDetailsInteractor(
         item: NonCustodialActivitySummaryItem
     ): Single<List<ActivityDetailsType>> =
         historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+            .asSingle()
             .flatMap { fiatValue ->
                 getTransactionsMapForTransferItems(item, fiatValue)
             }.onErrorResumeNext {
@@ -606,11 +610,13 @@ class ActivityDetailsInteractor(
         item: NonCustodialActivitySummaryItem,
         value: Money?,
         selectedFiatCurrency: FiatCurrency
-    ) = historicRateFetcher.fetch(item.asset, selectedFiatCurrency, item.timeStampMs, item.value).flatMap { fiatValue ->
-        getTransactionsMapForConfirmedSentItems(value, fiatValue, item)
-    }.onErrorResumeNext {
-        getTransactionsMapForConfirmedSentItems(value, null, item)
-    }
+    ) = historicRateFetcher.fetch(item.asset, selectedFiatCurrency, item.timeStampMs, item.value)
+        .asSingle()
+        .flatMap { fiatValue ->
+            getTransactionsMapForConfirmedSentItems(value, fiatValue, item)
+        }.onErrorResumeNext {
+            getTransactionsMapForConfirmedSentItems(value, null, item)
+        }
 
     private fun getTransactionsMapForConfirmedSentItems(
         cryptoValue: Money?,

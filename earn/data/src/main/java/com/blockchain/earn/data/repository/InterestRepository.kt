@@ -298,7 +298,7 @@ internal class InterestRepository(
                     flowOf(DataResource.Data(emptyList()))
                 } else {
                     val flows = it.map { transaction ->
-                        historicRateFetcher.fetch2(
+                        historicRateFetcher.fetch(
                             asset,
                             currencyPrefs.selectedFiatCurrency,
                             (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,

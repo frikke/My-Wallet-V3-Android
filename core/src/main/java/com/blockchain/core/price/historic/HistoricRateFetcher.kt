@@ -17,28 +17,7 @@ import kotlinx.coroutines.flow.Flow
 class HistoricRateFetcher internal constructor(
     private val historicRateStore: HistoricRateStore,
 ) {
-    fun fetch(asset: AssetInfo, selectedFiat: FiatCurrency, timestampMs: Long, value: Money): Single<Money> =
-        rxSingleOutcome {
-            historicRateStore.stream(
-                KeyedFreshnessStrategy.Cached(
-                    HistoricRateStore.Key(
-                        fiatTicker = selectedFiat.networkTicker,
-                        assetTicker = asset.networkTicker,
-                        requestedTimestamp = timestampMs,
-                    ),
-                    false
-                )
-            ).firstOutcome()
-                .map {
-                    ExchangeRate(
-                        rate = it.rate.toBigDecimal(),
-                        from = asset,
-                        to = selectedFiat,
-                    ).convert(value)
-                }
-        }
-
-    fun fetch2(
+    fun fetch(
         asset: AssetInfo,
         selectedFiat: FiatCurrency,
         timestampMs: Long,
