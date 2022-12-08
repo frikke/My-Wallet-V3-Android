@@ -12,6 +12,7 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.chrome.navigation.AppNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
@@ -56,13 +57,13 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
@@ -171,6 +172,7 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
+import java.io.File
 
 val applicationModule = module {
 
@@ -247,9 +249,8 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }.bind(
-            AssetActionsNavigation::class
-        )
+        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }
+            .bind(AppNavigation::class)
 
         scoped {
             CredentialsWiper(

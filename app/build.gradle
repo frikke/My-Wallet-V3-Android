@@ -406,6 +406,7 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
 
+    implementation project(':chrome:common')
     implementation project(':chrome:presentation')
 
     implementation project(':flowhome:presentation')

@@ -3,6 +3,7 @@ package com.blockchain.prices.prices
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
+import info.blockchain.balance.AssetInfo
 
 data class PricesViewState(
     val selectedFilter: PricesFilter,
@@ -11,6 +12,7 @@ data class PricesViewState(
 ) : ViewState
 
 data class PriceItemViewState(
+    val asset: AssetInfo,
     val name: String,
     val ticker: String,
     val network: String?,

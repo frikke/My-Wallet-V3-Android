@@ -105,6 +105,7 @@ class PricesViewModel(
 
     private fun AssetPriceInfo.toPriceItemViewModel(): PriceItemViewState {
         return PriceItemViewState(
+            asset = assetInfo,
             name = assetInfo.name,
             ticker = assetInfo.networkTicker,
             network = assetInfo.l1chainTicker?.let {

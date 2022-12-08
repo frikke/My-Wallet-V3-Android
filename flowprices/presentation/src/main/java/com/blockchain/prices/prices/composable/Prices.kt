@@ -32,17 +32,20 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.R
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesFilter
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
+import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun Prices(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
-    listState: LazyListState
+    listState: LazyListState,
+    pricesNavigation: PricesNavigation
 ) {
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -61,6 +64,9 @@ fun Prices(
         },
         onFilterSelected = { filter ->
             viewModel.onIntent(PricesIntents.Filter(filter = filter))
+        },
+        onAssetClick = { asset ->
+            pricesNavigation.coinview(asset)
         }
     )
 }
@@ -72,7 +78,8 @@ fun PricesScreen(
     data: DataResource<List<PriceItemViewState>>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
-    onFilterSelected: (PricesFilter) -> Unit
+    onFilterSelected: (PricesFilter) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -84,13 +91,14 @@ fun PricesScreen(
                 ShimmerLoadingCard()
             }
             is DataResource.Data -> {
-                CryptoAssetsList(
+                PricesScreenData(
                     filters = filters,
                     selectedFilter = selectedFilter,
                     cryptoPrices = data.data,
                     listState = listState,
                     onSearchTermEntered = onSearchTermEntered,
-                    onFilterSelected = onFilterSelected
+                    onFilterSelected = onFilterSelected,
+                    onAssetClick = onAssetClick
                 )
             }
             is DataResource.Error -> {
@@ -100,13 +108,14 @@ fun PricesScreen(
 }
 
 @Composable
-fun ColumnScope.CryptoAssetsList(
+fun ColumnScope.PricesScreenData(
     filters: List<PricesFilter>,
     selectedFilter: PricesFilter,
     cryptoPrices: List<PriceItemViewState>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
-    onFilterSelected: (PricesFilter) -> Unit
+    onFilterSelected: (PricesFilter) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     CancelableOutlinedSearch(
         onValueChange = onSearchTermEntered,
@@ -157,7 +166,7 @@ fun ColumnScope.CryptoAssetsList(
                                 )
                             )
                         },
-                        onClick = { /*todo coinview*/ }
+                        onClick = { onAssetClick(cryptoAsset.asset) }
                     )
                     if (index < cryptoPrices.lastIndex) {
                         Divider(color = Color(0XFFF1F2F7))
