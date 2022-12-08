@@ -1,6 +1,5 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -62,22 +61,6 @@ internal class XlmCryptoWalletAccount(
         get() = hasFunds.get()
 
     private val hasFunds = AtomicBoolean(false)
-
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            getMinBalance(),
-            exchangeRates.exchangeRateToUserFiat(currency)
-        ) { balanceAndMin, rate ->
-            AccountBalance(
-                total = balanceAndMin.balance,
-                withdrawable = balanceAndMin.actionable,
-                pending = Money.zero(currency),
-                dashboardDisplay = balanceAndMin.balance,
-                exchangeRate = rate
-            )
-        }.doOnNext {
-            hasFunds.set(it.total.isPositive)
-        }
 
     override fun getOnChainBalance(): Observable<Money> =
         getMinBalance().map {

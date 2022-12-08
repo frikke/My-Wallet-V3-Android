@@ -51,6 +51,14 @@ class AssetMap(private val map: Map<Currency, DashboardAsset>) :
         return AssetMap(assets)
     }
 
+    fun copy(patchAssets: List<DashboardAsset>): AssetMap {
+        val assets = toMutableMap()
+        patchAssets.forEach {
+            assets[it.currency] = it
+        }
+        return AssetMap(assets)
+    }
+
     fun reset(): AssetMap {
         val assets = toMutableMap()
         map.values.forEach { assets[it.currency] = it.reset() }
