@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.activity.detail.custodial
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -11,6 +12,7 @@ import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.data.onErrorReturn
@@ -91,7 +93,7 @@ class CustodialActivityDetailViewModel(
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             custodialActivityService
-                .getActivity(txId = activityTxId)
+                .getActivity(id = activityTxId, FreshnessStrategy.Cached(forceRefresh = false))
                 .flatMapLatest { summaryDataResource ->
                     when (summaryDataResource) {
                         is DataResource.Data -> {
@@ -104,6 +106,7 @@ class CustodialActivityDetailViewModel(
                                         isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
+                                    is CustodialInterestActivitySummaryItem -> interestDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -232,6 +235,10 @@ class CustodialActivityDetailViewModel(
                 buildSwapActivityDetail(fee = feeData, toLabel = toLabelData)
             }
         }
+    }
+
+    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

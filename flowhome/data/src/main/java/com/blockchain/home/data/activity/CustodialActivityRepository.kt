@@ -19,12 +19,14 @@ class CustodialActivityRepository(
     }
 
     override fun getActivity(
-        txId: String,
+        id: String,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<ActivitySummaryItem>> {
         return getAllActivity(freshnessStrategy)
             .mapData { activityList ->
-                activityList.first { it.txId == txId }
+                id.split("|").let { txIdAndClass ->
+                    activityList.first { it.txId == txIdAndClass[0] && it::class.toString() == txIdAndClass[1] }
+                }
             }
             .catch {
                 emit(DataResource.Error(Exception(it)))
