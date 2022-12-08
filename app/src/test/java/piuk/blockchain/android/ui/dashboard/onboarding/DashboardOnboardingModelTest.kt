@@ -2,6 +2,12 @@ package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep.BUY
+import com.blockchain.domain.onboarding.DashboardOnboardingStep.LINK_PAYMENT_METHOD
+import com.blockchain.domain.onboarding.DashboardOnboardingStep.UPGRADE_TO_GOLD
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -22,14 +28,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep.BUY
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep.LINK_PAYMENT_METHOD
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep.UPGRADE_TO_GOLD
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState.COMPLETE
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState.INCOMPLETE
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState.PENDING
 import piuk.blockchain.android.domain.usecases.LinkAccess
 
 class DashboardOnboardingModelTest {
@@ -66,9 +64,9 @@ class DashboardOnboardingModelTest {
     @Test
     fun `fetching steps success should show steps`() {
         val steps = listOf(
-            CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, COMPLETE),
-            CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, INCOMPLETE),
-            CompletableDashboardOnboardingStep(BUY, INCOMPLETE),
+            CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, DashboardOnboardingStepState.COMPLETE),
+            CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, DashboardOnboardingStepState.INCOMPLETE),
+            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE),
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(steps))
 
@@ -123,9 +121,9 @@ class DashboardOnboardingModelTest {
     @Test
     fun `given upgrade to gold step pending, clicking link payment method step should navigate to kyc`() {
         val steps = listOf(
-            CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, PENDING),
-            CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, INCOMPLETE),
-            CompletableDashboardOnboardingStep(BUY, INCOMPLETE),
+            CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, DashboardOnboardingStepState.PENDING),
+            CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, DashboardOnboardingStepState.INCOMPLETE),
+            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE),
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(steps))
 
@@ -152,15 +150,21 @@ class DashboardOnboardingModelTest {
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
-        whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.just(availablePaymentMethodTypes))
+        whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(
+            Single.just(availablePaymentMethodTypes)
+        )
 
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.FetchSteps)
         model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
 
         val paymentMethods = listOf(
-            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null),
-            PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
+            PaymentMethod.UndefinedCard(
+                PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null
+            ),
+            PaymentMethod.UndefinedBankAccount(
+                currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true
+            )
         )
         state.assertValueAt(2) {
             it.navigationAction == DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
@@ -273,14 +277,14 @@ class DashboardOnboardingModelTest {
 
     companion object {
         private val STEPS_INITIAL = DashboardOnboardingStep.values().map {
-            CompletableDashboardOnboardingStep(it, INCOMPLETE)
+            CompletableDashboardOnboardingStep(it, DashboardOnboardingStepState.INCOMPLETE)
         }
 
         private val STEPS_UPGRADE_TO_GOLD_COMPLETE = DashboardOnboardingStep.values().map {
             val isComplete = when (it) {
-                UPGRADE_TO_GOLD -> COMPLETE
-                LINK_PAYMENT_METHOD -> INCOMPLETE
-                BUY -> INCOMPLETE
+                UPGRADE_TO_GOLD -> DashboardOnboardingStepState.COMPLETE
+                LINK_PAYMENT_METHOD -> DashboardOnboardingStepState.INCOMPLETE
+                BUY -> DashboardOnboardingStepState.INCOMPLETE
             }
             CompletableDashboardOnboardingStep(it, isComplete)
         }

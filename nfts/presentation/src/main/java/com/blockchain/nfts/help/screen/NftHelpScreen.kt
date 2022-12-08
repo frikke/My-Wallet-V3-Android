@@ -68,7 +68,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
-            Image(ImageResource.Local(R.drawable.ic_nft_help))
+            Image(imageResource = ImageResource.Local(R.drawable.ic_nft_help))
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 

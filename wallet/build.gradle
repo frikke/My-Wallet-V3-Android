@@ -62,6 +62,8 @@ dependencies {
     implementation Libraries.findbugs
     api Libraries.guava
 
+    implementation Libraries.sunriver
+
     // Injection
     implementation Libraries.koin
 

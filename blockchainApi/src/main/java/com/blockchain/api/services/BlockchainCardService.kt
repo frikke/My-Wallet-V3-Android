@@ -10,6 +10,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardKycStatusDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardKycUpdateRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardSetPinURLResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardStatementsResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
@@ -181,5 +182,11 @@ class BlockchainCardService internal constructor(
         kycUpdateRequest: BlockchainCardKycUpdateRequestDto
     ): Outcome<Exception, BlockchainCardKycStatusDto> = api.updateKyc(
         kycUpdateRequest = kycUpdateRequest
+    )
+
+    suspend fun getSetPinUrl(
+        cardId: String
+    ): Outcome<Exception, BlockchainCardSetPinURLResponseDto> = api.getSetPinUrl(
+        cardId = cardId
     )
 }

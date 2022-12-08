@@ -657,6 +657,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = CryptoValue.zero(CryptoCurrency.ETHER),
                     exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER)

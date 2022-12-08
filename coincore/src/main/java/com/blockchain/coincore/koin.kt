@@ -179,7 +179,7 @@ val coincoreModule = module {
                 userIdentity = get(),
                 withdrawLocksRepository = get(),
                 plaidFeatureFlag = get(plaidFeatureFlag),
-                swapTransactionsCache = get(),
+                swapTransactionsStore = get(),
                 stakingBalanceStore = get(),
                 stakingService = get()
             )
@@ -237,7 +237,8 @@ val coincoreModule = module {
                 CryptoCurrency.XLM
             ),
             discoveryService = get(),
-            l2sDynamicAssetRepository = get()
+            l2sDynamicAssetRepository = get(),
+            coinNetworksStore = get()
         )
     }.bind(DynamicAssetsService::class)
 

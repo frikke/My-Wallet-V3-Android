@@ -17,6 +17,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
@@ -26,8 +28,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
 
 class KycStatusActivity :
     BaseMvpActivity<KycStatusView, KycStatusPresenter>(),

@@ -11,16 +11,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeScreen(
     listState: LazyListState,
     assetActionsNavigation: AssetActionsNavigation,
     openCryptoAssets: () -> Unit,
-    openActivity: () -> Unit
+    openActivity: () -> Unit,
+    openReferral: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -38,7 +43,15 @@ fun HomeScreen(
         item {
             QuickActions(assetActionsNavigation = assetActionsNavigation)
         }
-
+        item {
+            EmptyCard(
+                onReceive = { assetActionsNavigation.navigate(AssetAction.Receive) },
+                assetActionsNavigation = assetActionsNavigation,
+                homeAssetsViewModel = getViewModel(scope = payloadScope),
+                pkwActivityViewModel = getViewModel(scope = payloadScope),
+                custodialActivityViewModel = getViewModel(scope = payloadScope)
+            )
+        }
         item {
             HomeAssets(
                 openAllAssets = openCryptoAssets
@@ -46,9 +59,23 @@ fun HomeScreen(
         }
 
         item {
+            EarnAssets(assetActionsNavigation = assetActionsNavigation)
+        }
+
+        item {
             HomeActivity(
                 openAllActivity = openActivity
             )
+        }
+
+        item {
+            Referral(
+                openReferral = openReferral
+            )
+        }
+
+        item {
+            HelpAndSupport()
         }
 
         item {

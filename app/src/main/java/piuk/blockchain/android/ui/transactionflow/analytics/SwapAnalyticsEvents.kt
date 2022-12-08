@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money

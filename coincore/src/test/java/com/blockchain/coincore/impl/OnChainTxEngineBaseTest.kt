@@ -160,6 +160,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
             Observable.just(
                 AccountBalance(
                     total = balance,
+                    dashboardDisplay = balance,
                     withdrawable = Money.zero(balance.currency),
                     pending = Money.zero(balance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(balance.currency),

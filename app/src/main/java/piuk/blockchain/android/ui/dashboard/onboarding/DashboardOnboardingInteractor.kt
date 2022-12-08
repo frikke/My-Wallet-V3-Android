@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 

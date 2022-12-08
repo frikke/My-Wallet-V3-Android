@@ -6,6 +6,7 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.kyc.domain.KycService
@@ -47,7 +48,6 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -70,6 +70,7 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.serializers.StringMapSerializer
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -116,7 +117,7 @@ class SimpleBuyInteractor(
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val analytics: Analytics,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val eligibilityProvider: SimpleBuyEligibilityProvider,
+    private val simpleBuyService: SimpleBuyService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
     private val userIdentity: UserIdentity,
@@ -326,13 +327,15 @@ class SimpleBuyInteractor(
             .flatMap {
                 when {
                     it.isApprovedFor(KycTier.GOLD) ->
-                        eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true).map { eligible ->
-                            if (eligible) {
-                                SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)
-                            } else {
-                                SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
+                        simpleBuyService.isEligible()
+                            .asSingle()
+                            .map { eligible ->
+                                if (eligible) {
+                                    SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)
+                                } else {
+                                    SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
+                                }
                             }
-                        }
                     it.isRejectedForAny() -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
                     it.isInReviewForAny() -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW))
                     else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
@@ -419,9 +422,8 @@ class SimpleBuyInteractor(
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
         return kycService.getTiersLegacy().flatMap {
             when {
-                it.isApprovedFor(KycTier.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
-                    forceRefresh = true
-                )
+                it.isApprovedFor(KycTier.GOLD) -> simpleBuyService.isEligible()
+                    .asSingle()
                     .map { eligible ->
                         if (eligible) {
                             SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)

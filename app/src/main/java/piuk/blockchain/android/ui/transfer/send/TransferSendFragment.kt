@@ -9,6 +9,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.preferences.OnboardingPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -23,7 +24,6 @@ import piuk.blockchain.android.ui.home.ActionActivity
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transactionflow.flow.send.SendNetworkWarningSheet
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment

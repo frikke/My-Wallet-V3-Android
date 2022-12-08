@@ -1,7 +1,7 @@
 package com.blockchain.earn.staking.viewmodel
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
@@ -18,12 +18,14 @@ data class StakingSummaryViewState(
     val earnedCrypto: Money?,
     val earnedFiat: Money?,
     val stakingRate: Double,
+    val commissionRate: Double,
     val isWithdrawable: Boolean,
-    val rewardsFrequency: EarnRewardsFrequency
+    val rewardsFrequency: EarnRewardsFrequency,
+    val canDeposit: Boolean
 ) : ViewState
 
-enum class StakingError {
-    UnknownAsset,
-    Other,
-    None
+sealed class StakingError {
+    class UnknownAsset(val assetTicker: String) : StakingError()
+    object Other : StakingError()
+    object None : StakingError()
 }

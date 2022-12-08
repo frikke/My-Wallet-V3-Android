@@ -49,6 +49,7 @@ data class BlockchainCardModelState(
     val shippingAddress: BlockchainCardAddress? = null,
     val kycStatus: BlockchainCardKycStatus? = null,
     val kycStatusUpdate: BlockchainCardKycUpdate? = null,
+    val setPinUrl: String? = null,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

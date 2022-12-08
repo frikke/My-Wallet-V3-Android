@@ -11,9 +11,9 @@
         android:id="@+id/keyboard"
         android:layout_width="1dp"
         android:layout_height="0dp"
+        android:imeOptions="actionDone"
         android:inputType="number"
         android:maxLength="4"
-        android:imeOptions="actionDone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,8 +29,8 @@
         style="@style/Text.Blue.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_spacing"
         android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:clickable="true"
         android:focusable="true"
         android:text="@string/logout"
@@ -39,14 +39,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/super_app_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/standard_spacing"
+        android:checked="true"
+        android:enabled="false"
+        android:gravity="center"
+        android:text="Super app"
+        android:textColor="#f00"
+        android:textOff="Off"
+        android:textOn="On"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pin_logout" />
+
     <ImageView
         android:id="@+id/customer_support"
-        android:clickable="true"
-        android:focusable="true"
         android:layout_width="@dimen/size_huge"
         android:layout_height="@dimen/size_huge"
-        android:layout_marginEnd="@dimen/small_spacing"
         android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/small_spacing"
+        android:clickable="true"
+        android:focusable="true"
         android:padding="@dimen/tiny_spacing"
         android:src="@drawable/ic_question"
         app:layout_constraintEnd_toEndOf="parent"

@@ -20,6 +20,7 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -35,7 +36,6 @@ import piuk.blockchain.android.databinding.ItemAccountSelectGroupBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.util.context
 

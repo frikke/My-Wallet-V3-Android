@@ -25,6 +25,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
@@ -59,7 +60,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :

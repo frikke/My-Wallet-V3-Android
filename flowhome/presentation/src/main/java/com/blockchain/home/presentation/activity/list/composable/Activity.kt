@@ -259,7 +259,7 @@ fun ActivityGroups(
                         if (group is TransactionGroup.Group.Pending) {
                             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-                            Image(ImageResource.Local(R.drawable.ic_question))
+                            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
                         }
                     }
 

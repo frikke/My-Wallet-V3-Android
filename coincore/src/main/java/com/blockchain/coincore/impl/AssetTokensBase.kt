@@ -14,8 +14,6 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
@@ -24,6 +22,8 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
@@ -65,7 +65,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val tradingService: TradingService by scopedInject()
     private val exchangeLinking: ExchangeLinking by scopedInject()
     private val remoteLogger: RemoteLogger by inject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     protected val identity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
     private val stakingService: StakingService by scopedInject()
@@ -212,7 +212,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun stakingRate(): Single<Double> =
         stakingService.getEligibilityForAsset(currency).asSingle().flatMap {
             if (it is StakingEligibility.Eligible) {
-                stakingService.getRateForAsset(currency).asSingle()
+                stakingService.getRatesForAsset(currency).asSingle().map { it.rate }
             } else {
                 Single.just(0.0)
             }

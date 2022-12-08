@@ -167,7 +167,7 @@ class AssetDiscoveryApiService internal constructor(
                 displayTicker = displaySymbol,
                 isFiat = coinType is FiatAsset,
                 precision = precision,
-                products = if (networkSymbol == "STX") {
+                products = if (networkSymbol == "STX" || networkSymbol == "SOL") {
                     // TODO(dtverdota): Remove once added on BE
                     makeProductSet(products).plus(DynamicAssetProducts.DynamicSelfCustody)
                 } else {

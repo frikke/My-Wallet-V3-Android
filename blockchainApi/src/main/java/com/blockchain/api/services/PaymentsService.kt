@@ -6,8 +6,8 @@ import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.Serializable
 
 class PaymentsService internal constructor(
     private val api: PaymentsApi
@@ -39,12 +39,14 @@ private fun WithdrawalLocksResponse.toWithdrawalLocks() =
         }
     )
 
+@Serializable
 data class CollateralLocks(
     val currency: String,
     val value: String,
     val locks: List<CollateralLock>
 )
 
+@Serializable
 data class CollateralLock(
     val currency: String,
     val value: String,

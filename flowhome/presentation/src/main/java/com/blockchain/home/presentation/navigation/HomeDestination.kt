@@ -7,4 +7,5 @@ sealed class HomeDestination(
 ) : ComposeNavigationDestination {
     object CryptoAssets : HomeDestination("AllAssets")
     object Activity : HomeDestination("Activity")
+    object Referral : HomeDestination("Referral")
 }

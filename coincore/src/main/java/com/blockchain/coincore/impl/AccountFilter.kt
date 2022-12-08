@@ -19,15 +19,15 @@ fun SingleAccountList.makeAccountGroup(
         AssetFilter.NonCustodial ->
             buildNonCustodialGroup(asset, labels, this)
         AssetFilter.Trading ->
-            buildCustodialGroup(labels, this)
+            buildTradingGroup(labels, this)
         AssetFilter.Staking ->
             buildStakingGroup(labels, this)
         AssetFilter.Interest ->
             buildInterestGroup(labels, this)
-        AssetFilter.Custodial -> buildCustodialPlusInterestPlusStakingGroup(labels, this)
+        AssetFilter.Custodial -> buildAllCustodialAccountsGroup(labels, this)
     }.exhaustive
 
-private fun buildCustodialPlusInterestPlusStakingGroup(
+private fun buildAllCustodialAccountsGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
@@ -52,20 +52,20 @@ private fun buildInterestGroup(
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CustodialInterestAccount>()
     return if (grpAccounts.isNotEmpty())
-        CryptoAccountTradingGroup(
+        CryptoAccountCustodialSingleGroup(
             labels.getDefaultInterestWalletLabel(), grpAccounts
         )
     else
         null
 }
 
-private fun buildCustodialGroup(
+private fun buildTradingGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
     return if (grpAccounts.isNotEmpty()) {
-        CryptoAccountTradingGroup(
+        CryptoAccountCustodialSingleGroup(
             labels.getDefaultTradingWalletLabel(), grpAccounts
         )
     } else {
@@ -77,9 +77,9 @@ private fun buildStakingGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
-    val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
+    val grpAccounts = accountList.filterIsInstance<CustodialStakingAccount>()
     return if (grpAccounts.isNotEmpty()) {
-        CryptoAccountTradingGroup(
+        CryptoAccountCustodialSingleGroup(
             labels.getDefaultStakingWalletLabel(), grpAccounts
         )
     } else {

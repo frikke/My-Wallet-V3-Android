@@ -21,6 +21,7 @@ dependencies {
     implementation project(':core')
     implementation project(':blockchainApi')
     implementation project(':wallet')
+    implementation project(':logging:domain')
 
     // coroutines
     implementation Libraries.kotlinCoroutines

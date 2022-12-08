@@ -84,7 +84,7 @@ private class DefiAssetCardViewHolder(
             cardLayout.isEnabled = true
             root.setOnClickListenerDebounced { onCardClicked(defiAsset.currency) }
             showContent()
-            fiatBalance.text = defiAsset.fiatBalance?.toStringWithSymbol()
+            fiatBalance.text = defiAsset.fiatBalance(useDisplayBalance = false)?.toStringWithSymbol()
             cryptoBalance.text = defiAsset.accountBalance?.total?.toStringWithSymbol()
         }
     }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 
 class ShouldAssetShowUseCase(
     private val hideDustFeatureFlag: FeatureFlag,
+    private val assetDisplayBalanceFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val watchlistService: WatchlistService
 ) {
@@ -30,7 +31,11 @@ class ShouldAssetShowUseCase(
                         if (isInWatchlist) {
                             true
                         } else {
-                            !accountBalance.totalFiat.isDust()
+                            if (assetDisplayBalanceFF.coEnabled()) {
+                                !accountBalance.exchangeRate.convert(accountBalance.dashboardDisplay).isDust()
+                            } else {
+                                !accountBalance.totalFiat.isDust()
+                            }
                         }
                     } else
                         true

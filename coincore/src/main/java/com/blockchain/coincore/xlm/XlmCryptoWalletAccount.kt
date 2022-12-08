@@ -72,6 +72,7 @@ internal class XlmCryptoWalletAccount(
                 total = balanceAndMin.balance,
                 withdrawable = balanceAndMin.actionable,
                 pending = Money.zero(currency),
+                dashboardDisplay = balanceAndMin.balance,
                 exchangeRate = rate
             )
         }.doOnNext {

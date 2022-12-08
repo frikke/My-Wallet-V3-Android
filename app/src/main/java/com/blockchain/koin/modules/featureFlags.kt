@@ -22,6 +22,8 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
+import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
@@ -251,6 +253,24 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_staking_account",
                 "Enable Staking Account & New Coinview"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(paymentUxTotalDisplayBalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_payment_ux_total_display_balance",
+                "Enable Payment UX Dashboard Total display balance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(paymentUxAssetDisplayBalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_payment_ux_asset_display_balance",
+                "Enable Payment UX Dashboard Asset display balance"
             )
         )
     }.bind(FeatureFlag::class)

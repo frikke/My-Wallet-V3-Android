@@ -1,53 +1,61 @@
 package com.blockchain.unifiedcryptowallet.data.wallet
 
-import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrNull
-import com.blockchain.outcome.map
+import com.blockchain.data.DataResource
+import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletGroup
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 
 class NetworkWalletRepository(
     private val networkAccountsService: NetworkAccountsService,
     private val networksService: CoinNetworksService
 ) : NetworkWalletService {
 
-    override suspend fun networkWalletGroup(currency: String): NetworkWalletGroup? {
-        val wallets = networkAccountsService.allNetworkWallets()
+    override fun networkWalletGroup(currency: String): Flow<DataResource<NetworkWalletGroup>> {
 
-        return networksService.allCoinNetworks().map { networks ->
-            networks.find { network ->
-                network.currency == currency
-            }?.let { network ->
-                wallets.find { it.currency.networkTicker == currency }?.let {
-                    NetworkWalletGroup(
-                        parentChainNetwork = it,
-                        name = network.name,
-                        networkWallets = wallets.networkWalletsForGroup(currency)
-                    )
-                }
+        return networkAccountsService.allNetworkWallets().flatMapLatest { wallets ->
+            networksService.allCoinNetworks().mapData { coinNetworks ->
+                coinNetworks.find { network ->
+                    network.currency == currency
+                }?.let { network ->
+                    wallets.find { it.currency.networkTicker == network.currency }?.let {
+                        NetworkWalletGroup(
+                            parentChainNetwork = it,
+                            name = network.name,
+                            networkWallets = wallets.networkWalletsForGroup(network.currency)
+                        )
+                    } ?: throw Exception("Parent NetworkWallet not found for $currency")
+                } ?: throw Exception("CoinNetwork not found for $currency")
             }
-        }.getOrNull()
+        }
+            .catch {
+                emit(DataResource.Error(Exception(it)))
+            }
     }
 
-    override suspend fun networkWalletGroups(): List<NetworkWalletGroup> {
+    override fun networkWalletGroups(): Flow<DataResource<List<NetworkWalletGroup>>> {
 
-        val wallets = networkAccountsService.allNetworkWallets()
-
-        return networksService.allCoinNetworks().map { networks ->
-            networks.mapNotNull { network ->
-                wallets.find { it.currency.networkTicker == network.currency }?.let {
-                    NetworkWalletGroup(
-                        parentChainNetwork = it,
-                        name = network.name,
-                        networkWallets = wallets.networkWalletsForGroup(network.currency)
-                    )
+        return networkAccountsService.allNetworkWallets().flatMapLatest { wallets ->
+            networksService.allCoinNetworks().mapData {
+                it.mapNotNull { network ->
+                    wallets.find { wallet ->
+                        wallet.currency.networkTicker == network.currency
+                    }?.let { networkWallet ->
+                        NetworkWalletGroup(
+                            parentChainNetwork = networkWallet,
+                            name = network.name,
+                            networkWallets = wallets.networkWalletsForGroup(network.currency)
+                        )
+                    }
                 }
             }
-        }.getOrDefault(emptyList())
+        }
     }
 
     private fun List<NetworkWallet>.networkWalletsForGroup(network: String): List<NetworkWallet> {

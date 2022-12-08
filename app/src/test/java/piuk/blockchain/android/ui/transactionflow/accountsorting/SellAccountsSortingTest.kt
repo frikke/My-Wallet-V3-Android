@@ -126,6 +126,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -152,6 +153,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -241,6 +243,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -267,6 +270,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -293,6 +297,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -319,6 +324,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_LOW_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_LOW_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true

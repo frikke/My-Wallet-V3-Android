@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.KoinComponent
@@ -12,7 +13,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 
 class InterestAvailableAnnouncement(
     dismissRecorder: DismissRecorder

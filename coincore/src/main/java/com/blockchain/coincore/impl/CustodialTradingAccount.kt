@@ -73,6 +73,8 @@ class CustodialTradingAccount(
 
     private val hasFunds = AtomicBoolean(false)
 
+    override val isMemoSupported: Boolean = currency.networkTicker == "XLM"
+
     override val receiveAddress: Single<ReceiveAddress>
         get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
             makeExternalAssetAddress(
@@ -116,6 +118,7 @@ class CustodialTradingAccount(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

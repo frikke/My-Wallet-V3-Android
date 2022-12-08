@@ -24,7 +24,6 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -37,6 +36,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -64,6 +64,7 @@ class PrefsUtil(
     DashboardPrefs,
     SecurityPrefs,
     SecureChannelPrefs,
+    WalletModePrefs,
     PricesPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
@@ -81,8 +82,7 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs,
-    MultiAppAssetsFilterService {
+    BlockchainCardPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -124,6 +124,12 @@ class PrefsUtil(
         get() = getValue(KEY_SHOW_TRADING_ON_PKW_MODE, false)
         set(value) {
             setValue(KEY_SHOW_TRADING_ON_PKW_MODE, value)
+        }
+
+    override var showPkwAccountsOnTradingMode: Boolean
+        get() = getValue(KEY_SHOW_PKW_ON_TRADING_MODE, true)
+        set(value) {
+            setValue(KEY_SHOW_PKW_ON_TRADING_MODE, value)
         }
 
     override var isOnboardingComplete: Boolean
@@ -757,10 +763,6 @@ class PrefsUtil(
         get() = getValue(DEFAULT_BLOCKCHAIN_CARD_ID, "")
         set(value) = setValue(DEFAULT_BLOCKCHAIN_CARD_ID, value)
 
-    override var shouldShowSmallBalances: Boolean
-        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, false)
-        set(value) = setValue(SHOULD_SHOW_SMALL_BALANCES, value)
-
     override var latestPricesMode: String?
         get() = getValue(PRICES_FILTER_MODE, "").takeIf { it.isNotEmpty() }
         set(value) {
@@ -815,6 +817,7 @@ class PrefsUtil(
         private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
         private const val KEY_RESTORED_WALLET = "restored_wallet"
         private const val KEY_SHOW_TRADING_ON_PKW_MODE = "SHOW_TRADING_ON_PKW_MODE"
+        private const val KEY_SHOW_PKW_ON_TRADING_MODE = "KEY_SHOW_PKW_ON_TRADING_MODE"
 
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
         private const val KEY_EMAIL = "KEY_EMAIL"
@@ -909,7 +912,26 @@ class PrefsUtil(
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
 
         private const val PRICES_FILTER_MODE = "prices_filter_mode"
+
+        private const val WALLET_MODE_LEGACY_KEY = "WALLET_MODE"
+        private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
+        private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
     }
+
+    override val legacyWalletMode: String
+        get() = getValue(WALLET_MODE_LEGACY_KEY, "")
+
+    override var currentWalletMode: String
+        get() = getValue(WALLET_MODE_KEY, "")
+        set(value) {
+            setValue(WALLET_MODE_KEY, value)
+        }
+
+    override var userDefaultedToPKW: Boolean
+        get() = getValue(USER_DEFAULTED_TO_PKW, false)
+        set(value) {
+            setValue(USER_DEFAULTED_TO_PKW, value)
+        }
 }
 
 fun BrowserIdentity.pubKeyHash() = Sha256Hash.of(Hex.decode(this.pubkey)).toString()

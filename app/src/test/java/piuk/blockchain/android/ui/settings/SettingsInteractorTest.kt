@@ -58,7 +58,7 @@ class SettingsInteractorTest {
 
     @Test
     fun `Load eligibility and basic information`() = runBlocking {
-        whenever(referralService.fetchReferralData()).doReturn(Outcome.Success(ReferralInfo.NotAvailable))
+        whenever(referralService.fetchReferralDataLegacy()).doReturn(Outcome.Success(ReferralInfo.NotAvailable))
         val userInformation = mock<BasicProfileInfo>()
         whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(userIdentity.getBasicProfileInformation()).thenReturn(Single.just(userInformation))

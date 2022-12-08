@@ -15,6 +15,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyState
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.toFormattedDateWithoutYear
 import info.blockchain.balance.AssetInfo
@@ -26,7 +27,6 @@ import piuk.blockchain.android.simplebuy.CheckoutAdapterDelegate
 import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 
 class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
     RecurringBuyIntent, RecurringBuyModelState, DialogSheetRecurringBuyInfoBinding>() {

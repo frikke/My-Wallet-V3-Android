@@ -6,6 +6,7 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
+    implementation project(':instrumentation:presentation')
 
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin

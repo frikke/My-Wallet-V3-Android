@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import java.io.Serializable
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 
 sealed class DashboardOnboardingAnalytics(
     override val event: String,

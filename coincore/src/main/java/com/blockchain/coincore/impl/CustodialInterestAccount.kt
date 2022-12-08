@@ -14,12 +14,12 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestActivity
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.earn.domain.models.interest.InterestActivity
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -93,6 +93,7 @@ class CustodialInterestAccount(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
                 pending = balance.pendingDeposit,
+                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

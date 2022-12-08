@@ -24,7 +24,7 @@ import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -37,7 +37,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
-import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAnimationListener
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(

@@ -16,12 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.system.ShimmerLoadingBox
-import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.allassets.BalanceDifferenceConfig
 import com.blockchain.home.presentation.allassets.WalletBalance
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
@@ -39,7 +39,7 @@ fun Balance(
 
 @Composable
 fun BalanceScreen(
-    walletBalance: DataResource<WalletBalance>
+    walletBalance: WalletBalance
 ) {
     Column(
         modifier = Modifier
@@ -48,77 +48,66 @@ fun BalanceScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (walletBalance) {
-            DataResource.Loading -> {
-                BalanceLoading()
-            }
+        TotalBalance(balance = walletBalance.balance)
 
-            is DataResource.Data -> {
-                BalanceData(walletBalance.data)
-            }
+        BalanceDifference(
+            balanceDifference = walletBalance.balanceDifference,
+        )
+    }
+}
 
-            is DataResource.Error -> {
-                // todo(othman) checking with Ethan
+@Composable
+fun ColumnScope.TotalBalance(balance: DataResource<Money>) {
+    when (balance) {
+        DataResource.Loading -> {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.weight(1F))
+                ShimmerLoadingBox(
+                    modifier = Modifier
+                        .height(AppTheme.dimensions.largeSpacing)
+                        .weight(1F)
+                )
+                Spacer(modifier = Modifier.weight(1F))
             }
+        }
+
+        is DataResource.Data -> {
+            Text(
+                text = balance.data.toStringWithSymbol(),
+                style = AppTheme.typography.title1,
+                color = AppTheme.colors.title
+            )
+        }
+
+        is DataResource.Error -> {
+            // todo(othman) checking with Ethan
         }
     }
 }
 
 @Composable
-fun ColumnScope.BalanceLoading() {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.weight(1F))
-        ShimmerLoadingBox(
-            modifier = Modifier
-                .height(AppTheme.dimensions.largeSpacing)
-                .weight(1F)
-        )
-        Spacer(modifier = Modifier.weight(1F))
-    }
-
-    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.weight(1F))
-        ShimmerLoadingBox(
-            modifier = Modifier
-                .height(AppTheme.dimensions.mediumSpacing)
-                .weight(0.5F)
-        )
-        Spacer(modifier = Modifier.weight(1F))
-    }
-}
-
-@Composable
-fun ColumnScope.BalanceData(data: WalletBalance) {
-    with(data) {
-        Text(
-            text = balance.toStringWithSymbol(),
-            style = AppTheme.typography.title1,
-            color = AppTheme.colors.title
-        )
-
+fun ColumnScope.BalanceDifference(
+    balanceDifference: BalanceDifferenceConfig,
+) {
+    if (balanceDifference.text.isNotEmpty()) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
         Text(
-            text = "${percentChange.indicator} ${balanceDifference24h.toStringWithSymbol()} (${percentChange.value}%)",
+            text = balanceDifference.text,
             style = AppTheme.typography.paragraph2,
-            color = percentChange.color
+            color = balanceDifference.color
         )
     }
 }
-//
 
 @Preview
 @Composable
 fun PreviewBalanceScreen() {
     BalanceScreen(
-        walletBalance = DataResource.Data(
-            WalletBalance(
-                balance = Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()),
-                balanceDifference24h = Money.fromMajor(CryptoCurrency.ETHER, 12.3.toBigDecimal()),
-                percentChange = ValueChange.Up((7.18))
-            )
+        walletBalance =
+        WalletBalance(
+            balance = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+            cryptoBalanceDifference24h = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         )
     )
 }
@@ -127,6 +116,10 @@ fun PreviewBalanceScreen() {
 @Composable
 fun PreviewBalanceScreenLoading() {
     BalanceScreen(
-        walletBalance = DataResource.Loading
+        walletBalance = WalletBalance(
+            balance = DataResource.Loading,
+            cryptoBalanceDifference24h = DataResource.Loading,
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+        )
     )
 }
