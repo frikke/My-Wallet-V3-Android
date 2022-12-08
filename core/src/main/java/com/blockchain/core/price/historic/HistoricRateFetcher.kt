@@ -2,7 +2,6 @@ package com.blockchain.core.price.historic
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
@@ -40,7 +39,9 @@ class HistoricRateFetcher internal constructor(
         }
 
     fun fetch2(
-        asset: AssetInfo, selectedFiat: FiatCurrency, timestampMs: Long,
+        asset: AssetInfo,
+        selectedFiat: FiatCurrency,
+        timestampMs: Long,
         value: Money
     ): Flow<DataResource<Money>> =
         historicRateStore.stream(

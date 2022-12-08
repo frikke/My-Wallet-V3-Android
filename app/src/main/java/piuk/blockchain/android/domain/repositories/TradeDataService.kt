@@ -1,9 +1,9 @@
 package piuk.blockchain.android.domain.repositories
 
-import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

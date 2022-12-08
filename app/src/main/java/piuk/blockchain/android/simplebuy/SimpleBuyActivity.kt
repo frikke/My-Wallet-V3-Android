@@ -15,6 +15,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
@@ -29,7 +30,6 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener

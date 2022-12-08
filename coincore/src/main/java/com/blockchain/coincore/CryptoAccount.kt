@@ -1,12 +1,11 @@
 package com.blockchain.coincore
 
-import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.DataResource
-import com.google.common.graph.ElementOrder.sorted
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.google.common.graph.ElementOrder.sorted
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate

@@ -23,6 +23,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistInfo
 import com.blockchain.data.DataResource
@@ -34,7 +35,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.store.asSingle

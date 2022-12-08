@@ -2,14 +2,14 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
