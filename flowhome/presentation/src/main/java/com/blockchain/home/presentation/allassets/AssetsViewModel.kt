@@ -120,6 +120,7 @@ class AssetsViewModel(
         require(this.map { it.singleAccount.currency.networkTicker }.distinct().size == 1)
         return when (val first = first().singleAccount) {
             is NonCustodialAccount -> NonCustodialAssetState(
+                asset = first.currency as AssetInfo,
                 icon = listOfNotNull(
                     first.currency.logo,
                     (first.currency as? AssetInfo)?.l1chainTicker?.let { l1 ->
@@ -137,6 +138,7 @@ class AssetsViewModel(
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
             )
             else -> CustodialAssetState(
+                asset = first.currency as AssetInfo,
                 icon = listOf(first.currency.logo),
                 name = first.currency.name,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),

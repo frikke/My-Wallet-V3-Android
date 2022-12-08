@@ -57,7 +57,10 @@ import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.launch
@@ -65,7 +68,9 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun CryptoAssets(
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope)
+    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
+    assetActionsNavigation: AssetActionsNavigation,
+    onBackPressed: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -88,7 +93,11 @@ fun CryptoAssets(
             filters = state.filters,
             onFiltersConfirmed = { filters ->
                 viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
-            }
+            },
+            onAssetClick = { asset ->
+                assetActionsNavigation.coinview(asset)
+            },
+            onBackPressed = onBackPressed
         )
     }
 }
@@ -99,7 +108,9 @@ fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
     onSearchTermEntered: (String) -> Unit,
     filters: List<AssetFilter>,
-    onFiltersConfirmed: (List<AssetFilter>) -> Unit
+    onFiltersConfirmed: (List<AssetFilter>) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit,
+    onBackPressed: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -133,7 +144,7 @@ fun CryptoAssetsScreen(
         ) {
             NavigationBar(
                 title = stringResource(R.string.ma_home_assets_title),
-                onBackButtonClick = { },
+                onBackButtonClick = onBackPressed,
                 navigationBarButtons = listOf(
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_filter,
@@ -161,7 +172,8 @@ fun CryptoAssetsScreen(
                     is DataResource.Data -> {
                         CryptoAssetsData(
                             cryptoAssets = cryptoAssets.data,
-                            onSearchTermEntered = onSearchTermEntered
+                            onSearchTermEntered = onSearchTermEntered,
+                            onAssetClick = onAssetClick
                         )
                     }
                 }
@@ -173,7 +185,8 @@ fun CryptoAssetsScreen(
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<HomeCryptoAsset>,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -187,7 +200,8 @@ fun CryptoAssetsData(
 
         CryptoAssetsList(
             modifier = Modifier.verticalScroll(rememberScrollState()),
-            cryptoAssets = cryptoAssets
+            cryptoAssets = cryptoAssets,
+            onAssetClick = onAssetClick
         )
     }
 }
@@ -195,7 +209,8 @@ fun CryptoAssetsData(
 @Composable
 fun CryptoAssetsList(
     modifier: Modifier = Modifier,
-    cryptoAssets: List<HomeCryptoAsset>
+    cryptoAssets: List<HomeCryptoAsset>,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -206,8 +221,8 @@ fun CryptoAssetsList(
             Column(modifier = modifier) {
                 cryptoAssets.forEachIndexed { index, cryptoAsset ->
                     when (cryptoAsset) {
-                        is CustodialAssetState -> BalanceWithPriceChange(cryptoAsset)
-                        is NonCustodialAssetState -> BalanceWithFiatAndCryptoBalance(cryptoAsset, {})
+                        is CustodialAssetState -> BalanceWithPriceChange(cryptoAsset, onAssetClick)
+                        is NonCustodialAssetState -> BalanceWithFiatAndCryptoBalance(cryptoAsset, onAssetClick)
                     }
 
                     if (index < cryptoAssets.lastIndex) {
@@ -225,7 +240,10 @@ fun CryptoAssetsList(
  * TODO ERRROS!
  */
 @Composable
-private fun BalanceWithFiatAndCryptoBalance(cryptoAsset: NonCustodialAssetState, onClick: () -> Unit) {
+private fun BalanceWithFiatAndCryptoBalance(
+    cryptoAsset: NonCustodialAssetState,
+    onAssetClick: (AssetInfo) -> Unit
+) {
     NonCustodialAssetBalanceTableRow(
         title = cryptoAsset.name,
         valueCrypto = cryptoAsset.balance.map { it.toStringWithSymbol() }.dataOrElse(""),
@@ -249,12 +267,15 @@ private fun BalanceWithFiatAndCryptoBalance(cryptoAsset: NonCustodialAssetState,
                 size = 24.dp
             )
         },
-        onClick = onClick
+        onClick = { onAssetClick(cryptoAsset.asset) }
     )
 }
 
 @Composable
-private fun BalanceWithPriceChange(cryptoAsset: CustodialAssetState) {
+private fun BalanceWithPriceChange(
+    cryptoAsset: CustodialAssetState,
+    onAssetClick: (AssetInfo) -> Unit
+) {
     BalanceChangeTableRow(
         name = cryptoAsset.name,
         value = cryptoAsset.fiatBalance.map {
@@ -280,7 +301,7 @@ private fun BalanceWithPriceChange(cryptoAsset: CustodialAssetState) {
                 size = 24.dp
             )
         },
-        onClick = { /*todo coinview*/ }
+        onClick = { onAssetClick(cryptoAsset.asset) }
     )
 }
 
@@ -308,27 +329,32 @@ fun PreviewCryptoAssetsScreen() {
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal()))
+                    fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
+                    asset = CryptoCurrency.ETHER
                 ),
                 CustodialAssetState(
                     icon = listOf(""),
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
-                    fiatBalance = DataResource.Loading
+                    fiatBalance = DataResource.Loading,
+                    asset = CryptoCurrency.ETHER
                 ),
                 CustodialAssetState(
                     icon = listOf(""),
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Down(2.32)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal()))
+                    fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
+                    asset = CryptoCurrency.ETHER
                 )
             )
         ),
         onSearchTermEntered = {},
         filters = listOf(),
-        {}
+        onFiltersConfirmed = {},
+        onAssetClick = {},
+        onBackPressed = { }
     )
 }
 
@@ -341,6 +367,8 @@ fun PreviewCryptoAssetsScreen_Empty() {
         ),
         onSearchTermEntered = {},
         filters = listOf(),
-        {}
+        onFiltersConfirmed = {},
+        onAssetClick = {},
+        onBackPressed = { }
     )
 }

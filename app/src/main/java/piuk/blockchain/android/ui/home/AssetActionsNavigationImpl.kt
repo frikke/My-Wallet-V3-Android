@@ -3,13 +3,16 @@ package piuk.blockchain.android.ui.home
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -67,6 +70,18 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
         activity!!.startActivity(
             InterestDashboardActivity.newInstance(
                 activity
+            )
+        )
+    }
+
+    override fun coinview(
+        asset: AssetInfo
+    ) {
+        activity!!.startActivity(
+            CoinViewActivityV2.newIntent(
+                context = activity,
+                asset = asset,
+                originScreen = LaunchOrigin.HOME.name,
             )
         )
     }
