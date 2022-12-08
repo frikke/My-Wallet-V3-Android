@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -26,12 +27,12 @@ internal const val SIDE_ABBREVIATE_LENGTH = 4
 @DrawableRes internal fun ActivitySummaryItem.iconDetail() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconDetail()
     is CustodialTransferActivitySummaryItem -> iconDetail()
-    //    is CustodialInterestActivitySummaryItem -> iconSummary()
+    is CustodialInterestActivitySummaryItem -> iconDetail()
     //    is RecurringBuyActivitySummaryItem -> iconSummary()
     is TradeActivitySummaryItem -> when {
         isSellingPair() -> sellIconDetail()
-        isSwapPair() -> R.drawable.ic_filter
-        else -> R.drawable.ic_filter
+        isSwapPair() -> swapIconDetail()
+        else -> error("not supported")
     }
     is FiatActivitySummaryItem -> iconDetail()
     else -> /*error("${this::class.simpleName} not supported")*/ R.drawable.ic_filter // todo temp
@@ -41,11 +42,11 @@ private fun ActivitySummaryItem.title(): TextValue {
     return when (this) {
         is CustodialTradingActivitySummaryItem -> title()
         is CustodialTransferActivitySummaryItem -> title()
-        //        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialInterestActivitySummaryItem -> title()
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> when {
             isSellingPair() -> sellTitle()
-            isSwapPair() -> TextValue.StringValue("not implemented")
+            isSwapPair() -> swapTitle()
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> title()
@@ -57,11 +58,11 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
     return when (activity) {
         is CustodialTradingActivitySummaryItem -> activity.detailItems(extras)
         is CustodialTransferActivitySummaryItem -> activity.detailItems(extras)
-        //        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialInterestActivitySummaryItem -> activity.detailItems(extras)
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> when {
             activity.isSellingPair() -> activity.sellDetailItems(extras)
-            activity.isSwapPair() -> emptyList()
+            activity.isSwapPair() -> activity.swapDetailItems(extras)
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> activity.detailItems(extras)
@@ -73,7 +74,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
     return when (activity) {
         is CustodialTradingActivitySummaryItem -> emptyList()
         is CustodialTransferActivitySummaryItem -> emptyList()
-        //        is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialInterestActivitySummaryItem -> emptyList()
         //        is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> emptyList()
         is FiatActivitySummaryItem -> emptyList()

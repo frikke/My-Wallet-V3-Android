@@ -18,6 +18,7 @@ import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
@@ -27,6 +28,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -1397,14 +1399,20 @@ class TransactionFlowCustomiserImpl(
             else -> false
         }
 
+    override fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean =
+        when (action) {
+            AssetAction.StakingDeposit,
+            AssetAction.InterestDeposit -> walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL
+            else -> false
+        }
+
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount || (
-                    state.selectedTarget is CustodialInterestAccount &&
-                        state.action == AssetAction.InterestDeposit
-                    )
+                if (state.sendingAccount is LinkedBankAccount ||
+                    (state.selectedTarget is CustodialInterestAccount && state.action == AssetAction.InterestDeposit) ||
+                    (state.selectedTarget is CustodialStakingAccount && state.action == AssetAction.StakingDeposit)
                 ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {

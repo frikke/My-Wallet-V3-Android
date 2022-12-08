@@ -32,6 +32,7 @@
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_stake">Stake</string>
+    <string name="common_earn">Earn</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_disconnect">Disconnect</string>
@@ -1555,6 +1556,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
+    <string name="activity_details_label_confirmations_single_line">%1$d/%2$d confirmations</string>
     <string name="activity_details_title_fee">Gas Fee</string>
     <string name="activity_details_transaction_fee">Gas for</string>
     <string name="activity_details_exchange_rate">Exchange Rate</string>
@@ -2838,12 +2840,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="ui_tour_prices_title">Discover New Coins</string>
     <string name="ui_tour_middle_button_title">Instantly Trade</string>
     <string name="ui_tour_activity_title">See All Transactions</string>
+    <string name="ui_tour_earn_title">Earn Rewards</string>
     <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
 
     <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
     <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
     <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
     <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
+    <string name="ui_tour_earn_subtitle">Put your crypto to work by passively investing, securing your favourite networks and more.</string>
     <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
 
     <!-- Pin screen -->
@@ -2966,8 +2970,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
 
     <!-- Bottom sheet actions -->
-    <string name="actions_sheet_percentage_rewards">%s%% APR</string>
-    <string name="actions_sheet_percentage_staking">%s%% APY</string>
+    <string name="actions_sheet_percentage_rate">Rate: %s%%</string>
 
     <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
@@ -3424,6 +3427,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
+    <string name="show_pkw_accounts">Show Private Key wallets</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
     <string name="add_to_google_pay">Add to Google Pay</string>
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
@@ -3462,9 +3466,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
     <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
+    <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
+    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Rewards</string>
+    <string name="earn_dashboard_filter_rewards">Passive</string>
     <string name="staking_dashboard_search">Search coins</string>
     <string name="staking_dashboard_no_results">No results</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
@@ -3487,5 +3493,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
     <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
     <string name="transfer_from_your_trading_account">Transfer from your Trading Account, send from any exchange, or ask a friend!</string>
+    <string name="earn_up_to">Earn up to 10%</string>
+    <string name="put_your_crypto_to_work">Put your crypto to work</string>
+    <string name="staking_asset">Staked %1s</string>
+    <string name="earn_rate_apy">%1$s%% APY</string>
 
 </resources>

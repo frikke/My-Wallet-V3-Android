@@ -12,8 +12,7 @@ import info.blockchain.balance.percentageDelta
 
 data class AssetsViewState(
     val balance: WalletBalance,
-    val cryptoAssets: DataResource<List<CryptoAssetState>>,
-    val fiatAssets: DataResource<List<FiatAssetState>>,
+    val assets: DataResource<List<HomeAsset>>,
     val filters: List<AssetFilter>
 ) : ViewState
 
@@ -21,33 +20,46 @@ sealed interface HomeAsset {
     val icon: List<String>
     val name: String
     val balance: DataResource<Money>
+    val fiatBalance: DataResource<Money>
 }
 
-data class CryptoAssetState(
+data class CustodialAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    val fiatBalance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money>,
     val change: DataResource<ValueChange>
-) : HomeAsset
+) : HomeCryptoAsset
+
+data class NonCustodialAssetState(
+    override val icon: List<String>,
+    override val name: String,
+    override val balance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money>,
+) : HomeCryptoAsset
 
 data class FiatAssetState(
     override val icon: List<String>,
     override val name: String,
-    override val balance: DataResource<Money>
+    override val balance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money>
 ) : HomeAsset
+
+interface HomeCryptoAsset : HomeAsset
 
 data class WalletBalance(
     val balance: DataResource<Money>,
     private val cryptoBalanceDifference24h: DataResource<Money>,
+    private val cryptoBalanceNow: DataResource<Money>,
 ) {
 
     val balanceDifference: BalanceDifferenceConfig
-        get() = combineDataResources(balance, cryptoBalanceDifference24h) { now, difference ->
+        get() = combineDataResources(cryptoBalanceNow, cryptoBalanceDifference24h) { now, yesterday ->
+            val difference = now.minus(yesterday)
             if (now.isZero && difference.isZero)
                 BalanceDifferenceConfig()
             else
-                ValueChange.fromValue(now.percentageDelta(difference)).takeIf { !it.value.isNaN() }
+                ValueChange.fromValue(now.percentageDelta(yesterday)).takeIf { !it.value.isNaN() }
                     ?.let { valueChange ->
                         BalanceDifferenceConfig(
                             "${valueChange.indicator} " +

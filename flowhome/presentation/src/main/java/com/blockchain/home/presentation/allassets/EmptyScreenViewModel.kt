@@ -79,7 +79,7 @@ class EmptyScreenViewModel(
                     homeAssetsViewModel.viewState.collect { state ->
                         updateState {
                             it.copy(
-                                hasAssets = state.cryptoAssets.map { assets ->
+                                hasAssets = state.assets.map { assets ->
                                     assets.isNotEmpty()
                                 }
                             )

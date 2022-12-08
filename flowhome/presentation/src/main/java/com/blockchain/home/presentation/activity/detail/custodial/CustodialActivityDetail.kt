@@ -5,10 +5,17 @@ import com.blockchain.componentlib.utils.TextValue
 
 data class CustodialActivityDetail(
     val activity: ActivitySummaryItem,
-    val extras: List<CustodialActivityDetailExtra>
+    val extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 )
 
 data class CustodialActivityDetailExtra(
     val title: TextValue,
     val value: TextValue
 )
+
+enum class CustodialActivityDetailExtraKey {
+    Fee,
+    ToLabel,
+    PaymentMethod,
+    PaymentDetail
+}

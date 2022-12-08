@@ -198,7 +198,7 @@ class SettingsFragment :
                 visible()
                 onClick = {
                     analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Profile))
-                    navigator().goToReferralCode(newState.referralInfo)
+                    navigator().goToReferralCode()
                 }
 
                 newState.referralInfo.announcementInfo?.let { announcementInfo ->

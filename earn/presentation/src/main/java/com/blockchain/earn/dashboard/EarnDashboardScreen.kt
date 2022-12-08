@@ -262,8 +262,8 @@ private fun DiscoverScreen(
                         )
                     },
                     modifier = Modifier.padding(
-                        horizontal = AppTheme.dimensions.standardSpacing,
-                        vertical = AppTheme.dimensions.verySmallSpacing
+                        horizontal = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.tinySpacing
                     )
                 )
             }
@@ -454,8 +454,8 @@ private fun EarningScreen(
                 )
             },
             modifier = Modifier.padding(
-                horizontal = AppTheme.dimensions.standardSpacing,
-                vertical = AppTheme.dimensions.verySmallSpacing
+                horizontal = AppTheme.dimensions.smallSpacing,
+                vertical = AppTheme.dimensions.tinySpacing
             )
         )
 

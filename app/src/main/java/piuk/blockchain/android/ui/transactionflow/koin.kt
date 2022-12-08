@@ -241,7 +241,8 @@ val transactionModule = module {
                 localSettingsPrefs = get(),
                 improvedPaymentUxFF = payloadScope.get(improvedPaymentUxFeatureFlag),
                 dynamicAssetRepository = payloadScope.get(),
-                stakingService = payloadScope.get()
+                stakingService = payloadScope.get(),
+                transactionPrefs = payloadScope.get()
             )
         }
 

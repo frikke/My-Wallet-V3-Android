@@ -43,3 +43,20 @@ fun OpenUrl(
 ) {
     LocalContext.current.openUrl(url = url)
 }
+
+fun Context.shareTextWithSubject(text: String, subject: String) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, text)
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    startActivity(shareIntent)
+}
+
+@Composable
+fun Share(text: String, subject: String) {
+    LocalContext.current.shareTextWithSubject(text = text, subject = subject)
+}

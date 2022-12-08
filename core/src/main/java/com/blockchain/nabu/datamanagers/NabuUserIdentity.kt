@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -15,6 +16,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipSingles
 import io.reactivex.rxjava3.core.Completable
@@ -25,7 +27,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
     private val interestService: InterestService,
-    private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
+    private val simpleBuyService: SimpleBuyService,
     private val kycService: KycService,
     private val userService: UserService,
     private val eligibilityService: EligibilityService,
@@ -108,7 +110,7 @@ class NabuUserIdentity(
             Feature.Buy ->
                 Single.zip(
                     rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY) },
-                    simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
+                    simpleBuyService.getEligibility().asSingle()
                 ) { buyEligibility, sbEligibility ->
                     val buyFeatureAccess = buyEligibility.toFeatureAccess()
 

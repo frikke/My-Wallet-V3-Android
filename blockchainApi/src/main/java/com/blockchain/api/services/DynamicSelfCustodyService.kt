@@ -170,7 +170,8 @@ class DynamicSelfCustodyService(
         amount: String,
         fee: String,
         memo: String = "",
-        feeCurrency: String = currency
+        feeCurrency: String = currency,
+        maxVerificationVersion: Int = 1
     ) = selfCustodyApi.buildTransaction(
         request = BuildTxRequest(
             auth = authInfo,
@@ -184,7 +185,7 @@ class DynamicSelfCustodyService(
                 memo = memo,
                 feeCurrency = feeCurrency,
             ),
-            maxVerificationVersion = null
+            maxVerificationVersion = maxVerificationVersion
         )
     )
 

@@ -102,7 +102,7 @@ internal class DynamicAssetLoader(
             currency is FiatCurrency -> FiatAsset(currency)
             else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
         }.also {
-            check(currency !in assetMap.keys) { "Asset already loaded" }
+            check(currency !in assetMap.keys) { "Asset already loaded ${currency.networkTicker}" }
             assetMap[currency] = it
         }
 

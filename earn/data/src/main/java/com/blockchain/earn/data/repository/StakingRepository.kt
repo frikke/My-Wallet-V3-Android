@@ -17,6 +17,7 @@ import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingActivity
 import com.blockchain.earn.domain.models.staking.StakingActivityAttributes
 import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.earn.domain.models.staking.StakingTransactionBeneficiary
 import com.blockchain.earn.domain.service.StakingService
@@ -64,12 +65,17 @@ class StakingRepository(
             it.rates.containsKey(currency.networkTicker)
         }
 
-    override fun getRateForAsset(
+    override fun getRatesForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<Double>> =
-        stakingRatesStore.stream(refreshStrategy).mapData {
-            it.rates[currency.networkTicker]?.rate ?: 0.0
+    ): Flow<DataResource<StakingRates>> =
+        stakingRatesStore.stream(refreshStrategy).mapData { ratesMap ->
+            ratesMap.rates[currency.networkTicker]?.let { rateData ->
+                StakingRates(
+                    rate = rateData.rate,
+                    commission = rateData.commission
+                )
+            } ?: StakingRates(0.0, 0.0)
         }
 
     override fun getRatesForAllAssets(
@@ -299,7 +305,7 @@ class StakingRepository(
             lockedBalance = Money.fromMinor(currency, lockedBalance.toBigInteger()),
             pendingDeposit = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
             pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
-            totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger()),
+            totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger())
         )
 
     private fun String.toIneligibilityReason(): StakingEligibility.Ineligible {

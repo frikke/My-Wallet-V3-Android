@@ -15,6 +15,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
+import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
@@ -63,12 +64,12 @@ class LoadAssetAccountsUseCase(
         }
 
         val stakingFlow =
-            stakingService.getAvailabilityForAsset(asset.currency).flatMapData {
-                if (it) {
-                    stakingService.getRateForAsset(asset.currency)
+            stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
+                if (available) {
+                    stakingService.getRatesForAsset(asset.currency)
                 } else
                     flow {
-                        emit(DataResource.Data(0.toDouble()))
+                        emit(DataResource.Data(StakingRates(0.0, 0.0)))
                     }
             }
 
@@ -96,7 +97,7 @@ class LoadAssetAccountsUseCase(
                         accounts = accounts,
                         exchangeRate = pricesData.currentRate,
                         interestRate = interestRateData,
-                        stakingRate = stakingRateData
+                        stakingRate = stakingRateData.rate
                     )
 
                     var totalCryptoMoneyAll = Money.zero(asset.currency)

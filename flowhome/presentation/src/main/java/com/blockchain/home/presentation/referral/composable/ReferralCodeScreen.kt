@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.referral.presentation.composable
+package com.blockchain.home.presentation.referral.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,15 +17,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -40,24 +44,83 @@ import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.referral.presentation.ReferralPromotionStyleInfo
+import com.blockchain.componentlib.utils.CopyText
+import com.blockchain.componentlib.utils.Share
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.previewAnalytics
+import com.blockchain.data.DataResource
+import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.referral.ReferralAnalyticsEvents
+import com.blockchain.home.presentation.referral.ReferralIntent
+import com.blockchain.home.presentation.referral.ReferralViewModel
+import com.blockchain.home.presentation.referral.ReferralViewState
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
-fun ReferralScreen(
-    rewardTitle: String,
-    rewardSubtitle: String,
-    code: String,
-    confirmCopiedToClipboard: Boolean,
-    criteria: List<String>,
-    onBackPressed: () -> Unit,
-    copyToClipboard: (String) -> Unit,
-    shareCode: (String) -> Unit,
-    promotionData: ReferralPromotionStyleInfo?
+fun ReferralCode(
+    viewModel: ReferralViewModel = getViewModel(scope = payloadScope),
+    onBackPressed: () -> Unit
 ) {
+    val viewState: ReferralViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(ReferralIntent.LoadData)
+        onDispose { }
+    }
+
+    ReferralCodeScreen(
+        viewState = viewState,
+        onCodeCopied = { viewModel.onIntent(ReferralIntent.CodeCopied) },
+        onBackPressed = onBackPressed
+    )
+}
+
+@Composable
+fun ReferralCodeScreen(
+    viewState: ReferralViewState,
+    onCodeCopied: () -> Unit,
+    onBackPressed: () -> Unit
+) {
+    when (viewState.referralInfo) {
+        DataResource.Loading -> {
+            // n/a
+        }
+        is DataResource.Data -> when (viewState.referralInfo.data) {
+            is ReferralInfo.Data -> ReferralScreenData(
+                referralInfo = viewState.referralInfo.data as ReferralInfo.Data,
+                showCodeCopyConfirmation = viewState.showCodeCopyConfirmation,
+                onCodeCopied = onCodeCopied,
+                onBackPressed = onBackPressed
+            )
+            ReferralInfo.NotAvailable -> {
+                // todo
+            }
+        }
+        is DataResource.Error -> {
+            // todo
+        }
+    }
+}
+
+@Composable
+fun ReferralScreenData(
+    analytics: Analytics = get(),
+    referralInfo: ReferralInfo.Data,
+    showCodeCopyConfirmation: Boolean,
+    onCodeCopied: () -> Unit,
+    onBackPressed: () -> Unit
+) {
+    DisposableEffect(key1 = referralInfo.campaignId) {
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralView(referralInfo.campaignId))
+        onDispose { }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        val backgroundUrl = promotionData?.backgroundUrl
+        val backgroundUrl = referralInfo.promotionInfo?.backgroundUrl
 
         if (!backgroundUrl.isNullOrEmpty()) {
             AsyncMediaItem(
@@ -76,11 +139,11 @@ fun ReferralScreen(
 
             Box(
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.standard_spacing))
+                    .padding(AppTheme.dimensions.standardSpacing)
                     .clickable(true, onClick = onBackPressed)
             ) {
                 Image(
-                    ImageResource.Local(id = R.drawable.ic_arrow_back_blue)
+                    imageResource = ImageResource.Local(id = R.drawable.ic_arrow_back_blue)
                 )
             }
 
@@ -90,46 +153,46 @@ fun ReferralScreen(
                     .fillMaxWidth()
                     .weight(weight = 1f, fill = false)
                     .padding(
-                        start = dimensionResource(R.dimen.standard_spacing),
-                        end = dimensionResource(R.dimen.standard_spacing),
-                        bottom = dimensionResource(R.dimen.medium_spacing),
+                        start = AppTheme.dimensions.standardSpacing,
+                        end = AppTheme.dimensions.standardSpacing,
+                        bottom = AppTheme.dimensions.standardSpacing
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val iconUrl = promotionData?.iconUrl
+                val iconUrl = referralInfo.promotionInfo?.iconUrl
                 if (!iconUrl.isNullOrEmpty()) {
                     AsyncMediaItem(
-                        modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
+                        modifier = Modifier.size(AppTheme.dimensions.epicSpacing),
                         url = iconUrl,
                         onErrorDrawable = R.drawable.ic_referral,
                         onLoadingPlaceholder = R.drawable.ic_blockchain
                     )
                 } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
-                        modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
+                        modifier = Modifier.size(AppTheme.dimensions.epicSpacing),
                         imageResource = ImageResource.Local(R.drawable.ic_referral)
                     )
                 }
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
                 MarkdownText(
                     style = ComposeTypographies.Title2,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    markdownText = promotionData?.title ?: rewardTitle
+                    markdownText = referralInfo.promotionInfo?.title ?: referralInfo.rewardTitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.verySmallSpacing))
 
                 MarkdownText(
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    markdownText = promotionData?.message ?: rewardSubtitle
+                    markdownText = referralInfo.promotionInfo?.message ?: referralInfo.rewardSubtitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
@@ -139,16 +202,28 @@ fun ReferralScreen(
                     text = stringResource(R.string.referral_code_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
+                var copyCode by remember { mutableStateOf(false) }
+                if (copyCode) {
+                    CopyText(
+                        label = stringResource(id = R.string.referral_code_title),
+                        textToCopy = referralInfo.code
+                    )
+                    onCodeCopied()
+                    analytics.logEvent(
+                        ReferralAnalyticsEvents.ReferralCopyCode(referralInfo.code, referralInfo.campaignId)
+                    )
+                    copyCode = false
+                }
                 ReferralCode(
-                    code = code,
-                    confirmCopiedToClipboard = confirmCopiedToClipboard,
-                    copyToClipboard = copyToClipboard,
+                    code = referralInfo.code,
+                    confirmCopiedToClipboard = showCodeCopyConfirmation,
+                    copyToClipboard = { copyCode = true },
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
@@ -158,27 +233,38 @@ fun ReferralScreen(
                     text = stringResource(R.string.referral_criteria_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
                 ReferralCriteria(
-                    criteria = criteria,
+                    criteria = referralInfo.criteria,
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }
 
+            var shareCode by remember { mutableStateOf(false) }
+            if (shareCode) {
+                Share(
+                    text = stringResource(R.string.referral_share_template, referralInfo.code),
+                    subject = stringResource(R.string.referral_share_template_subject)
+                )
+                analytics.logEvent(
+                    ReferralAnalyticsEvents.ReferralShareCode(referralInfo.code, referralInfo.campaignId)
+                )
+                shareCode = false
+            }
             PrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(id = R.dimen.standard_spacing),
-                        end = dimensionResource(id = R.dimen.standard_spacing),
-                        top = dimensionResource(id = R.dimen.tiny_spacing),
-                        bottom = dimensionResource(id = R.dimen.medium_spacing)
+                        start = AppTheme.dimensions.standardSpacing,
+                        end = AppTheme.dimensions.standardSpacing,
+                        top = AppTheme.dimensions.tinySpacing,
+                        bottom = AppTheme.dimensions.mediumSpacing
                     ),
                 text = stringResource(R.string.common_share),
-                onClick = { shareCode(code) }
+                onClick = { shareCode = true }
             )
         }
     }
@@ -188,15 +274,15 @@ fun ReferralScreen(
 fun ReferralCode(
     code: String,
     confirmCopiedToClipboard: Boolean,
-    copyToClipboard: (String) -> Unit,
+    copyToClipboard: () -> Unit,
     isCustomBackground: Boolean
 ) {
     Column(
         modifier = Modifier
             .background(if (isCustomBackground) CowboysDark else UltraLight)
             .padding(
-                top = dimensionResource(R.dimen.standard_spacing),
-                bottom = dimensionResource(R.dimen.standard_spacing)
+                top = AppTheme.dimensions.standardSpacing,
+                bottom = AppTheme.dimensions.standardSpacing
             )
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -210,11 +296,11 @@ fun ReferralCode(
             text = code
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Text(
             modifier = Modifier
-                .clickable { copyToClipboard(code) },
+                .clickable { copyToClipboard() },
             style = AppTheme.typography.paragraph2,
             color = Blue600,
             text = stringResource(if (confirmCopiedToClipboard) R.string.common_copied else R.string.common_copy),
@@ -228,7 +314,7 @@ fun ReferralCriteria(criteria: List<String>, isCustomBackground: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.large_spacing)
+                horizontal = AppTheme.dimensions.largeSpacing
             )
     ) {
         criteria.forEachIndexed { index, value ->
@@ -248,7 +334,7 @@ fun SingleReferralCriteria(
     isCustomBackground: Boolean
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
+        modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         MarkdownText(
@@ -262,7 +348,7 @@ fun SingleReferralCriteria(
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         MarkdownText(
             style = ComposeTypographies.Paragraph1,
@@ -290,39 +376,50 @@ fun ReferralCriteriaSeparator() {
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
 fun PreviewReferralScreen() {
-    ReferralScreen(
-        rewardTitle = "Invite friends, get $30.00!",
-        rewardSubtitle = "Increase your earnings on each successful invite  ",
-        code = "DIEG4321",
-        confirmCopiedToClipboard = false,
-        criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)"),
-        onBackPressed = {},
-        copyToClipboard = {},
-        shareCode = {},
-        promotionData = null
+    ReferralScreenData(
+        analytics = previewAnalytics,
+        referralInfo = ReferralInfo.Data(
+            rewardTitle = "Invite friends, get $30.00!",
+            rewardSubtitle = "Increase your earnings on each successful invite  ",
+            code = "DIEG4321",
+            criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)"),
+            promotionInfo = null,
+            announcementInfo = null,
+            campaignId = ""
+        ),
+        showCodeCopyConfirmation = false,
+        onCodeCopied = {},
+        onBackPressed = {}
     )
 }
 
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
 fun PreviewReferralScreenPromotion() {
-    ReferralScreen(
-        rewardTitle = "Invite friends, get $30.00!",
-        rewardSubtitle = "Increase your earnings on each successful invite  ",
-        code = "DIEG4321",
-        confirmCopiedToClipboard = false,
-        criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)"),
-        onBackPressed = {},
-        copyToClipboard = {},
-        shareCode = {},
-        promotionData = ReferralPromotionStyleInfo(
-            "cowboys referral title",
-            message = "cowboys referral message",
-            iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
-                "/o/tickets.png?alt=media&token=b3fa42b6-55a7-4680-ba63-9d08657c0da3",
-            backgroundUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
-                "/o/prescott.png?alt=media&token=443cc5cb-0f04-4e46-9712-a052b2437fa1",
-        )
+    ReferralScreenData(
+        analytics = previewAnalytics,
+        referralInfo = ReferralInfo.Data(
+            rewardTitle = "Invite friends, get $30.00!",
+            rewardSubtitle = "Increase your earnings on each successful invite  ",
+            code = "DIEG4321",
+            criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)"),
+            promotionInfo = PromotionStyleInfo(
+                title = "cowboys referral title",
+                message = "cowboys referral message",
+                iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
+                    "/o/tickets.png?alt=media&token=b3fa42b6-55a7-4680-ba63-9d08657c0da3",
+                backgroundUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
+                    "/o/prescott.png?alt=media&token=443cc5cb-0f04-4e46-9712-a052b2437fa1",
+                actions = listOf(),
+                headerUrl = "",
+                foregroundColorScheme = listOf()
+            ),
+            announcementInfo = null,
+            campaignId = ""
+        ),
+        showCodeCopyConfirmation = false,
+        onCodeCopied = {},
+        onBackPressed = {}
     )
 }
 

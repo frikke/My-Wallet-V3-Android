@@ -167,7 +167,7 @@ class MainInteractor internal constructor(
 
     fun checkReferral(): Single<ReferralState> = rxSingle {
         val areMembershipsEnabled = membershipFlag.coEnabled()
-        referralRepository.fetchReferralData().fold(
+        referralRepository.fetchReferralDataLegacy().fold(
             onSuccess = { info ->
                 ReferralState(
                     referralInfo = info,

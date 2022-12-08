@@ -147,11 +147,11 @@ interface InterestService {
      */
     fun getInterestRateFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Double>>
 
     fun getAllInterestRates(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     /**

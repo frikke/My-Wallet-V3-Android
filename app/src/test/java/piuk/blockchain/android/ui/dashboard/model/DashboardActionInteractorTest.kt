@@ -659,7 +659,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
 
             val inProgressInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(inProgressInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(inProgressInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getKycInProgressAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -706,7 +706,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(true)
 
             val referralInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(referralInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getReferFriendsAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -751,7 +751,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
 
             val referralInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(referralInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getReferFriendsAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -775,7 +775,7 @@ class DashboardActionInteractorTest {
             verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
             verify(settingsDataManager).getSettings()
             verify(cowboysDataProvider).getReferFriendsAnnouncement()
-            verify(referralService).fetchReferralData()
+            verify(referralService).fetchReferralDataLegacy()
             verify(cowboysPrefs).hasCowboysReferralBeenDismissed
             verifyNoMoreInteractions(settingsDataManager)
             verifyNoMoreInteractions(userIdentity)

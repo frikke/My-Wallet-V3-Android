@@ -107,6 +107,7 @@ fun PreviewBalanceScreen() {
         WalletBalance(
             balance = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
             cryptoBalanceDifference24h = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         )
     )
 }
@@ -118,6 +119,7 @@ fun PreviewBalanceScreenLoading() {
         walletBalance = WalletBalance(
             balance = DataResource.Loading,
             cryptoBalanceDifference24h = DataResource.Loading,
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         )
     )
 }

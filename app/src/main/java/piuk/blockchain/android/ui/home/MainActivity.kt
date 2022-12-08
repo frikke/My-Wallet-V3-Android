@@ -23,6 +23,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -266,7 +267,6 @@ class MainActivity :
             model.process(MainIntent.CheckReferralCode)
 
             if (startUiTour) {
-                binding.uiTour.host = this
                 showUiTour()
             }
         }
@@ -392,7 +392,7 @@ class MainActivity :
     private fun showReferralBottomSheet(info: ReferralInfo) {
         if (info is ReferralInfo.Data) {
             showBottomSheet(
-                ReferralSheet.newInstance(info)
+                ReferralSheet.newInstance()
             )
         }
     }
@@ -1106,6 +1106,7 @@ class MainActivity :
     private fun showUiTour() {
         analytics.logEvent(UiTourAnalytics.Viewed)
         binding.uiTour.apply {
+            host = this@MainActivity
             alpha = 0f
             visible()
             animate()
@@ -1117,7 +1118,8 @@ class MainActivity :
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
         binding.uiTour.apply {
-            analytics.logEvent(UiTourAnalytics.Dismissed(currentStep))
+            logHideUi()
+
             animate()
                 .alpha(0f)
                 .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
@@ -1202,7 +1204,7 @@ class MainActivity :
         model.process(
             MainIntent.UpdateViewToLaunch(
                 ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                    LaunchFlowForAccount.SourceAccount(toAccount), AssetAction.InterestDeposit
+                    LaunchFlowForAccount.TargetAccount(toAccount as TransactionTarget), AssetAction.InterestDeposit
                 )
             )
         )

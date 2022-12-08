@@ -9,12 +9,10 @@ import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.rx3.asFlow
@@ -22,15 +20,12 @@ import kotlinx.coroutines.rx3.asFlow
 class HomeAccountsRepository(
     private val coincore: Coincore,
     private val unifiedBalancesService: UnifiedBalancesService,
-    private val walletModeService: WalletModeService
 ) : HomeAccountsService {
-    override fun accounts(): Flow<DataResource<List<SingleAccount>>> {
-        return walletModeService.walletMode.flatMapLatest { wMode ->
-            when (wMode) {
-                WalletMode.CUSTODIAL_ONLY -> activeCustodialWallets()
-                WalletMode.NON_CUSTODIAL_ONLY -> activeNonCustodialWallets()
-                else -> throw IllegalStateException("Wallet mode is not supported")
-            }
+    override fun accounts(walletMode: WalletMode): Flow<DataResource<List<SingleAccount>>> {
+        return when (walletMode) {
+            WalletMode.CUSTODIAL_ONLY -> activeCustodialWallets()
+            WalletMode.NON_CUSTODIAL_ONLY -> activeNonCustodialWallets()
+            else -> throw IllegalStateException("Wallet mode is not supported")
         }
     }
 
@@ -38,7 +33,7 @@ class HomeAccountsRepository(
         val activeAssets = unifiedBalancesService.balances().mapData {
             it.map { balance ->
                 coincore[balance.currency]
-            }
+            }.toSet()
         }
 
         return activeAssets.flatMapData { assets ->

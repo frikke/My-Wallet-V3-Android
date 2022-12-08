@@ -1,13 +1,19 @@
 package com.blockchain.home.presentation.activity.detail.custodial
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.data.onErrorReturn
 import com.blockchain.data.updateDataWith
@@ -20,18 +26,24 @@ import com.blockchain.home.activity.CustodialActivityService
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
-import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildASellActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildActivityDetail
+import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildSellActivityDetail
+import com.blockchain.home.presentation.activity.detail.custodial.mappers.buildSwapActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActivityDetail
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellingPair
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.mapData
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -43,7 +55,9 @@ class CustodialActivityDetailViewModel(
     private val custodialActivityService: CustodialActivityService,
     private val paymentMethodService: PaymentMethodService,
     private val cardService: CardService,
-    private val bankService: BankService
+    private val bankService: BankService,
+    private val coincore: Coincore,
+    private val defaultLabels: DefaultLabels
 ) : MviViewModel<
     ActivityDetailIntent<CustodialActivityDetail>,
     ActivityDetailViewState,
@@ -79,7 +93,7 @@ class CustodialActivityDetailViewModel(
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             custodialActivityService
-                .getActivity(txId = activityTxId)
+                .getActivity(id = activityTxId, FreshnessStrategy.Cached(forceRefresh = false))
                 .flatMapLatest { summaryDataResource ->
                     when (summaryDataResource) {
                         is DataResource.Data -> {
@@ -89,9 +103,10 @@ class CustodialActivityDetailViewModel(
                                     is CustodialTransferActivitySummaryItem -> transferDetail()
                                     is TradeActivitySummaryItem -> when {
                                         isSellingPair() -> sellDetail()
-                                        isSwapPair() -> flowOf(DataResource.Loading) // todo
+                                        isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
+                                    is CustodialInterestActivitySummaryItem -> interestDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -157,13 +172,73 @@ class CustodialActivityDetailViewModel(
             depositNetworkFee
                 .map { fee ->
                     @Suppress("USELESS_CAST")
-                    DataResource.Data(buildASellActivityDetail(fee = fee)) as DataResource<CustodialActivityDetail>
+                    DataResource.Data(buildSellActivityDetail(fee = fee)) as DataResource<CustodialActivityDetail>
                 }
                 .onErrorReturn {
                     DataResource.Error(Exception(it))
                 }
                 .await()
         )
+    }
+
+    private suspend fun TradeActivitySummaryItem.swapDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        val depositNetworkFeeFlow = flowOf(
+            depositNetworkFee
+                .map { fee ->
+                    @Suppress("USELESS_CAST")
+                    DataResource.Data(fee) as DataResource<Money>
+                }
+                .onErrorReturn { DataResource.Error(Exception(it)) }
+                .await()
+        )
+
+        val defaultToLabelFlow = flowOf(
+            when (direction) {
+                TransferDirection.ON_CHAIN -> {
+                    coincore.findAccountByAddress(
+                        currencyPair.destination.asAssetInfoOrThrow(), receivingAddress!!
+                    ).toSingle().map {
+                        val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
+
+                        if (it.label.isEmpty() || it.label == defaultLabel) {
+                            "${currencyPair.destination.displayTicker} $defaultLabel"
+                        } else {
+                            it.label
+                        }
+                    }
+                }
+                TransferDirection.INTERNAL,
+                TransferDirection.FROM_USERKEY -> {
+                    coincore[currencyPair.destination.asAssetInfoOrThrow()]
+                        .accountGroup(AssetFilter.Trading)
+                        .toSingle()
+                        .map {
+                            "${currencyPair.destination.displayTicker} ${it.selectFirstAccount().label}"
+                        }
+                }
+                TransferDirection.TO_USERKEY -> {
+                    error("TO_USERKEY swap direction not supported")
+                }
+            }.onErrorReturn { "" }
+                .map {
+                    @Suppress("USELESS_CAST")
+                    DataResource.Data(it) as DataResource<String>
+                }
+                .onErrorReturn {
+                    DataResource.Error(Exception(it))
+                }
+                .await()
+        )
+
+        return combine(depositNetworkFeeFlow, defaultToLabelFlow) { fee, toLabel ->
+            combineDataResources(fee, toLabel) { feeData, toLabelData ->
+                buildSwapActivityDetail(fee = feeData, toLabel = toLabelData)
+            }
+        }
+    }
+
+    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {

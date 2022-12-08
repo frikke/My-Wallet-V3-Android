@@ -9,6 +9,7 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.CustodialOrderState
@@ -20,7 +21,7 @@ import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
 
 @DrawableRes internal fun TradeActivitySummaryItem.sellIconDetail(): Int {
-    return R.drawable.ic_activity_sell
+    return R.drawable.ic_activity_sell_dark
 }
 
 internal fun TradeActivitySummaryItem.sellTitle(): TextValue = TextValue.IntResValue(
@@ -31,7 +32,7 @@ internal fun TradeActivitySummaryItem.sellTitle(): TextValue = TextValue.IntResV
 )
 
 internal fun TradeActivitySummaryItem.sellDetailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
     // to/from ---- euro
@@ -95,7 +96,7 @@ internal fun TradeActivitySummaryItem.sellDetailItems(
                 )
             },
             // fee ---- €12
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            extras[CustodialActivityDetailExtraKey.Fee]?.toActivityComponent()
         )
     ),
     // status ---- success
@@ -244,12 +245,12 @@ private fun TradeActivitySummaryItem.statusStyle(): ActivityTagStyle = when (sta
     CustodialOrderState.FAILED -> ActivityTagStyle.Error
 }
 
-internal fun TradeActivitySummaryItem.buildASellActivityDetail(
+internal fun TradeActivitySummaryItem.buildSellActivityDetail(
     fee: Money
 ) = CustodialActivityDetail(
     activity = this,
-    extras = listOf(
-        CustodialActivityDetailExtra(
+    extras = mapOf(
+        CustodialActivityDetailExtraKey.Fee to CustodialActivityDetailExtra(
             title = TextValue.IntResValue(R.string.activity_details_buy_fee),
             value = TextValue.StringValue(fee.toStringWithSymbol())
         )

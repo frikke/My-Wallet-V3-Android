@@ -299,7 +299,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
     fun fetchReferralData() {
         runBlocking {
             val referralMock = mock<ReferralInfo.Data>()
-            whenever(referralRepository.fetchReferralData()).thenReturn(Outcome.Success(referralMock))
+            whenever(referralRepository.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralMock))
             whenever(referralPrefs.hasReferralIconBeenClicked).thenReturn(true)
             whenever(membershipsFF.coEnabled()).thenReturn(false)
 

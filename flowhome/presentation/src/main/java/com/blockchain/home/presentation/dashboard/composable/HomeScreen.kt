@@ -13,9 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
-import com.blockchain.domain.onboarding.DashboardOnboardingStep
-import com.blockchain.domain.onboarding.DashboardOnboardingStepState
+import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
@@ -26,7 +24,8 @@ fun HomeScreen(
     listState: LazyListState,
     assetActionsNavigation: AssetActionsNavigation,
     openCryptoAssets: () -> Unit,
-    openActivity: () -> Unit
+    openActivity: () -> Unit,
+    openReferral: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -46,18 +45,8 @@ fun HomeScreen(
         }
         item {
             EmptyCard(
-                onboardingLaunch = {
-                    assetActionsNavigation.onBoardingNavigation(
-                        DashboardOnboardingStep.values().map { step ->
-                            CompletableDashboardOnboardingStep(
-                                step = step,
-                                state = DashboardOnboardingStepState.INCOMPLETE
-                            )
-                        }
-                    )
-                },
                 onReceive = { assetActionsNavigation.navigate(AssetAction.Receive) },
-                onBuy = { assetActionsNavigation.navigate(AssetAction.Buy) },
+                assetActionsNavigation = assetActionsNavigation,
                 homeAssetsViewModel = getViewModel(scope = payloadScope),
                 pkwActivityViewModel = getViewModel(scope = payloadScope),
                 custodialActivityViewModel = getViewModel(scope = payloadScope)
@@ -70,8 +59,18 @@ fun HomeScreen(
         }
 
         item {
+            EarnAssets(assetActionsNavigation = assetActionsNavigation)
+        }
+
+        item {
             HomeActivity(
                 openAllActivity = openActivity
+            )
+        }
+
+        item {
+            Referral(
+                openReferral = openReferral
             )
         }
 

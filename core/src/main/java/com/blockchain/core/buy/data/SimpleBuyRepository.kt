@@ -1,5 +1,6 @@
 package com.blockchain.core.buy.data
 
+import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
 import com.blockchain.core.buy.domain.SimpleBuyService
@@ -7,18 +8,41 @@ import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.extensions.safeLet
+import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
+import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
+import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentAttributes
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
+import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairDto
+import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.store.mapData
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 class SimpleBuyRepository(
     private val simpleBuyEligibilityStore: SimpleBuyEligibilityStore,
     private val buyPairsStore: BuyPairsStore,
+    private val buyOrdersStore: BuyOrdersStore,
+    private val swapOrdersStore: SwapTransactionsStore,
     private val assetCatalogue: AssetCatalogue
 ) : SimpleBuyService {
 
@@ -72,22 +96,179 @@ class SimpleBuyRepository(
         }
     }
 
-    private fun SimpleBuyEligibilityDto.toDomain() = run {
-        SimpleBuyEligibility(
-            eligible = eligible,
-            simpleBuyTradingEligible = simpleBuyTradingEligible,
-            pendingDepositSimpleBuyTrades = pendingDepositSimpleBuyTrades,
-            maxPendingDepositSimpleBuyTrades = maxPendingDepositSimpleBuyTrades
-        )
+    override fun getBuyOrders(pendingOnly: Boolean, shouldFilterInvalid: Boolean): Flow<DataResource<BuyOrderList>> {
+        return buyOrdersStore.stream(
+            request = KeyedFreshnessStrategy.Cached(
+                key = BuyOrdersStore.Key(pendingOnly = pendingOnly),
+                forceRefresh = true
+            )
+        ).mapData {
+            if (shouldFilterInvalid) {
+                it.filterNot { order ->
+                    order.processingErrorType == BuySellOrderResponse.ISSUER_PROCESSING_ERROR ||
+                        order.paymentError == BuySellOrderResponse.APPROVAL_ERROR_REJECTED ||
+                        order.paymentError == BuySellOrderResponse.APPROVAL_ERROR_EXPIRED ||
+                        order.state == BuySellOrderResponse.EXPIRED
+                }
+            } else {
+                it
+            }
+                .mapNotNull { order ->
+                    safeLet(
+                        assetCatalogue.fromNetworkTicker(order.inputCurrency),
+                        assetCatalogue.fromNetworkTicker(order.outputCurrency)
+                    ) { inputCurrency, outputCurrency ->
+                        order.toBuySellOrder(inputCurrency, outputCurrency)
+                    }
+                }
+        }
     }
 
-    private fun SimpleBuyPairDto.toDomain() = run {
-        SimpleBuyPair(
-            pair = pair.split("-").run { Pair(first(), last()) },
-            buyMin = buyMin,
-            buyMax = buyMax,
-            sellMin = sellMin,
-            sellMax = sellMax
-        )
+    override fun swapOrders(): Flow<DataResource<List<CustodialOrder>>> {
+        return swapOrdersStore.stream(FreshnessStrategy.Cached(forceRefresh = true))
+            .mapData { response ->
+                response.mapNotNull { orderResp ->
+                    val currencyPair = CurrencyPair.fromRawPair(orderResp.pair, assetCatalogue)
+                    currencyPair?.let {
+                        safeLet(
+                            assetCatalogue.assetInfoFromNetworkTicker(
+                                currencyPair.source.networkTicker
+                            ),
+                            assetCatalogue.assetInfoFromNetworkTicker(
+                                currencyPair.destination.networkTicker
+                            )
+                        ) { inputCurrency, outputCurrency ->
+                            orderResp.toSwapOrder(
+                                inputCurrency = inputCurrency,
+                                outputCurrency = outputCurrency
+                            )
+                        }
+                    }
+                }
+            }
     }
+}
+
+private fun SimpleBuyEligibilityDto.toDomain() = run {
+    SimpleBuyEligibility(
+        eligible = eligible,
+        simpleBuyTradingEligible = simpleBuyTradingEligible,
+        pendingDepositSimpleBuyTrades = pendingDepositSimpleBuyTrades,
+        maxPendingDepositSimpleBuyTrades = maxPendingDepositSimpleBuyTrades
+    )
+}
+
+private fun SimpleBuyPairDto.toDomain() = run {
+    SimpleBuyPair(
+        pair = pair.split("-").run { Pair(first(), last()) },
+        buyMin = buyMin,
+        buyMax = buyMax,
+        sellMin = sellMin,
+        sellMax = sellMax
+    )
+}
+
+fun BuySellOrderResponse.toBuySellOrder(inputCurrency: Currency, outputCurrency: Currency): BuySellOrder {
+    return BuySellOrder(
+        id = id,
+        pair = pair,
+        source = Money.fromMinor(inputCurrency, inputQuantity.toBigInteger()),
+        target = Money.fromMinor(outputCurrency, outputQuantity.toBigInteger()),
+        state = state.toLocalState(),
+        expires = expiresAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        updated = updatedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        created = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        fee = fee?.let {
+            Money.fromMinor(inputCurrency, it.toBigInteger())
+        },
+        paymentMethodId = paymentMethodId ?: (
+            when (paymentType.toPaymentMethodType()) {
+                PaymentMethodType.FUNDS -> PaymentMethod.FUNDS_PAYMENT_ID
+                PaymentMethodType.BANK_TRANSFER -> PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
+                else -> PaymentMethod.UNDEFINED_CARD_PAYMENT_ID
+            }
+            ),
+        paymentMethodType = paymentType.toPaymentMethodType(),
+        price = price?.let {
+            Money.fromMinor(inputCurrency, it.toBigInteger())
+        },
+        orderValue = Money.fromMinor(outputCurrency, outputQuantity.toBigInteger()),
+        attributes = attributes?.toPaymentAttributes(),
+        type = type(),
+        paymentError = paymentError?.toApprovalError() ?: ApprovalErrorStatus.None,
+        depositPaymentId = depositPaymentId.orEmpty(),
+        approvalErrorStatus = attributes?.error?.toApprovalError() ?: ApprovalErrorStatus.None,
+        failureReason = failureReason,
+        recurringBuyId = recurringBuyId
+    )
+}
+
+private fun String.toLocalState(): OrderState =
+    when (this) {
+        BuySellOrderResponse.PENDING_DEPOSIT -> OrderState.AWAITING_FUNDS
+        BuySellOrderResponse.FINISHED -> OrderState.FINISHED
+        BuySellOrderResponse.PENDING_CONFIRMATION -> OrderState.PENDING_CONFIRMATION
+        BuySellOrderResponse.PENDING_EXECUTION,
+        BuySellOrderResponse.DEPOSIT_MATCHED -> OrderState.PENDING_EXECUTION
+        BuySellOrderResponse.FAILED,
+        BuySellOrderResponse.EXPIRED -> OrderState.FAILED
+        BuySellOrderResponse.CANCELED -> OrderState.CANCELED
+        else -> OrderState.UNKNOWN
+    }
+
+private fun String.toApprovalError(): ApprovalErrorStatus =
+    when (this) {
+        // Card create errors
+        BuySellOrderResponse.CARD_CREATE_DUPLICATE -> ApprovalErrorStatus.CardDuplicate
+        BuySellOrderResponse.CARD_CREATE_FAILED -> ApprovalErrorStatus.CardCreateFailed
+        BuySellOrderResponse.CARD_CREATE_ABANDONED -> ApprovalErrorStatus.CardCreateAbandoned
+        BuySellOrderResponse.CARD_CREATE_EXPIRED -> ApprovalErrorStatus.CardCreateExpired
+        BuySellOrderResponse.CARD_CREATE_BANK_DECLINED -> ApprovalErrorStatus.CardCreateBankDeclined
+        BuySellOrderResponse.CARD_CREATE_DEBIT_ONLY -> ApprovalErrorStatus.CardCreateDebitOnly
+        BuySellOrderResponse.CARD_CREATE_NO_TOKEN -> ApprovalErrorStatus.CardCreateNoToken
+        // Card payment errors
+        BuySellOrderResponse.CARD_PAYMENT_NOT_SUPPORTED -> ApprovalErrorStatus.CardPaymentNotSupported
+        BuySellOrderResponse.CARD_PAYMENT_FAILED -> ApprovalErrorStatus.CardPaymentFailed
+        BuySellOrderResponse.CARD_PAYMENT_ABANDONED -> ApprovalErrorStatus.CardCreateAbandoned // map will change
+        BuySellOrderResponse.CARD_PAYMENT_EXPIRED -> ApprovalErrorStatus.CardCreateExpired // map will change
+        BuySellOrderResponse.CARD_PAYMENT_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.InsufficientFunds
+        BuySellOrderResponse.CARD_PAYMENT_DEBIT_ONLY -> ApprovalErrorStatus.CardPaymentDebitOnly
+        BuySellOrderResponse.CARD_PAYMENT_BLOCKCHAIN_DECLINED -> ApprovalErrorStatus.CardBlockchainDecline
+        BuySellOrderResponse.CARD_PAYMENT_ACQUIRER_DECLINED -> ApprovalErrorStatus.CardAcquirerDecline
+        // Bank transfer payment errors
+        BuySellOrderResponse.APPROVAL_ERROR_INVALID,
+        BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.Invalid
+        BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.Failed
+        BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.Declined
+        BuySellOrderResponse.APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.Rejected
+        BuySellOrderResponse.APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.Expired
+        BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LimitedExceeded
+        BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FailedInternal
+        BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.InsufficientFunds
+        else -> ApprovalErrorStatus.Undefined(this)
+    }
+
+private fun BuySellOrderResponse.type() =
+    when {
+        side == "BUY" && this.recurringBuyId != null -> OrderType.RECURRING_BUY
+        side == "BUY" -> OrderType.BUY
+        side == "SELL" -> OrderType.SELL
+        else -> throw IllegalStateException("Unsupported order type")
+    }
+
+private fun CustodialOrderResponse.toSwapOrder(inputCurrency: Currency, outputCurrency: Currency): CustodialOrder {
+    return CustodialOrder(
+        id = this.id,
+        state = this.state.toCustodialOrderState(),
+        depositAddress = this.kind.depositAddress,
+        createdAt = this.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        inputMoney = Money.fromMinor(
+            inputCurrency,
+            this.priceFunnel.inputMoney.toBigInteger()
+        ),
+        outputMoney = Money.fromMinor(
+            outputCurrency,
+            this.priceFunnel.outputMoney.toBigInteger()
+        )
+    )
 }

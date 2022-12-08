@@ -6,6 +6,7 @@ import com.blockchain.domain.eligibility.model.StakingEligibility
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingActivity
 import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.models.staking.StakingRates
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
@@ -31,13 +32,13 @@ interface StakingService {
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<StakingAccountBalance>>
 
-    fun getRateForAsset(
+    fun getRatesForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<DataResource<Double>>
+    ): Flow<DataResource<StakingRates>>
 
     fun getRatesForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     fun getEligibilityForAssets(
