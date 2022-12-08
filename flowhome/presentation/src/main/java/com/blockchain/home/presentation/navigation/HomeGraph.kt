@@ -8,12 +8,16 @@ import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 
 fun NavGraphBuilder.homeGraph(
+    assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
     composable(navigationEvent = HomeDestination.CryptoAssets) {
         MultiAppSingleScreen(
             content = {
-                CryptoAssets()
+                CryptoAssets(
+                    assetActionsNavigation = assetActionsNavigation,
+                    onBackPressed = onBackPressed
+                )
             }
         )
     }
@@ -21,7 +25,9 @@ fun NavGraphBuilder.homeGraph(
     composable(navigationEvent = HomeDestination.Activity) {
         MultiAppSingleScreen(
             content = {
-                Activity()
+                Activity(
+                    onBackPressed = onBackPressed
+                )
             }
         )
     }
@@ -29,7 +35,9 @@ fun NavGraphBuilder.homeGraph(
     composable(navigationEvent = HomeDestination.Referral) {
         MultiAppSingleScreen(
             content = {
-                ReferralCode(onBackPressed = onBackPressed)
+                ReferralCode(
+                    onBackPressed = onBackPressed
+                )
             }
         )
     }

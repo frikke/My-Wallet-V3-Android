@@ -10,5 +10,6 @@ interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
     fun buyCrypto(currency: AssetInfo, amount: Money?)
     fun earnRewards()
+    fun coinview(asset: AssetInfo)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
 }

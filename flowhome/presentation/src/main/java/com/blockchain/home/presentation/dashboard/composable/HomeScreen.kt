@@ -54,6 +54,7 @@ fun HomeScreen(
         }
         item {
             HomeAssets(
+                assetActionsNavigation = assetActionsNavigation,
                 openAllAssets = openCryptoAssets
             )
         }

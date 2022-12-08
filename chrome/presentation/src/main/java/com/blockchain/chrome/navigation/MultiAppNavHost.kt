@@ -21,10 +21,16 @@ fun MultiAppNavHost(
         startDestination = ChromeDestination.Main.route
     ) {
         // main chrome
-        chrome(navController, assetActionsNavigation)
+        chrome(
+            navController = navController,
+            assetActionsNavigation = assetActionsNavigation
+        )
 
         // home screens
-        homeGraph(onBackPressed = navController::popBackStack)
+        homeGraph(
+            assetActionsNavigation = assetActionsNavigation,
+            onBackPressed = navController::popBackStack
+        )
     }
 }
 
