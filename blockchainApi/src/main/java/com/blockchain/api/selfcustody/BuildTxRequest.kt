@@ -22,7 +22,7 @@ data class BuildTxRequest(
     @SerialName("extraData")
     val extraData: ExtraData,
     @SerialName("maxVerificationVersion")
-    val maxVerificationVersion: Int?
+    val maxVerificationVersion: Int
 )
 
 @Serializable
