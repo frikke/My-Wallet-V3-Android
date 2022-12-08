@@ -15,12 +15,9 @@ import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.PricesPrefs
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
@@ -37,12 +34,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 
 class PricesViewModel(
-    private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val coincore: Coincore,
-    private val pricesPrefs: PricesPrefs,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val custodialWalletManager: CustodialWalletManager,
     private val simpleBuyService: SimpleBuyService,
     private val watchlistService: WatchlistService,
     private val assetCatalogue: AssetCatalogue
