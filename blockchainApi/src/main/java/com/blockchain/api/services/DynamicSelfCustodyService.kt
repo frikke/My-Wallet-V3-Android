@@ -21,7 +21,6 @@ import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
 import com.blockchain.api.selfcustody.activity.ActivityDetailsRequest
-import com.blockchain.api.selfcustody.activity.ActivityPubKeyInfo
 import com.blockchain.api.selfcustody.activity.LocalisationParams
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.Outcome
@@ -139,8 +138,6 @@ class DynamicSelfCustodyService(
         txId: String,
         network: String,
         pubKey: String,
-        pubKeyStyle: PubKeyStyle,
-        pubKeyDescriptor: String,
         timeZone: String,
         locales: String,
         fiatCurrency: String
@@ -149,11 +146,7 @@ class DynamicSelfCustodyService(
             auth = authInfo,
             txId = txId,
             network = network,
-            pubKey = ActivityPubKeyInfo(
-                pubKey = pubKey,
-                style = pubKeyStyle,
-                descriptor = pubKeyDescriptor
-            ),
+            pubKey = pubKey,
             params = LocalisationParams(
                 timeZone = timeZone,
                 locales = locales,
