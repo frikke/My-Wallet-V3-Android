@@ -147,6 +147,7 @@ fun ColumnScope.CryptoAssetsList(
                     BalanceChangeTableRow(
                         name = cryptoAsset.name,
                         subtitle = cryptoAsset.ticker,
+                        networkTag = cryptoAsset.network,
                         value = cryptoAsset.currentPrice,
                         valueChange = cryptoAsset.delta,
                         contentStart = {

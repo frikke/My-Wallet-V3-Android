@@ -17,7 +17,8 @@ val pricesPresentationModule = module {
                 exchangeRatesDataManager = get(),
                 custodialWalletManager = get(),
                 simpleBuyService = get(),
-                watchlistService = get()
+                watchlistService = get(),
+                assetCatalogue= get()
             )
         }
     }

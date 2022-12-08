@@ -13,6 +13,7 @@ data class PricesViewState(
 data class PriceItemViewState(
     val name: String,
     val ticker: String,
+    val network: String?,
     val logo: String,
     val delta: DataResource<ValueChange>,
     val currentPrice: DataResource<String>

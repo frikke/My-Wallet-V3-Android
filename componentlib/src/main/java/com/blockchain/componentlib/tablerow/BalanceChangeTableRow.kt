@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
@@ -40,6 +41,7 @@ import kotlin.math.absoluteValue
 fun BalanceChangeTableRow(
     name: String,
     subtitle: String? = null,
+    networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -65,11 +67,22 @@ fun BalanceChangeTableRow(
                     subtitle?.let {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-                        Text(
-                            text = subtitle,
-                            style = AppTheme.typography.paragraph1,
-                            color = AppTheme.colors.muted
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = subtitle,
+                                style = AppTheme.typography.paragraph1,
+                                color = AppTheme.colors.muted
+                            )
+
+                            networkTag?.let {
+                                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                                // todo(othman) tags superapp styling
+                                DefaultTag(text = networkTag)
+                            }
+                        }
+
                     }
                 }
 
@@ -194,6 +207,7 @@ fun PreviewBalanceChangeTableRow() {
             BalanceChangeTableRow(
                 name = "Bitcoin",
                 subtitle = "BTC",
+                networkTag = "Bitcoin",
                 value = DataResource.Data("$1,000.00"),
                 contentStart = {
                     ImageResource.Local(

@@ -227,3 +227,12 @@ fun PreviewActivityScreen() {
         onCloseClick = {}
     )
 }
+
+@Preview
+@Composable
+fun PreviewActivityScreenLoading() {
+    ActivityDetailScreen(
+        activityDetail = DataResource.Loading,
+        onCloseClick = {}
+    )
+}
