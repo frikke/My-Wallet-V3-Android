@@ -3,6 +3,7 @@ package com.blockchain.earn.data
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
@@ -42,6 +43,7 @@ class InterestServiceTest {
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val interestApiService = mockk<InterestApiService>()
     private val interestRatesForAll = mockk<InterestRateForAllStore>()
+    private val historicRateFetcher = mockk<HistoricRateFetcher>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
@@ -53,7 +55,8 @@ class InterestServiceTest {
         paymentTransactionHistoryStore = paymentTransactionHistoryStore,
         currencyPrefs = currencyPrefs,
         interestApiService = interestApiService,
-        interestAllRatesStore = interestRatesForAll
+        interestAllRatesStore = interestRatesForAll,
+        historicRateFetcher = historicRateFetcher
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
