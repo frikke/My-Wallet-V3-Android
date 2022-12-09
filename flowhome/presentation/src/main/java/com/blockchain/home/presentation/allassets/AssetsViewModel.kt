@@ -192,7 +192,7 @@ class AssetsViewModel(
                     updateState {
                         it.copy(
                             walletMode = walletMode,
-                            accounts = DataResource.Loading
+                            accounts = it.accountsForMode(walletMode)
                         )
                     }
                 }
