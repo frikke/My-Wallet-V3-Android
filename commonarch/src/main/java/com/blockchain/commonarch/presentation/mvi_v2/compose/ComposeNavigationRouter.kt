@@ -213,7 +213,7 @@ fun NavGraphBuilder.bottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
 @Composable
-private fun rememberBottomSheetNavigator(
+fun rememberBottomSheetNavigator(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
     skipHalfExpanded: Boolean = true,
 ): BottomSheetNavigator {

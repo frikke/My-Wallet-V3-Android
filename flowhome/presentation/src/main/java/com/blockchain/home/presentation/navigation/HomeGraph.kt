@@ -2,12 +2,14 @@ package com.blockchain.home.presentation.navigation
 
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.MultiAppSingleScreen
+import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.referral.composable.ReferralCode
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-fun NavGraphBuilder.homeGraph(
+@OptIn(ExperimentalMaterialNavigationApi::class) fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
@@ -39,6 +41,13 @@ fun NavGraphBuilder.homeGraph(
                     onBackPressed = onBackPressed
                 )
             }
+        )
+    }
+
+    bottomSheet(navigationEvent = HomeDestination.FiatActionDetail) {
+        // todo
+        ReferralCode(
+            onBackPressed = onBackPressed
         )
     }
 
