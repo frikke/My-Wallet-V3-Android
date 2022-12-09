@@ -28,6 +28,7 @@ import com.blockchain.data.doOnData
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.openUrl
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
@@ -55,7 +56,11 @@ import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import retrofit2.HttpException
 
-class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRouter<SellNavigation>, KoinScopeComponent {
+class SellIntroFragment :
+    MVIViewPagerFragment<SellViewState>(),
+    NavigationRouter<SellNavigation>,
+    KoinScopeComponent,
+    KycUpgradeNowSheet.Host {
 
     override val scope: Scope
         get() = payloadScope
@@ -138,7 +143,7 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
                         }
                     }
                     is SellEligibility.NotEligible -> when (eligibilityData.reason) {
-                        is BlockedReason.InsufficientTier.Unknown -> renderNonKycedUserUi()
+                        is BlockedReason.InsufficientTier -> renderNonKycedUserUi()
                         is BlockedReason.NotEligible -> renderRejectedKycedUserUi()
                         is BlockedReason.Sanctions -> renderBlockedDueToSanctions(
                             eligibilityData.reason as BlockedReason.Sanctions
@@ -304,6 +309,7 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
         with(binding) {
             kycBenefits.visible()
             sellAccountsContainer.gone()
+            kycStepsContainer.gone()
 
             kycBenefits.initWithBenefits(
                 benefits = listOf(
@@ -335,33 +341,15 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
 
     private fun renderNonKycedUserUi() {
         with(binding) {
-            kycBenefits.visible()
-            sellAccountsContainer.gone()
+            if (childFragmentManager.findFragmentById(R.id.kyc_steps_container) == null) {
+                childFragmentManager.beginTransaction()
+                    .replace(R.id.kyc_steps_container, KycUpgradeNowSheet.newInstance())
+                    .commitAllowingStateLoss()
+            }
 
-            kycBenefits.initWithBenefits(
-                benefits = listOf(
-                    VerifyIdentityNumericBenefitItem(
-                        getString(R.string.sell_intro_kyc_title_1),
-                        getString(R.string.sell_intro_kyc_subtitle_1)
-                    ),
-                    VerifyIdentityNumericBenefitItem(
-                        getString(R.string.sell_intro_kyc_title_2),
-                        getString(R.string.sell_intro_kyc_subtitle_2)
-                    ),
-                    VerifyIdentityNumericBenefitItem(
-                        getString(R.string.sell_intro_kyc_title_3),
-                        getString(R.string.sell_intro_kyc_subtitle_3)
-                    )
-                ),
-                title = getString(R.string.sell_crypto),
-                description = getString(R.string.sell_crypto_subtitle),
-                icon = R.drawable.ic_cart,
-                secondaryButton = ButtonOptions(false) {},
-                primaryButton = ButtonOptions(true) {
-                    (activity as? HomeNavigator)?.launchKyc(CampaignType.SimpleBuy)
-                },
-                showSheetIndicator = false
-            )
+            kycBenefits.gone()
+            kycStepsContainer.visible()
+            sellAccountsContainer.gone()
         }
     }
 
@@ -401,6 +389,14 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     }
 
     override fun route(navigationEvent: SellNavigation) {
+        // do nothing
+    }
+
+    override fun startKycClicked() {
+        (requireActivity() as? HomeNavigator)?.launchKyc(CampaignType.SimpleBuy)
+    }
+
+    override fun onSheetClosed() {
         // do nothing
     }
 }

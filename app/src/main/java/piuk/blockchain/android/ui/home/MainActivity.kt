@@ -587,8 +587,6 @@ class MainActivity :
             )
     }
 
-    private var launchSellAction: () -> Unit = {}
-
     override fun render(newState: MainState) {
         isStakingAccountEnabled = newState.isStakingEnabled
         isEarnOnNavBarEnabled = newState.isEarnOnNavEnabled
@@ -794,24 +792,6 @@ class MainActivity :
 
         renderTabs(newState.tabs, newState.currentTab)
         renderMode(newState.walletMode)
-        configSellAction(newState.tabs)
-    }
-
-    private fun configSellAction(tabs: List<NavigationItem>) {
-        launchSellAction = if (NavigationItem.BuyAndSell in tabs) {
-            {
-                launchBuySell(BuySellViewType.TYPE_SELL)
-            }
-        } else {
-            {
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        context = this,
-                        action = AssetAction.Sell
-                    )
-                )
-            }
-        }
     }
 
     private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
@@ -1334,7 +1314,7 @@ class MainActivity :
     }
 
     override fun launchSell() {
-        launchSellAction()
+        launchBuySell(BuySellViewType.TYPE_SELL)
     }
 
     override fun launchBuySell(
