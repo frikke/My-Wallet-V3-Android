@@ -189,7 +189,7 @@
 
     <!-- SuperApp -->
     <string name="chrome_navigation_home">Home</string>
-    <string name="chrome_navigation_trade">Trade</string>
+    <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
 
@@ -2494,6 +2494,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="search_coins_hint">Search Coins</string>
     <string name="prices_error_title">Can’t load Assets Prices</string>
     <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
+    <string name="prices_filter_all">All</string>
+    <string name="prices_filter_favorites">Favorites</string>
+    <string name="prices_filter_tradable">Tradable</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>

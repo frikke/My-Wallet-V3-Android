@@ -34,8 +34,8 @@ sealed interface ChromeBottomNavigationItem {
         override val route: String = "home"
     }
 
-    object Trade : ChromeBottomNavigationItem {
-        override val name: Int = R.string.chrome_navigation_trade
+    object Prices : ChromeBottomNavigationItem {
+        override val name: Int = R.string.chrome_navigation_prices
         override val iconDefault: Int = R.drawable.ic_chrome_trade_default
         override val iconSelected: Int = R.drawable.ic_chrome_trade_selected
         override val route: String = "trade"

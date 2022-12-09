@@ -64,6 +64,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
@@ -85,6 +86,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit
 ) {
@@ -119,6 +121,7 @@ fun MultiAppChrome(
                 openActivity = openActivity,
                 openReferral = openReferral,
                 assetActionsNavigation = assetActionsNavigation,
+                pricesNavigation = pricesNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
                 }
@@ -140,6 +143,7 @@ fun MultiAppChromeScreen(
     onModeSelected: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
     onBalanceRevealed: () -> Unit
@@ -634,7 +638,8 @@ fun MultiAppChromeScreen(
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
                 openReferral = openReferral,
-                assetActionsNavigation = assetActionsNavigation
+                assetActionsNavigation = assetActionsNavigation,
+                pricesNavigation = pricesNavigation
             )
         }
 

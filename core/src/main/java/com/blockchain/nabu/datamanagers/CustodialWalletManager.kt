@@ -55,6 +55,7 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
+    @Deprecated("use flow SimpleBuyService::getSupportedBuySellCryptoCurrencies")
     fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
     fun fetchFiatWithdrawFeeAndMinLimit(

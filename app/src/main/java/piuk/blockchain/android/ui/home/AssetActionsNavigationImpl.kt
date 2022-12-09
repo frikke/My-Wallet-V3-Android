@@ -5,9 +5,9 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
@@ -17,7 +17,9 @@ import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivi
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
-class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : AssetActionsNavigation {
+class AssetActionsNavigationImpl(
+    private val activity: ComponentActivity?
+) : AssetActionsNavigation, PricesNavigation {
     private val actionsResultContract =
         activity?.registerForActivityResult(ActionActivity.BlockchainActivityResultContract()) {
             when (it) {
