@@ -2916,6 +2916,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
     <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
+    <string name="no_balance_sheet_earn_title">You don’t have any %1$s</string>
+    <string name="no_balance_sheet_earn_subtitle">Buy or Receive %1$s to start earning.</string>
     <string name="coinview_added_watchlist">Added to Watchlist</string>
     <string name="coinview_removed_watchlist">Removed from Watchlist</string>
     <string name="coinview_expandable_button">Read More</string>

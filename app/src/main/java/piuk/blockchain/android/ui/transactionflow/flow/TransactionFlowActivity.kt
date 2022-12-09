@@ -32,6 +32,10 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.getTarget
+import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -60,10 +64,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.flow.sheets.StakingAccountWithdrawWarning
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
 import piuk.blockchain.android.urllinks.ETH_STAKING_CONSIDERATIONS
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.getTarget
-import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.putTarget
 import timber.log.Timber
 
 class TransactionFlowActivity :

@@ -19,6 +19,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
@@ -296,11 +297,6 @@ class BuySellFragment :
                 }
             }
         }
-    }
-
-    enum class BuySellViewType {
-        TYPE_BUY,
-        TYPE_SELL
     }
 
     override fun onSheetClosed() = subscribeForNavigation(showLoader = false)

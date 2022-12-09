@@ -304,7 +304,7 @@ private fun DiscoverScreen(
                                 tags = listOf(
                                     TagViewState(
                                         when (it.type) {
-                                            EarnType.Rewards -> stringResource(
+                                            EarnType.Passive -> stringResource(
                                                 id = R.string.earn_rewards_label_passive
                                             )
                                             EarnType.Staking -> stringResource(
@@ -487,7 +487,7 @@ private fun EarningScreen(
                                 tags = listOf(
                                     TagViewState(
                                         when (it.type) {
-                                            EarnType.Rewards -> stringResource(id = R.string.earn_rewards_label_passive)
+                                            EarnType.Passive -> stringResource(id = R.string.earn_rewards_label_passive)
                                             EarnType.Staking -> stringResource(id = R.string.earn_rewards_label_staking)
                                         },
                                         TagType.Default()

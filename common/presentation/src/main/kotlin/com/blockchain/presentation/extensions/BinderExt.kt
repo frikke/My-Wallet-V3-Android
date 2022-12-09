@@ -1,4 +1,4 @@
-package piuk.blockchain.android.util
+package com.blockchain.presentation.extensions
 
 import android.content.Intent
 import android.os.Binder

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.coinview.interstitials
+package com.blockchain.presentation.sheets
 
 import android.app.Dialog
 import android.os.Bundle
@@ -9,19 +9,19 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.common.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
@@ -34,8 +34,9 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
     }
 
     val host: Host by lazy {
-        activity as? Host
-            ?: throw IllegalStateException("Host activity is not a NoBalanceActionBottomSheet.Host")
+        parentFragment as? Host ?: activity as? Host ?: throw IllegalStateException(
+            "Host activity is not a NoBalanceActionBottomSheet.Host"
+        )
     }
 
     val analytics: Analytics by inject()
@@ -151,7 +152,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit -> {
                 actionName = getString(R.string.common_transfer)
-                icon = R.drawable.ic_tx_deposit_arrow
+                icon = R.drawable.ic_tx_interest
             }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -161,9 +162,17 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
             AssetAction.Sign -> throw IllegalStateException("$assetAction cannot have a 0 balance error")
         }
 
-        val sheetTitle = getString(R.string.coinview_no_balance_sheet_title, assetTicker, actionName)
-        val sheetSubtitle =
-            getString(R.string.coinview_no_balance_sheet_subtitle, assetTicker, accountLabel, actionName)
+        val sheetTitle = when (assetAction) {
+            AssetAction.StakingDeposit,
+            AssetAction.InterestDeposit -> getString(R.string.no_balance_sheet_earn_title, assetTicker)
+            else -> getString(R.string.coinview_no_balance_sheet_title, assetTicker, actionName)
+        }
+        val sheetSubtitle = when (assetAction) {
+            AssetAction.StakingDeposit,
+            AssetAction.InterestDeposit -> getString(R.string.no_balance_sheet_earn_subtitle, assetTicker)
+            else -> getString(R.string.coinview_no_balance_sheet_subtitle, assetTicker, accountLabel, actionName)
+        }
+
         val sheetIcon = ImageResource.LocalWithBackgroundAndExternalResources(
             icon, selectedAccount.currency.colour, selectedAccount.currency.colour
         )

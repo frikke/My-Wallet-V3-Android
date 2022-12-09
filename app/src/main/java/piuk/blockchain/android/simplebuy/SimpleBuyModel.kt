@@ -382,12 +382,10 @@ class SimpleBuyModel(
             is SimpleBuyIntent.MakePayment ->
                 interactor.fetchOrder(intent.orderId)
                     .subscribeBy(
-                        onError =
-                        {
+                        onError = {
                             processOrderErrors(it)
                         },
-                        onSuccess =
-                        {
+                        onSuccess = {
                             if (it.attributes != null) {
                                 handleOrderAttrs(it)
                             } else {
