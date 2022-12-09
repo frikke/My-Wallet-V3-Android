@@ -110,6 +110,7 @@ object KoinStarter {
                     apiModule,
                     blockchainApiModule,
                     homePresentationModule,
+                    com.blockchain.prices.koin.pricesPresentationModule,
                     unifiedCryptoWalletModule,
                     homeDataModule,
                     applicationModule,

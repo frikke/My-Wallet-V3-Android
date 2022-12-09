@@ -12,6 +12,7 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.chrome.navigation.AppNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
@@ -20,7 +21,6 @@ import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -247,9 +247,8 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }.bind(
-            AssetActionsNavigation::class
-        )
+        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }
+            .bind(AppNavigation::class)
 
         scoped {
             CredentialsWiper(

@@ -327,6 +327,19 @@ class Coincore internal constructor(
             }
         }
 
+    fun availableCryptoAssetsFlow(): Flow<DataResource<List<AssetInfo>>> = flow {
+        availableCryptoAssets()
+            .map {
+                @Suppress("USELESS_CAST")
+                DataResource.Data(it) as DataResource<List<AssetInfo>>
+            }
+            .onErrorReturn {
+                DataResource.Error(Exception(it))
+            }
+            .await()
+            .run { emit(this) }
+    }
+
     private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
         if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true
         if (this is NonCustodialAccount && other is NonCustodialAccount) return true

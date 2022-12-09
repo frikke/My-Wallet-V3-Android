@@ -2,7 +2,7 @@
 <resources>
     <string name="buy_now">Купить сейчас</string>
     <string name="deposit_enter_amount_limit_title">Лимит</string>
-    <string name="chrome_navigation_trade">Сделка</string>
+    <string name="chrome_navigation_prices">Сделка</string>
     <string name="no_fees_title">Без комиссий</string>
     <string name="create_wallet_email_hint">your@email.com</string>
     <string name="activity_details_title_bought">Куплено</string>

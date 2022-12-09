@@ -12,6 +12,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
+import com.blockchain.prices.navigation.PricesNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
@@ -20,6 +21,7 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 fun MultiAppNavHost(
     navController: NavHostController,
     assetActionsNavigation: AssetActionsNavigation,
+    pricesNavigation: PricesNavigation
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -32,7 +34,8 @@ fun MultiAppNavHost(
             // main chrome
             chrome(
                 navController = navController,
-                assetActionsNavigation = assetActionsNavigation
+                assetActionsNavigation = assetActionsNavigation,
+                pricesNavigation = pricesNavigation
             )
 
             // home screens
@@ -44,10 +47,15 @@ fun MultiAppNavHost(
     }
 }
 
-private fun NavGraphBuilder.chrome(navController: NavHostController, assetActionsNavigation: AssetActionsNavigation) {
+private fun NavGraphBuilder.chrome(
+    navController: NavHostController,
+    assetActionsNavigation: AssetActionsNavigation,
+    pricesNavigation: PricesNavigation
+) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
             assetActionsNavigation = assetActionsNavigation,
+            pricesNavigation = pricesNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
             },

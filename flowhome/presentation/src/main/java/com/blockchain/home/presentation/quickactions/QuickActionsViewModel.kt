@@ -10,11 +10,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.presentation.R
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.filterNotLoading
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import java.lang.IllegalStateException
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.rx3.asFlow
 
 class QuickActionsViewModel(
@@ -57,7 +60,8 @@ class QuickActionsViewModel(
             is QuickActionsIntent.LoadActions -> walletModeService.walletMode.onEach { wMode ->
                 updateState {
                     it.copy(
-                        walletMode = wMode
+                        walletMode = wMode,
+                        actions = modelState.actionsForMode(wMode)
                     )
                 }
             }.flatMapLatest { wMode ->
@@ -98,13 +102,19 @@ class QuickActionsViewModel(
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
 
     private fun actionsForDefi(): Flow<List<QuickAction>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).map {
+        totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).zip(
+            userFeaturePermissionService.isEligibleFor(
+                Feature.Sell,
+                FreshnessStrategy.Cached(false)
+            ).filterNotLoading()
+        ) { balance, sellEligible ->
+
             listOf(
                 QuickAction(
                     title = R.string.common_swap,
                     icon = R.drawable.ic_swap,
                     action = AssetAction.Swap,
-                    enabled = it.total.isPositive
+                    enabled = balance.total.isPositive
                 ),
                 QuickAction(
                     title = R.string.common_receive,
@@ -114,7 +124,14 @@ class QuickActionsViewModel(
                 ),
                 QuickAction(
                     title = R.string.common_send,
-                    enabled = it.total.isPositive,
+                    enabled = balance.total.isPositive,
+                    icon = R.drawable.ic_send,
+                    action = AssetAction.Send,
+                ),
+                QuickAction(
+                    title = R.string.common_sell,
+                    enabled = balance.total.isPositive &&
+                        (sellEligible as? DataResource.Data)?.data ?: false,
                     icon = R.drawable.ic_send,
                     action = AssetAction.Send,
                 )
@@ -190,8 +207,16 @@ class QuickActionsViewModel(
 
 data class QuickActionsModelState(
     val walletMode: WalletMode = WalletMode.UNIVERSAL,
-    val actions: List<QuickAction> = emptyList()
-) : ModelState
+    val actions: List<QuickAction> = emptyList(),
+    private val _actionsForMode: MutableMap<WalletMode, List<QuickAction>> = mutableMapOf()
+) : ModelState {
+    init {
+        _actionsForMode[walletMode] = actions
+    }
+
+    fun actionsForMode(walletMode: WalletMode): List<QuickAction> =
+        _actionsForMode[walletMode] ?: emptyList()
+}
 
 data class QuickAction(
     val icon: Int,

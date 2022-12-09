@@ -19,12 +19,12 @@ fun WalletMode.titleSuperApp(): Int = when (this) {
 fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when (this) {
     WalletMode.CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
-        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Prices,
         ChromeBottomNavigationItem.Card
     )
     WalletMode.NON_CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
-        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Prices,
         ChromeBottomNavigationItem.Nft
     )
     else -> error("UNIVERSAL not supported")

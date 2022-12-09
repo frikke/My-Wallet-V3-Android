@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
@@ -39,6 +40,8 @@ import kotlin.math.absoluteValue
 @Composable
 fun BalanceChangeTableRow(
     name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -54,11 +57,33 @@ fun BalanceChangeTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = name,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
+                Column {
+                    Text(
+                        text = name,
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.title
+                    )
+
+                    subtitle?.let {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = subtitle,
+                                style = AppTheme.typography.paragraph1,
+                                color = AppTheme.colors.muted
+                            )
+
+                            networkTag?.let {
+                                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                                // todo(othman) tags superapp styling
+                                DefaultTag(text = networkTag)
+                            }
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.weight(1F))
 
@@ -180,6 +205,8 @@ fun PreviewBalanceChangeTableRow() {
         AppSurface {
             BalanceChangeTableRow(
                 name = "Bitcoin",
+                subtitle = "BTC",
+                networkTag = "Bitcoin",
                 value = DataResource.Data("$1,000.00"),
                 contentStart = {
                     ImageResource.Local(

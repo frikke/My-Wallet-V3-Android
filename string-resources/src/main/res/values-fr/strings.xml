@@ -2,7 +2,7 @@
 <resources>
     <string name="buy_now">Acheter maintenant</string>
     <string name="deposit_enter_amount_limit_title">Limite</string>
-    <string name="chrome_navigation_trade">Trader</string>
+    <string name="chrome_navigation_prices">Trader</string>
     <string name="no_fees_title">Aucun frais</string>
     <string name="create_wallet_email_hint">your@email.com</string>
     <string name="activity_details_title_bought">Acheté</string>

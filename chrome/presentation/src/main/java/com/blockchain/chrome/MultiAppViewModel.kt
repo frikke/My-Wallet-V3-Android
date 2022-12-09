@@ -9,6 +9,8 @@ import com.blockchain.data.map
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class MultiAppViewModel(
@@ -68,6 +70,8 @@ class MultiAppViewModel(
     private fun loadTotalBalance() {
         viewModelScope.launch {
             walletModeBalanceService.totalBalance()
+                .distinctUntilChanged()
+                .debounce(1000)
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
                         it.copy(totalBalance = totalBalanceDataResource)

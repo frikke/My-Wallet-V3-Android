@@ -2,7 +2,7 @@
 <resources>
     <string name="buy_now">Comprar ahora</string>
     <string name="deposit_enter_amount_limit_title">Límite</string>
-    <string name="chrome_navigation_trade">Operación</string>
+    <string name="chrome_navigation_prices">Operación</string>
     <string name="no_fees_title">Sin comisiones</string>
     <string name="create_wallet_email_hint">su@correo.com</string>
     <string name="activity_details_title_bought">Comprado</string>
