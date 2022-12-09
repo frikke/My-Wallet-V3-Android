@@ -23,6 +23,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
@@ -65,7 +66,6 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -1201,19 +1201,19 @@ class MainActivity :
         )
     }
 
-    override fun launchStakingWithdrawal(currency: Currency) {
+    override fun launchStakingWithdrawal(account: StakingAccount) {
         // TODO(dserrano) - STAKING - not yet implemented
     }
 
-    override fun launchStakingDeposit(currency: Currency) {
+    override fun launchStakingDeposit(account: StakingAccount) {
         model.process(
-            MainIntent.SelectStakingAccountForAction(currency, AssetAction.StakingDeposit)
+            MainIntent.SelectStakingAccountForAction(account, AssetAction.StakingDeposit)
         )
     }
 
-    override fun goToStakingActivity(currency: Currency) {
+    override fun goToStakingActivity(account: StakingAccount) {
         model.process(
-            MainIntent.SelectStakingAccountForAction(currency, AssetAction.ViewActivity)
+            MainIntent.SelectStakingAccountForAction(account, AssetAction.ViewActivity)
         )
     }
 

@@ -1,6 +1,11 @@
 package com.blockchain.home.presentation.earn
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -27,10 +32,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.asFlow
 
 class EarnViewModel(
     private val stakingService: StakingService,
     private val interestService: InterestService,
+    private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService
 ) :
@@ -92,6 +99,28 @@ class EarnViewModel(
                             }
                         }
                     }
+                }
+            }
+            is EarnIntent.AssetSelected -> {
+                coincore[intent.earnAsset.currency].accountGroup(
+                    if (intent.earnAsset.type == EarnType.INTEREST)
+                        AssetFilter.Interest
+                    else
+                        AssetFilter.Staking
+                ).map {
+                    val account = it.accounts.first()
+                    when (intent.earnAsset.type) {
+                        EarnType.STAKING -> {
+                            require(account is StakingAccount)
+                            EarnNavEvent.Staking(account as CryptoAccount)
+                        }
+                        EarnType.INTEREST -> {
+                            require(account is InterestAccount)
+                            EarnNavEvent.Interest(account as CryptoAccount)
+                        }
+                    }
+                }.toObservable().asFlow().collectLatest {
+                    navigate(it)
                 }
             }
         }
@@ -198,6 +227,7 @@ data class EarnModelState(
 
 sealed class EarnIntent : Intent<EarnModelState> {
     object LoadEarnAccounts : EarnIntent()
+    class AssetSelected(val earnAsset: EarnAsset) : EarnIntent()
 }
 
 sealed class EarnViewState : ViewState {
@@ -252,7 +282,10 @@ class EarnAsset(
     }
 }
 
-object EarnNavEvent : NavigationEvent
+sealed class EarnNavEvent : NavigationEvent {
+    class Interest(val account: CryptoAccount) : EarnNavEvent()
+    class Staking(val account: CryptoAccount) : EarnNavEvent()
+}
 
 enum class EarnType {
     STAKING, INTEREST

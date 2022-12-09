@@ -6,6 +6,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
@@ -330,31 +331,25 @@ class MainModel(
                             )
                         }
                     )
-            is MainIntent.SelectStakingAccountForAction -> interactor.selectStakingAccountForCurrency(intent.currency)
-                .subscribeBy(
-                    onSuccess = { account ->
-                        when (val action = intent.assetAction) {
-                            AssetAction.StakingDeposit -> process(
-                                MainIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                                        LaunchFlowForAccount.TargetAccount(account as TransactionTarget), action
-                                    )
-                                )
+            is MainIntent.SelectStakingAccountForAction -> {
+                when (val action = intent.assetAction) {
+                    AssetAction.StakingDeposit -> process(
+                        MainIntent.UpdateViewToLaunch(
+                            ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                LaunchFlowForAccount.TargetAccount(intent.account as TransactionTarget), action
                             )
-                            AssetAction.ViewActivity ->
-                                process(
-                                    MainIntent.UpdateViewToLaunch(ViewToLaunch.GoToActivityForAccount(account))
-                                )
-
-                            else -> {
-                                // do nothing
-                            }
-                        }
-                    },
-                    onError = {
-                        Timber.e("Error getting default account for Staking ${it.message}")
-                    }
-                )
+                        )
+                    )
+                    AssetAction.ViewActivity ->
+                        process(
+                            MainIntent.UpdateViewToLaunch(
+                                ViewToLaunch.GoToActivityForAccount(intent.account as BlockchainAccount)
+                            )
+                        )
+                    else -> {}
+                }
+                null
+            }
             is MainIntent.UpdateFlags -> {
                 process(MainIntent.RefreshTabs)
                 null
