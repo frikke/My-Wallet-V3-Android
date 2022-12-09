@@ -12,6 +12,10 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.presentation.koin.scopedInject
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.ui.base.showFragment
@@ -21,10 +25,16 @@ import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.UpsellHost
 
-class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, UpsellHost, SwapFragment.Host {
+class ActionActivity :
+    BlockchainActivity(),
+    SlidingModalBottomDialog.Host,
+    UpsellHost,
+    SwapFragment.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val binding: ActivityActionBinding by lazy {
         ActivityActionBinding.inflate(layoutInflater)
@@ -74,10 +84,11 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
                 updateToolbarTitle(getString(R.string.buy_and_sell))
                 BuySellFragment.newInstance(
                     viewType = if (action == AssetAction.Sell) {
-                        BuySellFragment.BuySellViewType.TYPE_SELL
+                        BuySellViewType.TYPE_SELL
                     } else {
-                        BuySellFragment.BuySellViewType.TYPE_BUY
-                    }
+                        BuySellViewType.TYPE_BUY
+                    },
+                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo }
                 )
             }
             else -> {

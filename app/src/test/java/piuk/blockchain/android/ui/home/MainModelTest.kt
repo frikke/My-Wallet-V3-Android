@@ -11,6 +11,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -46,7 +47,6 @@ import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
@@ -1112,7 +1112,7 @@ class MainModelTest {
             it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchBuySell &&
-                (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellFragment.BuySellViewType.TYPE_SELL &&
+                (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellViewType.TYPE_SELL &&
                 (it.viewToLaunch as ViewToLaunch.LaunchBuySell).asset == mockAssetInfo
         }
     }
@@ -1158,7 +1158,7 @@ class MainModelTest {
             it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchBuySell &&
-                (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellFragment.BuySellViewType.TYPE_BUY &&
+                (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellViewType.TYPE_BUY &&
                 (it.viewToLaunch as ViewToLaunch.LaunchBuySell).asset == mockAssetInfo
         }
     }

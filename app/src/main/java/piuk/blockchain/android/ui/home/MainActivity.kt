@@ -37,6 +37,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.dashboard.EarnDashboardFragment
@@ -51,6 +52,7 @@ import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Compan
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
@@ -132,7 +134,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.android.util.getAccount
 import timber.log.Timber
 
 class MainActivity :
@@ -196,7 +197,7 @@ class MainActivity :
         when (it) {
             ActionActivity.ActivityResult.StartKyc -> launchKyc(CampaignType.None)
             is ActionActivity.ActivityResult.StartReceive -> launchReceive(cryptoTicker = it.cryptoTicker)
-            ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+            ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellViewType.TYPE_BUY)
             null -> {
             }
         }
@@ -799,7 +800,7 @@ class MainActivity :
     private fun configSellAction(tabs: List<NavigationItem>) {
         launchSellAction = if (NavigationItem.BuyAndSell in tabs) {
             {
-                launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+                launchBuySell(BuySellViewType.TYPE_SELL)
             }
         } else {
             {
@@ -1091,7 +1092,7 @@ class MainActivity :
 
     override fun startBuy() {
         hideUiTour(onAnimationEnd = {
-            launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+            launchBuySell(BuySellViewType.TYPE_BUY)
         })
     }
 
@@ -1324,7 +1325,7 @@ class MainActivity :
     }
 
     override fun launchBuy() {
-        launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+        launchBuySell(BuySellViewType.TYPE_BUY)
     }
 
     override fun launchBuyForDefi() {
@@ -1337,7 +1338,7 @@ class MainActivity :
     }
 
     override fun launchBuySell(
-        viewType: BuySellFragment.BuySellViewType,
+        viewType: BuySellViewType,
         asset: AssetInfo?,
         reload: Boolean,
     ) {
@@ -1347,8 +1348,8 @@ class MainActivity :
             actionsResultContract.launch(
                 ActionActivity.ActivityArgs(
                     action = when (viewType) {
-                        BuySellFragment.BuySellViewType.TYPE_BUY -> AssetAction.Buy
-                        BuySellFragment.BuySellViewType.TYPE_SELL -> AssetAction.Sell
+                        BuySellViewType.TYPE_BUY -> AssetAction.Buy
+                        BuySellViewType.TYPE_SELL -> AssetAction.Sell
                     },
                     asset?.networkTicker
                 )

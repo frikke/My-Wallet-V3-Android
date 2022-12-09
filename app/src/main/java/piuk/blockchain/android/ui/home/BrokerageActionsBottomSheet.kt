@@ -9,11 +9,11 @@ import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.Alignment
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.home.models.ActionsSheetIntent
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
@@ -61,7 +61,7 @@ class BrokerageActionsBottomSheet :
                     analytics.logEvent(
                         BuySellClicked(
                             origin = LaunchOrigin.FAB,
-                            type = BuySellFragment.BuySellViewType.TYPE_BUY
+                            type = BuySellViewType.TYPE_BUY
                         )
                     )
                     model.process(ActionsSheetIntent.CheckForPendingBuys)
@@ -71,7 +71,7 @@ class BrokerageActionsBottomSheet :
                     analytics.logEvent(
                         BuySellClicked(
                             origin = LaunchOrigin.FAB,
-                            type = BuySellFragment.BuySellViewType.TYPE_SELL
+                            type = BuySellViewType.TYPE_SELL
                         )
                     )
                     dismiss()

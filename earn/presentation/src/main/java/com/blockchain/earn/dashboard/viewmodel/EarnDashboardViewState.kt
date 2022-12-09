@@ -37,7 +37,7 @@ data class EarnAsset(
 
 sealed class EarnType {
     object Staking : EarnType()
-    object Rewards : EarnType()
+    object Passive : EarnType()
 }
 
 sealed class EarnEligibility {

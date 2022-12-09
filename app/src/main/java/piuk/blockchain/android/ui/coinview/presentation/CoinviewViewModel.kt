@@ -21,7 +21,9 @@ import com.blockchain.data.dataOrDefault
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.filterNotLoading
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -33,6 +35,7 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -62,17 +65,14 @@ class CoinviewViewModel(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
-
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-
     private val watchlistService: WatchlistService,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val getAccountActionsUseCase: GetAccountActionsUseCase,
-
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
-
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
-    private val assetService: AssetService
+    private val assetService: AssetService,
+    private val custodialWalletManager: CustodialWalletManager
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
@@ -894,16 +894,21 @@ class CoinviewViewModel(
 
             is CoinviewIntent.NoBalanceUpsell -> {
                 require(modelState.accounts != null) { "NoBalanceUpsell accounts not initialized" }
+                require(modelState.asset != null) { "NoBalanceUpsell asset not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
-                navigate(
-                    CoinviewNavigationEvent.ShowNoBalanceUpsell(
-                        cvAccount,
-                        intent.action,
-                        true
-                    )
-                )
+                custodialWalletManager.isCurrencyAvailableForTrading(modelState.asset.currency)
+                    .filterNotLoading()
+                    .doOnData { availableToBuy ->
+                        navigate(
+                            CoinviewNavigationEvent.ShowNoBalanceUpsell(
+                                cvAccount,
+                                intent.action,
+                                availableToBuy
+                            )
+                        )
+                    }.firstOrNull()
             }
 
             CoinviewIntent.LockedAccountSelected -> {

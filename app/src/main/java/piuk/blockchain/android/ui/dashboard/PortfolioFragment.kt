@@ -26,6 +26,7 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
@@ -35,6 +36,7 @@ import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
@@ -57,7 +59,6 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
@@ -110,7 +111,6 @@ import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDe
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
 import timber.log.Timber
 
@@ -701,7 +701,7 @@ class PortfolioFragment :
             when (result) {
                 // Without Handler this fails with FragmentManager is already executing transactions, investigated but came up with nothing
                 DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
-                    navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+                    navigator().launchBuySell(BuySellViewType.TYPE_BUY)
                 }
                 null -> {
                 }
@@ -812,7 +812,7 @@ class PortfolioFragment :
             analytics.logEvent(
                 BuySellClicked(
                     origin = LaunchOrigin.DASHBOARD_PROMO,
-                    type = BuySellFragment.BuySellViewType.TYPE_BUY
+                    type = BuySellViewType.TYPE_BUY
                 )
             )
             navigator().launchBuySell()
@@ -821,10 +821,10 @@ class PortfolioFragment :
         override fun startSell() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellFragment.BuySellViewType.TYPE_SELL
+                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellViewType.TYPE_SELL
                 )
             )
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            navigator().launchBuySell(BuySellViewType.TYPE_SELL)
         }
 
         override fun startSend() {

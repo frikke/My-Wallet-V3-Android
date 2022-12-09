@@ -25,6 +25,7 @@ import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.openUrl
@@ -42,7 +43,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.MVIViewPagerFragment
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
@@ -368,7 +368,7 @@ class SellIntroFragment : MVIViewPagerFragment<SellViewState>(), NavigationRoute
     private fun statusDecorator(account: BlockchainAccount): CellDecorator = SellCellDecorator(account)
 
     private fun startSellFlow(it: CryptoAccount) {
-        analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_SELL))
+        analytics.logEvent(BuySellViewedEvent(BuySellViewType.TYPE_SELL))
 
         startForResult.launch(
             TransactionFlowActivity.newIntent(
