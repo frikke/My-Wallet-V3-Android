@@ -88,7 +88,8 @@ fun MultiAppChrome(
     assetActionsNavigation: AssetActionsNavigation,
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
-    openReferral: () -> Unit
+    openReferral: () -> Unit,
+    openFiatActionDetail: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -120,6 +121,7 @@ fun MultiAppChrome(
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
                 openReferral = openReferral,
+                openFiatActionDetail = openFiatActionDetail,
                 assetActionsNavigation = assetActionsNavigation,
                 pricesNavigation = pricesNavigation,
                 onBalanceRevealed = {
@@ -146,6 +148,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
+    openFiatActionDetail: () -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
@@ -638,6 +641,7 @@ fun MultiAppChromeScreen(
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
                 openReferral = openReferral,
+                openFiatActionDetail = openFiatActionDetail,
                 assetActionsNavigation = assetActionsNavigation,
                 pricesNavigation = pricesNavigation
             )

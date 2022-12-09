@@ -8,4 +8,5 @@ sealed class HomeDestination(
     object CryptoAssets : HomeDestination("AllAssets")
     object Activity : HomeDestination("Activity")
     object Referral : HomeDestination("Referral")
+    object FiatActionDetail : HomeDestination("FiatActionDetail")
 }

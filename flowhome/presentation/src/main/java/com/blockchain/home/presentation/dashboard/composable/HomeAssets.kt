@@ -56,7 +56,8 @@ import org.koin.androidx.compose.getViewModel
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
-    openAllAssets: () -> Unit
+    openAllAssets: () -> Unit,
+    openFiatActionDetail: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -84,7 +85,8 @@ fun HomeAssets(
         onSeeAllCryptoAssetsClick = openAllAssets,
         onAssetClick = { asset ->
             assetActionsNavigation.coinview(asset)
-        }
+        },
+        openFiatActionDetail = openFiatActionDetail
     )
 }
 
@@ -92,14 +94,16 @@ fun HomeAssets(
 fun HomeAssetsScreen(
     assets: DataResource<List<HomeAsset>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
-    onAssetClick: (AssetInfo) -> Unit
+    onAssetClick: (AssetInfo) -> Unit,
+    openFiatActionDetail: () -> Unit
 ) {
     when (assets) {
         DataResource.Loading -> AssetsLoading()
         is DataResource.Data -> HomeAssetsList(
             assets = assets.data,
             onSeeAllCryptoAssetsClick = onSeeAllCryptoAssetsClick,
-            onAssetClick = onAssetClick
+            onAssetClick = onAssetClick,
+            openFiatActionDetail = openFiatActionDetail
         )
         is DataResource.Error -> {
             TODO("Render error")
@@ -122,7 +126,8 @@ private fun AssetsLoading() {
 private fun HomeAssetsList(
     assets: List<HomeAsset>,
     onSeeAllCryptoAssetsClick: () -> Unit,
-    onAssetClick: (AssetInfo) -> Unit
+    onAssetClick: (AssetInfo) -> Unit,
+    openFiatActionDetail: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -158,12 +163,18 @@ private fun HomeAssetsList(
 
         val fiats = assets.filterIsInstance<FiatAssetState>()
         if (fiats.isNotEmpty())
-            FiatAssetsStateList(assets = fiats)
+            FiatAssetsStateList(
+                assets = fiats,
+                openFiatActionDetail = openFiatActionDetail
+            )
     }
 }
 
 @Composable
-private fun FiatAssetsStateList(assets: List<FiatAssetState>) {
+private fun FiatAssetsStateList(
+    assets: List<FiatAssetState>,
+    openFiatActionDetail: () -> Unit
+) {
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -187,6 +198,8 @@ private fun FiatAssetsStateList(assets: List<FiatAssetState>) {
                         )
                     },
                     onClick = {
+                        // todo
+                        openFiatActionDetail()
                     }
                 )
 
@@ -246,7 +259,8 @@ fun PreviewHomeAccounts() {
                 )
         ),
         onSeeAllCryptoAssetsClick = {},
-        onAssetClick = {}
+        onAssetClick = {},
+        openFiatActionDetail = {}
     )
 }
 
@@ -256,6 +270,7 @@ fun PreviewHomeAccounts_Loading() {
     HomeAssetsScreen(
         assets = DataResource.Loading,
         onSeeAllCryptoAssetsClick = {},
-        onAssetClick = {}
+        onAssetClick = {},
+        openFiatActionDetail = {}
     )
 }

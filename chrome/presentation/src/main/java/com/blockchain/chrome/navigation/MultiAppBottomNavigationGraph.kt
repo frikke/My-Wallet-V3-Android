@@ -27,7 +27,8 @@ fun MultiAppBottomNavigationHost(
     refreshComplete: () -> Unit,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
-    openReferral: () -> Unit
+    openReferral: () -> Unit,
+    openFiatActionDetail: () -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
@@ -42,7 +43,8 @@ fun MultiAppBottomNavigationHost(
                         openCryptoAssets = openCryptoAssets,
                         assetActionsNavigation = assetActionsNavigation,
                         openActivity = openActivity,
-                        openReferral = openReferral
+                        openReferral = openReferral,
+                        openFiatActionDetail = openFiatActionDetail
                     )
                 },
                 listState = listState,
