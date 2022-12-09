@@ -23,7 +23,7 @@ sealed interface AssetFilter {
                     it >= Money.fromMajor(
                         FiatCurrency.Dollars, 1.toBigDecimal()
                     )
-                } ?: false
+                } ?: true
     }
 
     data class SearchFilter(private val query: String = "") : AssetFilter {

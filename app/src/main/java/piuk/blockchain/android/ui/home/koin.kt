@@ -92,17 +92,9 @@ val mainModule = module {
             )
         }
 
-        scoped<WalletModeBalanceService>(superAppModeService) {
-            WalletModeBalanceRepository(
-                walletModeService = get(superAppModeService),
-                balanceStore = get(),
-                currencyPrefs = get()
-            )
-        }
-
         scoped<WalletModeBalanceService> {
             WalletModeBalanceRepository(
-                walletModeService = get(),
+                coincore = get(),
                 balanceStore = get(),
                 currencyPrefs = get()
             )
