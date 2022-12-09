@@ -12,11 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.FiatCurrency
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -26,7 +28,7 @@ fun HomeScreen(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit
+    openFiatActionDetail: (FiatCurrency) -> Unit
 ) {
     LazyColumn(
         state = listState,

@@ -28,6 +28,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun DefaultTableRow(
+    modifier : Modifier = Modifier,
     primaryText: String,
     onClick: () -> Unit,
     secondaryText: String? = null,
@@ -45,6 +46,7 @@ fun DefaultTableRow(
     secondaryTextColor: Color = AppTheme.colors.body
 ) {
     DefaultTableRow(
+        modifier = modifier,
         primaryText = buildAnnotatedString { append(primaryText) },
         onClick = onClick,
         secondaryText = secondaryText?.let { buildAnnotatedString { append(it) } },
@@ -163,6 +165,7 @@ fun DefaultTableRow(
 
 @Composable
 fun DefaultTableRow(
+    modifier : Modifier = Modifier,
     primaryText: AnnotatedString,
     onClick: () -> Unit,
     secondaryText: AnnotatedString? = null,
@@ -180,6 +183,7 @@ fun DefaultTableRow(
     secondaryTextColor: Color = AppTheme.colors.body
 ) {
     TableRow(
+        modifier = modifier,
         contentStart = {
             Image(
                 imageResource = startImageResource,

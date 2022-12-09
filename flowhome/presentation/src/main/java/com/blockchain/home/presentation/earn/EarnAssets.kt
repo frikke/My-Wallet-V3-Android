@@ -87,7 +87,7 @@ fun EarnAssets(
         Card(
             backgroundColor = AppTheme.colors.background,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 3.dp
+            elevation = 0.dp
         ) {
             when (viewState) {
                 EarnViewState.NoAssetsInvested -> NoAssetsInvested { assetActionsNavigation.earnRewards() }

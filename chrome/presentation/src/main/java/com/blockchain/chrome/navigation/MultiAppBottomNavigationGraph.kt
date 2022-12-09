@@ -14,6 +14,7 @@ import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
+import info.blockchain.balance.FiatCurrency
 
 @Composable
 fun MultiAppBottomNavigationHost(
@@ -28,7 +29,7 @@ fun MultiAppBottomNavigationHost(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit
+    openFiatActionDetail: (FiatCurrency) -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
