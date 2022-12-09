@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
@@ -170,7 +171,7 @@ class LoadAssetAccountsUseCase(
             }.run {
                 combine(this) {
                     it.toList()
-                }
+                }.onEmpty { emit(emptyList()) }
             }
     }
 
