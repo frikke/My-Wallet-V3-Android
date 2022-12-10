@@ -93,7 +93,7 @@ fun FiatFundDetail(
         data = viewState.data,
         depositOnClick = { account ->
             actionsViewModel.onIntent(
-                FiatActionsIntent.FiatDeposit(
+                FiatActionsIntent.Deposit(
                     account = account,
                     action = AssetAction.FiatDeposit,
                     shouldLaunchBankLinkTransfer = false

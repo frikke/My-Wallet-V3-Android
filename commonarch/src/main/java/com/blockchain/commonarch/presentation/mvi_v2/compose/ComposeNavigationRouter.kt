@@ -187,7 +187,7 @@ fun NavHostController.navigate(destination: ComposeNavigationDestination, args: 
     navigate(destination.routeWithArgs(args))
 }
 
-fun NavHostController.navigates(
+fun NavHostController.navigate(
     route: String,
     args: Bundle,
     navOptions: NavOptions? = null,

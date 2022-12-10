@@ -4,7 +4,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -43,7 +45,7 @@ class FiatActionsViewModel(
 
     override suspend fun handleIntent(modelState: FiatActionsModelState, intent: FiatActionsIntent) {
         when (intent) {
-            is FiatActionsIntent.FiatDeposit -> {
+            is FiatActionsIntent.Deposit -> {
                 require(intent.account is FiatAccount) { "account is not FiatAccount" }
                 handleFiatDeposit(
                     targetAccount = intent.account,
@@ -290,3 +292,6 @@ class FiatActionsViewModel(
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
         bankService.linkBank(currency)
 }
+
+object FiatActionsViewState : ViewState
+object FiatActionsModelState : ModelState

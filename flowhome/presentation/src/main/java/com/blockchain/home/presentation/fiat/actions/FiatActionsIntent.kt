@@ -5,7 +5,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
 sealed interface FiatActionsIntent : Intent<FiatActionsModelState> {
-    data class FiatDeposit(
+    data class Deposit(
         val account: SingleAccount,
         val action: AssetAction,
         val shouldLaunchBankLinkTransfer: Boolean,
