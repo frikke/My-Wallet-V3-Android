@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.StateAwareAction
@@ -16,7 +17,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.home.presentation.fiat.actions.FiatFundsDetailSheetHost
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
@@ -35,8 +35,15 @@ import timber.log.Timber
 
 class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetailBinding>() {
 
-    override val host: FiatFundsDetailSheetHost by lazy {
-        super.host as? FiatFundsDetailSheetHost ?: throw IllegalStateException(
+    interface Host : SlidingModalBottomDialog.Host {
+        fun goToActivityFor(account: BlockchainAccount)
+        fun showFundsKyc()
+        fun startBankTransferWithdrawal(fiatAccount: FiatAccount)
+        fun startDepositFlow(fiatAccount: FiatAccount)
+    }
+
+    override val host: Host by lazy {
+        super.host as? Host ?: throw IllegalStateException(
             "Host fragment is not a FiatFundsDetailSheet.Host"
         )
     }
