@@ -2,13 +2,17 @@ package piuk.blockchain.android.ui.home
 
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.ComponentActivity
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -17,9 +21,8 @@ import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivi
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
-class AssetActionsNavigationImpl(
-    private val activity: ComponentActivity?
-) : AssetActionsNavigation, PricesNavigation {
+class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation, PricesNavigation {
+
     private val actionsResultContract =
         activity?.registerForActivityResult(ActionActivity.BlockchainActivityResultContract()) {
             when (it) {
@@ -74,6 +77,14 @@ class AssetActionsNavigationImpl(
                 activity
             )
         )
+    }
+
+    override fun interestSummary(account: CryptoAccount) {
+        activity?.showBottomSheet(InterestSummarySheet.newInstance(account))
+    }
+
+    override fun stakingSummary(currency: Currency) {
+        activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker, false))
     }
 
     override fun coinview(

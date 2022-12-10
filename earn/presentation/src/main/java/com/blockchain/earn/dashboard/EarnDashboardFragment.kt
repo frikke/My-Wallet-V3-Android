@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -30,7 +31,6 @@ import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -48,9 +48,9 @@ class EarnDashboardFragment :
         fun goToActivityFor(account: BlockchainAccount)
         fun goToInterestDeposit(toAccount: BlockchainAccount)
         fun goToInterestWithdraw(fromAccount: BlockchainAccount)
-        fun launchStakingWithdrawal(currency: Currency)
-        fun launchStakingDeposit(currency: Currency)
-        fun goToStakingActivity(currency: Currency)
+        fun launchStakingWithdrawal(account: StakingAccount)
+        fun launchStakingDeposit(account: StakingAccount)
+        fun goToStakingActivity(account: StakingAccount)
         fun startKycClicked()
         fun launchReceive(cryptoTicker: String?)
         fun launchBuySell(viewType: BuySellViewType, asset: AssetInfo?, reload: Boolean)
@@ -139,10 +139,6 @@ class EarnDashboardFragment :
         )
     }
 
-    override fun goToActivityFor(account: BlockchainAccount) {
-        host.goToActivityFor(account)
-    }
-
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         host.goToInterestDeposit(toAccount)
     }
@@ -155,12 +151,12 @@ class EarnDashboardFragment :
         requireContext().openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(currency: Currency) {
-        host.launchStakingWithdrawal(currency)
+    override fun launchStakingWithdrawal(account: StakingAccount) {
+        host.launchStakingWithdrawal(account)
     }
 
-    override fun launchStakingDeposit(currency: Currency) {
-        host.launchStakingDeposit(currency)
+    override fun launchStakingDeposit(account: StakingAccount) {
+        host.launchStakingDeposit(account)
     }
 
     override fun showStakingLoadingError(error: StakingError) {
@@ -180,8 +176,8 @@ class EarnDashboardFragment :
         }
     }
 
-    override fun goToStakingAccountActivity(currency: Currency) {
-        host.goToStakingActivity(currency)
+    override fun goToStakingAccountActivity(account: StakingAccount) {
+        host.goToStakingActivity(account)
     }
 
     override fun startKycClicked() {

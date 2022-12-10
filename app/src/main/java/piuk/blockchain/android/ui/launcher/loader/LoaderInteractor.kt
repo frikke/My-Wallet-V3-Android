@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.coincore.Coincore
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
@@ -69,6 +70,7 @@ class LoaderInteractor(
     private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
+    private val coincore: Coincore,
     private val kycService: KycService,
     private val experimentsStore: ExperimentsStore,
     private val fraudService: FraudService
@@ -129,6 +131,13 @@ class LoaderInteractor(
             }
             .then {
                 checkForCowboysUser()
+            }
+            .then {
+                coincore.activeWalletsInModeRx(WalletMode.UNIVERSAL)
+                    .firstOrError()
+                    .flatMap { it.balanceRx.firstOrError() }
+                    .onErrorComplete()
+                    .ignoreElement()
             }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))

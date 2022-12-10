@@ -14,7 +14,6 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.utils.consume
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -81,18 +80,6 @@ class InterestDashboardActivity :
                 startKyc()
             }
         }.exhaustive
-    }
-
-    override fun goToActivityFor(account: BlockchainAccount) {
-        val b = Bundle()
-        b.putAccount(ACTIVITY_ACCOUNT, account)
-        setResult(
-            RESULT_FIRST_USER,
-            Intent().apply {
-                putExtras(b)
-            }
-        )
-        finish()
     }
 
     override fun onDestroy() {

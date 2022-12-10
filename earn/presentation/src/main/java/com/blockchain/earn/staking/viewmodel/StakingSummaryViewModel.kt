@@ -1,7 +1,9 @@
 package com.blockchain.earn.staking.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -18,6 +20,7 @@ import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.asFlow
 import kotlinx.parcelize.Parcelize
 
 class StakingSummaryViewModel(
@@ -41,7 +44,7 @@ class StakingSummaryViewModel(
 
     override fun reduce(state: StakingSummaryModelState): StakingSummaryViewState = state.run {
         StakingSummaryViewState(
-            currency = currency,
+            account = account,
             isLoading = isLoading,
             errorState = errorState,
             balanceCrypto = balance,
@@ -74,25 +77,27 @@ class StakingSummaryViewModel(
     private suspend fun loadStakingDetails(currency: Currency) {
         updateState {
             it.copy(
-                isLoading = true,
-                currency = currency
+                isLoading = true
             )
         }
-
         combine(
+            coincore[currency].accountGroup(AssetFilter.Staking).toObservable().map {
+                it.accounts.first() as StakingAccount
+            }.asFlow(),
             stakingService.getBalanceForAsset(currency),
             stakingService.getLimitsForAsset(currency as AssetInfo),
             stakingService.getRatesForAsset(currency),
             stakingService.getEligibilityForAsset(currency)
-        ) { balance, limits, rate, eligibility ->
-            combineDataResources(balance, limits, rate, eligibility) { b, l, r, e ->
-                StakingSummaryData(b, l, r, e)
+        ) { account, balance, limits, rate, eligibility ->
+            combineDataResources(DataResource.Data(account), balance, limits, rate, eligibility) { a, b, l, r, e ->
+                StakingSummaryData(a, b, l, r, e)
             }
         }.collectLatest { summary ->
             when (summary) {
                 is DataResource.Data -> updateState {
                     with(summary.data) {
                         it.copy(
+                            account = account,
                             errorState = StakingError.None,
                             isLoading = false,
                             balance = balance.totalBalance,
@@ -124,6 +129,7 @@ data class StakingSummaryArgs(
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class StakingSummaryData(
+    val account: StakingAccount,
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
     val rates: StakingRates,

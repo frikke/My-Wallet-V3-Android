@@ -96,6 +96,7 @@ val homePresentationModule = module {
                 walletModeService = get(superAppModeService),
                 stakingService = get(),
                 exchangeRates = get(),
+                coincore = get(),
                 interestService = get()
             )
         }

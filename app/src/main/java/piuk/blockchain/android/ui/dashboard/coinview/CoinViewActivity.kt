@@ -1158,7 +1158,7 @@ class CoinViewActivity :
         }
     }
 
-    override fun goToActivityFor(account: BlockchainAccount) {
+    fun goToActivityFor(account: BlockchainAccount) {
         val intent = Intent().apply {
             putAccount(ACCOUNT_FOR_ACTIVITY, account)
         }

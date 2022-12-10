@@ -1,7 +1,7 @@
 package com.blockchain.koin.modules
 
 import android.content.Context
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
@@ -12,8 +12,9 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
-import com.blockchain.chrome.navigation.AppNavigation
+import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
@@ -21,6 +22,7 @@ import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -56,6 +58,7 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
@@ -141,6 +144,7 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
+import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -247,8 +251,14 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }
-            .bind(AppNavigation::class)
+        scoped { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
+            bind(PricesNavigation::class)
+            bind(AssetActionsNavigation::class)
+        }
+
+        scoped { (activity: AppCompatActivity) ->
+            TransactionFlowNavigationImpl(activity = activity)
+        }.bind(TransactionFlowNavigation::class)
 
         scoped {
             CredentialsWiper(

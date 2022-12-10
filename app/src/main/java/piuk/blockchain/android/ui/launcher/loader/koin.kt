@@ -45,6 +45,7 @@ val loaderModule = module {
                 cowboysPrefs = get(),
                 userIdentity = get(),
                 kycService = get(),
+                coincore = get(),
                 defaultWalletModeStrategy = get(),
                 walletModePrefs = get(),
                 walletModeServices = getAll(),
