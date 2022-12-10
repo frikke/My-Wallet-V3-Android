@@ -7,11 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.composable.MultiAppChrome
-import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigates
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
@@ -23,8 +23,8 @@ import info.blockchain.balance.FiatCurrency
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppNavHost(
-    navController: NavHostController,
     assetActionsNavigation: AssetActionsNavigation,
+    fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
@@ -45,6 +45,7 @@ fun MultiAppNavHost(
             // home screens
             homeGraph(
                 assetActionsNavigation = assetActionsNavigation,
+                fiatActionsNavigation = fiatActionsNavigation,
                 onBackPressed = navController::popBackStack
             )
         }

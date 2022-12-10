@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
-import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.coincore.AssetAction
@@ -20,6 +19,7 @@ import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
@@ -43,6 +43,12 @@ class MultiAppActivity : BlockchainActivity(), InterestSummarySheet.Host, Stakin
         )
     }
 
+    private val fiatActionsNavigation: FiatActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val transactionFlowNavigation: TransactionFlowNavigation = payloadScope.get {
         parametersOf(
             this
@@ -60,8 +66,8 @@ class MultiAppActivity : BlockchainActivity(), InterestSummarySheet.Host, Stakin
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
-                navController = rememberNavController(),
                 assetActionsNavigation = assetActionsNavigation,
+                fiatActionsNavigation = fiatActionsNavigation,
                 pricesNavigation = pricesNavigation
             )
         }

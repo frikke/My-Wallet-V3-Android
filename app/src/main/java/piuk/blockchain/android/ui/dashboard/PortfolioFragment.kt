@@ -34,6 +34,7 @@ import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
+import com.blockchain.home.presentation.fiat.actions.FiatFundsDetailSheetHost
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -117,7 +118,7 @@ import timber.log.Timber
 class PortfolioFragment :
     HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentPortfolioBinding>(),
     ForceBackupForSendSheet.Host,
-    FiatFundsDetailSheet.Host,
+    FiatFundsDetailSheetHost,
     KycBenefitsBottomSheet.Host,
     BuyPendingOrdersBottomSheet.Host,
     QuestionnaireSheet.Host,

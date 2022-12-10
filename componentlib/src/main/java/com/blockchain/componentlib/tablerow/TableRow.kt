@@ -18,7 +18,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 private fun TableRow(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -58,7 +58,7 @@ private fun TableRow(
 
 @Composable
 fun TableRow(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,

@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.FiatAccount
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation

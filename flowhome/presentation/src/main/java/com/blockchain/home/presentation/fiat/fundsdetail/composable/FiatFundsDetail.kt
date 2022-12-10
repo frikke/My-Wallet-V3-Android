@@ -13,12 +13,20 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -27,6 +35,10 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.fiat.actions.FiatActionsIntent
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
+import com.blockchain.home.presentation.fiat.actions.FiatActionsViewModel
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetail
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailData
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailIntent
@@ -36,6 +48,7 @@ import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -47,6 +60,8 @@ fun FiatFundDetail(
         key = currency.networkTicker,
         parameters = { parametersOf(currency) }
     ),
+    actionsViewModel: FiatActionsViewModel = getViewModel(scope = payloadScope),
+    fiatActionsNavigation: FiatActionsNavigation,
     onBackPressed: () -> Unit
 ) {
     val viewState: FiatFundsDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -56,9 +71,35 @@ fun FiatFundDetail(
         onDispose { }
     }
 
+    // navigation
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navEventsFlowLifecycleAware = remember(actionsViewModel.navigationEventFlow, lifecycleOwner) {
+        actionsViewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            when (it) {
+                is FiatActionsNavEvent.WireTransferAccountDetails -> {
+                    fiatActionsNavigation.wireTransferDetail(it.account)
+                    onBackPressed()
+                }
+            }
+        }
+    }
+    //
+
     FiatFundDetailScreen(
         detail = viewState.detail,
         data = viewState.data,
+        depositOnClick = { account ->
+            actionsViewModel.onIntent(
+                FiatActionsIntent.FiatDeposit(
+                    account = account,
+                    action = AssetAction.FiatDeposit,
+                    shouldLaunchBankLinkTransfer = false
+                )
+            )
+        },
         onBackPressed = onBackPressed
     )
 }
@@ -67,12 +108,14 @@ fun FiatFundDetail(
 fun FiatFundDetailScreen(
     detail: DataResource<FiatFundsDetail>,
     data: DataResource<FiatFundsDetailData>,
+    depositOnClick: (FiatAccount) -> Unit,
     onBackPressed: () -> Unit
 ) {
     (detail as? DataResource.Data)?.data?.let {
         FiatFundDetailScreenData(
             detail = it,
             data = data,
+            depositOnClick = depositOnClick,
             onBackPressed = onBackPressed
         )
     }
@@ -82,6 +125,7 @@ fun FiatFundDetailScreen(
 fun FiatFundDetailScreenData(
     detail: FiatFundsDetail,
     data: DataResource<FiatFundsDetailData>,
+    depositOnClick: (FiatAccount) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -124,7 +168,7 @@ fun FiatFundDetailScreenData(
                     } else {
                         ImageResource.None
                     },
-                    onClick = {}
+                    onClick = { depositOnClick(detail.account) }
                 )
 
                 Divider(color = Color(0XFFF1F2F7))
@@ -154,7 +198,7 @@ fun FiatFundDetailScreenData(
 @Composable
 fun PreviewFiatFundDetailScreen() {
     FiatFundDetailScreen(
-        detail = DataResource.Data(FiatFundsDetail("US Dollar", "")),
+        detail = DataResource.Data(FiatFundsDetail(NullFiatAccount, "US Dollar", "")),
         data = DataResource.Data(
             FiatFundsDetailData(
                 balance = Money.fromMajor(CryptoCurrency.ETHER, 12.toBigDecimal()),
@@ -162,6 +206,7 @@ fun PreviewFiatFundDetailScreen() {
                 withdrawEnabled = false
             )
         ),
+        {},
         {}
     )
 }

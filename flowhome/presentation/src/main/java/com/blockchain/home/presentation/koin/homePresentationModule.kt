@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.koin
 
-import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -9,6 +9,7 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
+import com.blockchain.home.presentation.fiat.actions.FiatActionsViewModel
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
@@ -35,6 +36,15 @@ val homePresentationModule = module {
             FiatFundsDetailViewModel(
                 currency = currency,
                 coincore = get()
+            )
+        }
+
+        viewModel {
+            FiatActionsViewModel(
+                dataRemediationService = get(),
+                userIdentity = get(),
+                linkedBanksFactory = get(),
+                bankService = get()
             )
         }
 

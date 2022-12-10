@@ -33,6 +33,7 @@ class FiatFundsDetailViewModel(
         FiatFundsDetailViewState(
             detail = account.map {
                 FiatFundsDetail(
+                    account = it,
                     name = it.currency.name,
                     logo = it.currency.logo
                 )

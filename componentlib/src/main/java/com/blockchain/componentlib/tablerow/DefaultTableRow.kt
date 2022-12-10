@@ -28,7 +28,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun DefaultTableRow(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     primaryText: String,
     onClick: () -> Unit,
     secondaryText: String? = null,
@@ -165,7 +165,7 @@ fun DefaultTableRow(
 
 @Composable
 fun DefaultTableRow(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     primaryText: AnnotatedString,
     onClick: () -> Unit,
     secondaryText: AnnotatedString? = null,
