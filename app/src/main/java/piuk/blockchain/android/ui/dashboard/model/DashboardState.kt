@@ -242,7 +242,7 @@ data class DashboardState(
         get() {
             if (activeAssets.isEmpty()) return emptyList()
             if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.filter {
-                it.currency.isLayer1Asset() || it.shouldAssetShow
+                it.shouldAssetShow
             }
             if (activeAssets.all { it.value is BrokerageDashboardAsset }) return activeAssets.values.filter {
                 it.accountBalance?.total?.isPositive ?: false && it.shouldAssetShow
@@ -284,11 +284,6 @@ data class DashboardState(
             it.fiatBalance(useDisplayBalance = it.totalDisplayBalanceFFEnabled)?.isPositive == true
         } ?: false
     }
-
-    private fun Currency.isLayer1Asset(): Boolean =
-        (this as? AssetInfo)?.let {
-            this.l1chainTicker == null
-        } ?: false
 }
 
 enum class DashboardUIState {

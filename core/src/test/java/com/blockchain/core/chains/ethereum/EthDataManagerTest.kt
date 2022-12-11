@@ -4,6 +4,7 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
@@ -32,11 +33,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
@@ -55,6 +56,7 @@ class EthDataManagerTest {
 
     private val payloadManager: PayloadDataManager = mock()
     private val ethAccountApi: EthAccountApi = mockk()
+    private val ethLastTxCache: EthLastTxCache = mockk()
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataRepository: MetadataRepository = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
@@ -72,6 +74,7 @@ class EthDataManagerTest {
             on { getDefaultNonCustodialWalletLabel() }.thenReturn("")
         },
         lastTxUpdater = lastTxUpdater,
+        ethLastTxCache = ethLastTxCache,
         evmNetworksService = evmNetworksService,
         nonCustodialEvmService = nonCustodialEvmService
     )
@@ -197,9 +200,12 @@ class EthDataManagerTest {
     fun `lastTx is pending when there is at least one transaction pending`() {
         // Arrange
         val ethAddress = "Address"
+        val lastTx = mock<EthTransaction>() {
+            on { state }.thenReturn("PENDING")
+        }
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
-        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns
-            Maybe.just(EthTransaction(state = "PENDING"))
+        every { ethLastTxCache.stream(any()) } returns
+            flowOf(DataResource.Data(lastTx))
         // Act
         val result = subject.isLastTxPending().test()
         // Assert
@@ -213,8 +219,12 @@ class EthDataManagerTest {
         // Arrange
         val ethAddress = "Address"
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
-        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns
-            Maybe.just(EthTransaction(state = "CONFIRMED"))
+
+        val lastTx = mock<EthTransaction>() {
+            on { state }.thenReturn("CONFIRMED")
+        }
+        every { ethLastTxCache.stream(any()) } returns
+            flowOf(DataResource.Data(lastTx))
         // Act
         val result = subject.isLastTxPending().test()
         // Assert
@@ -228,8 +238,8 @@ class EthDataManagerTest {
         // Arrange
         val ethAddress = "Address"
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
-        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns Maybe.empty()
-
+        every { ethLastTxCache.stream(any()) } returns
+            flowOf(DataResource.Error(NoSuchElementException()))
         // Act
         val result = subject.isLastTxPending().test()
         // Assert

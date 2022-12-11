@@ -9,11 +9,14 @@ import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.utils.schedulers.applySchedulers
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -46,6 +49,7 @@ import org.web3j.utils.Convert
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
     private val ethAccountApi: EthAccountApi,
+    private val ethLastTxCache: EthLastTxCache,
     private val defaultLabels: DefaultLabels,
     private val ethDataStore: EthDataStore,
     private val metadataRepository: MetadataRepository,
@@ -137,9 +141,11 @@ class EthDataManager(
      */
     fun isLastTxPending(): Single<Boolean> =
         internalAccountAddress?.let {
-            ethAccountApi.getLastEthTransaction(listOf(it)).map { tx ->
+            ethLastTxCache.stream(FreshnessStrategy.Cached(false).withKey(it)).asSingle().map { tx ->
                 tx.state.toLocalState() == TransactionState.PENDING
-            }.defaultIfEmpty(false)
+            }.onErrorReturn {
+                false
+            }
         } ?: Single.just(false)
 
     /**
