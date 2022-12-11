@@ -66,7 +66,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.FiatCurrency
 import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
@@ -90,7 +89,7 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -149,7 +148,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit,
+    openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }

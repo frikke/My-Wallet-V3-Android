@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.koin
 
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -15,7 +14,6 @@ import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
-import info.blockchain.balance.FiatCurrency
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -32,10 +30,10 @@ val homePresentationModule = module {
             )
         }
 
-        viewModel { (currency: FiatCurrency) ->
+        viewModel { (fiatTicker: String) ->
             FiatFundsDetailViewModel(
-                currency = currency,
-                coincore = get()
+                fiatTicker = fiatTicker,
+                get()
             )
         }
 

@@ -50,7 +50,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 import org.koin.androidx.compose.getViewModel
@@ -60,7 +59,7 @@ fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
     openAllAssets: () -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -98,7 +97,7 @@ fun HomeAssetsScreen(
     assets: DataResource<List<HomeAsset>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     when (assets) {
         DataResource.Loading -> AssetsLoading()
@@ -130,7 +129,7 @@ private fun HomeAssetsList(
     assets: List<HomeAsset>,
     onSeeAllCryptoAssetsClick: () -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -176,7 +175,7 @@ private fun HomeAssetsList(
 @Composable
 private fun FiatAssetsStateList(
     assets: List<FiatAssetState>,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
     Card(
@@ -201,7 +200,7 @@ private fun FiatAssetsStateList(
                         )
                     },
                     onClick = {
-                        openFiatActionDetail(fiatAsset.account.currency)
+                        openFiatActionDetail(fiatAsset.account.currency.networkTicker)
                     }
                 )
 

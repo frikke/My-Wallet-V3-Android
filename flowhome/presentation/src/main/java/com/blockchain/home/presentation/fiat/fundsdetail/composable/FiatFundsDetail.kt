@@ -46,7 +46,6 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewMode
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewState
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
@@ -54,16 +53,16 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun FiatFundDetail(
-    currency: FiatCurrency,
-    viewModel: FiatFundsDetailViewModel = getViewModel(
-        scope = payloadScope,
-        key = currency.networkTicker,
-        parameters = { parametersOf(currency) }
-    ),
+    fiatTicker: String,
     actionsViewModel: FiatActionsViewModel = getViewModel(scope = payloadScope),
     fiatActionsNavigation: FiatActionsNavigation,
     onBackPressed: () -> Unit
 ) {
+    val viewModel: FiatFundsDetailViewModel = getViewModel(
+        scope = payloadScope,
+        key = fiatTicker,
+        parameters = { parametersOf(fiatTicker) }
+    )
     val viewState: FiatFundsDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {

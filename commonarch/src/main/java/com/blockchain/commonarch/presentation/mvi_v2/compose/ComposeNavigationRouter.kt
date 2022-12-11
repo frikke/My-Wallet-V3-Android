@@ -1,6 +1,5 @@
 package com.blockchain.commonarch.presentation.mvi_v2.compose
 
-import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.ColumnScope
@@ -16,17 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavDeepLinkRequest
-import androidx.navigation.NavDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.createGraph
@@ -185,27 +179,6 @@ fun NavHostController.navigate(destination: ComposeNavigationDestination) {
 
 fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
     navigate(destination.routeWithArgs(args))
-}
-
-fun NavHostController.navigate(
-    route: String,
-    args: Bundle,
-    navOptions: NavOptions? = null,
-    navigatorExtras: Navigator.Extras? = null
-) {
-    val routeLink = NavDeepLinkRequest
-        .Builder
-        .fromUri(NavDestination.createRoute(route).toUri())
-        .build()
-
-    val deepLinkMatch = graph.matchDeepLink(routeLink)
-    if (deepLinkMatch != null) {
-        val destination = deepLinkMatch.destination
-        val id = destination.id
-        navigate(id, args, navOptions, navigatorExtras)
-    } else {
-        navigate(route, navOptions, navigatorExtras)
-    }
 }
 
 fun NavHostController.printBackStackToConsole() {

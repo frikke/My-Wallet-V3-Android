@@ -17,7 +17,6 @@ import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
-import info.blockchain.balance.FiatCurrency
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -27,7 +26,7 @@ fun HomeScreen(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: (FiatCurrency) -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     LazyColumn(
         state = listState,

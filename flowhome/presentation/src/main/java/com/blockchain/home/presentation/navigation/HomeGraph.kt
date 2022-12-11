@@ -10,7 +10,6 @@ import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import info.blockchain.balance.FiatCurrency
 
 @OptIn(ExperimentalMaterialNavigationApi::class) fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
@@ -43,9 +42,9 @@ import info.blockchain.balance.FiatCurrency
     }
 
     bottomSheet(navigationEvent = HomeDestination.FiatActionDetail) { backStackEntry ->
-        val currency = backStackEntry.arguments?.getSerializable("fiatCurrency") as FiatCurrency
+        val fiatTicker = backStackEntry.arguments?.getString(ARG_FIAT_TICKER).orEmpty()
         FiatFundDetail(
-            currency = currency,
+            fiatTicker = fiatTicker,
             fiatActionsNavigation = fiatActionsNavigation,
             onBackPressed = onBackPressed
         )
