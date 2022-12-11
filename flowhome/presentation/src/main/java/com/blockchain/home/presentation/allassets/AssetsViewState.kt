@@ -14,7 +14,8 @@ import info.blockchain.balance.percentageDelta
 data class AssetsViewState(
     val balance: WalletBalance,
     val assets: DataResource<List<HomeAsset>>,
-    val filters: List<AssetFilter>
+    val filters: List<AssetFilter>,
+    val showNoResults: Boolean
 ) : ViewState
 
 sealed interface HomeAsset {

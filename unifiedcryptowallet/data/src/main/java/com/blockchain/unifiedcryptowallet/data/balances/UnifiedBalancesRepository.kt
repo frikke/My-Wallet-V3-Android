@@ -26,7 +26,6 @@ import info.blockchain.balance.Money
 import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -43,41 +42,38 @@ internal class UnifiedBalancesRepository(
      * Specify those to get the balance of a specific Wallet.
      */
     override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
-        return networkAccountsService.allNetworkWallets()
-            .flatMapConcat { networkWallets ->
-                flow {
-                    val pubKeys = networkWallets.filterNot { it.isImported }.associateWith {
-                        it.publicKey()
-                    }
-                    subscribe(pubKeys)
-                    emitAll(
-                        unifiedBalancesStore.stream(FreshnessStrategy.Cached(true)).mapData { response ->
-                            response.balances.filter {
-                                if (wallet == null) true
-                                else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
-                                    it.account.name == wallet.label
-                            }.mapNotNull {
-                                if (it.price == null) return@mapNotNull null
-                                val cc = assetCatalogue.fromNetworkTicker(it.currency)
-                                NetworkBalance(
-                                    currency = cc ?: return@mapNotNull null,
-                                    balance = it.balance?.amount?.let { amount ->
-                                        Money.fromMinor(cc, amount)
-                                    } ?: return@mapNotNull null,
-                                    unconfirmedBalance = it.pending?.amount?.let { amount ->
-                                        Money.fromMinor(cc, amount)
-                                    } ?: return@mapNotNull null,
-                                    exchangeRate = ExchangeRate(
-                                        from = cc,
-                                        to = currencyPrefs.selectedFiatCurrency,
-                                        rate = it.price
-                                    )
-                                )
-                            }
-                        }
-                    )
-                }
+        return flow {
+            val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
+                it.publicKey()
             }
+            subscribe(pubKeys)
+            emitAll(
+                unifiedBalancesStore.stream(FreshnessStrategy.Cached(true)).mapData { response ->
+                    response.balances.filter {
+                        if (wallet == null) true
+                        else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
+                            it.account.name == wallet.label
+                    }.mapNotNull {
+                        if (it.price == null) return@mapNotNull null
+                        val cc = assetCatalogue.fromNetworkTicker(it.currency)
+                        NetworkBalance(
+                            currency = cc ?: return@mapNotNull null,
+                            balance = it.balance?.amount?.let { amount ->
+                                Money.fromMinor(cc, amount)
+                            } ?: return@mapNotNull null,
+                            unconfirmedBalance = it.pending?.amount?.let { amount ->
+                                Money.fromMinor(cc, amount)
+                            } ?: return@mapNotNull null,
+                            exchangeRate = ExchangeRate(
+                                from = cc,
+                                to = currencyPrefs.selectedFiatCurrency,
+                                rate = it.price
+                            )
+                        )
+                    }
+                }
+            )
+        }
     }
 
     override fun balanceForWallet(
@@ -121,9 +117,9 @@ internal class UnifiedBalancesRepository(
                         style = pubKey.style,
                         descriptor = pubKey.descriptor
                     )
-                }
+                }.sortedBy { it.pubKey }
             )
-        }
+        }.sortedBy { it.currency }
         return unifiedBalancesSubscribeStore.stream(FreshnessStrategy.Cached(false).withKey(subscriptions))
             .firstOutcome()
             .getOrThrow()

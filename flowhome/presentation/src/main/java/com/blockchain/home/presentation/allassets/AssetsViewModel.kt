@@ -14,6 +14,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnError
 import com.blockchain.data.filter
 import com.blockchain.data.flatMap
@@ -74,13 +75,18 @@ class AssetsViewModel(
                     modelAccounts
                         .filter { modelAccount ->
                             // create search term filter predicate
-                            modelAccount.shouldBeFiltered(state)
+                            modelAccount.shouldBeFiltered(state) &&
+                                modelAccount.balance !is DataResource.Loading &&
+                                (modelAccount.balance as? DataResource.Data)?.data?.isPositive == true
                         }
                         .toHomeAssets()
                         .allFiatAndSectionCrypto(state.sectionSize.size)
                 },
-                filters = filters
 
+                filters = filters,
+                showNoResults = state.accounts.map { modelAccounts ->
+                    modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
+                }.dataOrElse(false)
             )
         }
     }

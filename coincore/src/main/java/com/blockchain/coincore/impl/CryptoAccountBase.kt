@@ -335,7 +335,10 @@ abstract class CryptoNonCustodialAccount(
         other is CryptoNonCustodialAccount && other.currency == currency
 
     private fun AssetAction.eligibility(): Single<StateAwareAction> {
-        val isActiveAndFunded = !isArchived && isFunded
+        val balance = balanceRx.firstOrError().onErrorReturn {
+            AccountBalance.zero(currency)
+        }
+        val isActive = !isArchived
         return when (this) {
             AssetAction.ViewActivity -> Single.just(StateAwareAction(ActionState.Available, this))
             AssetAction.Receive -> Single.just(
@@ -344,11 +347,29 @@ abstract class CryptoNonCustodialAccount(
                     this
                 )
             )
-            AssetAction.Send -> sendActionEligibility(isActiveAndFunded)
-            AssetAction.Swap -> swapActionEligibility(isActiveAndFunded)
-            AssetAction.Sell -> sellActionEligibility(isActiveAndFunded)
-            AssetAction.InterestDeposit -> interestDepositActionEligibility(isActiveAndFunded)
-            AssetAction.StakingDeposit -> stakingDepositEligibility(isActiveAndFunded)
+            AssetAction.Send ->
+                balance
+                    .flatMap { sendActionEligibility(isActive && it.total.isPositive) }
+            AssetAction.Swap ->
+                balance
+                    .flatMap {
+                        swapActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.Sell ->
+                balance
+                    .flatMap {
+                        sellActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.InterestDeposit ->
+                balance
+                    .flatMap {
+                        interestDepositActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.StakingDeposit ->
+                balance
+                    .flatMap {
+                        stakingDepositEligibility(isActive && it.total.isPositive)
+                    }
             AssetAction.ViewStatement,
             AssetAction.Buy,
             AssetAction.FiatWithdraw,

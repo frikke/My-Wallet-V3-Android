@@ -19,7 +19,10 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -35,6 +38,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
@@ -348,18 +352,27 @@ class Coincore internal constructor(
     }
 }
 
-internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
-    override fun allNetworkWallets(): Flow<List<NetworkWallet>> =
-        flow {
-            val walletNetworks = coincore.allWallets().map { it.accounts }.map { accounts ->
-                accounts.filterIsInstance<NetworkWallet>().filter {
-                    (it.currency as? AssetInfo)?.let { assetInfo ->
-                        assetInfo.l1chainTicker == null
-                    } ?: false
-                }
-            }.await()
-            emit(walletNetworks)
+internal class NetworkAccountsRepository(
+    private val coinsNetworksRepository: CoinNetworksRepository,
+    private val coincore: Coincore,
+    private val assetCatalogue: AssetCatalogueImpl
+) : NetworkAccountsService {
+    override suspend fun allNetworkWallets(): List<NetworkWallet> {
+        return when (val coins = coinsNetworksRepository.allCoinNetworks().firstOutcome()) {
+            is Outcome.Failure -> return emptyList()
+            is Outcome.Success -> {
+                coins.value.mapNotNull {
+                    val currency = assetCatalogue.fromNetworkTicker(it.currency) ?: return@mapNotNull null
+                    coincore[currency].accountGroup(AssetFilter.NonCustodial)
+                        .map { group -> group.accounts.filterIsInstance<NetworkWallet>() }.switchIfEmpty(
+                            Single.just(
+                                emptyList()
+                            )
+                        ).await()
+                }.flatten()
+            }
         }
+    }
 }
 
 internal class CoinNetworksRepository(private val dynamicAssetService: DynamicAssetsService) : CoinNetworksService {
