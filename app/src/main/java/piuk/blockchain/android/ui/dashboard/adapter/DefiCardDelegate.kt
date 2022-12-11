@@ -84,6 +84,8 @@ private class DefiAssetCardViewHolder(
             cardLayout.isEnabled = true
             root.setOnClickListenerDebounced { onCardClicked(defiAsset.currency) }
             showContent()
+            currency.visible()
+            currencyName.visible()
             fiatBalance.text = defiAsset.fiatBalance(useDisplayBalance = false)?.toStringWithSymbol()
             cryptoBalance.text = defiAsset.accountBalance?.total?.toStringWithSymbol()
         }
@@ -102,6 +104,8 @@ private class DefiAssetCardViewHolder(
 
         with(binding) {
             cardLayout.isEnabled = false
+            currency.gone()
+            currencyName.gone()
             root.setOnClickListener { }
             errorMsg.text = context.resources.getString(R.string.dashboard_asset_error, state.currency.displayTicker)
         }
