@@ -28,7 +28,7 @@ fun MultiAppBottomNavigationHost(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {

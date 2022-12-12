@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.allassets
 
 import androidx.compose.ui.graphics.Color
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
@@ -46,7 +47,8 @@ data class FiatAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>
+    override val fiatBalance: DataResource<Money>,
+    val account: FiatAccount
 ) : HomeAsset
 
 interface HomeCryptoAsset : HomeAsset {

@@ -143,6 +143,7 @@ class AssetsViewModel(
                 name = first.label,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                account = first
             )
             else -> CustodialAssetState(
                 asset = first.currency as AssetInfo,

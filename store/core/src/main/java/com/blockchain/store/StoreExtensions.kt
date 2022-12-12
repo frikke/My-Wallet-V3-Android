@@ -95,7 +95,7 @@ fun <T> Flow<DataResource<T>>.filterNotLoading(): Flow<DataResource<T>> =
     filterNot { it is DataResource.Loading }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
+fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: suspend (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
     flatMapLatest {
         when (it) {
             is DataResource.Data -> mapper(it.data)

@@ -89,7 +89,7 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -148,7 +148,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit,
+    openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }

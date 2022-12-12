@@ -22,6 +22,7 @@ import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
@@ -144,6 +145,7 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
+import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -255,6 +257,10 @@ val applicationModule = module {
             bind(PricesNavigation::class)
             bind(AssetActionsNavigation::class)
         }
+
+        scoped { (activity: BlockchainActivity) ->
+            FiatActionsNavigationImpl(activity = activity)
+        }.bind(FiatActionsNavigation::class)
 
         scoped { (activity: AppCompatActivity) ->
             TransactionFlowNavigationImpl(activity = activity)

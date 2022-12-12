@@ -26,7 +26,7 @@ fun HomeScreen(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: () -> Unit
+    openFiatActionDetail: (String) -> Unit
 ) {
     LazyColumn(
         state = listState,
