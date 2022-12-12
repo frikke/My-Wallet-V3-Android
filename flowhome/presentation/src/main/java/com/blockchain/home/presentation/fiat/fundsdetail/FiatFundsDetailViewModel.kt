@@ -72,7 +72,7 @@ class FiatFundsDetailViewModel(
                         DataResource.Data(
                             FiatFundsDetailData(
                                 balance = balance,
-                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw),
+                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatDeposit),
                                 withdrawEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw)
                             )
                         )

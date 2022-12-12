@@ -224,19 +224,20 @@ class Coincore internal constructor(
         }
     }
 
-    fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
-        .flatMap {
-            val fiats = it.filterIsInstance<FiatAsset>()
-            if (fiats.isEmpty())
-                return@flatMap Single.just(emptyList())
+    fun allFiats(): Single<List<SingleAccount>> =
+        assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+            .flatMap {
+                val fiats = it.filterIsInstance<FiatAsset>()
+                if (fiats.isEmpty())
+                    return@flatMap Single.just(emptyList())
 
-            Maybe.concat(
-                it.filterIsInstance<FiatAsset>().map { asset ->
-                    asset.accountGroup(AssetFilter.Custodial).map { grp -> grp.accounts }
-                }
-            ).reduce { a, l -> a + l }
-                .toSingle()
-        }
+                Maybe.concat(
+                    it.filterIsInstance<FiatAsset>().map { asset ->
+                        asset.accountGroup(AssetFilter.Custodial).map { grp -> grp.accounts }
+                    }
+                ).reduce { a, l -> a + l }
+                    .toSingle()
+            }
 
     /**
      * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading

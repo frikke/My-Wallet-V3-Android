@@ -89,7 +89,8 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
-    openFiatActionDetail: (String) -> Unit
+    openFiatActionDetail: (String) -> Unit,
+    openMoreQuickActions: () -> Unit,
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -122,6 +123,7 @@ fun MultiAppChrome(
                 openActivity = openActivity,
                 openReferral = openReferral,
                 openFiatActionDetail = openFiatActionDetail,
+                openMoreQuickActions = openMoreQuickActions,
                 assetActionsNavigation = assetActionsNavigation,
                 pricesNavigation = pricesNavigation,
                 onBalanceRevealed = {
@@ -148,6 +150,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
+    openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
@@ -641,6 +644,7 @@ fun MultiAppChromeScreen(
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
                 openReferral = openReferral,
+                openMoreQuickActions = openMoreQuickActions,
                 openFiatActionDetail = openFiatActionDetail,
                 assetActionsNavigation = assetActionsNavigation,
                 pricesNavigation = pricesNavigation
