@@ -94,14 +94,12 @@ fun ModeSwitcher(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                val alpha = when (mode) {
-                    currentMode -> modeAlpha.value
-                    previousMode -> fullModeAlpha - modeAlpha.value + minModeAlpha
-                    else -> minModeAlpha
-                }
-
                 Row(modifier = Modifier.wrapContentHeight()) {
+                    val alpha = when (mode) {
+                        currentMode -> modeAlpha.value
+                        previousMode -> fullModeAlpha - modeAlpha.value + minModeAlpha
+                        else -> minModeAlpha
+                    }
                     val imageResource = mode.titleIcon()
                     Image(
                         modifier = Modifier
