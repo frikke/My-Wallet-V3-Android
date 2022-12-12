@@ -41,7 +41,7 @@ class KycTiersStore internal constructor(
                     }
 
                     KycTierState.fromValue(tiersResponse[KycTier.GOLD.ordinal].state) == KycTierState.Verified -> {
-                        dataAgeMillis > TimeUnit.HOURS.toMillis(1L)
+                        dataAgeMillis > TimeUnit.HOURS.toMillis(10L)
                     }
 
                     else -> {

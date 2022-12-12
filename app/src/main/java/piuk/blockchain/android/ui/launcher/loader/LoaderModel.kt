@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
@@ -29,6 +30,7 @@ class LoaderModel(
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
     private val walletModeService: WalletModeService,
+    private val superAppFeatureFlag: FeatureFlag,
     private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
@@ -40,13 +42,15 @@ class LoaderModel(
             )
 
             is LoaderIntents.LaunchDashboard -> {
-                launchDashboard(
-                    loginMethod = previousState.loginMethod,
-                    data = intent.data,
-                    shouldLaunchUiTour = intent.shouldLaunchUiTour,
-                    isUserInCowboysPromo = previousState.isUserInCowboysPromo
-                )
-                null
+                return superAppFeatureFlag.enabled.subscribeBy {
+                    launchDashboard(
+                        loginMethod = previousState.loginMethod,
+                        data = intent.data,
+                        superAppEnabled = it,
+                        shouldLaunchUiTour = intent.shouldLaunchUiTour,
+                        isUserInCowboysPromo = previousState.isUserInCowboysPromo
+                    )
+                }
             }
             is LoaderIntents.UpdateLoadingStep -> {
                 (intent.loadingStep as? LoadingStep.Error)?.let { error ->
@@ -133,6 +137,7 @@ class LoaderModel(
     private fun launchDashboard(
         loginMethod: LoginMethod,
         data: String?,
+        superAppEnabled: Boolean,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
     ) {
@@ -145,6 +150,7 @@ class LoaderModel(
                 // -> show educational screen
                 walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
                     educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                    superAppEnabled.not() &&
                     loginMethod == LoginMethod.PIN -> {
                     LoaderIntents.StartEducationalWalletModeActivity(
                         data = data

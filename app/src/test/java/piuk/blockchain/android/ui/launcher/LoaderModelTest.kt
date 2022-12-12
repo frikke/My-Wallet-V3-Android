@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletmode.WalletMode
@@ -12,6 +13,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
@@ -34,6 +36,9 @@ class LoaderModelTest {
     private lateinit var model: LoaderModel
 
     private val interactor: LoaderInteractor = mock()
+    private val featureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
     private val appUtil: AppUtil = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val prerequisites: Prerequisites = mock()
@@ -58,6 +63,7 @@ class LoaderModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = mock(),
             remoteLogger = mock(),
+            superAppFeatureFlag = featureFlag,
             interactor = interactor,
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,

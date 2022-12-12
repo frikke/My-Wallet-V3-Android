@@ -85,7 +85,6 @@ fun CryptoAssets(
     }
 
     viewState?.let { state ->
-        println("LALALA $state")
         CryptoAssetsScreen(
             cryptoAssets = state.assets.map { it.filterIsInstance<HomeCryptoAsset>() },
             onSearchTermEntered = { term ->

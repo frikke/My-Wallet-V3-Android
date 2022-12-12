@@ -32,7 +32,7 @@ import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -221,7 +221,7 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superappRedesignFeatureFlag) {
+    single(superappFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",

@@ -38,7 +38,9 @@ fun HomeScreen(
             ),
     ) {
         item {
-            Balance()
+            Balance(openSettings = {
+                assetActionsNavigation.settings()
+            })
         }
 
         item {

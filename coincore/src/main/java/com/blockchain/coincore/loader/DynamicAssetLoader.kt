@@ -200,8 +200,7 @@ internal class DynamicAssetLoader(
                     nonCustodialAssets + supportedEvmL1Assets + loadedAssets
                 }
             }
-            .doOnSuccess {
-                assetList ->
+            .doOnSuccess { assetList ->
                 assetList.map { it.currency.networkTicker }.let { ids ->
                     /**
                      * checking that values here are unique
@@ -373,8 +372,15 @@ internal class DynamicAssetLoader(
             activeStakingFlow
         ) { activeTrading, activeInterest, supportedFiats, activeStaking ->
             activeTrading +
-                activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
-                activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } } +
+                activeInterest.filter {
+                    it.currency.networkTicker !in
+                        activeTrading.map { active -> active.currency.networkTicker }
+                } +
+                activeStaking.filter {
+                    it.currency.networkTicker !in
+                        activeTrading.map { active -> active.currency.networkTicker }
+                            .plus(activeInterest.map { active -> active.currency.networkTicker })
+                } +
                 supportedFiats
         }
     }

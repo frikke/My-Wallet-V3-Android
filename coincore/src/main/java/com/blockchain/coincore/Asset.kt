@@ -132,7 +132,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
 
 interface Asset {
     val currency: Currency
-    fun defaultAccount(filter: AssetFilter): Single<SingleAccount>
+    fun defaultAccount(): Single<SingleAccount>
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
     fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
