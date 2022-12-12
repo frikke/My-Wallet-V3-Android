@@ -1089,6 +1089,7 @@ class MainActivity :
         binding.uiTour.apply {
             host = this@MainActivity
             alpha = 0f
+            bringToFront()
             visible()
             animate()
                 .alpha(1f)
