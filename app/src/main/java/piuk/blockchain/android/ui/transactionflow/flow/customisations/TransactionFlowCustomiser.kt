@@ -29,7 +29,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -83,7 +82,6 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val walletModeService: WalletModeService,
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
         return when (state.action) {
@@ -207,11 +205,11 @@ class TransactionFlowCustomiserImpl(
             else -> resources.getString(R.string.common_to)
         }
 
-    override fun selectTargetStatusDecorator(state: TransactionState): StatusDecorator =
+    override fun selectTargetStatusDecorator(state: TransactionState, walletMode: WalletMode): StatusDecorator =
         when (state.action) {
             AssetAction.Swap -> {
                 {
-                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletModeService.enabledWalletMode())
+                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletMode)
                 }
             }
             else -> {
@@ -1359,12 +1357,16 @@ class TransactionFlowCustomiserImpl(
             else -> state.sendingAsset
         }
 
-    override fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator =
+    override fun sourceAccountSelectionStatusDecorator(
+        state: TransactionState,
+        walletMode: WalletMode
+    ): StatusDecorator =
         when (state.action) {
             AssetAction.Swap -> {
                 {
                     SwapAccountSelectSheetFeeDecorator(
-                        account = it, walletMode = walletModeService.enabledWalletMode()
+                        account = it,
+                        walletMode = walletMode
                     )
                 }
             }
@@ -1400,11 +1402,9 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean =
-        when (action) {
-            AssetAction.StakingDeposit,
-            AssetAction.InterestDeposit -> walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL
-            else -> false
-        }
+        action in listOf(
+            AssetAction.StakingDeposit, AssetAction.InterestDeposit
+        )
 
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
         when (state.currentStep) {

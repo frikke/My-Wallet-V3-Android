@@ -193,33 +193,34 @@ class DefaultAccountsSorting(
     )
 
     override fun sorter(): AccountsSorter = { list ->
-        if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
-            momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
-            val sortedList = universalOrdering(list)
-            sortedList.doFinally {
-                momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
-            }
-        } else {
-            momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
-            val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
-                Single.zip(
-                    account.balanceRx.firstOrError(),
-                    coincore[account.currency].getPricesWith24hDeltaLegacy(),
-                ) { balance, prices ->
-                    AccountData(
-                        totalBalance = prices.currentRate.convert(balance.total),
-                        account = account
-                    )
+        walletModeService.walletModeSingle.flatMap {
+            if (it != WalletMode.CUSTODIAL_ONLY) {
+                momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
+                universalOrdering(list).doFinally {
+                    momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
                 }
-            }.toList()
-                .map { accountList ->
-                    accountList.sortedByDescending { it.totalBalance }
-                        .map { accountData ->
-                            accountData.account
-                        }
+            } else {
+                momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
+                val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
+                    Single.zip(
+                        account.balanceRx.firstOrError(),
+                        coincore[account.currency].getPricesWith24hDeltaLegacy(),
+                    ) { balance, prices ->
+                        AccountData(
+                            totalBalance = prices.currentRate.convert(balance.total),
+                            account = account
+                        )
+                    }
+                }.toList()
+                    .map { accountList ->
+                        accountList.sortedByDescending { it.totalBalance }
+                            .map { accountData ->
+                                accountData.account
+                            }
+                    }
+                sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
                 }
-            sortedList.doFinally {
-                momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
             }
         }
     }

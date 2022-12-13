@@ -74,6 +74,9 @@ private fun NavGraphBuilder.chrome(
                     HomeDestination.FiatActionDetail,
                     listOf(NavArgument(key = ARG_FIAT_TICKER, fiatTicker))
                 )
+            },
+            openMoreQuickActions = {
+                navController.navigate(HomeDestination.MoreQuickActions)
             }
         )
     }

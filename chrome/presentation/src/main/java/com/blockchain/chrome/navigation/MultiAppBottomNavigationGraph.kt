@@ -28,6 +28,7 @@ fun MultiAppBottomNavigationHost(
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
+    openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
@@ -44,7 +45,8 @@ fun MultiAppBottomNavigationHost(
                         assetActionsNavigation = assetActionsNavigation,
                         openActivity = openActivity,
                         openReferral = openReferral,
-                        openFiatActionDetail = openFiatActionDetail
+                        openFiatActionDetail = openFiatActionDetail,
+                        openMoreQuickActions = openMoreQuickActions
                     )
                 },
                 listState = listState,

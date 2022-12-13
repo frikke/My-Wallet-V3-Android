@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
@@ -19,7 +18,10 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -34,7 +36,10 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
@@ -61,9 +66,12 @@ class Coincore internal constructor(
     private val ethLayerTwoFF: FeatureFlag
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
-        if (walletModeService.enabledWalletMode().custodialEnabled) {
-            bankService.getWithdrawalLocks(localCurrency).toMaybe()
-        } else Maybe.empty()
+        walletModeService.walletModeSingle.flatMapMaybe {
+            if (it.custodialEnabled) {
+                bankService.getWithdrawalLocks(localCurrency).toMaybe()
+            } else
+                Maybe.empty()
+        }
 
     operator fun get(asset: Currency): Asset =
         assetLoader[asset]
@@ -158,16 +166,16 @@ class Coincore internal constructor(
             AllNonCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun getDefaultWalletModeFilter() =
-        walletModeService.enabledWalletMode().defaultFilter()
-
     fun walletsWithActions(
         actions: Set<AssetAction>,
-        filter: AssetFilter = getDefaultWalletModeFilter(),
+        filter: AssetFilter? = null,
         sorter: AccountsSorter = { Single.just(it) },
-    ): Single<SingleAccountList> =
-        walletsWithFilter(filter = filter)
+    ): Single<SingleAccountList> {
+        val f = if (filter == null)
+            walletModeService.walletModeSingle.map { it.defaultFilter() }
+        else Single.just(filter)
+
+        return f.flatMap { walletsWithFilter(filter = it) }
             .flattenAsObservable { it }
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
@@ -183,6 +191,7 @@ class Coincore internal constructor(
             .flatMap { list ->
                 sorter(list)
             }
+    }
 
     fun getTransactionTargets(
         sourceAccount: CryptoAccount,
@@ -220,19 +229,20 @@ class Coincore internal constructor(
         }
     }
 
-    fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
-        .flatMap {
-            val fiats = it.filterIsInstance<FiatAsset>()
-            if (fiats.isEmpty())
-                return@flatMap Single.just(emptyList())
+    fun allFiats(): Single<List<SingleAccount>> =
+        assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+            .flatMap {
+                val fiats = it.filterIsInstance<FiatAsset>()
+                if (fiats.isEmpty())
+                    return@flatMap Single.just(emptyList())
 
-            Maybe.concat(
-                it.filterIsInstance<FiatAsset>().map { asset ->
-                    asset.accountGroup(AssetFilter.Custodial).map { grp -> grp.accounts }
-                }
-            ).reduce { a, l -> a + l }
-                .toSingle()
-        }
+                Maybe.concat(
+                    it.filterIsInstance<FiatAsset>().map { asset ->
+                        asset.accountGroup(AssetFilter.Custodial).map { grp -> grp.accounts }
+                    }
+                ).reduce { a, l -> a + l }
+                    .toSingle()
+            }
 
     /**
      * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
@@ -310,11 +320,21 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Flow<List<Asset>> =
-        assetLoader.activeAssets(walletMode)
+    fun activeAssets(walletMode: WalletMode? = null): Flow<List<Asset>> {
+        return flow {
+            val wMode = walletMode ?: walletModeService.walletMode.first()
+            emitAll(assetLoader.activeAssets(wMode))
+        }
+    }
 
-    fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =
-        activeWalletsInModeRx(walletMode).firstOrError()
+    fun activeWallets(walletMode: WalletMode? = null): Single<AccountGroup> =
+        (
+            walletMode?.let {
+                Single.just(it)
+            } ?: walletModeService.walletModeSingle
+            ).flatMap {
+            activeWalletsInModeRx(it).firstOrError()
+        }
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         ethLayerTwoFF.enabled.flatMap { isL2Enabled ->
@@ -348,18 +368,27 @@ class Coincore internal constructor(
     }
 }
 
-internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
-    override fun allNetworkWallets(): Flow<List<NetworkWallet>> =
-        flow {
-            val walletNetworks = coincore.allWallets().map { it.accounts }.map { accounts ->
-                accounts.filterIsInstance<NetworkWallet>().filter {
-                    (it.currency as? AssetInfo)?.let { assetInfo ->
-                        assetInfo.l1chainTicker == null
-                    } ?: false
-                }
-            }.await()
-            emit(walletNetworks)
+internal class NetworkAccountsRepository(
+    private val coinsNetworksRepository: CoinNetworksRepository,
+    private val coincore: Coincore,
+    private val assetCatalogue: AssetCatalogueImpl
+) : NetworkAccountsService {
+    override suspend fun allNetworkWallets(): List<NetworkWallet> {
+        return when (val coins = coinsNetworksRepository.allCoinNetworks().firstOutcome()) {
+            is Outcome.Failure -> return emptyList()
+            is Outcome.Success -> {
+                coins.value.mapNotNull {
+                    val currency = assetCatalogue.fromNetworkTicker(it.currency) ?: return@mapNotNull null
+                    coincore[currency].accountGroup(AssetFilter.NonCustodial)
+                        .map { group -> group.accounts.filterIsInstance<NetworkWallet>() }.switchIfEmpty(
+                            Single.just(
+                                emptyList()
+                            )
+                        ).await()
+                }.flatten()
+            }
         }
+    }
 }
 
 internal class CoinNetworksRepository(private val dynamicAssetService: DynamicAssetsService) : CoinNetworksService {

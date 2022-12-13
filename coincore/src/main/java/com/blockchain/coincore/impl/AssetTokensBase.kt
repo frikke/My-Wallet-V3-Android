@@ -47,6 +47,8 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -107,14 +109,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             ),
             loadCustodialAccounts(),
             loadInterestAccounts(),
-            loadStakingAccounts().asSingle(),
-            stakingEnabledFlag.enabled
-        ) { nonCustodial, trading, interest, staking, isStakingEnabled ->
-            nonCustodial + trading + interest + if (isStakingEnabled) {
-                staking
-            } else {
-                emptyList()
-            }
+            loadStakingAccounts().asSingle()
+        ) { nonCustodial, trading, interest, staking ->
+            nonCustodial + trading + interest + staking
         }.doOnError {
             val errorMsg = "Error loading accounts for ${currency.networkTicker}"
             Timber.e("$errorMsg: $it")
@@ -176,28 +173,37 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
 
     private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
-        stakingService.getAvailabilityForAsset(
-            currency,
-            FreshnessStrategy.Cached(false)
-        ).filterNotLoading()
-            .mapData {
-                if (it) {
-                    listOf(
-                        CustodialStakingAccount(
-                            currency = currency,
-                            label = labels.getDefaultStakingWalletLabel(),
-                            stakingService = stakingService,
-                            exchangeRates = exchangeRates,
-                            internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                            identity = identity,
-                            kycService = kycService,
-                            custodialWalletManager = custodialManager
-                        )
-                    )
-                } else {
-                    emptyList()
-                }
+        flow {
+            val stakingEnabled = stakingEnabledFlag.coEnabled()
+            if (!stakingEnabled) {
+                emit(DataResource.Data(emptyList()))
+            } else {
+                emitAll(
+                    stakingService.getAvailabilityForAsset(
+                        currency,
+                        FreshnessStrategy.Cached(false)
+                    ).filterNotLoading()
+                        .mapData {
+                            if (it) {
+                                listOf(
+                                    CustodialStakingAccount(
+                                        currency = currency,
+                                        label = labels.getDefaultStakingWalletLabel(),
+                                        stakingService = stakingService,
+                                        exchangeRates = exchangeRates,
+                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                                        identity = identity,
+                                        kycService = kycService,
+                                        custodialWalletManager = custodialManager
+                                    )
+                                )
+                            } else {
+                                emptyList()
+                            }
+                        }
+                )
             }
+        }
 
     final override fun interestRate(): Single<Double> =
         interestService.isAssetAvailableForInterest(currency)

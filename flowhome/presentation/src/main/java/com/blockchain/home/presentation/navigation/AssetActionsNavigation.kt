@@ -13,6 +13,7 @@ interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
     fun buyCrypto(currency: AssetInfo, amount: Money?)
     fun earnRewards()
+    fun settings()
     fun coinview(asset: AssetInfo)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
     fun interestSummary(account: CryptoAccount)

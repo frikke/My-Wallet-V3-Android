@@ -1,36 +1,31 @@
 package piuk.blockchain.android.walletmode
 
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.model.EligibleProduct
-import com.blockchain.domain.eligibility.model.ProductEligibility
-import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.preferences.WalletModePrefs
+import com.blockchain.store.asSingle
 import com.blockchain.walletmode.WalletMode
+import kotlinx.coroutines.rx3.await
 
-class DefaultWalletModeStrategy(private val walletModePrefs: WalletModePrefs) {
-    private var custodialAccountsProduct = ProductEligibility(
-        product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
-        canTransact = true,
-        isDefault = true,
-        maxTransactionsCap = TransactionsLimit.Unlimited,
-        reasonNotEligible = null
-    )
+class DefaultWalletModeStrategy(
+    private val walletModePrefs: WalletModePrefs,
+    private val productsEligibilityStore: ProductsEligibilityStore
+) {
 
-    fun updateProductEligibility(productEligibility: ProductEligibility) {
-        require(productEligibility.product == EligibleProduct.USE_CUSTODIAL_ACCOUNTS)
-        this.custodialAccountsProduct = productEligibility
-    }
-
-    fun defaultWalletMode(): WalletMode {
-        return if (custodialAccountsProduct.canTransact) {
-            try {
-                WalletMode.valueOf(walletModePrefs.legacyWalletMode)
-            } catch (e: Exception) {
-                WalletMode.CUSTODIAL_ONLY
-            }
-        } else {
-            WalletMode.NON_CUSTODIAL_ONLY.also {
+    suspend fun defaultWalletMode(): WalletMode {
+        val productsEligibilityData =
+            productsEligibilityStore.stream(FreshnessStrategy.Cached(false)).asSingle().await()
+        return productsEligibilityData.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.let { eligibility ->
+            if (eligibility.canTransact) {
+                try {
+                    WalletMode.valueOf(walletModePrefs.legacyWalletMode)
+                } catch (e: Exception) {
+                    WalletMode.CUSTODIAL_ONLY
+                }
+            } else WalletMode.NON_CUSTODIAL_ONLY.also {
                 walletModePrefs.userDefaultedToPKW = true
             }
-        }
+        } ?: WalletMode.CUSTODIAL_ONLY
     }
 }

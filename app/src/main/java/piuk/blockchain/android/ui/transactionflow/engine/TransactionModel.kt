@@ -254,7 +254,6 @@ class TransactionModel(
     initialState: TransactionState,
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
-    private val walletModeService: WalletModeService,
     private val errorLogger: TxFlowErrorReporting,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -497,7 +496,7 @@ class TransactionModel(
             process(TransactionIntent.TargetSelected)
             null
         }?.doOnSuccess { accounts ->
-            if (action == AssetAction.Swap && walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL) {
+            if (action == AssetAction.Swap) {
                 process(
                     TransactionIntent.UpdateTradingAccountsFilterState(
                         canFilterTradingAccounts = accounts.any { it is TradingAccount } &&

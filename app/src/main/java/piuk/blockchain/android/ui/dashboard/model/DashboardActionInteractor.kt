@@ -63,7 +63,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -291,7 +290,7 @@ class DashboardActionInteractor(
         }
     }
 
-    private fun Maybe<AccountGroup>.logGroupLoadError(asset: Currency, filter: AssetFilter) =
+    private fun Single<AccountGroup>.logGroupLoadError(asset: Currency, filter: AssetFilter) =
         this.doOnError { e ->
             remoteLogger.logException(
                 DashboardGroupLoadFailure("Cannot load group for ${asset.displayTicker} - $filter:", e)
@@ -310,6 +309,7 @@ class DashboardActionInteractor(
         walletMode: WalletMode,
     ): Observable<BalanceUpdateModel> =
         coincore[currency].accountGroup(walletMode.defaultFilter())
+            .toSingle()
             .logGroupLoadError(currency, walletMode.defaultFilter())
             .flatMapObservable { group ->
                 group.balanceRx.debounce(500, TimeUnit.MILLISECONDS)
@@ -338,6 +338,15 @@ class DashboardActionInteractor(
                             hasError = true
                         )
                     }
+            }.onErrorResumeNext {
+                Observable.just(
+                    BalanceUpdateModel(
+                        currency = currency,
+                        balance = AccountBalance.zero(currency),
+                        shouldShow = true,
+                        hasError = true
+                    )
+                )
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, cryptos: List<AssetInfo>): Disposable {

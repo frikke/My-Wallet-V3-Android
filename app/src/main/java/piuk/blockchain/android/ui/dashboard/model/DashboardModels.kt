@@ -76,7 +76,7 @@ data class DefiAsset(
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
     override val currentRate: ExchangeRate? = null,
-    override val shouldAssetShow: Boolean = false
+    override val shouldAssetShow: Boolean = currency.l1chainTicker == null
 ) : DashboardAsset {
     override val totalDisplayBalanceFFEnabled: Boolean = false
     override val assetDisplayBalanceFFEnabled: Boolean = false
@@ -85,12 +85,13 @@ data class DefiAsset(
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
 
     override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
-        this.copy(shouldAssetShow = shouldAssetShow)
+        this.copy(shouldAssetShow = shouldAssetShow || currency.l1chainTicker == null)
 
     override fun toErrorState(): DashboardAsset = this.copy(
         hasBalanceError = true,
         isFetchingBalance = false
     )
+
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
 

@@ -12,16 +12,19 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 
@@ -45,11 +48,13 @@ import org.koin.androidx.compose.get
  */
 @Composable
 fun MultiAppSingleScreen(
-    backgroundColors: ChromeBackgroundColors = get<WalletModeService>(
-        superAppModeService
-    ).enabledWalletMode().backgroundColors(),
     content: @Composable () -> Unit
 ) {
+    val walletMode: State<WalletMode> = get<WalletModeService>(
+        superAppModeService,
+        payloadScope
+    ).walletMode.collectAsState(initial = WalletMode.CUSTODIAL_ONLY)
+
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
@@ -63,7 +68,9 @@ fun MultiAppSingleScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.horizontalGradient(
-                        colors = backgroundColors.asList()
+                        colors = walletMode.value
+                            .backgroundColors()
+                            .asList()
                     )
                 )
         ) {

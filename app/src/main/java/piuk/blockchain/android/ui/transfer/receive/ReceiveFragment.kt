@@ -16,8 +16,6 @@ import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -40,7 +38,6 @@ class ReceiveFragment :
 
     private val assetResources: AssetResources by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val walletModeService: WalletModeService by inject()
 
     override val model: ReceiveModel by scopedInject()
 
@@ -71,11 +68,7 @@ class ReceiveFragment :
     }
 
     override fun render(newState: ReceiveState) {
-        if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL) {
-            renderUniversalMode(newState)
-        } else {
-            renderSuperAppReceiveAccounts(newState)
-        }
+        renderSuperAppReceiveAccounts(newState)
 
         newState.showReceiveForAccount?.let {
             model.process(ReceiveIntent.ResetReceiveForAccount)

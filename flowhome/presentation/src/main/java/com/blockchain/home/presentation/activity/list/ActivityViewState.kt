@@ -3,10 +3,12 @@ package com.blockchain.home.presentation.activity.list
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
 
 data class ActivityViewState(
-    val activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>
+    val activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>,
+    val walletMode: WalletMode
 ) : ViewState
 
 sealed interface TransactionGroup : Comparable<TransactionGroup> {

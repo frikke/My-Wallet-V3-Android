@@ -100,15 +100,15 @@ fun HomeAssetsScreen(
     openFiatActionDetail: (String) -> Unit
 ) {
     when (assets) {
-        DataResource.Loading -> AssetsLoading()
+        DataResource.Loading -> { /*DO NOTHING*/
+        }
         is DataResource.Data -> HomeAssetsList(
             assets = assets.data,
             onSeeAllCryptoAssetsClick = onSeeAllCryptoAssetsClick,
             onAssetClick = onAssetClick,
             openFiatActionDetail = openFiatActionDetail
         )
-        is DataResource.Error -> {
-            TODO("Render error")
+        is DataResource.Error -> { /*DO NOTHING*/
         }
     }
 }
@@ -160,7 +160,8 @@ private fun HomeAssetsList(
 
         CryptoAssetsList(
             cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>(),
-            onAssetClick = onAssetClick
+            onAssetClick = onAssetClick,
+            showNoResults = false
         )
 
         val fiats = assets.filterIsInstance<FiatAssetState>()

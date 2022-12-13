@@ -37,7 +37,6 @@ import com.blockchain.extensions.minus
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
@@ -45,8 +44,6 @@ import com.blockchain.tempsheetinterfaces.BankLinkingHost
 import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.unsafeLazy
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -77,7 +74,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
@@ -131,8 +127,6 @@ class PortfolioFragment :
 
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
-    private val walletModeService: WalletModeService by scopedInject()
-    private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val momentLogger: MomentLogger by inject()
@@ -145,7 +139,6 @@ class PortfolioFragment :
             assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
-            walletModeService = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             onHoldAmountClicked = { onHoldAmountClicked(it) }
@@ -355,19 +348,11 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    if (state?.isStakingEnabled == true) {
-                        CoinViewActivityV2.newIntent(
-                            context = requireContext(),
-                            asset = navigationAction.asset,
-                            originScreen = LaunchOrigin.HOME.name,
-                        )
-                    } else {
-                        CoinViewActivity.newIntent(
-                            context = requireContext(),
-                            asset = navigationAction.asset,
-                            originScreen = LaunchOrigin.HOME.name,
-                        )
-                    }
+                    CoinViewActivityV2.newIntent(
+                        context = requireContext(),
+                        asset = navigationAction.asset,
+                        originScreen = LaunchOrigin.HOME.name,
+                    )
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
@@ -664,10 +649,6 @@ class PortfolioFragment :
         // Save the sort order for use elsewhere, so that other asset lists can have the same
         // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
         // want to be getting all the balances every time we want to display assets in balance order.
-        if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
-            dashboardPrefs.dashboardAssetOrder = theAdapter.items.filterIsInstance<DashboardAsset>()
-                .map { it.currency.displayTicker }
-        }
     }
 
     override fun questionnaireSubmittedSuccessfully() {

@@ -9,11 +9,11 @@ import com.blockchain.store.impl.FreshnessMediator
 
 internal object AssetPriceStoreMediator : Mediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>> {
     private val nonHistoricalMediator =
-        FreshnessMediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>>(Freshness.ofMinutes(15))
+        FreshnessMediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>>(Freshness.ofHours(1))
 
     // This uses a much shorter cache because this is used to draw the graph in AssetDetails so it needs to be accurate
     private val dailyHistoricalMediator =
-        FreshnessMediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>>(Freshness.ofMinutes(5))
+        FreshnessMediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>>(Freshness.ofMinutes(15))
     private val otherHistoricalMediator =
         FreshnessMediator<AssetPriceStoreCache.Key, List<AssetPriceRecord>>(Freshness.ofHours(24))
 

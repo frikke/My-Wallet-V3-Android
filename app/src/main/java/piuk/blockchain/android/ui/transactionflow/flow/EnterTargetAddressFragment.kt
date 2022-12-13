@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -254,45 +255,47 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
+    private val walletModeService: WalletModeService by scopedInject()
     private fun setupTransferList(state: TransactionState) {
         val fragmentState = customiser.enterTargetAddressFragmentState(state)
-
-        with(binding.walletSelect) {
-            initialise(
-                source = Single.just(
-                    fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
-                        if (state.action == AssetAction.Send && it is CryptoAccount) {
-                            mapToSendRecipientAccountItem(it)
-                        } else {
-                            AccountListViewItem.create(it)
+        walletModeService.walletModeSingle.subscribeBy {
+            with(binding.walletSelect) {
+                initialise(
+                    source = Single.just(
+                        fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
+                            if (state.action == AssetAction.Send && it is CryptoAccount) {
+                                mapToSendRecipientAccountItem(it)
+                            } else {
+                                AccountListViewItem.create(it)
+                            }
                         }
-                    }
-                ),
-                status = customiser.selectTargetStatusDecorator(state),
-                shouldShowSelectionStatus = true,
-                shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
-                assetAction = state.action
-            )
+                    ),
+                    status = customiser.selectTargetStatusDecorator(state, it),
+                    shouldShowSelectionStatus = true,
+                    shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
+                    assetAction = state.action
+                )
 
-            onAddNewBankAccountClicked = {
-                bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
-            }
-
-            onAccountSelected = when (fragmentState) {
-                is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
-                    {
-                        accountSelected(it)
-                    }
+                onAddNewBankAccountClicked = {
+                    bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
                 }
-                is TargetAddressSheetState.TargetAccountSelected -> {
-                    updatedSelectedAccount(
-                        fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
-                    )
-                    (
+
+                onAccountSelected = when (fragmentState) {
+                    is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
                         {
                             accountSelected(it)
                         }
+                    }
+                    is TargetAddressSheetState.TargetAccountSelected -> {
+                        updatedSelectedAccount(
+                            fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
                         )
+                        (
+                            {
+                                accountSelected(it)
+                            }
+                            )
+                    }
                 }
             }
         }

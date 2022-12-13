@@ -49,7 +49,8 @@ class LoadAssetAccountsUseCase(
 ) {
     suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
 
-        val accountsFlow = asset.accountGroup(walletModeService.enabledWalletMode().defaultFilter())
+        val accountsFlow = walletModeService.walletModeSingle
+            .flatMapMaybe { asset.accountGroup(it.defaultFilter()) }
             .map { it.accounts }
             .switchIfEmpty(Single.just(emptyList()))
             .await()
@@ -75,11 +76,12 @@ class LoadAssetAccountsUseCase(
             }
 
         return combine(
+            walletModeService.walletMode,
             accountsFlow,
             asset.getPricesWith24hDelta(),
             interestFlow,
             stakingFlow
-        ) { accounts, prices, interestRate, stakingRate ->
+        ) { wMode, accounts, prices, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -94,7 +96,7 @@ class LoadAssetAccountsUseCase(
 
                 if (isTradeableAsset) {
                     val accountsList = mapAccounts(
-                        walletMode = walletModeService.enabledWalletMode(),
+                        walletMode = wMode,
                         accounts = accounts,
                         exchangeRate = pricesData.currentRate,
                         interestRate = interestRateData,

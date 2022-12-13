@@ -72,6 +72,7 @@ fun CryptoAssets(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -92,6 +93,7 @@ fun CryptoAssets(
                 viewModel.onIntent(AssetsIntent.FilterSearch(term = term))
             },
             filters = state.filters,
+            showNoResults = state.showNoResults,
             onFiltersConfirmed = { filters ->
                 viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
             },
@@ -107,6 +109,7 @@ fun CryptoAssets(
 @Composable
 fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
+    showNoResults: Boolean,
     onSearchTermEntered: (String) -> Unit,
     filters: List<AssetFilter>,
     onFiltersConfirmed: (List<AssetFilter>) -> Unit,
@@ -173,6 +176,7 @@ fun CryptoAssetsScreen(
                     is DataResource.Data -> {
                         CryptoAssetsData(
                             cryptoAssets = cryptoAssets.data,
+                            showNoResults = showNoResults,
                             onSearchTermEntered = onSearchTermEntered,
                             onAssetClick = onAssetClick
                         )
@@ -187,6 +191,7 @@ fun CryptoAssetsScreen(
 fun CryptoAssetsData(
     cryptoAssets: List<HomeCryptoAsset>,
     onSearchTermEntered: (String) -> Unit,
+    showNoResults: Boolean,
     onAssetClick: (AssetInfo) -> Unit
 ) {
     Column(
@@ -202,7 +207,8 @@ fun CryptoAssetsData(
         CryptoAssetsList(
             modifier = Modifier.verticalScroll(rememberScrollState()),
             cryptoAssets = cryptoAssets,
-            onAssetClick = onAssetClick
+            onAssetClick = onAssetClick,
+            showNoResults = showNoResults
         )
     }
 }
@@ -210,6 +216,7 @@ fun CryptoAssetsData(
 @Composable
 fun CryptoAssetsList(
     modifier: Modifier = Modifier,
+    showNoResults: Boolean,
     cryptoAssets: List<HomeCryptoAsset>,
     onAssetClick: (AssetInfo) -> Unit
 ) {
@@ -231,7 +238,7 @@ fun CryptoAssetsList(
                     }
                 }
             }
-        } else {
+        } else if (showNoResults) {
             CryptoAssetsNoResults()
         }
     }
@@ -355,6 +362,7 @@ fun PreviewCryptoAssetsScreen() {
         filters = listOf(),
         onFiltersConfirmed = {},
         onAssetClick = {},
+        showNoResults = false,
         onBackPressed = { }
     )
 }
@@ -366,6 +374,7 @@ fun PreviewCryptoAssetsScreen_Empty() {
         cryptoAssets = DataResource.Data(
             listOf()
         ),
+        showNoResults = true,
         onSearchTermEntered = {},
         filters = listOf(),
         onFiltersConfirmed = {},

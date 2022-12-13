@@ -12,4 +12,5 @@ sealed class HomeDestination(
     object Activity : HomeDestination("Activity")
     object Referral : HomeDestination("Referral")
     object FiatActionDetail : HomeDestination("FiatActionDetail/${ARG_FIAT_TICKER.wrappedArg()}")
+    object MoreQuickActions : HomeDestination("MoreQuickActions")
 }

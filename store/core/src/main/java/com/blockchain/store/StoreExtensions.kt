@@ -51,7 +51,7 @@ fun <T : Any> Flow<DataResource<T>>.asObservable(): Observable<T> = filterNot { 
         }
     }
 
-fun <T, R> Flow<DataResource<T>>.mapData(mapper: (T) -> R): Flow<DataResource<R>> =
+fun <T, R> Flow<DataResource<T>>.mapData(mapper: suspend (T) -> R): Flow<DataResource<R>> =
     map {
         when (it) {
             is DataResource.Data -> DataResource.Data(mapper(it.data))

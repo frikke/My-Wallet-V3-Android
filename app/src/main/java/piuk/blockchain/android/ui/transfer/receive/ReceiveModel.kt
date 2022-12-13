@@ -12,7 +12,6 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Scheduler
@@ -37,12 +36,7 @@ class ReceiveModel(
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
         return when (intent) {
-            is ReceiveIntent.GetAvailableAssets -> if (walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL) {
-                // Receive to an account not supported on non-SuperApp MVP
-                getAvailableAssets()
-            } else {
-                getAvailableAccounts(intent.startForTicker)
-            }
+            is ReceiveIntent.GetAvailableAssets -> getAvailableAccounts(intent.startForTicker)
             is ReceiveIntent.GetStartingAccountForAsset -> {
                 process(
                     ReceiveIntent.UpdateReceiveForAsset(
@@ -83,7 +77,7 @@ class ReceiveModel(
             )
 
     private fun getAvailableAccounts(startForTicker: String?): Disposable =
-        coincore.allWalletsInMode(walletModeService.enabledWalletMode()).flatMap { accountGroup ->
+        walletModeService.walletModeSingle.flatMap { coincore.allWalletsInMode(it) }.flatMap { accountGroup ->
             accountGroup.accounts.filterByActionAndState(
                 AssetAction.Receive,
                 listOf(ActionState.Available, ActionState.LockedForTier)

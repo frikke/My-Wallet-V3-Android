@@ -35,6 +35,7 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
@@ -61,7 +62,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysSta
 import timber.log.Timber
 
 class CoinviewViewModel(
-    walletModeService: WalletModeService,
+    private val walletModeService: WalletModeService,
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
@@ -78,7 +79,7 @@ class CoinviewViewModel(
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
-    CoinviewArgs>(CoinviewModelState(walletMode = walletModeService.enabledWalletMode())) {
+    CoinviewArgs>(CoinviewModelState()) {
 
     companion object {
         const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
@@ -756,6 +757,12 @@ class CoinviewViewModel(
         when (intent) {
             is CoinviewIntent.LoadAllData -> {
                 check(modelState.asset != null) { "LoadAllData asset not initialized" }
+                val walletMode = walletModeService.walletMode.first()
+                updateState { state ->
+                    state.copy(
+                        walletMode = walletMode
+                    )
+                }
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)

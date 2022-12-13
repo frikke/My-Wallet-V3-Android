@@ -37,6 +37,7 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.common.caching.StoreWiperImpl
@@ -129,6 +130,12 @@ val coreModule = module {
         WalletAuthService(
             walletApi = get(),
             sessionIdService = get()
+        )
+    }
+
+    single {
+        EthLastTxCache(
+            ethAccountApi = get()
         )
     }
 
@@ -264,6 +271,7 @@ val coreModule = module {
                 defaultLabels = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
+                ethLastTxCache = get(),
                 nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)

@@ -35,14 +35,14 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
     }
     val viewState: WalletModeSelectionViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    viewState?.let { state ->
+    viewState?.takeIf { it.enabledWalletMode != null }?.let { state ->
         WalletModesDialogContent(
             totalBalance = state.totalBalance,
             portfolioBalanceState = state.brokerageBalance,
             showBrokerageBalanceWarning = state.showBrokerageBalanceWarning,
             defiWalletBalance = state.defiWalletBalance,
             showDefiBalanceWarning = state.showDefiBalanceWarning,
-            selectedMode = state.enabledWalletMode,
+            selectedMode = state.enabledWalletMode!!,
             onItemClicked = {
                 viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletModeRequested(it))
             }

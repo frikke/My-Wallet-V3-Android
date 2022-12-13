@@ -23,8 +23,11 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.tempsheetinterfaces.BankLinkingHost
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
@@ -261,13 +264,18 @@ class SelectSourceAccountFragment :
         ).show()
     }
 
+    private val walletModeService: WalletModeService by scopedInject()
+
     private fun updateSources(newState: TransactionState) {
         with(binding) {
-            accountList.initialise(
-                source = Single.just(newState.availableSources.map(AccountListViewItem.Companion::create)),
-                status = customiser.sourceAccountSelectionStatusDecorator(newState),
-                assetAction = newState.action
-            )
+            walletModeService.walletModeSingle.subscribeBy {
+                accountList.initialise(
+                    source = Single.just(newState.availableSources.map(AccountListViewItem.Companion::create)),
+                    status = customiser.sourceAccountSelectionStatusDecorator(newState, it),
+                    assetAction = newState.action
+                )
+            }
+
             if (customiser.selectSourceShouldShowSubtitle(newState)) {
                 accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
                 accountListSubtitle.visible()

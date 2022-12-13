@@ -218,9 +218,7 @@ val applicationModule = module {
     factory { get<Context>().resources }
 
     single {
-        WalletModeThemeProvider(
-            walletModeService = get()
-        )
+        WalletModeThemeProvider()
     }.bind(AppThemeProvider::class)
 
     single { LifecycleInterestedComponent() }
@@ -589,6 +587,13 @@ val applicationModule = module {
             )
         }
 
+        scoped {
+            DefaultWalletModeStrategy(
+                walletModePrefs = get(),
+                productsEligibilityStore = get()
+            )
+        }
+
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
@@ -898,12 +903,6 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
-
-    single {
-        DefaultWalletModeStrategy(
-            walletModePrefs = get()
-        )
-    }
 }
 
 fun getCardProcessors(): List<CardProcessor> {

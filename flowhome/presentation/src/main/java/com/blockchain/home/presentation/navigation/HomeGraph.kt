@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
+import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -46,6 +47,13 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
         FiatFundDetail(
             fiatTicker = fiatTicker,
             onBackPressed = onBackPressed
+        )
+    }
+
+    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) { backStackEntry ->
+        MoreActions(
+            onBackPressed = onBackPressed,
+            assetActionsNavigation = assetActionsNavigation
         )
     }
 
