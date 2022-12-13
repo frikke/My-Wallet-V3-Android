@@ -1,7 +1,6 @@
 package com.blockchain.unifiedcryptowallet.data.balances
 
 import com.blockchain.api.selfcustody.AccountInfo
-import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.api.selfcustody.CommonResponse
 import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.SubscriptionInfo
@@ -23,12 +22,10 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 
 internal class UnifiedBalancesRepository(
     private val networkAccountsService: NetworkAccountsService,
@@ -91,13 +88,6 @@ internal class UnifiedBalancesRepository(
                     )
                 )
             )
-        }.onEach {
-            if (it is DataResource.Error) {
-                remoteLogger.logException(
-                    it.error,
-                    "Failed to load balance for ${wallet.currency.networkTicker} at index ${wallet.index}"
-                )
-            }
         }
     }
 
@@ -124,30 +114,4 @@ internal class UnifiedBalancesRepository(
             .firstOutcome()
             .getOrThrow()
     }
-
-    private val reports = mutableListOf<String>()
-    private fun logResponse(wallets: List<NetworkWallet>, response: BalancesResponse) {
-        wallets.forEach {
-            val walletId = "${it.currency.networkTicker} ${it.index} ${it.label}"
-            if (!reports.contains(walletId) && !response.containsWallet(it)) {
-                /**
-                 * We use that so we dont report duplciates
-                 *
-                 */
-                reports.add(walletId)
-                remoteLogger.logException(
-                    UnifiedBalanceNotFoundException(
-                        it.currency.networkTicker, it.index, it.label
-                    )
-                )
-            }
-        }
-    }
-}
-
-private fun BalancesResponse.containsWallet(wallet: NetworkWallet): Boolean {
-    val remoteBalances = this.balances.filter { it.balance?.amount != null }
-        .map { it.account.name + it.account.index + it.currency.lowercase(Locale.ROOT) }
-    val localWallet = wallet.label + wallet.index + wallet.currency.networkTicker.lowercase(Locale.ROOT)
-    return remoteBalances.firstOrNull { it == localWallet } != null
 }
