@@ -33,7 +33,6 @@ class WalletModeBalanceRepository(
         }.map {
             DataResource.Data(it.total)
         }.catch {
-            it.printStackTrace()
             flowOf(DataResource.Error(it as Exception))
         }
     }

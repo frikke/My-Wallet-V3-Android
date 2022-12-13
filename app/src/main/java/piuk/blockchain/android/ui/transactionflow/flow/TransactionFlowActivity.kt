@@ -27,6 +27,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
@@ -38,7 +39,6 @@ import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
-import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

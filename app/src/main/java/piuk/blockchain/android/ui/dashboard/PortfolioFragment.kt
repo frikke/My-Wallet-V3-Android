@@ -34,15 +34,15 @@ import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.fiatActions.BankLinkingHost
-import com.blockchain.fiatActions.QuestionnaireSheetHost
-import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -441,7 +441,7 @@ class PortfolioFragment :
                 is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
                     BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 is DashboardNavigationAction.DepositQuestionnaire -> {
-                    // todo oth see fiatactionsviewmodel
+                    // todo othman see fiatactionsviewmodel
                     questionnaireCallbackIntent = navigationAction.callbackIntent
                     QuestionnaireSheet.newInstance(navigationAction.questionnaire, true)
                 }

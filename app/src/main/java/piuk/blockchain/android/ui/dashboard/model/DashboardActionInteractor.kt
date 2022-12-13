@@ -36,6 +36,8 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -52,8 +54,6 @@ import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
-import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
-import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.rxMaybeOutcome
 import com.blockchain.walletmode.WalletMode
@@ -516,64 +516,54 @@ class DashboardActionInteractor(
 
         analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
 
-//        when {
-//            eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
-//                Single.just(
-//                    FiatTransactionRequestResult.BlockedDueToSanctions(
-//                        eligibility.reason as BlockedReason.Sanctions
-//                    )
-//                )
-//            questionnaireOpt.isPresent -> Single.just(
-//                FiatTransactionRequestResult.LaunchQuestionnaire(
-//                    questionnaire = questionnaireOpt.get(),
-//                    callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-//                        targetAccount,
-//                        action,
-//                        shouldLaunchBankLinkTransfer,
-//                        shouldSkipQuestionnaire = true
-//                    )
-//                )
-//            )
-//            eligibleBanks.isEmpty() -> {
-//                handleNoLinkedBanks(
-//                    targetAccount,
-//                    action,
-//                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
-//                        linkablePaymentMethods = LinkablePaymentMethods(
-//                            targetAccount.currency,
-//                            paymentMethods.sortedBy { it.ordinal }
-//                        )
-//                    )
-//                )
-//            }
-//            eligibleBanks.size == 1 -> {
-//                Single.just(
-//                    FiatTransactionRequestResult.LaunchDepositFlow(
-//                        preselectedBankAccount = linkedBanks.first(),
-//                        action = action,
-//                        targetAccount = targetAccount
-//                    )
-//                )
-//            }
-//            else -> {
-//                Single.just(
-//                    FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
-//                        action = action,
-//                        targetAccount = targetAccount
-//                    )
-//                )
-//            }
-//        }
-        handleNoLinkedBanks(
-            targetAccount,
-            action,
-            LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
-                linkablePaymentMethods = LinkablePaymentMethods(
-                    targetAccount.currency,
-                    paymentMethods.sortedBy { it.ordinal }
+        when {
+            eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
+                Single.just(
+                    FiatTransactionRequestResult.BlockedDueToSanctions(
+                        eligibility.reason as BlockedReason.Sanctions
+                    )
+                )
+            questionnaireOpt.isPresent -> Single.just(
+                FiatTransactionRequestResult.LaunchQuestionnaire(
+                    questionnaire = questionnaireOpt.get(),
+                    callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                        targetAccount,
+                        action,
+                        shouldLaunchBankLinkTransfer,
+                        shouldSkipQuestionnaire = true
+                    )
                 )
             )
-        )
+            eligibleBanks.isEmpty() -> {
+                handleNoLinkedBanks(
+                    targetAccount,
+                    action,
+                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+                        linkablePaymentMethods = LinkablePaymentMethods(
+                            targetAccount.currency,
+                            paymentMethods.sortedBy { it.ordinal }
+                        )
+                    )
+                )
+            }
+            eligibleBanks.size == 1 -> {
+                Single.just(
+                    FiatTransactionRequestResult.LaunchDepositFlow(
+                        preselectedBankAccount = linkedBanks.first(),
+                        action = action,
+                        targetAccount = targetAccount
+                    )
+                )
+            }
+            else -> {
+                Single.just(
+                    FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
+                        action = action,
+                        targetAccount = targetAccount
+                    )
+                )
+            }
+        }
     }.doOnTerminate {
         model.process(DashboardIntent.LongCallEnded)
     }.subscribeBy(
@@ -689,47 +679,39 @@ class DashboardActionInteractor(
         action: AssetAction,
         paymentMethodForAction: LinkablePaymentMethodsForAction,
     ) =
-        linkBankTransfer(targetAccount.currency).map {
-            FiatTransactionRequestResult.LaunchBankLink(
-                linkBankTransfer = it,
-                action = action
-            ) as FiatTransactionRequestResult
-        }.onErrorReturn {
-            FiatTransactionRequestResult.NotSupportedPartner
+        when {
+            paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
+                listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
+            ) -> {
+                Single.just(
+                    FiatTransactionRequestResult.LaunchPaymentMethodChooser(
+                        paymentMethodForAction
+                    )
+                )
+            }
+            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
+                linkBankTransfer(targetAccount.currency).map {
+                    FiatTransactionRequestResult.LaunchBankLink(
+                        linkBankTransfer = it,
+                        action = action
+                    ) as FiatTransactionRequestResult
+                }.onErrorReturn {
+                    FiatTransactionRequestResult.NotSupportedPartner
+                }
+            }
+            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
+                userIdentity.isArgentinian().flatMap { isArgentinian ->
+                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
+                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
+                    } else {
+                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                    }
+                }
+            }
+            else -> {
+                Single.just(FiatTransactionRequestResult.NotSupportedPartner)
+            }
         }
-//        when {
-//            paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
-//                listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
-//            ) -> {
-//                Single.just(
-//                    FiatTransactionRequestResult.LaunchPaymentMethodChooser(
-//                        paymentMethodForAction
-//                    )
-//                )
-//            }
-//            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
-//                linkBankTransfer(targetAccount.currency).map {
-//                    FiatTransactionRequestResult.LaunchBankLink(
-//                        linkBankTransfer = it,
-//                        action = action
-//                    ) as FiatTransactionRequestResult
-//                }.onErrorReturn {
-//                    FiatTransactionRequestResult.NotSupportedPartner
-//                }
-//            }
-//            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
-//                userIdentity.isArgentinian().flatMap { isArgentinian ->
-//                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
-//                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
-//                    } else {
-//                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
-//                    }
-//                }
-//            }
-//            else -> {
-//                Single.just(FiatTransactionRequestResult.NotSupportedPartner)
-//            }
-//        }
 
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
         bankService.linkBank(currency)

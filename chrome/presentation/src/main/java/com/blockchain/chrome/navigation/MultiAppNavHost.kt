@@ -15,7 +15,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
@@ -23,7 +22,6 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 @Composable
 fun MultiAppNavHost(
     assetActionsNavigation: AssetActionsNavigation,
-    fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
@@ -44,7 +42,6 @@ fun MultiAppNavHost(
             // home screens
             homeGraph(
                 assetActionsNavigation = assetActionsNavigation,
-                fiatActionsNavigation = fiatActionsNavigation,
                 onBackPressed = navController::popBackStack
             )
         }

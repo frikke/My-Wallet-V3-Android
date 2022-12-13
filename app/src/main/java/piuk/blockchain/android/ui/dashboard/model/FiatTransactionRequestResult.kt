@@ -6,8 +6,8 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
-import com.blockchain.nabu.BlockedReason
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.nabu.BlockedReason
 
 sealed class FiatTransactionRequestResult {
     class LaunchBankLink(

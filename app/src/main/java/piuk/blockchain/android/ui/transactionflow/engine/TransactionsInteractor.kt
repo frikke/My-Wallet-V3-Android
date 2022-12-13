@@ -32,6 +32,7 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -44,7 +45,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.store.asSingle
-import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables

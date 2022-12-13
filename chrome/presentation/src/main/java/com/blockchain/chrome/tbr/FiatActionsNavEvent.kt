@@ -8,8 +8,8 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
-import com.blockchain.nabu.BlockedReason
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.nabu.BlockedReason
 
 sealed interface FiatActionsNavEvent : NavigationEvent {
     data class TransactionFlow(

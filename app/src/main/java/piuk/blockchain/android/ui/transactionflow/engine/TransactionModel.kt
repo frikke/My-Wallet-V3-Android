@@ -33,12 +33,12 @@ import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
-import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

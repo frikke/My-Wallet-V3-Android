@@ -10,11 +10,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.fiatActions.fiatactions.FiatActions
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
-import com.blockchain.fiatActions.fiatactions.FiatActions
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -84,7 +84,7 @@ class FiatFundsDetailViewModel(
                         DataResource.Data(
                             FiatFundsDetailData(
                                 balance = balance,
-                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw),
+                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatDeposit),
                                 withdrawEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw)
                             )
                         )
@@ -100,37 +100,6 @@ class FiatFundsDetailViewModel(
                 }
                 .collect()
         }
-
-        //        viewModelScope.launch {
-        //            val fiatAccount = coincore[currency].defaultAccount().await() as FiatAccount
-        //
-        //            updateState {
-        //                it.copy(account = DataResource.Data(fiatAccount))
-        //            }
-        //
-        //            combine(
-        //                fiatAccount.balance.map { it.total },
-        //                flowOf(fiatAccount.stateAwareActions.await())
-        //            ) { balance, actions ->
-        //                updateState {
-        //                    it.copy(
-        //                        data = DataResource.Data(
-        //                            FiatFundsDetailData(
-        //                                balance = balance,
-        //                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw),
-        //                                withdrawEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw)
-        //                            )
-        //                        )
-        //                    )
-        //                }
-        //            }.catch { error ->
-        //                updateState {
-        //                    it.copy(
-        //                        data = DataResource.Error(Exception(error))
-        //                    )
-        //                }
-        //            }.collect()
-        //        }
     }
 
     private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =

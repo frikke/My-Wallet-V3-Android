@@ -56,7 +56,7 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeAssets(
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope, key = "aaa"),
+    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
     openAllAssets: () -> Unit,
     openFiatActionDetail: (String) -> Unit

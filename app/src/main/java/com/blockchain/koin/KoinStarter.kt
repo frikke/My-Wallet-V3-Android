@@ -16,6 +16,7 @@ import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
 import com.blockchain.earn.data.koin.earnDataModule
 import com.blockchain.earn.koin.earnPresentationModule
+import com.blockchain.fiatActions.koin.fiatActionsModule
 import com.blockchain.home.data.koin.homeDataModule
 import com.blockchain.home.presentation.koin.homePresentationModule
 import com.blockchain.koin.modules.apiInterceptorsModule
@@ -43,7 +44,6 @@ import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
-import com.blockchain.fiatActions.koin.fiatActionsModule
 import com.blockchain.unifiedcryptowallet.data.koin.unifiedCryptoWalletModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext

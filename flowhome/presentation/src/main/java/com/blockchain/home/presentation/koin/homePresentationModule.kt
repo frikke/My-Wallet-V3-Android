@@ -32,8 +32,8 @@ val homePresentationModule = module {
         viewModel { (fiatTicker: String) ->
             FiatFundsDetailViewModel(
                 fiatTicker = fiatTicker,
-                get(),
-                get()
+                homeAccountsService = get(),
+                fiatActions = get()
             )
         }
 
