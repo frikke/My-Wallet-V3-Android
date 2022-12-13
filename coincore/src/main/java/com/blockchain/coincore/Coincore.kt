@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
@@ -37,6 +36,8 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
@@ -65,9 +66,12 @@ class Coincore internal constructor(
     private val ethLayerTwoFF: FeatureFlag
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
-        if (walletModeService.enabledWalletMode().custodialEnabled) {
-            bankService.getWithdrawalLocks(localCurrency).toMaybe()
-        } else Maybe.empty()
+        walletModeService.walletModeSingle.flatMapMaybe {
+            if (it.custodialEnabled) {
+                bankService.getWithdrawalLocks(localCurrency).toMaybe()
+            } else
+                Maybe.empty()
+        }
 
     operator fun get(asset: Currency): Asset =
         assetLoader[asset]
@@ -162,16 +166,16 @@ class Coincore internal constructor(
             AllNonCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun getDefaultWalletModeFilter() =
-        walletModeService.enabledWalletMode().defaultFilter()
-
     fun walletsWithActions(
         actions: Set<AssetAction>,
-        filter: AssetFilter = getDefaultWalletModeFilter(),
+        filter: AssetFilter? = null,
         sorter: AccountsSorter = { Single.just(it) },
-    ): Single<SingleAccountList> =
-        walletsWithFilter(filter = filter)
+    ): Single<SingleAccountList> {
+        val f = if (filter == null)
+            walletModeService.walletModeSingle.map { it.defaultFilter() }
+        else Single.just(filter)
+
+        return f.flatMap { walletsWithFilter(filter = it) }
             .flattenAsObservable { it }
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
@@ -187,6 +191,7 @@ class Coincore internal constructor(
             .flatMap { list ->
                 sorter(list)
             }
+    }
 
     fun getTransactionTargets(
         sourceAccount: CryptoAccount,
@@ -315,11 +320,21 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Flow<List<Asset>> =
-        assetLoader.activeAssets(walletMode)
+    fun activeAssets(walletMode: WalletMode? = null): Flow<List<Asset>> {
+        return flow {
+            val wMode = walletMode ?: walletModeService.walletMode.first()
+            emitAll(assetLoader.activeAssets(wMode))
+        }
+    }
 
-    fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =
-        activeWalletsInModeRx(walletMode).firstOrError()
+    fun activeWallets(walletMode: WalletMode? = null): Single<AccountGroup> =
+        (
+            walletMode?.let {
+                Single.just(it)
+            } ?: walletModeService.walletModeSingle
+            ).flatMap {
+            activeWalletsInModeRx(it).firstOrError()
+        }
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         ethLayerTwoFF.enabled.flatMap { isL2Enabled ->

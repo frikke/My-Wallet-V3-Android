@@ -64,7 +64,7 @@ import org.koin.androidx.compose.getViewModel
 fun Activity(
     onBackPressed: () -> Unit
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService).walletMode
+    val walletMode by get<WalletModeService>(superAppModeService, payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {
@@ -93,6 +93,7 @@ fun CustodialActivity(
         onSearchTermEntered = { term ->
             viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
+        viewState.walletMode,
         onBackPressed = onBackPressed
     )
 }
@@ -114,6 +115,7 @@ fun PrivateKeyActivity(
         onSearchTermEntered = { term ->
             viewModel.onIntent(ActivityIntent.FilterSearch(term = term))
         },
+        viewState.walletMode,
         onBackPressed = onBackPressed
     )
 }
@@ -123,6 +125,7 @@ fun PrivateKeyActivity(
 fun ActivityScreen(
     activity: DataResource<Map<TransactionGroup, List<ActivityComponent>>>,
     onSearchTermEntered: (String) -> Unit,
+    walletMode: WalletMode,
     onBackPressed: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -151,6 +154,7 @@ fun ActivityScreen(
             selectedTxId?.let {
                 ActivityDetail(
                     selectedTxId = it,
+                    walletMode = walletMode,
                     onCloseClick = {
                         coroutineScope.launch {
                             sheetState.hide()
@@ -300,6 +304,7 @@ private fun Calendar.format(): String {
 fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DUMMY_DATA,
+        walletMode = WalletMode.NON_CUSTODIAL_ONLY,
         onSearchTermEntered = {},
         onBackPressed = {}
     )

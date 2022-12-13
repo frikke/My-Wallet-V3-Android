@@ -18,9 +18,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewState
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModel
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModelState
@@ -172,32 +169,6 @@ val dashboardModule = module {
                 getDashboardOnboardingUseCase = get(),
                 bankService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get()
-            )
-        }
-
-        factory {
-            CoinViewModel(
-                initialState = CoinViewState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                environmentConfig = get(),
-                remoteLogger = get(),
-                walletModeService = get()
-            )
-        }
-        factory {
-            CoinViewInteractor(
-                coincore = get(),
-                tradeDataService = get(),
-                currencyPrefs = get(),
-                dashboardPrefs = get(),
-                identity = get(),
-                kycService = get(),
-                custodialWalletManager = get(),
-                assetActionsComparator = get(),
-                assetsManager = get(),
-                walletModeService = get(),
-                watchlistDataManager = get(),
             )
         }
 

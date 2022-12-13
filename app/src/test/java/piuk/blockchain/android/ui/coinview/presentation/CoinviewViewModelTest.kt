@@ -28,6 +28,7 @@ import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -99,7 +100,7 @@ class CoinviewViewModelTest {
 
     @Before
     fun setUp() {
-        every { walletModeService.enabledWalletMode() } returns WalletMode.CUSTODIAL_ONLY
+        every { walletModeService.walletMode } returns flowOf(WalletMode.CUSTODIAL_ONLY)
 
         viewModel = CoinviewViewModel(
             walletModeService = walletModeService,

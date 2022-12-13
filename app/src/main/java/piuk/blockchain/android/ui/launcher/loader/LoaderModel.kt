@@ -8,8 +8,6 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
@@ -29,7 +27,6 @@ class LoaderModel(
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
-    private val walletModeService: WalletModeService,
     private val superAppFeatureFlag: FeatureFlag,
     private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
@@ -148,8 +145,7 @@ class LoaderModel(
                 // + have not seen educational screen yet
                 // + did not come from signup (already logged in)
                 // -> show educational screen
-                walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
-                    educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
                     superAppEnabled.not() &&
                     loginMethod == LoginMethod.PIN -> {
                     LoaderIntents.StartEducationalWalletModeActivity(

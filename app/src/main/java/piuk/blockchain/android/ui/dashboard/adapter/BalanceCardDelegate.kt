@@ -6,8 +6,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.presentation.getResolvedColor
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -23,7 +21,6 @@ import piuk.blockchain.android.util.context
 
 class BalanceCardDelegate(
     private val assetResources: AssetResources,
-    private val walletModeService: WalletModeService
 ) : AdapterDelegate<DashboardItem> {
 
     override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
@@ -33,7 +30,6 @@ class BalanceCardDelegate(
         BalanceCardViewHolder(
             binding = ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             assetResources = assetResources,
-            walletMode = walletModeService.enabledWalletMode()
         )
 
     override fun onBindViewHolder(
@@ -48,7 +44,6 @@ class BalanceCardDelegate(
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
     private val assetResources: AssetResources,
-    private val walletMode: WalletMode
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var isFirstLoad = true
@@ -80,9 +75,7 @@ private class BalanceCardViewHolder(
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
-            label.text =
-                if (walletMode == WalletMode.UNIVERSAL) context.getString(R.string.dashboard_total_balance)
-                else context.getString(R.string.common_balance)
+            label.text = context.getString(R.string.common_balance)
             if (state.delta == null) {
                 balanceDeltaValue.text = ""
                 balanceDeltaPercent.text = ""

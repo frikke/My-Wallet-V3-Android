@@ -22,7 +22,6 @@ val loaderModule = module {
                 prerequisites = get(),
                 appUtil = get(),
                 superAppFeatureFlag = get(superappFeatureFlag),
-                walletModeService = get(),
                 educationalScreensPrefs = get()
             )
         }

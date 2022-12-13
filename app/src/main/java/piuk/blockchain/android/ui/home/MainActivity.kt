@@ -56,6 +56,7 @@ import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
+import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -95,7 +96,6 @@ import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
@@ -222,8 +222,7 @@ class MainActivity :
 
         launchPortfolio()
 
-        setupToolbar()
-        setupNavigation()
+        setupToolbarAndNavigation()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
@@ -235,7 +234,7 @@ class MainActivity :
 
         val startUiTour = intent.getBooleanExtra(
             START_UI_TOUR_KEY, false
-        ) && walletModeService.enabledWalletMode() != WalletMode.NON_CUSTODIAL_ONLY
+        )
         intent.removeExtra(START_UI_TOUR_KEY)
 
         if (intent.hasExtra(SHOW_SWAP) &&
@@ -268,7 +267,7 @@ class MainActivity :
             model.process(MainIntent.CheckReferralCode)
 
             if (startUiTour) {
-                showUiTour()
+                showUiTourIfCustodial()
             }
         }
 
@@ -316,25 +315,6 @@ class MainActivity :
     ) {
         showLoading()
         settingsResultContract.launch(SettingsActivity.newIntent(this))
-    }
-
-    private fun setupToolbar() {
-        updateToolbarMenuItems(
-            listOf(qrButton, settingsButton)
-        )
-        if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL)
-            updateToolbarStartItem(
-                NavigationBarButton.DropdownIndicator(
-                    dropDownClicked = {
-                        mvpPrefs.shouldHighlightModeSwitch = false
-                        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
-                    },
-                    isHighlighted = mvpPrefs.shouldHighlightModeSwitch,
-                    text = getString(walletModeService.enabledWalletMode().title()),
-                    rightIcon = walletModeService.enabledWalletMode().icon(),
-                    contentDescription = walletModeService.enabledWalletMode().name
-                )
-            )
     }
 
     private fun setupMenuWithPresentButton(referralState: ReferralState) {
@@ -398,21 +378,38 @@ class MainActivity :
         }
     }
 
-    private fun setupNavigation() {
-        binding.bottomNavigation.apply {
-            if (!dashboardPrefs.hasTappedFabButton) {
-                isPulseAnimationEnabled = true
+    private fun setupToolbarAndNavigation() {
+        walletModeService.walletModeSingle.subscribeBy { walletMode ->
+            binding.bottomNavigation.apply {
+                if (!dashboardPrefs.hasTappedFabButton) {
+                    isPulseAnimationEnabled = true
+                }
+                onNavigationItemClick = {
+                    it.launch()
+                }
+                onMiddleButtonClick = {
+                    dashboardPrefs.hasTappedFabButton = true
+                    binding.bottomNavigation.isPulseAnimationEnabled = false
+                    showBottomSheet(
+                        middleButtonBottomSheetLaunch(walletMode)
+                    )
+                }
             }
-            onNavigationItemClick = {
-                it.launch()
-            }
-            onMiddleButtonClick = {
-                dashboardPrefs.hasTappedFabButton = true
-                binding.bottomNavigation.isPulseAnimationEnabled = false
-                showBottomSheet(
-                    middleButtonBottomSheetLaunch
+            updateToolbarMenuItems(
+                listOf(qrButton, settingsButton)
+            )
+            updateToolbarStartItem(
+                NavigationBarButton.DropdownIndicator(
+                    dropDownClicked = {
+                        mvpPrefs.shouldHighlightModeSwitch = false
+                        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+                    },
+                    isHighlighted = mvpPrefs.shouldHighlightModeSwitch,
+                    text = getString(walletMode.title()),
+                    rightIcon = walletMode.icon(),
+                    contentDescription = walletMode.name
                 )
-            }
+            )
         }
     }
 
@@ -428,7 +425,7 @@ class MainActivity :
     }
 
     private fun launchEarn() {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_earn))
+        homeToolbarTitle()
         updateSelectedNavigationItem(NavigationItem.Earn)
 
         supportFragmentManager.showFragment(
@@ -438,7 +435,7 @@ class MainActivity :
     }
 
     private fun launchNfts() {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        homeToolbarTitle()
         updateSelectedNavigationItem(NavigationItem.Nfts)
 
         supportFragmentManager.showFragment(
@@ -794,15 +791,14 @@ class MainActivity :
         renderMode(newState.walletMode)
     }
 
-    private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
-        get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance(isEarnOnNavBarEnabled)
-            WalletMode.CUSTODIAL_ONLY,
-            WalletMode.NON_CUSTODIAL_ONLY -> SuperAppActionsBottomSheet.newInstance(
-                walletMode = walletModeService.enabledWalletMode(),
-                isEarnOnNavBarEnabled = isEarnOnNavBarEnabled
-            )
-        }
+    private fun middleButtonBottomSheetLaunch(walletMode: WalletMode): BottomSheetDialogFragment = when (walletMode) {
+        WalletMode.CUSTODIAL_ONLY,
+        WalletMode.NON_CUSTODIAL_ONLY -> SuperAppActionsBottomSheet.newInstance(
+            walletMode = walletMode,
+            isEarnOnNavBarEnabled = isEarnOnNavBarEnabled
+        )
+        WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance(isEarnOnNavBarEnabled)
+    }
 
     private fun renderMode(walletMode: WalletMode) {
         if (walletMode == WalletMode.UNIVERSAL)
@@ -834,21 +830,12 @@ class MainActivity :
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     activityResultsContract.launch(
-                        if (isStakingAccountEnabled) {
-                            CoinViewActivityV2.newIntent(
-                                context = this,
-                                asset = assetInfo,
-                                recurringBuyId = destination.recurringBuyId,
-                                originScreen = LaunchOrigin.DEEPLINK.name
-                            )
-                        } else {
-                            CoinViewActivity.newIntent(
-                                context = this,
-                                asset = assetInfo,
-                                originScreen = LaunchOrigin.DEEPLINK.name,
-                                recurringBuyId = destination.recurringBuyId
-                            )
-                        }
+                        CoinViewActivityV2.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            recurringBuyId = destination.recurringBuyId,
+                            originScreen = LaunchOrigin.DEEPLINK.name
+                        )
                     )
                 } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
@@ -1052,7 +1039,7 @@ class MainActivity :
         account: BlockchainAccount? = null,
         reload: Boolean = false,
     ) {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_activity))
+        homeToolbarTitle()
         updateSelectedNavigationItem(NavigationItem.Activity)
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
@@ -1084,18 +1071,22 @@ class MainActivity :
         launchKyc(CampaignType.None)
     }
 
-    private fun showUiTour() {
-        analytics.logEvent(UiTourAnalytics.Viewed)
-        binding.uiTour.apply {
-            host = this@MainActivity
-            alpha = 0f
-            bringToFront()
-            visible()
-            animate()
-                .alpha(1f)
-                .setStartDelay(500L).duration =
-                resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-        }
+    private fun showUiTourIfCustodial() {
+        walletModeService.walletModeSingle.doOnSuccess {
+            if (it == WalletMode.CUSTODIAL_ONLY) {
+                analytics.logEvent(UiTourAnalytics.Viewed)
+                binding.uiTour.apply {
+                    host = this@MainActivity
+                    alpha = 0f
+                    bringToFront()
+                    visible()
+                    animate()
+                        .alpha(1f)
+                        .setStartDelay(500L).duration =
+                        resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+                }
+            }
+        }.emptySubscribe()
     }
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
@@ -1233,7 +1224,7 @@ class MainActivity :
         fiatCurrency: String? = null,
         reload: Boolean = false,
     ) {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_home))
+        homeToolbarTitle()
         updateSelectedNavigationItem(NavigationItem.Home)
 
         supportFragmentManager.showFragment(
@@ -1323,7 +1314,7 @@ class MainActivity :
         asset: AssetInfo?,
         reload: Boolean,
     ) {
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_buy_sell))
+        homeToolbarTitle()
 
         if (isEarnOnNavBarEnabled) {
             actionsResultContract.launch(
@@ -1356,17 +1347,13 @@ class MainActivity :
         }
     }
 
-    private fun homeToolbarTitle(fragmentTitle: String) {
-        val title = when (walletModeService.enabledWalletMode()) {
-            WalletMode.UNIVERSAL -> fragmentTitle
-            else -> ""
-        }
-        updateToolbarTitle(title = title)
+    private fun homeToolbarTitle() {
+        updateToolbarTitle(title = "")
     }
 
     private fun launchPrices(reload: Boolean = false) {
         updateSelectedNavigationItem(NavigationItem.Prices)
-        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
+        homeToolbarTitle()
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),
             reloadFragment = reload
@@ -1552,19 +1539,11 @@ class MainActivity :
         when (navigationEvent) {
             is PricesNavigationEvent.CoinView -> {
                 activityResultsContract.launch(
-                    if (isStakingAccountEnabled) {
-                        CoinViewActivityV2.newIntent(
-                            context = this,
-                            asset = navigationEvent.assetInfo,
-                            originScreen = LaunchOrigin.PRICES.name,
-                        )
-                    } else {
-                        CoinViewActivity.newIntent(
-                            context = this,
-                            asset = navigationEvent.assetInfo,
-                            originScreen = LaunchOrigin.PRICES.name,
-                        )
-                    }
+                    CoinViewActivityV2.newIntent(
+                        context = this,
+                        asset = navigationEvent.assetInfo,
+                        originScreen = LaunchOrigin.PRICES.name,
+                    )
                 )
             }
         }.exhaustive

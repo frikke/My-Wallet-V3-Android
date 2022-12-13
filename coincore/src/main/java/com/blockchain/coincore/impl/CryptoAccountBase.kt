@@ -60,7 +60,7 @@ internal const val transactionFetchOffset = 0
 
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
-    protected abstract val baseActions: Set<AssetAction>
+    protected abstract val baseActions: Single<Set<AssetAction>>
 
     final override var hasTransactions: Boolean = true
         private set
@@ -146,7 +146,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val exchangeRates: ExchangeRatesDataManager,
 ) : CryptoAccountBase(), ExchangeAccount {
 
-    override val baseActions: Set<AssetAction> = setOf()
+    override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet())
 
     override fun requireSecondPassword(): Single<Boolean> =
         Single.just(false)
@@ -207,11 +207,13 @@ abstract class CryptoNonCustodialAccount(
     private val identity: UserIdentity by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
 
-    final override val baseActions: Set<AssetAction>
-        get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-            WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
-            WalletMode.UNIVERSAL -> defaultActions
+    final override val baseActions: Single<Set<AssetAction>>
+        get() = walletModeService.walletModeSingle.map {
+            when (it) {
+                WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
+                WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
+                WalletMode.UNIVERSAL -> defaultActions
+            }
         }
 
     /**
@@ -267,10 +269,10 @@ abstract class CryptoNonCustodialAccount(
     protected abstract val addressResolver: AddressResolver
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = baseActions.map {
-            it.eligibility()
-        }.zipSingles()
-            .map { it.toSet() }
+        get() = baseActions.flatMap { actions ->
+            actions.map { it.eligibility() }.zipSingles()
+                .map { it.toSet() }
+        }
 
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 

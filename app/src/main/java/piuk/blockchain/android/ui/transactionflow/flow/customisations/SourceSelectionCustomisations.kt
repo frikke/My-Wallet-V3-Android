@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import com.blockchain.coincore.AssetAction
+import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -12,7 +13,7 @@ interface SourceSelectionCustomisations {
     fun selectSourceAccountSubtitle(state: TransactionState): String
     fun selectSourceShouldShowAddNew(state: TransactionState): Boolean
     fun selectSourceShouldShowDepositTooltip(state: TransactionState): Boolean
-    fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator
+    fun sourceAccountSelectionStatusDecorator(state: TransactionState, walletMode: WalletMode): StatusDecorator
     fun getLinkingSourceForAction(state: TransactionState): BankAuthSource
     fun selectSourceShouldHaveSearch(action: AssetAction): Boolean
     fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean
