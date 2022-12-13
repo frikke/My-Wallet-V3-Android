@@ -39,8 +39,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethods
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

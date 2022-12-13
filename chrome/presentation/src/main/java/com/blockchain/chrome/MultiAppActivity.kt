@@ -1,6 +1,5 @@
 package com.blockchain.chrome
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -43,7 +42,8 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
 
-class MultiAppActivity : BlockchainActivity(),
+class MultiAppActivity :
+    BlockchainActivity(),
     InterestSummarySheet.Host,
     StakingSummaryBottomSheet.Host,
     QuestionnaireSheetHost,
@@ -198,7 +198,7 @@ class MultiAppActivity : BlockchainActivity(),
         }
     }
 
-    ////////////////////////////////////
+    // //////////////////////////////////
     // QuestionnaireSheetHost
     override fun questionnaireSubmittedSuccessfully() {
         println("--------- questionnaireSubmittedSuccessfully")
@@ -208,7 +208,7 @@ class MultiAppActivity : BlockchainActivity(),
         println("--------- questionnaireSkipped")
     }
 
-    ////////////////////////////////////
+    // //////////////////////////////////
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
         fiatActionsViewModel.onIntent(FiatActionsIntents.WireTransferAccountDetails)
@@ -227,7 +227,7 @@ class MultiAppActivity : BlockchainActivity(),
         }
     }
 
-    ////////////////////////////////////
+    // //////////////////////////////////
     // link bank
     private val activityResultLinkBank = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()

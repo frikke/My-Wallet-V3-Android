@@ -690,13 +690,13 @@ class DashboardActionInteractor(
         paymentMethodForAction: LinkablePaymentMethodsForAction,
     ) =
         linkBankTransfer(targetAccount.currency).map {
-        FiatTransactionRequestResult.LaunchBankLink(
-            linkBankTransfer = it,
-            action = action
-        ) as FiatTransactionRequestResult
-    }.onErrorReturn {
-        FiatTransactionRequestResult.NotSupportedPartner
-    }
+            FiatTransactionRequestResult.LaunchBankLink(
+                linkBankTransfer = it,
+                action = action
+            ) as FiatTransactionRequestResult
+        }.onErrorReturn {
+            FiatTransactionRequestResult.NotSupportedPartner
+        }
 //        when {
 //            paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
 //                listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)

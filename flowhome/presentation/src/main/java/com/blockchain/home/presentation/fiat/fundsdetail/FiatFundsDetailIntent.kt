@@ -13,5 +13,4 @@ sealed interface FiatFundsDetailIntent : Intent<FiatFundsDetailModelState> {
         val shouldLaunchBankLinkTransfer: Boolean,
         val shouldSkipQuestionnaire: Boolean = false
     ) : FiatFundsDetailIntent
-
 }

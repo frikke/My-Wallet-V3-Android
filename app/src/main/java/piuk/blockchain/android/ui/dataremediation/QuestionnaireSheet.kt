@@ -32,8 +32,8 @@ class QuestionnaireSheet() :
     QuestionnaireDropdownPickerSheet.Host {
 
     override val host: QuestionnaireSheetHost by lazy {
-        (activity as? QuestionnaireSheetHost) ?:
-        (parentFragment as? QuestionnaireSheetHost) ?: throw IllegalStateException(
+        (activity as? QuestionnaireSheetHost)
+            ?: (parentFragment as? QuestionnaireSheetHost) ?: throw IllegalStateException(
             "Host is not a QuestionnaireFragment.Host"
         )
     }

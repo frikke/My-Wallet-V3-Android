@@ -21,9 +21,9 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.tempsheetinterfaces.BankLinkingHost
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
-import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
