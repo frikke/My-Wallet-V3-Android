@@ -18,7 +18,7 @@ interface UnifiedBalancesService {
 }
 
 interface NetworkAccountsService {
-    fun allNetworkWallets(): Flow<List<NetworkWallet>>
+    suspend fun allNetworkWallets(): List<NetworkWallet>
 }
 
 interface CoinNetworksService {

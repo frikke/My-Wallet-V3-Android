@@ -25,7 +25,7 @@ class TradingStore(
             keySerializer = String.serializer(),
             valueSerializer = TradingBalanceResponseDto.serializer()
         ),
-        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
+        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     FlushableDataSource {
 

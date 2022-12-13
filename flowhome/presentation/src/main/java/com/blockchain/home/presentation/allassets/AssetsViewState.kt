@@ -1,19 +1,22 @@
 package com.blockchain.home.presentation.allassets
 
 import androidx.compose.ui.graphics.Color
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.home.domain.AssetFilter
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
 
 data class AssetsViewState(
     val balance: WalletBalance,
     val assets: DataResource<List<HomeAsset>>,
-    val filters: List<AssetFilter>
+    val filters: List<AssetFilter>,
+    val showNoResults: Boolean
 ) : ViewState
 
 sealed interface HomeAsset {
@@ -24,6 +27,7 @@ sealed interface HomeAsset {
 }
 
 data class CustodialAssetState(
+    override val asset: AssetInfo,
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
@@ -32,6 +36,7 @@ data class CustodialAssetState(
 ) : HomeCryptoAsset
 
 data class NonCustodialAssetState(
+    override val asset: AssetInfo,
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
@@ -42,10 +47,13 @@ data class FiatAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>
+    override val fiatBalance: DataResource<Money>,
+    val account: FiatAccount
 ) : HomeAsset
 
-interface HomeCryptoAsset : HomeAsset
+interface HomeCryptoAsset : HomeAsset {
+    val asset: AssetInfo
+}
 
 data class WalletBalance(
     val balance: DataResource<Money>,

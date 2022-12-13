@@ -8,6 +8,8 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
+import com.blockchain.home.presentation.fiat.actions.FiatActionsViewModel
+import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
@@ -25,6 +27,22 @@ val homePresentationModule = module {
                 filterService = get(),
                 assetCatalogue = get(),
                 walletModeService = get(superAppModeService)
+            )
+        }
+
+        viewModel { (fiatTicker: String) ->
+            FiatFundsDetailViewModel(
+                fiatTicker = fiatTicker,
+                get()
+            )
+        }
+
+        viewModel {
+            FiatActionsViewModel(
+                dataRemediationService = get(),
+                userIdentity = get(),
+                linkedBanksFactory = get(),
+                bankService = get()
             )
         }
 
@@ -56,8 +74,7 @@ val homePresentationModule = module {
         viewModel { (txId: String) ->
             PrivateKeyActivityDetailViewModel(
                 activityTxId = txId,
-                unifiedActivityService = get(),
-                networkWalletService = get()
+                unifiedActivityService = get()
             )
         }
 
@@ -88,6 +105,7 @@ val homePresentationModule = module {
                 walletModeService = get(superAppModeService),
                 stakingService = get(),
                 exchangeRates = get(),
+                coincore = get(),
                 interestService = get()
             )
         }

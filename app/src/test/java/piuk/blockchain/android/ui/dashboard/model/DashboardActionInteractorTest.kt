@@ -105,7 +105,7 @@ class DashboardActionInteractorTest {
             kycService = kycService,
             dataRemediationService = dataRemediationService,
             walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletMode }.thenReturn(flowOf(WalletMode.UNIVERSAL))
             },
             getDashboardOnboardingStepsUseCase = mock(),
             nftWaitlistService = nftWaitlistService,

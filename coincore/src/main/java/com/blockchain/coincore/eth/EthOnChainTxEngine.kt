@@ -16,6 +16,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
@@ -32,6 +33,7 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.BigInteger
+import org.koin.core.component.inject
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
 
@@ -46,6 +48,8 @@ class EthOnChainTxEngine(
     walletPreferences,
     resolvedAddress
 ) {
+
+    private val txCache: EthLastTxCache by inject()
 
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)
@@ -187,6 +191,8 @@ class EthOnChainTxEngine(
                 } ?: Single.just(hash)
             }.onErrorResumeNext {
                 Single.error(TransactionError.ExecutionFailed)
+            }.doOnSuccess {
+                txCache.markStoreAsStale()
             }.map {
                 TxResult.HashedTxResult(it, pendingTx.amount)
             }

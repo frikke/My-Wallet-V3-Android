@@ -6,9 +6,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.data.map
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class MultiAppViewModel(
@@ -22,7 +25,7 @@ class MultiAppViewModel(
     ModelConfigArgs.NoArgs>(
     MultiAppModelState(
         walletModes = walletModeService.availableModes(),
-        selectedWalletMode = walletModeService.enabledWalletMode()
+        selectedWalletMode = WalletMode.CUSTODIAL_ONLY
     )
 ) {
 
@@ -68,6 +71,8 @@ class MultiAppViewModel(
     private fun loadTotalBalance() {
         viewModelScope.launch {
             walletModeBalanceService.totalBalance()
+                .distinctUntilChanged()
+                .debounce(1000)
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
                         it.copy(totalBalance = totalBalanceDataResource)

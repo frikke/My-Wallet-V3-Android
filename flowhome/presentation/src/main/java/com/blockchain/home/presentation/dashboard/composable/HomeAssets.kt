@@ -16,6 +16,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -23,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -44,7 +46,10 @@ import com.blockchain.home.presentation.allassets.FiatAssetState
 import com.blockchain.home.presentation.allassets.HomeAsset
 import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 import org.koin.androidx.compose.getViewModel
@@ -52,7 +57,9 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openAllAssets: () -> Unit
+    assetActionsNavigation: AssetActionsNavigation,
+    openAllAssets: () -> Unit,
+    openFiatActionDetail: (String) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -78,6 +85,10 @@ fun HomeAssets(
     HomeAssetsScreen(
         assets = viewState.assets,
         onSeeAllCryptoAssetsClick = openAllAssets,
+        onAssetClick = { asset ->
+            assetActionsNavigation.coinview(asset)
+        },
+        openFiatActionDetail = openFiatActionDetail
     )
 }
 
@@ -85,12 +96,19 @@ fun HomeAssets(
 fun HomeAssetsScreen(
     assets: DataResource<List<HomeAsset>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
+    onAssetClick: (AssetInfo) -> Unit,
+    openFiatActionDetail: (String) -> Unit
 ) {
     when (assets) {
-        DataResource.Loading -> AssetsLoading()
-        is DataResource.Data -> HomeAssetsList(assets.data, onSeeAllCryptoAssetsClick)
-        is DataResource.Error -> {
-            TODO("Render error")
+        DataResource.Loading -> { /*DO NOTHING*/
+        }
+        is DataResource.Data -> HomeAssetsList(
+            assets = assets.data,
+            onSeeAllCryptoAssetsClick = onSeeAllCryptoAssetsClick,
+            onAssetClick = onAssetClick,
+            openFiatActionDetail = openFiatActionDetail
+        )
+        is DataResource.Error -> { /*DO NOTHING*/
         }
     }
 }
@@ -107,7 +125,12 @@ private fun AssetsLoading() {
 }
 
 @Composable
-private fun HomeAssetsList(assets: List<HomeAsset>, onSeeAllCryptoAssetsClick: () -> Unit) {
+private fun HomeAssetsList(
+    assets: List<HomeAsset>,
+    onSeeAllCryptoAssetsClick: () -> Unit,
+    onAssetClick: (AssetInfo) -> Unit,
+    openFiatActionDetail: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,16 +155,29 @@ private fun HomeAssetsList(assets: List<HomeAsset>, onSeeAllCryptoAssetsClick: (
             }
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
+
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-        CryptoAssetsList(cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>())
+
+        CryptoAssetsList(
+            cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>(),
+            onAssetClick = onAssetClick,
+            showNoResults = false
+        )
+
         val fiats = assets.filterIsInstance<FiatAssetState>()
         if (fiats.isNotEmpty())
-            FiatAssetsStateList(assets = fiats)
+            FiatAssetsStateList(
+                assets = fiats,
+                openFiatActionDetail = openFiatActionDetail
+            )
     }
 }
 
 @Composable
-private fun FiatAssetsStateList(assets: List<FiatAssetState>) {
+private fun FiatAssetsStateList(
+    assets: List<FiatAssetState>,
+    openFiatActionDetail: (String) -> Unit
+) {
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -165,11 +201,12 @@ private fun FiatAssetsStateList(assets: List<FiatAssetState>) {
                         )
                     },
                     onClick = {
+                        openFiatActionDetail(fiatAsset.account.currency.networkTicker)
                     }
                 )
 
                 if (index < assets.lastIndex) {
-                    Divider()
+                    Divider(color = Color(0XFFF1F2F7))
                 }
             }
         }
@@ -187,21 +224,24 @@ fun PreviewHomeAccounts() {
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 128.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal()))
+                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal())),
+                    asset = CryptoCurrency.ETHER
                 ),
                 CustodialAssetState(
                     icon = listOf(""),
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
-                    fiatBalance = DataResource.Loading
+                    fiatBalance = DataResource.Loading,
+                    asset = CryptoCurrency.ETHER
                 ),
                 CustodialAssetState(
                     icon = listOf(""),
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 555.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Down(2.32)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 1.28.toBigDecimal()))
+                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 1.28.toBigDecimal())),
+                    asset = CryptoCurrency.ETHER
                 )
             ) +
 
@@ -211,16 +251,20 @@ fun PreviewHomeAccounts() {
                         name = "US Dollar",
                         balance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
                         fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
+                        account = NullFiatAccount
                     ),
                     FiatAssetState(
                         icon = listOf(""),
                         name = "Euro",
                         balance = DataResource.Loading,
                         fiatBalance = DataResource.Loading,
+                        account = NullFiatAccount
                     )
                 )
         ),
         onSeeAllCryptoAssetsClick = {},
+        onAssetClick = {},
+        openFiatActionDetail = {}
     )
 }
 
@@ -230,5 +274,7 @@ fun PreviewHomeAccounts_Loading() {
     HomeAssetsScreen(
         assets = DataResource.Loading,
         onSeeAllCryptoAssetsClick = {},
+        onAssetClick = {},
+        openFiatActionDetail = {}
     )
 }

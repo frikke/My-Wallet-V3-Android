@@ -15,26 +15,35 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.userFiatToUserFiat
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
@@ -43,6 +52,38 @@ import org.koin.test.KoinTestRule
 class CryptoNonCustodialAccountActionsTest : KoinTest {
 
     private val custodialManager: CustodialWalletManager = mock()
+
+    private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
+        override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
+            return flowOf(
+                DataResource.Data(
+                    listOf(
+                        NetworkBalance(
+                            TEST_ASSET,
+                            CryptoValue.fromMinor(TEST_ASSET, 0.toBigInteger()),
+                            CryptoValue.fromMinor(TEST_ASSET, 0.toBigInteger()),
+                            ExchangeRate.identityExchangeRate(TEST_ASSET)
+                        )
+                    )
+                )
+            )
+        }
+
+        override fun balanceForWallet(wallet: NetworkWallet): Flow<DataResource<NetworkBalance>> {
+            val isFounded = (wallet as NonCustodialTestAccount).isFunded
+            val balance = if (isFounded) 1.toBigDecimal() else 0.toBigDecimal()
+            return flowOf(
+                DataResource.Data(
+                    NetworkBalance(
+                        TEST_ASSET,
+                        CryptoValue.fromMinor(TEST_ASSET, balance),
+                        CryptoValue.fromMinor(TEST_ASSET, balance),
+                        ExchangeRate.identityExchangeRate(TEST_ASSET)
+                    )
+                )
+            )
+        }
+    }
     private val payloadDataManager: PayloadDataManager = mock()
     private val userIdentity: UserIdentity = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock {
@@ -74,7 +115,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
             }
         }
         factory {
@@ -82,6 +123,15 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         }
         factory {
             userIdentity
+        }
+
+        factory(StringQualifier("ff_unified_balances")) {
+            mock<FeatureFlag> {
+                on { enabled }.thenReturn(Single.just(true))
+            }
+        }
+        factory {
+            unifiedBalancesService
         }
     }
 
@@ -341,8 +391,8 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
     private fun configureActionSubject(
         isFunded: Boolean = true,
-    ): CryptoNonCustodialAccount =
-        NonCustodialTestAccount(
+    ): CryptoNonCustodialAccount {
+        return NonCustodialTestAccount(
             label = "Test Account",
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,
@@ -352,6 +402,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
             addressResolver = mock(),
             isFunded = isFunded
         )
+    }
 
     private fun configureActionTest(
         userAccessForSwap: FeatureAccess = FeatureAccess.Granted(),

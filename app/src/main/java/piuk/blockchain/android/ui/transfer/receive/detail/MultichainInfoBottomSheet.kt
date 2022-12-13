@@ -10,10 +10,10 @@ import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.MULTICHAIN_LEARN_MORE
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 class MultichainInfoBottomSheet : ComposeModalBottomDialog() {
 

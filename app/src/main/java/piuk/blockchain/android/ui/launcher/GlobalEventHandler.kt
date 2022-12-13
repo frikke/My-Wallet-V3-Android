@@ -25,7 +25,6 @@ import io.reactivex.rxjava3.subjects.MaybeSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
@@ -77,27 +76,12 @@ class GlobalEventHandler(
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    subject.flatMapSingle {
-                        stakingFF.enabled.map {
-                            subject.onSuccess(
-                                if (it) {
-                                    CoinViewActivityV2.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        recurringBuyId = destination.recurringBuyId,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name
-                                    )
-                                } else {
-                                    CoinViewActivity.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name,
-                                        recurringBuyId = destination.recurringBuyId
-                                    )
-                                }
-                            )
-                        }
-                    }
+                    CoinViewActivityV2.newIntent(
+                        context = application,
+                        asset = assetInfo,
+                        recurringBuyId = destination.recurringBuyId,
+                        originScreen = LaunchOrigin.NOTIFICATION.name
+                    )
                 } ?: run {
                     subject.onError(
                         Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")

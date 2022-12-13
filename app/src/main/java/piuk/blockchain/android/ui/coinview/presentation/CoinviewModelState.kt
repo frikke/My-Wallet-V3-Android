@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
  * @property interactiveAssetPrice - price and price change information, used when user is interacting with the chart
  */
 data class CoinviewModelState(
-    val walletMode: WalletMode,
+    val walletMode: WalletMode? = null,
 
     val asset: CryptoAsset? = null,
 

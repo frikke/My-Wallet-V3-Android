@@ -21,6 +21,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -59,7 +60,6 @@ import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.MainActivity
@@ -177,7 +177,7 @@ class SimpleBuyActivity :
                     )
                 }
             }
-            analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
+            analytics.logEvent(BuySellViewedEvent(BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
         }
     }

@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.superappFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.dsl.module
@@ -20,7 +21,7 @@ val loaderModule = module {
                 payloadDataManager = get(),
                 prerequisites = get(),
                 appUtil = get(),
-                walletModeService = get(),
+                superAppFeatureFlag = get(superappFeatureFlag),
                 educationalScreensPrefs = get()
             )
         }
@@ -45,6 +46,7 @@ val loaderModule = module {
                 cowboysPrefs = get(),
                 userIdentity = get(),
                 kycService = get(),
+                coincore = get(),
                 defaultWalletModeStrategy = get(),
                 walletModePrefs = get(),
                 walletModeServices = getAll(),

@@ -14,6 +14,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnError
 import com.blockchain.data.filter
 import com.blockchain.data.flatMap
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 
 class AssetsViewModel(
@@ -73,13 +75,18 @@ class AssetsViewModel(
                     modelAccounts
                         .filter { modelAccount ->
                             // create search term filter predicate
-                            modelAccount.shouldBeFiltered(state)
+                            modelAccount.shouldBeFiltered(state) &&
+                                modelAccount.balance !is DataResource.Loading &&
+                                (modelAccount.balance as? DataResource.Data)?.data?.isPositive == true
                         }
                         .toHomeAssets()
                         .allFiatAndSectionCrypto(state.sectionSize.size)
                 },
-                filters = filters
 
+                filters = filters,
+                showNoResults = state.accounts.map { modelAccounts ->
+                    modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
+                }.dataOrElse(false)
             )
         }
     }
@@ -120,6 +127,7 @@ class AssetsViewModel(
         require(this.map { it.singleAccount.currency.networkTicker }.distinct().size == 1)
         return when (val first = first().singleAccount) {
             is NonCustodialAccount -> NonCustodialAssetState(
+                asset = first.currency as AssetInfo,
                 icon = listOfNotNull(
                     first.currency.logo,
                     (first.currency as? AssetInfo)?.l1chainTicker?.let { l1 ->
@@ -135,8 +143,10 @@ class AssetsViewModel(
                 name = first.label,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                account = first
             )
             else -> CustodialAssetState(
+                asset = first.currency as AssetInfo,
                 icon = listOf(first.currency.logo),
                 name = first.currency.name,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
@@ -190,7 +200,7 @@ class AssetsViewModel(
                     updateState {
                         it.copy(
                             walletMode = walletMode,
-                            accounts = DataResource.Loading
+                            accounts = it.accountsForMode(walletMode)
                         )
                     }
                 }
@@ -218,18 +228,21 @@ class AssetsViewModel(
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
                             account.balance.distinctUntilChanged()
-                                .map { DataResource.Data(it) as DataResource<AccountBalance> to account }
+                                .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
-                                    emit(DataResource.Error(t as Exception) to account)
+                                    emit(account to DataResource.Error(t as Exception))
                                 }
-                        }.merge().onEach { (balance, account) ->
-                            updateState { state ->
-                                state.copy(
-                                    accounts = state.accounts.withBalancedAccount(
-                                        account = account,
-                                        balance = balance,
+                        }.merge().scan(emptyMap<SingleAccount, DataResource<AccountBalance>>()) { acc, value ->
+                            acc + value
+                        }.onEach { map ->
+                            if (map.keys.containsAll(accounts.data)) {
+                                updateState { state ->
+                                    state.copy(
+                                        accounts = state.accounts.withBalancedAccounts(
+                                            map
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
 
@@ -406,6 +419,21 @@ private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money
         }
     }
     return total!!
+}
+
+private fun DataResource<List<ModelAccount>>.withBalancedAccounts(
+    balances: Map<SingleAccount, DataResource<AccountBalance>>
+): DataResource<List<ModelAccount>> {
+    val accounts = (this as? DataResource.Data)?.data ?: return this
+    return DataResource.Data(
+        balances.map { (account, balance) ->
+            val oldAccount = accounts.first { it.singleAccount == account }
+            oldAccount.copy(
+                balance = balance.map { it.total },
+                fiatBalance = balance.map { it.totalFiat }
+            )
+        }
+    )
 }
 
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(

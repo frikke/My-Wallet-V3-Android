@@ -14,7 +14,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.safeLet
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuyOrderList
+import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.OrderState
@@ -58,6 +60,39 @@ class SimpleBuyRepository(
     override fun getPairs(freshnessStrategy: FreshnessStrategy): Flow<DataResource<List<SimpleBuyPair>>> {
         return buyPairsStore.stream(freshnessStrategy).mapData {
             it.pairs.map { it.toDomain() }
+        }
+    }
+
+    override fun getSupportedBuySellCryptoCurrencies(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<CurrencyPair>>> {
+        return buyPairsStore.stream(freshnessStrategy).mapData { response ->
+            response.pairs.mapNotNull { pair ->
+                pair.toBuySellPair()?.let {
+                    CurrencyPair(source = it.cryptoCurrency, destination = it.fiatCurrency)
+                }
+            }
+        }
+    }
+
+    private fun SimpleBuyPairDto.toBuySellPair(): BuySellPair? {
+        val parts = pair.split("-")
+        val crypto = parts.getOrNull(0)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
+        val fiat = parts.getOrNull(1)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
+
+        return if (crypto == null || fiat == null) {
+            null
+        } else {
+            BuySellPair(
+                cryptoCurrency = crypto,
+                fiatCurrency = fiat,
+                buyLimits = BuySellLimits(buyMin.toBigInteger(), buyMax.toBigInteger()),
+                sellLimits = BuySellLimits(sellMin.toBigInteger(), sellMax.toBigInteger())
+            )
         }
     }
 

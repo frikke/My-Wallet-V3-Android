@@ -19,6 +19,7 @@ dependencies {
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':analytics:domain')
+    implementation project(':coincore')
 
     // Compose
     implementation Libraries.composeUi

@@ -34,7 +34,8 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun QuickActions(
     viewModel: QuickActionsViewModel = getViewModel(scope = payloadScope),
-    assetActionsNavigation: AssetActionsNavigation
+    assetActionsNavigation: AssetActionsNavigation,
+    openMoreQuickActions: () -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -43,26 +44,32 @@ fun QuickActions(
     val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions)
+        viewModel.onIntent(QuickActionsIntent.LoadActions(ActionType.Quick))
         onDispose { }
     }
 
     viewState?.let {
-        QuickActionsRow(quickActions = it.actions, onClick = { action ->
-            assetActionsNavigation.navigate(action)
-        })
+        QuickActionsRow(
+            quickActionItems = it.actions,
+            onClick = { action ->
+                when (action) {
+                    is QuickAction.TxAction -> assetActionsNavigation.navigate(action.assetAction)
+                    is QuickAction.More -> openMoreQuickActions()
+                }
+            }
+        )
     }
 }
 
 @Composable
-fun QuickActionsRow(quickActions: List<QuickAction>, onClick: (AssetAction) -> Unit) {
+fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickAction) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        quickActions.forEach { quickAction ->
+        quickActionItems.forEach { quickAction ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable(onClick = {
@@ -103,23 +110,23 @@ fun QuickActionsPreview() {
         AppSurface {
             QuickActionsRow(
                 listOf(
-                    QuickAction(
+                    QuickActionItem(
                         title = R.string.common_buy,
                         icon = R.drawable.ic_buy,
-                        action = AssetAction.Swap,
+                        action = QuickAction.TxAction(AssetAction.Swap),
                         enabled = false
                     ),
-                    QuickAction(
+                    QuickActionItem(
                         title = R.string.common_buy,
                         icon = R.drawable.ic_buy,
                         enabled = true,
-                        action = AssetAction.Swap
+                        action = QuickAction.TxAction(AssetAction.Swap)
                     ),
-                    QuickAction(
+                    QuickActionItem(
                         title = R.string.common_buy,
                         enabled = false,
                         icon = R.drawable.ic_buy,
-                        action = AssetAction.Swap
+                        action = QuickAction.TxAction(AssetAction.Swap)
                     )
                 ),
                 {}

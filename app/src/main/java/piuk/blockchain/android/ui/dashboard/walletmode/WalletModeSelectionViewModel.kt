@@ -21,6 +21,7 @@ import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import piuk.blockchain.android.R
 
 class WalletModeSelectionViewModel(
@@ -43,7 +44,6 @@ class WalletModeSelectionViewModel(
             anyBrokerageBalanceFailed = false,
             defiBalance = null,
             anyDefiBalanceFailed = false,
-            enabledWalletMode = walletModeService.enabledWalletMode()
         )
     ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -141,8 +141,12 @@ class WalletModeSelectionViewModel(
                         }
                     }
                 }
-
-                merge(nonCustodialBalance, custodialBalance).collect()
+                val walletMode = walletModeService.walletMode.onEach {
+                    updateState { state ->
+                        state.copy(enabledWalletMode = it)
+                    }
+                }
+                merge(nonCustodialBalance, custodialBalance, walletMode).collect()
             }
 
             is WalletModeSelectionIntent.ActivateWalletModeRequested -> {
@@ -209,7 +213,7 @@ data class WalletModeSelectionViewState(
     val defiWalletBalance: BalanceState,
     val showDefiBalanceWarning: Boolean,
     val defiWalletAvailable: Boolean,
-    val enabledWalletMode: WalletMode,
+    val enabledWalletMode: WalletMode?,
 ) : ViewState
 
 data class WalletModeSelectionModelState(
@@ -219,7 +223,7 @@ data class WalletModeSelectionModelState(
     val anyBrokerageBalanceFailed: Boolean,
     val defiBalance: Money?,
     val anyDefiBalanceFailed: Boolean,
-    val enabledWalletMode: WalletMode,
+    val enabledWalletMode: WalletMode? = null,
 ) : ModelState
 
 sealed class BalanceState {

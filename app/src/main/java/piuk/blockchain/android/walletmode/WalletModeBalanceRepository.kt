@@ -1,24 +1,25 @@
 package piuk.blockchain.android.walletmode
 
+import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.total
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.combineDataResources
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
-import info.blockchain.balance.total
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeBalanceRepository(
-    private var walletModeService: WalletModeService,
     private val balanceStore: WalletModeBalanceCache,
+    private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
 ) : WalletModeBalanceService {
 
@@ -27,14 +28,12 @@ class WalletModeBalanceRepository(
     }
 
     override fun totalBalance(): Flow<DataResource<Money>> {
-        val balances = walletModeService.availableModes().map { walletMode ->
-            balanceFor(walletMode)
-        }
-
-        return combine(balances) { balancesArray ->
-            combineDataResources(balancesArray.toList()) { balancesList ->
-                balancesList.total()
-            }
+        return coincore.activeWalletsInMode(WalletMode.UNIVERSAL).flatMapLatest {
+            it.balance
+        }.map {
+            DataResource.Data(it.total)
+        }.catch {
+            flowOf(DataResource.Error(it as Exception))
         }
     }
 

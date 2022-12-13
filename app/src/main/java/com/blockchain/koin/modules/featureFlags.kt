@@ -15,6 +15,7 @@ import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
+import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
@@ -32,7 +33,7 @@ import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -221,7 +222,7 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superappRedesignFeatureFlag) {
+    single(superappFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
@@ -316,6 +317,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_nav_bar_earn",
                 "Earn on Bottom Nav Bar"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(exchangeWAPromptFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "exchange_wa_prompt",
+                "Exchange WA prompt"
             )
         )
     }.bind(FeatureFlag::class)

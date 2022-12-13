@@ -1,7 +1,6 @@
 package com.blockchain.api.selfcustody.activity
 
 import com.blockchain.api.selfcustody.AuthInfo
-import com.blockchain.domain.wallet.PubKeyStyle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,8 +13,8 @@ data class ActivityDetailsRequest(
     @SerialName("network")
     val network: String,
     @SerialName("pubKey")
-    val pubKey: ActivityPubKeyInfo,
-    @SerialName("localisationParams")
+    val pubKey: String,
+    @SerialName("localisation")
     val params: LocalisationParams
 )
 
@@ -27,14 +26,4 @@ data class LocalisationParams(
     val locales: String,
     @SerialName("fiatCurrency")
     val fiatCurrency: String
-)
-
-@Serializable
-data class ActivityPubKeyInfo(
-    @SerialName("pubKey")
-    val pubKey: String,
-    @SerialName("style")
-    val style: PubKeyStyle,
-    @SerialName("descriptor")
-    val descriptor: String
 )

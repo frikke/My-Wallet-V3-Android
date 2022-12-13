@@ -406,10 +406,13 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
 
+    implementation project(':chrome:common')
     implementation project(':chrome:presentation')
 
     implementation project(':flowhome:presentation')
     implementation project(':flowhome:data')
+
+    implementation project(':flowprices:presentation')
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')

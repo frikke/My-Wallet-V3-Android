@@ -1,12 +1,12 @@
 package com.blockchain.earn.staking.viewmodel
 
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
-import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 data class StakingSummaryViewState(
-    val currency: Currency?,
+    val account: StakingAccount?,
     val errorState: StakingError,
     val isLoading: Boolean,
     val balanceCrypto: Money?,

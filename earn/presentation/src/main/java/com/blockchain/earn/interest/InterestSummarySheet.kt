@@ -41,7 +41,6 @@ import timber.log.Timber
 
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
     interface Host : SlidingModalBottomDialog.Host {
-        fun goToActivityFor(account: BlockchainAccount)
         fun goToInterestDeposit(toAccount: BlockchainAccount)
         fun goToInterestWithdraw(fromAccount: BlockchainAccount)
     }
@@ -53,6 +52,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     }
 
     private lateinit var account: SingleAccount
+    private var showActivity: Boolean = true
     private lateinit var asset: AssetInfo
 
     override fun initBinding(
@@ -206,11 +206,13 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
     companion object {
         fun newInstance(
-            singleAccount: CryptoAccount
+            singleAccount: CryptoAccount,
+            showActivity: Boolean = true
         ): InterestSummarySheet =
             InterestSummarySheet().apply {
                 account = singleAccount
                 asset = singleAccount.currency
+                this.showActivity = showActivity
             }
     }
 

@@ -38,8 +38,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -254,7 +252,6 @@ class TransactionModel(
     initialState: TransactionState,
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
-    private val walletModeService: WalletModeService,
     private val errorLogger: TxFlowErrorReporting,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -497,7 +494,7 @@ class TransactionModel(
             process(TransactionIntent.TargetSelected)
             null
         }?.doOnSuccess { accounts ->
-            if (action == AssetAction.Swap && walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL) {
+            if (action == AssetAction.Swap) {
                 process(
                     TransactionIntent.UpdateTradingAccountsFilterState(
                         canFilterTradingAccounts = accounts.any { it is TradingAccount } &&

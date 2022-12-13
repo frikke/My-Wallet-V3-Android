@@ -46,7 +46,7 @@ import org.koin.androidx.compose.getViewModel
 fun HomeActivity(
     openAllActivity: () -> Unit
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService).walletMode
+    val walletMode by get<WalletModeService>(superAppModeService, scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {

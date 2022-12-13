@@ -51,7 +51,7 @@ fun <T : Any> Flow<DataResource<T>>.asObservable(): Observable<T> = filterNot { 
         }
     }
 
-fun <T, R> Flow<DataResource<T>>.mapData(mapper: (T) -> R): Flow<DataResource<R>> =
+fun <T, R> Flow<DataResource<T>>.mapData(mapper: suspend (T) -> R): Flow<DataResource<R>> =
     map {
         when (it) {
             is DataResource.Data -> DataResource.Data(mapper(it.data))
@@ -95,7 +95,7 @@ fun <T> Flow<DataResource<T>>.filterNotLoading(): Flow<DataResource<T>> =
     filterNot { it is DataResource.Loading }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
+fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: suspend (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
     flatMapLatest {
         when (it) {
             is DataResource.Data -> mapper(it.data)

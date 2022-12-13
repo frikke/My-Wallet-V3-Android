@@ -57,8 +57,7 @@ val transactionModule = module {
     factory {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
-            assetResources = get(),
-            walletModeService = get()
+            assetResources = get()
         )
     }.apply {
         bind(TransactionFlowCustomiser::class)
@@ -251,7 +250,6 @@ val transactionModule = module {
                 initialState = TransactionState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
-                walletModeService = get(),
                 errorLogger = get(),
                 environmentConfig = get(),
                 remoteLogger = get()

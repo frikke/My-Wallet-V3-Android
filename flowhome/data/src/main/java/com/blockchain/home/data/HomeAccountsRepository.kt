@@ -5,7 +5,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
@@ -15,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.rx3.asFlow
+import kotlinx.coroutines.rx3.await
 
 class HomeAccountsRepository(
     private val coincore: Coincore,
@@ -36,12 +35,10 @@ class HomeAccountsRepository(
             }.toSet()
         }
 
-        return activeAssets.flatMapData { assets ->
-            Single.just(assets).flattenAsObservable { it }.flatMapMaybe { asset ->
+        return activeAssets.mapData { assetsDataRes ->
+            Single.just(assetsDataRes).flattenAsObservable { it }.flatMapMaybe { asset ->
                 asset.accountGroup(AssetFilter.NonCustodial).map { grp -> grp.accounts }
-            }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList())).toObservable().map {
-                DataResource.Data(it)
-            }.asFlow()
+            }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList())).await()
         }
     }
 

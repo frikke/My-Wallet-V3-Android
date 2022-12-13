@@ -22,6 +22,7 @@
     <string name="common_activity">Activity</string>
     <string name="common_summary">Summary</string>
     <string name="common_from">From</string>
+    <string name="common_more">More</string>
     <string name="common_to">To</string>
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
@@ -189,7 +190,7 @@
 
     <!-- SuperApp -->
     <string name="chrome_navigation_home">Home</string>
-    <string name="chrome_navigation_trade">Trade</string>
+    <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
 
@@ -335,7 +336,7 @@
 
     <string name="portfolio">Portfolio</string>
     <string name="brokerage_wallet_name" translatable="false">Accounts</string>
-    <string name="brokerage_wallet_name_superapp" translatable="false">Trading</string>
+    <string name="brokerage_wallet_name_superapp" translatable="false">Account</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -2494,6 +2495,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="search_coins_hint">Search Coins</string>
     <string name="prices_error_title">Can’t load Assets Prices</string>
     <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
+    <string name="prices_filter_all">All</string>
+    <string name="prices_filter_favorites">Favorites</string>
+    <string name="prices_filter_tradable">Tradable</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
@@ -2916,6 +2920,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
     <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
+    <string name="no_balance_sheet_earn_title">You don’t have any %1$s</string>
+    <string name="no_balance_sheet_earn_subtitle">Buy or Receive %1$s to start earning.</string>
     <string name="coinview_added_watchlist">Added to Watchlist</string>
     <string name="coinview_removed_watchlist">Removed from Watchlist</string>
     <string name="coinview_expandable_button">Read More</string>
@@ -3272,7 +3278,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="bottom_nav_earn">Earn</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
-    <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
+    <string name="defi_wallet_name_superapp" translatable="false">DeFi Wallet</string>
     <string name="error_loading_balance">Some balances failed to load</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
@@ -3324,6 +3330,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="shortcuts">Shortcuts</string>
     <string name="exchange_your_crypto">Exchange your crypto</string>
     <string name="transfer_to_another_wallet">Transfer to another wallet</string>
+    <string name="transfer_to_other_wallets">Transfer crypto to other wallets</string>
     <string name="top_up_trading_account">Top up in your Trading Account.</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
     <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
@@ -3497,5 +3504,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="put_your_crypto_to_work">Put your crypto to work</string>
     <string name="staking_asset">Staked %1s</string>
     <string name="earn_rate_apy">%1$s%% APY</string>
+    <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
+    <string name="cash_out_bank">Cash out to your bank</string>
 
 </resources>

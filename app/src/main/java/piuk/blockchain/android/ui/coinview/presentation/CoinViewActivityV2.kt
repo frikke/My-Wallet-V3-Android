@@ -8,6 +8,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -23,10 +24,11 @@ import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.openUrl
+import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
@@ -41,7 +43,6 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
-import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
@@ -49,7 +50,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedE
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
-import piuk.blockchain.android.util.putAccount
 
 // TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
 class CoinViewActivityV2 :
@@ -243,7 +243,8 @@ class CoinViewActivityV2 :
             is CoinviewNavigationEvent.NavigateToStakingStatement ->
                 showBottomSheet(
                     StakingSummaryBottomSheet.newInstance(
-                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
+                        true
                     )
                 )
 
@@ -383,7 +384,7 @@ class CoinViewActivityV2 :
         showBottomSheet(KycUpgradeNowSheet.newInstance())
     }
 
-    override fun goToActivityFor(account: BlockchainAccount) {
+    fun goToActivityFor(account: BlockchainAccount) {
         val intent = Intent().apply {
             putAccount(ACCOUNT_FOR_ACTIVITY, account)
         }
@@ -440,16 +441,16 @@ class CoinViewActivityV2 :
         openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(currency: Currency) {
+    override fun launchStakingWithdrawal(account: StakingAccount) {
         // TODO(dserrano) - STAKING - not yet implemented
     }
 
-    override fun launchStakingDeposit(currency: Currency) {
-        viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(currency))
+    override fun launchStakingDeposit(account: StakingAccount) {
+        viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(account))
     }
 
-    override fun goToStakingAccountActivity(currency: Currency) {
-        viewModel.onIntent(CoinviewIntent.LaunchStakingActivity(currency))
+    override fun goToStakingAccountActivity(account: StakingAccount) {
+        viewModel.onIntent(CoinviewIntent.LaunchStakingActivity(account))
     }
 
     override fun showStakingLoadingError(error: StakingError) =

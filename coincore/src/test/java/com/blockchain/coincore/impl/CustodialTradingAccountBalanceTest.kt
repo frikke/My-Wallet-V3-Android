@@ -15,6 +15,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
 import junit.framework.Assert.assertFalse
@@ -37,7 +38,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         identity = identity,
         kycService = kycService,
         walletModeService = mock {
-            on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
         }
     )
 

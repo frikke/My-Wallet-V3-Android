@@ -92,27 +92,32 @@ val mainModule = module {
             )
         }
 
-        scoped<WalletModeBalanceService>(superAppModeService) {
+        scoped<WalletModeBalanceService> {
             WalletModeBalanceRepository(
-                walletModeService = get(superAppModeService),
+                coincore = get(),
                 balanceStore = get(),
                 currencyPrefs = get()
             )
         }
 
-        scoped<WalletModeBalanceService> {
-            WalletModeBalanceRepository(
-                walletModeService = get(),
-                balanceStore = get(),
-                currencyPrefs = get()
+        scoped(superAppModeService) {
+            SuperAppWalletModeRepository(
+                walletModeStore = get(),
+                defaultWalletModeStrategy = get()
             )
-        }
+        }.bind(WalletModeService::class)
+
+        scoped {
+            WalletModeRepository(
+                walletModeStore = get(),
+                defaultWalletModeStrategy = get()
+            )
+        }.bind(WalletModeService::class)
     }
 
     single {
         WalletModePrefStore(
-            walletModePrefs = get(),
-            walletModeStrategy = get()
+            walletModePrefs = get()
         )
     }.bind(WalletModeStore::class)
 
@@ -121,16 +126,4 @@ val mainModule = module {
             walletModeService = lazy { get() }
         )
     }.bind(TraitsService::class)
-
-    single(superAppModeService) {
-        SuperAppWalletModeRepository(
-            walletModeStore = get()
-        )
-    }.bind(WalletModeService::class)
-
-    single {
-        WalletModeRepository(
-            walletModeStore = get()
-        )
-    }.bind(WalletModeService::class)
 }

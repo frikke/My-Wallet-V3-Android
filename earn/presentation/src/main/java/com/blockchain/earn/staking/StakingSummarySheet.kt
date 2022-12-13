@@ -28,6 +28,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ComposeColors
@@ -51,7 +52,6 @@ import com.blockchain.earn.R
 import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
-import info.blockchain.balance.Currency
 
 private sealed class InfoSnackbarState {
     object Hidden : InfoSnackbarState()
@@ -62,11 +62,12 @@ private sealed class InfoSnackbarState {
 @Composable
 fun StakingSummarySheet(
     state: StakingSummaryViewState,
-    onWithdrawPressed: (currency: Currency) -> Unit,
-    onDepositPressed: (currency: Currency) -> Unit,
+    showActivity: Boolean,
+    onWithdrawPressed: (currency: StakingAccount) -> Unit,
+    onDepositPressed: (currency: StakingAccount) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onClosePressed: () -> Unit,
-    onViewActivityPressed: (currency: Currency) -> Unit
+    onViewActivityPressed: (currency: StakingAccount) -> Unit
 ) {
     val hasDepositsBonding: Boolean = remember { state.bondingCrypto?.isPositive == true }
     var snackbarState by remember { mutableStateOf<InfoSnackbarState>(InfoSnackbarState.Hidden) }
@@ -197,18 +198,19 @@ fun StakingSummarySheet(
                 )
 
                 HorizontalDivider(modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium)
-
-                BalanceTableRow(
-                    titleStart = buildAnnotatedString {
-                        append(stringResource(id = R.string.staking_summary_view_activity))
-                    },
-                    endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
-                    onClick = {
-                        state.currency?.let {
-                            onViewActivityPressed(it)
+                if (showActivity) {
+                    BalanceTableRow(
+                        titleStart = buildAnnotatedString {
+                            append(stringResource(id = R.string.staking_summary_view_activity))
+                        },
+                        endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
+                        onClick = {
+                            state.account?.let {
+                                onViewActivityPressed(it)
+                            }
                         }
-                    }
-                )
+                    )
+                }
 
                 if (state.shouldShowWithdrawWarning()) {
                     Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_spacing))) {
@@ -240,7 +242,7 @@ fun StakingSummarySheet(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.common_withdraw),
                     onClick = {
-                        state.currency?.let {
+                        state.account?.let {
                             onWithdrawPressed(it)
                         }
                     },
@@ -258,7 +260,7 @@ fun StakingSummarySheet(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.common_add),
                     onClick = {
-                        state.currency?.let {
+                        state.account?.let {
                             onDepositPressed(it)
                         }
                     },
@@ -361,7 +363,7 @@ fun StakingSummaryPreview() {
         AppTheme {
             StakingSummarySheet(
                 StakingSummaryViewState(
-                    currency = null,
+                    account = null,
                     errorState = StakingError.None,
                     isLoading = false,
                     balanceCrypto = null,
@@ -378,6 +380,7 @@ fun StakingSummaryPreview() {
                     rewardsFrequency = EarnRewardsFrequency.Weekly,
                     canDeposit = false
                 ),
+                false,
                 {},
                 {},
                 {},

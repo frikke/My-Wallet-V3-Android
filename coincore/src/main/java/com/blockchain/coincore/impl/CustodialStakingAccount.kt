@@ -51,7 +51,7 @@ class CustodialStakingAccount(
     private val custodialWalletManager: CustodialWalletManager
 ) : CryptoAccountBase(), StakingAccount {
 
-    override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
+    override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet()) // Not used by this class
 
     private val hasFunds = AtomicBoolean(false)
 

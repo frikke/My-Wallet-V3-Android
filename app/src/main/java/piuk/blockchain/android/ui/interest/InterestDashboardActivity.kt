@@ -25,7 +25,6 @@ import piuk.blockchain.android.ui.interest.presentation.InterestDashboardNavigat
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.putAccount
 
 class InterestDashboardActivity :
     BlockchainActivity(),
@@ -81,18 +80,6 @@ class InterestDashboardActivity :
                 startKyc()
             }
         }.exhaustive
-    }
-
-    override fun goToActivityFor(account: BlockchainAccount) {
-        val b = Bundle()
-        b.putAccount(ACTIVITY_ACCOUNT, account)
-        setResult(
-            RESULT_FIRST_USER,
-            Intent().apply {
-                putExtras(b)
-            }
-        )
-        finish()
     }
 
     override fun onDestroy() {

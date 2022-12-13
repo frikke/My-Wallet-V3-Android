@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.coincore.Coincore
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
@@ -10,10 +11,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.core.user.NabuUserDataManager
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.domain.eligibility.model.EligibleProduct
-import com.blockchain.domain.eligibility.model.ProductEligibility
-import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
@@ -23,7 +20,6 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.then
 import com.blockchain.walletmode.WalletMode
@@ -69,6 +65,7 @@ class LoaderInteractor(
     private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
+    private val coincore: Coincore,
     private val kycService: KycService,
     private val experimentsStore: ExperimentsStore,
     private val fraudService: FraudService
@@ -130,6 +127,13 @@ class LoaderInteractor(
             .then {
                 checkForCowboysUser()
             }
+            .then {
+                coincore.activeWalletsInModeRx(WalletMode.UNIVERSAL)
+                    .firstOrError()
+                    .flatMap { it.balanceRx.firstOrError() }
+                    .onErrorComplete()
+                    .ignoreElement()
+            }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
@@ -143,45 +147,15 @@ class LoaderInteractor(
             )
     }
 
-    private fun setUpWalletModeIfNeeded(): Completable {
-        val walletModeCompletable = try {
-            WalletMode.valueOf(walletModePrefs.currentWalletMode)
-            Completable.complete()
-        } catch (e: Exception) {
-            productsEligibilityStore.stream(FreshnessStrategy.Cached(false))
-                .asSingle().doOnSuccess {
-                    it.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.let { eligibility ->
-                        defaultWalletModeStrategy.updateProductEligibility(eligibility)
-                    } ?: kotlin.run {
-                        defaultWalletModeStrategy.updateProductEligibility(
-                            ProductEligibility(
-                                product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
-                                canTransact = true,
-                                isDefault = false,
-                                maxTransactionsCap = TransactionsLimit.Unlimited,
-                                reasonNotEligible = null
-                            )
-                        )
-                    }
-                }.doOnError {
-                    defaultWalletModeStrategy.updateProductEligibility(
-                        ProductEligibility(
-                            product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
-                            canTransact = true,
-                            isDefault = false,
-                            maxTransactionsCap = TransactionsLimit.Unlimited,
-                            reasonNotEligible = null
-                        )
-                    )
-                }.ignoreElement().onErrorComplete()
-        }
-
-        return walletModeCompletable.doOnComplete {
-            walletModeServices.forEach {
-                it.start()
+    /**
+     * Making sure default Wallet mode has been set
+     */
+    private fun setUpWalletModeIfNeeded(): Completable =
+        Single.zip(
+            walletModeServices.map {
+                it.walletModeSingle
             }
-        }
-    }
+        ) {}.ignoreElement().onErrorComplete()
 
     private fun invalidateExperiments() = experimentsStore.markAsStale()
 
@@ -233,7 +207,7 @@ class LoaderInteractor(
         }
         emitter.onComplete()
         walletPrefs.isAppUnlocked = true
-        analytics.logEvent(LoginAnalyticsEvent(walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL))
+        analytics.logEvent(LoginAnalyticsEvent(true))
     }
 
     private fun updateUserFiatIfNotSet(): Completable {

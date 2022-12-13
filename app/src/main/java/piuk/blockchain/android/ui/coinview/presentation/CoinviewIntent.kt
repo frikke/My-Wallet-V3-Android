@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
-import info.blockchain.balance.Currency
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -154,6 +154,6 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
         }
     }
 
-    data class LaunchStakingDepositFlow(val currency: Currency) : CoinviewIntent
-    data class LaunchStakingActivity(val currency: Currency) : CoinviewIntent
+    data class LaunchStakingDepositFlow(val account: StakingAccount) : CoinviewIntent
+    data class LaunchStakingActivity(val account: StakingAccount) : CoinviewIntent
 }

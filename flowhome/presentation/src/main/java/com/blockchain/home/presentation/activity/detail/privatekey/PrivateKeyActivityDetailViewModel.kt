@@ -15,23 +15,19 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.store.flatMapData
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
-import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class PrivateKeyActivityDetailViewModel(
     private val activityTxId: String,
-    private val unifiedActivityService: UnifiedActivityService,
-    private val networkWalletService: NetworkWalletService
+    private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
     ActivityDetailIntent<ActivityDetailGroups>,
     ActivityDetailViewState,
@@ -90,19 +86,13 @@ class PrivateKeyActivityDetailViewModel(
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
                                 // todo(othman) real values
-                                networkWalletService.networkWalletGroup(network).flatMapData { networkWalletGroup ->
-                                    val pubKeyStyle = networkWalletGroup.pubKeyStyle()
-                                    val pubKeyDescriptor = networkWalletGroup.pubKeyDescriptor()
-                                    unifiedActivityService.getActivityDetails(
-                                        txId = txId,
-                                        network = network,
-                                        pubKey = pubkey,
-                                        pubKeyStyle = pubKeyStyle,
-                                        pubKeyDescriptor = pubKeyDescriptor,
-                                        locales = "en-GB;q=1.0, en",
-                                        timeZone = "Europe/London"
-                                    )
-                                }
+                                unifiedActivityService.getActivityDetails(
+                                    txId = txId,
+                                    network = network,
+                                    pubKey = pubkey,
+                                    locales = "en-GB;q=1.0, en",
+                                    timeZone = "Europe/London"
+                                )
                             }
                         }
                         is DataResource.Error -> flowOf(DataResource.Error(summaryDataResource.error))

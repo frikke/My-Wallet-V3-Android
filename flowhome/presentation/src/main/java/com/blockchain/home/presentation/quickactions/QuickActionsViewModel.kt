@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.quickactions
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -10,13 +11,16 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.presentation.R
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.filterNotLoading
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import io.reactivex.rxjava3.core.Observable
 import java.lang.IllegalStateException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -26,6 +30,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.rx3.asFlow
 
 class QuickActionsViewModel(
@@ -46,49 +51,108 @@ class QuickActionsViewModel(
     override fun reduce(state: QuickActionsModelState): QuickActionsViewState {
         return with(state) {
             QuickActionsViewState(
-                actions = this.actions
+                actions = this.quickActions,
+                moreActions = this.moreActions
             )
         }
     }
 
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
-            is QuickActionsIntent.ActionClicked -> handleActionForMode(intent.action)
-            is QuickActionsIntent.LoadActions -> walletModeService.walletMode.onEach { wMode ->
-                updateState {
-                    it.copy(
-                        walletMode = wMode
-                    )
+            //    is QuickActionsIntent.ActionClicked -> handleActionForMode(intent.action)
+            is QuickActionsIntent.LoadActions -> when (intent.type) {
+                ActionType.Quick -> walletModeService.walletMode.onEach { wMode ->
+                    updateState {
+                        it.copy(
+                            walletMode = wMode,
+                            quickActions = modelState.actionsForMode(wMode)
+                        )
+                    }
+                }.flatMapLatest { wMode ->
+                    if (wMode == WalletMode.NON_CUSTODIAL_ONLY)
+                        actionsForDefi() else
+                        actionsForBrokerage()
+                }.collectLatest { actions ->
+                    updateState {
+                        it.copy(
+                            quickActions = actions
+                        )
+                    }
                 }
-            }.flatMapLatest { wMode ->
-                if (wMode == WalletMode.NON_CUSTODIAL_ONLY)
-                    actionsForDefi() else
-                    actionsForBrokerage()
-            }.collectLatest { actions ->
-                updateState {
-                    it.copy(
-                        actions = actions
-                    )
+                ActionType.More -> walletModeService.walletMode.onEach { wMode ->
+                    updateState {
+                        it.copy(
+                            walletMode = wMode
+                        )
+                    }
+                }.flatMapLatest {
+                    loadMoreActions()
+                }.collectLatest { actions ->
+                    updateState {
+                        it.copy(
+                            moreActions = actions
+                        )
+                    }
                 }
             }
         }
     }
 
-    private fun handleActionForMode(action: AssetAction) {
-        when (action) {
-            AssetAction.Send -> navigate(QuickActionsNavEvent.Send)
-            AssetAction.Swap -> navigate(QuickActionsNavEvent.Swap)
-            AssetAction.Sell -> navigate(QuickActionsNavEvent.Sell)
-            AssetAction.Buy -> navigate(QuickActionsNavEvent.Buy)
-            AssetAction.Receive -> navigate(QuickActionsNavEvent.Receive)
-            AssetAction.ViewActivity,
-            AssetAction.ViewStatement,
-            AssetAction.InterestDeposit,
-            AssetAction.FiatWithdraw,
-            AssetAction.InterestWithdraw,
-            AssetAction.FiatDeposit,
-            AssetAction.StakingDeposit,
-            AssetAction.Sign -> throw IllegalStateException("Action $action is not supported as a Quick action")
+    private fun loadMoreActions(): Flow<List<MoreActionItem>> {
+        val custodialBalance = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY)
+        val hasFiatBalance =
+            coincore.activeWallets(WalletMode.CUSTODIAL_ONLY).map { it.accounts.filterIsInstance<FiatAccount>() }
+                .flatMapObservable {
+                    if (it.isEmpty()) {
+                        Observable.just(false)
+                    } else
+                        it[0].balanceRx.map { balance ->
+                            balance.total.isPositive
+                        }
+                }.asFlow()
+
+        val depositFiatFeature =
+            userFeaturePermissionService.isEligibleFor(Feature.DepositFiat).filterNot { it is DataResource.Loading }
+                .onErrorReturn { false }
+                .map {
+                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
+                }
+        val withdrawFiatFeature =
+            userFeaturePermissionService.isEligibleFor(Feature.WithdrawFiat).filterNot { it is DataResource.Loading }
+                .onErrorReturn { false }
+                .map {
+                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
+                }
+
+        return combine(
+            custodialBalance,
+            depositFiatFeature,
+            withdrawFiatFeature,
+            hasFiatBalance,
+        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance ->
+            listOf(
+                MoreActionItem(
+                    icon = R.drawable.ic_more_send,
+                    title = R.string.common_send,
+                    subtitle = R.string.transfer_to_other_wallets,
+                    action = QuickAction.TxAction(AssetAction.Send),
+                    enabled = balance.total.isPositive
+                ),
+                MoreActionItem(
+                    icon = R.drawable.ic_more_deposit,
+                    title = R.string.common_deposit,
+                    subtitle = R.string.add_cash_from_your_bank_or_card,
+                    action = QuickAction.TxAction(AssetAction.FiatDeposit),
+                    enabled = depositEnabled && hasAnyFiatBalance
+                ),
+                MoreActionItem(
+                    icon = R.drawable.ic_more_withdraw,
+                    title = R.string.common_withdraw,
+                    subtitle = R.string.cash_out_bank,
+                    action = QuickAction.TxAction(AssetAction.FiatWithdraw),
+                    enabled = withdrawEnabled
+                ),
+            )
         }
     }
 
@@ -97,32 +161,45 @@ class QuickActionsViewModel(
             it.balanceRx
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
 
-    private fun actionsForDefi(): Flow<List<QuickAction>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).map {
+    private fun actionsForDefi(): Flow<List<QuickActionItem>> =
+        totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).zip(
+            userFeaturePermissionService.isEligibleFor(
+                Feature.Sell,
+                FreshnessStrategy.Cached(false)
+            ).filterNotLoading()
+        ) { balance, sellEligible ->
+
             listOf(
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_swap,
                     icon = R.drawable.ic_swap,
-                    action = AssetAction.Swap,
-                    enabled = it.total.isPositive
+                    action = QuickAction.TxAction(AssetAction.Swap),
+                    enabled = balance.total.isPositive
                 ),
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_receive,
                     enabled = true,
                     icon = R.drawable.ic_receive,
-                    action = AssetAction.Receive,
+                    action = QuickAction.TxAction(AssetAction.Receive),
                 ),
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_send,
-                    enabled = it.total.isPositive,
+                    enabled = balance.total.isPositive,
                     icon = R.drawable.ic_send,
-                    action = AssetAction.Send,
+                    action = QuickAction.TxAction(AssetAction.Send),
+                ),
+                QuickActionItem(
+                    title = R.string.common_sell,
+                    enabled = balance.total.isPositive &&
+                        (sellEligible as? DataResource.Data)?.data ?: false,
+                    icon = R.drawable.ic_send,
+                    action = QuickAction.TxAction(AssetAction.Sell),
                 )
 
             )
         }
 
-    private fun actionsForBrokerage(): Flow<List<QuickAction>> {
+    private fun actionsForBrokerage(): Flow<List<QuickActionItem>> {
         val buyEnabledFlow =
             userFeaturePermissionService.isEligibleFor(Feature.Buy).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
@@ -130,7 +207,7 @@ class QuickActionsViewModel(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
         val sellEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(Feature.Sell).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(Feature.DepositFiat).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
@@ -150,38 +227,42 @@ class QuickActionsViewModel(
         val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY)
 
         return combine(
-            balanceFlow, buyEnabledFlow, sellEnabledFlow, swapEnabledFlow, receiveEnabledFlow
+            balanceFlow,
+            buyEnabledFlow,
+            sellEnabledFlow,
+            swapEnabledFlow,
+            receiveEnabledFlow
         ) { balance, buyEnabled, sellEnabled, swapEnabled, receiveEnabled ->
             listOf(
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_buy,
                     enabled = buyEnabled,
                     icon = R.drawable.ic_buy,
-                    action = AssetAction.Buy,
+                    action = QuickAction.TxAction(AssetAction.Buy),
                 ),
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_sell,
                     enabled = sellEnabled && balance.total.isPositive,
                     icon = R.drawable.ic_sell,
-                    action = AssetAction.Sell,
+                    action = QuickAction.TxAction(AssetAction.Sell),
                 ),
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_swap,
                     enabled = swapEnabled && balance.total.isPositive,
                     icon = R.drawable.ic_swap,
-                    action = AssetAction.Swap,
+                    action = QuickAction.TxAction(AssetAction.Swap),
                 ),
-                QuickAction(
-                    title = R.string.common_send,
-                    icon = R.drawable.ic_send,
-                    enabled = balance.total.isPositive,
-                    action = AssetAction.Send,
-                ),
-                QuickAction(
+                QuickActionItem(
                     title = R.string.common_receive,
                     icon = R.drawable.ic_receive,
-                    action = AssetAction.Receive,
-                    enabled = receiveEnabled
+                    enabled = receiveEnabled,
+                    action = QuickAction.TxAction(AssetAction.Receive),
+                ),
+                QuickActionItem(
+                    title = R.string.common_more,
+                    icon = R.drawable.ic_more,
+                    action = QuickAction.More,
+                    enabled = true
                 )
             )
         }
@@ -190,22 +271,51 @@ class QuickActionsViewModel(
 
 data class QuickActionsModelState(
     val walletMode: WalletMode = WalletMode.UNIVERSAL,
-    val actions: List<QuickAction> = emptyList()
-) : ModelState
+    val quickActions: List<QuickActionItem> = emptyList(),
+    val moreActions: List<MoreActionItem> = emptyList(),
+    private val _actionsForMode: MutableMap<WalletMode, List<QuickActionItem>> = mutableMapOf()
+) : ModelState {
+    init {
+        _actionsForMode[walletMode] = quickActions
+    }
 
-data class QuickAction(
+    fun actionsForMode(walletMode: WalletMode): List<QuickActionItem> =
+        _actionsForMode[walletMode] ?: emptyList()
+}
+
+data class QuickActionItem(
     val icon: Int,
     val title: Int,
     val enabled: Boolean,
-    val action: AssetAction
+    val action: QuickAction
+)
+
+data class MoreActionItem(
+    val icon: Int,
+    val title: Int,
+    val subtitle: Int,
+    val action: QuickAction.TxAction,
+    val enabled: Boolean
 )
 
 sealed class QuickActionsIntent : Intent<QuickActionsModelState> {
-    class ActionClicked(val action: AssetAction) : QuickActionsIntent()
-    object LoadActions : QuickActionsIntent()
+    // class ActionClicked(val action: QuickAction) : QuickActionsIntent()
+    class LoadActions(val type: ActionType) : QuickActionsIntent()
 }
 
-data class QuickActionsViewState(val actions: List<QuickAction>) : ViewState
+sealed class QuickAction {
+    data class TxAction(val assetAction: AssetAction) : QuickAction()
+    object More : QuickAction()
+}
+
+data class QuickActionsViewState(
+    val actions: List<QuickActionItem>,
+    val moreActions: List<MoreActionItem>
+) : ViewState
+
+enum class ActionType {
+    Quick, More
+}
 
 enum class QuickActionsNavEvent : NavigationEvent {
     Buy, Sell, Receive, Send, Swap

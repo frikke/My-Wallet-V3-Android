@@ -36,7 +36,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
@@ -53,7 +53,6 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
@@ -89,7 +88,7 @@ class PinActivity :
 
     override val model: PinModel by scopedInject()
     private val fraudService: FraudService by inject()
-    private val superAppFeatureFlag: IntegratedFeatureFlag by inject(superappRedesignFeatureFlag)
+    private val superAppFeatureFlag: IntegratedFeatureFlag by inject(superappFeatureFlag)
     private val prefs: FeatureFlagOverridePrefs by inject()
     override fun initBinding(): ActivityPinBinding =
         ActivityPinBinding.inflate(layoutInflater)

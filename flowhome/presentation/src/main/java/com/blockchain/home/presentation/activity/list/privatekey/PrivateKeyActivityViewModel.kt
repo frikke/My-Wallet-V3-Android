@@ -17,6 +17,7 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -29,7 +30,7 @@ class PrivateKeyActivityViewModel(
     ActivityViewState,
     ActivityModelState<UnifiedActivityItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState()) {
+    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.NON_CUSTODIAL_ONLY)) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -57,7 +58,8 @@ class PrivateKeyActivityViewModel(
                             )
                         }
                     }
-                }
+                },
+            walletMode = walletMode
         )
     }
 

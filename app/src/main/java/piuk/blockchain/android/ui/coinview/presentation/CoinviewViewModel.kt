@@ -22,7 +22,9 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.filterNotLoading
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -34,6 +36,8 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -59,27 +63,24 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysSta
 import timber.log.Timber
 
 class CoinviewViewModel(
-    walletModeService: WalletModeService,
+    private val walletModeService: WalletModeService,
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
-
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-
     private val watchlistService: WatchlistService,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val getAccountActionsUseCase: GetAccountActionsUseCase,
-
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
-
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
-    private val assetService: AssetService
+    private val assetService: AssetService,
+    private val custodialWalletManager: CustodialWalletManager
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
-    CoinviewArgs>(CoinviewModelState(walletMode = walletModeService.enabledWalletMode())) {
+    CoinviewArgs>(CoinviewModelState()) {
 
     companion object {
         const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
@@ -757,6 +758,12 @@ class CoinviewViewModel(
         when (intent) {
             is CoinviewIntent.LoadAllData -> {
                 check(modelState.asset != null) { "LoadAllData asset not initialized" }
+                val walletMode = walletModeService.walletMode.first()
+                updateState { state ->
+                    state.copy(
+                        walletMode = walletMode
+                    )
+                }
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
@@ -895,16 +902,21 @@ class CoinviewViewModel(
 
             is CoinviewIntent.NoBalanceUpsell -> {
                 require(modelState.accounts != null) { "NoBalanceUpsell accounts not initialized" }
+                require(modelState.asset != null) { "NoBalanceUpsell asset not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
-                navigate(
-                    CoinviewNavigationEvent.ShowNoBalanceUpsell(
-                        cvAccount,
-                        intent.action,
-                        true
-                    )
-                )
+                custodialWalletManager.isCurrencyAvailableForTrading(modelState.asset.currency)
+                    .filterNotLoading()
+                    .doOnData { availableToBuy ->
+                        navigate(
+                            CoinviewNavigationEvent.ShowNoBalanceUpsell(
+                                cvAccount,
+                                intent.action,
+                                availableToBuy
+                            )
+                        )
+                    }.firstOrNull()
             }
 
             CoinviewIntent.LockedAccountSelected -> {

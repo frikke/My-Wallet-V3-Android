@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
@@ -10,7 +11,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 
 enum class SimpleBuyAnalytics(override val event: String, override val params: Map<String, String> = emptyMap()) :
     AnalyticsEvent {
@@ -321,7 +321,7 @@ object FabBuyClickedEvent : AnalyticsEvent {
     override val params: Map<String, Serializable> = emptyMap()
 }
 
-class BuySellViewedEvent(private val type: BuySellFragment.BuySellViewType? = null) : AnalyticsEvent {
+class BuySellViewedEvent(private val type: BuySellViewType? = null) : AnalyticsEvent {
     override val event: String
         get() = AnalyticsNames.BUY_SELL_VIEWED.eventName
     override val params: Map<String, Serializable>
@@ -332,7 +332,7 @@ class BuySellViewedEvent(private val type: BuySellFragment.BuySellViewType? = nu
 
 class BuySellClicked(
     override val origin: LaunchOrigin,
-    val type: BuySellFragment.BuySellViewType? = null
+    val type: BuySellViewType? = null
 ) : AnalyticsEvent {
     override val event: String
         get() = AnalyticsNames.BUY_SELL_CLICKED.eventName
@@ -342,10 +342,10 @@ class BuySellClicked(
         ).withoutNullValues()
 }
 
-private fun BuySellFragment.BuySellViewType.toAnalyticsString(): String =
+private fun BuySellViewType.toAnalyticsString(): String =
     when (this) {
-        BuySellFragment.BuySellViewType.TYPE_BUY -> "BUY"
-        BuySellFragment.BuySellViewType.TYPE_SELL -> "SELL"
+        BuySellViewType.TYPE_BUY -> "BUY"
+        BuySellViewType.TYPE_SELL -> "SELL"
     }
 
 class BankTransferViewed(fiatCurrency: FiatCurrency) : AnalyticsEvent {

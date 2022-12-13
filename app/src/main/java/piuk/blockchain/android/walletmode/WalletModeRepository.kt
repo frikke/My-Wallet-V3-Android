@@ -8,9 +8,11 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
 
-class WalletModeRepository(
+open class WalletModeRepository(
     private val walletModeStore: WalletModeStore,
+    private val defaultWalletModeStrategy: DefaultWalletModeStrategy
 ) : WalletModeService {
 
     private val _walletMode: MutableSharedFlow<WalletMode> = MutableSharedFlow(
@@ -18,21 +20,21 @@ class WalletModeRepository(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    override fun enabledWalletMode(): WalletMode {
-        return walletModeStore.walletMode
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun reset() {
         _walletMode.resetReplayCache()
     }
 
     override val walletMode: Flow<WalletMode>
-        get() = _walletMode.distinctUntilChanged()
-
-    override fun start() {
-        _walletMode.tryEmit(enabledWalletMode())
-    }
+        get() = _walletMode.distinctUntilChanged().onStart {
+            walletModeStore.walletMode?.let {
+                emit(it)
+            } ?: emit(
+                defaultWalletModeStrategy.defaultWalletMode().also {
+                    walletModeStore.updateWalletMode(it)
+                }
+            )
+        }
 
     override fun updateEnabledWalletMode(type: WalletMode) {
         walletModeStore.updateWalletMode(type).also {

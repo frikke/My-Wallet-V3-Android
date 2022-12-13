@@ -25,7 +25,9 @@ fun HomeScreen(
     assetActionsNavigation: AssetActionsNavigation,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
-    openReferral: () -> Unit
+    openReferral: () -> Unit,
+    openFiatActionDetail: (String) -> Unit,
+    openMoreQuickActions: () -> Unit,
 ) {
     LazyColumn(
         state = listState,
@@ -37,11 +39,16 @@ fun HomeScreen(
             ),
     ) {
         item {
-            Balance()
+            Balance(openSettings = {
+                assetActionsNavigation.settings()
+            })
         }
 
         item {
-            QuickActions(assetActionsNavigation = assetActionsNavigation)
+            QuickActions(
+                assetActionsNavigation = assetActionsNavigation,
+                openMoreQuickActions = openMoreQuickActions
+            )
         }
         item {
             EmptyCard(
@@ -54,7 +61,9 @@ fun HomeScreen(
         }
         item {
             HomeAssets(
-                openAllAssets = openCryptoAssets
+                assetActionsNavigation = assetActionsNavigation,
+                openAllAssets = openCryptoAssets,
+                openFiatActionDetail = openFiatActionDetail
             )
         }
 

@@ -18,7 +18,8 @@ val coinviewPresentationModule = module {
                 getAccountActionsUseCase = get(),
                 loadAssetRecurringBuysUseCase = get(),
                 loadQuickActionsUseCase = get(),
-                assetService = get()
+                assetService = get(),
+                custodialWalletManager = get()
             )
         }
     }
