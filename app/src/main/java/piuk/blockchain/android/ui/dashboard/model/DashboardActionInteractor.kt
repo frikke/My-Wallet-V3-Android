@@ -36,8 +36,6 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethods
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -54,6 +52,8 @@ import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.rxMaybeOutcome
 import com.blockchain.walletmode.WalletMode

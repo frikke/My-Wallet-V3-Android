@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.fiat.actions.models
+package com.blockchain.tempsheetinterfaces.fiatactions.models
 
 import java.io.Serializable
 

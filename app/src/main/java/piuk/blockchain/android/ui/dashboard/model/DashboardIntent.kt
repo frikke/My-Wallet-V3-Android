@@ -12,7 +12,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency

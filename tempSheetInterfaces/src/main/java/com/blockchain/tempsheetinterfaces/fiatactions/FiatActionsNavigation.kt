@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.fiat.actions
+package com.blockchain.tempsheetinterfaces.fiatactions
 
 import androidx.compose.runtime.Stable
 import com.blockchain.coincore.AssetAction
@@ -7,8 +7,8 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 
 @Stable
 interface FiatActionsNavigation {

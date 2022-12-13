@@ -9,7 +9,7 @@ import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

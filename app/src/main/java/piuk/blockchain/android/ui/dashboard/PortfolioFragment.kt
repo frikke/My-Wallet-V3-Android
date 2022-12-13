@@ -34,8 +34,6 @@ import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
-import com.blockchain.home.presentation.fiat.actions.sheetinterface.BankLinkingHost
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -43,7 +41,9 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.tempsheetinterfaces.BankLinkingHost
 import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService

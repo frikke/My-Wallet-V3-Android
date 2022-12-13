@@ -13,19 +13,12 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
@@ -37,10 +30,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.fiat.actions.FiatActionsIntent
-import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
-import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
-import com.blockchain.home.presentation.fiat.actions.FiatActionsViewModel
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetail
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailData
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailIntent
@@ -49,15 +38,12 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewStat
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun FiatFundDetail(
     fiatTicker: String,
-    actionsViewModel: FiatActionsViewModel = getViewModel(scope = payloadScope),
-    fiatActionsNavigation: FiatActionsNavigation,
     onBackPressed: () -> Unit
 ) {
     val viewModel: FiatFundsDetailViewModel = getViewModel(
@@ -72,55 +58,12 @@ fun FiatFundDetail(
         onDispose { }
     }
 
-    // navigation
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val navEventsFlowLifecycleAware = remember(actionsViewModel.navigationEventFlow, lifecycleOwner) {
-        actionsViewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    LaunchedEffect(key1 = viewModel) {
-        navEventsFlowLifecycleAware.collectLatest {
-            when (it) {
-                is FiatActionsNavEvent.WireTransferAccountDetails -> {
-                    fiatActionsNavigation.wireTransferDetail(it.account)
-                }
-                is FiatActionsNavEvent.DepositQuestionnaire -> {
-                    fiatActionsNavigation.depositQuestionnaire(it.questionnaire)
-                }
-                is FiatActionsNavEvent.TransactionFlow -> {
-                    fiatActionsNavigation.transactionFlow(
-                        sourceAccount = it.sourceAccount, target = it.target, action = it.action
-                    )
-                }
-                is FiatActionsNavEvent.BlockedDueToSanctions -> {
-                    fiatActionsNavigation.blockedDueToSanctions(
-                        reason = it.reason
-                    )
-                }
-                is FiatActionsNavEvent.LinkBankMethod -> {
-                    fiatActionsNavigation.linkBankMethod(
-                        paymentMethodsForAction = it.paymentMethodsForAction
-                    )
-                }
-            }
-            onBackPressed()
-        }
-    }
-    //
-
     FiatFundDetailScreen(
         detail = viewState.detail,
         data = viewState.data,
         depositOnClick = { account ->
-//           ( LocalContext.current as MultiAppActivity).flow.collectLatest {
-//               FiatActionsIntent.Deposit(
-//                   account = account,
-//                   action = AssetAction.FiatDeposit,
-//                   shouldLaunchBankLinkTransfer = false
-//               )
-//           }
-
-            actionsViewModel.onIntent(
-                FiatActionsIntent.Deposit(
+            viewModel.onIntent(
+                FiatFundsDetailIntent.Deposit(
                     account = account,
                     action = AssetAction.FiatDeposit,
                     shouldLaunchBankLinkTransfer = false

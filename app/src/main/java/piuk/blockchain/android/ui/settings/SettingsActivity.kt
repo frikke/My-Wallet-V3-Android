@@ -16,7 +16,6 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency

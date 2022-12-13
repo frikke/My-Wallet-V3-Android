@@ -6,9 +6,9 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
-import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
+import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet

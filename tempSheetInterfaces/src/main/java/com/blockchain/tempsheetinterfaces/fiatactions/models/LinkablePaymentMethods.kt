@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.fiat.actions.models
+package com.blockchain.tempsheetinterfaces.fiatactions.models
 
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import info.blockchain.balance.FiatCurrency
