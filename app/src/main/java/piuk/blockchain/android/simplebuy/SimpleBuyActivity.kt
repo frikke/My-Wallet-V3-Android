@@ -38,6 +38,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -77,7 +78,7 @@ class SimpleBuyActivity :
     BlockchainActivity(),
     SimpleBuyNavigator,
     KycUpgradeNowSheet.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
     CurrencySelectionSheet.Host {

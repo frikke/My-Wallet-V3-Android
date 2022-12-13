@@ -43,3 +43,4 @@ include ':app',
         ':fraud:data', ':fraud:domain', ':fraud:sardine',
         ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
         ':membership:data', ':membership:domain', ':membership:presentation'
+include ':tempSheetInterfaces'

@@ -27,8 +27,9 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Optional
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import timber.log.Timber
+import java.util.Optional
 
 class FiatActionsViewModel(
     private val dataRemediationService: DataRemediationService,
@@ -39,6 +40,7 @@ class FiatActionsViewModel(
     FiatActionsIntent, FiatActionsViewState, FiatActionsModelState, FiatActionsNavEvent, ModelConfigArgs.NoArgs>(
     FiatActionsModelState
 ) {
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: FiatActionsModelState) = FiatActionsViewState
@@ -82,65 +84,72 @@ class FiatActionsViewModel(
 
         //        analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
 
-        when {
-            eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
-                //                Single.just(
-                //                    FiatTransactionRequestResult.BlockedDueToSanctions(
-                //                        eligibility.reason as BlockedReason.Sanctions
-                //                    )
-                //                )
-                TODO()
-            questionnaireOpt.isPresent ->
-                //                Single.just(
-                //                FiatTransactionRequestResult.LaunchQuestionnaire(
-                //                    questionnaire = questionnaireOpt.get(),
-                //                    callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                //                        targetAccount,
-                //                        action,
-                //                        shouldLaunchBankLinkTransfer,
-                //                        shouldSkipQuestionnaire = true
-                //                    )
-                //                )
-                //            )
-                TODO()
-            eligibleBanks.isEmpty() -> {
-                handleNoLinkedBanks(
-                    targetAccount,
-                    action,
-                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
-                        linkablePaymentMethods = LinkablePaymentMethods(
-                            targetAccount.currency,
-                            paymentMethods.sortedBy { it.ordinal }
-                        )
-                    )
+//        when {
+//            eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
+//                Single.just(
+//                    FiatTransactionRequestResult.BlockedDueToSanctions(
+//                        eligibility.reason as BlockedReason.Sanctions
+//                    )
+//                )
+//            questionnaireOpt.isPresent ->
+//                Single.just(
+//                    FiatTransactionRequestResult.LaunchQuestionnaire(
+//                        // todo othman find an account with this
+//                        questionnaire = questionnaireOpt.get(),
+//                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+//                        //                            targetAccount,
+//                        //                            action,
+//                        //                            shouldLaunchBankLinkTransfer,
+//                        //                            shouldSkipQuestionnaire = true
+//                        //                        )
+//                    )
+//                )
+//            eligibleBanks.isEmpty() -> {
+//                handleNoLinkedBanks(
+//                    targetAccount,
+//                    action,
+//                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+//                        linkablePaymentMethods = LinkablePaymentMethods(
+//                            targetAccount.currency,
+//                            paymentMethods.sortedBy { it.ordinal }
+//                        )
+//                    )
+//                )
+//            }
+//            eligibleBanks.size == 2 -> {
+//                Single.just(
+//                    FiatTransactionRequestResult.LaunchDepositFlow(
+//                        preselectedBankAccount = linkedBanks.first(),
+//                        action = action,
+//                        targetAccount = targetAccount
+//                    )
+//                )
+//            }
+//            else -> {
+//                Single.just(
+//                    FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
+//                        action = action,
+//                        targetAccount = targetAccount
+//                    )
+//                )
+//            }
+//        }
+        handleNoLinkedBanks(
+            targetAccount,
+            action,
+            LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+                linkablePaymentMethods = LinkablePaymentMethods(
+                    targetAccount.currency,
+                    paymentMethods.sortedBy { it.ordinal }
                 )
-            }
-            eligibleBanks.size == 1 -> {
-                //                Single.just(
-                //                    FiatTransactionRequestResult.LaunchDepositFlow(
-                //                        preselectedBankAccount = linkedBanks.first(),
-                //                        action = action,
-                //                        targetAccount = targetAccount
-                //                    )
-                //                )
-                TODO()
-            }
-            else -> {
-                //                Single.just(
-                //                    FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
-                //                        action = action,
-                //                        targetAccount = targetAccount
-                //                    )
-                //                )
-                TODO()
-            }
-        }
+            )
+        )
     }.subscribeBy(
         onSuccess = {
             handlePaymentMethodsUpdate(it, targetAccount, action)
         },
         onError = {
-            //            Timber.e("Error loading bank transfer info $it")
+            Timber.e("Error loading bank transfer info $it")
         }
     )
 
@@ -151,24 +160,21 @@ class FiatActionsViewModel(
     ) {
         when (fiatTxRequestResult) {
             is FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts -> {
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.TransactionFlow(
-                //                        target = fiatAccount,
-                //                        action = action
-                //                    )
-                //                )
-
-                TODO()
+                navigate(
+                    FiatActionsNavEvent.TransactionFlow(
+                        target = fiatAccount,
+                        action = action
+                    )
+                )
             }
             is FiatTransactionRequestResult.LaunchDepositFlow -> {
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.TransactionFlow(
-                //                        target = fiatAccount,
-                //                        sourceAccount = fiatTxRequestResult.preselectedBankAccount,
-                //                        action = action
-                //                    )
-                //                )
-                TODO()
+                navigate(
+                    FiatActionsNavEvent.TransactionFlow(
+                        sourceAccount = fiatTxRequestResult.preselectedBankAccount,
+                        target = fiatAccount,
+                        action = action
+                    )
+                )
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts -> {
                 //                DashboardIntent.UpdateNavigationAction(
@@ -201,28 +207,23 @@ class FiatActionsViewModel(
                 // TODO Show an error
             }
             is FiatTransactionRequestResult.BlockedDueToSanctions -> {
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions(
-                //                        fiatTxRequestResult.reason
-                //                    )
-                //                )
-                TODO()
+                navigate(FiatActionsNavEvent.BlockedDueToSanctions(reason = fiatTxRequestResult.reason))
             }
             is FiatTransactionRequestResult.LaunchQuestionnaire -> {
+                navigate(FiatActionsNavEvent.DepositQuestionnaire(questionnaire = fiatTxRequestResult.questionnaire))
                 //                DashboardIntent.UpdateNavigationAction(
                 //                    DashboardNavigationAction.DepositQuestionnaire(
                 //                        questionnaire = fiatTxRequestResult.questionnaire,
                 //                        callbackIntent = fiatTxRequestResult.callbackIntent
                 //                    )
                 //                )
-                TODO()
             }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
-                //                DashboardIntent.ShowLinkablePaymentMethodsSheet(
-                //                    fiatAccount = fiatAccount,
-                //                    paymentMethodsForAction = fiatTxRequestResult.paymentMethodForAction
-                //                )
-                TODO()
+                navigate(
+                    FiatActionsNavEvent.LinkBankMethod(
+                        paymentMethodsForAction = fiatTxRequestResult.paymentMethodForAction
+                    )
+                )
             }
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 navigate(FiatActionsNavEvent.WireTransferAccountDetails(account = fiatAccount))
@@ -254,39 +255,44 @@ class FiatActionsViewModel(
         action: AssetAction,
         paymentMethodForAction: LinkablePaymentMethodsForAction,
     ): Single<FiatTransactionRequestResult> {
-        return when {
-            paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
-                listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
-            ) -> {
-                Single.just(
-                    FiatTransactionRequestResult.LaunchPaymentMethodChooser(
-                        paymentMethodForAction
-                    )
-                )
-            }
-            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
-                linkBankTransfer(targetAccount.currency).map {
-                    FiatTransactionRequestResult.LaunchBankLink(
-                        linkBankTransfer = it,
-                        action = action
-                    ) as FiatTransactionRequestResult
-                }.onErrorReturn {
-                    FiatTransactionRequestResult.NotSupportedPartner
-                }
-            }
-            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
-                userIdentity.isArgentinian().flatMap { isArgentinian ->
-                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
-                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
-                    } else {
-                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
-                    }
-                }
-            }
-            else -> {
-                Single.just(FiatTransactionRequestResult.NotSupportedPartner)
-            }
-        }
+        //        return when {
+        //            paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
+        //                listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
+        //            ) -> {
+        //                Single.just(
+        //                    FiatTransactionRequestResult.LaunchPaymentMethodChooser(
+        //                        paymentMethodForAction
+        //                    )
+        //                )
+        //            }
+        //            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
+        //                linkBankTransfer(targetAccount.currency).map {
+        //                    FiatTransactionRequestResult.LaunchBankLink(
+        //                        linkBankTransfer = it,
+        //                        action = action
+        //                    ) as FiatTransactionRequestResult
+        //                }.onErrorReturn {
+        //                    FiatTransactionRequestResult.NotSupportedPartner
+        //                }
+        //            }
+        //            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
+        //                userIdentity.isArgentinian().flatMap { isArgentinian ->
+        //                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
+        //                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
+        //                    } else {
+        //                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+        //                    }
+        //                }
+        //            }
+        //            else -> {
+        //                Single.just(FiatTransactionRequestResult.NotSupportedPartner)
+        //            }
+        //        }
+        return Single.just(
+            FiatTransactionRequestResult.LaunchPaymentMethodChooser(
+                paymentMethodForAction
+            )
+        )
     }
 
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =

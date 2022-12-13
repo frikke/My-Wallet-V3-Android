@@ -6,6 +6,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
 
 sealed class FiatTransactionRequestResult {

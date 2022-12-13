@@ -6,10 +6,14 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -20,14 +24,30 @@ import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
+import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
+import com.blockchain.home.presentation.fiat.actions.sheetinterface.BankLinkingHost
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
+import com.blockchain.utils.filterList
+import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.snackbar.Snackbar
+import info.blockchain.balance.FiatCurrency
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MultiAppActivity : BlockchainActivity(), InterestSummarySheet.Host, StakingSummaryBottomSheet.Host {
+class MultiAppActivity : BlockchainActivity(),
+    InterestSummarySheet.Host,
+    StakingSummaryBottomSheet.Host,
+    QuestionnaireSheetHost,
+    BankLinkingHost {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -54,6 +74,8 @@ class MultiAppActivity : BlockchainActivity(), InterestSummarySheet.Host, Stakin
             this
         )
     }
+
+    private val coincore: Coincore = payloadScope.get()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +148,49 @@ class MultiAppActivity : BlockchainActivity(), InterestSummarySheet.Host, Stakin
     override fun goToStakingAccountActivity(account: StakingAccount) {
         // Do nothing not supported
     }
+
+    ////////////////////////////////////
+    // QuestionnaireSheetHost
+    override fun questionnaireSubmittedSuccessfully() {
+        println("--------- questionnaireSubmittedSuccessfully")
+    }
+
+    override fun questionnaireSkipped() {
+        println("--------- questionnaireSkipped")
+    }
+
+    ////////////////////////////////////
+    // BankLinkingHost
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
+        lifecycleScope.launch {
+            val account = coincore.activeWalletsInMode(WalletMode.CUSTODIAL_ONLY).map { it.accounts }
+                .map { it.filterIsInstance<FiatAccount>() }
+                .filterList { it.currency.networkTicker == currency.networkTicker }
+                .firstOrNull()?.firstOrNull()
+
+            account?.let {
+                fiatActionsNavigation.wireTransferDetail(account)
+            }
+        }
+    }
+
+    override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
+        lifecycleScope.launch {
+            val account = coincore.activeWalletsInMode(WalletMode.CUSTODIAL_ONLY).map { it.accounts }
+                .map { it.filterIsInstance<FiatAccount>() }
+                .filterList { it.currency.networkTicker == currency.networkTicker }
+                .firstOrNull()?.firstOrNull()
+
+            account?.let {
+//                if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
+//                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatDeposit, true))
+//                } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
+//                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
+//                }
+            }
+        }
+    }
+    ////////////////////////////////////
 
     override fun onSheetClosed() {
     }

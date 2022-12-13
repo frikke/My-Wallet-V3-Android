@@ -39,6 +39,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         fun goToActivityFor(account: BlockchainAccount)
         fun showFundsKyc()
         fun startBankTransferWithdrawal(fiatAccount: FiatAccount)
+        dzdz
         fun startDepositFlow(fiatAccount: FiatAccount)
     }
 

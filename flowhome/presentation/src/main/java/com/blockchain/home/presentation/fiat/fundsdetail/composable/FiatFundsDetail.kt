@@ -19,11 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
@@ -80,9 +82,27 @@ fun FiatFundDetail(
             when (it) {
                 is FiatActionsNavEvent.WireTransferAccountDetails -> {
                     fiatActionsNavigation.wireTransferDetail(it.account)
-                    onBackPressed()
+                }
+                is FiatActionsNavEvent.DepositQuestionnaire -> {
+                    fiatActionsNavigation.depositQuestionnaire(it.questionnaire)
+                }
+                is FiatActionsNavEvent.TransactionFlow -> {
+                    fiatActionsNavigation.transactionFlow(
+                        sourceAccount = it.sourceAccount, target = it.target, action = it.action
+                    )
+                }
+                is FiatActionsNavEvent.BlockedDueToSanctions -> {
+                    fiatActionsNavigation.blockedDueToSanctions(
+                        reason = it.reason
+                    )
+                }
+                is FiatActionsNavEvent.LinkBankMethod -> {
+                    fiatActionsNavigation.linkBankMethod(
+                        paymentMethodsForAction = it.paymentMethodsForAction
+                    )
                 }
             }
+            onBackPressed()
         }
     }
     //
@@ -91,6 +111,14 @@ fun FiatFundDetail(
         detail = viewState.detail,
         data = viewState.data,
         depositOnClick = { account ->
+//           ( LocalContext.current as MultiAppActivity).flow.collectLatest {
+//               FiatActionsIntent.Deposit(
+//                   account = account,
+//                   action = AssetAction.FiatDeposit,
+//                   shouldLaunchBankLinkTransfer = false
+//               )
+//           }
+
             actionsViewModel.onIntent(
                 FiatActionsIntent.Deposit(
                     account = account,

@@ -68,7 +68,7 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun CryptoAssets(
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
+    viewModel: AssetsViewModel = getViewModel(scope = payloadScope, key = "aaa"),
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
@@ -78,12 +78,13 @@ fun CryptoAssets(
     }
     val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.All))
-        viewModel.onIntent(AssetsIntent.LoadFilters)
-        onDispose { }
-    }
+//    DisposableEffect(key1 = viewModel) {
+//        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.All))
+//        viewModel.onIntent(AssetsIntent.LoadFilters)
+//        onDispose { }
+//    }
 
+    println("--------- viewState $viewState")
     viewState?.let { state ->
         CryptoAssetsScreen(
             cryptoAssets = state.assets.map { it.filterIsInstance<HomeCryptoAsset>() },

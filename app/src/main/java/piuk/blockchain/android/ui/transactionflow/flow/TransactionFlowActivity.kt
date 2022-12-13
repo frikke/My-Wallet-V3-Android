@@ -38,6 +38,7 @@ import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
+import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -69,7 +70,7 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     KycUpgradeNowSheet.Host,
     StakingAccountWithdrawWarning.Host {
 

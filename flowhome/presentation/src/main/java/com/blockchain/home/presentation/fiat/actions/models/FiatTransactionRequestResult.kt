@@ -40,6 +40,6 @@ sealed class FiatTransactionRequestResult {
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
     data class LaunchQuestionnaire(
         val questionnaire: Questionnaire,
-        val callbackIntent: Any
+//        val callbackIntent: Any
     ) : FiatTransactionRequestResult()
 }

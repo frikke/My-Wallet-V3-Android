@@ -16,6 +16,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.koin.payloadScope
+import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -30,13 +31,9 @@ class QuestionnaireSheet() :
     AndroidScopeComponent,
     QuestionnaireDropdownPickerSheet.Host {
 
-    interface Host : MVIBottomSheet.Host {
-        fun questionnaireSubmittedSuccessfully()
-        fun questionnaireSkipped()
-    }
-
-    override val host: Host by lazy {
-        (activity as? Host) ?: (parentFragment as? Host) ?: throw IllegalStateException(
+    override val host: QuestionnaireSheetHost by lazy {
+        (activity as? QuestionnaireSheetHost) ?:
+        (parentFragment as? QuestionnaireSheetHost) ?: throw IllegalStateException(
             "Host is not a QuestionnaireFragment.Host"
         )
     }

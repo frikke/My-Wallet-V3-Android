@@ -34,6 +34,8 @@ import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
+import com.blockchain.home.presentation.fiat.actions.models.LinkablePaymentMethodsForAction
+import com.blockchain.home.presentation.fiat.actions.sheetinterface.BankLinkingHost
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -41,6 +43,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -84,7 +87,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.DashboardUIState
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
@@ -105,7 +107,6 @@ import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
@@ -120,7 +121,7 @@ class PortfolioFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     BuyPendingOrdersBottomSheet.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -455,6 +456,7 @@ class PortfolioFragment :
                 is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
                     BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 is DashboardNavigationAction.DepositQuestionnaire -> {
+                    // todo oth see fiatactionsviewmodel
                     questionnaireCallbackIntent = navigationAction.callbackIntent
                     QuestionnaireSheet.newInstance(navigationAction.questionnaire, true)
                 }

@@ -35,6 +35,7 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':chrome:presentation')
     implementation project(':wallet')
     implementation project(':store:core')
     implementation project(':earn:domain')
