@@ -7,13 +7,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsUseCase
+import com.blockchain.tempsheetinterfaces.fiatactions.FiatActions
 import com.blockchain.tempsheetinterfaces.fiatactions.models.FiatActionsResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class FiatActionsViewModel(
-    private val fiatActions: FiatActionsUseCase
+    private val fiatActions: FiatActions
 ) : MviViewModel<
     FiatActionsIntents,
     FiatActionsViewState,

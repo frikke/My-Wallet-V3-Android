@@ -11,12 +11,10 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.koin.payloadScope
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsUseCase
+import com.blockchain.tempsheetinterfaces.fiatactions.FiatActions
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -31,7 +29,7 @@ import kotlinx.coroutines.rx3.await
 class FiatFundsDetailViewModel(
     private val fiatTicker: String,
     private val homeAccountsService: HomeAccountsService,
-    private val fiatActionsUseCase: FiatActionsUseCase
+    private val fiatActions: FiatActions
 ) : MviViewModel<
     FiatFundsDetailIntent, FiatFundsDetailViewState, FiatFundsDetailModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     FiatFundsDetailModelState()
@@ -58,7 +56,7 @@ class FiatFundsDetailViewModel(
             }
 
             is FiatFundsDetailIntent.Deposit -> {
-                fiatActionsUseCase.deposit(
+                fiatActions.deposit(
                     account = intent.account,
                     action = intent.action,
                     shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,

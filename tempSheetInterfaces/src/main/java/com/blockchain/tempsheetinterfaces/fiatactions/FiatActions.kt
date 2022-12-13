@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import java.util.Optional
 
-class FiatActionsUseCase(
+class FiatActions(
     private val scope: CoroutineScope,
     private val dataRemediationService: DataRemediationService,
     private val userIdentity: UserIdentity,

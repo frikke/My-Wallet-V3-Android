@@ -2,13 +2,13 @@ package com.blockchain.tempsheetinterfaces.koin
 
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsUseCase
+import com.blockchain.tempsheetinterfaces.fiatactions.FiatActions
 import org.koin.dsl.module
 
 val fiatActionsModule = module {
     scope(payloadScopeQualifier) {
         scoped {
-            FiatActionsUseCase(
+            FiatActions(
                 scope = get(applicationScope),
                 dataRemediationService = get(),
                 userIdentity = get(),
