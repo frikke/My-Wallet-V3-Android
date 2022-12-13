@@ -1,11 +1,14 @@
 package piuk.blockchain.android.ui.home
 
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
@@ -13,9 +16,13 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
+import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
-class FiatActionsNavigationImpl(private val activity: BlockchainActivity?) : FiatActionsNavigation {
+class FiatActionsNavigationImpl(
+    private val activity: BlockchainActivity?,
+) : FiatActionsNavigation {
     override fun wireTransferDetail(account: FiatAccount) {
         activity?.showBottomSheet(
             WireTransferAccountDetailsBottomSheet.newInstance(account)
@@ -55,5 +62,32 @@ class FiatActionsNavigationImpl(private val activity: BlockchainActivity?) : Fia
         activity?.showBottomSheet(
             LinkBankMethodChooserBottomSheet.newInstance(paymentMethodsForAction)
         )
+    }
+
+    override fun bankLinkFlow(
+        launcher: ActivityResultLauncher<Intent>,
+        linkBankTransfer: LinkBankTransfer,
+        fiatAccount: FiatAccount,
+        assetAction: AssetAction
+    ) {
+        activity?.let {
+            launcher.launch(
+                BankAuthActivity.newInstance(
+                    linkBankTransfer,
+                    when (assetAction) {
+                        AssetAction.FiatDeposit -> {
+                            BankAuthSource.DEPOSIT
+                        }
+                        AssetAction.FiatWithdraw -> {
+                            BankAuthSource.WITHDRAW
+                        }
+                        else -> {
+                            throw IllegalStateException("Attempting to link from an unsupported action")
+                        }
+                    },
+                    activity
+                )
+            )
+        }
     }
 }

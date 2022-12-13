@@ -1,18 +1,22 @@
 package com.blockchain.chrome
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
+import com.blockchain.chrome.tbr.FiatActionsIntents
+import com.blockchain.chrome.tbr.FiatActionsNavEvent
+import com.blockchain.chrome.tbr.FiatActionsViewModel
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -28,29 +32,29 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.tempsheetinterfaces.BankLinkingHost
 import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
 import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsUseCase
-import com.blockchain.tempsheetinterfaces.fiatactions.models.FiatActionsResult
 import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
-import com.blockchain.utils.filterList
-import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
+import org.koin.core.scope.Scope
 
 class MultiAppActivity : BlockchainActivity(),
     InterestSummarySheet.Host,
     StakingSummaryBottomSheet.Host,
     QuestionnaireSheetHost,
-    BankLinkingHost {
+    BankLinkingHost,
+    KoinScopeComponent {
+
+    override val scope: Scope = payloadScope
+    private val fiatActionsViewModel: FiatActionsViewModel by viewModel()
+
     override val alwaysDisableScreenshots: Boolean
         get() = false
-
-    private val fiatActionsUseCase: FiatActionsUseCase = payloadScope.get()
 
     private val pricesNavigation: PricesNavigation = payloadScope.get {
         parametersOf(
@@ -76,8 +80,6 @@ class MultiAppActivity : BlockchainActivity(),
         )
     }
 
-    private val coincore: Coincore = payloadScope.get()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -95,7 +97,7 @@ class MultiAppActivity : BlockchainActivity(),
             )
         }
 
-        handleFiatActionResult()
+        handleFiatActionsNav()
     }
 
     companion object {
@@ -152,35 +154,43 @@ class MultiAppActivity : BlockchainActivity(),
         // Do nothing not supported
     }
 
-    private fun handleFiatActionResult() {
+    private fun handleFiatActionsNav() {
         lifecycleScope.launch {
-            fiatActionsUseCase.result.collectLatest {
+            fiatActionsViewModel.navigationEventFlow.flowWithLifecycle(lifecycle).collectLatest {
                 when (it) {
-                    is FiatActionsResult.BlockedDueToSanctions -> {
+                    is FiatActionsNavEvent.BlockedDueToSanctions -> {
                         fiatActionsNavigation.blockedDueToSanctions(
                             reason = it.reason
                         )
                     }
-                    is FiatActionsResult.DepositQuestionnaire -> {
+                    is FiatActionsNavEvent.DepositQuestionnaire -> {
                         fiatActionsNavigation.depositQuestionnaire(
                             questionnaire = it.questionnaire
                         )
                     }
-                    is FiatActionsResult.LinkBankMethod -> {
+                    is FiatActionsNavEvent.LinkBankMethod -> {
                         fiatActionsNavigation.linkBankMethod(
                             paymentMethodsForAction = it.paymentMethodsForAction
                         )
                     }
-                    is FiatActionsResult.TransactionFlow -> {
+                    is FiatActionsNavEvent.TransactionFlow -> {
                         fiatActionsNavigation.transactionFlow(
                             sourceAccount = it.sourceAccount,
                             target = it.target,
                             action = it.action
                         )
                     }
-                    is FiatActionsResult.WireTransferAccountDetails -> {
+                    is FiatActionsNavEvent.WireTransferAccountDetails -> {
                         fiatActionsNavigation.wireTransferDetail(
                             account = it.account
+                        )
+                    }
+                    is FiatActionsNavEvent.BankLinkFlow -> {
+                        fiatActionsNavigation.bankLinkFlow(
+                            launcher = activityResultLinkBank,
+                            linkBankTransfer = it.linkBankTransfer,
+                            fiatAccount = it.fiatAccount,
+                            assetAction = it.assetAction
                         )
                     }
                 }
@@ -201,41 +211,35 @@ class MultiAppActivity : BlockchainActivity(),
     ////////////////////////////////////
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
-        lifecycleScope.launch {
-            val account = coincore.activeWalletsInMode(WalletMode.CUSTODIAL_ONLY).map { it.accounts }
-                .map { it.filterIsInstance<FiatAccount>() }
-                .filterList { it.currency.networkTicker == currency.networkTicker }
-                .firstOrNull()?.firstOrNull()
-
-            account?.let {
-                fiatActionsNavigation.wireTransferDetail(account)
-            }
-        }
+        fiatActionsViewModel.onIntent(FiatActionsIntents.WireTransferAccountDetails)
     }
 
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
-        lifecycleScope.launch {
-            val account = coincore.activeWalletsInMode(WalletMode.CUSTODIAL_ONLY).map { it.accounts }
-                .map { it.filterIsInstance<FiatAccount>() }
-                .filterList {
-                    it.currency.networkTicker == paymentMethodForAction.linkablePaymentMethods.currency.networkTicker
-                }
-                .firstOrNull()?.firstOrNull()
-
-            account?.let {
-                if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
-                    fiatActionsUseCase.deposit(
-                        account = it,
-                        action = AssetAction.FiatDeposit,
-                        shouldLaunchBankLinkTransfer = false
-                    )
-                } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
-                    //                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
-                }
-            }
+        if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
+            fiatActionsViewModel.onIntent(
+                FiatActionsIntents.RestartDeposit(
+                    action = AssetAction.FiatDeposit,
+                    shouldLaunchBankLinkTransfer = false
+                )
+            )
+        } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
+            //                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
         }
     }
+
     ////////////////////////////////////
+    // link bank
+    private val activityResultLinkBank = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            fiatActionsViewModel.onIntent(
+                FiatActionsIntents.RestartDeposit(
+                    shouldLaunchBankLinkTransfer = false
+                )
+            )
+        }
+    }
 
     override fun onSheetClosed() {
     }

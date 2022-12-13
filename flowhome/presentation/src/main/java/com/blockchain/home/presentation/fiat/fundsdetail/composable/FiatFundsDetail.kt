@@ -69,6 +69,7 @@ fun FiatFundDetail(
                     shouldLaunchBankLinkTransfer = false
                 )
             )
+            onBackPressed()
         },
         onBackPressed = onBackPressed
     )
