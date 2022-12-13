@@ -1,8 +1,8 @@
-package com.blockchain.tempsheetinterfaces.koin
+package com.blockchain.fiatActions.koin
 
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActions
+import com.blockchain.fiatActions.fiatactions.FiatActions
 import org.koin.dsl.module
 
 val fiatActionsModule = module {

@@ -16,7 +16,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.koin.payloadScope
-import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel

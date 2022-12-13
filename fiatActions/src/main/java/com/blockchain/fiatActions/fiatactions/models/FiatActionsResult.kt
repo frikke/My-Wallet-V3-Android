@@ -1,4 +1,4 @@
-package com.blockchain.tempsheetinterfaces.fiatactions.models
+package com.blockchain.fiatActions.fiatactions.models
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount

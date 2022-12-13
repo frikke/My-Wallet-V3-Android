@@ -52,8 +52,8 @@ import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethods
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.rxMaybeOutcome
 import com.blockchain.walletmode.WalletMode

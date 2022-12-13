@@ -17,7 +17,7 @@ import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.utils.rxMaybeOutcome
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.snackbar.Snackbar

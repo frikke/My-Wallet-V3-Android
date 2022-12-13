@@ -1,4 +1,4 @@
-package com.blockchain.tempsheetinterfaces.fiatactions
+package com.blockchain.fiatActions.fiatactions
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
@@ -14,10 +14,10 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.tempsheetinterfaces.fiatactions.models.FiatActionsResult
-import com.blockchain.tempsheetinterfaces.fiatactions.models.FiatTransactionRequestResult
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethods
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.fiatactions.models.FiatActionsResult
+import com.blockchain.fiatActions.fiatactions.models.FiatTransactionRequestResult
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.rxMaybeOutcome
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single

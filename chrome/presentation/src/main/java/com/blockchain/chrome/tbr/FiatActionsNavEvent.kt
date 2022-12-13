@@ -9,7 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 
 sealed interface FiatActionsNavEvent : NavigationEvent {
     data class TransactionFlow(

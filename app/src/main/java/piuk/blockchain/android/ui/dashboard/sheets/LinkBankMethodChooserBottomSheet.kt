@@ -13,8 +13,8 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.tempsheetinterfaces.BankLinkingHost
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding

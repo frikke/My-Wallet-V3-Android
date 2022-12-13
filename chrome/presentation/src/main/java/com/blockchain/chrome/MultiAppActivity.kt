@@ -28,10 +28,10 @@ import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.tempsheetinterfaces.BankLinkingHost
-import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency

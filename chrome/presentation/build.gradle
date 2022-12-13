@@ -16,7 +16,7 @@ dependencies {
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')
 
-    implementation project(':tempSheetInterfaces')
+    implementation project(':fiatActions')
 
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistSwipeRefresh

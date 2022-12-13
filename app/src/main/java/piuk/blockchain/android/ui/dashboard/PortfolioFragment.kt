@@ -40,9 +40,9 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.tempsheetinterfaces.BankLinkingHost
-import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo

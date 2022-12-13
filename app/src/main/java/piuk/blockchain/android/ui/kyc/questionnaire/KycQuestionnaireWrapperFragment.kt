@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.tempsheetinterfaces.QuestionnaireSheetHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R

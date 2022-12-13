@@ -59,7 +59,7 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels

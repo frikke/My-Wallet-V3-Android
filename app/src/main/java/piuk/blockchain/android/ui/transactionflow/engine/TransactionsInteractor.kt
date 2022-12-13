@@ -44,7 +44,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.store.asSingle
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables

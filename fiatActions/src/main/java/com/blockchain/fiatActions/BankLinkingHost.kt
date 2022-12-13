@@ -1,7 +1,7 @@
-package com.blockchain.tempsheetinterfaces
+package com.blockchain.fiatActions
 
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.tempsheetinterfaces.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import info.blockchain.balance.FiatCurrency
 
 interface BankLinkingHost : SlidingModalBottomDialog.Host {

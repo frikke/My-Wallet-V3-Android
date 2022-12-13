@@ -428,7 +428,7 @@ dependencies {
     implementation project(':earn:domain')
     implementation project(':earn:presentation')
 
-    implementation project(':tempSheetInterfaces')
+    implementation project(':fiatActions')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

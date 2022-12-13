@@ -15,7 +15,7 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 

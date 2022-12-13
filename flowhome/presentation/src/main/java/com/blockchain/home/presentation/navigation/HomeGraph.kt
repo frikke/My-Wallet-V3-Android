@@ -9,7 +9,7 @@ import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
-import com.blockchain.tempsheetinterfaces.fiatactions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class) fun NavGraphBuilder.homeGraph(
