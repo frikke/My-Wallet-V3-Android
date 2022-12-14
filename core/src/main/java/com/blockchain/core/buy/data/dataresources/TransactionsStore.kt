@@ -21,7 +21,7 @@ class TransactionsStore(
             )
         },
         mediator = FreshnessMediator(Freshness.DURATION_1_MINUTE)
-    ){
+    ) {
     data class Key(
         val product: Product,
         val type: String?
