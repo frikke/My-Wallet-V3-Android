@@ -571,7 +571,7 @@ class PaymentsRepository(
             DepositTermsRequestBody(
                 amount = DepositTermsRequestBody.Amount(
                     value = amount.toBigInteger().toString(),
-                    currency = amount.currencyCode
+                    symbol = amount.currencyCode
                 ),
                 paymentMethodId = paymentMethodId
             )

@@ -12,6 +12,6 @@ data class DepositTermsRequestBody(
     @Serializable
     data class Amount(
         private val value: String,
-        private val currency: String
+        private val symbol: String
     )
 }
