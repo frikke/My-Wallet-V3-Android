@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -52,7 +51,6 @@ import retrofit2.HttpException
 
 class BuyIntroFragment :
     ViewPagerFragment(),
-    BuyPendingOrdersBottomSheet.Host,
     HomeScreenFragment,
     KycUpgradeNowSheet.Host {
 
@@ -325,10 +323,6 @@ class BuyIntroFragment :
         }
 
         fun newInstance() = BuyIntroFragment()
-    }
-
-    override fun startActivityRequested() {
-        navigator().performAssetActionFor(AssetAction.ViewActivity)
     }
 
     override fun onSheetClosed() {

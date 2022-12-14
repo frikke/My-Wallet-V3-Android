@@ -14,6 +14,7 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
                 ActionActivity.ActivityResult.StartKyc -> launchKyc()
                 is ActionActivity.ActivityResult.StartReceive -> launchReceive()
                 ActionActivity.ActivityResult.StartBuyIntro -> launchBuy()
+                ActionActivity.ActivityResult.ViewActivity -> launchViewActivity()
                 null -> {
                 }
             }
@@ -29,6 +30,10 @@ class AssetActionsNavigationImpl(private val activity: ComponentActivity?) : Ass
 
     private fun launchKyc() {
         KycNavHostActivity.start(activity!!, campaignType = CampaignType.None)
+    }
+
+    private fun launchViewActivity() {
+        actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.ViewActivity))
     }
 
     override fun navigate(assetAction: AssetAction) {

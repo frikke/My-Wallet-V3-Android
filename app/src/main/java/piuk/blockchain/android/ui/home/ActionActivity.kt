@@ -18,6 +18,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
+import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
@@ -29,7 +30,8 @@ class ActionActivity :
     BlockchainActivity(),
     SlidingModalBottomDialog.Host,
     UpsellHost,
-    SwapFragment.Host {
+    SwapFragment.Host,
+    BuyPendingOrdersBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -127,6 +129,10 @@ class ActionActivity :
         // do nothing
     }
 
+    override fun startActivityRequested() {
+        finishWithResult(ActivityResult.ViewActivity)
+    }
+
     private fun finishWithResult(result: ActivityResult) {
         val intent = Intent()
         when (result) {
@@ -136,6 +142,7 @@ class ActionActivity :
                 intent.putExtra(CRYPTO_TICKER, cryptoTicker)
             }
             ActivityResult.StartBuyIntro -> intent.putExtra(RESULT_START_BUY_INTRO, true)
+            ActivityResult.ViewActivity -> intent.putExtra(RESULT_VIEW_ACTIVITY, true)
         }
         setResult(RESULT_OK, intent)
         finish()
@@ -146,6 +153,7 @@ class ActionActivity :
         private const val RESULT_START_KYC = "RESULT_START_KYC"
         private const val RESULT_START_RECEIVE = "RESULT_START_RECEIVE"
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
+        private const val RESULT_VIEW_ACTIVITY = "RESULT_VIEW_ACTIVITY"
         private const val CRYPTO_TICKER = "CRYPTO_TICKER"
 
         private fun newIntent(context: Context, action: AssetAction, cryptoTicker: String? = null): Intent =
@@ -163,6 +171,7 @@ class ActionActivity :
         object StartKyc : ActivityResult()
         class StartReceive(val cryptoTicker: String? = null) : ActivityResult()
         object StartBuyIntro : ActivityResult()
+        object ViewActivity : ActivityResult()
     }
 
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
