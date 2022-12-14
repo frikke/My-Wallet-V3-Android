@@ -85,8 +85,7 @@ class LoadAssetAccountsUseCase(
             ),
             interestFlow,
             stakingFlow
-        )
-        { accounts, price, interestRate, stakingRate ->
+        ) { accounts, price, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
