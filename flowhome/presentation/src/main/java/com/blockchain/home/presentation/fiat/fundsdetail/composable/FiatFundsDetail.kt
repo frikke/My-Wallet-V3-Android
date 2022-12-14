@@ -16,6 +16,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,8 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
@@ -44,18 +48,20 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatActionErrorState
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetail
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailData
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailIntent
+import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailNavEvent
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewState
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun FiatFundDetail(
     fiatTicker: String,
-    onBackPressed: () -> Unit
+    dismiss: () -> Unit
 ) {
     val viewModel: FiatFundsDetailViewModel = getViewModel(
         scope = payloadScope,
@@ -67,6 +73,18 @@ fun FiatFundDetail(
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(FiatFundsDetailIntent.LoadData)
         onDispose { }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            when (it) {
+                FiatFundsDetailNavEvent.Dismss -> dismiss()
+            }
+        }
     }
 
     FiatFundDetailScreen(
@@ -87,7 +105,6 @@ fun FiatFundDetail(
                     shouldLaunchBankLinkTransfer = false
                 )
             )
-            onBackPressed()
         },
         withdrawOnClick = { account ->
             //            analytics.logEvent(
@@ -103,7 +120,7 @@ fun FiatFundDetail(
                 )
             )
         },
-        onBackPressed = onBackPressed
+        onBackPressed = dismiss
     )
 }
 

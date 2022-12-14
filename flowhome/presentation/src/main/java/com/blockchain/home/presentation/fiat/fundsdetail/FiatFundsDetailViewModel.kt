@@ -13,7 +13,6 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.fiatActions.fiatactions.FiatActions
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -35,7 +34,11 @@ class FiatFundsDetailViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val fiatActions: FiatActions
 ) : MviViewModel<
-    FiatFundsDetailIntent, FiatFundsDetailViewState, FiatFundsDetailModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
+    FiatFundsDetailIntent,
+    FiatFundsDetailViewState,
+    FiatFundsDetailModelState,
+    FiatFundsDetailNavEvent,
+    ModelConfigArgs.NoArgs>(
     FiatFundsDetailModelState()
 ) {
     companion object {
@@ -43,6 +46,8 @@ class FiatFundsDetailViewModel(
     }
 
     private var snackbarMessageJob: Job? = null
+    private var loadDataJob: Job? = null
+    private var actionsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -89,7 +94,8 @@ class FiatFundsDetailViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        loadDataJob?.cancel()
+        loadDataJob = viewModelScope.launch {
             homeAccountsService.accounts(WalletMode.CUSTODIAL_ONLY)
                 .filterIsInstance<DataResource<List<FiatAccount>>>()
                 .mapData { it.first { it.currency.networkTicker == fiatTicker } }
@@ -121,6 +127,13 @@ class FiatFundsDetailViewModel(
                     }
                 }
                 .collect()
+        }
+
+        actionsJob?.cancel()
+        actionsJob = viewModelScope.launch {
+            fiatActions.result.collectLatest {
+                navigate(FiatFundsDetailNavEvent.Dismss)
+            }
         }
     }
 
