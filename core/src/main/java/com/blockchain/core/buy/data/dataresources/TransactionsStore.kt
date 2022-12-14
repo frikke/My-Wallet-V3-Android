@@ -7,13 +7,11 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
-import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import com.blockchain.storedatasource.KeyedFlushableDataSource
-import kotlinx.serialization.Serializable
+import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
 
 class TransactionsStore(
     private val nabuService: NabuService
-) : KeyedStore<TransactionsStore.Key, TransactionsResponse> by PersistedJsonSqlDelightStoreBuilder()
+) : KeyedStore<TransactionsStore.Key, TransactionsResponse> by InMemoryCacheStoreBuilder()
     .buildKeyed(
         storeId = "TransactionsStore",
         fetcher = Fetcher.Keyed.ofSingle { key ->
@@ -22,21 +20,8 @@ class TransactionsStore(
                 type = key.type
             )
         },
-        keySerializer = Key.serializer(),
-        dataSerializer = TransactionsResponse.serializer(),
         mediator = FreshnessMediator(Freshness.DURATION_1_MINUTE)
-    ),
-    KeyedFlushableDataSource<TransactionsStore.Key> {
-
-    override fun invalidate(param: Key) {
-        markAsStale(param)
-    }
-
-    override fun invalidate() {
-        markStoreAsStale()
-    }
-
-    @Serializable
+    ){
     data class Key(
         val product: Product,
         val type: String?
