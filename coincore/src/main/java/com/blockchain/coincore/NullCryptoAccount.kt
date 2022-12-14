@@ -1,10 +1,12 @@
 package com.blockchain.coincore
 
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 
 object NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
@@ -73,5 +75,7 @@ object NullFiatAccount : FiatAccount {
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 
-    override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
+    override fun canWithdrawFundsLegacy(): Single<Boolean> = Single.just(false)
+
+    override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
 }

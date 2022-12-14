@@ -7,7 +7,9 @@ import info.blockchain.balance.Money
 
 data class FiatFundsDetailModelState(
     val account: DataResource<FiatAccount> = DataResource.Loading,
-    val data: DataResource<FiatFundsDetailData> = DataResource.Loading
+    val data: DataResource<FiatFundsDetailData> = DataResource.Loading,
+    val withdrawChecksLoading: Boolean = false,
+    val actionError: FiatActionError = FiatActionError.None
 ) : ModelState
 
 data class FiatFundsDetailData(
@@ -15,3 +17,9 @@ data class FiatFundsDetailData(
     val depositEnabled: Boolean,
     val withdrawEnabled: Boolean
 )
+
+sealed interface FiatActionError {
+    object WithdrawalInProgress: FiatActionError
+    object Unknown: FiatActionError
+    object None: FiatActionError
+}

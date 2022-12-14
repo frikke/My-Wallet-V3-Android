@@ -7,6 +7,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -16,6 +17,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 
 class LinkedBankAccount(
     override val label: String,
@@ -70,7 +72,10 @@ class LinkedBankAccount(
     override val hasTransactions: Boolean
         get() = false
 
-    override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
+    override fun canWithdrawFundsLegacy(): Single<Boolean> = Single.just(false)
+
+    override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
+
     fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)
 
     fun isAchCurrency() = currency.networkTicker.equals("USD", true)

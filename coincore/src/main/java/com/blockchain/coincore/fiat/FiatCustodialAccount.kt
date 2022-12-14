@@ -14,18 +14,25 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.store.asSingle
+import com.blockchain.store.mapData
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import java.util.concurrent.atomic.AtomicBoolean
 
 /*internal*/ class FiatCustodialAccount internal constructor(
@@ -35,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
     private val tradingService: TradingService,
     private val custodialWalletManager: CustodialWalletManager,
     private val bankService: BankService,
+    private val simpleBuyService: SimpleBuyService,
     private val exchangeRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
@@ -57,7 +65,8 @@ import java.util.concurrent.atomic.AtomicBoolean
         private set
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getCustodialFiatTransactions(currency, Product.BUY)
+        get() = simpleBuyService.getFiatTransactions(fiatCurrency = currency, product = Product.BUY)
+            .asSingle()
             .doOnSuccess {
                 setHasTransactions(it.isEmpty().not())
             }.map {
@@ -76,12 +85,26 @@ import java.util.concurrent.atomic.AtomicBoolean
                 }
             }
 
-    override fun canWithdrawFunds(): Single<Boolean> =
-        custodialWalletManager.getCustodialFiatTransactions(currency, Product.BUY).map {
-            it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
-        }.map {
-            it.isEmpty()
-        }
+    override fun canWithdrawFundsLegacy(): Single<Boolean> =
+        simpleBuyService.getFiatTransactions(fiatCurrency = currency, product = Product.BUY)
+            .asSingle()
+            .map {
+                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
+            }.map {
+                it.isEmpty()
+            }
+
+    override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
+        simpleBuyService.getFiatTransactions(
+            FreshnessStrategy.Cached(forceRefresh = false),
+            fiatCurrency = currency,
+            product = Product.BUY
+        )
+            .mapData {
+                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
+            }
+            .mapData { it.isEmpty() }
+            .catch { emit(DataResource.Error(Exception("failed getFiatTransactions"))) }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = bankService.canTransactWithBankMethods(currency)

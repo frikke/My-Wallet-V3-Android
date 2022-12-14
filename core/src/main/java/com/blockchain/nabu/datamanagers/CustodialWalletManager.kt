@@ -88,12 +88,6 @@ interface CustodialWalletManager {
         bankId: String
     ): Completable
 
-    fun getCustodialFiatTransactions(
-        fiatCurrency: FiatCurrency,
-        product: Product,
-        type: String? = null
-    ): Single<List<FiatTransaction>>
-
     fun getCustodialCryptoTransactions(
         asset: AssetInfo,
         product: Product,

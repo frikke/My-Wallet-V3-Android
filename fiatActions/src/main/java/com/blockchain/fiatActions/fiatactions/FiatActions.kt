@@ -2,7 +2,6 @@ package com.blockchain.fiatActions.fiatactions
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -21,14 +20,15 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.utils.rxMaybeOutcome
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Optional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import java.util.Optional
 
 class FiatActions(
     private val scope: CoroutineScope,
@@ -42,35 +42,47 @@ class FiatActions(
     val result: SharedFlow<FiatActionsResult> get() = _result
 
     fun deposit(
-        account: SingleAccount,
+        account: FiatAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean,
         shouldSkipQuestionnaire: Boolean = false
     ) {
-        require(account is FiatAccount) { "account is not FiatAccount" }
-
-        handleFiatDeposit(
-            targetAccount = account,
+        handleDeposit(
+            account = account,
             shouldLaunchBankLinkTransfer = shouldLaunchBankLinkTransfer,
             shouldSkipQuestionnaire = shouldSkipQuestionnaire,
             action = action
         )
     }
 
-    private fun handleFiatDeposit(
-        targetAccount: FiatAccount,
+    fun withdraw(
+        account: FiatAccount,
+        action: AssetAction,
+        shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
+    ) {
+        handleWithdraw(
+            account = account,
+            shouldLaunchBankLinkTransfer = shouldLaunchBankLinkTransfer,
+            shouldSkipQuestionnaire = shouldSkipQuestionnaire,
+            action = action
+        )
+    }
+
+    private fun handleDeposit(
+        account: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
         shouldSkipQuestionnaire: Boolean,
         action: AssetAction,
     ) = Singles.zip(
         getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_DEPOSIT),
         userIdentity.userAccessForFeature(Feature.DepositFiat),
-        linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
+        linkedBanksFactory.eligibleBankPaymentMethods(account.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
             paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
         },
         linkedBanksFactory.getNonWireTransferBanks().map {
-            it.filter { bank -> bank.currency == targetAccount.currency }
+            it.filter { bank -> bank.currency == account.currency }
         }
     ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
         (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
@@ -104,11 +116,11 @@ class FiatActions(
                 )
             eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
-                    targetAccount,
+                    account,
                     action,
                     LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         linkablePaymentMethods = LinkablePaymentMethods(
-                            targetAccount.currency,
+                            account.currency,
                             paymentMethods.sortedBy { it.ordinal }
                         )
                     )
@@ -119,7 +131,7 @@ class FiatActions(
                     FiatTransactionRequestResult.LaunchDepositFlow(
                         preselectedBankAccount = linkedBanks.first(),
                         action = action,
-                        targetAccount = targetAccount
+                        targetAccount = account
                     )
                 )
             }
@@ -127,16 +139,108 @@ class FiatActions(
                 Single.just(
                     FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
                         action = action,
-                        targetAccount = targetAccount
+                        targetAccount = account
                     )
                 )
             }
         }
     }.map {
-        handlePaymentMethodsUpdate(it, targetAccount, action)
+        handlePaymentMethodsUpdate(it, account, action)
     }.subscribe { result ->
         scope.launch {
             _result.emit(result)
+        }
+    }
+
+    private fun handleWithdraw(
+        account: FiatAccount,
+        action: AssetAction,
+        shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
+    ): Disposable {
+        return Singles.zip(
+            getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
+            userIdentity.userAccessForFeature(Feature.WithdrawFiat),
+            linkedBanksFactory.eligibleBankPaymentMethods(account.currency)
+                .map { paymentMethods ->
+                    // Ignore any WireTransferMethods In case BankLinkTransfer should launch
+                    paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
+                },
+            linkedBanksFactory.getAllLinkedBanks().map {
+                it.filter { bank -> bank.currency == account.currency }
+            }
+        ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
+            (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
+        }.flatMap { (questionnaireOptAndEligibility, paymentMethodsAndLinkedBanks) ->
+            val (questionnaireOpt, eligibility) = questionnaireOptAndEligibility
+            val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
+
+            //            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
+
+            when {
+                eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
+                    Single.just(
+                        FiatTransactionRequestResult.BlockedDueToSanctions(
+                            eligibility.reason as BlockedReason.Sanctions
+                        )
+                    )
+                questionnaireOpt.isPresent -> Single.just(
+                    FiatTransactionRequestResult.LaunchQuestionnaire(
+                        // todo othman find an account with this
+                        questionnaire = questionnaireOpt.get(),
+                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                        //                            targetAccount,
+                        //                            action,
+                        //                            shouldLaunchBankLinkTransfer,
+                        //                            shouldSkipQuestionnaire = true
+                        //                        )
+                    )
+                    //                    FiatTransactionRequestResult.LaunchQuestionnaire(
+                    //                        questionnaire = questionnaireOpt.get(),
+                    //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                    //                            account,
+                    //                            action,
+                    //                            shouldLaunchBankLinkTransfer,
+                    //                            shouldSkipQuestionnaire = true
+                    //                        )
+                    //                    )
+                )
+                linkedBanks.isEmpty() -> {
+                    handleNoLinkedBanks(
+                        account,
+                        action,
+                        LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw(
+                            LinkablePaymentMethods(
+                                account.currency,
+                                paymentMethods.sortedBy { it.ordinal }
+                            )
+                        )
+                    )
+                }
+                linkedBanks.size == 1 -> {
+                    Single.just(
+                        FiatTransactionRequestResult.LaunchWithdrawalFlow(
+                            preselectedBankAccount = linkedBanks.first(),
+                            action = action,
+                            sourceAccount = account
+                        )
+                    )
+                }
+                else -> {
+                    Single.just(
+                        FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts(
+                            action = action,
+                            sourceAccount = account
+                        )
+                    )
+                }
+            }
+        }.map {
+            handlePaymentMethodsUpdate(it, account, action)
+        }.subscribe { result ->
+            scope.launch {
+                _result.emit(result)
+            }
         }
     }
 
@@ -216,23 +320,17 @@ class FiatActions(
                 )
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts -> {
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.TransactionFlow(
-                //                        sourceAccount = fiatAccount,
-                //                        action = action
-                //                    )
-                //                )
-                TODO()
+                FiatActionsResult.TransactionFlow(
+                    action = action,
+                    target = fiatAccount
+                )
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlow -> {
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.TransactionFlow(
-                //                        sourceAccount = fiatAccount,
-                //                        target = fiatTxRequestResult.preselectedBankAccount,
-                //                        action = action
-                //                    )
-                //                )
-                TODO()
+                FiatActionsResult.TransactionFlow(
+                    account = fiatTxRequestResult.preselectedBankAccount,
+                    action = action,
+                    target = fiatAccount
+                )
             }
             is FiatTransactionRequestResult.LaunchBankLink -> {
                 FiatActionsResult.BankLinkFlow(

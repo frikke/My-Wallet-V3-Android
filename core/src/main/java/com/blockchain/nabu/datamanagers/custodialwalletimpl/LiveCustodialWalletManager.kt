@@ -208,38 +208,7 @@ class LiveCustodialWalletManager(
         }
     }
 
-    override fun getCustodialFiatTransactions(
-        fiatCurrency: FiatCurrency,
-        product: Product,
-        type: String?,
-    ): Single<List<FiatTransaction>> =
-        transactionsCache.transactions(
-            TransactionsRequest(
-                product = product.toRequestString(),
-                type = type
-
-            )
-        ).map { response ->
-            response.items.filter {
-                assetCatalogue.fromNetworkTicker(
-                    it.amount.symbol
-                )?.networkTicker == fiatCurrency.networkTicker
-            }.filterNot {
-                it.hasCardOrBankFailure()
-            }.mapNotNull {
-                val state = it.state.toTransactionState() ?: return@mapNotNull null
-                val txType = it.type.toTransactionType() ?: return@mapNotNull null
-                FiatTransaction(
-                    id = it.id,
-                    amount = Money.fromMinor(fiatCurrency, it.amountMinor.toBigInteger()) as FiatValue,
-                    date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                    state = state,
-                    type = txType,
-                    paymentId = it.beneficiaryId
-                )
-            }
-        }
-
+    // todo(othman) refactor with TransactionsStore
     override fun getCustodialCryptoTransactions(
         asset: AssetInfo,
         product: Product,
@@ -680,17 +649,6 @@ class LiveCustodialWalletManager(
         private const val SDD_ELIGIBLE_TIER = 3
     }
 }
-
-private fun TransactionResponse.hasCardOrBankFailure() =
-    error?.let { error ->
-        listOf(
-            TransactionResponse.CARD_PAYMENT_ABANDONED,
-            TransactionResponse.CARD_PAYMENT_EXPIRED,
-            TransactionResponse.CARD_PAYMENT_FAILED,
-            TransactionResponse.BANK_TRANSFER_PAYMENT_REJECTED,
-            TransactionResponse.BANK_TRANSFER_PAYMENT_EXPIRED
-        ).contains(error)
-    } ?: false
 
 private fun Product.toRequestString(): String =
     when (this) {

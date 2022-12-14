@@ -13,6 +13,7 @@ import com.blockchain.core.buy.data.SimpleBuyRepository
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
+import com.blockchain.core.buy.data.dataresources.TransactionsStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoin.PaymentService
@@ -115,9 +116,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.util.UUID
 
 val coreModule = module {
 
@@ -228,6 +229,7 @@ val coreModule = module {
                 buyPairsStore = get(),
                 buyOrdersStore = get(),
                 swapOrdersStore = get(),
+                transactionsStore = get(),
                 assetCatalogue = get()
             )
         }
@@ -252,6 +254,12 @@ val coreModule = module {
 
         scoped {
             BuyOrdersStore(
+                nabuService = get()
+            )
+        }
+
+        scoped {
+            TransactionsStore(
                 nabuService = get()
             )
         }
