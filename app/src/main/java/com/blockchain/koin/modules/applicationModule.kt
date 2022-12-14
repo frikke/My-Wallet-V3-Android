@@ -274,6 +274,8 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
+                activityWebSocketService = get(),
+                unifiedActivityService = get(),
                 storeWiper = get(),
                 intercomEnabledFF = get(intercomChatFeatureFlag)
             )
@@ -785,6 +787,7 @@ val applicationModule = module {
                 bchDataManager = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
+                activityWebSocketService = get(),
                 walletConnectServiceAPI = get(),
                 assetActivityRepository = get(),
                 walletPrefs = get(),

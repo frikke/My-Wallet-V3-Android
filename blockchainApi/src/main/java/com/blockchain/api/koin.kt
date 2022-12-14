@@ -491,6 +491,7 @@ val blockchainApiModule = module {
                 webSocket = webSocket,
                 activityCacheService = get(),
                 credentials = get(),
+                lifecycleObservable = get(),
                 wsScope = get(applicationScope)
             )
         }
