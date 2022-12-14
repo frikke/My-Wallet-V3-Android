@@ -33,21 +33,11 @@ class UnifiedActivityRepository(
     private val currencyPrefs: CurrencyPrefs
 ) : UnifiedActivityService {
 
-    override fun getAllActivity(
-        acceptLanguage: String,
-        timeZone: String
-    ): Flow<DataResource<List<UnifiedActivityItem>>> {
+    override fun getAllActivity(): Flow<DataResource<List<UnifiedActivityItem>>> {
 
         return flow {
             emit(DataResource.Loading)
-
-            activityWebSocketService.open()
-            activityWebSocketService.send(
-                fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker,
-                acceptLanguage = acceptLanguage,
-                timeZone = timeZone
-            )
-
+            activityWebSocketService.open(fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker)
             emitAll(
                 activityCache.getActivity()
                     .catch {

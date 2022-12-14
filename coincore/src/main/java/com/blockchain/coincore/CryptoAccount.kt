@@ -5,6 +5,7 @@ import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.google.common.graph.ElementOrder.sorted
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -209,8 +210,8 @@ interface AccountGroup : BlockchainAccount {
     override val hasTransactions: Boolean
         get() = true
 
-    private fun allActivities(): Single<ActivitySummaryList> =
-        Single.just(accounts).flattenAsObservable { it }
+    private fun allActivities(): Single<ActivitySummaryList> {
+        return Single.just(accounts).flattenAsObservable { it }
             .flatMapSingle { account ->
                 account.activity
                     .onErrorResumeNext { Single.just(emptyList()) }
@@ -219,6 +220,7 @@ interface AccountGroup : BlockchainAccount {
             .defaultIfEmpty(emptyList())
             .map { it.distinct() }
             .map { it.sorted() }
+    }
 }
 
 interface SameCurrencyAccountGroup : AccountGroup {

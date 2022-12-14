@@ -39,7 +39,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
     extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
-    // to/from ---- euro
+    // fee ---- €12
     ActivityDetailGroup(
         title = null,
         itemGroup = listOf(

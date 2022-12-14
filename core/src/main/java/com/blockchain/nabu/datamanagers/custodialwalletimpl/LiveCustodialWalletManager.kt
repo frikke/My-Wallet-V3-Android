@@ -8,6 +8,8 @@ import com.blockchain.core.buy.data.toBuySellOrder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
@@ -43,7 +45,6 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
@@ -58,7 +59,6 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
-import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyOrder
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
@@ -96,6 +96,7 @@ class LiveCustodialWalletManager(
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val recurringBuyService: RecurringBuyService
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -395,12 +396,7 @@ class LiveCustodialWalletManager(
     }
 
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
-        return nabuService.getRecurringBuyForId(recurringBuyId)
-            .map {
-                it.first().toRecurringBuy(assetCatalogue) ?: throw IllegalStateException(
-                    "No recurring buy"
-                )
-            }
+        return recurringBuyService.getRecurringBuyForId(id = recurringBuyId).asSingle()
     }
 
     override fun cancelRecurringBuy(recurringBuyId: String): Completable =

@@ -39,6 +39,7 @@ class DataWiperImplTest {
             bchDataManager,
             walletOptionsState,
             nabuDataManager,
+            activityWebSocketService = mock(),
             walletConnectServiceAPI,
             assetActivityRepository,
             walletPrefs,

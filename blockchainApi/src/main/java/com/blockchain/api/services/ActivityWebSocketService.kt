@@ -4,11 +4,14 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.activity.ActivityRequest
 import com.blockchain.api.selfcustody.activity.ActivityRequestParams
 import com.blockchain.api.selfcustody.activity.ActivityResponse
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -16,6 +19,7 @@ import kotlinx.coroutines.rx3.asFlow
 class ActivityWebSocketService(
     private val webSocket: WebSocket<ActivityRequest, ActivityResponse>,
     private val activityCacheService: ActivityCacheService,
+    private val lifecycleObservable: LifecycleObservable,
     private val credentials: SelfCustodyServiceAuthCredentials,
     private val wsScope: CoroutineScope
 ) {
@@ -45,7 +49,26 @@ class ActivityWebSocketService(
                     }
                 }.collect()
         }
+        wsScope.launch {
+            lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState: AppState ->
+                when (appState) {
+                    AppState.BACKGROUNDED -> {
+                        onAppForegrounded = if (isActive) {
+                            {
+                                webSocket.open()
+                            }
+                        } else {
+                            {}
+                        }
+                        webSocket.close()
+                    }
+                    AppState.FOREGROUNDED -> onAppForegrounded()
+                }
+            }
+        }
     }
+
+    private var onAppForegrounded = {}
 
     private val authInfo: AuthInfo
         get() = AuthInfo(
@@ -53,8 +76,15 @@ class ActivityWebSocketService(
             sharedKeyHash = credentials.hashedSharedKey,
         )
 
-    fun open() {
-        if (isActive.not()) webSocket.open()
+    fun open(fiatCurrency: String) {
+        if (isActive.not()) {
+            webSocket.open()
+            send(
+                fiatCurrency = fiatCurrency,
+                acceptLanguage = "en-GB;q=1.0, en",
+                timeZone = "Europe/London"
+            )
+        }
     }
 
     fun send(fiatCurrency: String, acceptLanguage: String, timeZone: String) {
@@ -72,7 +102,7 @@ class ActivityWebSocketService(
         )
     }
 
-    fun stop() {
+    fun close() {
         webSocket.close()
     }
 

@@ -246,62 +246,64 @@ private fun CustodialTradingActivitySummaryItem.statusStyle(): ActivityTagStyle 
     OrderState.FAILED -> ActivityTagStyle.Error
 }
 
+internal fun PaymentDetails.toExtra() = CustodialActivityDetailExtra(
+    title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+    value = with(this) {
+        when {
+            !endDigits.isNullOrEmpty() && !label.isNullOrEmpty() -> {
+                accountType?.let {
+                    TextValue.IntResValue(
+                        value = R.string.common_spaced_strings,
+                        args = listOf(
+                            label,
+                            TextValue.IntResValue(
+                                value = R.string.payment_method_type_account_info,
+                                args = listOf(accountType, endDigits)
+                            )
+                        )
+                    )
+                } ?: TextValue.IntResValue(
+                    value = R.string.common_hyphenated_strings,
+                    args = listOf(label, endDigits)
+                )
+            }
+            paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
+                endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
+                TextValue.IntResValue(
+                    value = R.string.credit_or_debit_card
+                )
+            }
+            paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
+                TextValue.StringValue(
+                    value = label?.let {
+                        Currency.getInstance(label).getDisplayName(Locale.getDefault())
+                    } ?: ""
+                )
+            }
+            mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
+                TextValue.IntResValue(
+                    value = R.string.google_pay
+                )
+            }
+            mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
+                TextValue.IntResValue(
+                    value = R.string.apple_pay
+                )
+            }
+            else -> {
+                TextValue.IntResValue(
+                    value = R.string.activity_details_payment_load_fail
+                )
+            }
+        }
+    }
+)
+
 internal fun CustodialTradingActivitySummaryItem.buildActivityDetail(
     paymentDetails: PaymentDetails
 ) = CustodialActivityDetail(
     activity = this,
     extras = mapOf(
-        CustodialActivityDetailExtraKey.PaymentDetail to CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
-            value = with(paymentDetails) {
-                when {
-                    !endDigits.isNullOrEmpty() && !label.isNullOrEmpty() -> {
-                        accountType?.let {
-                            TextValue.IntResValue(
-                                value = R.string.common_spaced_strings,
-                                args = listOf(
-                                    label,
-                                    TextValue.IntResValue(
-                                        value = R.string.payment_method_type_account_info,
-                                        args = listOf(accountType, endDigits)
-                                    )
-                                )
-                            )
-                        } ?: TextValue.IntResValue(
-                            value = R.string.common_hyphenated_strings,
-                            args = listOf(label, endDigits)
-                        )
-                    }
-                    paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
-                        endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
-                        TextValue.IntResValue(
-                            value = R.string.credit_or_debit_card
-                        )
-                    }
-                    paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                        TextValue.StringValue(
-                            value = label?.let {
-                                Currency.getInstance(label).getDisplayName(Locale.getDefault())
-                            } ?: ""
-                        )
-                    }
-                    mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
-                        TextValue.IntResValue(
-                            value = R.string.google_pay
-                        )
-                    }
-                    mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
-                        TextValue.IntResValue(
-                            value = R.string.apple_pay
-                        )
-                    }
-                    else -> {
-                        TextValue.IntResValue(
-                            value = R.string.activity_details_payment_load_fail
-                        )
-                    }
-                }
-            }
-        )
+        CustodialActivityDetailExtraKey.PaymentDetail to paymentDetails.toExtra()
     )
 )

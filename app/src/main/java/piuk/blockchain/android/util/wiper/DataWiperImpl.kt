@@ -1,6 +1,7 @@
 package piuk.blockchain.android.util.wiper
 
 import com.blockchain.api.interceptors.SessionInfo
+import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.walletoptions.WalletOptionsState
@@ -16,6 +17,7 @@ class DataWiperImpl constructor(
     private val bchDataManager: BchDataManager,
     private val walletOptionsState: WalletOptionsState,
     private val nabuDataManager: NabuDataManager,
+    private val activityWebSocketService: ActivityWebSocketService,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val assetActivityRepository: AssetActivityRepository,
     private val walletPrefs: WalletStatusPrefs,
@@ -23,10 +25,12 @@ class DataWiperImpl constructor(
     private val sessionInfo: SessionInfo,
     private val remoteLogger: RemoteLogger
 ) : DataWiper {
-
+    /***
+     * App locked
+     */
     override fun clearData() {
         remoteLogger.logEvent("Clearing data")
-
+        activityWebSocketService.close()
         ethDataManager.clearAccountDetails()
         bchDataManager.clearAccountDetails()
         assetActivityRepository.clear()

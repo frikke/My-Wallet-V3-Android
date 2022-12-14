@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.home
 
+import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.walletoptions.WalletOptionsState
@@ -8,6 +9,7 @@ import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.storedatasource.StoreWiper
+import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.utils.then
 import com.blockchain.utils.thenSingle
 import com.blockchain.walletmode.WalletModeService
@@ -22,6 +24,8 @@ import timber.log.Timber
 class CredentialsWiper(
     private val ethDataManager: EthDataManager,
     private val appUtil: AppUtil,
+    private val unifiedActivityService: UnifiedActivityService,
+    private val activityWebSocketService: ActivityWebSocketService,
     private val walletModeService: WalletModeService,
     private val notificationTokenManager: NotificationTokenManager,
     private val bchDataManager: BchDataManager,
@@ -34,7 +38,9 @@ class CredentialsWiper(
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
             Completable.fromAction {
+                unifiedActivityService.clearCache()
                 appUtil.unpairWallet()
+                activityWebSocketService.close()
                 ethDataManager.clearAccountDetails()
                 bchDataManager.clearAccountDetails()
                 nabuDataManager.clearAccessToken()

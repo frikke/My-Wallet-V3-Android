@@ -7,10 +7,7 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityI
 import kotlinx.coroutines.flow.Flow
 
 interface UnifiedActivityService {
-    fun getAllActivity(
-        acceptLanguage: String,
-        timeZone: String
-    ): Flow<DataResource<List<UnifiedActivityItem>>>
+    fun getAllActivity(): Flow<DataResource<List<UnifiedActivityItem>>>
 
     fun getActivity(
         txId: String

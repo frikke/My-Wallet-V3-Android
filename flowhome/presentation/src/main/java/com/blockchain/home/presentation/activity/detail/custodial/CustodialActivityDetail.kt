@@ -17,5 +17,7 @@ enum class CustodialActivityDetailExtraKey {
     Fee,
     ToLabel,
     PaymentMethod,
-    PaymentDetail
+    PaymentDetail,
+    NextPaymentDate,
+    Frequency
 }

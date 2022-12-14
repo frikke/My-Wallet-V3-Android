@@ -122,8 +122,6 @@ val mainModule = module {
     }.bind(WalletModeStore::class)
 
     factory {
-        WalletModeTraitsRepository(
-            walletModeService = lazy { get() }
-        )
+        WalletModeTraitsRepository()
     }.bind(TraitsService::class)
 }

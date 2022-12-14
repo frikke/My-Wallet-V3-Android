@@ -108,11 +108,7 @@ class PrivateKeyActivityViewModel(
     private fun loadData() {
         viewModelScope.launch {
             unifiedActivityService
-                // todo(othman) real values
-                .getAllActivity(
-                    acceptLanguage = "en-GB;q=1.0, en",
-                    timeZone = "Europe/London"
-                )
+                .getAllActivity()
                 .onEach { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
