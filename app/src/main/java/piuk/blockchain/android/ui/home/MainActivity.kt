@@ -198,6 +198,7 @@ class MainActivity :
             ActionActivity.ActivityResult.StartKyc -> launchKyc(CampaignType.None)
             is ActionActivity.ActivityResult.StartReceive -> launchReceive(cryptoTicker = it.cryptoTicker)
             ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellViewType.TYPE_BUY)
+            ActionActivity.ActivityResult.ViewActivity -> performAssetActionFor(AssetAction.ViewActivity)
             null -> {
             }
         }
@@ -1091,7 +1092,7 @@ class MainActivity :
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
         binding.uiTour.apply {
-            logHideUi()
+            logHideUi(this@MainActivity)
 
             animate()
                 .alpha(0f)

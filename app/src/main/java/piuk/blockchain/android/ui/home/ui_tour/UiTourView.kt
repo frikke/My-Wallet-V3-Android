@@ -294,7 +294,7 @@ class UiTourView @JvmOverloads constructor(
             }
         )
 
-    fun logHideUi() {
+    fun logHideUi(host: UiTourView.Host) {
         if (isEarnOnNavBar) {
             host.analytics.logEvent(UiTourAnalytics.NewTourDismissed(newTourCurrentStep))
         } else {
