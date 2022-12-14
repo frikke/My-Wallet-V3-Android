@@ -57,6 +57,7 @@ import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
+import java.lang.Exception
 
 @Composable
 fun FiatFundDetail(
@@ -120,6 +121,9 @@ fun FiatFundDetail(
                 )
             )
         },
+        retryLoadData = {
+            viewModel.onIntent(FiatFundsDetailIntent.LoadData)
+        },
         onBackPressed = dismiss
     )
 }
@@ -132,6 +136,7 @@ fun FiatFundDetailScreen(
     actionError: FiatActionErrorState?,
     depositOnClick: (FiatAccount) -> Unit,
     withdrawOnClick: (FiatAccount) -> Unit,
+    retryLoadData: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     (detail as? DataResource.Data)?.data?.let {
@@ -142,6 +147,7 @@ fun FiatFundDetailScreen(
             actionError = actionError,
             depositOnClick = depositOnClick,
             withdrawOnClick = withdrawOnClick,
+            retryLoadData = retryLoadData,
             onBackPressed = onBackPressed
         )
     }
@@ -155,6 +161,7 @@ fun FiatFundDetailScreenData(
     actionError: FiatActionErrorState?,
     depositOnClick: (FiatAccount) -> Unit,
     withdrawOnClick: (FiatAccount) -> Unit,
+    retryLoadData: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -177,7 +184,7 @@ fun FiatFundDetailScreenData(
 
                 when (data) {
                     DataResource.Loading -> {
-                        ShimmerLoadingCard()
+                        ShimmerLoadingCard(showEndBlocks = false)
                     }
                     is DataResource.Data -> {
                         Text(
@@ -239,6 +246,12 @@ fun FiatFundDetailScreenData(
                         }
                     }
                     is DataResource.Error -> {
+                        SnackbarAlert(
+                            message = stringResource(R.string.common_error),
+                            type = SnackbarType.Error,
+                            actionLabel = stringResource(R.string.common_retry),
+                            onActionClicked = retryLoadData
+                        )
                     }
                 }
             }
@@ -288,6 +301,7 @@ fun PreviewFiatFundDetailScreen() {
         withdrawOnClick = {
             error = FiatActionErrorState(R.string.fiat_funds_detail_pending_withdrawal)
         },
+        retryLoadData = {},
         onBackPressed = {}
     )
 }
@@ -308,6 +322,22 @@ fun PreviewFiatFundDetailScreenLoading() {
         actionError = null,
         depositOnClick = {},
         withdrawOnClick = {},
+        retryLoadData = {},
+        onBackPressed = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewFiatFundDetailScreenError() {
+    FiatFundDetailScreen(
+        detail = DataResource.Data(FiatFundsDetail(NullFiatAccount, "US Dollar", "")),
+        data = DataResource.Error(Exception()),
+        showWithdrawChecksLoading = true,
+        actionError = null,
+        depositOnClick = {},
+        withdrawOnClick = {},
+        retryLoadData = {},
         onBackPressed = {}
     )
 }

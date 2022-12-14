@@ -10,7 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.fiatActions.fiatactions.FiatActions
+import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
 import com.blockchain.store.flatMapData
@@ -32,7 +32,7 @@ import kotlinx.coroutines.rx3.await
 class FiatFundsDetailViewModel(
     private val fiatTicker: String,
     private val homeAccountsService: HomeAccountsService,
-    private val fiatActions: FiatActions
+    private val fiatActions: FiatActionsUseCase
 ) : MviViewModel<
     FiatFundsDetailIntent,
     FiatFundsDetailViewState,

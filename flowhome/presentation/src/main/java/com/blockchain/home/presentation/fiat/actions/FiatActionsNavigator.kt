@@ -1,37 +1,30 @@
-package com.blockchain.chrome.tbr
+package com.blockchain.home.presentation.fiat.actions
 
-import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.commonarch.presentation.mvi_v2.ModelState
-import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.fiatActions.fiatactions.FiatActions
+import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.fiatActions.fiatactions.models.FiatActionsResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class FiatActionsViewModel(
-    private val fiatActions: FiatActions
-) : MviViewModel<
-    FiatActionsIntents,
-    FiatActionsViewState,
-    FiatActionsModelState,
-    FiatActionsNavEvent,
-    ModelConfigArgs.NoArgs>(
-    FiatActionsModelState()
+class FiatActionsNavigator(
+    private val scope: CoroutineScope,
+    private val fiatActions: FiatActionsUseCase
 ) {
+    private var account: FiatAccount? = null
+    private var action: AssetAction? = null
+
+    private val _navigator = MutableSharedFlow<FiatActionsNavEvent>()
+    val navigator: Flow<FiatActionsNavEvent> get() = _navigator
 
     init {
-        viewModelScope.launch {
+        scope.launch {
             fiatActions.result.collectLatest { result ->
-                updateState {
-                    it.copy(
-                        fiatAccount = result.account,
-                        action = result.action
-                    )
-                }
+                account = result.account
+                action = result.action
 
                 when (result) {
                     is FiatActionsResult.BlockedDueToSanctions -> {
@@ -85,56 +78,49 @@ class FiatActionsViewModel(
         }
     }
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-
-    override fun reduce(state: FiatActionsModelState) = FiatActionsViewState()
-
-    override suspend fun handleIntent(
-        modelState: FiatActionsModelState,
-        intent: FiatActionsIntents
+    fun performAction(
+        request: FiatActionRequest
     ) {
-        when (intent) {
-            is FiatActionsIntents.Deposit -> {
-                updateState {
-                    it.copy(
-                        fiatAccount = intent.account,
-                        action = intent.action
-                    )
-                }
+        when (request) {
+            is FiatActionRequest.Deposit -> {
+                account = request.account
+                action = request.action
 
                 fiatActions.deposit(
-                    account = intent.account,
-                    action = intent.action,
-                    shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
+                    account = request.account,
+                    action = request.action,
+                    shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
+                    shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
                 )
             }
 
-            is FiatActionsIntents.RestartDeposit -> {
-                check(modelState.fiatAccount != null)
-                val action = intent.action ?: modelState.action ?: error("action undefined")
+            is FiatActionRequest.RestartDeposit -> {
+                check(account != null) { "account undefined" }
+                val action = request.action ?: action ?: error("action undefined")
+
                 fiatActions.deposit(
-                    account = modelState.fiatAccount,
+                    account = account!!,
                     action = action,
-                    shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
+                    shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
+                    shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
                 )
             }
-            FiatActionsIntents.WireTransferAccountDetails -> {
-                check(modelState.fiatAccount != null)
+
+            FiatActionRequest.WireTransferAccountDetails -> {
+                check(account != null) { "account undefined" }
+
                 navigate(
                     FiatActionsNavEvent.WireTransferAccountDetails(
-                        account = modelState.fiatAccount
+                        account = account!!
                     )
                 )
             }
         }
     }
+
+    private fun navigate(event: FiatActionsNavEvent) {
+        scope.launch {
+            _navigator.emit(event)
+        }
+    }
 }
-
-class FiatActionsViewState : ViewState
-
-data class FiatActionsModelState(
-    val fiatAccount: FiatAccount? = null,
-    val action: AssetAction? = null,
-) : ModelState

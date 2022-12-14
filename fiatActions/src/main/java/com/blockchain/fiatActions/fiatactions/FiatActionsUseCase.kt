@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 
-class FiatActions(
+class FiatActionsUseCase(
     private val scope: CoroutineScope,
     private val dataRemediationService: DataRemediationService,
     private val userIdentity: UserIdentity,
