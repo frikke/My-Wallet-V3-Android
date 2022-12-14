@@ -19,7 +19,7 @@ data class FiatFundsDetailData(
 )
 
 sealed interface FiatActionError {
-    object WithdrawalInProgress: FiatActionError
-    object Unknown: FiatActionError
-    object None: FiatActionError
+    object WithdrawalInProgress : FiatActionError
+    object Unknown : FiatActionError
+    object None : FiatActionError
 }

@@ -31,9 +31,9 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import java.util.concurrent.atomic.AtomicBoolean
 
 /*internal*/ class FiatCustodialAccount internal constructor(
     override val label: String,

@@ -3,11 +3,6 @@ package piuk.blockchain.android.ui.dashboard.sheets
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
@@ -18,7 +13,6 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf

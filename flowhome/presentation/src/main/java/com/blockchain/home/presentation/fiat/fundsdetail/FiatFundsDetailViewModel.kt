@@ -127,7 +127,7 @@ class FiatFundsDetailViewModel(
     private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
         firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
-    private fun handleWithdraw( intent : FiatFundsDetailIntent.Withdraw) {
+    private fun handleWithdraw(intent: FiatFundsDetailIntent.Withdraw) {
         viewModelScope.launch {
             intent.account.canWithdrawFunds()
                 .collectLatest { dataResource ->

@@ -44,8 +44,8 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import kotlinx.coroutines.flow.Flow
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 class SimpleBuyRepository(
     private val simpleBuyEligibilityStore: SimpleBuyEligibilityStore,
