@@ -28,6 +28,7 @@ import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -77,7 +78,7 @@ class SimpleBuyActivity :
     BlockchainActivity(),
     SimpleBuyNavigator,
     KycUpgradeNowSheet.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
     CurrencySelectionSheet.Host {

@@ -42,4 +42,5 @@ include ':app',
         ':earn:data',':earn:domain',':earn:presentation',
         ':fraud:data', ':fraud:domain', ':fraud:sardine',
         ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
-        ':membership:data', ':membership:domain', ':membership:presentation'
+        ':membership:data', ':membership:domain', ':membership:presentation',
+        ':fiatActions'

@@ -14,6 +14,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -40,7 +41,7 @@ import piuk.blockchain.android.util.StringUtils
 
 class WireTransferAccountDetailsBottomSheet :
     SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>(),
-    QuestionnaireSheet.Host {
+    QuestionnaireSheetHost {
 
     private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()

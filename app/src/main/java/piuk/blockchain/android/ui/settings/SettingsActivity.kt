@@ -9,17 +9,14 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
-import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
-import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivitySettingsBinding
@@ -27,7 +24,6 @@ import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.blockchaincard.BlockchainCardActivity
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
@@ -285,16 +281,6 @@ interface SettingsNavigator {
 interface SettingsScreen {
     fun navigator(): SettingsNavigator
 }
-
-interface BankLinkingHost : SlidingModalBottomDialog.Host {
-    fun onBankWireTransferSelected(currency: FiatCurrency)
-    fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction)
-}
-
-data class LinkablePaymentMethods(
-    val currency: FiatCurrency,
-    val linkMethods: List<PaymentMethodType>
-) : java.io.Serializable
 
 data class BankItem(
     val bank: LinkedPaymentMethod.Bank,

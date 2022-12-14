@@ -4,13 +4,13 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.fiatActions.fiatactions.FiatActions
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.store.flatMapData
@@ -29,6 +29,7 @@ import kotlinx.coroutines.rx3.await
 class FiatFundsDetailViewModel(
     private val fiatTicker: String,
     private val homeAccountsService: HomeAccountsService,
+    private val fiatActions: FiatActions
 ) : MviViewModel<
     FiatFundsDetailIntent, FiatFundsDetailViewState, FiatFundsDetailModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     FiatFundsDetailModelState()
@@ -50,7 +51,18 @@ class FiatFundsDetailViewModel(
 
     override suspend fun handleIntent(modelState: FiatFundsDetailModelState, intent: FiatFundsDetailIntent) {
         when (intent) {
-            FiatFundsDetailIntent.LoadData -> loadData()
+            FiatFundsDetailIntent.LoadData -> {
+                loadData()
+            }
+
+            is FiatFundsDetailIntent.Deposit -> {
+                fiatActions.deposit(
+                    account = intent.account,
+                    action = intent.action,
+                    shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
+                    shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
+                )
+            }
         }
     }
 
@@ -88,37 +100,6 @@ class FiatFundsDetailViewModel(
                 }
                 .collect()
         }
-
-//        viewModelScope.launch {
-//            val fiatAccount = coincore[currency].defaultAccount().await() as FiatAccount
-//
-//            updateState {
-//                it.copy(account = DataResource.Data(fiatAccount))
-//            }
-//
-//            combine(
-//                fiatAccount.balance.map { it.total },
-//                flowOf(fiatAccount.stateAwareActions.await())
-//            ) { balance, actions ->
-//                updateState {
-//                    it.copy(
-//                        data = DataResource.Data(
-//                            FiatFundsDetailData(
-//                                balance = balance,
-//                                depositEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw),
-//                                withdrawEnabled = actions.hasAvailableAction(AssetAction.FiatWithdraw)
-//                            )
-//                        )
-//                    )
-//                }
-//            }.catch { error ->
-//                updateState {
-//                    it.copy(
-//                        data = DataResource.Error(Exception(error))
-//                    )
-//                }
-//            }.collect()
-//        }
     }
 
     private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =

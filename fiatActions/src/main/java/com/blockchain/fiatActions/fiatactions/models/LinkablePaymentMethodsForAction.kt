@@ -1,7 +1,6 @@
-package piuk.blockchain.android.ui.dashboard.model
+package com.blockchain.fiatActions.fiatactions.models
 
 import java.io.Serializable
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
 sealed class LinkablePaymentMethodsForAction(
     open val linkablePaymentMethods: LinkablePaymentMethods

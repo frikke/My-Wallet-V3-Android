@@ -9,10 +9,10 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 sealed class DashboardNavigationAction {

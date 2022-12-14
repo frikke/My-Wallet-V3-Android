@@ -39,6 +39,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':earn:domain')
     implementation project(':analytics:domain')
+    implementation project(':fiatActions')
 
     // android
     implementation Libraries.design

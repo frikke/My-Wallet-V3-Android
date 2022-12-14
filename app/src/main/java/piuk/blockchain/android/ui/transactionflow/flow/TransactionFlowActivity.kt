@@ -27,6 +27,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
@@ -69,7 +70,7 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     KycUpgradeNowSheet.Host,
     StakingAccountWithdrawWarning.Host {
 

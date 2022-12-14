@@ -22,7 +22,7 @@ import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope

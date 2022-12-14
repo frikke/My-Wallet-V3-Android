@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.fiat.actions.models
+package com.blockchain.fiatActions.fiatactions.models
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
@@ -40,6 +40,6 @@ sealed class FiatTransactionRequestResult {
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
     data class LaunchQuestionnaire(
         val questionnaire: Questionnaire,
-        val callbackIntent: Any
+//        val callbackIntent: Any
     ) : FiatTransactionRequestResult()
 }
