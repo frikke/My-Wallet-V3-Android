@@ -4,6 +4,7 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.domain.paymentmethods.BankService
@@ -23,6 +24,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingService: TradingService = mock()
+    private val simpleBuyService: SimpleBuyService = mock()
     private val bankService: BankService = mock()
 
     @Before
@@ -108,6 +110,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
             tradingService = tradingService,
+            simpleBuyService = simpleBuyService,
             bankService = bankService
         )
 
