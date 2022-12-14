@@ -108,7 +108,8 @@ val earnDataModule = module {
                 paymentTransactionHistoryStore = get(),
                 currencyPrefs = get(),
                 interestApiService = get(),
-                interestAllRatesStore = get()
+                interestAllRatesStore = get(),
+                historicRateFetcher = get()
             )
         }
     }

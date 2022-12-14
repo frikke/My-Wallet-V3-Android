@@ -5,14 +5,13 @@ import com.blockchain.api.trade.data.AccumulatedInPeriod
 import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.QuoteResponse
 import com.blockchain.api.trade.data.RecurringBuyResponse
-import com.blockchain.coincore.toFiat
+import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo

@@ -84,7 +84,8 @@ class ActivityDetailsModelTest {
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
         accountRef = "",
-        recipientAddress = ""
+        recipientAddress = "",
+        fiatValue = CryptoValue.zero(CryptoCurrency.BTC)
     )
 
     private val custodialStakingItem = CustodialStakingActivitySummaryItem(

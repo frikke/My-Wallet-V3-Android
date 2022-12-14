@@ -7,10 +7,12 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
@@ -57,7 +59,8 @@ class CustodialActivityDetailViewModel(
     private val cardService: CardService,
     private val bankService: BankService,
     private val coincore: Coincore,
-    private val defaultLabels: DefaultLabels
+    private val defaultLabels: DefaultLabels,
+    private val recurringBuyService: RecurringBuyService
 ) : MviViewModel<
     ActivityDetailIntent<CustodialActivityDetail>,
     ActivityDetailViewState,
@@ -100,13 +103,14 @@ class CustodialActivityDetailViewModel(
                             with(summaryDataResource.data) {
                                 when (this) {
                                     is CustodialTradingActivitySummaryItem -> tradingDetail()
-                                    is CustodialTransferActivitySummaryItem -> transferDetail()
+                                    is CustodialTransferActivitySummaryItem -> interestDetail()
+                                    is CustodialInterestActivitySummaryItem -> interestDetail()
+                                    is RecurringBuyActivitySummaryItem -> recurringBuyDetail()
                                     is TradeActivitySummaryItem -> when {
                                         isSellingPair() -> sellDetail()
                                         isSwapPair() -> swapDetail()
                                         else -> error("unsupported")
                                     }
-                                    is CustodialInterestActivitySummaryItem -> interestDetail()
                                     is FiatActivitySummaryItem -> fiatDetail()
                                     // todo rest of types
                                     else -> flowOf(DataResource.Loading)
@@ -131,40 +135,37 @@ class CustodialActivityDetailViewModel(
      * otherwise default data
      */
     private fun CustodialTradingActivitySummaryItem.tradingDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return when (paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> {
-                cardService.getCardDetails(cardId = paymentMethodId)
-                    .mapData { card -> card.toPaymentDetail() }
-            }
-            PaymentMethodType.BANK_TRANSFER -> {
-                bankService.getLinkedBank(id = paymentMethodId)
-                    .mapData { bank -> bank.toPaymentMethod().toPaymentDetail() }
-            }
-            else -> {
-                flowOf(
-                    DataResource.Data(
-                        PaymentDetails(
-                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
-                            label = fundedFiat.currencyCode
-                        )
-                    )
-                )
-            }
-        }.catch {
-            emit(
-                DataResource.Data(
-                    PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
-                )
-            )
-        }.onErrorReturn {
-            PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
-        }.mapData { paymentDetails ->
+        return paymentMethodType.paymentMethod(
+            paymentMethodId = paymentMethodId,
+            fundedFiat = fundedFiat
+        ).mapData { paymentDetails ->
             buildActivityDetail(paymentDetails)
         }
     }
 
-    private fun CustodialTransferActivitySummaryItem.transferDetail(): Flow<DataResource<CustodialActivityDetail>> {
+    private fun CustodialTransferActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private fun RecurringBuyActivitySummaryItem.recurringBuyDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return recurringBuyId?.let {
+            val recurringBuyFlow = recurringBuyService.getRecurringBuyForId(id = it, includeInactive = true)
+
+            val paymentDetailFlow = paymentMethodType.paymentMethod(
+                paymentMethodId = paymentMethodId,
+                fundedFiat = fundedFiat
+            )
+
+            combine(recurringBuyFlow, paymentDetailFlow) { recurringBuy, paymentDetail ->
+                combineDataResources(recurringBuy, paymentDetail) { recurringBuyData, paymentDetailData ->
+                    buildActivityDetail(recurringBuy = recurringBuyData, paymentDetails = paymentDetailData)
+                }
+            }
+        } ?: flowOf(DataResource.Error(Exception("recurringBuyId not found")))
     }
 
     private suspend fun TradeActivitySummaryItem.sellDetail(): Flow<DataResource<CustodialActivityDetail>> {
@@ -237,15 +238,45 @@ class CustodialActivityDetailViewModel(
         }
     }
 
-    private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return flowOf(DataResource.Data(buildActivityDetail()))
-    }
-
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return paymentMethodService.getPaymentMethodDetailsForId(paymentMethodId.orEmpty())
             .mapData { paymentMethodDetails ->
                 buildActivityDetail(paymentMethodDetails)
             }
+    }
+
+    private fun PaymentMethodType.paymentMethod(
+        paymentMethodId: String,
+        fundedFiat: Money
+    ): Flow<DataResource<PaymentDetails>> {
+        return when (this) {
+            PaymentMethodType.PAYMENT_CARD -> {
+                cardService.getCardDetails(cardId = paymentMethodId)
+                    .mapData { card -> card.toPaymentDetail() }
+            }
+            PaymentMethodType.BANK_TRANSFER -> {
+                bankService.getLinkedBank(id = paymentMethodId)
+                    .mapData { bank -> bank.toPaymentMethod().toPaymentDetail() }
+            }
+            else -> {
+                flowOf(
+                    DataResource.Data(
+                        PaymentDetails(
+                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
+                            label = fundedFiat.currencyCode
+                        )
+                    )
+                )
+            }
+        }.catch {
+            emit(
+                DataResource.Data(
+                    PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
+                )
+            )
+        }.onErrorReturn {
+            PaymentDetails(paymentMethodId = paymentMethodId, label = fundedFiat.currencyCode)
+        }
     }
 }
 

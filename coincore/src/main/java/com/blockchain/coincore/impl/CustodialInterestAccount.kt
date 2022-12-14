@@ -124,7 +124,8 @@ class CustodialInterestAccount(
                 ?: interestActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = interestActivity.extraAttributes?.address ?: ""
+            recipientAddress = interestActivity.extraAttributes?.address ?: "",
+            fiatValue = interestActivity.fiatValue
         )
 
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {

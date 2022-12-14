@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
+import com.blockchain.core.recurringbuy.domain.FundsAccount
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
-import com.blockchain.nabu.models.data.FundsAccount
-import com.blockchain.nabu.models.data.RecurringBuy
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.domain.repositories.TradeDataService
 

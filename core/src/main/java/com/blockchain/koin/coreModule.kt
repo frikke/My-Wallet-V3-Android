@@ -72,6 +72,9 @@ import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
+import com.blockchain.core.recurringbuy.data.RecurringBuyRepository
+import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.referral.dataresource.ReferralStore
 import com.blockchain.core.sdd.data.SddRepository
@@ -203,6 +206,19 @@ val coreModule = module {
         scoped {
             SddEligibilityStore(
                 nabuService = get()
+            )
+        }
+
+        scoped {
+            RecurringBuyWithIdStore(
+                nabu = get()
+            )
+        }
+
+        scoped<RecurringBuyService> {
+            RecurringBuyRepository(
+                recurringBuyWithIdStore = get(),
+                assetCatalogue = get()
             )
         }
 

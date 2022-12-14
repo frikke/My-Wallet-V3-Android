@@ -80,15 +80,9 @@ internal fun CustodialInterestActivitySummaryItem.trailingTitle(): ActivityStack
     )
 }
 
-// todo(othman) find a way to get fiat because it's fetched by separate api
 internal fun CustodialInterestActivitySummaryItem.trailingSubtitle(): ActivityStackView {
-    //    return ActivityStackView.Text(
-    //        value = TextValue.StringValue(fundedFiat.toStringWithSymbol()),
-    //        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
-    //    )
-
     return ActivityStackView.Text(
-        value = TextValue.StringValue("not implemented"),
-        style = basicSubtitleStyle
+        value = TextValue.StringValue(fiatValue?.toStringWithSymbol() ?: "--"),
+        style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }
