@@ -12,7 +12,9 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.earn.domain.models.staking.StakingRates
@@ -43,6 +45,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalanc
 
 class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val interestService: InterestService,
     private val currencyPrefs: CurrencyPrefs,
     private val stakingService: StakingService
@@ -76,15 +79,19 @@ class LoadAssetAccountsUseCase(
 
         return combine(
             accountsFlow,
-            asset.getPricesWith24hDelta(),
+            exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                asset.currency,
+                freshnessStrategy = FreshnessStrategy.Cached(false)
+            ),
             interestFlow,
             stakingFlow
-        ) { accounts, prices, interestRate, stakingRate ->
+        )
+        { accounts, price, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
             combineDataResources(
-                prices,
+                price,
                 interestRate,
                 stakingRate
             ) { pricesData, interestRateData, stakingRateData ->
@@ -96,7 +103,7 @@ class LoadAssetAccountsUseCase(
                     val accountsList = mapAccounts(
                         walletMode = walletModeService.enabledWalletMode(),
                         accounts = accounts,
-                        exchangeRate = pricesData.currentRate,
+                        exchangeRate = pricesData,
                         interestRate = interestRateData,
                         stakingRate = stakingRateData.rate
                     )
