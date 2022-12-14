@@ -886,7 +886,7 @@ class PaymentsRepositoryTest {
         val requestBody = DepositTermsRequestBody(
             amount = DepositTermsRequestBody.Amount(
                 value = amount.toBigInteger().toString(),
-                currency = amount.currencyCode
+                symbol = amount.currencyCode
             ),
             paymentMethodId = "paymentMethodId"
         )
@@ -923,7 +923,7 @@ class PaymentsRepositoryTest {
         val requestBody = DepositTermsRequestBody(
             amount = DepositTermsRequestBody.Amount(
                 value = amount.toBigInteger().toString(),
-                currency = amount.currencyCode
+                symbol = amount.currencyCode
             ),
             paymentMethodId = "paymentMethodId"
         )
