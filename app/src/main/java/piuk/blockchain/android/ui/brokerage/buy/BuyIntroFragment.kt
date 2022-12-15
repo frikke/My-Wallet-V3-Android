@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.brokerage.buy
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,8 +42,8 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
-import piuk.blockchain.android.ui.home.HomeNavigator
-import piuk.blockchain.android.ui.home.HomeScreenFragment
+import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
@@ -51,7 +52,6 @@ import retrofit2.HttpException
 
 class BuyIntroFragment :
     ViewPagerFragment(),
-    HomeScreenFragment,
     KycUpgradeNowSheet.Host {
 
     private var _binding: BuyIntroFragmentBinding? = null
@@ -304,8 +304,15 @@ class BuyIntroFragment :
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == MainActivity.KYC_STARTED) {
+            checkEligibilityAndLoadBuyDetails(true)
+        }
+    }
+
     override fun startKycClicked() {
-        navigator().launchKyc(CampaignType.SimpleBuy)
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, MainActivity.KYC_STARTED)
     }
 
     override fun onDestroyView() {
@@ -328,9 +335,6 @@ class BuyIntroFragment :
     override fun onSheetClosed() {
         // do nothing
     }
-
-    override fun navigator(): HomeNavigator =
-        (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
 }
 
 data class PriceHistory(
