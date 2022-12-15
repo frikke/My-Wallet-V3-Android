@@ -3,39 +3,34 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.EarnAnalytics
-import com.blockchain.earn.interest.InterestSummarySheet
-import com.blockchain.extensions.exhaustive
+import com.blockchain.earn.dashboard.EarnDashboardFragment
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.HomeLaunch
+import com.blockchain.koin.payloadScope
 import com.blockchain.utils.consume
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardNavigationEvent
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class InterestDashboardActivity :
-    BlockchainActivity(),
-    InterestSummarySheet.Host,
-    NavigationRouter<InterestDashboardNavigationEvent> {
+    BlockchainActivity(), EarnDashboardFragment.Host {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
     }
-
-    private val sharedViewModel: InterestDashboardSharedViewModel by viewModel()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -43,12 +38,6 @@ class InterestDashboardActivity :
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
-
-    private var transactionFlowActivityLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        sharedViewModel.requestBalanceRefresh()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,79 +55,82 @@ class InterestDashboardActivity :
         onBackPressedDispatcher.onBackPressed()
     }
 
-    override fun route(navigationEvent: InterestDashboardNavigationEvent) {
-        when (navigationEvent) {
-            is InterestDashboardNavigationEvent.InterestSummary -> {
-                showInterestSummarySheet(navigationEvent.account)
-            }
-
-            is InterestDashboardNavigationEvent.InterestDeposit -> {
-                goToInterestDeposit(navigationEvent.account)
-            }
-
-            InterestDashboardNavigationEvent.StartKyc -> {
-                startKyc()
-            }
-        }.exhaustive
-    }
-
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
+    }
+
+    private val transactionFlowNavigation: TransactionFlowNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
+    private val assetsActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
     }
 
     private fun goToInterestDashboardFragment() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                InterestDashboardFragment.newInstance(),
-                InterestDashboardFragment::class.simpleName
+                EarnDashboardFragment.newInstance(),
+                EarnDashboardFragment::class.simpleName
             )
             .commitAllowingStateLoss()
-    }
-
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
-        clearBottomSheet()
-        require(toAccount is CryptoAccount)
-
-        transactionFlowActivityLauncher.launch(
-            TransactionFlowActivity.newIntent(
-                context = this,
-                target = toAccount,
-                action = AssetAction.InterestDeposit
-            )
-        )
-    }
-
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
-        clearBottomSheet()
-        require(fromAccount is CryptoAccount)
-
-        transactionFlowActivityLauncher.launch(
-            TransactionFlowActivity.newIntent(
-                context = this,
-                sourceAccount = fromAccount,
-                action = AssetAction.InterestWithdraw
-            )
-        )
-    }
-
-    override fun onSheetClosed() {
-        // do nothing
-    }
-
-    private fun startKyc() {
-        analytics.logEvent(EarnAnalytics.InterestDashboardKyc)
-        KycNavHostActivity.start(this, CampaignType.Interest)
-    }
-
-    private fun showInterestSummarySheet(account: CryptoAccount) {
-        showBottomSheet(InterestSummarySheet.newInstance(account))
     }
 
     companion object {
         const val ACTIVITY_ACCOUNT = "ACTIVITY_ACCOUNT"
         fun newInstance(context: Context) =
             Intent(context, InterestDashboardActivity::class.java)
+    }
+
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.InterestDeposit,
+            target = toAccount as TransactionTarget
+        )
+    }
+
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.InterestWithdraw,
+            sourceAccount = fromAccount
+        )
+    }
+
+    override fun launchStakingWithdrawal(account: StakingAccount) {
+    }
+
+    override fun launchStakingDeposit(account: StakingAccount) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.StakingDeposit,
+            target = account as TransactionTarget
+        )
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.startForResult(this, CampaignType.None, HomeLaunch.KYC_STARTED)
+    }
+
+    override fun launchReceive(cryptoTicker: String?) {
+        assetsActionsNavigation.navigate(AssetAction.Receive)
+    }
+
+    override fun launchBuySell(viewType: BuySellViewType, asset: AssetInfo?, reload: Boolean) {
+        assetsActionsNavigation.buyCrypto(
+            currency = asset!!,
+            amount = null
+        )
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == HomeLaunch.KYC_STARTED) {
+            finish()
+        }
     }
 }

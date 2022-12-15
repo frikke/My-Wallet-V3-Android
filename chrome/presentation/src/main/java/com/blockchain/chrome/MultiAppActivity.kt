@@ -274,10 +274,6 @@ class MultiAppActivity :
         ).show()
     }
 
-    override fun goToStakingAccountActivity(account: StakingAccount) {
-        // Do nothing not supported
-    }
-
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) =
         showBottomSheet(bottomSheet)
 

@@ -7,7 +7,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.chrome.ChromeBottomNavigationItem
-import com.blockchain.chrome.composable.DemoScreen
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
@@ -70,26 +69,6 @@ fun MultiAppBottomNavigationHost(
                     )
                 },
                 listState = listState,
-                refreshStarted = refreshStarted,
-                refreshComplete = refreshComplete
-            )
-        }
-        composable(ChromeBottomNavigationItem.Card.route) {
-            DemoScreen(
-                modifier = modifier,
-                tag = "Card",
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Card, it)) },
-                isPullToRefreshEnabled = enableRefresh,
-                refreshStarted = refreshStarted,
-                refreshComplete = refreshComplete
-            )
-        }
-        composable(ChromeBottomNavigationItem.Nft.route) {
-            DemoScreen(
-                modifier = modifier,
-                tag = "NFT",
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Nft, it)) },
-                isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
             )

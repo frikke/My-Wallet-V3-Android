@@ -34,7 +34,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -184,12 +183,7 @@ fun ActivityScreen(
                     .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 when (activity) {
-                    is DataResource.Loading -> {
-                        ShimmerLoadingCard()
-                    }
-                    is DataResource.Error -> {
-                        // todo
-                    }
+
                     is DataResource.Data -> {
                         ActivityData(
                             activity = activity.data,
@@ -214,6 +208,7 @@ fun ActivityScreen(
                             }
                         )
                     }
+                    else -> {}
                 }
             }
         }
