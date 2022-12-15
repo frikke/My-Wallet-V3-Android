@@ -17,6 +17,7 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -29,7 +30,7 @@ class CustodialActivityViewModel(
     ActivityViewState,
     ActivityModelState<ActivitySummaryItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState()) {
+    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL_ONLY)) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -57,7 +58,8 @@ class CustodialActivityViewModel(
                             )
                         }
                     }
-                }
+                },
+            walletMode = state.walletMode
         )
     }
 

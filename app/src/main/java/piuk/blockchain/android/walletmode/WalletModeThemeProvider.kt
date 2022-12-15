@@ -11,21 +11,12 @@ import com.blockchain.componentlib.theme.SemanticColors
 import com.blockchain.componentlib.theme.Theme
 import com.blockchain.componentlib.theme.defDarkColors
 import com.blockchain.componentlib.theme.defLightColors
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 
-class WalletModeThemeProvider(private val walletModeService: WalletModeService) : AppThemeProvider {
+class WalletModeThemeProvider : AppThemeProvider {
     override val appTheme: Flow<Theme>
-        get() = walletModeService.walletMode.distinctUntilChanged().map {
-            when (it) {
-                WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> DefaultAppTheme
-                WalletMode.NON_CUSTODIAL_ONLY -> DefiWalletTheme
-            }
-        }
+        get() = flowOf(DefaultAppTheme)
 }
 
 object DefiWalletTheme : Theme() {

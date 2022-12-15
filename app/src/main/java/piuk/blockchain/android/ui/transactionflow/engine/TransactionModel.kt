@@ -33,13 +33,12 @@ import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -61,7 +60,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
@@ -152,6 +150,7 @@ data class TransactionState(
     val quickFillButtonData: QuickFillButtonData? = null,
     val amountsToPrefill: PrefillAmounts? = null,
     val canFilterOutTradingAccounts: Boolean = false,
+    val isPkwAccountFilterActive: Boolean = false,
     val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
     val isLoading: Boolean = false,
     val ffImprovedPaymentUxEnabled: Boolean = false,
@@ -253,7 +252,6 @@ class TransactionModel(
     initialState: TransactionState,
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
-    private val walletModeService: WalletModeService,
     private val errorLogger: TxFlowErrorReporting,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -385,7 +383,21 @@ class TransactionModel(
                 null
             }
             is TransactionIntent.ShowSourceSelection ->
-                loadAvailableSourceAccounts(previousState.action, previousState.selectedTarget, true)
+                loadAvailableSourceAccounts(
+                    action = previousState.action,
+                    transactionTarget = previousState.selectedTarget,
+                    shouldResetBackStack = true,
+                    shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+                )
+            is TransactionIntent.UpdatePrivateKeyFilter -> {
+                interactor.updatePkwFilterState(intent.isPkwAccountFilterActive)
+                loadAvailableSourceAccounts(
+                    action = previousState.action,
+                    transactionTarget = previousState.selectedTarget,
+                    shouldResetBackStack = true,
+                    shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+                )
+            }
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -423,7 +435,8 @@ class TransactionModel(
             is TransactionIntent.UpdatePasswordIsValidated,
             is TransactionIntent.UpdatePasswordNotValidated,
             is TransactionIntent.PrepareTransaction,
-            is TransactionIntent.AvailableSourceAccountsListUpdated -> null
+            is TransactionIntent.AvailableSourceAccountsListUpdated,
+            is TransactionIntent.UpdatePrivateKeyAccountsFilterState -> null
         }
     }
 
@@ -481,14 +494,14 @@ class TransactionModel(
             process(TransactionIntent.TargetSelected)
             null
         }?.doOnSuccess { accounts ->
-            process(
-                TransactionIntent.UpdateTradingAccountsFilterState(
-                    canFilterTradingAccounts = accounts.any { it is TradingAccount } &&
-                        accounts.any { it is NonCustodialAccount } &&
-                        action == AssetAction.Swap &&
-                        walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL
+            if (action == AssetAction.Swap) {
+                process(
+                    TransactionIntent.UpdateTradingAccountsFilterState(
+                        canFilterTradingAccounts = accounts.any { it is TradingAccount } &&
+                            accounts.any { it is NonCustodialAccount }
+                    )
                 )
-            )
+            }
         }
 
     private fun Single<List<SingleAccount>>.processTargets(
@@ -520,41 +533,72 @@ class TransactionModel(
         action: AssetAction,
         transactionTarget: TransactionTarget,
         shouldResetBackStack: Boolean = false
-    ): Disposable =
-        if (action == AssetAction.StakingDeposit) {
-            Singles.zip(
-                fetchProductEligibility(action, NullCryptoAccount(), transactionTarget).toSingle(),
-                interactor.getAvailableSourceAccounts(action, transactionTarget)
-            ).subscribeBy(
-                onSuccess = { (access, accountList) ->
-                    if (access is FeatureAccess.Blocked) {
-                        process(TransactionIntent.ShowFeatureBlocked(access.reason))
-                    } else {
-                        process(
-                            TransactionIntent.AvailableSourceAccountsListUpdated(accountList)
-                        )
-                    }
-                    if (shouldResetBackStack) {
-                        process(TransactionIntent.ClearBackStack)
-                    }
-                },
-                onError = {
-                    process(TransactionIntent.FatalTransactionError(it))
-                }
+    ): Disposable {
+        val shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+        process(TransactionIntent.UpdatePrivateKeyAccountsFilterState(shouldShowPkwOnTrading))
+
+        return if (action == AssetAction.StakingDeposit) {
+            checkWithdrawalNoticeAndProceed(
+                action = action,
+                transactionTarget = transactionTarget,
+                shouldResetBackStack = shouldResetBackStack,
+                shouldShowPkwOnTrading = shouldShowPkwOnTrading
             )
         } else {
-            loadAvailableSourceAccounts(action, transactionTarget, shouldResetBackStack)
+            loadAvailableSourceAccounts(
+                action = action,
+                transactionTarget = transactionTarget,
+                shouldResetBackStack = shouldResetBackStack,
+                shouldShowPkwOnTrading = shouldShowPkwOnTrading
+            )
         }
+    }
+
+    private fun checkWithdrawalNoticeAndProceed(
+        action: AssetAction,
+        transactionTarget: TransactionTarget,
+        shouldResetBackStack: Boolean,
+        shouldShowPkwOnTrading: Boolean
+    ) = Singles.zip(
+        fetchProductEligibility(action, NullCryptoAccount(), transactionTarget).toSingle(),
+        interactor.getAvailableSourceAccounts(action, transactionTarget)
+    ).subscribeBy(
+        onSuccess = { (access, accountList) ->
+            if (access is FeatureAccess.Blocked) {
+                process(TransactionIntent.ShowFeatureBlocked(access.reason))
+            } else {
+                process(
+                    TransactionIntent.AvailableSourceAccountsListUpdated(
+                        accountList.filter {
+                            shouldShowPkwOnTrading || it !is NonCustodialAccount
+                        }
+                    )
+                )
+            }
+
+            if (shouldResetBackStack) {
+                process(TransactionIntent.ClearBackStack)
+            }
+        },
+        onError = {
+            process(TransactionIntent.FatalTransactionError(it))
+        }
+    )
 
     private fun loadAvailableSourceAccounts(
         action: AssetAction,
         transactionTarget: TransactionTarget,
-        shouldResetBackStack: Boolean
+        shouldResetBackStack: Boolean,
+        shouldShowPkwOnTrading: Boolean
     ) = interactor.getAvailableSourceAccounts(action, transactionTarget)
         .subscribeBy(
-            onSuccess = {
+            onSuccess = { accountList ->
                 process(
-                    TransactionIntent.AvailableSourceAccountsListUpdated(it)
+                    TransactionIntent.AvailableSourceAccountsListUpdated(
+                        accountList.filter {
+                            shouldShowPkwOnTrading || it !is NonCustodialAccount
+                        }
+                    )
                 )
                 if (shouldResetBackStack) {
                     process(TransactionIntent.ClearBackStack)
@@ -664,6 +708,7 @@ class TransactionModel(
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
         AssetAction.StakingDeposit -> interactor.checkShouldShowInterstitial(
+            sourceAccount = sourceAccount,
             asset = (target as CryptoAccount).currency,
             feature = Feature.DepositStaking
         ).toMaybe()

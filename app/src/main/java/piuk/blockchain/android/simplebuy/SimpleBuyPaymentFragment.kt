@@ -14,6 +14,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -22,9 +24,8 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
@@ -59,7 +60,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :

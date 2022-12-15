@@ -3,7 +3,7 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor

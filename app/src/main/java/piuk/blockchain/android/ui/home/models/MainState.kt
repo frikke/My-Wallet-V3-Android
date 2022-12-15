@@ -9,6 +9,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -18,7 +19,6 @@ import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
@@ -42,7 +42,7 @@ sealed class ViewToLaunch {
     class LaunchInterestDashboard(val origin: LaunchOrigin) : ViewToLaunch()
     object LaunchReceive : ViewToLaunch()
     object LaunchSend : ViewToLaunch()
-    class LaunchBuySell(val type: BuySellFragment.BuySellViewType, val asset: AssetInfo?) : ViewToLaunch()
+    class LaunchBuySell(val type: BuySellViewType, val asset: AssetInfo?) : ViewToLaunch()
     class LaunchAssetAction(val action: AssetAction, val account: BlockchainAccount?) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
     class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
@@ -77,6 +77,7 @@ sealed class ViewToLaunch {
     object ShowReferralSheet : ViewToLaunch()
     class LaunchTxFlowWithAccountForAction(val account: LaunchFlowForAccount, val action: AssetAction) : ViewToLaunch()
     class LaunchRewardsSummaryFromDeepLink(val account: LaunchFlowForAccount) : ViewToLaunch()
+    class GoToActivityForAccount(val account: BlockchainAccount) : ViewToLaunch()
 }
 
 sealed class LaunchFlowForAccount {

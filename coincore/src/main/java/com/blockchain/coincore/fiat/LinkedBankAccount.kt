@@ -43,6 +43,7 @@ class LinkedBankAccount(
                     total = zero,
                     pending = zero,
                     withdrawable = zero,
+                    dashboardDisplay = zero,
                     exchangeRate = ExchangeRate.zeroRateExchangeRate(currency)
                 )
             )

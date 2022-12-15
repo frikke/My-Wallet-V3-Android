@@ -24,6 +24,8 @@ import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -53,7 +55,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
 class DashboardActionInteractorTest {
 
@@ -78,6 +79,8 @@ class DashboardActionInteractorTest {
     private val referralService: ReferralService = mock()
     private val cowboysPrefs: CowboysPrefs = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val totalDisplayBalanceFF: FeatureFlag = mock()
+    private val assetDisplayBalanceFF: FeatureFlag = mock()
     private val shouldAssetShowUseCase: ShouldAssetShowUseCase = mock()
 
     @get:Rule
@@ -103,7 +106,7 @@ class DashboardActionInteractorTest {
             kycService = kycService,
             dataRemediationService = dataRemediationService,
             walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletMode }.thenReturn(flowOf(WalletMode.UNIVERSAL))
             },
             getDashboardOnboardingStepsUseCase = mock(),
             nftWaitlistService = nftWaitlistService,
@@ -119,7 +122,9 @@ class DashboardActionInteractorTest {
             referralService = referralService,
             cowboysPrefs = cowboysPrefs,
             stakingFeatureFlag = stakingFF,
-            shouldAssetShowUseCase = shouldAssetShowUseCase
+            shouldAssetShowUseCase = shouldAssetShowUseCase,
+            totalDisplayBalanceFF = totalDisplayBalanceFF,
+            assetDisplayBalanceFF = assetDisplayBalanceFF,
         )
 
         whenever(shouldAssetShowUseCase.invoke(any())).thenReturn(flowOf(true))
@@ -655,7 +660,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
 
             val inProgressInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(inProgressInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(inProgressInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getKycInProgressAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -702,7 +707,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(true)
 
             val referralInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(referralInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getReferFriendsAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -747,7 +752,7 @@ class DashboardActionInteractorTest {
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
 
             val referralInfo: ReferralInfo.Data = mock()
-            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(referralInfo))
+            whenever(referralService.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralInfo))
 
             val cowboysData: PromotionStyleInfo = mock()
             whenever(cowboysDataProvider.getReferFriendsAnnouncement()).thenReturn(Single.just(cowboysData))
@@ -771,7 +776,7 @@ class DashboardActionInteractorTest {
             verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
             verify(settingsDataManager).getSettings()
             verify(cowboysDataProvider).getReferFriendsAnnouncement()
-            verify(referralService).fetchReferralData()
+            verify(referralService).fetchReferralDataLegacy()
             verify(cowboysPrefs).hasCowboysReferralBeenDismissed
             verifyNoMoreInteractions(settingsDataManager)
             verifyNoMoreInteractions(userIdentity)

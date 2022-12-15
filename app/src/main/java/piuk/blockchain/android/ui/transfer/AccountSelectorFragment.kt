@@ -28,6 +28,7 @@ import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
@@ -156,10 +157,12 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         action: () -> Unit,
     ) {
         binding.accountSelectorEmptyView.setDetails(
-            title = title, description = label, ctaText = ctaText
-        ) {
-            action()
-        }
+            title = title,
+            description = label,
+            ctaText = ctaText,
+            action = action,
+            onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
+        )
     }
 
     @CallSuper

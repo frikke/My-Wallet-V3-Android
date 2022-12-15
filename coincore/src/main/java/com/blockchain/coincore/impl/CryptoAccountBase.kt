@@ -60,7 +60,7 @@ internal const val transactionFetchOffset = 0
 
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
-    protected abstract val baseActions: Set<AssetAction>
+    protected abstract val baseActions: Single<Set<AssetAction>>
 
     final override var hasTransactions: Boolean = true
         private set
@@ -146,7 +146,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val exchangeRates: ExchangeRatesDataManager,
 ) : CryptoAccountBase(), ExchangeAccount {
 
-    override val baseActions: Set<AssetAction> = setOf()
+    override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet())
 
     override fun requireSecondPassword(): Single<Boolean> =
         Single.just(false)
@@ -202,16 +202,18 @@ abstract class CryptoNonCustodialAccount(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadDataManager: PayloadDataManager by scopedInject()
     private val unifiedBalancesService: UnifiedBalancesService by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val unifiedBalancesFeatureFlag: FeatureFlag by inject(unifiedBalancesFlag)
     private val identity: UserIdentity by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
 
-    final override val baseActions: Set<AssetAction>
-        get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-            WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
-            WalletMode.UNIVERSAL -> defaultActions
+    final override val baseActions: Single<Set<AssetAction>>
+        get() = walletModeService.walletModeSingle.map {
+            when (it) {
+                WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
+                WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
+                WalletMode.UNIVERSAL -> defaultActions
+            }
         }
 
     /**
@@ -240,6 +242,7 @@ abstract class CryptoNonCustodialAccount(
                         pending = it.unconfirmedBalance,
                         exchangeRate = it.exchangeRate,
                         withdrawable = it.balance,
+                        dashboardDisplay = it.balance,
                     )
                 }
             } else {
@@ -251,6 +254,7 @@ abstract class CryptoNonCustodialAccount(
                         total = balance,
                         withdrawable = balance,
                         pending = Money.zero(currency),
+                        dashboardDisplay = balance,
                         exchangeRate = rate
                     )
                 }
@@ -265,10 +269,10 @@ abstract class CryptoNonCustodialAccount(
     protected abstract val addressResolver: AddressResolver
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = baseActions.map {
-            it.eligibility()
-        }.zipSingles()
-            .map { it.toSet() }
+        get() = baseActions.flatMap { actions ->
+            actions.map { it.eligibility() }.zipSingles()
+                .map { it.toSet() }
+        }
 
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 
@@ -333,7 +337,10 @@ abstract class CryptoNonCustodialAccount(
         other is CryptoNonCustodialAccount && other.currency == currency
 
     private fun AssetAction.eligibility(): Single<StateAwareAction> {
-        val isActiveAndFunded = !isArchived && isFunded
+        val balance = balanceRx.firstOrError().onErrorReturn {
+            AccountBalance.zero(currency)
+        }
+        val isActive = !isArchived
         return when (this) {
             AssetAction.ViewActivity -> Single.just(StateAwareAction(ActionState.Available, this))
             AssetAction.Receive -> Single.just(
@@ -342,11 +349,29 @@ abstract class CryptoNonCustodialAccount(
                     this
                 )
             )
-            AssetAction.Send -> sendActionEligibility(isActiveAndFunded)
-            AssetAction.Swap -> swapActionEligibility(isActiveAndFunded)
-            AssetAction.Sell -> sellActionEligibility(isActiveAndFunded)
-            AssetAction.InterestDeposit -> interestDepositActionEligibility(isActiveAndFunded)
-            AssetAction.StakingDeposit -> stakingDepositEligibility(isActiveAndFunded)
+            AssetAction.Send ->
+                balance
+                    .flatMap { sendActionEligibility(isActive && it.total.isPositive) }
+            AssetAction.Swap ->
+                balance
+                    .flatMap {
+                        swapActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.Sell ->
+                balance
+                    .flatMap {
+                        sellActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.InterestDeposit ->
+                balance
+                    .flatMap {
+                        interestDepositActionEligibility(isActive && it.total.isPositive)
+                    }
+            AssetAction.StakingDeposit ->
+                balance
+                    .flatMap {
+                        stakingDepositEligibility(isActive && it.total.isPositive)
+                    }
             AssetAction.ViewStatement,
             AssetAction.Buy,
             AssetAction.FiatWithdraw,
@@ -450,7 +475,7 @@ abstract class CryptoNonCustodialAccount(
  * so all the methods on this can just delegate directly
  * to the (required) CryptoSingleAccountCustodialBase
  */
-class CryptoAccountTradingGroup(
+class CryptoAccountCustodialSingleGroup(
     override val label: String,
     override val accounts: SingleAccountList,
 ) : SameCurrencyAccountGroup {

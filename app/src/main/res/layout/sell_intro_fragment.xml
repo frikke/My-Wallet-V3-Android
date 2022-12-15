@@ -6,6 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/kyc_steps_container"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        tools:visibility="gone"
+        android:layout_height="match_parent" />
+
     <piuk.blockchain.android.ui.customviews.VerifyIdentityBenefitsView
         android:id="@+id/kyc_benefits"
         android:layout_width="match_parent"
@@ -48,7 +55,7 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <piuk.blockchain.android.ui.customviews.EmptyStateView
+    <com.blockchain.presentation.customviews.EmptyStateView
         android:id="@+id/sell_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

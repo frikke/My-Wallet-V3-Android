@@ -50,7 +50,9 @@ class DashboardModel(
                 interactor.fetchAccounts(
                     intent.assetList,
                     this,
-                    intent.walletMode
+                    intent.walletMode,
+                    intent.totalDisplayBalanceFFEnabled,
+                    intent.assetDisplayBalanceFFEnabled,
                 )
                 null
             }
@@ -62,14 +64,15 @@ class DashboardModel(
                     walletMode = intent.walletMode
                 )
             }
-            is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is DashboardIntent.BalanceUpdate -> {
-                process(DashboardIntent.RefreshPrices(previousState[intent.asset]))
+            is DashboardIntent.BalanceUpdateForAssets -> {
+                process(DashboardIntent.RefreshPrices(intent.models.map { previousState[it.currency] }))
                 null
             }
-            is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is DashboardIntent.AssetPriceWithDeltaUpdate ->
-                if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPriceHistory(this, intent.asset)
+            is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.assets)
+            is DashboardIntent.AssetsPriceWithDeltaUpdate ->
+                if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPricesHistory(
+                    this, intent.pricedAssets.keys
+                )
                 else null
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
             is DashboardIntent.CancelSimpleBuyOrder -> interactor.cancelSimpleBuyOrder(intent.orderId)
@@ -133,6 +136,7 @@ class DashboardModel(
             is DashboardIntent.BalanceFetching,
             is DashboardIntent.UpdateNavigationAction,
             is DashboardIntent.UpdateCowboysViewState,
+            is DashboardIntent.BalanceUpdate,
             is DashboardIntent.UpdateStakingFlag -> null
         }.exhaustive
     }

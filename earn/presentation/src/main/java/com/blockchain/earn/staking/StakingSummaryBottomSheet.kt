@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -22,7 +23,6 @@ import com.blockchain.earn.staking.viewmodel.StakingSummaryNavigationEvent
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import com.blockchain.koin.payloadScope
-import info.blockchain.balance.Currency
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -34,10 +34,10 @@ class StakingSummaryBottomSheet :
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchStakingWithdrawal(currency: Currency)
-        fun launchStakingDeposit(currency: Currency)
+        fun launchStakingWithdrawal(account: StakingAccount)
+        fun launchStakingDeposit(account: StakingAccount)
         fun showStakingLoadingError(error: StakingError)
-        fun goToStakingActivity(currency: Currency)
+        fun goToStakingAccountActivity(account: StakingAccount)
     }
 
     override val host: Host by lazy {
@@ -57,6 +57,12 @@ class StakingSummaryBottomSheet :
         )
     }
 
+    private val showActivity by lazy {
+        arguments?.getBoolean(SHOW_ACTIVITY) ?: throw IllegalStateException(
+            "StakingSummaryBottomSheet requires a ticker to start"
+        )
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
@@ -68,26 +74,27 @@ class StakingSummaryBottomSheet :
 
                 StakingSummaryScreen(
                     viewModel = viewModel,
+                    showActivity = showActivity,
                     onClosePressed = this@StakingSummaryBottomSheet::dismiss,
                     onLoadError = { error ->
                         dismiss()
                         host.showStakingLoadingError(error)
                     },
-                    onWithdrawPressed = { currency ->
+                    onWithdrawPressed = { account ->
                         dismiss()
-                        host.launchStakingWithdrawal(currency)
+                        host.launchStakingWithdrawal(account)
                     },
-                    onDepositPressed = { currency ->
+                    onDepositPressed = { account ->
                         dismiss()
-                        host.launchStakingDeposit(currency)
+                        host.launchStakingDeposit(account)
                     },
                     withdrawDisabledLearnMore = {
                         dismiss()
                         host.openExternalUrl(ETH_STAKING_CONSIDERATIONS)
                     },
-                    onViewActivityPressed = { currency ->
+                    onViewActivityPressed = { account ->
                         dismiss()
-                        host.goToStakingActivity(currency)
+                        host.goToStakingAccountActivity(account)
                     }
                 )
             }
@@ -102,11 +109,13 @@ class StakingSummaryBottomSheet :
 
     companion object {
         private const val ASSET_TICKER = "ASSET_TICKER"
+        private const val SHOW_ACTIVITY = "SHOW_ACTIVITY"
         private const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 
-        fun newInstance(cryptoTicker: String) = StakingSummaryBottomSheet().apply {
+        fun newInstance(cryptoTicker: String, showActivity: Boolean = true) = StakingSummaryBottomSheet().apply {
             arguments = Bundle().apply {
                 putString(ASSET_TICKER, cryptoTicker)
+                putBoolean(SHOW_ACTIVITY, showActivity)
             }
         }
     }
@@ -115,12 +124,13 @@ class StakingSummaryBottomSheet :
 @Composable
 fun StakingSummaryScreen(
     viewModel: StakingSummaryViewModel,
+    showActivity: Boolean,
     onClosePressed: () -> Unit,
     onLoadError: (StakingError) -> Unit,
-    onWithdrawPressed: (currency: Currency) -> Unit,
-    onDepositPressed: (currency: Currency) -> Unit,
+    onWithdrawPressed: (currency: StakingAccount) -> Unit,
+    onDepositPressed: (currency: StakingAccount) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
-    onViewActivityPressed: (currency: Currency) -> Unit
+    onViewActivityPressed: (currency: StakingAccount) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -140,6 +150,7 @@ fun StakingSummaryScreen(
                 else -> {
                     StakingSummarySheet(
                         state = state,
+                        showActivity = showActivity,
                         onWithdrawPressed = onWithdrawPressed,
                         onDepositPressed = onDepositPressed,
                         withdrawDisabledLearnMore = withdrawDisabledLearnMore,

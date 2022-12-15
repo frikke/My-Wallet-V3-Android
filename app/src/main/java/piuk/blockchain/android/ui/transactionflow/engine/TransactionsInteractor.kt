@@ -3,12 +3,14 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
@@ -30,6 +32,7 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -40,6 +43,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.store.asSingle
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
@@ -66,7 +70,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -93,7 +96,8 @@ class TransactionInteractor(
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val improvedPaymentUxFF: FeatureFlag,
     private val dynamicAssetRepository: UniversalDynamicAssetRepository,
-    private val stakingService: StakingService
+    private val stakingService: StakingService,
+    private val transactionPrefs: TransactionPrefs
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -219,6 +223,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.walletsWithActions(
                     actions = setOf(action),
+                    filter = AssetFilter.All,
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
@@ -234,6 +239,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.walletsWithActions(
                     actions = setOf(action),
+                    filter = AssetFilter.All,
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
@@ -250,6 +256,13 @@ class TransactionInteractor(
             AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    fun shouldShowPkwOnTradingMode(): Boolean =
+        transactionPrefs.showPkwAccountsOnTradingMode
+
+    fun updatePkwFilterState(showPkwOnTradingMode: Boolean) {
+        transactionPrefs.showPkwAccountsOnTradingMode = showPkwOnTradingMode
+    }
 
     private fun filterDustBalances(accountList: List<CryptoAccount>) =
         accountList.map { account ->
@@ -408,21 +421,28 @@ class TransactionInteractor(
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> =
         identity.userAccessForFeature(feature)
 
-    fun checkShouldShowInterstitial(asset: AssetInfo, feature: Feature): Single<FeatureAccess> =
-        stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
-            if (limits.withdrawalsDisabled) {
-                stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
-                    if (accountBalance.totalBalance.isZero) {
-                        FeatureAccess.Blocked(
-                            BlockedReason.ShouldAcknowledgeStakingWithdrawal(
-                                bondingDays = limits.bondingDays,
-                                assetIconUrl = asset.logo
+    fun checkShouldShowInterstitial(
+        sourceAccount: BlockchainAccount,
+        asset: AssetInfo,
+        feature: Feature
+    ): Single<FeatureAccess> =
+        if (sourceAccount !is NullCryptoAccount) {
+            Single.just(FeatureAccess.Granted())
+        } else {
+            stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
+                if (limits.withdrawalsDisabled) {
+                    stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                        if (accountBalance.totalBalance.isZero) {
+                            FeatureAccess.Blocked(
+                                BlockedReason.ShouldAcknowledgeStakingWithdrawal(
+                                    assetIconUrl = asset.logo
+                                )
                             )
-                        )
-                    } else FeatureAccess.Granted()
+                        } else FeatureAccess.Granted()
+                    }
+                } else {
+                    identity.userAccessForFeature(feature)
                 }
-            } else {
-                identity.userAccessForFeature(feature)
             }
         }
 

@@ -52,7 +52,6 @@ class AppUtil(
         remoteLogger.logEvent("Clearing credentials")
         payloadScopeWiper.wipe()
         sessionPrefs.clear()
-        unifiedActivityService.clearCache()
     }
 
     fun clearCredentialsAndRestart() {

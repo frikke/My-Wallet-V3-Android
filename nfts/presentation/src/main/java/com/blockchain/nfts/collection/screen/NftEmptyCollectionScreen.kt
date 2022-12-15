@@ -38,7 +38,7 @@ fun NftEmptyCollectionScreen(
     ) {
         Spacer(modifier = Modifier.weight(1F))
 
-        Image(ImageResource.Local(R.drawable.ic_nft_hero))
+        Image(imageResource = ImageResource.Local(R.drawable.ic_nft_hero))
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 

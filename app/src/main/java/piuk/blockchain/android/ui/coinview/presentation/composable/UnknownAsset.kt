@@ -35,7 +35,7 @@ fun UnknownAsset(
         Spacer(modifier = Modifier.weight(1F))
 
         Image(
-            ImageResource.Local(R.drawable.ic_coinview_error)
+            imageResource = ImageResource.Local(R.drawable.ic_coinview_error)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))

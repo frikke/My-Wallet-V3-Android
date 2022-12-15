@@ -26,17 +26,26 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
+import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -46,22 +55,17 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -72,7 +76,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
@@ -82,7 +85,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.DashboardUIState
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
@@ -94,9 +96,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
-import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
@@ -104,13 +104,11 @@ import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
 import timber.log.Timber
 
@@ -120,7 +118,7 @@ class PortfolioFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     BuyPendingOrdersBottomSheet.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -130,8 +128,6 @@ class PortfolioFragment :
 
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
-    private val walletModeService: WalletModeService by scopedInject()
-    private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val momentLogger: MomentLogger by inject()
@@ -144,7 +140,6 @@ class PortfolioFragment :
             assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
-            walletModeService = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             onHoldAmountClicked = { onHoldAmountClicked(it) }
@@ -270,7 +265,9 @@ class PortfolioFragment :
         )
 
         val cryptoAssets = newState.displayableAssets.filterNot { it is BrokerageFiatAsset }.sortedWith(
-            compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
+            compareByDescending<DashboardAsset> {
+                it.fiatBalance(useDisplayBalance = it.assetDisplayBalanceFFEnabled)?.toBigInteger()
+            }
                 .thenByDescending {
                     it.currency.index
                 }
@@ -352,19 +349,11 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    if (state?.isStakingEnabled == true) {
-                        CoinViewActivityV2.newIntent(
-                            context = requireContext(),
-                            asset = navigationAction.asset,
-                            originScreen = LaunchOrigin.HOME.name,
-                        )
-                    } else {
-                        CoinViewActivity.newIntent(
-                            context = requireContext(),
-                            asset = navigationAction.asset,
-                            originScreen = LaunchOrigin.HOME.name,
-                        )
-                    }
+                    CoinViewActivityV2.newIntent(
+                        context = requireContext(),
+                        asset = navigationAction.asset,
+                        originScreen = LaunchOrigin.HOME.name,
+                    )
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
@@ -453,6 +442,7 @@ class PortfolioFragment :
                 is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
                     BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 is DashboardNavigationAction.DepositQuestionnaire -> {
+                    // todo othman see fiatactionsviewmodel
                     questionnaireCallbackIntent = navigationAction.callbackIntent
                     QuestionnaireSheet.newInstance(navigationAction.questionnaire, true)
                 }
@@ -571,7 +561,7 @@ class PortfolioFragment :
                         onClick = {
                             if (cowboysState.referralData is ReferralInfo.Data) {
                                 analytics.logEvent(CowboysAnalytics.ReferFriendAnnouncementClicked)
-                                showBottomSheet(ReferralSheet.newInstance(cowboysState.referralData))
+                                showBottomSheet(ReferralSheet.newInstance())
                             }
                         },
                         isDismissable = true,
@@ -660,10 +650,6 @@ class PortfolioFragment :
         // Save the sort order for use elsewhere, so that other asset lists can have the same
         // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
         // want to be getting all the balances every time we want to display assets in balance order.
-        if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
-            dashboardPrefs.dashboardAssetOrder = theAdapter.items.filterIsInstance<DashboardAsset>()
-                .map { it.currency.displayTicker }
-        }
     }
 
     override fun questionnaireSubmittedSuccessfully() {
@@ -699,7 +685,7 @@ class PortfolioFragment :
             when (result) {
                 // Without Handler this fails with FragmentManager is already executing transactions, investigated but came up with nothing
                 DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
-                    navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+                    navigator().launchBuySell(BuySellViewType.TYPE_BUY)
                 }
                 null -> {
                 }
@@ -710,8 +696,8 @@ class PortfolioFragment :
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT,
+            SETTINGS_EDIT,
+            ACCOUNT_EDIT,
             -> model.process(DashboardIntent.GetActiveAssets(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
@@ -810,7 +796,7 @@ class PortfolioFragment :
             analytics.logEvent(
                 BuySellClicked(
                     origin = LaunchOrigin.DASHBOARD_PROMO,
-                    type = BuySellFragment.BuySellViewType.TYPE_BUY
+                    type = BuySellViewType.TYPE_BUY
                 )
             )
             navigator().launchBuySell()
@@ -819,10 +805,10 @@ class PortfolioFragment :
         override fun startSell() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellFragment.BuySellViewType.TYPE_SELL
+                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellViewType.TYPE_SELL
                 )
             )
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            navigator().launchBuySell(BuySellViewType.TYPE_SELL)
         }
 
         override fun startSend() {

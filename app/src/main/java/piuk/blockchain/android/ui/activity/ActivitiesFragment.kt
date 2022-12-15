@@ -20,6 +20,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
@@ -35,15 +38,12 @@ import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 
 class ActivitiesFragment :

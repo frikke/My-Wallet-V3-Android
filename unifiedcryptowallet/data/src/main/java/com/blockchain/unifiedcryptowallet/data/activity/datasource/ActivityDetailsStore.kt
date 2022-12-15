@@ -2,7 +2,6 @@ package com.blockchain.unifiedcryptowallet.data.activity.datasource
 
 import com.blockchain.api.selfcustody.activity.ActivityDetailGroupsDto
 import com.blockchain.api.services.DynamicSelfCustodyService
-import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -24,8 +23,6 @@ class ActivityDetailsStore(
                     txId = key.txId,
                     network = key.network,
                     pubKey = key.pubKey,
-                    pubKeyStyle = key.pubKeyStyle,
-                    pubKeyDescriptor = key.pubKeyDescriptor,
                     timeZone = key.timeZone,
                     locales = key.locales,
                     fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker
@@ -43,8 +40,6 @@ class ActivityDetailsStore(
         val txId: String,
         val network: String,
         val pubKey: String,
-        val pubKeyStyle: PubKeyStyle,
-        val pubKeyDescriptor: String,
         val locales: String,
         val timeZone: String
     )

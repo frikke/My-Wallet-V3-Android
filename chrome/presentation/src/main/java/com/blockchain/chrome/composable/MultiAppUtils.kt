@@ -3,6 +3,7 @@ package com.blockchain.chrome.composable
 import androidx.annotation.StringRes
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.R
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.walletmode.WalletMode
 import java.util.concurrent.TimeUnit
 
@@ -16,15 +17,21 @@ fun WalletMode.titleSuperApp(): Int = when (this) {
     else -> error("UNIVERSAL not supported")
 }
 
+fun WalletMode.titleIcon(): ImageResource = when (this) {
+    WalletMode.CUSTODIAL_ONLY -> ImageResource.Local(R.drawable.ic_brokerage_logo)
+    WalletMode.NON_CUSTODIAL_ONLY -> ImageResource.None
+    else -> error("UNIVERSAL not supported")
+}
+
 fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when (this) {
     WalletMode.CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
-        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Prices,
         ChromeBottomNavigationItem.Card
     )
     WalletMode.NON_CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
-        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Prices,
         ChromeBottomNavigationItem.Nft
     )
     else -> error("UNIVERSAL not supported")

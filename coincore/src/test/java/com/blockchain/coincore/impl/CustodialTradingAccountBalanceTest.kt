@@ -15,6 +15,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
 import junit.framework.Assert.assertFalse
@@ -37,7 +38,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         identity = identity,
         kycService = kycService,
         walletModeService = mock {
-            on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
         }
     )
 
@@ -54,6 +55,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
@@ -81,6 +83,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 0.testValue(TEST_ASSET),
+            dashboardDisplay = 0.testValue(TEST_ASSET),
             withdrawable = 0.testValue(TEST_ASSET),
             pending = 0.testValue(TEST_ASSET)
         )
@@ -116,6 +119,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )

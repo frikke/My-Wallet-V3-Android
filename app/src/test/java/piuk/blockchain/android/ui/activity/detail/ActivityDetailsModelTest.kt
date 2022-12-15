@@ -7,10 +7,10 @@ import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -84,7 +84,8 @@ class ActivityDetailsModelTest {
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
         accountRef = "",
-        recipientAddress = ""
+        recipientAddress = "",
+        fiatValue = CryptoValue.zero(CryptoCurrency.BTC)
     )
 
     private val custodialStakingItem = CustodialStakingActivitySummaryItem(

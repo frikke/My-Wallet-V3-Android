@@ -91,7 +91,7 @@ private fun SingleComponent(
             StyledText(
                 text = viewType.value,
                 style = viewType.style,
-                textAlign = if(isTrailing) TextAlign.End else TextAlign.Start
+                textAlign = if (isTrailing) TextAlign.End else TextAlign.Start
             )
         }
 

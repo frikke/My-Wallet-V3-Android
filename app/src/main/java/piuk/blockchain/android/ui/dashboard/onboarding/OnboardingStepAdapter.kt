@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemOnboardingStepBinding
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.util.context
 
 class OnboardingStepAdapter(

@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStep
+import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import info.blockchain.balance.FiatCurrency
-import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
-import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 
 data class DashboardOnboardingState(
     val steps: List<CompletableDashboardOnboardingStep> =

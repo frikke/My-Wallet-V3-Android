@@ -6,7 +6,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrDefault
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
  * @property interactiveAssetPrice - price and price change information, used when user is interacting with the chart
  */
 data class CoinviewModelState(
-    val walletMode: WalletMode,
+    val walletMode: WalletMode? = null,
 
     val asset: CryptoAsset? = null,
 
@@ -93,7 +93,7 @@ data class CoinviewModelState(
                 val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
 
                 val isValidBalance = if (isPositiveBalanceRequired) {
-                    account.cryptoBalance.map { it.isPositive }.dataOrDefault(false)
+                    account.cryptoBalance.map { it.isPositive }.dataOrElse(false)
                 } else {
                     true
                 }

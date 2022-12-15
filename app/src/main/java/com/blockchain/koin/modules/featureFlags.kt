@@ -15,6 +15,7 @@ import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
+import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
@@ -22,6 +23,8 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
+import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
@@ -29,8 +32,8 @@ import com.blockchain.koin.sardineFeatureFlag
 import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
-import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.koin.superAppMvpFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -75,7 +78,7 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superAppFeatureFlag) {
+    single(superAppMvpFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_new_super_app",
@@ -219,7 +222,7 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superappRedesignFeatureFlag) {
+    single(superappFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
@@ -251,6 +254,24 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_staking_account",
                 "Enable Staking Account & New Coinview"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(paymentUxTotalDisplayBalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_payment_ux_total_display_balance",
+                "Enable Payment UX Dashboard Total display balance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(paymentUxAssetDisplayBalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_payment_ux_asset_display_balance",
+                "Enable Payment UX Dashboard Asset display balance"
             )
         )
     }.bind(FeatureFlag::class)
@@ -296,6 +317,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_nav_bar_earn",
                 "Earn on Bottom Nav Bar"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(exchangeWAPromptFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "exchange_wa_prompt",
+                "Exchange WA prompt"
             )
         )
     }.bind(FeatureFlag::class)

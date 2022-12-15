@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.home.models
 import android.content.Intent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -149,6 +150,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class SelectRewardsAccountForAsset(val cryptoTicker: String) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectStakingAccountForAction(val account: StakingAccount, val assetAction: AssetAction) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

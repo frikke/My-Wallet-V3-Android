@@ -14,6 +14,7 @@ val coinviewDomainModule = module {
             LoadAssetAccountsUseCase(
                 walletModeService = get(),
                 interestService = get(),
+                exchangeRatesDataManager = get(),
                 currencyPrefs = get(),
                 stakingService = get()
             )

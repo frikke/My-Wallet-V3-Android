@@ -12,10 +12,13 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
+import com.blockchain.earn.domain.models.staking.StakingRates
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
@@ -32,6 +35,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
@@ -41,13 +45,15 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalanc
 
 class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val interestService: InterestService,
     private val currencyPrefs: CurrencyPrefs,
     private val stakingService: StakingService
 ) {
     suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
 
-        val accountsFlow = asset.accountGroup(walletModeService.enabledWalletMode().defaultFilter())
+        val accountsFlow = walletModeService.walletModeSingle
+            .flatMapMaybe { asset.accountGroup(it.defaultFilter()) }
             .map { it.accounts }
             .switchIfEmpty(Single.just(emptyList()))
             .await()
@@ -63,26 +69,30 @@ class LoadAssetAccountsUseCase(
         }
 
         val stakingFlow =
-            stakingService.getAvailabilityForAsset(asset.currency).flatMapData {
-                if (it) {
-                    stakingService.getRateForAsset(asset.currency)
+            stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
+                if (available) {
+                    stakingService.getRatesForAsset(asset.currency)
                 } else
                     flow {
-                        emit(DataResource.Data(0.toDouble()))
+                        emit(DataResource.Data(StakingRates(0.0, 0.0)))
                     }
             }
 
         return combine(
+            walletModeService.walletMode,
             accountsFlow,
-            asset.getPricesWith24hDelta(),
+            exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                asset.currency,
+                freshnessStrategy = FreshnessStrategy.Cached(false)
+            ),
             interestFlow,
             stakingFlow
-        ) { accounts, prices, interestRate, stakingRate ->
+        ) { wMode, accounts, price, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
             combineDataResources(
-                prices,
+                price,
                 interestRate,
                 stakingRate
             ) { pricesData, interestRateData, stakingRateData ->
@@ -92,11 +102,11 @@ class LoadAssetAccountsUseCase(
 
                 if (isTradeableAsset) {
                     val accountsList = mapAccounts(
-                        walletMode = walletModeService.enabledWalletMode(),
+                        walletMode = wMode,
                         accounts = accounts,
-                        exchangeRate = pricesData.currentRate,
+                        exchangeRate = pricesData,
                         interestRate = interestRateData,
-                        stakingRate = stakingRateData
+                        stakingRate = stakingRateData.rate
                     )
 
                     var totalCryptoMoneyAll = Money.zero(asset.currency)
@@ -169,7 +179,7 @@ class LoadAssetAccountsUseCase(
             }.run {
                 combine(this) {
                     it.toList()
-                }
+                }.onEmpty { emit(emptyList()) }
             }
     }
 

@@ -16,7 +16,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
@@ -39,16 +39,21 @@ class AccountSelectSheet(
         DialogSheetAccountSelectorBinding.inflate(inflater, container, false)
 
     private val coincore: Coincore by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val disposables = CompositeDisposable()
 
     private var accountList: Single<List<AccountListViewItem>> =
-        coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode())
-            .firstOrError()
+        walletModeService.walletModeSingle.flatMap { coincore.activeWalletsInModeRx(it).firstOrError() }
             .map { listOf(it) + activityRepo.accountsWithActivity() }
             .map { it.map(AccountListViewItem.Companion::create) }
 
-    private var sheetTitle: Int = walletModeService.enabledWalletMode().selectAccountsTitle()
+    private var _sheetTitle: Int = 0
+
+    private val sheetTitle: Single<Int>
+        get() = if (_sheetTitle != 0)
+            Single.just(_sheetTitle)
+        else walletModeService.walletModeSingle.map { it.selectAccountsTitle() }
+
     private var sheetSubtitle: Int = R.string.empty
     private var statusDecorator: StatusDecorator = { DefaultCellDecorator() }
 
@@ -80,7 +85,9 @@ class AccountSelectSheet(
                 onLoadError = ::doOnLoadError
                 onListLoading = ::doOnListLoading
             }
-            accountListTitle.text = getString(sheetTitle)
+            sheetTitle.subscribeBy {
+                accountListTitle.text = getString(it)
+            }
             accountListSubtitle.text = getString(sheetSubtitle)
             accountListSubtitle.visibleIf { getString(sheetSubtitle).isNotEmpty() }
         }
@@ -127,7 +134,7 @@ class AccountSelectSheet(
                 this.accountList = accountList.map { accounts ->
                     accounts.map(AccountListViewItem.Companion::create)
                 }
-                this.sheetTitle = sheetTitle
+                this._sheetTitle = sheetTitle
             }
 
         fun newInstance(
@@ -139,7 +146,7 @@ class AccountSelectSheet(
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
                 this.accountList = accountList.map { list -> list.map(AccountListViewItem.Companion::create) }
-                this.sheetTitle = sheetTitle
+                this._sheetTitle = sheetTitle
                 this.sheetSubtitle = sheetSubtitle
                 this.statusDecorator = statusDecorator
             }

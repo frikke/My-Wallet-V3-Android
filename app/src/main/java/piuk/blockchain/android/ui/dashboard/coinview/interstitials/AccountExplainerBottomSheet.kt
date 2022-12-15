@@ -18,6 +18,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -25,8 +27,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 

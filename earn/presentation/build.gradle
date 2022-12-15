@@ -19,6 +19,7 @@ dependencies {
     implementation project(':analytics:domain')
     implementation project(':core')
     implementation project(':string-resources')
+    implementation project(':store:core')
 
     // Compose
     implementation Libraries.accompanistFlowLayout
@@ -28,4 +29,6 @@ dependencies {
     // Rx
     implementation Libraries.rxJava
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxAndroid
+    implementation Libraries.rxKotlin
 }

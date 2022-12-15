@@ -11,6 +11,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.koin.android.ext.android.inject
@@ -18,8 +20,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.databinding.ShareAddressBottomSheetBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 internal class ShareAddressBottomSheet :
     MviBottomSheet<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, ShareAddressBottomSheetBinding>() {

@@ -5,7 +5,12 @@ import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyAct
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
+import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
+import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
+import com.blockchain.home.presentation.earn.EarnViewModel
+import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
+import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -18,7 +23,30 @@ val homePresentationModule = module {
                 homeAccountsService = get(),
                 currencyPrefs = get(),
                 exchangeRates = get(),
-                filterService = get()
+                filterService = get(),
+                assetCatalogue = get(),
+                walletModeService = get(superAppModeService)
+            )
+        }
+
+        viewModel { (fiatTicker: String) ->
+            FiatFundsDetailViewModel(
+                fiatTicker = fiatTicker,
+                homeAccountsService = get(),
+                fiatActions = get()
+            )
+        }
+
+        viewModel { (
+            homeVm: AssetsViewModel,
+            pkwActivityViewModel: PrivateKeyActivityViewModel,
+            custodialActivityViewModel: CustodialActivityViewModel
+        ) ->
+            EmptyScreenViewModel(
+                homeAssetsViewModel = homeVm,
+                walletModeService = get(superAppModeService),
+                pkwActivityViewModel = pkwActivityViewModel,
+                custodialActivityViewModel = custodialActivityViewModel
             )
         }
 
@@ -37,8 +65,7 @@ val homePresentationModule = module {
         viewModel { (txId: String) ->
             PrivateKeyActivityDetailViewModel(
                 activityTxId = txId,
-                unifiedActivityService = get(),
-                networkWalletService = get()
+                unifiedActivityService = get()
             )
         }
 
@@ -59,6 +86,32 @@ val homePresentationModule = module {
             QuickActionsViewModel(
                 walletModeService = get(superAppModeService),
                 userFeaturePermissionService = get(),
+                coincore = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        viewModel {
+            EarnViewModel(
+                walletModeService = get(superAppModeService),
+                stakingService = get(),
+                exchangeRates = get(),
+                coincore = get(),
+                interestService = get()
+            )
+        }
+
+        viewModel {
+            CustodialEmptyCardViewModel(
+                fiatCurrenciesService = get(),
+                userFeaturePermissionService = get(),
+                onBoardingStepsService = get()
+            )
+        }
+
+        viewModel {
+            ReferralViewModel(
+                referralService = get()
             )
         }
     }

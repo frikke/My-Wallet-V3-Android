@@ -90,23 +90,23 @@ class AnnouncementList(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun nextAnnouncement(): Maybe<AnnouncementRule> {
-        val walletMode = walletModeService.enabledWalletMode()
-
-        return orderAdapter.announcementConfig
-            .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
-            .map { buildAnnouncementList(it.order) }
-            .flattenAsObservable { it }
-            .filter { walletMode in it.associatedWalletModes || walletMode == WalletMode.UNIVERSAL }
-            .concatMap { a ->
-                Observable.defer {
-                    a.shouldShow()
-                        .onErrorReturn { false }
-                        .filter { it }
-                        .map { a }
-                        .toObservable()
+        return walletModeService.walletModeSingle.flatMapMaybe { walletMode ->
+            orderAdapter.announcementConfig
+                .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
+                .map { buildAnnouncementList(it.order) }
+                .flattenAsObservable { it }
+                .filter { walletMode in it.associatedWalletModes || walletMode == WalletMode.UNIVERSAL }
+                .concatMap { a ->
+                    Observable.defer {
+                        a.shouldShow()
+                            .onErrorReturn { false }
+                            .filter { it }
+                            .map { a }
+                            .toObservable()
+                    }
                 }
-            }
-            .firstElement()
+                .firstElement()
+        }
     }
 
     internal fun dismissKeys(): List<String> = availableAnnouncements.map { it.dismissKey }

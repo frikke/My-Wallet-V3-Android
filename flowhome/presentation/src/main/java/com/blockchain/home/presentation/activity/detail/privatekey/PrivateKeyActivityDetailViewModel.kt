@@ -7,7 +7,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
@@ -18,7 +17,6 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
-import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWalletService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -29,8 +27,7 @@ import kotlinx.coroutines.launch
 
 class PrivateKeyActivityDetailViewModel(
     private val activityTxId: String,
-    private val unifiedActivityService: UnifiedActivityService,
-    private val networkWalletService: NetworkWalletService
+    private val unifiedActivityService: UnifiedActivityService
 ) : MviViewModel<
     ActivityDetailIntent<ActivityDetailGroups>,
     ActivityDetailViewState,
@@ -89,15 +86,10 @@ class PrivateKeyActivityDetailViewModel(
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
                                 // todo(othman) real values
-                                val networkWalletGroup = networkWalletService.networkWalletGroup(network)
-                                val pubKeyStyle = networkWalletGroup?.pubKeyStyle() ?: PubKeyStyle.SINGLE
-                                val pubKeyDescriptor = networkWalletGroup?.pubKeyDescriptor() ?: "legacy"
                                 unifiedActivityService.getActivityDetails(
                                     txId = txId,
                                     network = network,
                                     pubKey = pubkey,
-                                    pubKeyStyle = pubKeyStyle,
-                                    pubKeyDescriptor = pubKeyDescriptor,
                                     locales = "en-GB;q=1.0, en",
                                     timeZone = "Europe/London"
                                 )

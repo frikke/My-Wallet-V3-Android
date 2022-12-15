@@ -25,22 +25,23 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> {
-        return coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode()).map { grp ->
-            grp.accounts.filterIsInstance<CryptoAccount>()
-                .filterNot { it is InterestAccount }
-                .filter {
-                    when (walletModeService.enabledWalletMode()) {
-                        WalletMode.CUSTODIAL_ONLY,
-                        WalletMode.UNIVERSAL -> it is TradingAccount
-                        WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
+        return walletModeService.walletModeSingle.flatMapObservable { walletMode ->
+            coincore.activeWalletsInModeRx(walletMode).map { it.accounts }.map {
+                it.filterIsInstance<CryptoAccount>()
+                    .filterNot { it is InterestAccount }
+                    .filter {
+                        when (walletMode) {
+                            WalletMode.CUSTODIAL_ONLY,
+                            WalletMode.UNIVERSAL -> it is TradingAccount
+                            WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
+                        }
+                    }.filter { account ->
+                        if (account is NonCustodialAccount)
+                            account.isDefault
+                        else
+                            true
                     }
-                }
-                .filter {
-                    if (it is NonCustodialAccount)
-                        it.isDefault
-                    else
-                        true
-                }
+            }
         }.map { activeAccounts ->
             val assetList = makeRequiredAssetSet()
             activeAccounts.filter { account ->

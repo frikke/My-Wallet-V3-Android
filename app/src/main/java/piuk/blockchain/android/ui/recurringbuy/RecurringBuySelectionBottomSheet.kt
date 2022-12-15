@@ -7,9 +7,9 @@ import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth

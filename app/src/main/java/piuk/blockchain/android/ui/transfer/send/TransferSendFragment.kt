@@ -9,13 +9,14 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.preferences.OnboardingPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.BuySellClicked
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
@@ -23,7 +24,6 @@ import piuk.blockchain.android.ui.home.ActionActivity
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transactionflow.flow.send.SendNetworkWarningSheet
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment
@@ -61,7 +61,7 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
             analytics.logEvent(
                 BuySellClicked(
                     origin = LaunchOrigin.SEND,
-                    type = BuySellFragment.BuySellViewType.TYPE_BUY
+                    type = BuySellViewType.TYPE_BUY
                 )
             )
             (activity as? HomeNavigator)?.launchBuySell() ?: (activity as? ActionActivity)?.navigateToBuy()

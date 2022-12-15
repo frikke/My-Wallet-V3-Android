@@ -2,6 +2,8 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -12,8 +14,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
@@ -55,6 +55,7 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
+    @Deprecated("use flow SimpleBuyService::getSupportedBuySellCryptoCurrencies")
     fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
     fun fetchFiatWithdrawFeeAndMinLimit(
@@ -124,7 +125,7 @@ interface CustodialWalletManager {
 
     fun isAssetSupportedForSwap(
         assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>

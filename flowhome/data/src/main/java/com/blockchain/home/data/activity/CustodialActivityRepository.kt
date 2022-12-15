@@ -8,7 +8,6 @@ import com.blockchain.home.data.activity.dataresource.CustodialActivityStore
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 class CustodialActivityRepository(
     private val custodialActivityStore: CustodialActivityStore

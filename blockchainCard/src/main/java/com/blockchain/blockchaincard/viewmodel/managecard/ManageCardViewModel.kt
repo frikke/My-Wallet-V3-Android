@@ -107,7 +107,8 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         cardOrderState = state.cardOrderState,
         cardActivationUrl = state.cardActivationUrl,
         cardStatements = state.cardStatements,
-        legalDocuments = state.legalDocuments
+        legalDocuments = state.legalDocuments,
+        setPinUrl = state.setPinUrl
     )
 
     override suspend fun handleIntent(
@@ -170,7 +171,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 blockchainCardRepository.getProducts().fold(
                     onSuccess = { cardProducts ->
                         updateState {
-                            it.copy(cardProductList = cardProducts.filter { product -> product.remainingCards > 0 })
+                            it.copy(cardProductList = cardProducts)
                         }
                     },
                     onFailure = { error ->
@@ -781,6 +782,29 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         Timber.i("Unable to decode post message type: $error")
                     }
                 )
+            }
+
+            is BlockchainCardIntent.SetPin -> {
+                modelState.currentCard?.let { card ->
+                    blockchainCardRepository.getSetPinUrl(card.id)
+                        .doOnSuccess { url ->
+                            updateState { it.copy(setPinUrl = url) }
+                            navigate(BlockchainCardNavigationEvent.SeeSetPin)
+                        }
+                        .doOnFailure { error ->
+                            Timber.e("Unable to get Set Pin URL: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        }
+                }
+            }
+
+            is BlockchainCardIntent.OnPinSetSuccess -> {
+                updateState { it.copy(setPinUrl = null) }
+                navigate(BlockchainCardNavigationEvent.SetPinSuccess)
+            }
+
+            is BlockchainCardIntent.OnFinishSetPin -> {
+                navigate(BlockchainCardNavigationEvent.FinishSetPin)
             }
 
             else -> {

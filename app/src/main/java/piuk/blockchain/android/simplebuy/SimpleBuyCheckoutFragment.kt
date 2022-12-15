@@ -28,6 +28,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
@@ -38,8 +40,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
 import com.blockchain.payments.googlepay.manager.GooglePayViewUtils
@@ -47,6 +47,8 @@ import com.blockchain.payments.googlepay.manager.request.BillingAddressParameter
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import com.blockchain.utils.unsafeLazy
@@ -77,7 +79,6 @@ import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
@@ -85,7 +86,6 @@ import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getFormattedDepositTerms
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
-import piuk.blockchain.android.util.disableBackPress
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),

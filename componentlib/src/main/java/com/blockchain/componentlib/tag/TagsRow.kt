@@ -42,6 +42,8 @@ fun TagRowWithHelp() {
         AppTheme {
             TagsRow(
                 tags = listOf(
+                    TagViewState("Default", TagType.Default()),
+                    TagViewState("InfoAlt", TagType.InfoAlt()),
                     TagViewState("Warning", TagType.Warning()),
                     TagViewState("Success", TagType.Success()),
                     TagViewState("Error", TagType.Error())

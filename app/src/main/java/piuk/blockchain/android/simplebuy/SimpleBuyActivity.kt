@@ -15,25 +15,29 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.presentation.checkValidUrlAndOpen
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
@@ -57,11 +61,9 @@ import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -71,13 +73,12 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
-import piuk.blockchain.android.util.checkValidUrlAndOpen
 
 class SimpleBuyActivity :
     BlockchainActivity(),
     SimpleBuyNavigator,
     KycUpgradeNowSheet.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
     CurrencySelectionSheet.Host {
@@ -177,7 +178,7 @@ class SimpleBuyActivity :
                     )
                 }
             }
-            analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
+            analytics.logEvent(BuySellViewedEvent(BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
         }
     }
@@ -262,12 +263,13 @@ class SimpleBuyActivity :
         googlePayResponseInterceptor.clear()
         payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
     }
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
 
     override fun exitSimpleBuyFlow() {
         setResult(RESULT_OK)
 
         if (!startedFromDashboard) {
-            startActivity(MainActivity.newIntentAsNewTask(this))
+            startActivity(homeActivityLauncher.newIntentAsNewTask(this))
         } else {
             finish()
         }

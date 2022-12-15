@@ -132,10 +132,6 @@ class SellViewModelTest {
         )
 
         every {
-            coincore.getDefaultWalletModeFilter()
-        }.returns(AssetFilter.All)
-
-        every {
             coincore.walletsWithActions(
                 actions = setOf(AssetAction.Sell),
                 sorter = accountSorting.sorter()
@@ -200,10 +196,6 @@ class SellViewModelTest {
             )
 
             every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
-
-            every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
                     sorter = accountSorting.sorter()
@@ -265,10 +257,6 @@ class SellViewModelTest {
                 every { balanceRx }.returns(Observable.just(dustBalance))
             }
             val accountsList: SingleAccountList = listOf(noDustAccount, dustAccount)
-
-            every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
 
             every {
                 coincore.walletsWithActions(
@@ -339,10 +327,6 @@ class SellViewModelTest {
             val accountsList: SingleAccountList = listOf(noDustAccount, dustAccount, unsupportedSellAssetAccount)
 
             every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
-
-            every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
                     sorter = accountSorting.sorter()
@@ -411,10 +395,6 @@ class SellViewModelTest {
             val accountsList: SingleAccountList = listOf(noDustAccount, dustAccount, unsupportedSellAssetAccount)
 
             every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
-
-            every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
                     sorter = accountSorting.sorter()
@@ -479,10 +459,6 @@ class SellViewModelTest {
             }
 
             val accountsList: SingleAccountList = listOf(btcAccount, ethAccount)
-
-            every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
 
             every {
                 coincore.walletsWithActions(
@@ -550,10 +526,6 @@ class SellViewModelTest {
             }
 
             val accountsList: SingleAccountList = listOf(btcAccount, ethAccount)
-
-            every {
-                coincore.getDefaultWalletModeFilter()
-            }.returns(AssetFilter.All)
 
             every {
                 coincore.walletsWithActions(

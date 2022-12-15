@@ -64,14 +64,18 @@ class CustodialTradingAccount(
     private val walletModeService: WalletModeService,
 ) : CryptoAccountBase(), TradingAccount {
 
-    override val baseActions: Set<AssetAction>
-        get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.NON_CUSTODIAL_ONLY -> emptySet()
-            WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-            WalletMode.UNIVERSAL -> defaultActions
+    override val baseActions: Single<Set<AssetAction>>
+        get() = walletModeService.walletModeSingle.map {
+            when (it) {
+                WalletMode.NON_CUSTODIAL_ONLY -> emptySet()
+                WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
+                WalletMode.UNIVERSAL -> defaultActions
+            }
         }
 
     private val hasFunds = AtomicBoolean(false)
+
+    override val isMemoSupported: Boolean = currency.networkTicker == "XLM"
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
@@ -116,6 +120,7 @@ class CustodialTradingAccount(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
+                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
@@ -151,10 +156,10 @@ class CustodialTradingAccount(
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = balanceRx.firstOrError().flatMap { balance ->
-            baseActions.map {
-                it.eligibility(balance)
-            }.zipSingles()
-                .map { it.toSet() }
+            baseActions.flatMap { actions ->
+                actions.map { it.eligibility(balance) }.zipSingles()
+                    .map { it.toSet() }
+            }
         }
 
     private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> =

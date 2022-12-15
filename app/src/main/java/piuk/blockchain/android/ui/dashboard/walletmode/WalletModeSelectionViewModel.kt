@@ -12,6 +12,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
@@ -20,12 +21,14 @@ import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import piuk.blockchain.android.R
 
 class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
     private val payloadManager: PayloadDataManager,
+    private val walletModePrefs: WalletModePrefs,
     walletStatusPrefs: WalletStatusPrefs,
 ) :
     MviViewModel<
@@ -41,7 +44,6 @@ class WalletModeSelectionViewModel(
             anyBrokerageBalanceFailed = false,
             defiBalance = null,
             anyDefiBalanceFailed = false,
-            enabledWalletMode = walletModeService.enabledWalletMode()
         )
     ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -55,8 +57,21 @@ class WalletModeSelectionViewModel(
                 } ?: BalanceState.Loading,
                 showBrokerageBalanceWarning = anyBrokerageBalanceFailed,
                 defiWalletBalance = defiBalance?.let {
-                    if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
-                        BalanceState.ActivationRequired
+                    if (state.enabledWalletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                        BalanceState.Data(it)
+                    } else if (walletModePrefs.userDefaultedToPKW && shouldBackupPhraseForMode(
+                            WalletMode.NON_CUSTODIAL_ONLY
+                        )
+                    ) {
+                        BalanceState.PhraseRecoveryRequired(
+                            activationRequired = false,
+                            balance = it
+                        )
+                    } else if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
+                        BalanceState.PhraseRecoveryRequired(
+                            activationRequired = true,
+                            balance = it
+                        )
                     } else {
                         BalanceState.Data(it)
                     }
@@ -126,8 +141,12 @@ class WalletModeSelectionViewModel(
                         }
                     }
                 }
-
-                merge(nonCustodialBalance, custodialBalance).collect()
+                val walletMode = walletModeService.walletMode.onEach {
+                    updateState { state ->
+                        state.copy(enabledWalletMode = it)
+                    }
+                }
+                merge(nonCustodialBalance, custodialBalance, walletMode).collect()
             }
 
             is WalletModeSelectionIntent.ActivateWalletModeRequested -> {
@@ -169,7 +188,9 @@ class WalletModeSelectionViewModel(
             WalletMode.NON_CUSTODIAL_ONLY -> defiBalance?.isZero == true
             else -> false
         }
-        return isWalletEligibleForActivation && shouldBackupPhraseForMode(walletMode)
+        return isWalletEligibleForActivation &&
+            shouldBackupPhraseForMode(walletMode) &&
+            !walletModePrefs.userDefaultedToPKW
     }
 }
 
@@ -192,7 +213,7 @@ data class WalletModeSelectionViewState(
     val defiWalletBalance: BalanceState,
     val showDefiBalanceWarning: Boolean,
     val defiWalletAvailable: Boolean,
-    val enabledWalletMode: WalletMode,
+    val enabledWalletMode: WalletMode?,
 ) : ViewState
 
 data class WalletModeSelectionModelState(
@@ -202,13 +223,13 @@ data class WalletModeSelectionModelState(
     val anyBrokerageBalanceFailed: Boolean,
     val defiBalance: Money?,
     val anyDefiBalanceFailed: Boolean,
-    val enabledWalletMode: WalletMode,
+    val enabledWalletMode: WalletMode? = null,
 ) : ModelState
 
 sealed class BalanceState {
     object Loading : BalanceState()
     data class Data(val money: Money) : BalanceState()
-    object ActivationRequired : BalanceState()
+    data class PhraseRecoveryRequired(val balance: Money, val activationRequired: Boolean) : BalanceState()
 }
 
 sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {

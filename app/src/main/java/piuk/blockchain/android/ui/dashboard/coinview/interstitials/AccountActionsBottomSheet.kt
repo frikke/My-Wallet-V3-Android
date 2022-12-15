@@ -37,7 +37,10 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -49,10 +52,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.transactionflow.analytics.EarnAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
@@ -120,13 +120,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             endTag = when (selectedAccount) {
                                 is InterestAccount -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_rewards, interestRate.toString()),
+                                        getString(R.string.actions_sheet_percentage_rate, interestRate.toString()),
                                         TagType.Success()
                                     )
                                 }
                                 is StakingAccount -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_staking, stakingRate.toString()),
+                                        getString(R.string.actions_sheet_percentage_rate, stakingRate.toString()),
                                         TagType.Success()
                                     )
                                 }

@@ -29,6 +29,9 @@ class ShouldAssetShowUseCaseTest {
     private lateinit var subject: ShouldAssetShowUseCase
 
     private val hideDustFF: FeatureFlag = mockk()
+    private val assetDisplayBalanceFF: FeatureFlag = mockk() {
+        coEvery { coEnabled() } returns false
+    }
     private val localSettingsPrefs: LocalSettingsPrefs = mockk()
     private val watchlistService: WatchlistService = mockk()
 
@@ -46,6 +49,7 @@ class ShouldAssetShowUseCaseTest {
     fun setup() {
         subject = ShouldAssetShowUseCase(
             hideDustFeatureFlag = hideDustFF,
+            assetDisplayBalanceFF = assetDisplayBalanceFF,
             localSettingsPrefs = localSettingsPrefs,
             watchlistService = watchlistService
         )

@@ -19,6 +19,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
@@ -34,6 +35,7 @@ import piuk.blockchain.android.databinding.FragmentBuySellBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.brokerage.buy.BuyIntroFragment
 import piuk.blockchain.android.ui.brokerage.sell.SellIntroFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
@@ -205,9 +207,10 @@ class BuySellFragment :
         with(binding) {
             redesignTabLayout.gone()
             pager.gone()
-            buySellEmpty.setDetails {
-                subscribeForNavigation()
-            }
+            buySellEmpty.setDetails(
+                action = ::subscribeForNavigation,
+                onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            )
             buySellEmpty.visible()
         }
     }
@@ -294,11 +297,6 @@ class BuySellFragment :
                 }
             }
         }
-    }
-
-    enum class BuySellViewType {
-        TYPE_BUY,
-        TYPE_SELL
     }
 
     override fun onSheetClosed() = subscribeForNavigation(showLoader = false)

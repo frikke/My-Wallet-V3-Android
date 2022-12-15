@@ -10,12 +10,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,12 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
@@ -41,22 +40,16 @@ import kotlin.math.absoluteValue
 @Composable
 fun BalanceChangeTableRow(
     name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
-    icon: ImageResource,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
 
     TableRow(
-        contentStart = {
-            Image(
-                imageResource = icon,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_spacing)),
-                defaultShape = CircleShape
-            )
-        },
+        contentStart = contentStart,
         content = {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
@@ -64,11 +57,33 @@ fun BalanceChangeTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = name,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
+                Column {
+                    Text(
+                        text = name,
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.title
+                    )
+
+                    subtitle?.let {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = subtitle,
+                                style = AppTheme.typography.paragraph1,
+                                color = AppTheme.colors.muted
+                            )
+
+                            networkTag?.let {
+                                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                                // todo(othman) tags superapp styling
+                                DefaultTag(text = networkTag)
+                            }
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.weight(1F))
 
@@ -190,10 +205,14 @@ fun PreviewBalanceChangeTableRow() {
         AppSurface {
             BalanceChangeTableRow(
                 name = "Bitcoin",
+                subtitle = "BTC",
+                networkTag = "Bitcoin",
                 value = DataResource.Data("$1,000.00"),
-                icon = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
-                ),
+                contentStart = {
+                    ImageResource.Local(
+                        id = R.drawable.ic_blockchain,
+                    )
+                },
                 valueChange = DataResource.Data(ValueChange.Up(1.88)),
                 onClick = {}
             )
@@ -209,9 +228,11 @@ fun PreviewBalanceChangeTableRow_Loading() {
             BalanceChangeTableRow(
                 name = "Bitcoin",
                 value = DataResource.Loading,
-                icon = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
-                ),
+                contentStart = {
+                    ImageResource.Local(
+                        id = R.drawable.ic_blockchain,
+                    )
+                },
                 valueChange = DataResource.Loading,
                 onClick = {}
             )

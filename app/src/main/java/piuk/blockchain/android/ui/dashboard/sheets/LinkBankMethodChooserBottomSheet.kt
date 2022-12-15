@@ -13,12 +13,12 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.fiatActions.BankLinkingHost
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
-import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 
 class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethodChooserSheetLayoutBinding>() {
@@ -35,7 +35,7 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
         LinkBankMethodChooserSheetLayoutBinding.inflate(inflater, container, false)
 
     override val host: BankLinkingHost
-        get() = parentFragment as? BankLinkingHost
+        get() = activity as? BankLinkingHost ?: parentFragment as? BankLinkingHost
             ?: throw IllegalStateException("Host is not a BankLinkingHost")
 
     private fun launchOrigin(): LaunchOrigin {

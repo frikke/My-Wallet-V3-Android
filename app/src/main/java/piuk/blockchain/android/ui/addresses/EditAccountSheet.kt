@@ -19,6 +19,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.WriterException
@@ -31,8 +33,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 import timber.log.Timber
 
 class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {

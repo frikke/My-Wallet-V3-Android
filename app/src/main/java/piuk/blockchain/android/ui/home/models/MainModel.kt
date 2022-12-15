@@ -6,10 +6,12 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -42,7 +44,6 @@ import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -330,7 +331,29 @@ class MainModel(
                             )
                         }
                     )
-            is MainIntent.UpdateFlags,
+            is MainIntent.SelectStakingAccountForAction -> {
+                when (val action = intent.assetAction) {
+                    AssetAction.StakingDeposit -> process(
+                        MainIntent.UpdateViewToLaunch(
+                            ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                LaunchFlowForAccount.TargetAccount(intent.account as TransactionTarget), action
+                            )
+                        )
+                    )
+                    AssetAction.ViewActivity ->
+                        process(
+                            MainIntent.UpdateViewToLaunch(
+                                ViewToLaunch.GoToActivityForAccount(intent.account as BlockchainAccount)
+                            )
+                        )
+                    else -> {}
+                }
+                null
+            }
+            is MainIntent.UpdateFlags -> {
+                process(MainIntent.RefreshTabs)
+                null
+            }
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,
             is MainIntent.UpdateViewToLaunch,
@@ -384,7 +407,7 @@ class MainModel(
             is BlockchainLinkState.Sell -> process(
                 MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
-                        BuySellFragment.BuySellViewType.TYPE_SELL,
+                        BuySellViewType.TYPE_SELL,
                         interactor.getAssetFromTicker(link.ticker)
                     )
                 )
@@ -395,7 +418,7 @@ class MainModel(
             is BlockchainLinkState.Buy -> process(
                 MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
-                        BuySellFragment.BuySellViewType.TYPE_BUY,
+                        BuySellViewType.TYPE_BUY,
                         interactor.getAssetFromTicker(link.ticker)
                     )
                 )

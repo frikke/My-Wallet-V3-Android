@@ -125,6 +125,7 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -138,7 +139,7 @@ class PaymentsRepository(
     private val tradingService: TradingService,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val withdrawLocksCache: WithdrawLocksCache,
+    private val withdrawLocksStore: WithdrawLocksStore,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
     private val fiatCurrenciesService: FiatCurrenciesService,
@@ -166,8 +167,10 @@ class PaymentsRepository(
     }
 
     override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        withdrawLocksCache.withdrawLocks()
-            .map { locks ->
+        withdrawLocksStore.stream(
+            FreshnessStrategy.Cached(forceRefresh = true)
+        )
+            .mapData { locks ->
                 FundsLocks(
                     onHoldTotalAmount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
                     locks = locks.locks.map { lock ->
@@ -183,6 +186,7 @@ class PaymentsRepository(
                     }
                 )
             }
+            .asSingle()
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
@@ -567,7 +571,7 @@ class PaymentsRepository(
             DepositTermsRequestBody(
                 amount = DepositTermsRequestBody.Amount(
                     value = amount.toBigInteger().toString(),
-                    currency = amount.currencyCode
+                    symbol = amount.currencyCode
                 ),
                 paymentMethodId = paymentMethodId
             )

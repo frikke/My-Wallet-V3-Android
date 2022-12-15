@@ -12,12 +12,14 @@ import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
@@ -28,7 +30,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
@@ -62,6 +63,7 @@ class TransactionInteractorTest {
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
     private val dynamicRepository: UniversalDynamicAssetRepository = mock()
     private val stakingService: StakingService = mock()
+    private val transactionPrefs: TransactionPrefs = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -88,7 +90,8 @@ class TransactionInteractorTest {
             localSettingsPrefs = localSettingsPrefs,
             dynamicAssetRepository = dynamicRepository,
             improvedPaymentUxFF = improvedPaymentUxFF,
-            stakingService = stakingService
+            stakingService = stakingService,
+            transactionPrefs = transactionPrefs
         )
     }
 

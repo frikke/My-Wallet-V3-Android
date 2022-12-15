@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import android.content.Context
 import android.widget.FrameLayout
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CurrencyType
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -21,7 +22,7 @@ interface TargetSelectionCustomisations {
     fun selectTargetAddressWalletsCta(state: TransactionState): String
     fun selectTargetSourceLabel(state: TransactionState): String
     fun selectTargetDestinationLabel(state: TransactionState): String
-    fun selectTargetStatusDecorator(state: TransactionState): StatusDecorator
+    fun selectTargetStatusDecorator(state: TransactionState, walletMode: WalletMode): StatusDecorator
     fun selectTargetAccountTitle(state: TransactionState): String
     fun selectTargetAccountDescription(state: TransactionState): String
     fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState

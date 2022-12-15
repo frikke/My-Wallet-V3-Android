@@ -10,13 +10,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.presentation.copyToClipboard
+import com.blockchain.presentation.openUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.customersupport.composable.CustomerSupportScreen
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
-import piuk.blockchain.android.util.copyToClipboard
-import piuk.blockchain.android.util.openUrl
 
 class CustomerSupportSheet :
     MVIBottomSheet<CustomerSupportViewState>(),

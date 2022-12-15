@@ -13,11 +13,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.koin.scopedInject
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.presentation.checkValidUrlAndOpen
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -31,7 +32,6 @@ import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.simplebuy.toRecurringBuySuggestionTitle
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
 

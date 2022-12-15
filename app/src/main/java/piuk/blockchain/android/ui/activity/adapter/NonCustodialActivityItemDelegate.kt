@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -21,7 +22,6 @@ import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 
 class NonCustodialActivityItemDelegate<in T>(

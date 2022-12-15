@@ -43,7 +43,6 @@ fun ButtonContentSmall(
                 loadingIconResId = loadingIconResId,
             )
         } else {
-
             Row(
                 Modifier.alpha(contentAlpha),
                 horizontalArrangement = Arrangement.Center,

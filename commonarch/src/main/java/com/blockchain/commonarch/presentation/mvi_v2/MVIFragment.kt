@@ -1,16 +1,26 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
 import android.os.Bundle
+import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 abstract class MVIFragment<TViewState : ViewState> : Fragment() {
     abstract fun onStateUpdated(state: TViewState)
+
+    @UiThread
+    fun showBottomSheet(bottomSheet: BottomSheetDialogFragment?) =
+        bottomSheet?.show(childFragmentManager, BOTTOM_SHEET)
+
+    companion object {
+        const val BOTTOM_SHEET = "BOTTOM_SHEET"
+    }
 }
 
 fun <TViewState : ViewState, TFragment : MVIFragment<TViewState>, TArgs : ParcelableArgs> TFragment.withArgs(

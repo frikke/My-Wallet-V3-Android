@@ -18,6 +18,7 @@ import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
@@ -27,7 +28,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
-import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -81,7 +82,6 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val walletModeService: WalletModeService,
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
         return when (state.action) {
@@ -205,11 +205,11 @@ class TransactionFlowCustomiserImpl(
             else -> resources.getString(R.string.common_to)
         }
 
-    override fun selectTargetStatusDecorator(state: TransactionState): StatusDecorator =
+    override fun selectTargetStatusDecorator(state: TransactionState, walletMode: WalletMode): StatusDecorator =
         when (state.action) {
             AssetAction.Swap -> {
                 {
-                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletModeService.enabledWalletMode())
+                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletMode)
                 }
             }
             else -> {
@@ -1357,12 +1357,16 @@ class TransactionFlowCustomiserImpl(
             else -> state.sendingAsset
         }
 
-    override fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator =
+    override fun sourceAccountSelectionStatusDecorator(
+        state: TransactionState,
+        walletMode: WalletMode
+    ): StatusDecorator =
         when (state.action) {
             AssetAction.Swap -> {
                 {
                     SwapAccountSelectSheetFeeDecorator(
-                        account = it, walletMode = walletModeService.enabledWalletMode()
+                        account = it,
+                        walletMode = walletMode
                     )
                 }
             }
@@ -1397,14 +1401,18 @@ class TransactionFlowCustomiserImpl(
             else -> false
         }
 
+    override fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean =
+        action in listOf(
+            AssetAction.StakingDeposit, AssetAction.InterestDeposit
+        )
+
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount || (
-                    state.selectedTarget is CustodialInterestAccount &&
-                        state.action == AssetAction.InterestDeposit
-                    )
+                if (state.sendingAccount is LinkedBankAccount ||
+                    (state.selectedTarget is CustodialInterestAccount && state.action == AssetAction.InterestDeposit) ||
+                    (state.selectedTarget is CustodialStakingAccount && state.action == AssetAction.StakingDeposit)
                 ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {

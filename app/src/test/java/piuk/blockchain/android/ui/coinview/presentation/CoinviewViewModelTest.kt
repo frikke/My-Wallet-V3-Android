@@ -13,6 +13,7 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.wallet.DefaultLabels
@@ -27,6 +28,7 @@ import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -64,6 +66,7 @@ class CoinviewViewModelTest {
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase = mockk()
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase = mockk()
     private val assetService: AssetService = mockk()
+    private val custodialWalletManager: CustodialWalletManager = mockk()
 
     private lateinit var viewModel: CoinviewViewModel
 
@@ -97,7 +100,7 @@ class CoinviewViewModelTest {
 
     @Before
     fun setUp() {
-        every { walletModeService.enabledWalletMode() } returns WalletMode.CUSTODIAL_ONLY
+        every { walletModeService.walletMode } returns flowOf(WalletMode.CUSTODIAL_ONLY)
 
         viewModel = CoinviewViewModel(
             walletModeService = walletModeService,
@@ -110,7 +113,8 @@ class CoinviewViewModelTest {
             getAccountActionsUseCase = getAccountActionsUseCase,
             loadAssetRecurringBuysUseCase = loadAssetRecurringBuysUseCase,
             loadQuickActionsUseCase = loadQuickActionsUseCase,
-            assetService = assetService
+            assetService = assetService,
+            custodialWalletManager = custodialWalletManager
         )
 
         every { cryptoAsset.currency } returns currency

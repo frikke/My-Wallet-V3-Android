@@ -63,7 +63,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
@@ -85,7 +87,12 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
-    openActivity: () -> Unit
+    settingsNavigation: SettingsNavigation,
+    pricesNavigation: PricesNavigation,
+    openActivity: () -> Unit,
+    openReferral: () -> Unit,
+    openFiatActionDetail: (String) -> Unit,
+    openMoreQuickActions: () -> Unit,
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -116,7 +123,12 @@ fun MultiAppChrome(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
+                openReferral = openReferral,
+                openFiatActionDetail = openFiatActionDetail,
+                openMoreQuickActions = openMoreQuickActions,
                 assetActionsNavigation = assetActionsNavigation,
+                settingsNavigation = settingsNavigation,
+                pricesNavigation = pricesNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
                 }
@@ -138,7 +150,12 @@ fun MultiAppChromeScreen(
     onModeSelected: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    settingsNavigation: SettingsNavigation,
+    pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
+    openReferral: () -> Unit,
+    openMoreQuickActions: () -> Unit,
+    openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
@@ -630,7 +647,12 @@ fun MultiAppChromeScreen(
                 },
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
-                assetActionsNavigation = assetActionsNavigation
+                openReferral = openReferral,
+                openMoreQuickActions = openMoreQuickActions,
+                openFiatActionDetail = openFiatActionDetail,
+                assetActionsNavigation = assetActionsNavigation,
+                settingsNavigation = settingsNavigation,
+                pricesNavigation = pricesNavigation
             )
         }
 

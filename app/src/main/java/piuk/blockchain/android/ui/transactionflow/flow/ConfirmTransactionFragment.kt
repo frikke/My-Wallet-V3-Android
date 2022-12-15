@@ -14,13 +14,13 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxFlowConfirmBinding
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.sheets.AchTermsAndConditionsBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.AchWithdrawalHoldInfoBottomSheet
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus

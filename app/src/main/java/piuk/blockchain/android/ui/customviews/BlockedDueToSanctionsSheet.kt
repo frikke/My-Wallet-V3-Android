@@ -12,10 +12,10 @@ import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.openUrl
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
-import piuk.blockchain.android.util.openUrl
 
 class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
 

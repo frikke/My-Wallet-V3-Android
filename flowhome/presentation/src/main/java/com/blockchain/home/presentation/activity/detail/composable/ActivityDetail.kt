@@ -37,10 +37,8 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -48,7 +46,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ActivityDetail(
     selectedTxId: String,
-    walletMode: WalletMode = get<WalletModeService>(superAppModeService).enabledWalletMode(),
+    walletMode: WalletMode,
     onCloseClick: () -> Unit
 ) {
     when (walletMode) {
@@ -224,6 +222,15 @@ fun ComponentAction(clickAction: ClickAction) {
 fun PreviewActivityScreen() {
     ActivityDetailScreen(
         activityDetail = DETAIL_DUMMY_DATA,
+        onCloseClick = {}
+    )
+}
+
+@Preview
+@Composable
+fun PreviewActivityScreenLoading() {
+    ActivityDetailScreen(
+        activityDetail = DataResource.Loading,
         onCloseClick = {}
     )
 }

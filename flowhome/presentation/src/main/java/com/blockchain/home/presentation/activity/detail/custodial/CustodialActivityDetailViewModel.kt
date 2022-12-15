@@ -125,7 +125,6 @@ class CustodialActivityDetailViewModel(
                     }
                 }
                 .onEach { dataResource ->
-                    println("------- dataResource $dataResource")
                     updateState {
                         it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
                     }

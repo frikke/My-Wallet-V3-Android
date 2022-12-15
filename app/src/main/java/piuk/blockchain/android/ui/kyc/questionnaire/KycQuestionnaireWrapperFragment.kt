@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
@@ -22,7 +23,7 @@ import piuk.blockchain.android.ui.kyc.navigate
 /**
  * This wrapper is used to facilitate Questionnaire usage in Kyc due to using jetpack Navigation and needing to pass countryCode along to Veriff
  */
-class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheet.Host {
+class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheetHost {
 
     private val fraudService: FraudService by inject()
 

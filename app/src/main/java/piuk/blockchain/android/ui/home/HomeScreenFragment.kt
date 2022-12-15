@@ -10,9 +10,9 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.common.model.BuySellViewType
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 
 interface HomeScreenFragment {
@@ -33,7 +33,7 @@ interface HomeNavigator {
     fun launchReceive(cryptoTicker: String?)
     fun launchSend()
     fun launchBuySell(
-        viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
+        viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
         asset: AssetInfo? = null,
         reload: Boolean = false
     )

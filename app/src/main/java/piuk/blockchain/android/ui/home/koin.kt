@@ -5,7 +5,6 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
-import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
@@ -88,48 +87,41 @@ val mainModule = module {
                 walletModeService = get(),
                 payloadManager = get(),
                 walletModeBalanceService = get(),
-                walletStatusPrefs = get()
-            )
-        }
-
-        scoped<WalletModeBalanceService>(superAppModeService) {
-            WalletModeBalanceRepository(
-                walletModeService = get(superAppModeService),
-                balanceStore = get(),
-                currencyPrefs = get()
+                walletStatusPrefs = get(),
+                walletModePrefs = get()
             )
         }
 
         scoped<WalletModeBalanceService> {
             WalletModeBalanceRepository(
-                walletModeService = get(),
+                coincore = get(),
                 balanceStore = get(),
                 currencyPrefs = get()
             )
         }
-    }
-    factory {
-        WalletModeTraitsRepository(
-            walletModeService = lazy { get() }
-        )
-    }.bind(TraitsService::class)
 
-    single(superAppModeService) {
-        SuperAppWalletModeRepository(
-            walletModeStore = get()
-        )
-    }.bind(WalletModeService::class)
+        scoped(superAppModeService) {
+            SuperAppWalletModeRepository(
+                walletModeStore = get(),
+                defaultWalletModeStrategy = get()
+            )
+        }.bind(WalletModeService::class)
+
+        scoped {
+            WalletModeRepository(
+                walletModeStore = get(),
+                defaultWalletModeStrategy = get()
+            )
+        }.bind(WalletModeService::class)
+    }
 
     single {
         WalletModePrefStore(
-            sharedPreferences = get()
+            walletModePrefs = get()
         )
     }.bind(WalletModeStore::class)
 
-    single {
-        WalletModeRepository(
-            walletModeStore = get(),
-            featureFlag = get(superAppFeatureFlag)
-        )
-    }.bind(WalletModeService::class)
+    factory {
+        WalletModeTraitsRepository()
+    }.bind(TraitsService::class)
 }

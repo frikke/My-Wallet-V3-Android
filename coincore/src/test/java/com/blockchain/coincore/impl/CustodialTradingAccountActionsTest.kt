@@ -85,7 +85,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
             }
         }
         factory {
@@ -657,7 +657,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             identity = userIdentity,
             kycService = kycService,
             walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
             }
         )
 
@@ -738,6 +738,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         val balance = TradingAccountBalance(
             total = accountBalance,
+            dashboardDisplay = accountBalance,
             withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true

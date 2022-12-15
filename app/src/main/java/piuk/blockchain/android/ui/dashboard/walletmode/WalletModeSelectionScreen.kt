@@ -35,14 +35,14 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
     }
     val viewState: WalletModeSelectionViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    viewState?.let { state ->
+    viewState?.takeIf { it.enabledWalletMode != null }?.let { state ->
         WalletModesDialogContent(
             totalBalance = state.totalBalance,
             portfolioBalanceState = state.brokerageBalance,
             showBrokerageBalanceWarning = state.showBrokerageBalanceWarning,
             defiWalletBalance = state.defiWalletBalance,
             showDefiBalanceWarning = state.showDefiBalanceWarning,
-            selectedMode = state.enabledWalletMode,
+            selectedMode = state.enabledWalletMode!!,
             onItemClicked = {
                 viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletModeRequested(it))
             }
@@ -151,11 +151,14 @@ fun WalletModeSelection(
     DefaultTableRow(
         primaryText = walletName,
         secondaryText = when (balanceState) {
-            BalanceState.ActivationRequired -> stringResource(R.string.defi_onboarding_enable_wallet_title)
+            is BalanceState.PhraseRecoveryRequired -> if (balanceState.activationRequired)
+                stringResource(R.string.defi_onboarding_enable_wallet_title) else
+                balanceState.balance.toStringWithSymbol()
             else -> (balanceState as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty()
         },
         paragraphText = when (balanceState) {
-            BalanceState.ActivationRequired -> stringResource(R.string.defi_onboarding_enable_wallet_description)
+            is BalanceState.PhraseRecoveryRequired -> if (balanceState.activationRequired)
+                stringResource(R.string.defi_onboarding_enable_wallet_description) else null
             else -> null
         },
         tags = if (showBalanceWarning) {
@@ -202,7 +205,9 @@ private fun WalletModePreviewEnableWallet() {
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
                 showBrokerageBalanceWarning = false,
-                defiWalletBalance = BalanceState.ActivationRequired,
+                defiWalletBalance = BalanceState.PhraseRecoveryRequired(
+                    Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger()), false
+                ),
                 showDefiBalanceWarning = false,
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
                 onItemClicked = {}

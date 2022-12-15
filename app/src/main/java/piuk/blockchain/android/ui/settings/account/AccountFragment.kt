@@ -235,7 +235,7 @@ class AccountFragment :
         if (referralInfo is ReferralInfo.Data) {
             with(binding.settingsReferAFriend) {
                 primaryText = getString(R.string.account_refer_a_friend)
-                onClick = { navigator().goToReferralCode(referralInfo) }
+                onClick = { navigator().goToReferralCode() }
             }
         }
     }

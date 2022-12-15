@@ -6,7 +6,6 @@ import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.ActivityDetailsStore
@@ -34,21 +33,11 @@ class UnifiedActivityRepository(
     private val currencyPrefs: CurrencyPrefs
 ) : UnifiedActivityService {
 
-    override fun getAllActivity(
-        acceptLanguage: String,
-        timeZone: String
-    ): Flow<DataResource<List<UnifiedActivityItem>>> {
+    override fun getAllActivity(): Flow<DataResource<List<UnifiedActivityItem>>> {
 
         return flow {
             emit(DataResource.Loading)
-
-            activityWebSocketService.open()
-            activityWebSocketService.send(
-                fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker,
-                acceptLanguage = acceptLanguage,
-                timeZone = timeZone
-            )
-
+            activityWebSocketService.open(fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker)
             emitAll(
                 activityCache.getActivity()
                     .catch {
@@ -73,12 +62,10 @@ class UnifiedActivityRepository(
             .onStart { emit(DataResource.Loading) }
     }
 
-    override suspend fun getActivityDetails(
+    override fun getActivityDetails(
         txId: String,
         network: String,
         pubKey: String,
-        pubKeyStyle: PubKeyStyle,
-        pubKeyDescriptor: String,
         locales: String,
         timeZone: String,
         freshnessStrategy: FreshnessStrategy
@@ -86,7 +73,7 @@ class UnifiedActivityRepository(
         return activityDetailsStore.stream(
             freshnessStrategy.withKey(
                 ActivityDetailsStore.Key(
-                    txId, network, pubKey, pubKeyStyle, pubKeyDescriptor, locales, timeZone
+                    txId, network, pubKey, locales, timeZone
                 )
             )
         )

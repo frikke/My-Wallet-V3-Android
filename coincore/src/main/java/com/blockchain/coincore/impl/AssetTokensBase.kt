@@ -14,8 +14,6 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
@@ -24,6 +22,8 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
@@ -47,6 +47,8 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -65,7 +67,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val tradingService: TradingService by scopedInject()
     private val exchangeLinking: ExchangeLinking by scopedInject()
     private val remoteLogger: RemoteLogger by inject()
-    private val walletModeService: WalletModeService by inject()
+    private val walletModeService: WalletModeService by scopedInject()
     protected val identity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
     private val stakingService: StakingService by scopedInject()
@@ -107,14 +109,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             ),
             loadCustodialAccounts(),
             loadInterestAccounts(),
-            loadStakingAccounts().asSingle(),
-            stakingEnabledFlag.enabled
-        ) { nonCustodial, trading, interest, staking, isStakingEnabled ->
-            nonCustodial + trading + interest + if (isStakingEnabled) {
-                staking
-            } else {
-                emptyList()
-            }
+            loadStakingAccounts().asSingle()
+        ) { nonCustodial, trading, interest, staking ->
+            nonCustodial + trading + interest + staking
         }.doOnError {
             val errorMsg = "Error loading accounts for ${currency.networkTicker}"
             Timber.e("$errorMsg: $it")
@@ -176,28 +173,37 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
 
     private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
-        stakingService.getAvailabilityForAsset(
-            currency,
-            FreshnessStrategy.Cached(false)
-        ).filterNotLoading()
-            .mapData {
-                if (it) {
-                    listOf(
-                        CustodialStakingAccount(
-                            currency = currency,
-                            label = labels.getDefaultStakingWalletLabel(),
-                            stakingService = stakingService,
-                            exchangeRates = exchangeRates,
-                            internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                            identity = identity,
-                            kycService = kycService,
-                            custodialWalletManager = custodialManager
-                        )
-                    )
-                } else {
-                    emptyList()
-                }
+        flow {
+            val stakingEnabled = stakingEnabledFlag.coEnabled()
+            if (!stakingEnabled) {
+                emit(DataResource.Data(emptyList()))
+            } else {
+                emitAll(
+                    stakingService.getAvailabilityForAsset(
+                        currency,
+                        FreshnessStrategy.Cached(false)
+                    ).filterNotLoading()
+                        .mapData {
+                            if (it) {
+                                listOf(
+                                    CustodialStakingAccount(
+                                        currency = currency,
+                                        label = labels.getDefaultStakingWalletLabel(),
+                                        stakingService = stakingService,
+                                        exchangeRates = exchangeRates,
+                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                                        identity = identity,
+                                        kycService = kycService,
+                                        custodialWalletManager = custodialManager
+                                    )
+                                )
+                            } else {
+                                emptyList()
+                            }
+                        }
+                )
             }
+        }
 
     final override fun interestRate(): Single<Double> =
         interestService.isAssetAvailableForInterest(currency)
@@ -212,7 +218,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun stakingRate(): Single<Double> =
         stakingService.getEligibilityForAsset(currency).asSingle().flatMap {
             if (it is StakingEligibility.Eligible) {
-                stakingService.getRateForAsset(currency).asSingle()
+                stakingService.getRatesForAsset(currency).asSingle().map { it.rate }
             } else {
                 Single.just(0.0)
             }

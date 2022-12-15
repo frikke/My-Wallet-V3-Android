@@ -1,5 +1,6 @@
 package com.blockchain.chrome
 
+import com.blockchain.chrome.tbr.FiatActionsViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -10,7 +11,13 @@ val multiAppModule = module {
         viewModel {
             MultiAppViewModel(
                 walletModeService = get(superAppModeService),
-                walletModeBalanceService = get(superAppModeService)
+                walletModeBalanceService = get()
+            )
+        }
+
+        viewModel {
+            FiatActionsViewModel(
+                fiatActions = get()
             )
         }
     }

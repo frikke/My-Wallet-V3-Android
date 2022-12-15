@@ -13,6 +13,7 @@ import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.toFormattedString
 import com.blockchain.utils.unsafeLazy
@@ -22,7 +23,6 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
     private val model: FiatActivityDetailsModel by scopedInject()

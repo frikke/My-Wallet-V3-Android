@@ -16,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.compose.ui.unit.Dp
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.biometrics.BiometricAuthError
@@ -33,10 +34,14 @@ import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
+import com.blockchain.preferences.FeatureFlagOverridePrefs
+import com.blockchain.preferences.FeatureFlagState
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -46,6 +51,7 @@ import com.google.android.play.core.install.InstallState
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -82,7 +88,8 @@ class PinActivity :
 
     override val model: PinModel by scopedInject()
     private val fraudService: FraudService by inject()
-
+    private val superAppFeatureFlag: IntegratedFeatureFlag by inject(superappFeatureFlag)
+    private val prefs: FeatureFlagOverridePrefs by inject()
     override fun initBinding(): ActivityPinBinding =
         ActivityPinBinding.inflate(layoutInflater)
 
@@ -155,6 +162,24 @@ class PinActivity :
                 showCustomerSupportSheet()
             }
             customerSupport.visible()
+            configureSuperAppSwitch(superAppSwitch)
+        }
+    }
+
+    private fun configureSuperAppSwitch(superAppSwitch: SwitchCompat) {
+        superAppSwitch.visibleIf { environmentConfig.isAlphaBuild() }
+        superAppFeatureFlag.enabled.subscribeBy {
+            superAppSwitch.isEnabled = true
+            superAppSwitch.isChecked = it
+        }
+        superAppSwitch.setOnCheckedChangeListener { _, isChecked ->
+            prefs.setFeatureState(
+                superAppFeatureFlag.key,
+                if (isChecked)
+                    FeatureFlagState.ENABLED
+                else
+                    FeatureFlagState.DISABLED
+            )
         }
     }
 

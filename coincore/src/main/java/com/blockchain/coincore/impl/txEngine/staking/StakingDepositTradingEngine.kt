@@ -17,7 +17,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product

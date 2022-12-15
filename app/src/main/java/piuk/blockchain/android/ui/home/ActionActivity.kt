@@ -12,8 +12,13 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.presentation.koin.scopedInject
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
+import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
@@ -21,10 +26,17 @@ import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.UpsellHost
 
-class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, UpsellHost, SwapFragment.Host {
+class ActionActivity :
+    BlockchainActivity(),
+    SlidingModalBottomDialog.Host,
+    UpsellHost,
+    SwapFragment.Host,
+    BuyPendingOrdersBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val binding: ActivityActionBinding by lazy {
         ActivityActionBinding.inflate(layoutInflater)
@@ -74,10 +86,11 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
                 updateToolbarTitle(getString(R.string.buy_and_sell))
                 BuySellFragment.newInstance(
                     viewType = if (action == AssetAction.Sell) {
-                        BuySellFragment.BuySellViewType.TYPE_SELL
+                        BuySellViewType.TYPE_SELL
                     } else {
-                        BuySellFragment.BuySellViewType.TYPE_BUY
-                    }
+                        BuySellViewType.TYPE_BUY
+                    },
+                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo }
                 )
             }
             else -> {
@@ -116,6 +129,10 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         // do nothing
     }
 
+    override fun startActivityRequested() {
+        finishWithResult(ActivityResult.ViewActivity)
+    }
+
     private fun finishWithResult(result: ActivityResult) {
         val intent = Intent()
         when (result) {
@@ -125,6 +142,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
                 intent.putExtra(CRYPTO_TICKER, cryptoTicker)
             }
             ActivityResult.StartBuyIntro -> intent.putExtra(RESULT_START_BUY_INTRO, true)
+            ActivityResult.ViewActivity -> intent.putExtra(RESULT_VIEW_ACTIVITY, true)
         }
         setResult(RESULT_OK, intent)
         finish()
@@ -135,6 +153,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         private const val RESULT_START_KYC = "RESULT_START_KYC"
         private const val RESULT_START_RECEIVE = "RESULT_START_RECEIVE"
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
+        private const val RESULT_VIEW_ACTIVITY = "RESULT_VIEW_ACTIVITY"
         private const val CRYPTO_TICKER = "CRYPTO_TICKER"
 
         private fun newIntent(context: Context, action: AssetAction, cryptoTicker: String? = null): Intent =
@@ -152,6 +171,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         object StartKyc : ActivityResult()
         class StartReceive(val cryptoTicker: String? = null) : ActivityResult()
         object StartBuyIntro : ActivityResult()
+        object ViewActivity : ActivityResult()
     }
 
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {

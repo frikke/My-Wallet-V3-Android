@@ -22,6 +22,7 @@
     <string name="common_activity">Activity</string>
     <string name="common_summary">Summary</string>
     <string name="common_from">From</string>
+    <string name="common_more">More</string>
     <string name="common_to">To</string>
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
@@ -32,6 +33,7 @@
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_stake">Stake</string>
+    <string name="common_earn">Earn</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_disconnect">Disconnect</string>
@@ -188,7 +190,7 @@
 
     <!-- SuperApp -->
     <string name="chrome_navigation_home">Home</string>
-    <string name="chrome_navigation_trade">Trade</string>
+    <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
 
@@ -334,7 +336,7 @@
 
     <string name="portfolio">Portfolio</string>
     <string name="brokerage_wallet_name" translatable="false">Accounts</string>
-    <string name="brokerage_wallet_name_superapp" translatable="false">Trading</string>
+    <string name="brokerage_wallet_name_superapp" translatable="false">Account</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -868,6 +870,11 @@
     <string name="minimum_with_value">%1$s Minimum</string>
     <string name="maximum_with_value">%1$s Maximum</string>
     <string name="max_with_value">%1$s Max</string>
+
+    <!-- Exchange campaign announcement -->
+    <string name="exchange_campaign_announcement_title">Level up your trading</string>
+    <string name="exchange_campaign_announcement_description">Get lower fees, more trading pairs, and 24/7 live support on the Blockchain.com Exchange.</string>
+    <string name="exchange_campaign_announcement_action">Get Started</string>
 
     <!-- New asset announcement -->
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
@@ -2493,6 +2500,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="search_coins_hint">Search Coins</string>
     <string name="prices_error_title">Can’t load Assets Prices</string>
     <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
+    <string name="prices_filter_all">All</string>
+    <string name="prices_filter_favorites">Favorites</string>
+    <string name="prices_filter_tradable">Tradable</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
@@ -2839,12 +2849,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="ui_tour_prices_title">Discover New Coins</string>
     <string name="ui_tour_middle_button_title">Instantly Trade</string>
     <string name="ui_tour_activity_title">See All Transactions</string>
+    <string name="ui_tour_earn_title">Earn Rewards</string>
     <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
 
     <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
     <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
     <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
     <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
+    <string name="ui_tour_earn_subtitle">Put your crypto to work by passively investing, securing your favourite networks and more.</string>
     <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
 
     <!-- Pin screen -->
@@ -2913,6 +2925,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
     <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
+    <string name="no_balance_sheet_earn_title">You don’t have any %1$s</string>
+    <string name="no_balance_sheet_earn_subtitle">Buy or Receive %1$s to start earning.</string>
     <string name="coinview_added_watchlist">Added to Watchlist</string>
     <string name="coinview_removed_watchlist">Removed from Watchlist</string>
     <string name="coinview_expandable_button">Read More</string>
@@ -2967,8 +2981,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
 
     <!-- Bottom sheet actions -->
-    <string name="actions_sheet_percentage_rewards">%s%% APR</string>
-    <string name="actions_sheet_percentage_staking">%s%% APY</string>
+    <string name="actions_sheet_percentage_rate">Rate: %s%%</string>
 
     <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
@@ -3180,12 +3193,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="visit_faq">Visit our FAQ</string>
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
-    <string name="terminate_card">Terminate Card</string>
-    <string name="terminate_card_number">Terminate card ending in %1s ?</string>
+    <string name="terminate_card">Close Card</string>
+    <string name="terminate_card_number">Close card ending in %1s ?</string>
     <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
-    <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
+    <string name="terminate_card_confirm_description">Please Type ‘CLOSE’ to permanently close your card</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
-    <string name="terminate_card_confirmation_text">TERMINATE</string>
+    <string name="terminate_card_confirmation_text">CLOSE</string>
     <string name="address_updated">Billing Address Updated</string>
     <string name="address_update_success">Address Successfully Updated</string>
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
@@ -3270,7 +3283,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="bottom_nav_earn">Earn</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
-    <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
+    <string name="defi_wallet_name_superapp" translatable="false">DeFi Wallet</string>
     <string name="error_loading_balance">Some balances failed to load</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
@@ -3322,6 +3335,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="shortcuts">Shortcuts</string>
     <string name="exchange_your_crypto">Exchange your crypto</string>
     <string name="transfer_to_another_wallet">Transfer to another wallet</string>
+    <string name="transfer_to_other_wallets">Transfer crypto to other wallets</string>
     <string name="top_up_trading_account">Top up in your Trading Account.</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
     <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
@@ -3378,7 +3392,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_status_unactivated">Unactivated</string>
     <string name="bc_card_status_active">Ready to use</string>
     <string name="bc_card_status_locked">Locked</string>
-    <string name="bc_card_status_terminated">Terminated</string>
+    <string name="bc_card_status_terminated">Closed</string>
     <string name="bc_card_order_processing">Processing</string>
     <string name="bc_card_order_processed">Processed</string>
     <string name="bc_card_order_shipped">Shipped</string>
@@ -3419,13 +3433,21 @@ If you want to know more about our verification process visit our <annotation li
     <string name="blockchain_card_waitlist_announcement_action">Join The Waitlist</string>
     <string name="bc_card_empty_statements_title">Your Statements Go Here</string>
     <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
+    <string name="bc_card_currently_active">Currently Active</string>
+    <string name="bc_card_limit_reached">Current card limit reached</string>
+    <string name="bc_card_pin_updated_title">PIN was successfully updated</string>
+    <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
+    <string name="show_pkw_accounts">Show Private Key wallets</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
     <string name="add_to_google_pay">Add to Google Pay</string>
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+    <string name="ma_home_need_help">Need help?</string>
+    <string name="chat_with_support">Need help?</string>
+    <string name="view_support_center">View Support center</string>
     <string name="ma_home_activity_title">Activity</string>
     <string name="view">View</string>
 
@@ -3440,10 +3462,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_cta">Go to Web App</string>
 
     <string name="staking_cannot_withdraw_title">Staking Considerations</string>
-    <!-- todo (dserrano): - STAKING - copy when ready -->
-    <string name="staking_cannot_withdraw_paragraph_1">The Ethereum roadmap involves several upgrades that will make the network more scalable, more secure, and more sustainable.\n\n\Recently, Ethereum has completed what is called The Merge, meaning that </string>
-    <string name="staking_cannot_withdraw_paragraph_2">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
-    <string name="staking_cannot_withdraw_paragraph_3">Once staked, ETH funds can’t be unstaked or transferred for an unspecified period of time.\n\nThis may be up to 6 – 12 months away, but could be even longer.\n\nYour ETH will also be subject to a bonding period of %1$d days before it generates rewards.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nWhile unstaking and withdrawing ETH isn’t currently available, it will be supported in a future upgrade.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_summary_title">%1$s Staking Rewards</string>
     <string name="staking_summary_total_earned">Total Earned</string>
     <string name="staking_summary_view_activity">View activity</string>
@@ -3459,8 +3478,38 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
     <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
+    <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
+    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
+    <string name="earn_dashboard_filter_all">All</string>
+    <string name="earn_dashboard_filter_staking">Staking</string>
+    <string name="earn_dashboard_filter_rewards">Passive</string>
+    <string name="staking_dashboard_search">Search coins</string>
+    <string name="staking_dashboard_no_results">No results</string>
+    <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
+    <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
+    <string name="earn_dashboard_tab_earning">Earning</string>
+    <string name="earn_dashboard_tab_discover">Discover</string>
+    <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
+    <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
+    <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
+    <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
 
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>
+
+    <string name="buy_crypto_today">Buy crypto today</string>
+    <string name="complete_your_profile">Complete your profile</string>
+    <string name="other_amount">Other amount</string>
+    <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
+    <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
+    <string name="transfer_from_your_trading_account">Transfer from your Trading Account, send from any exchange, or ask a friend!</string>
+    <string name="earn_up_to">Earn up to 10%</string>
+    <string name="put_your_crypto_to_work">Put your crypto to work</string>
+    <string name="staking_asset">Staked %1s</string>
+    <string name="earn_rate_apy">%1$s%% APY</string>
+    <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
+    <string name="cash_out_bank">Cash out to your bank</string>
 
 </resources>

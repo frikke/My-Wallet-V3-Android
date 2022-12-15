@@ -7,6 +7,7 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asSingle
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -54,7 +55,7 @@ fun TextView.bindAndConvertFiatBalance(
     selectedFiatCurrency: FiatCurrency,
     historicRateFetcher: HistoricRateFetcher,
 ) {
-    disposables += historicRateFetcher.fetch(tx.asset, selectedFiatCurrency, tx.timeStampMs, tx.value)
+    disposables += historicRateFetcher.fetch(tx.asset, selectedFiatCurrency, tx.timeStampMs, tx.value).asSingle()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeBy(
             onSuccess = {

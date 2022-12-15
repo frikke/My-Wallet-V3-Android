@@ -1,9 +1,9 @@
 package com.blockchain.coincore
 
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.earn.domain.models.StakingState
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.OrderState

@@ -1,7 +1,7 @@
 package com.blockchain.koin.modules
 
 import android.content.Context
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
@@ -12,14 +12,20 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
+import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.AuthNavigation
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -40,7 +46,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.stakingAccountFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -55,6 +61,7 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
@@ -122,6 +129,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
+import piuk.blockchain.android.ui.auth.AuthNavigationImpl
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
@@ -140,6 +148,10 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
+import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
+import piuk.blockchain.android.ui.home.SettingsNavigationImpl
+import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -168,6 +180,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
+import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 
 val applicationModule = module {
@@ -210,9 +223,7 @@ val applicationModule = module {
     factory { get<Context>().resources }
 
     single {
-        WalletModeThemeProvider(
-            walletModeService = get()
-        )
+        WalletModeThemeProvider()
     }.bind(AppThemeProvider::class)
 
     single { LifecycleInterestedComponent() }
@@ -245,9 +256,26 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: ComponentActivity) -> AssetActionsNavigationImpl(activity = activity) }.bind(
-            AssetActionsNavigation::class
-        )
+        scoped { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
+            bind(PricesNavigation::class)
+            bind(AssetActionsNavigation::class)
+        }
+
+        scoped { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
+            bind(SettingsNavigation::class)
+        }
+
+        scoped { (activity: BlockchainActivity) ->
+            FiatActionsNavigationImpl(activity = activity)
+        }.bind(FiatActionsNavigation::class)
+
+        scoped { (activity: AppCompatActivity) ->
+            TransactionFlowNavigationImpl(activity = activity)
+        }.bind(TransactionFlowNavigation::class)
+
+        scoped { (activity: BlockchainActivity) ->
+            AuthNavigationImpl(activity = activity)
+        }.bind(AuthNavigation::class)
 
         scoped {
             CredentialsWiper(
@@ -259,6 +287,8 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
+                activityWebSocketService = get(),
+                unifiedActivityService = get(),
                 storeWiper = get(),
                 intercomEnabledFF = get(intercomChatFeatureFlag)
             )
@@ -437,7 +467,7 @@ val applicationModule = module {
                 limitsDataManager = get(),
                 coincore = get(),
                 userIdentity = get(),
-                eligibilityProvider = get(),
+                simpleBuyService = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
                 exchangeRatesDataManager = get(),
@@ -472,7 +502,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 fiatCurrenciesService = get(),
-                buyOrdersCache = get(),
+                buyOrdersStore = get(),
                 serializer = get(),
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
@@ -537,7 +567,7 @@ val applicationModule = module {
                 cardService = get(),
                 tradeDataService = get()
             )
-        }
+        }.bind(OnBoardingStepsService::class)
 
         factory<TradeDataService> {
             TradeDataRepository(
@@ -569,6 +599,13 @@ val applicationModule = module {
                 custodialWalletManager = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag)
+            )
+        }
+
+        scoped {
+            DefaultWalletModeStrategy(
+                walletModePrefs = get(),
+                productsEligibilityStore = get()
             )
         }
 
@@ -670,6 +707,7 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 xlmDataManager = get(),
                 ethDataManager = get(),
+                homeActivityLauncher = get()
             )
         }
 
@@ -681,7 +719,7 @@ val applicationModule = module {
                 destinationArgs = get(),
                 notificationManager = get(),
                 analytics = get(),
-                stakingFF = get(stakingAccountFeatureFlag)
+                homeActivityLauncher = get()
             )
         }
 
@@ -763,6 +801,7 @@ val applicationModule = module {
                 bchDataManager = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
+                activityWebSocketService = get(),
                 walletConnectServiceAPI = get(),
                 assetActivityRepository = get(),
                 walletPrefs = get(),
@@ -873,6 +912,12 @@ val applicationModule = module {
         CheckoutFactory(
             context = get(),
             isProd = env.environment == Environment.PRODUCTION
+        )
+    }
+
+    single {
+        HomeActivityLauncher(
+            featureFlag = get(superappFeatureFlag)
         )
     }
 

@@ -11,6 +11,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnou
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BlockchainCardWaitlistAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.ExchangeCampaignAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
@@ -78,6 +79,13 @@ val dashboardAnnouncementsModule = module {
                 hideDustFF = get(hideDustFeatureFlag)
             )
         }
+
+        factory {
+            ExchangeCampaignAnnouncement(
+                dismissRecorder = get(),
+                shouldShowExchangeCampaignUseCase = get()
+            )
+        }.bind(AnnouncementRule::class)
 
         factory {
             GooglePayAnnouncement(

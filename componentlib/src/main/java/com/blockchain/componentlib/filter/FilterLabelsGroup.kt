@@ -82,7 +82,7 @@ fun SelectedFilter(text: String) {
         Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
         Text(
             text = text,
-            style = AppTheme.typography.body2,
+            style = AppTheme.typography.body1,
             color = AppTheme.colors.background
         )
     }
@@ -107,7 +107,7 @@ fun UnSelectedFilter(item: LabeledFilterState, selectedItem: MutableState<Labele
     ) {
         Text(
             text = item.text,
-            style = AppTheme.typography.body2,
+            style = AppTheme.typography.body1,
             color = Color.Black
         )
     }

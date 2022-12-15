@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -17,7 +18,6 @@ import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionIsConfirming
 

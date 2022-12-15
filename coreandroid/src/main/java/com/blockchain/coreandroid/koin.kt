@@ -19,8 +19,8 @@ import com.blockchain.preferences.BlockchainCardPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -33,6 +33,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -63,6 +64,7 @@ val coreAndroidModule = module {
         bind(DashboardPrefs::class)
         bind(SecurityPrefs::class)
         bind(PricesPrefs::class)
+        bind(WalletModePrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
         bind(WalletStatusPrefs::class)
@@ -81,7 +83,7 @@ val coreAndroidModule = module {
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
         bind(BlockchainCardPrefs::class)
-        bind(MultiAppAssetsFilterService::class)
+        bind(ExchangeCampaignPrefs::class)
     }
 
     factory {

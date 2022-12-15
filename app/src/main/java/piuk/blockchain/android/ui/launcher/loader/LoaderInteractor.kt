@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.coincore.Coincore
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -16,6 +18,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.then
@@ -38,6 +41,7 @@ import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
+import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
@@ -49,6 +53,10 @@ class LoaderInteractor(
     private val walletModeService: WalletModeService,
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatusPrefs,
+    private val walletModePrefs: WalletModePrefs,
+    private val defaultWalletModeStrategy: DefaultWalletModeStrategy,
+    private val productsEligibilityStore: ProductsEligibilityStore,
+    private val walletModeServices: List<WalletModeService>,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
@@ -57,6 +65,7 @@ class LoaderInteractor(
     private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
+    private val coincore: Coincore,
     private val kycService: KycService,
     private val experimentsStore: ExperimentsStore,
     private val fraudService: FraudService
@@ -95,7 +104,9 @@ class LoaderInteractor(
             }.flatMapCompletable {
                 syncFiatCurrencies(it)
             }.then {
-                saveInitialCountry()
+                saveInitialCountry().then {
+                    setUpWalletModeIfNeeded()
+                }
             }.then {
                 updateUserFiatIfNotSet()
             }.then {
@@ -116,6 +127,13 @@ class LoaderInteractor(
             .then {
                 checkForCowboysUser()
             }
+            .then {
+                coincore.activeWalletsInModeRx(WalletMode.UNIVERSAL)
+                    .firstOrError()
+                    .flatMap { it.balanceRx.firstOrError() }
+                    .onErrorComplete()
+                    .ignoreElement()
+            }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
@@ -128,6 +146,16 @@ class LoaderInteractor(
                 }
             )
     }
+
+    /**
+     * Making sure default Wallet mode has been set
+     */
+    private fun setUpWalletModeIfNeeded(): Completable =
+        Single.zip(
+            walletModeServices.map {
+                it.walletModeSingle
+            }
+        ) {}.ignoreElement().onErrorComplete()
 
     private fun invalidateExperiments() = experimentsStore.markAsStale()
 
@@ -179,7 +207,7 @@ class LoaderInteractor(
         }
         emitter.onComplete()
         walletPrefs.isAppUnlocked = true
-        analytics.logEvent(LoginAnalyticsEvent(walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL))
+        analytics.logEvent(LoginAnalyticsEvent(true))
     }
 
     private fun updateUserFiatIfNotSet(): Completable {

@@ -5,27 +5,22 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.home.presentation.navigation.AuthNavigationHost
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import piuk.blockchain.android.databinding.AuthNewLoginSheetBinding
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginBrowserInfo
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginIpAddress
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginLocation
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.login.LoginAnalytics
 
 class AuthNewLoginSheet :
     MviBottomSheet<AuthNewLoginModel, AuthNewLoginIntents, AuthNewLoginState, AuthNewLoginSheetBinding>() {
 
-    interface Host : SlidingModalBottomDialog.Host {
-        fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment)
-    }
-
-    override val host: Host by lazy {
-        super.host as? Host
+    override val host: AuthNavigationHost by lazy {
+        super.host as? AuthNavigationHost
             ?: throw IllegalStateException("Host fragment is not a AuthNewLoginSheet.Host")
     }
 
@@ -124,7 +119,6 @@ class AuthNewLoginSheet :
         const val ORIGIN_LOCATION = "ORIGIN_LOCATION"
         const val ORIGIN_BROWSER = "ORIGIN_BROWSER"
 
-        // todo (othman): with new MVI this will be bundled into one ARG class
         fun newInstance(
             pubKeyHash: String?,
             message: SecureChannelBrowserMessageArg?,

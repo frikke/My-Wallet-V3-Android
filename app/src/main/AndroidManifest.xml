@@ -265,7 +265,6 @@
         <activity
             android:name=".ui.settings.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
         <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
         <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />

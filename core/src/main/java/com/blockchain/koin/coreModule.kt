@@ -1,7 +1,6 @@
 package com.blockchain.koin
 
 import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.access.PinRepositoryImpl
@@ -10,9 +9,8 @@ import com.blockchain.core.asset.data.dataresources.AssetInformationStore
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.core.auth.WalletAuthService
-import com.blockchain.core.buy.BuyOrdersCache
-import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.buy.data.SimpleBuyRepository
+import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
 import com.blockchain.core.buy.domain.SimpleBuyService
@@ -39,6 +37,7 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.common.caching.StoreWiperImpl
@@ -57,13 +56,6 @@ import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
-import com.blockchain.core.interest.data.datasources.InterestLimitsStore
-import com.blockchain.core.interest.data.datasources.InterestRateStore
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
@@ -74,7 +66,7 @@ import com.blockchain.core.payload.PayloadDataManagerSeedAccessAdapter
 import com.blockchain.core.payload.PayloadService
 import com.blockchain.core.payload.PromptingSeedAccessAdapter
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.payments.WithdrawLocksCache
+import com.blockchain.core.payments.WithdrawLocksStore
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -84,6 +76,7 @@ import com.blockchain.core.recurringbuy.data.RecurringBuyRepository
 import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.referral.ReferralRepository
+import com.blockchain.core.referral.dataresource.ReferralStore
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
@@ -116,6 +109,7 @@ import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
@@ -124,9 +118,9 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import java.util.UUID
 
 val coreModule = module {
 
@@ -139,6 +133,12 @@ val coreModule = module {
         WalletAuthService(
             walletApi = get(),
             sessionIdService = get()
+        )
+    }
+
+    single {
+        EthLastTxCache(
+            ethAccountApi = get()
         )
     }
 
@@ -204,52 +204,6 @@ val coreModule = module {
         }.bind(FiatCurrenciesService::class)
 
         scoped {
-            InterestBalancesStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestAvailableAssetsStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestEligibilityStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped {
-            InterestLimitsStore(
-                interestApiService = get(),
-                currencyPrefs = get()
-            )
-        }
-
-        scoped {
-            InterestRateStore(
-                interestApiService = get(),
-            )
-        }
-
-        scoped<InterestService> {
-            InterestRepository(
-                assetCatalogue = get(),
-                interestBalancesStore = get(),
-                interestEligibilityStore = get(),
-                interestAvailableAssetsStore = get(),
-                interestLimitsStore = get(),
-                interestRateStore = get(),
-                paymentTransactionHistoryStore = get(),
-                currencyPrefs = get(),
-                interestApiService = get(),
-                historicRateFetcher = get()
-            )
-        }
-
-        scoped {
             SddEligibilityStore(
                 nabuService = get()
             )
@@ -275,10 +229,6 @@ val coreModule = module {
         }
 
         scoped {
-            BuyPairsCache(nabuService = get())
-        }
-
-        scoped {
             BuyPairsStore(nabuService = get())
         }
 
@@ -291,7 +241,10 @@ val coreModule = module {
         scoped<SimpleBuyService> {
             SimpleBuyRepository(
                 simpleBuyEligibilityStore = get(),
-                buyPairsStore = get()
+                buyPairsStore = get(),
+                buyOrdersStore = get(),
+                swapOrdersStore = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -308,13 +261,15 @@ val coreModule = module {
         }
 
         scoped {
-            SwapTransactionsCache(
+            SwapTransactionsStore(
                 nabuService = get(),
             )
         }
 
         scoped {
-            BuyOrdersCache(nabuService = get())
+            BuyOrdersStore(
+                nabuService = get()
+            )
         }
 
         factory {
@@ -332,6 +287,7 @@ val coreModule = module {
                 defaultLabels = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
+                ethLastTxCache = get(),
                 nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
@@ -367,7 +323,6 @@ val coreModule = module {
         scoped<Erc20L2StoreService> {
             Erc20L2StoreRepository(
                 assetCatalogue = get(),
-                ethDataManager = get(),
                 erc20L2DataSource = get()
             )
         }
@@ -536,7 +491,7 @@ val coreModule = module {
         }
 
         scoped {
-            WithdrawLocksCache(
+            WithdrawLocksStore(
                 paymentsService = get(),
                 currencyPrefs = get()
             )
@@ -561,7 +516,7 @@ val coreModule = module {
                 simpleBuyPrefs = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
-                withdrawLocksCache = get(),
+                withdrawLocksStore = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
                 fiatCurrenciesService = get(),
@@ -595,8 +550,14 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            ReferralStore(
+                referralApi = get()
+            )
+        }
         factory {
             ReferralRepository(
+                referralStore = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
             )

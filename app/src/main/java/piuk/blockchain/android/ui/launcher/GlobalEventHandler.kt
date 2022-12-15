@@ -11,7 +11,6 @@ import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -25,8 +24,7 @@ import io.reactivex.rxjava3.subjects.MaybeSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
@@ -37,7 +35,7 @@ class GlobalEventHandler(
     private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
     private val analytics: Analytics,
-    private val stakingFF: FeatureFlag
+    private val homeActivityLauncher: HomeActivityLauncher
 ) {
     private val compositeDisposable = CompositeDisposable()
 
@@ -63,7 +61,7 @@ class GlobalEventHandler(
             } else {
                 Timber.d("deeplink: Starting main activity with pending destination")
                 application.startActivity(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = deeplinkResult.destination
                     )
@@ -77,27 +75,12 @@ class GlobalEventHandler(
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    subject.flatMapSingle {
-                        stakingFF.enabled.map {
-                            subject.onSuccess(
-                                if (it) {
-                                    CoinViewActivityV2.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        recurringBuyId = destination.recurringBuyId,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name
-                                    )
-                                } else {
-                                    CoinViewActivity.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name,
-                                        recurringBuyId = destination.recurringBuyId
-                                    )
-                                }
-                            )
-                        }
-                    }
+                    CoinViewActivityV2.newIntent(
+                        context = application,
+                        asset = assetInfo,
+                        recurringBuyId = destination.recurringBuyId,
+                        originScreen = LaunchOrigin.NOTIFICATION.name
+                    )
                 } ?: run {
                     subject.onError(
                         Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
@@ -146,7 +129,7 @@ class GlobalEventHandler(
 
             is Destination.ActivityDestination -> {
                 subject.onSuccess(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = destination
                     )
