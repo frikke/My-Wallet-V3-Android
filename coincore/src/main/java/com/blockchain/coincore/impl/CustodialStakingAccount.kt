@@ -114,7 +114,7 @@ class CustodialStakingAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = stakingService.getActivity(
-            currency = currency,
+            asset = currency,
             refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
         ).asSingle()
             .onErrorReturn { emptyList() }
@@ -141,7 +141,8 @@ class CustodialStakingAccount(
                 ?: stakingActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = stakingActivity.extraAttributes?.address ?: ""
+            recipientAddress = stakingActivity.extraAttributes?.address ?: "",
+            fiatValue = stakingActivity.fiatValue
         )
 
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {

@@ -39,8 +39,7 @@ internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
     is RecurringBuyActivitySummaryItem -> iconSummary()
     is TradeActivitySummaryItem -> iconSummary()
     is FiatActivitySummaryItem -> iconSummary()
-    is CustodialStakingActivitySummaryItem -> R.drawable.ic_activity_buy
-    else -> R.drawable.ic_activity_buy
+    else -> error("${this::class.simpleName} not supported")
 }
 
 private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
@@ -52,7 +51,7 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
         is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
-        else -> emptyList()
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 
@@ -65,7 +64,7 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
         is RecurringBuyActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is TradeActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is FiatActivitySummaryItem -> listOfNotNull(trailingTitle(), trailingSubtitle())
-        else -> emptyList()
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 

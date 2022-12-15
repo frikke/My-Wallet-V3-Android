@@ -10,7 +10,6 @@ import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
@@ -38,7 +37,7 @@ internal const val SIDE_ABBREVIATE_LENGTH = 4
         else -> error("not supported")
     }
     is FiatActivitySummaryItem -> iconDetail()
-    else -> /*error("${this::class.simpleName} not supported")*/ R.drawable.ic_filter // todo temp
+    else -> error("${this::class.simpleName} not supported")
 }
 
 private fun ActivitySummaryItem.title(): TextValue {
@@ -54,7 +53,7 @@ private fun ActivitySummaryItem.title(): TextValue {
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> title()
-        else -> /*error("${this::class.simpleName} not supported")*/ TextValue.StringValue("not implemented")
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 
@@ -71,7 +70,7 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
             else -> error("not supported")
         }
         is FiatActivitySummaryItem -> activity.detailItems(extras)
-        else -> /*error("${this::class.simpleName} not supported")*/ emptyList()
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 
@@ -84,7 +83,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
         is RecurringBuyActivitySummaryItem -> emptyList()
         is TradeActivitySummaryItem -> emptyList()
         is FiatActivitySummaryItem -> emptyList()
-        else -> /*error("${this::class.simpleName} not supported")*/ emptyList()
+        else -> error("${this::class.simpleName} not supported")
     }
 }
 
