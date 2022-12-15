@@ -9,7 +9,7 @@ object Versions {
     const val compileSdk = 33
 
     const val versionCode = 24930
-    const val versionName = "202212.1.1"
+    const val versionName = "202212.1.2"
 
     const val buildTools = "30.0.3"
 
