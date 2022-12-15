@@ -30,7 +30,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun DefaultTableRow(
     modifier: Modifier = Modifier,
     primaryText: String,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     secondaryText: String? = null,
     paragraphText: String? = null,
     endText: String? = null,
@@ -167,7 +167,7 @@ fun DefaultTableRow(
 fun DefaultTableRow(
     modifier: Modifier = Modifier,
     primaryText: AnnotatedString,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     secondaryText: AnnotatedString? = null,
     paragraphText: AnnotatedString? = null,
     endText: AnnotatedString? = null,

@@ -149,7 +149,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>) {
         activityResultDashboardOnboarding?.launch(
-            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps)
+            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps, isSuperappDesignEnabled = true)
         )
     }
 }

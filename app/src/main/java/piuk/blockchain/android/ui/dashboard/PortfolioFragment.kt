@@ -389,7 +389,9 @@ class PortfolioFragment :
     }
 
     private fun launchDashboardOnboarding(initialSteps: List<CompletableDashboardOnboardingStep>) {
-        activityResultDashboardOnboarding.launch(DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps))
+        activityResultDashboardOnboarding.launch(
+            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps, isSuperappDesignEnabled = false)
+        )
     }
 
     private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {

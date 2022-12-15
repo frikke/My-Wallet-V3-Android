@@ -7,16 +7,20 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStep
@@ -25,6 +29,7 @@ import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.koin.scopedInject
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -70,19 +75,37 @@ class DashboardOnboardingActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
+    private val isSuperappDesignEnabled: Boolean by lazy {
+        intent.argIsSuperappDesignEnabled()
+    }
+    private val viewState = MutableStateFlow(DashboardOnboardingState())
+
     override fun initBinding(): ActivityDashboardOnboardingBinding =
         ActivityDashboardOnboardingBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (isSuperappDesignEnabled) {
+            setContent {
+                val state by viewState.collectAsStateLifecycleAware()
+                DashboardOnboardingScreen(
+                    state = state,
+                    onIntent = model::process,
+                    backClicked = { finish() },
+                    analyticsNextStepButtonClicked = { analyticsNextStepButtonClicked = true },
+                )
+            }
+        } else {
+            binding.root.visible()
+            updateToolbar(backAction = { finish() })
+            binding.recyclerviewSteps.layoutManager = LinearLayoutManager(this@DashboardOnboardingActivity)
+            binding.recyclerviewSteps.adapter = adapter
+        }
+
         intent.argInitialSteps().toCurrentStepIndex()?.let {
             analytics.logEvent(DashboardOnboardingAnalytics.Viewed(it))
         }
-
-        updateToolbar(backAction = { finish() })
-        binding.recyclerviewSteps.layoutManager = LinearLayoutManager(this)
-        binding.recyclerviewSteps.adapter = adapter
     }
 
     override fun onResume() {
@@ -91,16 +114,20 @@ class DashboardOnboardingActivity :
     }
 
     override fun render(newState: DashboardOnboardingState) {
+        viewState.value = newState
         analyticsCurrentStepIndex = newState.steps.toCurrentStepIndex()
-        adapter.submitList(newState.steps)
 
-        handleNavigation(newState.navigationAction)
-        handleError(newState.errorState)
-        updateCtaButton(newState.steps)
+        if (newState.navigationAction != null) handleNavigation(newState.navigationAction)
+        if (newState.error != null) handleError(newState.error)
         val totalSteps = newState.steps.size
         val completeSteps = newState.steps.count { it.isCompleted }
-        binding.progressSteps.setProgress((completeSteps.toFloat() / totalSteps.toFloat()) * 100f)
-        binding.textSteps.text = getString(R.string.dashboard_onboarding_steps_counter, completeSteps, totalSteps)
+
+        if (!isSuperappDesignEnabled) {
+            adapter.submitList(newState.steps)
+            updateCtaButton(newState.steps)
+            binding.progressSteps.setProgress((completeSteps.toFloat() / totalSteps.toFloat()) * 100f)
+            binding.textSteps.text = getString(R.string.dashboard_onboarding_steps_counter, completeSteps, totalSteps)
+        }
 
         if (totalSteps == completeSteps) {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -109,44 +136,37 @@ class DashboardOnboardingActivity :
         }
     }
 
-    private fun handleError(error: DashboardOnboardingError) {
-        when (error) {
-            DashboardOnboardingError.None -> {
-            }
-            is DashboardOnboardingError.Error -> {
-                val nabuException = (error.throwable as? HttpException)?.let {
-                    NabuApiExceptionFactory.fromResponseBody(error.throwable)
-                }
+    private fun handleError(error: Throwable) {
+        val nabuException = (error as? HttpException)?.let {
+            NabuApiExceptionFactory.fromResponseBody(error)
+        }
 
-                showBottomSheet(
-                    ErrorSlidingBottomDialog.newInstance(
-                        ErrorDialogData(
-                            title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
-                                R.string.dashboard_onboarding_error_title
-                            ),
-                            description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
-                                R.string.dashboard_onboarding_error_description
-                            ),
-                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
-                            error = error.throwable.message,
-                            nabuApiException = (error.throwable as? HttpException)?.let {
-                                NabuApiExceptionFactory.fromResponseBody(error.throwable)
-                            },
-                            errorDescription = error.throwable.message,
-                            action = "DASHBOARD",
-                            analyticsCategories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
-                        )
-                    )
+        showBottomSheet(
+            ErrorSlidingBottomDialog.newInstance(
+                ErrorDialogData(
+                    title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
+                        R.string.dashboard_onboarding_error_title
+                    ),
+                    description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
+                        R.string.dashboard_onboarding_error_description
+                    ),
+                    errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                    error = error.message,
+                    nabuApiException = (error as? HttpException)?.let {
+                        NabuApiExceptionFactory.fromResponseBody(error)
+                    },
+                    errorDescription = error.message,
+                    action = "DASHBOARD",
+                    analyticsCategories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                 )
-            }
-        }.exhaustive
+            )
+        )
         model.process(DashboardOnboardingIntent.ClearError)
     }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun handleNavigation(action: DashboardOnboardingNavigationAction) {
         when (action) {
-            DashboardOnboardingNavigationAction.None -> return
             DashboardOnboardingNavigationAction.StartKyc -> {
                 analyticsCurrentStepIndex?.let {
                     analytics.logEvent(
@@ -275,6 +295,9 @@ class DashboardOnboardingActivity :
             return ColorStateList(states, colors)
         }
 
+    private fun Intent.argIsSuperappDesignEnabled(): Boolean =
+        getBooleanExtra(ARG_IS_SUPERAPP_DESIGN_ENABLED, false)
+
     private fun Intent.argInitialSteps(): List<CompletableDashboardOnboardingStep> {
         val statesArray = getStringArrayExtra(ARG_INITIAL_STEPS_STATES)
 
@@ -286,20 +309,24 @@ class DashboardOnboardingActivity :
     }
 
     companion object {
+        private const val ARG_IS_SUPERAPP_DESIGN_ENABLED = "ARG_IS_SUPERAPP_DESIGN_ENABLED"
         private const val ARG_INITIAL_STEPS_STATES = "ARG_INITIAL_STEPS_STATES"
         private const val RESULT_LAUNCH_BUY_FLOW = "RESULT_LAUNCH_BUY_FLOW"
 
         private fun newIntent(
             context: Context,
+            isSuperappDesignEnabled: Boolean,
             initialSteps: List<CompletableDashboardOnboardingStep>,
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
+                putExtra(ARG_IS_SUPERAPP_DESIGN_ENABLED, isSuperappDesignEnabled)
                 putExtra(ARG_INITIAL_STEPS_STATES, initialSteps.map { it.state.name }.toTypedArray())
             }
         }
     }
 
     data class ActivityArgs(
+        val isSuperappDesignEnabled: Boolean,
         val initialSteps: List<CompletableDashboardOnboardingStep>,
     )
 
@@ -310,7 +337,8 @@ class DashboardOnboardingActivity :
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent = newIntent(
             context = context,
-            initialSteps = input.initialSteps
+            isSuperappDesignEnabled = input.isSuperappDesignEnabled,
+            initialSteps = input.initialSteps,
         )
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
@@ -325,11 +353,18 @@ class DashboardOnboardingActivity :
     }
 }
 
-val DashboardOnboardingStep.iconRes: Int
+val DashboardOnboardingStep.oldIconRes: Int
     @DrawableRes get() = when (this) {
         DashboardOnboardingStep.UPGRADE_TO_GOLD -> R.drawable.ic_onboarding_step_upgrade_to_gold
         DashboardOnboardingStep.LINK_PAYMENT_METHOD -> R.drawable.ic_onboarding_step_link_paymentmethod
         DashboardOnboardingStep.BUY -> R.drawable.ic_onboarding_step_buy
+    }
+
+val DashboardOnboardingStep.iconRes: Int
+    @DrawableRes get() = when (this) {
+        DashboardOnboardingStep.UPGRADE_TO_GOLD -> R.drawable.ic_identification_filled
+        DashboardOnboardingStep.LINK_PAYMENT_METHOD -> R.drawable.ic_bank_details
+        DashboardOnboardingStep.BUY -> R.drawable.ic_cart
     }
 
 val DashboardOnboardingStep.colorRes: Int
