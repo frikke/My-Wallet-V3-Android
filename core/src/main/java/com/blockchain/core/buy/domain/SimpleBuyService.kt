@@ -7,6 +7,9 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.FiatTransaction
+import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
 
 interface SimpleBuyService {
@@ -32,4 +35,11 @@ interface SimpleBuyService {
     ): Flow<DataResource<BuyOrderList>>
 
     fun swapOrders(): Flow<DataResource<List<CustodialOrder>>>
+
+    fun getFiatTransactions(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        fiatCurrency: FiatCurrency,
+        product: Product,
+        type: String? = null
+    ): Flow<DataResource<List<FiatTransaction>>>
 }

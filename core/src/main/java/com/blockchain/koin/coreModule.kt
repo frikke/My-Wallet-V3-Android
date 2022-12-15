@@ -13,6 +13,7 @@ import com.blockchain.core.buy.data.SimpleBuyRepository
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
+import com.blockchain.core.buy.data.dataresources.TransactionsStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoin.PaymentService
@@ -244,6 +245,7 @@ val coreModule = module {
                 buyPairsStore = get(),
                 buyOrdersStore = get(),
                 swapOrdersStore = get(),
+                transactionsStore = get(),
                 assetCatalogue = get()
             )
         }
@@ -268,6 +270,12 @@ val coreModule = module {
 
         scoped {
             BuyOrdersStore(
+                nabuService = get()
+            )
+        }
+
+        scoped {
+            TransactionsStore(
                 nabuService = get()
             )
         }

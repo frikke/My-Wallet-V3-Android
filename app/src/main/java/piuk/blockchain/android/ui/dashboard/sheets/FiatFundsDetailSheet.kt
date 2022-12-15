@@ -125,7 +125,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
     private fun handleWithdrawalChecks() {
-        disposables += account.canWithdrawFunds()
+        disposables += account.canWithdrawFundsLegacy()
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 binding.fundsSheetProgress.visible()

@@ -3,11 +3,13 @@ package com.blockchain.core.buy.data
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
+import com.blockchain.core.buy.data.dataresources.TransactionsStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -19,21 +21,28 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.FiatTransaction
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentAttributes
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.toTransactionState
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairDto
+import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +52,7 @@ class SimpleBuyRepository(
     private val buyPairsStore: BuyPairsStore,
     private val buyOrdersStore: BuyOrdersStore,
     private val swapOrdersStore: SwapTransactionsStore,
+    private val transactionsStore: TransactionsStore,
     private val assetCatalogue: AssetCatalogue
 ) : SimpleBuyService {
 
@@ -146,6 +156,38 @@ class SimpleBuyRepository(
                     }
                 }
             }
+    }
+
+    override fun getFiatTransactions(
+        freshnessStrategy: FreshnessStrategy,
+        fiatCurrency: FiatCurrency,
+        product: Product,
+        type: String?
+    ): Flow<DataResource<List<FiatTransaction>>> {
+        return transactionsStore.stream(
+            freshnessStrategy.withKey(
+                TransactionsStore.Key(product = product, type = type)
+            )
+        ).mapData { response ->
+            response.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == fiatCurrency.networkTicker
+            }.filterNot {
+                it.hasCardOrBankFailure()
+            }.mapNotNull {
+                val state = it.state.toTransactionState() ?: return@mapNotNull null
+                val txType = it.type.toTransactionType() ?: return@mapNotNull null
+                FiatTransaction(
+                    id = it.id,
+                    amount = Money.fromMinor(fiatCurrency, it.amountMinor.toBigInteger()) as FiatValue,
+                    date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+                    state = state,
+                    type = txType,
+                    paymentId = it.beneficiaryId
+                )
+            }
+        }
     }
 }
 
@@ -272,3 +314,22 @@ private fun CustodialOrderResponse.toSwapOrder(inputCurrency: Currency, outputCu
         )
     )
 }
+
+private fun TransactionResponse.hasCardOrBankFailure() =
+    error?.let { error ->
+        listOf(
+            TransactionResponse.CARD_PAYMENT_ABANDONED,
+            TransactionResponse.CARD_PAYMENT_EXPIRED,
+            TransactionResponse.CARD_PAYMENT_FAILED,
+            TransactionResponse.BANK_TRANSFER_PAYMENT_REJECTED,
+            TransactionResponse.BANK_TRANSFER_PAYMENT_EXPIRED
+        ).contains(error)
+    } ?: false
+
+private fun String.toTransactionType(): TransactionType? =
+    when (this) {
+        TransactionResponse.DEPOSIT,
+        TransactionResponse.CHARGE -> TransactionType.DEPOSIT
+        TransactionResponse.WITHDRAWAL -> TransactionType.WITHDRAWAL
+        else -> null
+    }

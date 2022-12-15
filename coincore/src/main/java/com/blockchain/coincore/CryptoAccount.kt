@@ -174,7 +174,11 @@ interface CryptoAccount : SingleAccount {
 }
 
 interface FiatAccount : SingleAccount {
-    fun canWithdrawFunds(): Single<Boolean>
+    @Deprecated("use suspend canWithdrawFunds")
+    fun canWithdrawFundsLegacy(): Single<Boolean>
+
+    fun canWithdrawFunds(): Flow<DataResource<Boolean>>
+
     override val currency: FiatCurrency
 }
 

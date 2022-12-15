@@ -7,6 +7,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
@@ -33,6 +34,7 @@ class FiatAsset(
 ) : Asset, KoinComponent {
     private val exchangeRates: ExchangeRatesDataManager by inject()
     private val bankService: BankService by scopedInject()
+    private val simpBuyService: SimpleBuyService by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val tradingService: TradingService by scopedInject()
     private val labels: DefaultLabels by inject()
@@ -64,7 +66,8 @@ class FiatAsset(
             tradingService = tradingService,
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialWalletManager,
-            bankService = bankService
+            bankService = bankService,
+            simpleBuyService = simpBuyService
         )
     }
 

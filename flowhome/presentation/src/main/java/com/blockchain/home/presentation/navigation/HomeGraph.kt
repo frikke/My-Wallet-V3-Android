@@ -45,7 +45,7 @@ fun NavGraphBuilder.homeGraph(
         val fiatTicker = backStackEntry.arguments?.getString(ARG_FIAT_TICKER).orEmpty()
         FiatFundDetail(
             fiatTicker = fiatTicker,
-            onBackPressed = onBackPressed
+            dismiss = onBackPressed
         )
     }
 
