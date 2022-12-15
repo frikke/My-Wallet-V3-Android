@@ -17,15 +17,14 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
+import com.blockchain.utils.asFlow
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.await
 
 class SellRepository(
     private val userFeaturePermissionService: UserFeaturePermissionService,
@@ -93,7 +92,7 @@ class SellRepository(
     private fun getSellAssetList(): Flow<DataResource<List<AssetInfo>>> =
         combine(
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency),
-            flow { emit(custodialWalletManager.getSupportedBuySellCryptoCurrencies().await()) }
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies().asFlow()
         ) { supportedFiats, supportedPairs ->
             supportedPairs
                 .filter { supportedFiats.contains(it.destination) }

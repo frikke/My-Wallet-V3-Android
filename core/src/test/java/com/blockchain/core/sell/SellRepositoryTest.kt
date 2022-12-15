@@ -376,6 +376,6 @@ import org.junit.Test
         verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
         verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
-        verify(exactly = 0) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
+        verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
     }
 }
