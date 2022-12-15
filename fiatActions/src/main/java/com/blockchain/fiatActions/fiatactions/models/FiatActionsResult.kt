@@ -43,6 +43,14 @@ sealed interface FiatActionsResult : NavigationEvent {
     ) : FiatActionsResult
 
     /**
+     * for argentinian withdraw
+     */
+    data class LinkBankWithAlias(
+        override val account: FiatAccount,
+        override val action: AssetAction
+    ) : FiatActionsResult
+
+    /**
      * opens external link bank
      */
     data class BankLinkFlow(

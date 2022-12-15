@@ -37,9 +37,6 @@ class FiatActionsUseCase(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankService: BankService,
 ) {
-
-    var a = 0
-
     private val _result = MutableSharedFlow<FiatActionsResult>()
     val result: SharedFlow<FiatActionsResult> get() = _result
 
@@ -171,7 +168,6 @@ class FiatActionsUseCase(
             val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
 
             //            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
-
             when {
                 eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                     Single.just(
@@ -350,8 +346,10 @@ class FiatActionsUseCase(
                 )
             }
             is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
-                //                DashboardIntent.ShowBankLinkingWithAlias(fiatTxRequestResult.targetAccount)
-                TODO()
+                FiatActionsResult.LinkBankWithAlias(
+                    account = fiatAccount,
+                    action = action,
+                )
             }
         }
     }

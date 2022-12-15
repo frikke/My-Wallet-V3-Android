@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -12,8 +13,8 @@ import com.blockchain.nabu.BlockedReason
 
 sealed interface FiatActionsNavEvent {
     data class TransactionFlow(
-        val sourceAccount: BlockchainAccount = NullCryptoAccount(),
-        val target: TransactionTarget = NullCryptoAccount(),
+        val account: FiatAccount,
+        val target: TransactionTarget,
         val action: AssetAction
     ) : FiatActionsNavEvent
 
@@ -35,7 +36,12 @@ sealed interface FiatActionsNavEvent {
 
     data class BankLinkFlow(
         val linkBankTransfer: LinkBankTransfer,
-        val fiatAccount: FiatAccount,
-        val assetAction: AssetAction
+        val account: FiatAccount,
+        val action: AssetAction
+    ) : FiatActionsNavEvent
+
+    data class LinkBankWithAlias(
+        val account: FiatAccount,
+        val action: AssetAction
     ) : FiatActionsNavEvent
 }

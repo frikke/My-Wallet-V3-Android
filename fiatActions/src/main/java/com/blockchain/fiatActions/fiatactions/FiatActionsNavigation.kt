@@ -24,8 +24,8 @@ interface FiatActionsNavigation {
     )
 
     fun transactionFlow(
-        sourceAccount: BlockchainAccount = NullCryptoAccount(),
-        target: TransactionTarget = NullCryptoAccount(),
+        account: FiatAccount,
+        target: TransactionTarget,
         action: AssetAction
     )
 
@@ -42,5 +42,10 @@ interface FiatActionsNavigation {
         linkBankTransfer: LinkBankTransfer,
         fiatAccount: FiatAccount,
         assetAction: AssetAction
+    )
+
+    fun bankLinkWithAlias(
+        launcher: ActivityResultLauncher<Intent>,
+        fiatAccount: FiatAccount
     )
 }
