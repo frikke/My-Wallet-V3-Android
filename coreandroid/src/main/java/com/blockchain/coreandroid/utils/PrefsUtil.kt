@@ -23,6 +23,7 @@ import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -82,7 +83,8 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs {
+    BlockchainCardPrefs,
+    ExchangeCampaignPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -770,6 +772,18 @@ class PrefsUtil(
             setValue(PRICES_FILTER_MODE, value)
         }
 
+    override var dismissCount: Int
+        get() = getValue(CAMPAIGN_DISMISS_COUNT, ExchangeCampaignPrefs.DEFAULT_DISMISS_COUNT)
+        set(value) {
+            setValue(CAMPAIGN_DISMISS_COUNT, value)
+        }
+
+    override var actionTaken: Boolean
+        get() = getValue(CAMPAIGN_ACTION_TAKEN, ExchangeCampaignPrefs.DEFAULT_ACTION_TAKEN)
+        set(value) {
+            setValue(CAMPAIGN_ACTION_TAKEN, value)
+        }
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -910,6 +924,10 @@ class PrefsUtil(
 
         // multiapp assets
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
+
+        // Exchange Campaign
+        private const val CAMPAIGN_DISMISS_COUNT = "campaign_show_count"
+        private const val CAMPAIGN_ACTION_TAKEN = "campaign_action_taken"
 
         private const val PRICES_FILTER_MODE = "prices_filter_mode"
 

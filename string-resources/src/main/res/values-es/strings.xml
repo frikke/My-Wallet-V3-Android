@@ -601,6 +601,9 @@
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>
     <string name="new_asset_card_subheader_suffix">Hoy</string>
+    <string name="exchange_campaign_announcement_title">Mejora tu trading</string>
+    <string name="exchange_campaign_announcement_description">Comisiones más bajas, más pares para cambiar y soporte directo 24/7 en el Exchange de Blockchain.com</string>
+    <string name="exchange_campaign_announcement_action">Comienza ya</string>
     <string name="new_asset_card_title">%1$s (%2$s) está comprando y vendiendo ahora</string>
     <string name="new_asset_card_body">Compre, venda, intercambie, reciba y guarde %1$s en su Wallet de Blockchain.com.</string>
     <string name="new_asset_card_cta">Comprar %1$s</string>

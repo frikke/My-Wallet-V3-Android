@@ -598,6 +598,9 @@
     <string name="minimum_with_value">Минимум %1$s</string>
     <string name="maximum_with_value">Максимум %1$s</string>
     <string name="max_with_value">Максимум %1$s</string>
+    <string name="exchange_campaign_announcement_title">Прокачайте Вашу торговлю!</string>
+    <string name="exchange_campaign_announcement_description">Получите более выгодные комиссии, больше торговых пар и круглосуточную поддержку на бирже Blockchain.com</string>
+    <string name="exchange_campaign_announcement_action">Начать</string>
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>
     <string name="new_asset_card_subheader_suffix">Сегодня</string>
