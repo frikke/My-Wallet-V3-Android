@@ -99,7 +99,8 @@ class ActivityDetailsModelTest {
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
         accountRef = "",
-        recipientAddress = ""
+        recipientAddress = "",
+        fiatValue = null
     )
 
     @get:Rule
