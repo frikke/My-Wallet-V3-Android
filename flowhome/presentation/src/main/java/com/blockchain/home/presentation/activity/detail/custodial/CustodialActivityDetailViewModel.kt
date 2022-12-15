@@ -96,7 +96,6 @@ class CustodialActivityDetailViewModel(
     private fun loadActivityDetail() {
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
-            println("-------- activityTxId $activityTxId")
             custodialActivityService
                 .getActivity(id = activityTxId, FreshnessStrategy.Cached(forceRefresh = false))
                 .flatMapLatest { summaryDataResource ->
