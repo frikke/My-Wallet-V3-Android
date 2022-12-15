@@ -12,7 +12,6 @@ import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
-import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
 import kotlinx.coroutines.CoroutineScope
@@ -48,10 +47,10 @@ val homePresentationModule = module {
         }
 
         viewModel { (
-                        homeVm: AssetsViewModel,
-                        pkwActivityViewModel: PrivateKeyActivityViewModel,
-                        custodialActivityViewModel: CustodialActivityViewModel
-                    ) ->
+            homeVm: AssetsViewModel,
+            pkwActivityViewModel: PrivateKeyActivityViewModel,
+            custodialActivityViewModel: CustodialActivityViewModel
+        ) ->
             EmptyScreenViewModel(
                 homeAssetsViewModel = homeVm,
                 walletModeService = get(superAppModeService),

@@ -3,7 +3,7 @@ package com.blockchain.home.presentation.fiat.actions
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 
-sealed interface FiatActionRequest  {
+sealed interface FiatActionRequest {
     data class Deposit(
         val account: FiatAccount,
         val action: AssetAction,
