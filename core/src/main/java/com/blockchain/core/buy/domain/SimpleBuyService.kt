@@ -22,7 +22,7 @@ interface SimpleBuyService {
     ): Flow<DataResource<Boolean>>
 
     fun getPairs(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<List<SimpleBuyPair>>>
 
     fun getSupportedBuySellCryptoCurrencies(

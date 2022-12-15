@@ -598,6 +598,9 @@
     <string name="minimum_with_value">%1$s Minimum</string>
     <string name="maximum_with_value">%1$s Maximum</string>
     <string name="max_with_value">%1$s Max</string>
+    <string name="exchange_campaign_announcement_title">Renforcez votre trading</string>
+    <string name="exchange_campaign_announcement_description">Bénéficiez de frais réduits, de plus de paires de trading et d\'une assistance en direct 24h/24 (et 7j/7) sur Blockchain.com Exchange.</string>
+    <string name="exchange_campaign_announcement_action">Commencer tout de suite</string>
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>
     <string name="new_asset_card_subheader_suffix">Aujourd\'hui</string>

@@ -51,7 +51,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
-// TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
 class CoinViewActivityV2 :
     MVIActivity<CoinviewViewState>(),
     KoinScopeComponent,

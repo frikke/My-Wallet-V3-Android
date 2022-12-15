@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.brokerage.buy
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.home.presentation.navigation.HomeLaunch.KYC_STARTED
 import com.blockchain.koin.buyOrder
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -42,9 +43,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
-import piuk.blockchain.android.ui.home.HomeNavigator
-import piuk.blockchain.android.ui.home.HomeScreenFragment
-import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
@@ -54,8 +52,6 @@ import retrofit2.HttpException
 
 class BuyIntroFragment :
     ViewPagerFragment(),
-    BuyPendingOrdersBottomSheet.Host,
-    HomeScreenFragment,
     KycUpgradeNowSheet.Host {
 
     private var _binding: BuyIntroFragmentBinding? = null
@@ -308,8 +304,15 @@ class BuyIntroFragment :
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == KYC_STARTED) {
+            checkEligibilityAndLoadBuyDetails(true)
+        }
+    }
+
     override fun startKycClicked() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, MainActivity.KYC_STARTED)
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
     }
 
     override fun onDestroyView() {
@@ -329,16 +332,9 @@ class BuyIntroFragment :
         fun newInstance() = BuyIntroFragment()
     }
 
-    override fun startActivityRequested() {
-        navigator().performAssetActionFor(AssetAction.ViewActivity)
-    }
-
     override fun onSheetClosed() {
         // do nothing
     }
-
-    override fun navigator(): HomeNavigator =
-        (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
 }
 
 data class PriceHistory(

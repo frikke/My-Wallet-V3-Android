@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -13,7 +14,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import timber.log.Timber
 
 interface AnnouncementHost {

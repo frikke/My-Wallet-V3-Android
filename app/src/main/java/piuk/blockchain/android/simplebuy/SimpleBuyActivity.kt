@@ -63,7 +63,7 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -263,12 +263,13 @@ class SimpleBuyActivity :
         googlePayResponseInterceptor.clear()
         payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
     }
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
 
     override fun exitSimpleBuyFlow() {
         setResult(RESULT_OK)
 
         if (!startedFromDashboard) {
-            startActivity(MainActivity.newIntentAsNewTask(this))
+            startActivity(homeActivityLauncher.newIntentAsNewTask(this))
         } else {
             finish()
         }

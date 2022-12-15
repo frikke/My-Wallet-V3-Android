@@ -871,6 +871,11 @@
     <string name="maximum_with_value">%1$s Maximum</string>
     <string name="max_with_value">%1$s Max</string>
 
+    <!-- Exchange campaign announcement -->
+    <string name="exchange_campaign_announcement_title">Level up your trading</string>
+    <string name="exchange_campaign_announcement_description">Get lower fees, more trading pairs, and 24/7 live support on the Blockchain.com Exchange.</string>
+    <string name="exchange_campaign_announcement_action">Get Started</string>
+
     <!-- New asset announcement -->
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>

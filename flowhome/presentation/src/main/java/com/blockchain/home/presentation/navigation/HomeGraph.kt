@@ -11,7 +11,8 @@ import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-@OptIn(ExperimentalMaterialNavigationApi::class) fun NavGraphBuilder.homeGraph(
+@OptIn(ExperimentalMaterialNavigationApi::class)
+fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {

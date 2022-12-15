@@ -24,6 +24,8 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.AuthNavigation
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -44,7 +46,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.stakingAccountFeatureFlag
+import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -127,6 +129,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
+import piuk.blockchain.android.ui.auth.AuthNavigationImpl
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
@@ -146,6 +149,8 @@ import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
+import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -256,6 +261,10 @@ val applicationModule = module {
             bind(AssetActionsNavigation::class)
         }
 
+        scoped { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
+            bind(SettingsNavigation::class)
+        }
+
         scoped { (activity: BlockchainActivity) ->
             FiatActionsNavigationImpl(activity = activity)
         }.bind(FiatActionsNavigation::class)
@@ -263,6 +272,10 @@ val applicationModule = module {
         scoped { (activity: AppCompatActivity) ->
             TransactionFlowNavigationImpl(activity = activity)
         }.bind(TransactionFlowNavigation::class)
+
+        scoped { (activity: BlockchainActivity) ->
+            AuthNavigationImpl(activity = activity)
+        }.bind(AuthNavigation::class)
 
         scoped {
             CredentialsWiper(
@@ -694,6 +707,7 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 xlmDataManager = get(),
                 ethDataManager = get(),
+                homeActivityLauncher = get()
             )
         }
 
@@ -705,7 +719,7 @@ val applicationModule = module {
                 destinationArgs = get(),
                 notificationManager = get(),
                 analytics = get(),
-                stakingFF = get(stakingAccountFeatureFlag)
+                homeActivityLauncher = get()
             )
         }
 
@@ -898,6 +912,12 @@ val applicationModule = module {
         CheckoutFactory(
             context = get(),
             isProd = env.environment == Environment.PRODUCTION
+        )
+    }
+
+    single {
+        HomeActivityLauncher(
+            featureFlag = get(superappFeatureFlag)
         )
     }
 

@@ -63,6 +63,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
@@ -86,6 +87,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
@@ -125,6 +127,7 @@ fun MultiAppChrome(
                 openFiatActionDetail = openFiatActionDetail,
                 openMoreQuickActions = openMoreQuickActions,
                 assetActionsNavigation = assetActionsNavigation,
+                settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
@@ -147,6 +150,7 @@ fun MultiAppChromeScreen(
     onModeSelected: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
@@ -647,6 +651,7 @@ fun MultiAppChromeScreen(
                 openMoreQuickActions = openMoreQuickActions,
                 openFiatActionDetail = openFiatActionDetail,
                 assetActionsNavigation = assetActionsNavigation,
+                settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation
             )
         }

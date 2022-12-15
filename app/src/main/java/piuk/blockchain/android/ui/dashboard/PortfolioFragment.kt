@@ -37,6 +37,9 @@ import com.blockchain.extensions.minus
 import com.blockchain.fiatActions.BankLinkingHost
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
+import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -94,7 +97,6 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
-import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -104,7 +106,6 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsActivity
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -695,8 +696,8 @@ class PortfolioFragment :
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT,
+            SETTINGS_EDIT,
+            ACCOUNT_EDIT,
             -> model.process(DashboardIntent.GetActiveAssets(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {

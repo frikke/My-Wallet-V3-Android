@@ -119,7 +119,7 @@ interface CustodialWalletManager {
 
     fun isAssetSupportedForSwap(
         assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>

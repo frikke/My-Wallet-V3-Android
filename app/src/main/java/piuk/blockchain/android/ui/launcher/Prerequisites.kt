@@ -18,6 +18,8 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.rxCompletable
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 
 class Prerequisites(
     private val metadataService: MetadataService,
@@ -28,6 +30,7 @@ class Prerequisites(
     private val payloadDataManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val remoteLogger: RemoteLogger,
+    private val homeActivityLauncher: HomeActivityLauncher,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val globalEventHandler: GlobalEventHandler,
     private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater
@@ -53,6 +56,11 @@ class Prerequisites(
             }.then {
                 Completable.fromCallable {
                     walletConnectServiceAPI.init()
+                }
+            }
+            .then {
+                rxCompletable {
+                    homeActivityLauncher.updateHomeActivity()
                 }
             }
             .doOnComplete {

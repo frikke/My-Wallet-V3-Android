@@ -7,7 +7,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -26,7 +25,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
@@ -171,25 +170,18 @@ class LoaderActivity :
         )
     }
 
-    private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
-        superappFF.enabled.subscribe { isEnabled ->
-            startActivity(
-                if (isEnabled) {
-                    MultiAppActivity.newIntent(
-                        context = this
-                    )
-                } else {
-                    MainActivity.newIntent(
-                        context = this,
-                        intentData = mainData,
-                        shouldLaunchUiTour = shouldLaunchUiTour,
-                        shouldBeNewTask = true
-                    )
-                }
-            )
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
 
-            finish()
-        }
+    private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
+        startActivity(
+            homeActivityLauncher.newIntent(
+                context = this,
+                intentData = mainData,
+                shouldLaunchUiTour = shouldLaunchUiTour,
+                shouldBeNewTask = true
+            )
+        )
+        finish()
     }
 
     private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {

@@ -10,9 +10,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
+import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.prices.navigation.PricesNavigation
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -22,7 +24,9 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 @Composable
 fun MultiAppNavHost(
     assetActionsNavigation: AssetActionsNavigation,
-    pricesNavigation: PricesNavigation
+    fiatActionsNavigation: FiatActionsNavigation,
+    pricesNavigation: PricesNavigation,
+    settingsNavigation: SettingsNavigation,
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -36,6 +40,7 @@ fun MultiAppNavHost(
             chrome(
                 navController = navController,
                 assetActionsNavigation = assetActionsNavigation,
+                settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation
             )
 
@@ -51,11 +56,13 @@ fun MultiAppNavHost(
 private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     assetActionsNavigation: AssetActionsNavigation,
+    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
             assetActionsNavigation = assetActionsNavigation,
+            settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)

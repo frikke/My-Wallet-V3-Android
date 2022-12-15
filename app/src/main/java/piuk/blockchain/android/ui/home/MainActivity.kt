@@ -3,11 +3,9 @@ package piuk.blockchain.android.ui.home
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -44,6 +42,20 @@ import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.dashboard.EarnDashboardFragment
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.navigation.AuthNavigationHost
+import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
+import com.blockchain.home.presentation.navigation.HomeLaunch.BANK_DEEP_LINK_DEPOSIT
+import com.blockchain.home.presentation.navigation.HomeLaunch.BANK_DEEP_LINK_SETTINGS
+import com.blockchain.home.presentation.navigation.HomeLaunch.BANK_DEEP_LINK_SIMPLE_BUY
+import com.blockchain.home.presentation.navigation.HomeLaunch.BANK_DEEP_LINK_WITHDRAW
+import com.blockchain.home.presentation.navigation.HomeLaunch.INTENT_FROM_NOTIFICATION
+import com.blockchain.home.presentation.navigation.HomeLaunch.INTEREST_DASHBOARD
+import com.blockchain.home.presentation.navigation.HomeLaunch.KYC_STARTED
+import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
+import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
+import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
+import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
 import com.blockchain.nfts.detail.NftDetailFragment
@@ -89,7 +101,6 @@ import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
-import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
@@ -129,7 +140,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -140,7 +150,7 @@ class MainActivity :
     MviActivity<MainModel, MainIntent, MainState, ActivityMainBinding>(),
     HomeNavigator,
     SlidingModalBottomDialog.Host,
-    AuthNewLoginSheet.Host,
+    AuthNavigationHost,
     AccountWalletLinkAlertSheet.Host,
     SelectNetworkBottomSheet.Host,
     WCApproveSessionBottomSheet.Host,
@@ -198,6 +208,7 @@ class MainActivity :
             ActionActivity.ActivityResult.StartKyc -> launchKyc(CampaignType.None)
             is ActionActivity.ActivityResult.StartReceive -> launchReceive(cryptoTicker = it.cryptoTicker)
             ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellViewType.TYPE_BUY)
+            ActionActivity.ActivityResult.ViewActivity -> performAssetActionFor(AssetAction.ViewActivity)
             null -> {
             }
         }
@@ -237,11 +248,7 @@ class MainActivity :
         )
         intent.removeExtra(START_UI_TOUR_KEY)
 
-        if (intent.hasExtra(SHOW_SWAP) &&
-            intent.getBooleanExtra(SHOW_SWAP, false)
-        ) {
-            launchSwap()
-        } else if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
+        if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
             intent.getBooleanExtra(LAUNCH_AUTH_FLOW, false)
         ) {
             intent.extras?.let {
@@ -465,8 +472,6 @@ class MainActivity :
             .show()
     }
 
-    // TODO this is deprecated, should be replaced with ActivityResult.contract
-    // some consideration needs to be paid to QR scanning and how it deals with the results
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             QrScanActivity.SCAN_URI_RESULT -> {
@@ -1091,7 +1096,7 @@ class MainActivity :
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
         binding.uiTour.apply {
-            logHideUi()
+            logHideUi(this@MainActivity)
 
             animate()
                 .alpha(0f)
@@ -1441,98 +1446,6 @@ class MainActivity :
 
     override fun openExternalUrl(url: String) {
         openUrl(url)
-    }
-
-    companion object {
-        private const val START_UI_TOUR_KEY = "START_UI_TOUR_KEY"
-        private const val SHOW_SWAP = "SHOW_SWAP"
-        private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
-        private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
-        private const val PENDING_DESTINATION = "PENDING_DESTINATION"
-        const val ACCOUNT_EDIT = 2008
-        const val SETTINGS_EDIT = 2009
-        const val KYC_STARTED = 2011
-        const val INTEREST_DASHBOARD = 2012
-        const val BANK_DEEP_LINK_SIMPLE_BUY = 2013
-        const val BANK_DEEP_LINK_SETTINGS = 2014
-        const val BANK_DEEP_LINK_DEPOSIT = 2015
-        const val BANK_DEEP_LINK_WITHDRAW = 2021
-
-        fun newIntent(context: Context, shouldShowSwap: Boolean, shouldBeNewTask: Boolean): Intent =
-            Intent(context, MainActivity::class.java).apply {
-                putExtra(SHOW_SWAP, shouldShowSwap)
-                if (shouldBeNewTask) {
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-                context.startActivity(this)
-            }
-
-        fun newIntent(
-            context: Context,
-            launchAuthFlow: Boolean,
-            pubKeyHash: String,
-            message: SecureChannelBrowserMessageArg,
-            originIp: String?,
-            originLocation: String?,
-            originBrowser: String?,
-            forcePin: Boolean,
-            shouldBeNewTask: Boolean,
-        ): Intent = Intent(context, MainActivity::class.java).apply {
-            putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
-            putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
-            putExtra(AuthNewLoginSheet.MESSAGE, message)
-            putExtra(AuthNewLoginSheet.ORIGIN_IP, originIp)
-            putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, originLocation)
-            putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, originBrowser)
-            putExtra(AuthNewLoginSheet.FORCE_PIN, forcePin)
-
-            if (shouldBeNewTask) {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        }
-
-        fun newIntent(
-            context: Context,
-            intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Map<String, String>? = null,
-        ): Intent =
-            Intent(context, MainActivity::class.java).apply {
-                putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
-                notificationAnalyticsPayload?.keys?.forEach { key ->
-                    notificationAnalyticsPayload[key]?.let { value ->
-                        putExtra(key, value)
-                    }
-                }
-            }
-
-        fun newIntent(context: Context, pendingDestination: Destination): Intent =
-            Intent(context, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                putExtra(PENDING_DESTINATION, pendingDestination)
-            }
-
-        fun newIntentAsNewTask(context: Context): Intent =
-            Intent(context, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-
-        fun newIntent(
-            context: Context,
-            intentData: String?,
-            shouldLaunchUiTour: Boolean,
-            shouldBeNewTask: Boolean,
-        ): Intent = Intent(context, MainActivity::class.java).apply {
-            if (intentData != null) {
-                data = Uri.parse(intentData)
-            }
-
-            if (shouldBeNewTask) {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-
-            putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
-        }
     }
 
     override fun route(navigationEvent: PricesNavigationEvent) {
