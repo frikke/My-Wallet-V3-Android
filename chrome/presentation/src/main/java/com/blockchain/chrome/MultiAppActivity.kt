@@ -326,11 +326,21 @@ class MultiAppActivity :
     // //////////////////////////////////
     // QuestionnaireSheetHost
     override fun questionnaireSubmittedSuccessfully() {
-        println("--------- questionnaireSubmittedSuccessfully")
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = false,
+                shouldSkipQuestionnaire = true
+            )
+        )
     }
 
     override fun questionnaireSkipped() {
-        println("--------- questionnaireSkipped")
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = false,
+                shouldSkipQuestionnaire = true
+            )
+        )
     }
 
     // //////////////////////////////////
@@ -340,16 +350,11 @@ class MultiAppActivity :
     }
 
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
-        if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
-            fiatActionsNavigator.performAction(
-                FiatActionRequest.RestartDeposit(
-                    action = AssetAction.FiatDeposit,
-                    shouldLaunchBankLinkTransfer = false
-                )
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = true
             )
-        } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
-            //                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
-        }
+        )
     }
 
     // //////////////////////////////////
@@ -359,7 +364,7 @@ class MultiAppActivity :
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             fiatActionsNavigator.performAction(
-                FiatActionRequest.RestartDeposit(
+                FiatActionRequest.Restart(
                     shouldLaunchBankLinkTransfer = false
                 )
             )

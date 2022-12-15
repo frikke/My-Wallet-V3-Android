@@ -39,7 +39,6 @@ sealed class FiatTransactionRequestResult {
     object NotSupportedPartner : FiatTransactionRequestResult()
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
     data class LaunchQuestionnaire(
-        val questionnaire: Questionnaire,
-//        val callbackIntent: Any
+        val questionnaire: Questionnaire
     ) : FiatTransactionRequestResult()
 }

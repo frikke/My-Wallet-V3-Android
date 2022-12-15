@@ -54,10 +54,10 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewStat
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import java.lang.Exception
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
-import java.lang.Exception
 
 @Composable
 fun FiatFundDetail(

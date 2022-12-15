@@ -24,7 +24,7 @@ sealed interface FiatActionsResult : NavigationEvent {
         override val action: AssetAction
     ) : FiatActionsResult
 
-    data class DepositQuestionnaire(
+    data class LaunchQuestionnaire(
         override val account: FiatAccount,
         override val action: AssetAction,
         val questionnaire: Questionnaire

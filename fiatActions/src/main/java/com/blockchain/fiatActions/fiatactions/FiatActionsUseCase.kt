@@ -23,12 +23,12 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Optional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import java.util.Optional
 
 class FiatActionsUseCase(
     private val scope: CoroutineScope,
@@ -37,6 +37,8 @@ class FiatActionsUseCase(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankService: BankService,
 ) {
+
+    var a = 0
 
     private val _result = MutableSharedFlow<FiatActionsResult>()
     val result: SharedFlow<FiatActionsResult> get() = _result
@@ -104,14 +106,7 @@ class FiatActionsUseCase(
             questionnaireOpt.isPresent ->
                 Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        // todo othman find an account with this
                         questionnaire = questionnaireOpt.get(),
-                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                        //                            targetAccount,
-                        //                            action,
-                        //                            shouldLaunchBankLinkTransfer,
-                        //                            shouldSkipQuestionnaire = true
-                        //                        )
                     )
                 )
             eligibleBanks.isEmpty() -> {
@@ -186,24 +181,8 @@ class FiatActionsUseCase(
                     )
                 questionnaireOpt.isPresent -> Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        // todo othman find an account with this
                         questionnaire = questionnaireOpt.get(),
-                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                        //                            targetAccount,
-                        //                            action,
-                        //                            shouldLaunchBankLinkTransfer,
-                        //                            shouldSkipQuestionnaire = true
-                        //                        )
                     )
-                    //                    FiatTransactionRequestResult.LaunchQuestionnaire(
-                    //                        questionnaire = questionnaireOpt.get(),
-                    //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                    //                            account,
-                    //                            action,
-                    //                            shouldLaunchBankLinkTransfer,
-                    //                            shouldSkipQuestionnaire = true
-                    //                        )
-                    //                    )
                 )
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
@@ -351,17 +330,11 @@ class FiatActionsUseCase(
                 )
             }
             is FiatTransactionRequestResult.LaunchQuestionnaire -> {
-                FiatActionsResult.DepositQuestionnaire(
+                FiatActionsResult.LaunchQuestionnaire(
                     account = fiatAccount,
                     action = action,
                     questionnaire = fiatTxRequestResult.questionnaire
                 )
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.DepositQuestionnaire(
-                //                        questionnaire = fiatTxRequestResult.questionnaire,
-                //                        callbackIntent = fiatTxRequestResult.callbackIntent
-                //                    )
-                //                )
             }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 FiatActionsResult.LinkBankMethod(
