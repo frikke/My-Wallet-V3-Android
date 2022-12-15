@@ -13,7 +13,6 @@ import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
-import com.blockchain.earn.domain.models.interest.InterestActivity
 import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingActivity
