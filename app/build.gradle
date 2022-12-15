@@ -118,7 +118,6 @@ android {
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['prodUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
@@ -176,7 +175,6 @@ android {
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['prodUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
@@ -235,7 +233,6 @@ android {
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""
             buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['stagingUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['stagingHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['stagingExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_staging"'
             buildConfigField "String", "COMMIT_HASH", "\"${getGitCommitHash()}\""
