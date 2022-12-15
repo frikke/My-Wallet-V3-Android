@@ -11,11 +11,22 @@ import info.blockchain.balance.Money
 @Stable
 interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
-    fun buyCrypto(currency: AssetInfo, amount: Money?)
+    fun receive(currency: String)
+    fun buyCrypto(currency: AssetInfo, amount: Money)
+    fun buyCrypto(
+        currency: AssetInfo,
+        amount: String? = null,
+        preselectedFiatTicker: String? = null,
+        launchLinkCard: Boolean = false,
+        launchNewPaymentMethodSelection: Boolean = false,
+    )
+
     fun earnRewards()
     fun settings()
     fun coinview(asset: AssetInfo)
+    fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
     fun interestSummary(account: CryptoAccount)
     fun stakingSummary(currency: Currency)
+    fun startKyc()
 }

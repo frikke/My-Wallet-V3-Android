@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -10,7 +11,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 
 class HideDustAnnouncement(
     dismissRecorder: DismissRecorder,

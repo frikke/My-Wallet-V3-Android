@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.tbr.FiatActionsIntents
@@ -22,6 +23,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.deeplinking.navigation.Destination
+import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -34,19 +36,23 @@ import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.scopedInject
 import com.blockchain.prices.navigation.PricesNavigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
+import timber.log.Timber
 
 class MultiAppActivity :
     BlockchainActivity(),
@@ -134,8 +140,95 @@ class MultiAppActivity :
         }
     }
 
+    private val destinationArgs: DestinationArgs by scopedInject()
+
     private fun navigateToDeeplinkDestination(destination: Destination) {
-        TODO("Not yet implemented")
+        when (destination) {
+            is Destination.AssetViewDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    assetActionsNavigation.coinview(
+                        asset = assetInfo,
+                        recurringBuyId = destination.recurringBuyId,
+                        originScreen = LaunchOrigin.DEEPLINK.name
+                    )
+                }
+            }
+            is Destination.AssetBuyDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    assetActionsNavigation.buyCrypto(
+                        currency = assetInfo, amount = destination.amount,
+                        preselectedFiatTicker = destination.fiatTicker
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+            is Destination.AssetSendDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
+                        onSuccess = { account ->
+                            transactionFlowNavigation.startTransactionFlow(
+                                sourceAccount = account,
+                                action = AssetAction.Send
+                            )
+                        },
+                        onError = {
+                            Timber.e(it)
+                        }
+                    )
+                } ?: run {
+                    Timber.e("Unable to start Send flow from deeplink. AssetInfo is null")
+                }
+            }
+            is Destination.AssetEnterAmountDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    assetActionsNavigation.buyCrypto(currency = assetInfo)
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+            is Destination.AssetEnterAmountLinkCardDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    assetActionsNavigation.buyCrypto(currency = assetInfo, launchLinkCard = true)
+                } ?: run {
+                    destinationArgs.getFiatAssetInfo(destination.networkTicker)?.let { _ ->
+                        settingsNavigation.settings(SettingsDestination.CardLinking)
+                    } ?: Timber.e(
+                        "Unable to start CardLinking from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
+                }
+            }
+            is Destination.AssetEnterAmountNewMethodDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    assetActionsNavigation.buyCrypto(
+                        currency = assetInfo,
+                        launchNewPaymentMethodSelection = true
+                    )
+                } ?: run {
+                    Timber.e(
+                        "Unable to start SimpleBuyActivity from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
+                }
+            }
+            is Destination.CustomerSupportDestination -> settingsNavigation.launchSupportCenter()
+            is Destination.StartKycDestination -> assetActionsNavigation.startKyc()
+            is Destination.AssetReceiveDestination -> assetActionsNavigation.receive(destination.networkTicker)
+            Destination.SettingsAddCardDestination -> settingsNavigation.settings(SettingsDestination.CardLinking)
+            Destination.SettingsAddBankDestination -> settingsNavigation.settings(SettingsDestination.BankLinking)
+            Destination.DashboardDestination,
+            is Destination.ActivityDestination -> {
+            }
+            /**
+             * TODO WE NEED Viwetolaucnh integration to do those.
+             */
+            is Destination.AssetSellDestination -> TODO()
+            is Destination.AssetSwapDestination -> TODO()
+            is Destination.FiatDepositDestination -> TODO()
+            Destination.ReferralDestination -> TODO()
+            is Destination.RewardsDepositDestination -> TODO()
+            is Destination.RewardsSummaryDestination -> TODO()
+            is Destination.WalletConnectDestination -> TODO()
+        }
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {

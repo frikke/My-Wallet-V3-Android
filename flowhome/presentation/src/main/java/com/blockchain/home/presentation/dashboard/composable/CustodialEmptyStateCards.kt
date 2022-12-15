@@ -147,8 +147,8 @@ fun CustodialEmptyStateCards(
                     onClick = {
                         if (viewState.userCanBuy) {
                             assetActionsNavigation.buyCrypto(
-                                viewState.trendCurrency,
-                                null
+                                currency = viewState.trendCurrency,
+                                amount = null
                             )
                         } else {
                             assetActionsNavigation.navigate(AssetAction.Buy)

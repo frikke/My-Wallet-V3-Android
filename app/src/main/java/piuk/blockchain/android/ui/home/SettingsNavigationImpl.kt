@@ -4,7 +4,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.scan.QrExpected
@@ -27,6 +29,14 @@ class SettingsNavigationImpl(private val activity: BlockchainActivity?) : Settin
 
     override fun settings() {
         settingsResultContract!!.launch(SettingsActivity.newIntent(activity!!))
+    }
+
+    override fun settings(settingsDestination: SettingsDestination) {
+        activity!!.startActivity(SettingsActivity.newIntent(activity, settingsDestination))
+    }
+
+    override fun launchSupportCenter() {
+        activity!!.startActivity(SupportCentreActivity.newIntent(activity))
     }
 
     private fun startSettingsAction(action: SettingsActivity.Companion.SettingsAction) {

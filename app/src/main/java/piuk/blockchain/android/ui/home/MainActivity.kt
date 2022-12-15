@@ -55,6 +55,7 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
 import com.blockchain.nfts.detail.NftDetailFragment
@@ -139,7 +140,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager

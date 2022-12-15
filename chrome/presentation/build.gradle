@@ -11,6 +11,7 @@ dependencies {
     implementation project(':deeplinking')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':analytics:domain')
     implementation project(':componentlib')
 
     implementation project(':flowhome:presentation')
@@ -18,6 +19,7 @@ dependencies {
     implementation project(':earn:presentation')
 
     implementation project(':fiatActions')
+    implementation Libraries.rxKotlin
 
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistSwipeRefresh

@@ -15,6 +15,7 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import piuk.blockchain.android.R
@@ -238,17 +239,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             Intent(context, SettingsActivity::class.java).apply {
                 putExtra(DEEPLINK_TO_SCREEN, deeplinkToScreen)
             }
-
-        enum class SettingsDestination {
-            Home,
-            Account,
-            Notifications,
-            Security,
-            General,
-            About,
-            CardLinking,
-            BankLinking
-        }
     }
 }
 

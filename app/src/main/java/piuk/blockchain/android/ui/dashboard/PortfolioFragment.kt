@@ -39,6 +39,7 @@ import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
+import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -105,7 +106,6 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsActivity
-import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent

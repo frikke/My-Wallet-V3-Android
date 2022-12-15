@@ -67,12 +67,35 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         return actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = assetAction, null))
     }
 
-    override fun buyCrypto(currency: AssetInfo, amount: Money?) {
+    override fun receive(currency: String) {
+        actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = currency))
+    }
+
+    override fun buyCrypto(currency: AssetInfo, amount: Money) {
         activity!!.startActivity(
             SimpleBuyActivity.newIntent(
                 context = activity,
                 asset = currency,
-                preselectedAmount = amount?.toBigDecimal().toString()
+                preselectedAmount = amount.toBigDecimal().toString(),
+            )
+        )
+    }
+
+    override fun buyCrypto(
+        currency: AssetInfo,
+        amount: String?,
+        preselectedFiatTicker: String?,
+        launchLinkCard: Boolean,
+        launchNewPaymentMethodSelection: Boolean
+    ) {
+        activity!!.startActivity(
+            SimpleBuyActivity.newIntent(
+                context = activity,
+                asset = currency,
+                preselectedAmount = amount,
+                preselectedFiatTicker = preselectedFiatTicker,
+                launchLinkCard = launchLinkCard,
+                launchNewPaymentMethodSelection = launchNewPaymentMethodSelection,
             )
         )
     }
@@ -95,6 +118,21 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun stakingSummary(currency: Currency) {
         activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker, false))
+    }
+
+    override fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String) {
+        activity!!.startActivity(
+            CoinViewActivityV2.newIntent(
+                context = activity,
+                asset = asset,
+                recurringBuyId = recurringBuyId,
+                originScreen = originScreen
+            )
+        )
+    }
+
+    override fun startKyc() {
+        activity!!.startActivity(KycNavHostActivity.newIntent(activity, CampaignType.None))
     }
 
     override fun coinview(
