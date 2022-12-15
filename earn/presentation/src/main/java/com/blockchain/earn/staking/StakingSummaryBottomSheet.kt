@@ -37,7 +37,6 @@ class StakingSummaryBottomSheet :
         fun launchStakingWithdrawal(account: StakingAccount)
         fun launchStakingDeposit(account: StakingAccount)
         fun showStakingLoadingError(error: StakingError)
-        fun goToStakingAccountActivity(account: StakingAccount)
     }
 
     override val host: Host by lazy {
@@ -74,7 +73,6 @@ class StakingSummaryBottomSheet :
 
                 StakingSummaryScreen(
                     viewModel = viewModel,
-                    showActivity = showActivity,
                     onClosePressed = this@StakingSummaryBottomSheet::dismiss,
                     onLoadError = { error ->
                         dismiss()
@@ -92,10 +90,6 @@ class StakingSummaryBottomSheet :
                         dismiss()
                         host.openExternalUrl(ETH_STAKING_CONSIDERATIONS)
                     },
-                    onViewActivityPressed = { account ->
-                        dismiss()
-                        host.goToStakingAccountActivity(account)
-                    }
                 )
             }
         }
@@ -112,7 +106,7 @@ class StakingSummaryBottomSheet :
         private const val SHOW_ACTIVITY = "SHOW_ACTIVITY"
         private const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 
-        fun newInstance(cryptoTicker: String, showActivity: Boolean = true) = StakingSummaryBottomSheet().apply {
+        fun newInstance(cryptoTicker: String) = StakingSummaryBottomSheet().apply {
             arguments = Bundle().apply {
                 putString(ASSET_TICKER, cryptoTicker)
                 putBoolean(SHOW_ACTIVITY, showActivity)
@@ -124,13 +118,11 @@ class StakingSummaryBottomSheet :
 @Composable
 fun StakingSummaryScreen(
     viewModel: StakingSummaryViewModel,
-    showActivity: Boolean,
     onClosePressed: () -> Unit,
     onLoadError: (StakingError) -> Unit,
     onWithdrawPressed: (currency: StakingAccount) -> Unit,
     onDepositPressed: (currency: StakingAccount) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
-    onViewActivityPressed: (currency: StakingAccount) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -150,12 +142,10 @@ fun StakingSummaryScreen(
                 else -> {
                     StakingSummarySheet(
                         state = state,
-                        showActivity = showActivity,
                         onWithdrawPressed = onWithdrawPressed,
                         onDepositPressed = onDepositPressed,
                         withdrawDisabledLearnMore = withdrawDisabledLearnMore,
                         onClosePressed = onClosePressed,
-                        onViewActivityPressed = onViewActivityPressed
                     )
                 }
             }

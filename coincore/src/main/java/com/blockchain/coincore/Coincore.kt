@@ -25,6 +25,7 @@ import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.utils.toFlowDataResource
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -347,18 +348,7 @@ class Coincore internal constructor(
             }
         }
 
-    fun availableCryptoAssetsFlow(): Flow<DataResource<List<AssetInfo>>> = flow {
-        availableCryptoAssets()
-            .map {
-                @Suppress("USELESS_CAST")
-                DataResource.Data(it) as DataResource<List<AssetInfo>>
-            }
-            .onErrorReturn {
-                DataResource.Error(Exception(it))
-            }
-            .await()
-            .run { emit(this) }
-    }
+    fun availableCryptoAssetsFlow(): Flow<DataResource<List<AssetInfo>>> = availableCryptoAssets().toFlowDataResource()
 
     private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
         if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true

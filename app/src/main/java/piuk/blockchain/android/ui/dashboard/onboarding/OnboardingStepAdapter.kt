@@ -60,7 +60,7 @@ class OnboardingStepViewHolder(
                 binding.root.setOnClickListener { onClick(item) }
             }
 
-            icon.setBackgroundResource(item.step.iconRes)
+            icon.setBackgroundResource(item.step.oldIconRes)
 
             textSubtitle.setText(
                 when (item.state) {

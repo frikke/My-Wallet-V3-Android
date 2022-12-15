@@ -45,12 +45,10 @@ class EarnDashboardFragment :
     NoBalanceActionBottomSheet.Host {
 
     interface Host {
-        fun goToActivityFor(account: BlockchainAccount)
         fun goToInterestDeposit(toAccount: BlockchainAccount)
         fun goToInterestWithdraw(fromAccount: BlockchainAccount)
         fun launchStakingWithdrawal(account: StakingAccount)
         fun launchStakingDeposit(account: StakingAccount)
-        fun goToStakingActivity(account: StakingAccount)
         fun startKycClicked()
         fun launchReceive(cryptoTicker: String?)
         fun launchBuySell(viewType: BuySellViewType, asset: AssetInfo?, reload: Boolean)
@@ -174,10 +172,6 @@ class EarnDashboardFragment :
                 type = SnackbarType.Error
             ).show()
         }
-    }
-
-    override fun goToStakingAccountActivity(account: StakingAccount) {
-        host.goToStakingActivity(account)
     }
 
     override fun startKycClicked() {

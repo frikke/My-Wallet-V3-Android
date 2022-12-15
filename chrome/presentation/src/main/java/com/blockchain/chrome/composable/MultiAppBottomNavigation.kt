@@ -93,8 +93,7 @@ fun PreviewMultiAppBottomNavigation() {
     MultiAppBottomNavigation(
         navigationItems = listOf(
             ChromeBottomNavigationItem.Home,
-            ChromeBottomNavigationItem.Prices,
-            ChromeBottomNavigationItem.Card
+            ChromeBottomNavigationItem.Prices
         ),
         navController = rememberNavController(),
         onSelected = {}

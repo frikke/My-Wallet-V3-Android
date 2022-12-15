@@ -769,7 +769,6 @@ class MainActivity :
                         )
                 }
             }
-            is ViewToLaunch.GoToActivityForAccount -> goToActivityFor(view.account)
             is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
                 if (view.account is LaunchFlowForAccount.SourceAccount) {
                     showBottomSheet(
@@ -1174,10 +1173,6 @@ class MainActivity :
         startBuy()
     }
 
-    override fun goToActivityFor(account: BlockchainAccount) {
-        startActivitiesFragment(account)
-    }
-
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         model.process(
             MainIntent.UpdateViewToLaunch(
@@ -1205,12 +1200,6 @@ class MainActivity :
     override fun launchStakingDeposit(account: StakingAccount) {
         model.process(
             MainIntent.SelectStakingAccountForAction(account, AssetAction.StakingDeposit)
-        )
-    }
-
-    override fun goToStakingActivity(account: StakingAccount) {
-        model.process(
-            MainIntent.SelectStakingAccountForAction(account, AssetAction.ViewActivity)
         )
     }
 

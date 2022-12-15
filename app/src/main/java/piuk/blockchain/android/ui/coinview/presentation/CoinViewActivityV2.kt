@@ -243,7 +243,6 @@ class CoinViewActivityV2 :
                 showBottomSheet(
                     StakingSummaryBottomSheet.newInstance(
                         (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
-                        true
                     )
                 )
 
@@ -446,10 +445,6 @@ class CoinViewActivityV2 :
 
     override fun launchStakingDeposit(account: StakingAccount) {
         viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(account))
-    }
-
-    override fun goToStakingAccountActivity(account: StakingAccount) {
-        viewModel.onIntent(CoinviewIntent.LaunchStakingActivity(account))
     }
 
     override fun showStakingLoadingError(error: StakingError) =

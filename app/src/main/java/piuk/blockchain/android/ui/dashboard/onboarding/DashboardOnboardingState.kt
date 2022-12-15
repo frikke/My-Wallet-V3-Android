@@ -13,12 +13,11 @@ data class DashboardOnboardingState(
         DashboardOnboardingStep.values().map {
             CompletableDashboardOnboardingStep(it, DashboardOnboardingStepState.INCOMPLETE)
         },
-    val errorState: DashboardOnboardingError = DashboardOnboardingError.None,
-    val navigationAction: DashboardOnboardingNavigationAction = DashboardOnboardingNavigationAction.None
+    val error: Throwable? = null,
+    val navigationAction: DashboardOnboardingNavigationAction? = null
 ) : MviState
 
 sealed class DashboardOnboardingNavigationAction {
-    object None : DashboardOnboardingNavigationAction()
     object StartKyc : DashboardOnboardingNavigationAction()
     data class AddPaymentMethod(val eligiblePaymentMethods: List<PaymentMethod>) : DashboardOnboardingNavigationAction()
     object OpenBuy : DashboardOnboardingNavigationAction()
@@ -26,9 +25,4 @@ sealed class DashboardOnboardingNavigationAction {
     object AddCard : DashboardOnboardingNavigationAction()
     data class WireTransferAccountDetails(val currency: FiatCurrency) : DashboardOnboardingNavigationAction()
     data class LinkBank(val linkBankTransfer: LinkBankTransfer) : DashboardOnboardingNavigationAction()
-}
-
-sealed class DashboardOnboardingError {
-    object None : DashboardOnboardingError()
-    data class Error(val throwable: Throwable) : DashboardOnboardingError()
 }

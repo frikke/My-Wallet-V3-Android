@@ -62,12 +62,10 @@ private sealed class InfoSnackbarState {
 @Composable
 fun StakingSummarySheet(
     state: StakingSummaryViewState,
-    showActivity: Boolean,
     onWithdrawPressed: (currency: StakingAccount) -> Unit,
     onDepositPressed: (currency: StakingAccount) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onClosePressed: () -> Unit,
-    onViewActivityPressed: (currency: StakingAccount) -> Unit
 ) {
     val hasDepositsBonding: Boolean = remember { state.bondingCrypto?.isPositive == true }
     var snackbarState by remember { mutableStateOf<InfoSnackbarState>(InfoSnackbarState.Hidden) }
@@ -198,19 +196,6 @@ fun StakingSummarySheet(
                 )
 
                 HorizontalDivider(modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium)
-                if (showActivity) {
-                    BalanceTableRow(
-                        titleStart = buildAnnotatedString {
-                            append(stringResource(id = R.string.staking_summary_view_activity))
-                        },
-                        endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
-                        onClick = {
-                            state.account?.let {
-                                onViewActivityPressed(it)
-                            }
-                        }
-                    )
-                }
 
                 if (state.shouldShowWithdrawWarning()) {
                     Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_spacing))) {
@@ -380,12 +365,10 @@ fun StakingSummaryPreview() {
                     rewardsFrequency = EarnRewardsFrequency.Weekly,
                     canDeposit = false
                 ),
-                false,
                 {},
                 {},
                 {},
                 {},
-                {}
             )
         }
     }

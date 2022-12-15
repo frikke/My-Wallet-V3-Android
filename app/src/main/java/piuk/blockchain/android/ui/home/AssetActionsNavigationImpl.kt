@@ -117,7 +117,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
     }
 
     override fun stakingSummary(currency: Currency) {
-        activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker, false))
+        activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker))
     }
 
     override fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String) {
@@ -149,7 +149,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>) {
         activityResultDashboardOnboarding?.launch(
-            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps)
+            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps, isSuperappDesignEnabled = true)
         )
     }
 }

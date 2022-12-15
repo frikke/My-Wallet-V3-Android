@@ -6,7 +6,6 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
@@ -340,12 +339,6 @@ class MainModel(
                             )
                         )
                     )
-                    AssetAction.ViewActivity ->
-                        process(
-                            MainIntent.UpdateViewToLaunch(
-                                ViewToLaunch.GoToActivityForAccount(intent.account as BlockchainAccount)
-                            )
-                        )
                     else -> {}
                 }
                 null

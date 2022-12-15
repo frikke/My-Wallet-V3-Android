@@ -711,27 +711,3 @@ fun MultiAppChromeScreen(
         )
     }
 }
-
-/*@Preview
-@Composable
-fun PreviewMultiAppContainer() {
-    MultiAppChromeScreen(
-        statusBarHeight = 25.dp,
-        navBarHeight = 50.dp,
-        modeSwitcherOptions = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
-        selectedMode = WalletMode.CUSTODIAL_ONLY,
-        backgroundColors = ChromeBackgroundColors.Trading,
-        balance = DataResource.Data("$278,031.12"),
-        shouldRevealBalance = false,
-        bottomNavigationItems = listOf(
-            ChromeBottomNavigationItem.Home,
-            ChromeBottomNavigationItem.Trade,
-            ChromeBottomNavigationItem.Card
-        ),
-        onModeSelected = {},
-        openCryptoAssets = {},
-        openActivity = {},
-        onBalanceRevealed = {}
-    )
-    }
-    */

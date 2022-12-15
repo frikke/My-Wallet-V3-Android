@@ -92,7 +92,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.FetchSteps)
 
         state.assertValueAt(1) {
-            it.errorState == DashboardOnboardingError.Error(error)
+            it.error == error
         }
     }
 
@@ -184,7 +184,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
 
         state.assertValueAt(2) {
-            it.errorState == DashboardOnboardingError.Error(error)
+            it.error == error
         }
     }
 
@@ -258,7 +258,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.PaymentMethodClicked(PaymentMethodType.BANK_TRANSFER))
 
         state.assertValueAt(1) {
-            it.errorState == DashboardOnboardingError.Error(error)
+            it.error == error
         }
     }
 

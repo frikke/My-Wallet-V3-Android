@@ -27,12 +27,10 @@ fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when 
     WalletMode.CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
-        ChromeBottomNavigationItem.Card
     )
     WalletMode.NON_CUSTODIAL_ONLY -> listOf(
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
-        ChromeBottomNavigationItem.Nft
     )
     else -> error("UNIVERSAL not supported")
 }

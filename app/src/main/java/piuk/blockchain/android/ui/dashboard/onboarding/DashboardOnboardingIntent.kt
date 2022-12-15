@@ -25,7 +25,7 @@ sealed class DashboardOnboardingIntent : MviIntent<DashboardOnboardingState> {
 
     data class FetchFailed(private val error: Throwable) : DashboardOnboardingIntent() {
         override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState.copy(
-            errorState = DashboardOnboardingError.Error(error)
+            error = error
         )
     }
 
@@ -42,12 +42,11 @@ sealed class DashboardOnboardingIntent : MviIntent<DashboardOnboardingState> {
 
     object ClearNavigation : DashboardOnboardingIntent() {
         override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState =
-            oldState.copy(navigationAction = DashboardOnboardingNavigationAction.None)
+            oldState.copy(navigationAction = null)
     }
 
     object ClearError : DashboardOnboardingIntent() {
-        override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState.copy(
-            errorState = DashboardOnboardingError.None
-        )
+        override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState =
+            oldState.copy(error = null)
     }
 }
