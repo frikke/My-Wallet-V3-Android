@@ -33,7 +33,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import timber.log.Timber
 
@@ -168,11 +168,13 @@ class FcmCallbackService : FirebaseMessagingService() {
             )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
+
     private fun createIntentForNotification(payload: NotificationPayload, foreground: Boolean): Maybe<Intent> {
         return when {
             isSecureChannelMessage(payload) -> createSecureChannelIntent(payload.payload, foreground)
             foreground -> Maybe.just(
-                MainActivity.newIntent(
+                homeActivityLauncher.newIntent(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
@@ -201,7 +203,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             ?: return Maybe.empty()
 
         return Maybe.just(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 context = applicationContext,
                 launchAuthFlow = true,
                 pubKeyHash = pubKeyHash,

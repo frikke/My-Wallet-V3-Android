@@ -39,7 +39,7 @@ import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
@@ -293,10 +293,12 @@ class LoginActivity :
         )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
+
     private fun navigateToMainWithWCLink(url: String) {
         fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 context = application,
                 pendingDestination = Destination.WalletConnectDestination(url)
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

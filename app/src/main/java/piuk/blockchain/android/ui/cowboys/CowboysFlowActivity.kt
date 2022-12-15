@@ -56,10 +56,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -222,9 +223,10 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
             )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
     private fun navigateToMainActivity() {
         startActivity(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 this@CowboysFlowActivity,
                 null,
                 shouldLaunchUiTour = false,

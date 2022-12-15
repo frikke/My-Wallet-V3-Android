@@ -5,10 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.educational.walletmodes.screens.EducationalWalletModeScreen
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 
 class EducationalWalletModeActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean = true
@@ -35,9 +36,10 @@ class EducationalWalletModeActivity : BlockchainActivity() {
         }
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
     private fun launchMainActivity() {
         startActivity(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 context = this,
                 intentData = intent.getStringExtra(MAIN_ACTIVITY_DATA),
                 shouldLaunchUiTour = false,

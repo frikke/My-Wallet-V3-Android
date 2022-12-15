@@ -1,6 +1,5 @@
 package com.blockchain.chrome
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -22,6 +21,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
+import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -30,9 +30,15 @@ import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.AuthNavigation
+import com.blockchain.home.presentation.navigation.AuthNavigationHost
+import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
+import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
+import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.collectLatest
@@ -47,6 +53,7 @@ class MultiAppActivity :
     InterestSummarySheet.Host,
     StakingSummaryBottomSheet.Host,
     QuestionnaireSheetHost,
+    AuthNavigationHost,
     BankLinkingHost,
     KoinScopeComponent {
 
@@ -68,6 +75,12 @@ class MultiAppActivity :
         )
     }
 
+    private val settingsNavigation: SettingsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val fiatActionsNavigation: FiatActionsNavigation = payloadScope.get {
         parametersOf(
             this
@@ -80,9 +93,15 @@ class MultiAppActivity :
         )
     }
 
+    private val authNavigation: AuthNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -92,6 +111,8 @@ class MultiAppActivity :
 
             MultiAppNavHost(
                 assetActionsNavigation = assetActionsNavigation,
+                fiatActionsNavigation = fiatActionsNavigation,
+                settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation
             )
         }
@@ -99,11 +120,22 @@ class MultiAppActivity :
         handleFiatActionsNav()
     }
 
-    companion object {
-        fun newIntent(
-            context: Context,
-        ): Intent =
-            Intent(context, MultiAppActivity::class.java)
+    private fun handleIntent(intent: Intent) {
+        if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
+            intent.getBooleanExtra(LAUNCH_AUTH_FLOW, false)
+        ) {
+            intent.extras?.let {
+                authNavigation.launchAuth(it)
+            }
+        } else if (intent.hasExtra(PENDING_DESTINATION)) {
+            intent.getParcelableExtra<Destination>(PENDING_DESTINATION)?.let { destination ->
+                navigateToDeeplinkDestination(destination)
+            }
+        }
+    }
+
+    private fun navigateToDeeplinkDestination(destination: Destination) {
+        TODO("Not yet implemented")
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
@@ -152,6 +184,9 @@ class MultiAppActivity :
     override fun goToStakingAccountActivity(account: StakingAccount) {
         // Do nothing not supported
     }
+
+    override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) =
+        showBottomSheet(bottomSheet)
 
     private fun handleFiatActionsNav() {
         lifecycleScope.launch {

@@ -14,6 +14,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.home.presentation.navigation.HomeLaunch.KYC_STARTED
 import com.blockchain.koin.buyOrder
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -43,7 +44,6 @@ import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
-import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
@@ -307,7 +307,7 @@ class BuyIntroFragment :
     }
 
     override fun startKycClicked() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, MainActivity.KYC_STARTED)
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
     }
 
     override fun onDestroyView() {

@@ -11,7 +11,6 @@ import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -25,7 +24,7 @@ import io.reactivex.rxjava3.subjects.MaybeSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
@@ -36,7 +35,7 @@ class GlobalEventHandler(
     private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
     private val analytics: Analytics,
-    private val stakingFF: FeatureFlag
+    private val homeActivityLauncher: HomeActivityLauncher
 ) {
     private val compositeDisposable = CompositeDisposable()
 
@@ -62,7 +61,7 @@ class GlobalEventHandler(
             } else {
                 Timber.d("deeplink: Starting main activity with pending destination")
                 application.startActivity(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = deeplinkResult.destination
                     )
@@ -130,7 +129,7 @@ class GlobalEventHandler(
 
             is Destination.ActivityDestination -> {
                 subject.onSuccess(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = destination
                     )
