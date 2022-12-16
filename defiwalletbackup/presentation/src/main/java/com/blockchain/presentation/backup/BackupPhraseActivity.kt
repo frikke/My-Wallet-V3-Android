@@ -4,11 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.componentlib.utils.copyToClipboard
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope

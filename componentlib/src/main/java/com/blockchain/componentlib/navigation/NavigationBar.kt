@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
@@ -52,6 +53,11 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         val onIconClick: () -> Unit,
     ) :
         NavigationBarButton(onIconClick)
+
+    data class IconResource(
+        val image: ImageResource,
+        val onIconClick: () -> Unit,
+    ) : NavigationBarButton(onIconClick)
 
     data class DropdownIndicator(
         val dropDownClicked: () -> Unit,
@@ -110,6 +116,9 @@ fun NavigationBar(
                     is NavigationBarButton.Icon -> {
                         StartButton(button = button)
                     }
+                    is NavigationBarButton.IconResource -> {
+                        StartButtonResource(button = button)
+                    }
                     is NavigationBarButton.DropdownIndicator -> {
                         DropDown(button)
                     }
@@ -142,6 +151,9 @@ fun NavigationBar(
                                 contentDescription = stringResource(id = it.contentDescription),
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
                             )
+                        }
+                        is NavigationBarButton.IconResource -> {
+                            com.blockchain.componentlib.basic.Image(imageResource = it.image)
                         }
                         is NavigationBarButton.Text -> {
                             Text(
@@ -186,6 +198,26 @@ fun RowScope.StartButton(button: NavigationBarButton.Icon) {
             contentDescription = stringResource(id = button.contentDescription),
             colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
         )
+    }
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
+}
+
+@Composable
+fun RowScope.StartButtonResource(button: NavigationBarButton.IconResource) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                button.onClick.invoke()
+            }
+            .align(CenterVertically)
+            .padding(
+                start = 0.dp,
+                top = 8.dp,
+                end = 8.dp,
+                bottom = 8.dp
+            )
+    ) {
+        com.blockchain.componentlib.basic.Image(imageResource = button.image)
     }
     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 }

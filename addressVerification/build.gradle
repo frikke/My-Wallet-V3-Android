@@ -22,6 +22,7 @@ dependencies {
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':common:domain')

@@ -37,6 +37,8 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Filter
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -149,10 +151,8 @@ fun CryptoAssetsScreen(
                 title = stringResource(R.string.ma_home_assets_title),
                 onBackButtonClick = onBackPressed,
                 navigationBarButtons = listOf(
-                    NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_filter,
-                        color = null,
-                        contentDescription = R.string.accessibility_filter
+                    NavigationBarButton.IconResource(
+                        Icons.Filter.copy(contentDescription = stringResource(R.string.accessibility_filter)),
                     ) {
                         focusManager.clearFocus(true)
                         coroutineScope.launch { sheetState.show() }

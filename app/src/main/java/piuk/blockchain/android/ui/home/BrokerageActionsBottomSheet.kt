@@ -8,6 +8,8 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.Alignment
+import com.blockchain.componentlib.theme.Blue400
+import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.presentation.koin.scopedInject
@@ -87,8 +89,8 @@ class BrokerageActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_swap,
-                    iconTintColour = R.color.blue_600,
-                    backgroundColour = R.color.blue_400,
+                    iconColor = Blue600,
+                    backgroundColor = Blue400,
                     contentDescription = null
                 )
             }
@@ -101,8 +103,8 @@ class BrokerageActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_sent,
-                    iconTintColour = R.color.blue_600,
-                    backgroundColour = R.color.blue_400,
+                    iconColor = Blue600,
+                    backgroundColor = Blue400,
                     contentDescription = null
                 )
             }
@@ -115,8 +117,8 @@ class BrokerageActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_receive,
-                    iconTintColour = R.color.blue_600,
-                    backgroundColour = R.color.blue_400,
+                    iconColor = Blue600,
+                    backgroundColor = Blue400,
                     contentDescription = null
                 )
             }
@@ -131,8 +133,8 @@ class BrokerageActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_interest,
-                    iconTintColour = R.color.blue_600,
-                    backgroundColour = R.color.blue_400,
+                    iconColor = Blue600,
+                    backgroundColor = Blue400,
                     contentDescription = null
                 )
             }

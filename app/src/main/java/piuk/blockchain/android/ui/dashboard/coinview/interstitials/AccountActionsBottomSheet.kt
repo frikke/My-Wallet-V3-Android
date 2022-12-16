@@ -37,6 +37,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
@@ -232,8 +233,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         return if (state != ActionState.Available) {
             ImageResource.LocalWithBackground(
                 id = icon,
-                backgroundColour = R.color.grey_600,
-                iconTintColour = R.color.grey_600
+                backgroundColor = Grey600,
+                iconColor = Grey600
             )
         } else {
             ImageResource.LocalWithBackgroundAndExternalResources(

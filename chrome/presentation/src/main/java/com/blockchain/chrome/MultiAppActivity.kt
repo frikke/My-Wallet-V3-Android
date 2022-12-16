@@ -2,7 +2,6 @@ package com.blockchain.chrome
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -16,6 +15,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl

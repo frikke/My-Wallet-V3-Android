@@ -4,6 +4,7 @@ import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
@@ -26,6 +27,8 @@ import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesRespo
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.filterNotLoading
+import com.blockchain.store.flatMapData
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -39,8 +42,10 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -53,7 +58,8 @@ class StakingRepository(
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val stakingLimitsStore: StakingLimitsStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val stakingApi: StakingApiService
+    private val stakingApi: StakingApiService,
+    private val historicRateFetcher: HistoricRateFetcher
 ) : StakingService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -171,10 +177,10 @@ class StakingRepository(
     }
 
     override fun getActivity(
-        currency: Currency,
+        asset: AssetInfo,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<StakingActivity>>> =
-        paymentTransactionHistoryStore
+    ): Flow<DataResource<List<StakingActivity>>> {
+        return paymentTransactionHistoryStore
             .stream(
                 refreshStrategy.withKey(
                     PaymentTransactionHistoryStore.Key(product = STAKING_PRODUCT_NAME, type = null)
@@ -185,11 +191,33 @@ class StakingRepository(
                     .filter { transaction ->
                         assetCatalogue.fromNetworkTicker(
                             transaction.amount.symbol
-                        )?.networkTicker == currency.networkTicker
-                    }.map { transaction ->
-                        transaction.toStakingActivity(currency)
+                        )?.networkTicker == asset.networkTicker
                     }
             }
+            .flatMapData {
+                if (it.isEmpty()) {
+                    flowOf(DataResource.Data(emptyList()))
+                } else {
+                    val flows = it.map { transaction ->
+                        historicRateFetcher.fetch(
+                            asset,
+                            currencyPrefs.selectedFiatCurrency,
+                            (transaction.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()).time,
+                            CryptoValue.fromMinor(asset, transaction.amountMinor.toBigInteger())
+                        ).filterNotLoading().map {
+                            transaction to it
+                        }
+                    }
+                    combine(flows) {
+                        it.map { (transaction, money) ->
+                            transaction.toStakingActivity(asset, (money as? DataResource.Data)?.data)
+                        }
+                    }.map {
+                        DataResource.Data(it)
+                    }
+                }
+            }
+    }
 
     override fun getLimitsForAllAssets(
         refreshStrategy: FreshnessStrategy
@@ -254,14 +282,15 @@ class StakingRepository(
             else -> EarnRewardsFrequency.Unknown
         }
 
-    private fun TransactionResponse.toStakingActivity(currency: Currency): StakingActivity =
+    private fun TransactionResponse.toStakingActivity(currency: Currency, fiatValue: Money?): StakingActivity =
         StakingActivity(
             value = CryptoValue.fromMinor(currency as AssetInfo, amountMinor.toBigInteger()),
             id = id,
             insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
             state = state.toStakingState(),
             type = type.toTransactionType(),
-            extraAttributes = extraAttributes?.toDomain()
+            extraAttributes = extraAttributes?.toDomain(),
+            fiatValue = fiatValue
         )
 
     private fun String.toTransactionType() =

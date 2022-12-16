@@ -30,6 +30,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 import com.blockchain.componentlib.viewextensions.gone
 import piuk.blockchain.android.R
@@ -52,8 +53,8 @@ fun ReferralSuccessCard(
         Image(
             imageResource = ImageResource.LocalWithBackground(
                 id = R.drawable.ic_present,
-                iconTintColour = R.color.blue_600,
-                backgroundColour = R.color.white,
+                iconColor = AppTheme.colors.primary,
+                backgroundColor = White,
                 alpha = 1F,
                 size = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing),
                 iconSize = dimensionResource(R.dimen.standard_spacing)

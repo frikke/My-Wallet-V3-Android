@@ -12,6 +12,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -151,10 +153,10 @@ private class AssetWalletViewHolder(
                     }
                     accountIcon.indicator?.let {
                         startImageResource =
-                            ImageResource.LocalWithBackground(it, R.color.grey_400, R.color.white, 1F)
+                            ImageResource.LocalWithBackground(it, Grey400, White, 1F)
                     }
                     endImageResource =
-                        ImageResource.LocalWithBackground(R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F)
+                        ImageResource.LocalWithBackground(R.drawable.ic_lock, Grey400, White, 1F)
                 }
             }
 

@@ -55,7 +55,7 @@ interface StakingService {
     ): Flow<DataResource<StakingEligibility>>
 
     fun getActivity(
-        currency: Currency,
+        asset: AssetInfo,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<List<StakingActivity>>>
 

@@ -10,6 +10,8 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
@@ -80,7 +82,7 @@ private class DefiWalletViewHolder(
                     secondaryText = context.getString(R.string.coinview_nc_desc)
                     startImageResource = ImageResource.Remote(url = account.currency.logo, shape = CircleShape)
                     endImageResource = ImageResource.LocalWithBackground(
-                        R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F
+                        R.drawable.ic_lock, Grey400, White, 1F
                     )
                 }
             }

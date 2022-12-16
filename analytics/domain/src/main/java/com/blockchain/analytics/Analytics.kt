@@ -23,6 +23,8 @@ interface UserAnalytics {
         const val FUNDED_COINS = "funded_coins"
         const val USD_BALANCE = "usd_balance"
         const val COWBOYS_USER = "cowboys_user"
+        const val USER_ELIGIBLE_FOR_EXCHANGE_AWARENESS_PROMPT = "user_eligible_for_prompt"
+        const val USER_HAS_SEEN_THE_EXCHANGE_AWARENESS_PROMPT = "user_has_seen_the_prompt"
     }
 }
 

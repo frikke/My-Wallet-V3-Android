@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -105,6 +106,7 @@ class CustodialActivityDetailViewModel(
                                     is CustodialTradingActivitySummaryItem -> tradingDetail()
                                     is CustodialTransferActivitySummaryItem -> interestDetail()
                                     is CustodialInterestActivitySummaryItem -> interestDetail()
+                                    is CustodialStakingActivitySummaryItem -> stackingDetail()
                                     is RecurringBuyActivitySummaryItem -> recurringBuyDetail()
                                     is TradeActivitySummaryItem -> when {
                                         isSellingPair() -> sellDetail()
@@ -148,6 +150,10 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun CustodialInterestActivitySummaryItem.interestDetail(): Flow<DataResource<CustodialActivityDetail>> {
+        return flowOf(DataResource.Data(buildActivityDetail()))
+    }
+
+    private fun CustodialStakingActivitySummaryItem.stackingDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return flowOf(DataResource.Data(buildActivityDetail()))
     }
 
