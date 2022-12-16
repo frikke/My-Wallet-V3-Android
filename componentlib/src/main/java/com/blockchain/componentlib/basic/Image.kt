@@ -13,11 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
@@ -26,8 +24,8 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 @Composable
 fun Image(
-    modifier: Modifier = Modifier,
     imageResource: ImageResource,
+    modifier: Modifier = Modifier,
     defaultShape: Shape = CircleShape,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit
@@ -77,10 +75,6 @@ fun Image(
                 contentScale = contentScale
             )
         is ImageResource.LocalWithBackground -> {
-            val iconTintColor =
-                Color(ContextCompat.getColor(LocalContext.current, imageResource.iconTintColour))
-            val backgroundColor =
-                Color(ContextCompat.getColor(LocalContext.current, imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = modifier.run {
@@ -88,10 +82,10 @@ fun Image(
                 }
             ) {
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .alpha(imageResource.alpha)
                         .background(
-                            color = backgroundColor,
+                            color = imageResource.backgroundColor,
                             shape = imageResource.shape ?: defaultShape
                         )
                         .run {
@@ -102,7 +96,7 @@ fun Image(
                     painter = painterResource(id = imageResource.id),
                     contentDescription = imageResource.contentDescription,
                     modifier = modifier.run { imageResource.iconSize?.let { size(it) } ?: this },
-                    colorFilter = ColorFilter.tint(iconTintColor),
+                    colorFilter = imageResource.iconColorFilter,
                     contentScale = contentScale,
                 )
             }
