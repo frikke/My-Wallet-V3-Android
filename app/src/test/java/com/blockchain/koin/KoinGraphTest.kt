@@ -1,5 +1,8 @@
 package com.blockchain.koin
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -27,8 +30,11 @@ class KoinGraphTest : KoinTest {
         stopKoin()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `test module configuration`() {
-        getKoin().checkModules()
+        getKoin().checkModules {
+            withInstance<CoroutineScope>(TestScope())
+        }
     }
 }

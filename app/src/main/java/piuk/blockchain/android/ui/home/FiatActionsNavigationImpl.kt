@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.home
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
