@@ -15,6 +15,9 @@ class ShouldShowExchangeCampaignUseCase(
 
     private fun ExchangeCampaignPrefs.shouldShow() = actionTaken.not() && dismissCount < MAX_DISMISS_COUNT
 
+    val dismissCount: Int
+        get() = exchangeCampaignPrefs.dismissCount
+
     fun onDismiss() {
         exchangeCampaignPrefs.dismissCount++
     }

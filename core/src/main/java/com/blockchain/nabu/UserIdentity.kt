@@ -23,6 +23,7 @@ interface UserIdentity {
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun isArgentinian(): Single<Boolean>
     fun isCowboysUser(): Single<Boolean>
+    fun isSSO(): Single<Boolean>
 }
 
 sealed class Feature {
