@@ -154,6 +154,7 @@ data class CustodialStakingActivitySummaryItem(
     val confirmations: Int,
     val accountRef: String,
     val recipientAddress: String,
+    val fiatValue: Money?
 ) : CryptoActivitySummaryItem() {
     fun isPending(): Boolean =
         status == StakingState.PENDING ||

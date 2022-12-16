@@ -1,9 +1,9 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import androidx.annotation.DrawableRes
-import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
@@ -21,9 +21,9 @@ import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-@DrawableRes internal fun CustodialInterestActivitySummaryItem.iconDetail(): Int {
+@DrawableRes internal fun CustodialStakingActivitySummaryItem.iconDetail(): Int {
     return when (status) {
-        InterestState.COMPLETE -> when (type) {
+        StakingState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
             TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards_dark
             TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell_dark
@@ -33,7 +33,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
     }
 }
 
-internal fun CustodialInterestActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
+internal fun CustodialStakingActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
         TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_added
         TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
@@ -43,7 +43,7 @@ internal fun CustodialInterestActivitySummaryItem.title(): TextValue = TextValue
     args = listOf(account.currency.displayTicker)
 )
 
-internal fun CustodialInterestActivitySummaryItem.detailItems(
+internal fun CustodialStakingActivitySummaryItem.detailItems(
     extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
@@ -156,33 +156,33 @@ internal fun CustodialInterestActivitySummaryItem.detailItems(
     )
 )
 
-private fun CustodialInterestActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
+private fun CustodialStakingActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (status) {
-        InterestState.COMPLETE,
-        InterestState.REFUNDED,
-        InterestState.UNKNOWN,
-        InterestState.CLEARED -> R.string.activity_details_label_complete
-        InterestState.PROCESSING -> R.string.activity_details_label_pending
-        InterestState.PENDING -> R.string.activity_details_label_processing
-        InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-        InterestState.REJECTED,
-        InterestState.FAILED -> R.string.activity_details_label_failed
+        StakingState.COMPLETE,
+        StakingState.REFUNDED,
+        StakingState.UNKNOWN,
+        StakingState.CLEARED -> R.string.activity_details_label_complete
+        StakingState.PROCESSING -> R.string.activity_details_label_pending
+        StakingState.PENDING -> R.string.activity_details_label_processing
+        StakingState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+        StakingState.REJECTED,
+        StakingState.FAILED -> R.string.activity_details_label_failed
     }
 )
 
-private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
-    InterestState.REFUNDED,
-    InterestState.COMPLETE,
-    InterestState.UNKNOWN,
-    InterestState.CLEARED -> ActivityTagStyle.Success
-    InterestState.PROCESSING,
-    InterestState.PENDING,
-    InterestState.MANUAL_REVIEW -> ActivityTagStyle.Info
-    InterestState.REJECTED,
-    InterestState.FAILED -> ActivityTagStyle.Error
+private fun CustodialStakingActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
+    StakingState.REFUNDED,
+    StakingState.COMPLETE,
+    StakingState.UNKNOWN,
+    StakingState.CLEARED -> ActivityTagStyle.Success
+    StakingState.PROCESSING,
+    StakingState.PENDING,
+    StakingState.MANUAL_REVIEW -> ActivityTagStyle.Info
+    StakingState.REJECTED,
+    StakingState.FAILED -> ActivityTagStyle.Error
 }
 
-private fun CustodialInterestActivitySummaryItem.pendingConfirmations(): TextValue? = when {
+private fun CustodialStakingActivitySummaryItem.pendingConfirmations(): TextValue? = when {
     isPending() -> TextValue.IntResValue(
         value = R.string.activity_details_label_confirmations_single_line,
         args = listOf(confirmations.coerceAtLeast(0), account.currency.requiredConfirmations)
@@ -190,7 +190,7 @@ private fun CustodialInterestActivitySummaryItem.pendingConfirmations(): TextVal
     else -> null
 }
 
-private fun CustodialInterestActivitySummaryItem.fromLabel(): ActivityComponent = ActivityComponent.StackView(
+private fun CustodialStakingActivitySummaryItem.fromLabel(): ActivityComponent = ActivityComponent.StackView(
     id = toString(),
     leading = listOf(
         ActivityStackView.Text(
@@ -206,7 +206,7 @@ private fun CustodialInterestActivitySummaryItem.fromLabel(): ActivityComponent 
     )
 )
 
-private fun CustodialInterestActivitySummaryItem.toLabel(): ActivityComponent = ActivityComponent.StackView(
+private fun CustodialStakingActivitySummaryItem.toLabel(): ActivityComponent = ActivityComponent.StackView(
     id = toString(),
     leading = listOf(
         ActivityStackView.Text(
@@ -222,14 +222,14 @@ private fun CustodialInterestActivitySummaryItem.toLabel(): ActivityComponent = 
     )
 )
 
-private fun CustodialInterestActivitySummaryItem.fromToLabels(): List<ActivityComponent> = when (type) {
+private fun CustodialStakingActivitySummaryItem.fromToLabels(): List<ActivityComponent> = when (type) {
     TransactionSummary.TransactionType.DEPOSIT -> listOf(toLabel())
     TransactionSummary.TransactionType.WITHDRAW -> listOf(fromLabel())
     TransactionSummary.TransactionType.INTEREST_EARNED -> listOf(fromLabel(), toLabel())
     else -> emptyList()
 }
 
-internal fun CustodialInterestActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
+internal fun CustodialStakingActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
     activity = this,
     extras = emptyMap()
 )
