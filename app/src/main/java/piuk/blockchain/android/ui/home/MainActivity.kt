@@ -55,6 +55,7 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
@@ -135,7 +136,6 @@ import piuk.blockchain.android.ui.referral.presentation.Origin
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
@@ -301,7 +301,10 @@ class MainActivity :
             SettingsActivity.Companion.SettingsAction.Airdrops ->
                 startActivity(AirdropCentreActivity.newIntent(this))
             SettingsActivity.Companion.SettingsAction.WebLogin ->
-                QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
+                startActivityForResult(
+                    QrScanActivity.newInstance(this, QrExpected.MAIN_ACTIVITY_QR),
+                    QrScanActivity.SCAN_URI_RESULT
+                )
             SettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()
         }.also {
             hideLoading()
@@ -370,7 +373,10 @@ class MainActivity :
     }
 
     private fun launchQrScan() {
-        QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
+        startActivityForResult(
+            QrScanActivity.newInstance(this, QrExpected.MAIN_ACTIVITY_QR),
+            QrScanActivity.SCAN_URI_RESULT
+        )
     }
 
     private fun showScanAndConnectBottomSheet() {

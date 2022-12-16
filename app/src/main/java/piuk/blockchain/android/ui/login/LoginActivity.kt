@@ -20,6 +20,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -42,7 +43,6 @@ import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
@@ -124,7 +124,10 @@ class LoginActivity :
             }
             if (environmentConfig.isRunningInDebugMode()) {
                 scanPairingButton.setOnClickListener {
-                    QrScanActivity.start(this@LoginActivity, QrExpected.WEB_LOGIN_QR)
+                    startActivityForResult(
+                        QrScanActivity.newInstance(this@LoginActivity, QrExpected.WEB_LOGIN_QR),
+                        QrScanActivity.SCAN_URI_RESULT
+                    )
                 }
                 scanPairingButton.visibleIf {
                     environmentConfig.environment != Environment.PRODUCTION

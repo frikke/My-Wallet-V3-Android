@@ -14,6 +14,7 @@ import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.prices.navigation.PricesNavigation
@@ -27,6 +28,7 @@ fun MultiAppNavHost(
     fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
+    qrScanNavigation: QrScanNavigation
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -41,7 +43,8 @@ fun MultiAppNavHost(
                 navController = navController,
                 assetActionsNavigation = assetActionsNavigation,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation
+                pricesNavigation = pricesNavigation,
+                qrScanNavigation = qrScanNavigation
             )
 
             // home screens
@@ -57,13 +60,15 @@ private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
-    pricesNavigation: PricesNavigation
+    pricesNavigation: PricesNavigation,
+    qrScanNavigation: QrScanNavigation
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
             assetActionsNavigation = assetActionsNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
+            qrScanNavigation = qrScanNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
             },

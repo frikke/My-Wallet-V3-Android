@@ -21,6 +21,7 @@ import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -45,7 +46,6 @@ import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService

@@ -11,6 +11,7 @@ import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
@@ -23,6 +24,7 @@ fun MultiAppBottomNavigationHost(
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
+    qrScanNavigation: QrScanNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
@@ -44,6 +46,7 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         openCryptoAssets = openCryptoAssets,
                         assetActionsNavigation = assetActionsNavigation,
+                        qrScanNavigation = qrScanNavigation,
                         settingsNavigation = settingsNavigation,
                         openActivity = openActivity,
                         openReferral = openReferral,

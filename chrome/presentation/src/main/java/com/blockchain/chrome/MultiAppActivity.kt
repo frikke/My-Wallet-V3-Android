@@ -36,6 +36,7 @@ import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
@@ -81,6 +82,12 @@ class MultiAppActivity :
         )
     }
 
+    private val qrScanNavigation: QrScanNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val settingsNavigation: SettingsNavigation = payloadScope.get {
         parametersOf(
             this
@@ -111,6 +118,10 @@ class MultiAppActivity :
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        qrScanNavigation.registerForQrScan(
+            onScan = { decodedData -> qrScanNavigation.processQrResult(decodedData) }
+        )
+
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
@@ -119,7 +130,8 @@ class MultiAppActivity :
                 assetActionsNavigation = assetActionsNavigation,
                 fiatActionsNavigation = fiatActionsNavigation,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation
+                pricesNavigation = pricesNavigation,
+                qrScanNavigation = qrScanNavigation
             )
         }
 

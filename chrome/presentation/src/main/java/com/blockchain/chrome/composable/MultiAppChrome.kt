@@ -63,6 +63,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
@@ -89,6 +90,7 @@ fun MultiAppChrome(
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
+    qrScanNavigation: QrScanNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
@@ -129,6 +131,7 @@ fun MultiAppChrome(
                 assetActionsNavigation = assetActionsNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
+                qrScanNavigation = qrScanNavigation,
                 onBalanceRevealed = {
                     viewModel.onIntent(MultiAppIntents.BalanceRevealed)
                 }
@@ -152,6 +155,7 @@ fun MultiAppChromeScreen(
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
+    qrScanNavigation: QrScanNavigation,
     openActivity: () -> Unit,
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
@@ -652,7 +656,8 @@ fun MultiAppChromeScreen(
                 openFiatActionDetail = openFiatActionDetail,
                 assetActionsNavigation = assetActionsNavigation,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation
+                pricesNavigation = pricesNavigation,
+                qrScanNavigation = qrScanNavigation
             )
         }
 

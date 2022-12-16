@@ -21,6 +21,7 @@ import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -40,7 +41,6 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -325,7 +325,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun onLaunchAddressScan() {
         analyticsHooks.onScanQrClicked(state)
-        QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset.asAssetInfoOrThrow()))
+        startActivityForResult(
+            QrScanActivity.newInstance(
+                requireContext(),
+                QrExpected.ASSET_ADDRESS_QR(state.sendingAsset.asAssetInfoOrThrow())
+            ),
+            QrScanActivity.SCAN_URI_RESULT
+        )
     }
 
     private fun addressEntered(address: String, asset: AssetInfo) {
