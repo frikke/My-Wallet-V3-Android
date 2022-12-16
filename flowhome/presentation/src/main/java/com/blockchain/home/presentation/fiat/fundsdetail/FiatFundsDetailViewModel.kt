@@ -78,17 +78,17 @@ class FiatFundsDetailViewModel(
                 loadData()
             }
 
-            is FiatFundsDetailIntent.Deposit -> {
-                fiatActions.deposit(
-                    account = intent.account,
-                    action = intent.action,
-                    shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
-                )
-            }
-
-            is FiatFundsDetailIntent.Withdraw -> {
-                handleWithdraw(intent)
+            is FiatFundsDetailIntent.RunAction -> {
+                when (intent.action) {
+                    AssetAction.FiatDeposit -> fiatActions.deposit(
+                        account = intent.account,
+                        action = intent.action,
+                        shouldLaunchBankLinkTransfer = false,
+                        shouldSkipQuestionnaire = false
+                    )
+                    AssetAction.FiatWithdraw -> handleWithdraw(intent)
+                    else -> error("unsupported")
+                }
             }
         }
     }
@@ -140,7 +140,9 @@ class FiatFundsDetailViewModel(
     private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
         firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
-    private fun handleWithdraw(intent: FiatFundsDetailIntent.Withdraw) {
+    private fun handleWithdraw(intent: FiatFundsDetailIntent.RunAction) {
+        require(intent.action == AssetAction.FiatWithdraw) { "action is not AssetAction.FiatWithdraw" }
+
         viewModelScope.launch {
             intent.account.canWithdrawFunds()
                 .collectLatest { dataResource ->
@@ -161,8 +163,8 @@ class FiatFundsDetailViewModel(
                                     fiatActions.withdraw(
                                         account = intent.account,
                                         action = intent.action,
-                                        shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                                        shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
+                                        shouldLaunchBankLinkTransfer = false,
+                                        shouldSkipQuestionnaire = false
                                     )
                                 } else {
                                     updateState { it.copy(actionError = FiatActionError.WithdrawalInProgress) }

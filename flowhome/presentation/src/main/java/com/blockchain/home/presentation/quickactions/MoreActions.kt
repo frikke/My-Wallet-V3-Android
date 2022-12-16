@@ -2,7 +2,10 @@ package com.blockchain.home.presentation.quickactions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -30,8 +33,10 @@ import org.koin.androidx.compose.getViewModel
 fun MoreActions(
     viewModel: QuickActionsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
-    onBackPressed: () -> Unit
+    dismiss: () -> Unit
 ) {
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -44,7 +49,7 @@ fun MoreActions(
     Column(modifier = Modifier.fillMaxWidth()) {
         SheetHeader(
             title = stringResource(id = R.string.common_more),
-            onClosePress = onBackPressed,
+            onClosePress = dismiss,
             startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
@@ -57,10 +62,19 @@ fun MoreActions(
                 secondaryText = stringResource(id = item.subtitle),
                 startImageResource = ImageResource.Local(item.icon),
                 onClick = {
-                    if (item.enabled && item.action.assetAction == AssetAction.Send) {
-                        assetActionsNavigation.navigate(item.action.assetAction)
-                    } else {
-                        // todo deposit and withdraw
+                    if (item.enabled) {
+                        when (item.action.assetAction) {
+                            AssetAction.Send -> assetActionsNavigation.navigate(item.action.assetAction)
+                            AssetAction.FiatDeposit -> {
+                                viewModel.onIntent(QuickActionsIntent.RunFiatAction(AssetAction.FiatDeposit))
+                            }
+                            AssetAction.FiatWithdraw -> {
+                                viewModel.onIntent(QuickActionsIntent.RunFiatAction(AssetAction.FiatWithdraw))
+                            }
+                            else -> {
+                                // n/a
+                            }
+                        }
                     }
                 }
             )
@@ -68,6 +82,6 @@ fun MoreActions(
                 Divider()
             }
         }
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        Spacer(modifier = Modifier.size(navBarHeight))
     }
 }
