@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
@@ -61,6 +62,11 @@ fun MoreActions(
                 primaryText = stringResource(id = item.title),
                 secondaryText = stringResource(id = item.subtitle),
                 startImageResource = ImageResource.Local(item.icon),
+                endImageResource = if (item.enabled) {
+                    ImageResource.Local(R.drawable.ic_chevron_end)
+                } else {
+                    ImageResource.None
+                },
                 onClick = {
                     if (item.enabled) {
                         when (item.action.assetAction) {
@@ -79,7 +85,7 @@ fun MoreActions(
                 }
             )
             if (viewState?.moreActions?.lastIndex != index) {
-                Divider()
+                Divider(color = Color(0XFFF1F2F7))
             }
         }
         Spacer(modifier = Modifier.size(navBarHeight))

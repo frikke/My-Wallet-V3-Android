@@ -13,6 +13,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -136,9 +137,6 @@ class FiatFundsDetailViewModel(
             }
         }
     }
-
-    private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
-        firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
     private fun handleWithdraw(intent: FiatFundsDetailIntent.RunAction) {
         require(intent.action == AssetAction.FiatWithdraw) { "action is not AssetAction.FiatWithdraw" }

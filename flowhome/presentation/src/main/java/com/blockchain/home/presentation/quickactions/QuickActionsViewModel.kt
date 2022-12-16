@@ -16,10 +16,12 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
+import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Observable
@@ -134,12 +136,22 @@ class QuickActionsViewModel(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
+        val stateAwareActions = coincore.allFiats()
+            .map {
+                it.first { it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker }
+                    as FiatAccount
+            }.flatMap {
+                it.stateAwareActions
+            }
+            .asFlow()
+
         return combine(
             custodialBalance,
             depositFiatFeature,
             withdrawFiatFeature,
             hasFiatBalance,
-        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance ->
+            stateAwareActions
+        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
             listOf(
                 MoreActionItem(
                     icon = R.drawable.ic_more_send,
@@ -153,14 +165,14 @@ class QuickActionsViewModel(
                     title = R.string.common_deposit,
                     subtitle = R.string.add_cash_from_your_bank_or_card,
                     action = QuickAction.TxAction(AssetAction.FiatDeposit),
-                    enabled = depositEnabled && hasAnyFiatBalance
+                    enabled = depositEnabled && hasAnyFiatBalance && actions.hasAvailableAction(AssetAction.FiatDeposit)
                 ),
                 MoreActionItem(
                     icon = R.drawable.ic_more_withdraw,
                     title = R.string.common_withdraw,
                     subtitle = R.string.cash_out_bank,
                     action = QuickAction.TxAction(AssetAction.FiatWithdraw),
-                    enabled = withdrawEnabled
+                    enabled = withdrawEnabled && actions.hasAvailableAction(AssetAction.FiatWithdraw)
                 ),
             )
         }
@@ -296,7 +308,7 @@ class QuickActionsViewModel(
                     shouldLaunchBankLinkTransfer = false,
                     shouldSkipQuestionnaire = false
                 )
-                AssetAction.FiatWithdraw  -> handleWithdraw(
+                AssetAction.FiatWithdraw -> handleWithdraw(
                     account = account,
                     action = action
                 )
