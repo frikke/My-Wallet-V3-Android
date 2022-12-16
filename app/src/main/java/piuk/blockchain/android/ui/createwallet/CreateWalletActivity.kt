@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.activity.compose.setContent
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter

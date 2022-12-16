@@ -69,14 +69,36 @@ suspend fun <T> instrument(vararg responses: Pair<String, T>, fallback: (suspend
     return pickedInstrumentedResponse?.model ?: fallback!!.invoke()
 }
 
-fun <T : Any> instrumentFlow(vararg responses: Pair<String, Flow<T>>): Flow<T> = flow {
-    emitAll(instrument(*responses))
+fun <T : Any> instrumentFlow(
+    vararg responses: Pair<String, Flow<T>>,
+    fallback: (() -> Flow<T>)? = null
+): Flow<T> {
+    val fallbackSuspend: (suspend () -> Flow<T>)? = fallback?.let {
+        { it() }
+    }
+    return flow {
+        emitAll(instrument(*responses, fallback = fallbackSuspend))
+    }
 }
 
-fun <T : Any> instrumentSingle(vararg responses: Pair<String, Single<T>>): Single<T> =
-    rxSingle { instrument(*responses) }
-        .flatMap { it }
+fun <T : Any> instrumentSingle(
+    vararg responses: Pair<String, Single<T>>,
+    fallback: (() -> Single<T>)? = null
+): Single<T> {
+    val fallbackSuspend: (suspend () -> Single<T>)? = fallback?.let {
+        { it() }
+    }
+    val pickedResponseSingle = rxSingle { instrument(*responses, fallback = fallbackSuspend) }
+    return pickedResponseSingle.flatMap { it }
+}
 
-fun <T : Any> instrumentMaybe(vararg responses: Pair<String, Maybe<T>>): Maybe<T> =
-    rxMaybe { instrument(*responses) }
-        .flatMap { it }
+fun <T : Any> instrumentMaybe(
+    vararg responses: Pair<String, Maybe<T>>,
+    fallback: (() -> Maybe<T>)? = null
+): Maybe<T> {
+    val fallbackSuspend: (suspend () -> Maybe<T>)? = fallback?.let {
+        { it() }
+    }
+    val pickedResponseSingle = rxMaybe { instrument(*responses, fallback = fallbackSuspend) }
+    return pickedResponseSingle.flatMap { it }
+}
