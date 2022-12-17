@@ -43,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -77,6 +76,15 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.icons.Activity
+import com.blockchain.componentlib.icons.Edit
+import com.blockchain.componentlib.icons.Flag
+import com.blockchain.componentlib.icons.Gift
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.icons.Security
+import com.blockchain.componentlib.icons.Visible
+import com.blockchain.componentlib.icons.VisibleOff
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.LinearProgressBar
@@ -309,7 +317,7 @@ fun HowToOrderCard(onCloseBottomSheet: () -> Unit, onContinue: () -> Unit) {
             DefaultTableRow(
                 primaryText = stringResource(R.string.bc_card_personal_data_privacy_title),
                 secondaryText = stringResource(R.string.bc_card_personal_data_privacy_description),
-                startImageResource = ImageResource.Local(id = R.drawable.ic_security),
+                startImageResource = Icons.Security,
                 endImageResource = ImageResource.None,
                 onClick = {},
                 backgroundColor = UltraLight
@@ -442,10 +450,7 @@ fun OrderCardKycFailure(errorFields: List<BlockchainCardKycErrorField>, onTryAga
                 Card(backgroundColor = AppTheme.colors.light) {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            imageResource = ImageResource.Local(
-                                id = R.drawable.ic_information,
-                                colorFilter = ColorFilter.tint(AppTheme.colors.title)
-                            ),
+                            imageResource = Icons.Filled.Info,
                             modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
                         )
 
@@ -557,10 +562,7 @@ fun OrderCardAddressKYC(
                             primaryText = line1,
                             secondaryText = "$city, $postalCode",
                             onClick = onCheckBillingAddress,
-                            endImageResource = ImageResource.Local(
-                                R.drawable.ic_edit,
-                                colorFilter = ColorFilter.tint(AppTheme.colors.primary)
-                            )
+                            endImageResource = Icons.Edit.withTint(AppTheme.colors.primary)
                         )
                     }
                 }
@@ -647,19 +649,9 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
 
             var hideSSN by remember { mutableStateOf(true) }
             val trailingIcon = if (hideSSN) {
-                ImageResource.Local(
-                    id = R.drawable.ic_visible_off_filled,
-                    colorFilter = ColorFilter.tint(
-                        Grey400
-                    )
-                )
+                Icons.Filled.VisibleOff.withTint(Grey400)
             } else {
-                ImageResource.Local(
-                    id = R.drawable.ic_visible_filled,
-                    colorFilter = ColorFilter.tint(
-                        Grey400
-                    )
-                )
+                Icons.Filled.Visible.withTint(Grey400)
             }
 
             val focusManager = LocalFocusManager.current
@@ -941,7 +933,7 @@ fun ProductDetails(
             DefaultTableRow(
                 primaryText = stringResource(id = R.string.no_fees_title),
                 secondaryText = stringResource(id = R.string.no_fees_description),
-                startImageResource = ImageResource.Local(id = R.drawable.ic_flag),
+                startImageResource = Icons.Flag,
                 endImageResource = ImageResource.None,
                 onClick = {},
                 backgroundColor = UltraLight
@@ -958,7 +950,7 @@ fun ProductDetails(
             DefaultTableRow(
                 primaryText = stringResource(id = R.string.crypto_back_title),
                 secondaryText = stringResource(id = R.string.crypto_back_description),
-                startImageResource = ImageResource.Local(id = R.drawable.ic_gift),
+                startImageResource = Icons.Gift,
                 endImageResource = ImageResource.None,
                 onClick = {},
                 backgroundColor = UltraLight
@@ -1231,10 +1223,7 @@ fun ReviewAndSubmit(
                             primaryText = shippingAddress.line1,
                             secondaryText = "${shippingAddress.city}, ${shippingAddress.postCode}",
                             onClick = onChangeShippingAddress,
-                            endImageResource = ImageResource.Local(
-                                R.drawable.ic_edit,
-                                colorFilter = ColorFilter.tint(AppTheme.colors.primary)
-                            )
+                            endImageResource = Icons.Edit.withTint(AppTheme.colors.primary)
                         )
                     }
                 }
@@ -1277,10 +1266,7 @@ fun ReviewAndSubmit(
                         secondaryText = stringResource(R.string.bc_card_visa_title),
                         onClick = onChangeSelectedProduct,
                         startImageResource = productImage,
-                        endImageResource = ImageResource.Local(
-                            R.drawable.ic_edit,
-                            colorFilter = ColorFilter.tint(AppTheme.colors.primary)
-                        )
+                        endImageResource = Icons.Edit.withTint(AppTheme.colors.primary)
                     )
                 }
             }
@@ -1386,10 +1372,7 @@ fun ProductLegalInfo(
     ) {
         SheetHeader(
             title = stringResource(id = R.string.legal_info_title),
-            startImageResource = ImageResource.Local(
-                id = R.drawable.list_bullets,
-                contentDescription = null,
-            ),
+            startImageResource = Icons.Activity.withTint(AppTheme.colors.primary),
             onClosePress = onCloseProductLegalInfoBottomSheet
         )
 

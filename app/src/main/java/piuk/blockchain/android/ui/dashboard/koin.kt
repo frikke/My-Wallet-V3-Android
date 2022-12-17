@@ -204,7 +204,8 @@ val dashboardModule = module {
         factory {
             ShouldShowExchangeCampaignUseCase(
                 exchangeWAPromptFF = get(exchangeWAPromptFeatureFlag),
-                exchangeCampaignPrefs = get()
+                exchangeCampaignPrefs = get(),
+                mercuryExperimentsService = get()
             )
         }
     }

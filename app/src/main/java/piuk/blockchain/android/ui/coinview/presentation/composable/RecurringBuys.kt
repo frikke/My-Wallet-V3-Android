@@ -22,6 +22,7 @@ import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue200
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
 import org.koin.androidx.compose.get
@@ -117,7 +118,7 @@ fun RecurringBuysUpsell(
             title = stringResource(R.string.coinview_rb_card_title),
             subtitle = stringResource(R.string.coinview_rb_card_blurb),
             iconResource = ImageResource.LocalWithBackground(
-                R.drawable.ic_tx_recurring_buy, R.color.blue_600, R.color.blue_200
+                R.drawable.ic_tx_recurring_buy, AppTheme.colors.primary, Blue200
             ),
             callToActionButton = CardButton(
                 text = stringResource(R.string.common_learn_more),

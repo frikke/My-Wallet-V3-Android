@@ -539,8 +539,8 @@ fun DefaultTableRow_Local_With_BackgroundImageStart() {
                 onClick = {},
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_blockchain,
-                    iconTintColour = R.color.paletteBasePrimary,
-                    backgroundColour = R.color.paletteBasePrimaryMuted,
+                    iconColor = AppTheme.colors.primary,
+                    backgroundColor = AppTheme.colors.primaryMuted,
                     contentDescription = null
                 )
             )

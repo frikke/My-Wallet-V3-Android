@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.card.ButtonType
 import com.blockchain.componentlib.card.CardButton
+import com.blockchain.componentlib.theme.Blue200
+import com.blockchain.componentlib.theme.Blue600
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -44,7 +46,7 @@ private class RecurringBuyInfoCardViewHolder(
             title = context.getString(R.string.coinview_rb_card_title)
             subtitle = context.getString(R.string.coinview_rb_card_blurb)
             iconResource =
-                ImageResource.LocalWithBackground(R.drawable.ic_tx_recurring_buy, R.color.blue_600, R.color.blue_200)
+                ImageResource.LocalWithBackground(R.drawable.ic_tx_recurring_buy, Blue600, Blue200)
         }
     }
 }

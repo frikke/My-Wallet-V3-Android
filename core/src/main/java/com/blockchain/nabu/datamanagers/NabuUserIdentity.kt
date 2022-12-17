@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -23,6 +24,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import kotlinx.coroutines.rx3.asObservable
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
@@ -174,6 +176,14 @@ class NabuUserIdentity(
         userService.getUser().map { user ->
             user.isCowboysUser
         }
+
+    override fun isSSO(): Single<Boolean> =
+        userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))
+            .asObservable()
+            .firstOrError()
+            .map { user ->
+                user.isSSO
+            }
 
     private companion object {
         private const val COUNTRY_CODE_ARGENTINA = "AR"

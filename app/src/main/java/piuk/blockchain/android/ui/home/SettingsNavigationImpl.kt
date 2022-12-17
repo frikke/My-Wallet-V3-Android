@@ -4,12 +4,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
 
@@ -48,7 +48,7 @@ class SettingsNavigationImpl(private val activity: BlockchainActivity?) : Settin
             SettingsActivity.Companion.SettingsAction.Airdrops ->
                 activity?.startActivity(AirdropCentreActivity.newIntent(activity))
             SettingsActivity.Companion.SettingsAction.WebLogin ->
-                QrScanActivity.start(activity!!, QrExpected.MAIN_ACTIVITY_QR)
+                activity?.startActivity(QrScanActivity.newInstance(activity, QrExpected.MAIN_ACTIVITY_QR))
             SettingsActivity.Companion.SettingsAction.Logout -> {}
         }.also {
             activity?.hideLoading()

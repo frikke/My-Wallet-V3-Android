@@ -34,17 +34,19 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun Balance(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openSettings: () -> Unit
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit
 ) {
     val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    BalanceScreen(walletBalance = viewState.balance, openSettings = openSettings)
+    BalanceScreen(walletBalance = viewState.balance, openSettings = openSettings, launchQrScanner = launchQrScanner)
 }
 
 @Composable
 fun BalanceScreen(
     walletBalance: WalletBalance,
-    openSettings: () -> Unit = {}
+    openSettings: () -> Unit = {},
+    launchQrScanner: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -78,7 +80,7 @@ fun BalanceScreen(
                 imageResource = ImageResource.Local(R.drawable.ic_qr_scanner),
                 modifier = Modifier
                     .clickable {
-                        openSettings()
+                        launchQrScanner()
                     }
             )
         }

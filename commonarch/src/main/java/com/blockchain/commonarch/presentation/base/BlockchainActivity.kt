@@ -7,10 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -289,3 +293,18 @@ abstract class BlockchainActivity : ToolBarActivity() {
 }
 
 private fun MotionEvent.isObscuredTouch() = (flags and MotionEvent.FLAG_WINDOW_IS_OBSCURED != 0)
+
+fun BlockchainActivity.setContent(
+    parent: CompositionContext? = null,
+    content: @Composable () -> Unit
+) {
+    if (BuildConfig.DEBUG) {
+        (this as ComponentActivity).setContent(parent) {
+            InstrumentationScaffold {
+                content()
+            }
+        }
+    } else {
+        (this as ComponentActivity).setContent(parent, content)
+    }
+}
