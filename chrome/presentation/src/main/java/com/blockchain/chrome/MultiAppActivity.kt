@@ -388,14 +388,14 @@ class MultiAppActivity :
     }
     // //////////////////////////////////
     // link bank with alias
-    companion object{
+    companion object {
         const val ALIAS_LINK_SUCCESS = "ALIAS_LINK_SUCCESS"
     }
 
     private val activityResultLinkBankWithAlias = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if(result.data?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) == true){
+        if (result.data?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) == true) {
             fiatActionsNavigator.performAction(
                 FiatActionRequest.Restart(
                     shouldLaunchBankLinkTransfer = false
