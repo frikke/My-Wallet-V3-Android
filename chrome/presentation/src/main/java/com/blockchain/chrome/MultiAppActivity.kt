@@ -10,9 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
-import com.blockchain.chrome.tbr.FiatActionsIntents
-import com.blockchain.chrome.tbr.FiatActionsNavEvent
-import com.blockchain.chrome.tbr.FiatActionsViewModel
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StakingAccount
@@ -31,6 +28,9 @@ import com.blockchain.fiatActions.BankLinkingHost
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
+import com.blockchain.home.presentation.fiat.actions.FiatActionRequest
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
@@ -49,7 +49,6 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
@@ -65,7 +64,10 @@ class MultiAppActivity :
     KoinScopeComponent {
 
     override val scope: Scope = payloadScope
-    private val fiatActionsViewModel: FiatActionsViewModel by viewModel()
+
+    private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
+        parametersOf(lifecycleScope)
+    }
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -291,7 +293,7 @@ class MultiAppActivity :
 
     private fun handleFiatActionsNav() {
         lifecycleScope.launch {
-            fiatActionsViewModel.navigationEventFlow.flowWithLifecycle(lifecycle).collectLatest {
+            fiatActionsNavigator.navigator.flowWithLifecycle(lifecycle).collectLatest {
                 when (it) {
                     is FiatActionsNavEvent.BlockedDueToSanctions -> {
                         fiatActionsNavigation.blockedDueToSanctions(
@@ -346,13 +348,13 @@ class MultiAppActivity :
     // //////////////////////////////////
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
-        fiatActionsViewModel.onIntent(FiatActionsIntents.WireTransferAccountDetails)
+        fiatActionsNavigator.performAction(FiatActionRequest.WireTransferAccountDetails)
     }
 
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
         if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
-            fiatActionsViewModel.onIntent(
-                FiatActionsIntents.RestartDeposit(
+            fiatActionsNavigator.performAction(
+                FiatActionRequest.RestartDeposit(
                     action = AssetAction.FiatDeposit,
                     shouldLaunchBankLinkTransfer = false
                 )
@@ -368,8 +370,8 @@ class MultiAppActivity :
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            fiatActionsViewModel.onIntent(
-                FiatActionsIntents.RestartDeposit(
+            fiatActionsNavigator.performAction(
+                FiatActionRequest.RestartDeposit(
                     shouldLaunchBankLinkTransfer = false
                 )
             )

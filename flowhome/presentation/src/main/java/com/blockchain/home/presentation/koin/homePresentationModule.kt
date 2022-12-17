@@ -8,11 +8,13 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
+import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppModeService
+import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -33,6 +35,13 @@ val homePresentationModule = module {
             FiatFundsDetailViewModel(
                 fiatTicker = fiatTicker,
                 homeAccountsService = get(),
+                fiatActions = get()
+            )
+        }
+
+        scoped { (scope: CoroutineScope) ->
+            FiatActionsNavigator(
+                scope = scope,
                 fiatActions = get()
             )
         }

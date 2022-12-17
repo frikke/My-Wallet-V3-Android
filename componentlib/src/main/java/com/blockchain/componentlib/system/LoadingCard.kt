@@ -17,7 +17,8 @@ fun ShimmerLoadingCard(
     itemCount: Int = 2,
     backgroundColor: Color = AppTheme.colors.background,
     shape: Shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-    elevation: Dp = 0.dp
+    elevation: Dp = 0.dp,
+    showEndBlocks: Boolean = true
 ) {
     Card(
         backgroundColor = backgroundColor,
@@ -26,7 +27,7 @@ fun ShimmerLoadingCard(
     ) {
         Column {
             (0 until itemCount).forEach {
-                ShimmerLoadingTableRow()
+                ShimmerLoadingTableRow(showEndBlocks = showEndBlocks)
 
                 if (it < itemCount - 1) Divider(color = Color(0XFFF1F2F7))
             }

@@ -31,7 +31,8 @@ import com.blockchain.componentlib.theme.Grey100
 
 @Composable
 fun ShimmerLoadingTableRow(
-    showIconLoader: Boolean = true
+    showIconLoader: Boolean = true,
+    showEndBlocks: Boolean = true
 ) {
     val transition = rememberInfiniteTransition()
     val translateAnim by transition.animateFloat(
@@ -55,7 +56,7 @@ fun ShimmerLoadingTableRow(
         if (showIconLoader) {
             ShimmerIcon(brush = brush)
         }
-        ShimmerRow(brush = brush)
+        ShimmerRow(brush = brush, showEndBlocks = showEndBlocks)
     }
 }
 
@@ -80,7 +81,8 @@ fun ShimmerIcon(
 
 @Composable
 fun ShimmerRow(
-    brush: Brush
+    brush: Brush,
+    showEndBlocks: Boolean = true
 ) {
     Column(
         modifier = Modifier.padding(
@@ -90,13 +92,16 @@ fun ShimmerRow(
             bottom = dimensionResource(R.dimen.standard_spacing)
         )
     ) {
-        ShimmerLargeBlock(brush = brush)
-        ShimmerSmallBlock(brush = brush)
+        ShimmerLargeBlock(brush = brush, showEndBlock = showEndBlocks)
+        ShimmerSmallBlock(brush = brush, showEndBlock = showEndBlocks)
     }
 }
 
 @Composable
-fun ShimmerLargeBlock(brush: Brush) {
+fun ShimmerLargeBlock(
+    brush: Brush,
+    showEndBlock: Boolean = true
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -120,13 +125,16 @@ fun ShimmerLargeBlock(brush: Brush) {
                 .weight(2f)
                 .height(dimensionResource(R.dimen.standard_spacing))
                 .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
-                .background(brush = brush)
+                .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }
 }
 
 @Composable
-fun ShimmerSmallBlock(brush: Brush) {
+fun ShimmerSmallBlock(
+    brush: Brush,
+    showEndBlock: Boolean = true
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -150,7 +158,7 @@ fun ShimmerSmallBlock(brush: Brush) {
                 .weight(1f)
                 .height(dimensionResource(R.dimen.medium_spacing))
                 .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
-                .background(brush = brush)
+                .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }
 }

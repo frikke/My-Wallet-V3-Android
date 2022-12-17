@@ -1,22 +1,21 @@
-package com.blockchain.chrome.tbr
+package com.blockchain.home.presentation.fiat.actions
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
-sealed interface FiatActionsIntents : Intent<FiatActionsModelState> {
+sealed interface FiatActionRequest {
     data class Deposit(
         val account: FiatAccount,
         val action: AssetAction,
         val shouldLaunchBankLinkTransfer: Boolean,
         val shouldSkipQuestionnaire: Boolean = false
-    ) : FiatActionsIntents
+    ) : FiatActionRequest
 
     data class RestartDeposit(
         val action: AssetAction? = null,
         val shouldLaunchBankLinkTransfer: Boolean,
         val shouldSkipQuestionnaire: Boolean = false
-    ) : FiatActionsIntents
+    ) : FiatActionRequest
 
-    object WireTransferAccountDetails : FiatActionsIntents
+    object WireTransferAccountDetails : FiatActionRequest
 }
