@@ -34,7 +34,7 @@ class FiatActionsNavigator(
                             )
                         )
                     }
-                    is FiatActionsResult.DepositQuestionnaire -> {
+                    is FiatActionsResult.LaunchQuestionnaire -> {
                         navigate(
                             FiatActionsNavEvent.DepositQuestionnaire(
                                 questionnaire = result.questionnaire
@@ -51,7 +51,7 @@ class FiatActionsNavigator(
                     is FiatActionsResult.TransactionFlow -> {
                         navigate(
                             FiatActionsNavEvent.TransactionFlow(
-                                sourceAccount = result.account,
+                                account = result.account,
                                 target = result.target,
                                 action = result.action
                             )
@@ -68,8 +68,16 @@ class FiatActionsNavigator(
                         navigate(
                             FiatActionsNavEvent.BankLinkFlow(
                                 linkBankTransfer = result.linkBankTransfer,
-                                fiatAccount = result.account,
-                                assetAction = result.action
+                                account = result.account,
+                                action = result.action
+                            )
+                        )
+                    }
+                    is FiatActionsResult.LinkBankWithAlias -> {
+                        navigate(
+                            FiatActionsNavEvent.LinkBankWithAlias(
+                                account = result.account,
+                                action = result.action
                             )
                         )
                     }
@@ -82,28 +90,25 @@ class FiatActionsNavigator(
         request: FiatActionRequest
     ) {
         when (request) {
-            is FiatActionRequest.Deposit -> {
-                account = request.account
-                action = request.action
-
-                fiatActions.deposit(
-                    account = request.account,
-                    action = request.action,
-                    shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
-                )
-            }
-
-            is FiatActionRequest.RestartDeposit -> {
+            is FiatActionRequest.Restart -> {
                 check(account != null) { "account undefined" }
                 val action = request.action ?: action ?: error("action undefined")
 
-                fiatActions.deposit(
-                    account = account!!,
-                    action = action,
-                    shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
-                )
+                when (action) {
+                    AssetAction.FiatDeposit -> fiatActions.deposit(
+                        account = account!!,
+                        action = action,
+                        shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
+                        shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
+                    )
+                    AssetAction.FiatWithdraw -> fiatActions.withdraw(
+                        account = account!!,
+                        action = action,
+                        shouldLaunchBankLinkTransfer = request.shouldLaunchBankLinkTransfer,
+                        shouldSkipQuestionnaire = request.shouldSkipQuestionnaire
+                    )
+                    else -> error("unsupported")
+                }
             }
 
             FiatActionRequest.WireTransferAccountDetails -> {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
+import com.blockchain.chrome.MultiAppActivity.Companion.ALIAS_LINK_SUCCESS
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -65,7 +66,6 @@ class BankAliasLinkActivity :
     }
 
     companion object {
-        const val ALIAS_LINK_SUCCESS = "ALIAS_LINK_SUCCESS"
         private const val CURRENCY = "CURRENCY"
 
         fun newInstance(currency: String, context: Context): Intent {
@@ -82,5 +82,5 @@ class BankAliasLinkContract : ActivityResultContract<String, Boolean>() {
         BankAliasLinkActivity.newInstance(input, context)
 
     override fun parseResult(resultCode: Int, intent: Intent?): Boolean =
-        intent?.getBooleanExtra(BankAliasLinkActivity.ALIAS_LINK_SUCCESS, false) ?: false
+        intent?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) ?: false
 }

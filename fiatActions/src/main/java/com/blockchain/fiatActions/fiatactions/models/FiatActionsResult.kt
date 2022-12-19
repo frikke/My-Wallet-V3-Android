@@ -24,7 +24,7 @@ sealed interface FiatActionsResult : NavigationEvent {
         override val action: AssetAction
     ) : FiatActionsResult
 
-    data class DepositQuestionnaire(
+    data class LaunchQuestionnaire(
         override val account: FiatAccount,
         override val action: AssetAction,
         val questionnaire: Questionnaire
@@ -40,6 +40,14 @@ sealed interface FiatActionsResult : NavigationEvent {
         override val account: FiatAccount,
         override val action: AssetAction,
         val paymentMethodsForAction: LinkablePaymentMethodsForAction
+    ) : FiatActionsResult
+
+    /**
+     * for argentinian withdraw
+     */
+    data class LinkBankWithAlias(
+        override val account: FiatAccount,
+        override val action: AssetAction
     ) : FiatActionsResult
 
     /**

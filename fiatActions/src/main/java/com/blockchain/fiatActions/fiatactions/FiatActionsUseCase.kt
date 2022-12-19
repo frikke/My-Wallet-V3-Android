@@ -37,7 +37,6 @@ class FiatActionsUseCase(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankService: BankService,
 ) {
-
     private val _result = MutableSharedFlow<FiatActionsResult>()
     val result: SharedFlow<FiatActionsResult> get() = _result
 
@@ -104,14 +103,7 @@ class FiatActionsUseCase(
             questionnaireOpt.isPresent ->
                 Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        // todo othman find an account with this
                         questionnaire = questionnaireOpt.get(),
-                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                        //                            targetAccount,
-                        //                            action,
-                        //                            shouldLaunchBankLinkTransfer,
-                        //                            shouldSkipQuestionnaire = true
-                        //                        )
                     )
                 )
             eligibleBanks.isEmpty() -> {
@@ -176,7 +168,6 @@ class FiatActionsUseCase(
             val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
 
             //            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
-
             when {
                 eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                     Single.just(
@@ -186,24 +177,8 @@ class FiatActionsUseCase(
                     )
                 questionnaireOpt.isPresent -> Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        // todo othman find an account with this
                         questionnaire = questionnaireOpt.get(),
-                        //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                        //                            targetAccount,
-                        //                            action,
-                        //                            shouldLaunchBankLinkTransfer,
-                        //                            shouldSkipQuestionnaire = true
-                        //                        )
                     )
-                    //                    FiatTransactionRequestResult.LaunchQuestionnaire(
-                    //                        questionnaire = questionnaireOpt.get(),
-                    //                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
-                    //                            account,
-                    //                            action,
-                    //                            shouldLaunchBankLinkTransfer,
-                    //                            shouldSkipQuestionnaire = true
-                    //                        )
-                    //                    )
                 )
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
@@ -351,17 +326,11 @@ class FiatActionsUseCase(
                 )
             }
             is FiatTransactionRequestResult.LaunchQuestionnaire -> {
-                FiatActionsResult.DepositQuestionnaire(
+                FiatActionsResult.LaunchQuestionnaire(
                     account = fiatAccount,
                     action = action,
                     questionnaire = fiatTxRequestResult.questionnaire
                 )
-                //                DashboardIntent.UpdateNavigationAction(
-                //                    DashboardNavigationAction.DepositQuestionnaire(
-                //                        questionnaire = fiatTxRequestResult.questionnaire,
-                //                        callbackIntent = fiatTxRequestResult.callbackIntent
-                //                    )
-                //                )
             }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 FiatActionsResult.LinkBankMethod(
@@ -377,8 +346,10 @@ class FiatActionsUseCase(
                 )
             }
             is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
-                //                DashboardIntent.ShowBankLinkingWithAlias(fiatTxRequestResult.targetAccount)
-                TODO()
+                FiatActionsResult.LinkBankWithAlias(
+                    account = fiatAccount,
+                    action = action,
+                )
             }
         }
     }

@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.home
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -18,6 +17,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBot
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class FiatActionsNavigationImpl(
@@ -36,14 +36,14 @@ class FiatActionsNavigationImpl(
     }
 
     override fun transactionFlow(
-        sourceAccount: BlockchainAccount,
+        account: FiatAccount,
         target: TransactionTarget,
         action: AssetAction
     ) {
         activity?.startActivity(
             TransactionFlowActivity.newIntent(
                 context = activity,
-                sourceAccount = sourceAccount,
+                sourceAccount = account,
                 target = target,
                 action = action
             )
@@ -86,6 +86,20 @@ class FiatActionsNavigationImpl(
                         }
                     },
                     activity
+                )
+            )
+        }
+    }
+
+    override fun bankLinkWithAlias(
+        launcher: ActivityResultLauncher<Intent>,
+        fiatAccount: FiatAccount
+    ) {
+        activity?.let {
+            launcher.launch(
+                BankAliasLinkActivity.newInstance(
+                    currency = fiatAccount.currency.networkTicker,
+                    context = activity
                 )
             )
         }

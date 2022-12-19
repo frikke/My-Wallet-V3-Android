@@ -312,7 +312,7 @@ class MultiAppActivity :
                     }
                     is FiatActionsNavEvent.TransactionFlow -> {
                         fiatActionsNavigation.transactionFlow(
-                            sourceAccount = it.sourceAccount,
+                            account = it.account,
                             target = it.target,
                             action = it.action
                         )
@@ -326,8 +326,14 @@ class MultiAppActivity :
                         fiatActionsNavigation.bankLinkFlow(
                             launcher = activityResultLinkBank,
                             linkBankTransfer = it.linkBankTransfer,
-                            fiatAccount = it.fiatAccount,
-                            assetAction = it.assetAction
+                            fiatAccount = it.account,
+                            assetAction = it.action
+                        )
+                    }
+                    is FiatActionsNavEvent.LinkBankWithAlias -> {
+                        fiatActionsNavigation.bankLinkWithAlias(
+                            launcher = activityResultLinkBankWithAlias,
+                            fiatAccount = it.account
                         )
                     }
                 }
@@ -338,13 +344,22 @@ class MultiAppActivity :
     // //////////////////////////////////
     // QuestionnaireSheetHost
     override fun questionnaireSubmittedSuccessfully() {
-        println("--------- questionnaireSubmittedSuccessfully")
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = false,
+                shouldSkipQuestionnaire = true
+            )
+        )
     }
 
     override fun questionnaireSkipped() {
-        println("--------- questionnaireSkipped")
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = false,
+                shouldSkipQuestionnaire = true
+            )
+        )
     }
-
     // //////////////////////////////////
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
@@ -352,18 +367,12 @@ class MultiAppActivity :
     }
 
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
-        if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
-            fiatActionsNavigator.performAction(
-                FiatActionRequest.RestartDeposit(
-                    action = AssetAction.FiatDeposit,
-                    shouldLaunchBankLinkTransfer = false
-                )
+        fiatActionsNavigator.performAction(
+            FiatActionRequest.Restart(
+                shouldLaunchBankLinkTransfer = true
             )
-        } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
-            //                    model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
-        }
+        )
     }
-
     // //////////////////////////////////
     // link bank
     private val activityResultLinkBank = registerForActivityResult(
@@ -371,12 +380,30 @@ class MultiAppActivity :
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             fiatActionsNavigator.performAction(
-                FiatActionRequest.RestartDeposit(
+                FiatActionRequest.Restart(
                     shouldLaunchBankLinkTransfer = false
                 )
             )
         }
     }
+    // //////////////////////////////////
+    // link bank with alias
+    companion object {
+        const val ALIAS_LINK_SUCCESS = "ALIAS_LINK_SUCCESS"
+    }
+
+    private val activityResultLinkBankWithAlias = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.data?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) == true) {
+            fiatActionsNavigator.performAction(
+                FiatActionRequest.Restart(
+                    shouldLaunchBankLinkTransfer = false
+                )
+            )
+        }
+    }
+    // //////////////////////////////////
 
     override fun onSheetClosed() {
     }
