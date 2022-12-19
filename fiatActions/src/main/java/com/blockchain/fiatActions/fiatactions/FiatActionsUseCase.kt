@@ -302,7 +302,7 @@ class FiatActionsUseCase(
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlow -> {
                 FiatActionsResult.TransactionFlow(
-                    account = fiatAccount ,
+                    account = fiatAccount,
                     action = action,
                     target = fiatTxRequestResult.preselectedBankAccount
                 )

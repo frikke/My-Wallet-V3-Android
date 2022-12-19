@@ -410,7 +410,7 @@ class TransactionFlowActivity :
         ): Intent {
             val bundle = Bundle().apply {
                 putAccount(SOURCE, sourceAccount ?: NullCryptoAccount())
-                putTarget(TARGET, target?: NullCryptoAccount())
+                putTarget(TARGET, target ?: NullCryptoAccount())
                 putSerializable(ACTION, action)
             }
 
