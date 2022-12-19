@@ -20,6 +20,7 @@ fun TertiaryButton(
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
+    textColor: Color = Blue600,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None
 ) {
@@ -27,7 +28,7 @@ fun TertiaryButton(
         text = text,
         onClick = onClick,
         state = state,
-        defaultTextColor = Blue600,
+        defaultTextColor = textColor,
         defaultBackgroundLightColor = defaultBackgroundColor ?: Color.White,
         defaultBackgroundDarkColor = defaultBackgroundColor ?: Color.White,
         disabledTextLightAlpha = 0.7f,
