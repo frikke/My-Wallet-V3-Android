@@ -45,7 +45,7 @@ class FiatActionsNavigationImpl(
             TransactionFlowActivity.newIntent(
                 context = activity,
                 sourceAccount = account.takeIf { it !is NullFiatAccount },
-                target = target,
+                target = target.takeIf { it !is NullFiatAccount },
                 action = action
             )
         )
