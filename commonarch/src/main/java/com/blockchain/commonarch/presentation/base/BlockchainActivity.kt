@@ -27,7 +27,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.instrumentation.InstrumentationScaffold
+import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SecurityPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -256,12 +256,12 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     @UiThread
     fun updateProgressDialog(msg: String, onCancel: () -> Unit = {}, isCancelable: Boolean = false) {
-    progressDialog?.apply {
-        setCancelable(isCancelable)
-        setMessage(msg)
-        setOnCancelListener(onCancel)
+        progressDialog?.apply {
+            setCancelable(isCancelable)
+            setMessage(msg)
+            setOnCancelListener(onCancel)
+        }
     }
-}
 
     @UiThread
     fun showBottomSheet(bottomSheet: BottomSheetDialogFragment) {

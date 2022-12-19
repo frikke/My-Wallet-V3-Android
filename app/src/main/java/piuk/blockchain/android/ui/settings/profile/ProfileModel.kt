@@ -50,9 +50,9 @@ class ProfileModel(
                                 )
                             )
                         }, onError = {
-                        process(ProfileIntent.FetchProfile)
-                        Timber.e("ProfileIntent.LoadProfile failure " + it)
-                    }
+                            process(ProfileIntent.FetchProfile)
+                            Timber.e("ProfileIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is ProfileIntent.FetchProfile -> {
@@ -66,9 +66,9 @@ class ProfileModel(
                                 )
                             )
                         }, onError = {
-                        process(ProfileIntent.LoadProfileFailed)
-                        Timber.e("ProfileIntent.FetchProfile failure " + it)
-                    }
+                            process(ProfileIntent.LoadProfileFailed)
+                            Timber.e("ProfileIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is ProfileIntent.LoadProfileSucceeded,

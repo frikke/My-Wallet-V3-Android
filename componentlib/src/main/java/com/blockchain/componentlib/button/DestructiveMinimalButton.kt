@@ -38,12 +38,12 @@ fun DestructiveMinimalButton(
         defaultTextColor = textColor,
         defaultLoadingIconResId = R.drawable.ic_destructive_loading,
         buttonContent = {
-            state: ButtonState,
-            text: String,
-            textColor: Color,
-            textAlpha: Float,
-            loadingIconResId: Int,
-            icon: ImageResource,
+                state: ButtonState,
+                text: String,
+                textColor: Color,
+                textAlpha: Float,
+                loadingIconResId: Int,
+                icon: ImageResource,
             ->
             ButtonContent(
                 state = state,

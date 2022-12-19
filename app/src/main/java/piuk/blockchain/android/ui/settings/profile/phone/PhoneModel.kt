@@ -69,9 +69,9 @@ class PhoneModel(
                                 )
                             )
                         }, onError = {
-                        process(PhoneIntent.FetchProfile)
-                        Timber.e("PhoneIntent.LoadProfile failure " + it)
-                    }
+                            process(PhoneIntent.FetchProfile)
+                            Timber.e("PhoneIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is PhoneIntent.FetchProfile -> {
@@ -85,9 +85,9 @@ class PhoneModel(
                                 )
                             )
                         }, onError = {
-                        process(PhoneIntent.LoadProfileFailed)
-                        Timber.e("PhoneIntent.FetchProfile failure " + it)
-                    }
+                            process(PhoneIntent.LoadProfileFailed)
+                            Timber.e("PhoneIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is PhoneIntent.ResendCodeSMS -> {

@@ -673,10 +673,10 @@ class MainModel(
                             handleOrderState(it)
                         } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                     }, onError = {
-                    Timber.e("Error doing SB sync for bank linking $it")
-                    interactor.resetLocalBankAuthState()
-                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                }
+                        Timber.e("Error doing SB sync for bank linking $it")
+                        interactor.resetLocalBankAuthState()
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                    }
                 )
         }
     }

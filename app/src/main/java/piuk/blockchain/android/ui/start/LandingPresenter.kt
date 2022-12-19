@@ -143,8 +143,8 @@ class LandingPresenter(
                 if (isHealthy.not())
                     view?.showApiOutageMessage()
             }, onError = {
-                Timber.e(it)
-            })
+                    Timber.e(it)
+                })
     }
 
     override fun onViewDetached() { /* no-op */

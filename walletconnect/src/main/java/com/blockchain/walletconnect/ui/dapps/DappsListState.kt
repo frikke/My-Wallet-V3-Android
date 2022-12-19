@@ -41,9 +41,9 @@ class DappsListModel(
                     onComplete = {
                         process(DappsListIntent.LoadDapps)
                     }, onError = {
-                    process(DappsListIntent.LoadDapps)
-                    Timber.e("Failed to disconnect $it")
-                }
+                        process(DappsListIntent.LoadDapps)
+                        Timber.e("Failed to disconnect $it")
+                    }
                 )
             is DappsListIntent.DappsLoaded -> null
         }

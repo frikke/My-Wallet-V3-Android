@@ -33,9 +33,9 @@ class PasswordChangeModel(
                     onSuccess = {
                         process(it)
                     }, onError = {
-                    Timber.e("Error updating passwords: $it")
-                    process(PasswordChangeIntent.UpdateErrorState(PasswordChangeError.UNKNOWN_ERROR))
-                }
+                        Timber.e("Error updating passwords: $it")
+                        process(PasswordChangeIntent.UpdateErrorState(PasswordChangeError.UNKNOWN_ERROR))
+                    }
                 )
             PasswordChangeIntent.ResetErrorState,
             PasswordChangeIntent.ResetViewState,

@@ -68,9 +68,9 @@ class EmailModel(
                                 )
                             )
                         }, onError = {
-                        process(EmailIntent.FetchProfile)
-                        Timber.e("EmailIntent.LoadProfile failure " + it)
-                    }
+                            process(EmailIntent.FetchProfile)
+                            Timber.e("EmailIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is EmailIntent.FetchProfile -> {
@@ -84,9 +84,9 @@ class EmailModel(
                                 )
                             )
                         }, onError = {
-                        process(EmailIntent.LoadProfileFailed)
-                        Timber.e("EmailIntent.FetchProfile failure " + it)
-                    }
+                            process(EmailIntent.LoadProfileFailed)
+                            Timber.e("EmailIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is EmailIntent.ResendEmail -> {

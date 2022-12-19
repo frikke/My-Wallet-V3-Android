@@ -85,8 +85,8 @@ class WalletConnectService(
                     connectedSessions.add(session)
                 }
             }, onError = {
-            Timber.e(it)
-        }
+                Timber.e(it)
+            }
         )
 
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->

@@ -54,8 +54,8 @@ class SettingsModel(
                                 )
                             )
                         }, onError = {
-                        process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
-                    }
+                            process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
+                        }
                     )
             }
             is SettingsIntent.LoadPaymentMethods ->
@@ -79,15 +79,15 @@ class SettingsModel(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
                     }, onError = {
-                    when ((it as? NabuApiException)?.getErrorCode()) {
-                        MaxPaymentBankAccounts ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
-                        MaxPaymentBankAccountLinkAttempts ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
-                        else ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                        when ((it as? NabuApiException)?.getErrorCode()) {
+                            MaxPaymentBankAccounts ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
+                            MaxPaymentBankAccountLinkAttempts ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
+                            else ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                        }
                     }
-                }
                 )
             is SettingsIntent.Logout -> interactor.unpairWallet()
                 .subscribeBy(
@@ -105,8 +105,8 @@ class SettingsModel(
                         onSuccess = { available ->
                             process(SettingsIntent.UpdateAvailablePaymentMethods(available))
                         }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
-                    }
+                            process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
+                        }
                     )
             is SettingsIntent.UserLoggedOut,
             is SettingsIntent.UpdateViewToLaunch,
