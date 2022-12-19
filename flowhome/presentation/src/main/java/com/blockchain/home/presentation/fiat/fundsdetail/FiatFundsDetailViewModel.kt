@@ -77,7 +77,7 @@ class FiatFundsDetailViewModel(
                 loadData()
             }
 
-            is FiatFundsDetailIntent.RunAction -> {
+            is FiatFundsDetailIntent.FiatAction -> {
                 when (intent.action) {
                     AssetAction.FiatDeposit -> fiatActions.deposit(
                         account = intent.account,
@@ -136,7 +136,7 @@ class FiatFundsDetailViewModel(
         }
     }
 
-    private fun handleWithdraw(intent: FiatFundsDetailIntent.RunAction) {
+    private fun handleWithdraw(intent: FiatFundsDetailIntent.FiatAction) {
         require(intent.action == AssetAction.FiatWithdraw) { "action is not AssetAction.FiatWithdraw" }
 
         viewModelScope.launch {

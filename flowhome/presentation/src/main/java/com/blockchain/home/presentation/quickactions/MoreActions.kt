@@ -72,10 +72,10 @@ fun MoreActions(
                         when (item.action.assetAction) {
                             AssetAction.Send -> assetActionsNavigation.navigate(item.action.assetAction)
                             AssetAction.FiatDeposit -> {
-                                viewModel.onIntent(QuickActionsIntent.RunFiatAction(AssetAction.FiatDeposit))
+                                viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
                             }
                             AssetAction.FiatWithdraw -> {
-                                viewModel.onIntent(QuickActionsIntent.RunFiatAction(AssetAction.FiatWithdraw))
+                                viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
                             }
                             else -> {
                                 // n/a

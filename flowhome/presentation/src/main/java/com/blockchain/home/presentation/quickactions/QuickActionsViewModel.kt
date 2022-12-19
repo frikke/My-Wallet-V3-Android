@@ -104,7 +104,7 @@ class QuickActionsViewModel(
                     }
                 }
             }
-            is QuickActionsIntent.RunFiatAction -> {
+            is QuickActionsIntent.FiatAction -> {
                 handleFiatAction(action = intent.action)
             }
         }
@@ -386,7 +386,7 @@ sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
     // class ActionClicked(val action: QuickAction) : QuickActionsIntent()
     class LoadActions(val type: ActionType) : QuickActionsIntent
 
-    data class RunFiatAction(
+    data class FiatAction(
         val action: AssetAction,
     ) : QuickActionsIntent
 }
