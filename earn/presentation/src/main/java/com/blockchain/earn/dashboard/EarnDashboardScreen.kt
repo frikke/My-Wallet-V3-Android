@@ -566,6 +566,6 @@ fun EarnKycRequired(fm: FragmentManager) {
         modifier = Modifier.fillMaxSize(),
         fragment = KycUpgradeNowSheet.newInstance(),
         fragmentManager = fm,
-        tag = "KycNow"
+        tag = "EarnDashboardKyc"
     )
 }

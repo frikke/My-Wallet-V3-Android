@@ -65,7 +65,7 @@ class EarnDashboardFragment :
 
     private val viewModel by viewModel<EarnDashboardViewModel>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 bindViewModel(viewModel, this@EarnDashboardFragment, ModelConfigArgs.NoArgs)
