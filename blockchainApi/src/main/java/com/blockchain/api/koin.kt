@@ -32,6 +32,7 @@ import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.kyc.KycApiInterface
 import com.blockchain.api.kyc.KycApiService
+import com.blockchain.api.mercuryexperiments.MercuryExperimentsApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
@@ -61,6 +62,7 @@ import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.ExperimentsApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.FraudRemoteService
+import com.blockchain.api.services.MercuryExperimentsApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftApiService
 import com.blockchain.api.services.NftWaitlistApiService
@@ -462,6 +464,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(StakingApi::class.java)
         StakingApiService(
             stakingApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(MercuryExperimentsApi::class.java)
+        MercuryExperimentsApiService(
+            api
         )
     }
 

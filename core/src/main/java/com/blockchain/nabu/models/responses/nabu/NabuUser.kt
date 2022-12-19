@@ -43,7 +43,8 @@ data class NabuUser(
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val currencies: CurrenciesResponse,
-    val walletGuid: String? = null
+    val walletGuid: String? = null,
+    val unifiedAccountWalletGuid: String? = null
 ) : JsonSerializable {
     val tierInProgress
         get() =
@@ -84,6 +85,9 @@ data class NabuUser(
 
     val tagKeys: Set<String>
         get() = tags?.keys ?: emptySet()
+
+    val isSSO: Boolean
+        get() = unifiedAccountWalletGuid != null
 
     companion object {
         private const val COWBOYS_TAG = "COWBOYS_2022"

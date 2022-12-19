@@ -22,7 +22,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
-import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
@@ -30,6 +29,7 @@ import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsNavigator
 import piuk.blockchain.android.ui.settings.SettingsScreen
+import piuk.blockchain.android.urllinks.EXCHANGE_DYNAMIC_LINK
 import piuk.blockchain.android.util.launchUrlInBrowser
 
 class AccountFragment :
@@ -122,7 +122,7 @@ class AccountFragment :
                             ),
                             tags = emptyList(),
                             primaryCtaClick = {
-                                requireActivity().launchUrlInBrowser(BuildConfig.EXCHANGE_LAUNCH_URL)
+                                requireActivity().launchUrlInBrowser(EXCHANGE_DYNAMIC_LINK)
                             },
                         )
                     )

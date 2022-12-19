@@ -19,6 +19,7 @@ import com.blockchain.preferences.BlockchainCardPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -82,6 +83,7 @@ val coreAndroidModule = module {
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
         bind(BlockchainCardPrefs::class)
+        bind(ExchangeCampaignPrefs::class)
     }
 
     factory {
