@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +18,8 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateSelectableItemBackgroundForSuperApp
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -37,7 +38,6 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
-import piuk.blockchain.android.util.context
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 
@@ -307,7 +307,9 @@ private class CryptoAccountDelegate(
     ) = (holder as CryptoSingleAccountViewHolder).bind(
         items[position] as SelectableAccountItem,
         statusDecorator,
-        onAccountClicked
+        onAccountClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -320,15 +322,19 @@ private class CryptoSingleAccountViewHolder(
         selectableAccountItem: SelectableAccountItem,
         statusDecorator: StatusDecorator,
         onAccountClicked: (CryptoAccount) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+
             if (showSelectionStatus) {
-                if (selectableAccountItem.isSelected) {
-                    cryptoAccountParent.background = ContextCompat.getDrawable(context, R.drawable.item_selected_bkgd)
-                } else {
-                    cryptoAccountParent.background = null
-                }
+                cryptoAccount.updateSelectableItemBackgroundForSuperApp(
+                    isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
+                )
+            } else {
+                cryptoAccount.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
             }
+
             cryptoAccount.updateItem(
                 item = selectableAccountItem.item as AccountListViewItem.Crypto,
                 onAccountClicked = onAccountClicked,
@@ -362,7 +368,9 @@ private class FiatAccountDelegate(
         (holder as FiatAccountViewHolder).bind(
             items[position] as SelectableAccountItem,
             statusDecorator,
-            onAccountClicked
+            onAccountClicked,
+            isFirstItemInList = position == 0,
+            isLastItemInList = items.lastIndex == position
         )
 }
 
@@ -374,15 +382,17 @@ private class FiatAccountViewHolder(
     fun bind(
         selectableAccountItem: SelectableAccountItem,
         statusDecorator: StatusDecorator,
-        onAccountClicked: (FiatAccount) -> Unit
+        onAccountClicked: (FiatAccount) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
             if (showSelectionStatus) {
-                if (selectableAccountItem.isSelected) {
-                    fiatContainer.background = ContextCompat.getDrawable(context, R.drawable.item_selected_bkgd)
-                } else {
-                    fiatContainer.background = null
-                }
+                fiatContainer.updateSelectableItemBackgroundForSuperApp(
+                    isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
+                )
+            } else {
+                fiatContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
             }
             fiatContainer.alpha = 1f
             fiatAccount.updateAccount(
@@ -422,7 +432,9 @@ private class BankAccountDelegate(
     ) = (holder as BankAccountViewHolder).bind(
         items[position] as SelectableAccountItem,
         onAccountClicked,
-        assetAction
+        assetAction,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -434,15 +446,19 @@ private class BankAccountViewHolder(
     fun bind(
         selectableAccountItem: SelectableAccountItem,
         onAccountClicked: (LinkedBankAccount) -> Unit,
-        assetAction: AssetAction?
+        assetAction: AssetAction?,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+            bankContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             if (showSelectionStatus) {
-                if (selectableAccountItem.isSelected) {
-                    bankContainer.background = ContextCompat.getDrawable(context, R.drawable.item_selected_bkgd)
-                } else {
-                    bankContainer.background = null
-                }
+                bankContainer.updateSelectableItemBackgroundForSuperApp(
+                    isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
+                )
+            } else {
+                bankContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
             }
             bankContainer.alpha = 1f
             bankAccount.updateAccount(
@@ -473,14 +489,19 @@ private class AddNewBankAccountDelegate(
         )
 
     override fun onBindViewHolder(items: List<AccountsListItem>, position: Int, holder: RecyclerView.ViewHolder) =
-        (holder as AddNewBankAccountViewHolder).bind(onAddNewBankAccountButtonClick)
+        (holder as AddNewBankAccountViewHolder).bind(
+            onAddNewBankAccountButtonClick,
+            isFirstItemInList = position == 0,
+            isLastItemInList = items.lastIndex == position
+        )
 }
 
 private class AddNewBankAccountViewHolder(
     private val binding: ItemAccountAddNewBankBinding
 ) : RecyclerView.ViewHolder(binding.root), DisposableViewHolder {
 
-    fun bind(onAddNewBankAccountButtonClick: () -> Unit) {
+    fun bind(onAddNewBankAccountButtonClick: () -> Unit, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
+        binding.root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
         with(binding.addNewBankAccountButton) {
             buttonState = ButtonState.Enabled
             text = context.getString(R.string.add_new_bank_account)

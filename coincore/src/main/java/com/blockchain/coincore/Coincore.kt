@@ -31,7 +31,6 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -46,12 +45,6 @@ import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
-
-@Deprecated("Use result from ExchangeManager directly")
-data class ExchangePriceWithDelta(
-    val price: Money,
-    val delta: Double,
-)
 
 class Coincore internal constructor(
     private val assetLoader: AssetLoader,
@@ -300,15 +293,6 @@ class Coincore internal constructor(
             target,
             action
         )
-
-    fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> {
-        val cryptoAsset = this[asset] as CryptoAsset
-        return cryptoAsset.exchangeRate().zipWith(
-            cryptoAsset.getPricesWith24hDeltaLegacy()
-        ) { currentPrice, priceDelta ->
-            ExchangePriceWithDelta(currentPrice.price, priceDelta.delta24h)
-        }
-    }
 
     @Suppress("SameParameterValue")
     private fun allAccounts(includeArchived: Boolean = false): Observable<SingleAccount> =

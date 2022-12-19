@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/grey_000"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <ViewFlipper
@@ -20,16 +21,16 @@
                 android:id="@+id/swap_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:intro_header_icon="@drawable/ic_swap_blue_circle"
+                app:intro_header_icon="@drawable/ic_swap_filled_blue"
                 app:intro_header_label="@string/swap_header_label"
                 app:intro_header_title="@string/swap_header_title"
+                app:intro_header_background="@color/grey_000"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <piuk.blockchain.android.ui.customviews.TrendingPairsView
                 android:id="@+id/swap_trending"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="@dimen/very_small_spacing"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintBottom_toTopOf="@id/swap_cta"
                 app:layout_constraintTop_toBottomOf="@id/swap_header"
@@ -48,7 +49,7 @@
 
             <Button
                 android:id="@+id/swap_cta"
-                style="@style/CtaButton.Blue"
+                style="@style/CtaButton.Blue.Rounded"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/swap_cta"

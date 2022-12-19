@@ -16,7 +16,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -312,7 +312,7 @@ class TransactionFlowActivity :
                 showBottomSheet(it)
             } else {
                 val transaction = supportFragmentManager.beginTransaction()
-                    .addAnimationTransaction()
+                    .addTransactionAnimation()
                     .replace(R.id.tx_flow_content, it, it.toString())
 
                 if (!supportFragmentManager.fragments.contains(it)) {

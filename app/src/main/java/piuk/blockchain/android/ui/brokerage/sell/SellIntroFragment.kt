@@ -203,7 +203,7 @@ class SellIntroFragment :
             kycBenefits.gone()
             sellAccountsContainer.visible()
             sellIntroSearch.apply {
-                label = getString(R.string.search_coins_hint)
+                placeholder = getString(R.string.search_coins_hint)
                 onValueChange = { searchTerm ->
                     hasEnteredSearchTerm = searchTerm.isNotEmpty()
                     viewModel.onIntent(SellIntent.FilterAccounts(searchTerm))

@@ -83,12 +83,16 @@ class ActionActivity :
             }
             AssetAction.Sell,
             AssetAction.Buy -> {
-                updateToolbarTitle(getString(R.string.buy_and_sell))
                 BuySellFragment.newInstance(
-                    viewType = if (action == AssetAction.Sell) {
-                        BuySellViewType.TYPE_SELL
-                    } else {
-                        BuySellViewType.TYPE_BUY
+                    viewType = when (action) {
+                        AssetAction.Sell -> {
+                            updateToolbarTitle(getString(R.string.common_sell))
+                            BuySellViewType.TYPE_SELL
+                        }
+                        else -> {
+                            updateToolbarTitle(getString(R.string.common_buy))
+                            BuySellViewType.TYPE_BUY
+                        }
                     },
                     asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo }
                 )
@@ -100,13 +104,18 @@ class ActionActivity :
     }
 
     override fun showLoading() {
-        binding.progress.visible()
-        binding.progress.playAnimation()
+        with(binding.progress) {
+            bringToFront()
+            visible()
+            playAnimation()
+        }
     }
 
     override fun hideLoading() {
-        binding.progress.gone()
-        binding.progress.pauseAnimation()
+        with(binding.progress) {
+            gone()
+            pauseAnimation()
+        }
     }
 
     override fun startUpsellKyc() {

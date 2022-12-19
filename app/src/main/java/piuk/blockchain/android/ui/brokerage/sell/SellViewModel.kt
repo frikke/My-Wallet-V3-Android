@@ -42,7 +42,7 @@ class SellViewModel(
                 updateState {
                     it.copy(
                         sellEligibility = data,
-                        shouldShowLoading = false
+                        shouldShowLoading = true
                     )
                 }
             }

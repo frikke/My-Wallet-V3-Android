@@ -1337,7 +1337,7 @@ class MainActivity :
                 val currentBuySell: BuySellFragment? =
                     supportFragmentManager.findFragmentByTag(buySellFragment.javaClass.simpleName)
                         as? BuySellFragment
-                currentBuySell?.goToPage(viewType.ordinal)
+                currentBuySell?.showBuyOrSell(viewType)
             }
 
             supportFragmentManager.showFragment(

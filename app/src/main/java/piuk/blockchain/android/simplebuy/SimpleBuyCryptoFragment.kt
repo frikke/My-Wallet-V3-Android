@@ -81,7 +81,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEME
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
-import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -421,7 +420,8 @@ class SimpleBuyCryptoFragment :
                                 SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
                         },
-                        maxButtonText = stringResource(R.string.buy_max)
+                        maxButtonText = stringResource(R.string.buy_max),
+                        areButtonsTransparent = false
                     )
                 }
             }
@@ -462,24 +462,21 @@ class SimpleBuyCryptoFragment :
         }
 
         newState.selectedCryptoAsset?.let {
-            binding.inputAmount.configuration = FiatCryptoViewConfiguration(
-                inputCurrency = newState.fiatCurrency,
-                outputCurrency = newState.fiatCurrency,
-                exchangeCurrency = it,
-                canSwap = false,
-                predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
-                showExchangeRate = newState.featureFlagSet.feynmanEnterAmountFF
-            )
-            binding.buyIcon.setAssetIconColoursWithTint(it)
-        }
-        newState.selectedCryptoAsset?.let {
-            assetResources.loadAssetIcon(binding.cryptoIcon, it)
-            binding.cryptoText.text = it.name
-        }
+            with(binding) {
+                inputAmount.configuration = FiatCryptoViewConfiguration(
+                    inputCurrency = newState.fiatCurrency,
+                    outputCurrency = newState.fiatCurrency,
+                    exchangeCurrency = it,
+                    canSwap = false,
+                    predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
+                    showExchangeRate = newState.featureFlagSet.feynmanEnterAmountFF
+                )
 
-        newState.exchangePriceWithDelta?.let {
-            binding.cryptoExchangeRate.text = it.price.toStringWithSymbol()
-            binding.priceDelta.asDeltaPercent(it.delta)
+                buyIcon.setAssetIconColoursWithTint(it)
+                assetResources.loadAssetIcon(cryptoIcon, it)
+                cryptoText.text = it.name
+                cryptoTicker.text = it.displayTicker
+            }
         }
 
         (newState.limits.max as? TxLimit.Limited)?.amount?.takeIf {
@@ -714,8 +711,6 @@ class SimpleBuyCryptoFragment :
         renderRecurringBuy(state)
 
         with(binding) {
-            paymentMethod.visible()
-            paymentMethodSeparator.visible()
             paymentMethodDetailsRoot.apply {
                 visible()
                 onClick = {

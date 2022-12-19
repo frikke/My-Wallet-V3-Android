@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.reset
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.presentation.koin.scopedInject
@@ -100,7 +100,7 @@ class ResetAccountFragment :
 
     private fun launchResetPasswordFlow() {
         parentFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(

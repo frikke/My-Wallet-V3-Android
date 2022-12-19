@@ -26,7 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.R
@@ -49,7 +49,7 @@ interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRoute
     fun replaceCurrentFragment(@IdRes containerViewId: Int, fragment: Fragment, addToBackStack: Boolean = true) {
         (navController.context as? BlockchainActivity)?.supportFragmentManager
             ?.beginTransaction()
-            ?.addAnimationTransaction()
+            ?.addTransactionAnimation()
             ?.replace(containerViewId, fragment, fragment::class.simpleName)
             ?.apply {
                 if (addToBackStack) {

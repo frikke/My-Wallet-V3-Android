@@ -18,7 +18,9 @@ import android.widget.FrameLayout
 import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.R
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -332,6 +334,7 @@ fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
             override fun afterTextChanged(s: Editable?) {
                 trySend(s)
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
         }
@@ -341,5 +344,62 @@ fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
         }
     }.onStart {
         emit(text)
+    }
+}
+
+fun View.updateItemBackgroundForSuperApp(isFirstItemInList: Boolean, isLastItemInList: Boolean) {
+    background = ContextCompat.getDrawable(
+        context,
+        when {
+            isFirstItemInList -> {
+                R.drawable.bkgd_white_rounded_top
+            }
+            isLastItemInList -> {
+                R.drawable.bkgd_white_rounded_bottom
+            }
+            isFirstItemInList && isLastItemInList -> {
+                R.drawable.bkgd_white_large_rounding
+            }
+            else -> {
+                R.drawable.bkgd_white_no_rounding
+            }
+        }
+    )
+
+    setMargins(
+        start = resources.getDimensionPixelOffset(R.dimen.small_spacing),
+        end = resources.getDimensionPixelOffset(R.dimen.small_spacing)
+    )
+}
+
+fun View.updateSelectableItemBackgroundForSuperApp(
+    isFirstItemInList: Boolean,
+    isLastItemInList: Boolean,
+    isSelected: Boolean
+) {
+    if (isSelected) {
+        background = ContextCompat.getDrawable(
+            context,
+            when {
+                isFirstItemInList -> {
+                    R.drawable.bkgd_white_selected_rounded_top
+                }
+                isLastItemInList -> {
+                    R.drawable.bkgd_white_selected_rounded_bottom
+                }
+                isFirstItemInList && isLastItemInList -> {
+                    R.drawable.bkgd_white_selected_large_rounding
+                }
+                else -> {
+                    R.drawable.bkgd_white_selected_no_rounding
+                }
+            }
+        )
+        setMargins(
+            start = resources.getDimensionPixelOffset(R.dimen.small_spacing),
+            end = resources.getDimensionPixelOffset(R.dimen.small_spacing)
+        )
+    } else {
+        updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
     }
 }

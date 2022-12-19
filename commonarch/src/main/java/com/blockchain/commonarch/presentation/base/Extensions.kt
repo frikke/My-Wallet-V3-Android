@@ -25,7 +25,7 @@ fun Fragment.updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
     (activity as? BlockchainActivity)?.updateToolbarMenuItems(menuItems)
 }
 
-fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
+fun FragmentTransaction.addTransactionAnimation(): FragmentTransaction =
     this.setCustomAnimations(
         R.anim.fragment_slide_left_enter,
         R.anim.fragment_slide_left_exit,
