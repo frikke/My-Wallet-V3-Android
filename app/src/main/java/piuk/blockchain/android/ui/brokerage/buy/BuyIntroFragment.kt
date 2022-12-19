@@ -6,15 +6,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.trackProgress
-import com.blockchain.componentlib.basic.ComposeGravities
-import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.home.presentation.navigation.HomeLaunch.KYC_STARTED
 import com.blockchain.koin.buyOrder
 import com.blockchain.nabu.BlockedReason
@@ -37,14 +38,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
@@ -54,53 +53,66 @@ class BuyIntroFragment :
     ViewPagerFragment(),
     KycUpgradeNowSheet.Host {
 
-    private var _binding: BuyIntroFragmentBinding? = null
-    private val binding: BuyIntroFragmentBinding
-        get() = _binding!!
-
     private var isInitialLoading = true
 
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
     private val buyOrdering: BuyListAccountSorting by scopedInject(buyOrder)
     private var purchaseableAssets = listOf<BuyCryptoItem>()
-
-    private val buyAdapter = BuyCryptoCurrenciesAdapter(
-        assetResources = assetResources,
-        onItemClick = ::onItemClick
-    )
+    private var buyViewState by mutableStateOf<BuyViewState>(BuyViewState.Loading)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = BuyIntroFragmentBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        with(binding) {
-            with(buyAssetList) {
-                layoutManager = LinearLayoutManager(activity)
-                adapter = buyAdapter
-            }
-            with(buySearchEmpty) {
-                text = getString(R.string.search_empty)
-                gravity = ComposeGravities.Centre
-                style = ComposeTypographies.Body1
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BuyIntroScreen(
+                    buyViewState = buyViewState,
+                    onSearchValueUpdated = { searchedText ->
+                        when {
+                            searchedText.isEmpty() -> updateList(purchaseableAssets)
+                            else -> updateList(
+                                purchaseableAssets.filter {
+                                    it.asset.networkTicker.contains(searchedText, true) ||
+                                        it.asset.name.contains(searchedText, true)
+                                }
+                            )
+                        }
+                    },
+                    onListItemClicked = { item -> onItemClick(item) },
+                    onEmptyStateClicked = { reason ->
+                        when (reason) {
+                            is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                            is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
+                            is BlockedReason.NotEligible -> startActivity(
+                                SupportCentreActivity.newIntent(requireContext())
+                            )
+                            else -> {
+                                checkEligibilityAndLoadBuyDetails(false)
+                            }
+                        }
+                    },
+                    onErrorRetryClicked = {
+                        checkEligibilityAndLoadBuyDetails()
+                    },
+                    onErrorContactSupportClicked = {
+                        SupportCentreActivity.newIntent(requireContext())
+                    },
+                    fragmentManager = childFragmentManager
+                )
             }
         }
     }
 
     override fun onResume() {
+        if (purchaseableAssets.isNotEmpty()) {
+            buyViewState = BuyViewState.ShowAssetList(purchaseableAssets)
+        }
         checkEligibilityAndLoadBuyDetails(isInitialLoading)
-        isInitialLoading = false
         super.onResume()
     }
 
@@ -120,6 +132,8 @@ class BuyIntroFragment :
                             is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
                             null -> loadBuyDetails(showLoading)
                         }
+
+                        isInitialLoading = false
                     },
                     onError = { exception ->
                         renderErrorState()
@@ -148,24 +162,28 @@ class BuyIntroFragment :
     }
 
     private fun loadBuyDetails(showLoading: Boolean = true) {
-        compositeDisposable += custodialWalletManager.getSupportedBuySellCryptoCurrencies()
-            .map { pairs ->
-                pairs.map {
-                    it.source
-                }.distinct()
-                    .filterIsInstance<AssetInfo>()
-            }.flatMap { assets ->
-                buyOrdering.sort(assets)
-            }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .trackProgress(activityIndicator.takeIf { showLoading })
-            .subscribeBy(
-                onSuccess = { items: List<PricedAsset> ->
-                    renderBuyIntro(items)
-                },
-                onError = { renderErrorState() },
-            )
+        if (isInitialLoading || purchaseableAssets.isEmpty()) {
+            compositeDisposable += custodialWalletManager.getSupportedBuySellCryptoCurrencies()
+                .map { pairs ->
+                    pairs.map {
+                        it.source
+                    }.distinct()
+                        .filterIsInstance<AssetInfo>()
+                }.flatMap { assets ->
+                    buyOrdering.sort(assets)
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .trackProgress(activityIndicator.takeIf { showLoading })
+                .subscribeBy(
+                    onSuccess = { items: List<PricedAsset> ->
+                        renderBuyIntro(items)
+                    },
+                    onError = { renderErrorState() },
+                )
+        } else {
+            buyViewState = BuyViewState.ShowAssetList(purchaseableAssets)
+        }
     }
 
     private fun onItemClick(item: BuyCryptoItem) {
@@ -174,8 +192,6 @@ class BuyIntroFragment :
             if (blockedReason is BlockedReason.TooManyInFlightTransactions) {
                 showPendingOrdersBottomSheet(blockedReason.maxTransactions)
             } else {
-                binding.buyIntroSearch.clearInput()
-
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         activity as Context,
@@ -196,73 +212,32 @@ class BuyIntroFragment :
     }
 
     private fun renderKycUpgradeNow() {
-        if (childFragmentManager.findFragmentById(R.id.fragment_container) == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, KycUpgradeNowSheet.newInstance())
-                .commitAllowingStateLoss()
-        }
-        binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
+        buyViewState = BuyViewState.ShowKyc
     }
 
     private fun renderBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
-        with(binding) {
-            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
-            customEmptyState.apply {
-                title = R.string.account_restricted
-                descriptionText = if (reason.message != null) {
-                    reason.message
-                } else {
-                    getString(R.string.feature_not_available)
-                }
-                icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.contact_support
-                ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
-            }
-        }
+        buyViewState = BuyViewState.ShowEmptyState(
+            reason = reason,
+            title = R.string.account_restricted,
+            description = reason.message ?: getString(R.string.feature_not_available),
+            icon = R.drawable.ic_wallet_intro_image,
+            ctaText = R.string.contact_support
+        )
     }
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
-        val action = {
-            when (reason) {
-                is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
-                is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
-                is BlockedReason.Sanctions.Unknown -> {}
-            }
-        }
-        with(binding) {
-            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
-            customEmptyState.apply {
-                title = R.string.account_restricted
-                descriptionText = reason.message
-                icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.common_learn_more
-                ctaAction = action
-            }
-        }
+        buyViewState = BuyViewState.ShowEmptyState(
+            reason = reason,
+            title = R.string.account_restricted,
+            icon = R.drawable.ic_wallet_intro_image,
+            ctaText = R.string.common_learn_more,
+            description = reason.message
+        )
     }
 
     private fun renderBuyIntro(
         pricesAssets: List<PricedAsset>
     ) {
-        with(binding) {
-            viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
-
-            buyIntroSearch.apply {
-                label = getString(R.string.search_coins_hint)
-                onValueChange = { searchedText ->
-                    when {
-                        searchedText.isEmpty() -> updateList(purchaseableAssets)
-                        else -> updateList(
-                            purchaseableAssets.filter {
-                                it.asset.networkTicker.contains(searchedText, true) ||
-                                    it.asset.name.contains(searchedText, true)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
         purchaseableAssets = pricesAssets.map { pricedAsset ->
             BuyCryptoItem(
                 asset = pricedAsset.asset,
@@ -277,31 +252,11 @@ class BuyIntroFragment :
     }
 
     private fun updateList(items: List<BuyCryptoItem>) {
-        with(binding) {
-            if (items.isNotEmpty()) {
-                buySearchEmpty.gone()
-                buyAdapter.items = items
-                with(buyAssetList) {
-                    visible()
-                    smoothScrollToPosition(0)
-                }
-            } else {
-                buySearchEmpty.visible()
-                buyAssetList.gone()
-            }
-        }
+        buyViewState = BuyViewState.ShowAssetList(items)
     }
 
     private fun renderErrorState() {
-        with(binding) {
-            viewFlipper.displayedChild = ViewFlipperItem.ERROR.ordinal
-            buyEmpty.setDetails(
-                action = {
-                    checkEligibilityAndLoadBuyDetails()
-                },
-                onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
-            )
-        }
+        buyViewState = BuyViewState.ShowError
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -318,17 +273,9 @@ class BuyIntroFragment :
     override fun onDestroyView() {
         compositeDisposable.clear()
         super.onDestroyView()
-        _binding = null
     }
 
     companion object {
-        private enum class ViewFlipperItem {
-            INTRO,
-            ERROR,
-            KYC,
-            EMPTY_STATE
-        }
-
         fun newInstance() = BuyIntroFragment()
     }
 
@@ -369,4 +316,21 @@ sealed class PricedAsset(
         val balance: Money,
         val tradingVolume: Double
     ) : PricedAsset(asset, priceHistory)
+}
+
+sealed class BuyViewState {
+    class ShowAssetList(val list: List<BuyCryptoItem>) : BuyViewState()
+    object ShowKyc : BuyViewState()
+    class ShowEmptyState(
+        val reason: BlockedReason,
+        @StringRes val title: Int,
+        val description: String,
+        @StringRes val ctaText: Int,
+        @DrawableRes
+        val icon: Int
+    ) : BuyViewState()
+
+    object ShowError : BuyViewState()
+
+    object Loading : BuyViewState()
 }

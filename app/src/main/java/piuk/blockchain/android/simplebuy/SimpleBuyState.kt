@@ -2,7 +2,6 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
@@ -81,7 +80,6 @@ data class SimpleBuyState constructor(
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
     @Transient override val fiatRate: ExchangeRate? = null,
-    @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
     @Transient val authorisePaymentUrl: String? = null,

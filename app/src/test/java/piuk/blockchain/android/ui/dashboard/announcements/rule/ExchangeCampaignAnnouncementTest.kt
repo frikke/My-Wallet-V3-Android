@@ -23,7 +23,10 @@ class ExchangeCampaignAnnouncementTest {
 
         subject = ExchangeCampaignAnnouncement(
             dismissRecorder = dismissRecorder,
-            shouldShowExchangeCampaignUseCase = shouldShowExchangeCampaignUseCase
+            shouldShowExchangeCampaignUseCase = shouldShowExchangeCampaignUseCase,
+            userIdentity = mock(),
+            analytics = mock(),
+            userAnalytics = mock()
         )
     }
 

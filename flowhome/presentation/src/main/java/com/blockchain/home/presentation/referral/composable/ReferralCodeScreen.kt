@@ -38,6 +38,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MarkdownText
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icons.ArrowLeft
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
@@ -142,9 +144,7 @@ fun ReferralScreenData(
                     .padding(AppTheme.dimensions.standardSpacing)
                     .clickable(true, onClick = onBackPressed)
             ) {
-                Image(
-                    imageResource = ImageResource.Local(id = R.drawable.ic_arrow_back_blue)
-                )
+                Image(Icons.ArrowLeft.withTint(AppTheme.colors.primary))
             }
 
             Column(

@@ -85,8 +85,8 @@ class LoginAuthModel(
                 onSuccess = {
                     process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
                 }, onError = { throwable ->
-                processError(throwable)
-            }
+                    processError(throwable)
+                }
             )
 
     private fun getSessionId(): Disposable? {

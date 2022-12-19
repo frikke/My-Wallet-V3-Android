@@ -454,12 +454,6 @@ class SimpleBuyInteractor(
         isUnderReviewFor(KycTier.SILVER) ||
             isUnderReviewFor(KycTier.GOLD)
 
-    fun exchangeRate(asset: AssetInfo): Single<SimpleBuyIntent.ExchangePriceWithDeltaUpdated> =
-        coincore.getExchangePriceWithDelta(asset)
-            .map { exchangePriceWithDelta ->
-                SimpleBuyIntent.ExchangePriceWithDeltaUpdated(exchangePriceWithDelta = exchangePriceWithDelta)
-            }
-
     fun paymentMethods(fiatCurrency: FiatCurrency): Single<PaymentMethods> =
         kycService.getTiersLegacy()
             .zipWith(

@@ -56,7 +56,8 @@ val earnDataModule = module {
                 paymentTransactionHistoryStore = get(),
                 stakingLimitsStore = get(),
                 currencyPrefs = get(),
-                stakingApi = get()
+                stakingApi = get(),
+                historicRateFetcher = get()
             )
         }
 

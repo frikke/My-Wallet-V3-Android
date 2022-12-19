@@ -31,12 +31,10 @@ fun PriceListItem(
     onClick: () -> Unit,
 ) {
 
-    val accessAssetName = stringResource(piuk.blockchain.android.R.string.accessibility_asset_name)
-    val accessCurrentMarketPrice =
-        stringResource(piuk.blockchain.android.R.string.accessibility_current_market_price)
-    val access24hChange = stringResource(piuk.blockchain.android.R.string.accessibility_24h_change)
-    val accessPriceNotAvailable =
-        stringResource(piuk.blockchain.android.R.string.accessibility_price_not_available)
+    val accessAssetName = stringResource(R.string.accessibility_asset_name)
+    val accessCurrentMarketPrice = stringResource(R.string.accessibility_current_market_price)
+    val access24hChange = stringResource(R.string.accessibility_24h_change)
+    val accessPriceNotAvailable = stringResource(R.string.accessibility_price_not_available)
 
     TableRow(
         contentStart = {
@@ -52,7 +50,6 @@ fun PriceListItem(
         },
 
         content = {
-            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -96,15 +93,13 @@ fun PriceListItem(
                                         priceItem.delta
                                     }
                             },
-                        text = priceItem.delta.takeIf { !it.isNullorNaN() }?.let {
-                            it.asPercentString()
-                        } ?: "--",
+                        text = priceItem.delta.takeIf { !it.isNullOrNaN() }?.asPercentString() ?: "--",
                         style = AppTheme.typography.paragraph1,
-                        color = priceItem.delta.takeIf { !it.isNullorNaN() }?.let {
-                            if (it >= 0) {
-                                AppTheme.colors.success
-                            } else {
-                                AppTheme.colors.error
+                        color = priceItem.delta.takeIf { !it.isNullOrNaN() }?.let {
+                            when {
+                                it > 0 -> AppTheme.colors.success
+                                it < 0 -> AppTheme.colors.error
+                                else -> AppTheme.colors.primary
                             }
                         } ?: AppTheme.colors.body
                     )
@@ -125,6 +120,6 @@ fun PriceListItem(
     Divider(color = AppTheme.colors.light, thickness = 1.dp)
 }
 
-private fun Double?.isNullorNaN(): Boolean {
+private fun Double?.isNullOrNaN(): Boolean {
     return this == null || this.isNaN()
 }

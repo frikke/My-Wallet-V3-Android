@@ -266,8 +266,8 @@ class PinModel(
                         process(PinIntent.AppNeedsUpgrade(AppUpgradeStatus(UpgradeAppMethod.FORCED_STORE)))
                     }
                 }, onError = {
-                    Timber.e(it)
-                })
+                        Timber.e(it)
+                    })
             }
             UpdateType.RECOMMENDED -> {
                 interactor.updateInfo(appUpdateManager).subscribeBy(onNext = { appUpdateInfoTask ->
@@ -282,8 +282,8 @@ class PinModel(
                         )
                     }
                 }, onError = {
-                    Timber.e(it)
-                })
+                        Timber.e(it)
+                    })
             }
             else -> {
             }

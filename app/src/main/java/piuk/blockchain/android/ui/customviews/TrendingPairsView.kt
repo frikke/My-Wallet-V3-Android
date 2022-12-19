@@ -141,9 +141,9 @@ private class TrendingPairsAdapter(
                             0.6f
                         }
                     }, onError = {
-                        setOnClickListener(null)
-                        alpha = 0.6f
-                    })
+                            setOnClickListener(null)
+                            alpha = 0.6f
+                        })
                 }
 
                 when (type) {

@@ -15,6 +15,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
@@ -24,6 +25,7 @@ import org.koin.androidx.compose.getViewModel
 fun HomeScreen(
     listState: LazyListState,
     assetActionsNavigation: AssetActionsNavigation,
+    qrScanNavigation: QrScanNavigation,
     settingsNavigation: SettingsNavigation,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
@@ -41,9 +43,10 @@ fun HomeScreen(
             ),
     ) {
         item {
-            Balance(openSettings = {
-                settingsNavigation.settings()
-            })
+            Balance(
+                openSettings = { settingsNavigation.settings() },
+                launchQrScanner = { qrScanNavigation.launchQrScan() }
+            )
         }
 
         item {

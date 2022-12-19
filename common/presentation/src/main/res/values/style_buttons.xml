@@ -22,6 +22,10 @@
         <item name="android:layout_marginEnd">@dimen/standard_spacing</item>
     </style>
 
+    <style name="CtaButton.Blue.Rounded" parent="CtaButton.Blue">
+        <item name="android:background">@drawable/bkgd_button_blue_selector_rounded_large</item>
+    </style>
+
     <style name="CtaButton.White">
         <item name="android:background">@drawable/bkgd_button_white_selector</item>
         <item name="android:textColor">@color/button_white_text_states</item>

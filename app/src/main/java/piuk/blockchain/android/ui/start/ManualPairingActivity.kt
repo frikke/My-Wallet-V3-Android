@@ -139,15 +139,15 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                 it
             )
         }, resendAction = { limitReached ->
-            if (!limitReached) {
-                presenter.requestNew2FaCode(password, guid)
-            } else {
-                showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
-                if (!isTwoFATimerRunning) {
-                    twoFATimer.start()
+                if (!limitReached) {
+                    presenter.requestNew2FaCode(password, guid)
+                } else {
+                    showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
+                    if (!isTwoFATimerRunning) {
+                        twoFATimer.start()
+                    }
                 }
-            }
-        })
+            })
 
         showAlert(dialog)
     }

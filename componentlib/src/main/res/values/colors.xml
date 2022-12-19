@@ -30,4 +30,53 @@
     <color name="black" />
     <color name="white" />
 
+    <color name="red_000"/>
+    <color name="red_100"/>
+    <color name="red_200"/>
+    <color name="red_300"/>
+    <color name="red_400"/>
+    <color name="red_500"/>
+    <color name="red_600"/>
+    <color name="red_800"/>
+    <color name="red_900"/>
+
+    <color name="orange_000"/>
+    <color name="orange_100"/>
+    <color name="orange_300"/>
+    <color name="orange_400"/>
+    <color name="orange_600"/>
+    <color name="orange_800"/>
+
+    <color name="green_000"/>
+    <color name="green_100"/>
+    <color name="green_200"/>
+    <color name="green_400"/>
+    <color name="green_500"/>
+    <color name="green_600"/>
+    <color name="green_800"/>
+
+    <color name="grey_000"/>
+    <color name="grey_100"/>
+    <color name="grey_200"/>
+    <color name="grey_300"/>
+    <color name="grey_400"/>
+    <color name="grey_600"/>
+    <color name="grey_700"/>
+    <color name="grey_800"/>
+    <color name="grey_900"/>
+
+    <color name="grey_fade_400"/>
+    <color name="grey_fade_900"/>
+
+    <color name="blue_000"/>
+    <color name="blue_100"/>
+    <color name="blue_200"/>
+    <color name="blue_400"/>
+    <color name="blue_500"/>
+    <color name="blue_600"/>
+    <color name="blue_700"/>
+    <color name="blue_800"/>
+    <color name="blue_900"/>
+    <color name="blue_1000"/>
+
 </resources>

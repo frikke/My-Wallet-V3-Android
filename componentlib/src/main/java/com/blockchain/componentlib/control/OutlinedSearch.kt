@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,14 +27,13 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun OutlinedSearch(
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
     showCloseButton: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -102,7 +100,7 @@ private fun OutlinedSearch(
 }
 
 @Composable
-fun OutlinedSearch(
+fun NonCancelableOutlinedSearch(
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
@@ -122,7 +120,7 @@ fun CancelableOutlinedSearch(
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
     OutlinedSearch(
         prePopulatedText = prePopulatedText,

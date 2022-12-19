@@ -23,6 +23,7 @@ dependencies {
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':common:interface')
     implementation project(':common:domain')
     implementation project(':common-mp:utils:domain')

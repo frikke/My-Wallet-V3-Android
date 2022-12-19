@@ -1,6 +1,5 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
@@ -147,12 +146,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(authorisePaymentUrl = url, linkedBank = linkedBank)
-    }
-
-    class ExchangePriceWithDeltaUpdated(private val exchangePriceWithDelta: ExchangePriceWithDelta) :
-        SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(exchangePriceWithDelta = exchangePriceWithDelta)
     }
 
     class PaymentMethodChangeRequested(val paymentMethod: PaymentMethod) : SimpleBuyIntent() {

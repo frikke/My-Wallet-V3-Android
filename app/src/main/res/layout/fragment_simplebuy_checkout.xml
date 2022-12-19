@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/checkout_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/grey_000">
 
     <com.blockchain.componentlib.system.CircularProgressBarView
         android:id="@+id/quote_expiration"
@@ -49,6 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/medium_spacing"
+        android:background="@color/grey_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/status" />
@@ -57,6 +59,7 @@
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/grey_000"
         android:fadeScrollbars="true"
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_spacing"
@@ -75,6 +78,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="@dimen/very_small_spacing"
+        android:background="@color/grey_100"
         app:layout_constraintBottom_toTopOf="@+id/purchase_note"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -40,8 +40,13 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,8 +76,15 @@ private fun ColumnScope.SearchStep(
     onIntent: (AddressVerificationIntent) -> Unit,
 ) {
     val searchInputIcon =
-        if (state.searchInput.text.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
-        else ImageResource.None
+        if (state.searchInput.text.isNotEmpty()) {
+            Icons.Close.withTint(Grey400)
+                .withBackground(
+                    backgroundSize = AppTheme.dimensions.standardSpacing,
+                    iconSize = AppTheme.dimensions.standardSpacing,
+                )
+        } else {
+            ImageResource.None
+        }
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
@@ -332,7 +344,7 @@ fun AutoCompleteItem(
             )
             Image(
                 modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
-                imageResource = ImageResource.Local(R.drawable.ic_arrow_right)
+                imageResource = Icons.ChevronRight.withTint(Grey400)
             )
         } else {
             // Always put the loading in the screen and change the alpha so the space is reserved

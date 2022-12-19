@@ -35,19 +35,19 @@ sealed class UiTourAnalytics : AnalyticsEvent {
         override val params: Map<String, Serializable> = mapOf("step" to step.toAnalyticsId())
     }
 
-    protected fun UiTourStep.toAnalyticsId(): Int = when (this) {
+    protected fun UiTourStep.toAnalyticsId() = when (this) {
         UiTourStep.BUY_AND_SELL -> 4
         UiTourStep.PRICES -> 2
         UiTourStep.MIDDLE_BUTTON -> 3
         UiTourStep.ACTIVITY -> 5
-        UiTourStep.BUYER_HANDHOLD -> 6
-    }
+        UiTourStep.BUYER_HANDHOLD -> 1
+    }.toString()
 
-    protected fun NewUiTourStep.toAnalyticsId(): Int = when (this) {
+    protected fun NewUiTourStep.toAnalyticsId() = when (this) {
         NewUiTourStep.EARN -> 4
         NewUiTourStep.PRICES -> 2
         NewUiTourStep.MIDDLE_BUTTON -> 3
         NewUiTourStep.ACTIVITY -> 5
-        NewUiTourStep.BUYER_HANDHOLD -> 6
-    }
+        NewUiTourStep.BUYER_HANDHOLD -> 1
+    }.toString()
 }

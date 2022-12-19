@@ -194,27 +194,23 @@ class QuickActionsViewModel(
             listOf(
                 QuickActionItem(
                     title = R.string.common_swap,
-                    icon = R.drawable.ic_swap,
                     action = QuickAction.TxAction(AssetAction.Swap),
                     enabled = balance.total.isPositive
                 ),
                 QuickActionItem(
                     title = R.string.common_receive,
                     enabled = true,
-                    icon = R.drawable.ic_receive,
                     action = QuickAction.TxAction(AssetAction.Receive),
                 ),
                 QuickActionItem(
                     title = R.string.common_send,
                     enabled = balance.total.isPositive,
-                    icon = R.drawable.ic_send,
                     action = QuickAction.TxAction(AssetAction.Send),
                 ),
                 QuickActionItem(
                     title = R.string.common_sell,
                     enabled = balance.total.isPositive &&
                         (sellEligible as? DataResource.Data)?.data ?: false,
-                    icon = R.drawable.ic_send,
                     action = QuickAction.TxAction(AssetAction.Sell),
                 )
 
@@ -259,30 +255,25 @@ class QuickActionsViewModel(
                 QuickActionItem(
                     title = R.string.common_buy,
                     enabled = buyEnabled,
-                    icon = R.drawable.ic_buy,
                     action = QuickAction.TxAction(AssetAction.Buy),
                 ),
                 QuickActionItem(
                     title = R.string.common_sell,
                     enabled = sellEnabled && balance.total.isPositive,
-                    icon = R.drawable.ic_sell,
                     action = QuickAction.TxAction(AssetAction.Sell),
                 ),
                 QuickActionItem(
                     title = R.string.common_swap,
                     enabled = swapEnabled && balance.total.isPositive,
-                    icon = R.drawable.ic_swap,
                     action = QuickAction.TxAction(AssetAction.Swap),
                 ),
                 QuickActionItem(
                     title = R.string.common_receive,
-                    icon = R.drawable.ic_receive,
                     enabled = receiveEnabled,
                     action = QuickAction.TxAction(AssetAction.Receive),
                 ),
                 QuickActionItem(
                     title = R.string.common_more,
-                    icon = R.drawable.ic_more,
                     action = QuickAction.More,
                     enabled = true
                 )
@@ -378,7 +369,6 @@ data class QuickActionsModelState(
 }
 
 data class QuickActionItem(
-    val icon: Int,
     val title: Int,
     val enabled: Boolean,
     val action: QuickAction

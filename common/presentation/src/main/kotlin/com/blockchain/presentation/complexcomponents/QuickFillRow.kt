@@ -33,6 +33,7 @@ open class QuickFillRowView @JvmOverloads constructor(
     var onQuickFillItemClick by mutableStateOf<(QuickFillDisplayAndAmount) -> Unit>({})
     var onMaxItemClick by mutableStateOf<(Money) -> Unit>({})
     var maxButtonText by mutableStateOf("")
+    var areButtonsTransparent by mutableStateOf(true)
 
     @Composable
     override fun Content() {
@@ -43,7 +44,8 @@ open class QuickFillRowView @JvmOverloads constructor(
                         quickFillButtonData = it,
                         onQuickFillItemClick = onQuickFillItemClick,
                         onMaxItemClick = onMaxItemClick,
-                        maxButtonText = maxButtonText
+                        maxButtonText = maxButtonText,
+                        areButtonsTransparent = areButtonsTransparent
                     )
                 }
             }
@@ -56,7 +58,8 @@ fun QuickFillRow(
     quickFillButtonData: QuickFillButtonData,
     onQuickFillItemClick: (QuickFillDisplayAndAmount) -> Unit,
     onMaxItemClick: (Money) -> Unit,
-    maxButtonText: String
+    maxButtonText: String,
+    areButtonsTransparent: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -72,7 +75,8 @@ fun QuickFillRow(
                         onClick = {
                             onQuickFillItemClick(item)
                         },
-                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing))
+                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing)),
+                        isTransparent = areButtonsTransparent
                     )
                 }
             )
@@ -85,7 +89,8 @@ fun QuickFillRow(
                 },
                 state = ButtonState.Enabled,
                 modifier = Modifier
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
+                isTransparent = areButtonsTransparent
             )
         }
     }

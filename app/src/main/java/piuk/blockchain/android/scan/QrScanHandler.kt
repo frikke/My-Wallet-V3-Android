@@ -20,6 +20,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import info.blockchain.balance.AssetInfo
@@ -32,37 +33,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.SingleSubject
-import java.security.KeyPair
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrCodeType
-
-sealed class ScanResult(
-    val isDeeplinked: Boolean
-) {
-    class HttpUri(
-        val uri: String,
-        isDeeplinked: Boolean
-    ) : ScanResult(isDeeplinked)
-
-    class TxTarget(
-        val targets: Set<CryptoTarget>,
-        isDeeplinked: Boolean
-    ) : ScanResult(isDeeplinked)
-
-    class ImportedWallet(
-        val keyPair: KeyPair
-    ) : ScanResult(false)
-
-    class SecuredChannelLogin(
-        val handshake: String
-    ) : ScanResult(false)
-
-    class WalletConnectRequest(
-        val data: String
-    ) : ScanResult(false)
-}
 
 class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
     enum class ErrorCode {

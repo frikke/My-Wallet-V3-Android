@@ -83,7 +83,10 @@ val dashboardAnnouncementsModule = module {
         factory {
             ExchangeCampaignAnnouncement(
                 dismissRecorder = get(),
-                shouldShowExchangeCampaignUseCase = get()
+                shouldShowExchangeCampaignUseCase = get(),
+                userIdentity = get(),
+                analytics = get(),
+                userAnalytics = get()
             )
         }.bind(AnnouncementRule::class)
 

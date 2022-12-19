@@ -858,9 +858,9 @@ class TransactionModel(
             onComplete = {
                 process(TransactionIntent.UpdateTransactionCancelled)
             }, onError = {
-            Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
-            errorLogger.log(TxFlowLogError.ExecuteFail(it))
-        }
+                Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
+                errorLogger.log(TxFlowLogError.ExecuteFail(it))
+            }
         )
 
     private fun processModifyTxOptionRequest(newConfirmation: TxConfirmationValue): Disposable =

@@ -123,49 +123,50 @@ class DappsListFragment :
                     )
                 }
             }, content = {
-            state?.let {
-                if (it.connectedSessions.isEmpty()) {
-                    renderNoDapps()
-                } else {
-                    DappsList(it.connectedSessions) { session ->
-                        currentBottomSheet = SessionBottomSheet.Disconnect(
-                            session = session,
-                            onDisconnectClick = {
-                                currentBottomSheet = SessionBottomSheet.Confirmation(
-                                    session,
-                                    onConfirmClick = {
-                                        model.process(DappsListIntent.Disconnect(session))
-                                        bottomSheetState = ModalBottomSheetValue.Hidden
-                                        analytics.logEvent(
-                                            WalletConnectAnalytics.ConnectedDappActioned(
-                                                dappName = session.dAppInfo.peerMeta.name,
-                                                action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                state?.let {
+                    if (it.connectedSessions.isEmpty()) {
+                        renderNoDapps()
+                    } else {
+                        DappsList(it.connectedSessions) { session ->
+                            currentBottomSheet = SessionBottomSheet.Disconnect(
+                                session = session,
+                                onDisconnectClick = {
+                                    currentBottomSheet = SessionBottomSheet.Confirmation(
+                                        session,
+                                        onConfirmClick = {
+                                            model.process(DappsListIntent.Disconnect(session))
+                                            bottomSheetState = ModalBottomSheetValue.Hidden
+                                            analytics.logEvent(
+                                                WalletConnectAnalytics.ConnectedDappActioned(
+                                                    dappName = session.dAppInfo.peerMeta.name,
+                                                    action =
+                                                    WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                                                )
                                             )
-                                        )
-                                    }
-                                )
-                                bottomSheetState = ModalBottomSheetValue.Hidden
-                                bottomSheetState = ModalBottomSheetValue.Expanded
-
-                                analytics.logEvent(
-                                    WalletConnectAnalytics.ConnectedDappActioned(
-                                        dappName = session.dAppInfo.peerMeta.name,
-                                        action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        }
                                     )
-                                )
-                            }
-                        )
-                        bottomSheetState = ModalBottomSheetValue.Expanded
+                                    bottomSheetState = ModalBottomSheetValue.Hidden
+                                    bottomSheetState = ModalBottomSheetValue.Expanded
 
-                        analytics.logEvent(
-                            WalletConnectAnalytics.ConnectedDappClicked(
-                                dappName = session.dAppInfo.peerMeta.name
+                                    analytics.logEvent(
+                                        WalletConnectAnalytics.ConnectedDappActioned(
+                                            dappName = session.dAppInfo.peerMeta.name,
+                                            action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        )
+                                    )
+                                }
                             )
-                        )
+                            bottomSheetState = ModalBottomSheetValue.Expanded
+
+                            analytics.logEvent(
+                                WalletConnectAnalytics.ConnectedDappClicked(
+                                    dappName = session.dAppInfo.peerMeta.name
+                                )
+                            )
+                        }
                     }
                 }
-            }
-        },
+            },
             onCollapse = {
                 bottomSheetState = ModalBottomSheetValue.Hidden
             }

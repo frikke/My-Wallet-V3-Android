@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -151,7 +152,9 @@ class SimpleCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
         position: Int,
         holder: RecyclerView.ViewHolder,
     ) = (holder as SimpleCheckoutItemViewHolder).bind(
-        items[position] as SimpleBuyCheckoutItem.SimpleCheckoutItem
+        items[position] as SimpleBuyCheckoutItem.SimpleCheckoutItem,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -159,8 +162,10 @@ private class SimpleCheckoutItemViewHolder(
     val binding: ItemCheckoutSimpleInfoBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: SimpleBuyCheckoutItem.SimpleCheckoutItem) {
+    fun bind(item: SimpleBuyCheckoutItem.SimpleCheckoutItem, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             simpleItemTitle.text = item.title
             simpleItemLabel.text = item.label
 
@@ -202,7 +207,9 @@ class ComplexCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
         position: Int,
         holder: RecyclerView.ViewHolder,
     ) = (holder as ComplexCheckoutItemItemViewHolder).bind(
-        items[position] as SimpleBuyCheckoutItem.ComplexCheckoutItem
+        items[position] as SimpleBuyCheckoutItem.ComplexCheckoutItem,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -210,8 +217,10 @@ private class ComplexCheckoutItemItemViewHolder(
     val binding: ItemCheckoutComplexInfoBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: SimpleBuyCheckoutItem.ComplexCheckoutItem) {
+    fun bind(item: SimpleBuyCheckoutItem.ComplexCheckoutItem, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             complexItemLabel.text = item.label
             complexItemTitle.text = item.title
             complexItemSubtitle.text = item.subtitle
@@ -236,7 +245,9 @@ class ToggleCheckoutItemDelegate(private val onToggleChanged: (Boolean) -> Unit)
         holder: RecyclerView.ViewHolder,
     ) = (holder as ToggleCheckoutItemItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ToggleCheckoutItem,
-        onToggleChanged
+        onToggleChanged,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -246,9 +257,13 @@ private class ToggleCheckoutItemItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ToggleCheckoutItem,
-        onToggleChanged: (Boolean) -> Unit
+        onToggleChanged: (Boolean) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+            root.rootView.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             toggleRow.apply {
                 primaryText = item.title
                 secondaryText = item.subtitle
@@ -279,7 +294,9 @@ class ClickableCheckoutItemDelegate(
         holder: RecyclerView.ViewHolder,
     ) = (holder as ClickableCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ClickableCheckoutItem,
-        onTooltipClicked
+        onTooltipClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -289,9 +306,13 @@ private class ClickableCheckoutItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ClickableCheckoutItem,
-        onTooltipClicked: (ActionType) -> Unit
+        onTooltipClicked: (ActionType) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             clickableItemTitle.text = item.title
             clickableItemLabel.text = item.label
             clickableItemLabel.setOnClickListener {
@@ -319,7 +340,9 @@ class ReadMoreDisclaimerCheckoutItemDelegate(
         holder: RecyclerView.ViewHolder,
     ) = (holder as ReadMoreDisclaimerCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
-        onCtaClicked
+        onCtaClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -329,9 +352,13 @@ private class ReadMoreDisclaimerCheckoutItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
-        onCtaClicked: (ActionType) -> Unit
+        onCtaClicked: (ActionType) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             infoText.text = item.text
             ctaButton.apply {
                 text = item.cta
@@ -349,7 +376,7 @@ class ExpandableCheckoutItemDelegate(
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         ExpandableCheckoutItemViewHolder(
-            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
 
     override fun onBindViewHolder(
@@ -358,7 +385,9 @@ class ExpandableCheckoutItemDelegate(
         holder: RecyclerView.ViewHolder,
     ) = (holder as ExpandableCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem,
-        onTooltipClicked
+        onTooltipClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -376,8 +405,12 @@ private class ExpandableCheckoutItemViewHolder(
     fun bind(
         item: SimpleBuyCheckoutItem.ExpandableCheckoutItem,
         onTooltipClicked: (ActionType) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean,
     ) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             expandableItemLabel.text = item.label
             expandableItemTitle.text = item.title
             expandableItemExpansion.text = item.expandableContent

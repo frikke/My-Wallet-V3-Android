@@ -101,6 +101,16 @@ import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.control.TabLayoutLarge
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.divider.VerticalDivider
+import com.blockchain.componentlib.icons.Card
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.NewWindow
+import com.blockchain.componentlib.icons.Receive
+import com.blockchain.componentlib.icons.Search
+import com.blockchain.componentlib.icons.Sync
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -116,6 +126,7 @@ import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
 import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.MediumVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -309,7 +320,7 @@ fun ManageCard(
                                     secondaryText = buildAnnotatedString {
                                         append(stringResource(R.string.bc_card_shipped_subtitle))
                                     },
-                                    startImageResource = ImageResource.Local(id = R.drawable.credit_card),
+                                    startImageResource = Icons.Card.withTint(AppTheme.colors.primary),
                                 )
                             }
 
@@ -326,7 +337,7 @@ fun ManageCard(
                                             stringResource(R.string.bc_card_delivered_subtitle)
                                         )
                                     },
-                                    startImageResource = ImageResource.Local(id = R.drawable.credit_card),
+                                    startImageResource = Icons.Card.withTint(AppTheme.colors.primary),
                                 )
                             }
                             else -> {}
@@ -823,9 +834,12 @@ fun CardSelector(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_alert_white),
-                            contentDescription = stringResource(R.string.bc_card_limit_reached),
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            imageResource = Icons.Filled.Info.copy(
+                                colorFilter = ColorFilter.tint(White),
+                                size = AppTheme.dimensions.mediumSpacing,
+                                contentDescription = stringResource(R.string.bc_card_limit_reached),
+                            )
                         )
 
                         TinyHorizontalSpacer()
@@ -1544,11 +1558,9 @@ fun CardTransactionItem(
         }
         transactionAmount = buildAnnotatedString { append("+$amount") }
         transactionTimestamp = buildAnnotatedString { transactionTimestampFormatted?.let { append(it) } }
-        transactionIcon = ImageResource.LocalWithBackground(
-            R.drawable.ic_receive,
-            backgroundColour = R.color.paletteBaseLight,
-            iconTintColour = R.color.paletteBaseTextTitle,
-            alpha = 1F
+        transactionIcon = Icons.Receive.withBackground(
+            iconSize = AppTheme.dimensions.standardSpacing,
+            backgroundSize = AppTheme.dimensions.standardSpacing,
         )
     } else if (state == BlockchainCardTransactionState.DECLINED || state == BlockchainCardTransactionState.CANCELLED) {
         transactionTitle = buildAnnotatedString { append(merchantName) }
@@ -1562,21 +1574,17 @@ fun CardTransactionItem(
                 append(stringResource(id = state.getStringResource()))
             }
         }
-        transactionIcon = ImageResource.LocalWithBackground(
-            R.drawable.ic_minus,
-            backgroundColour = R.color.paletteBaseLight,
-            iconTintColour = R.color.paletteBaseTextTitle,
-            alpha = 1F
+        transactionIcon = Icons.Minus.withBackground(
+            iconSize = AppTheme.dimensions.standardSpacing,
+            backgroundSize = AppTheme.dimensions.standardSpacing,
         )
     } else {
         transactionTitle = buildAnnotatedString { append(merchantName) }
         transactionAmount = buildAnnotatedString { append("-$amount") }
         transactionTimestamp = buildAnnotatedString { transactionTimestampFormatted?.let { append(it) } }
-        transactionIcon = ImageResource.LocalWithBackground(
-            R.drawable.ic_minus,
-            backgroundColour = R.color.paletteBaseLight,
-            iconTintColour = R.color.paletteBaseTextTitle,
-            alpha = 1F
+        transactionIcon = Icons.Minus.withBackground(
+            iconSize = AppTheme.dimensions.standardSpacing,
+            backgroundSize = AppTheme.dimensions.standardSpacing,
         )
     }
 
@@ -2315,11 +2323,11 @@ private fun PreviewBillingAddressUpdatedSuccess() {
 fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
-            painter = painterResource(id = R.drawable.ic_error),
-            contentDescription = stringResource(R.string.address_updated),
-            modifier = Modifier
-                .wrapContentWidth()
-                .size(74.dp),
+            imageResource = Icons.Filled.Info.copy(
+                colorFilter = ColorFilter.tint(AppTheme.colors.error),
+                contentDescription = stringResource(R.string.address_updated),
+                size = 74.dp,
+            ),
         )
 
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
@@ -2481,10 +2489,7 @@ fun Documents(
                     itemsIndexed(legalDocuments) { index, document ->
                         DefaultTableRow(
                             primaryText = document.displayName,
-                            endImageResource = ImageResource.Local(
-                                id = R.drawable.ic_new_window,
-                                colorFilter = ColorFilter.tint(Grey400)
-                            ),
+                            endImageResource = Icons.NewWindow.withTint(Grey400),
                             onClick = { onViewLegalDocument(document) },
                         )
 
@@ -2598,7 +2603,12 @@ fun NoCardStatements() {
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Image(
-            imageResource = ImageResource.Local(id = R.drawable.empty_statements_graphic),
+            imageResource = Icons.Filled.Search
+                .withTint(Grey300)
+                .withBackground(
+                    backgroundSize = 64.dp,
+                    iconSize = AppTheme.dimensions.hugeSpacing,
+                ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -2839,8 +2849,8 @@ fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Uni
             DefaultTableRow(
                 primaryText = stringResource(R.string.bc_card_change_asset_title),
                 secondaryText = stringResource(R.string.bc_card_change_asset_description),
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.change_asset_icon,
+                startImageResource = Icons.Sync.copy(
+                    colorFilter = ColorFilter.tint(AppTheme.colors.primary),
                     contentDescription = stringResource(R.string.bc_card_change_asset_title),
                 ),
                 onClick = onChangeAsset,
@@ -2988,10 +2998,7 @@ fun FundingAccount(accountBalance: AccountBalance, onFundingAccountClicked: () -
                     currencyTicker = accountBalance.totalFiat.currency.networkTicker,
                     currentBalance = accountBalance.totalFiat.toStringWithSymbol(),
                     currencyLogo = accountBalance.totalFiat.currency.logo,
-                    endImageResource = ImageResource.Local(
-                        id = R.drawable.ic_chevron_end,
-                        contentDescription = null,
-                    ),
+                    endImageResource = Icons.ChevronRight.withTint(Grey400),
                     onClick = onFundingAccountClicked
                 )
             }
@@ -3002,10 +3009,7 @@ fun FundingAccount(accountBalance: AccountBalance, onFundingAccountClicked: () -
                     currentBalance = accountBalance.total.toStringWithSymbol(),
                     currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol(),
                     currencyLogo = accountBalance.total.currency.logo,
-                    endImageResource = ImageResource.Local(
-                        id = R.drawable.ic_chevron_end,
-                        contentDescription = null,
-                    ),
+                    endImageResource = Icons.ChevronRight.withTint(Grey400),
                     onClick = onFundingAccountClicked
                 )
             }

@@ -807,8 +807,8 @@ class DashboardActionInteractor(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
             }, onComplete = {
-            model.process(DashboardIntent.FundsLocksLoaded(null))
-        },
+                model.process(DashboardIntent.FundsLocksLoaded(null))
+            },
             onError = {
                 Timber.e(it)
             }

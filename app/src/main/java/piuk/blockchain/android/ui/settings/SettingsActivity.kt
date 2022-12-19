@@ -9,7 +9,7 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -64,7 +64,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
         val settingsHomeFragment = SettingsFragment.newInstance()
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.settingsContentFrame.id, settingsHomeFragment
             )
@@ -211,7 +211,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.settingsContentFrame.id, newFragment, newFragment::class.simpleName
             ).addToBackStack(newFragment::class.simpleName)

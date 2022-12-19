@@ -2,7 +2,6 @@ package com.blockchain.chrome
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -16,6 +15,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
@@ -36,6 +36,7 @@ import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
+import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.koin.payloadScope
@@ -83,6 +84,12 @@ class MultiAppActivity :
         )
     }
 
+    private val qrScanNavigation: QrScanNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val settingsNavigation: SettingsNavigation = payloadScope.get {
         parametersOf(
             this
@@ -113,6 +120,10 @@ class MultiAppActivity :
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        qrScanNavigation.registerForQrScan(
+            onScan = { decodedData -> qrScanNavigation.processQrResult(decodedData) }
+        )
+
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
@@ -121,7 +132,8 @@ class MultiAppActivity :
                 assetActionsNavigation = assetActionsNavigation,
                 fiatActionsNavigation = fiatActionsNavigation,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation
+                pricesNavigation = pricesNavigation,
+                qrScanNavigation = qrScanNavigation
             )
         }
 
@@ -376,14 +388,14 @@ class MultiAppActivity :
     }
     // //////////////////////////////////
     // link bank with alias
-    companion object{
+    companion object {
         const val ALIAS_LINK_SUCCESS = "ALIAS_LINK_SUCCESS"
     }
 
     private val activityResultLinkBankWithAlias = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if(result.data?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) == true){
+        if (result.data?.getBooleanExtra(ALIAS_LINK_SUCCESS, false) == true) {
             fiatActionsNavigator.performAction(
                 FiatActionRequest.Restart(
                     shouldLaunchBankLinkTransfer = false

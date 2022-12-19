@@ -70,19 +70,18 @@ class SellViewModelTest {
         every { sellService.loadSellAssets() }.returns(dataResource)
 
         subject.viewState.test {
-            expectMostRecentItem()
             subject.viewCreated(ModelConfigArgs.NoArgs)
 
             dataResource.emit(DataResource.Loading)
-            awaitItem().run {
-                showLoader shouldBe false
+            expectMostRecentItem().run {
+                showLoader shouldBe true
             }
 
             val data = DataResource.Data(SellEligibility.Eligible(listOf(mockk(), mockk(), mockk())))
             dataResource.emit(data)
 
-            awaitItem().run {
-                showLoader shouldBe false
+            expectMostRecentItem().run {
+                showLoader shouldBe true
                 sellEligibility shouldBeEqualTo data
             }
         }

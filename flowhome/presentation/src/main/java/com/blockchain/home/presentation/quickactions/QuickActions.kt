@@ -24,8 +24,17 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.MenuKebabHorizontal
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.Plus
+import com.blockchain.componentlib.icons.Receive
+import com.blockchain.componentlib.icons.Send
+import com.blockchain.componentlib.icons.Swap
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.White
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
@@ -86,7 +95,7 @@ fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickActi
                         .alpha(
                             if (quickAction.enabled) 1f else .6f
                         ),
-                    imageResource = ImageResource.Local(quickAction.icon)
+                    imageResource = quickAction.icon
                 )
                 Text(
                     text = stringResource(id = quickAction.title),
@@ -103,6 +112,24 @@ fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickActi
     }
 }
 
+private val QuickActionItem.icon: ImageResource
+    @Composable
+    get() = when (action) {
+        is QuickAction.TxAction -> when (action.assetAction) {
+            AssetAction.Send -> Icons.Send
+            AssetAction.Swap -> Icons.Swap
+            AssetAction.Sell -> Icons.Minus
+            AssetAction.Buy -> Icons.Plus
+            AssetAction.Receive -> Icons.Receive
+            else -> throw UnsupportedOperationException()
+        }
+        QuickAction.More -> Icons.MenuKebabHorizontal
+    }.withBackground(
+        backgroundColor = White,
+        iconSize = AppTheme.dimensions.standardSpacing,
+        backgroundSize = AppTheme.dimensions.xHugeSpacing,
+    )
+
 @Preview
 @Composable
 fun QuickActionsPreview() {
@@ -112,20 +139,17 @@ fun QuickActionsPreview() {
                 listOf(
                     QuickActionItem(
                         title = R.string.common_buy,
-                        icon = R.drawable.ic_buy,
                         action = QuickAction.TxAction(AssetAction.Swap),
                         enabled = false
                     ),
                     QuickActionItem(
                         title = R.string.common_buy,
-                        icon = R.drawable.ic_buy,
                         enabled = true,
                         action = QuickAction.TxAction(AssetAction.Swap)
                     ),
                     QuickActionItem(
                         title = R.string.common_buy,
                         enabled = false,
-                        icon = R.drawable.ic_buy,
                         action = QuickAction.TxAction(AssetAction.Swap)
                     )
                 ),

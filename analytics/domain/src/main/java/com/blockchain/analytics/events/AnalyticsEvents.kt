@@ -152,6 +152,11 @@ enum class AnalyticsNames(val eventName: String) {
     COIN_VIEW_SWAP_CLICKED("Coin View Swap Clicked"),
     COIN_VIEW_ACCOUNT_SWAP_CLICKED("Coin View Account Swap Clicked"),
 
+    // EXCHANGE AWARENESS CAMPAIGN
+    EXCHANGE_AWARENESS_PROMPT_SHOWN("Exchange Awareness Prompt Shown"),
+    EXCHANGE_AWARENESS_PROMPT_CLICKED("Exchange Awareness Prompt Clicked"),
+    EXCHANGE_AWARENESS_PROMPT_DISMISSED("Exchange Awareness Prompt Dismissed"),
+
     // App Events
     APP_INSTALLED("Application Installed"),
     APP_UPDATED("Application Updated"),

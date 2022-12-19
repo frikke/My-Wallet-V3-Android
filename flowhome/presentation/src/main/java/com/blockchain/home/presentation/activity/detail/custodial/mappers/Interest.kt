@@ -183,7 +183,7 @@ private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle
 }
 
 private fun CustodialInterestActivitySummaryItem.pendingConfirmations(): TextValue? = when {
-    isPending() && type == TransactionSummary.TransactionType.DEPOSIT -> TextValue.IntResValue(
+    isPending() -> TextValue.IntResValue(
         value = R.string.activity_details_label_confirmations_single_line,
         args = listOf(confirmations.coerceAtLeast(0), account.currency.requiredConfirmations)
     )

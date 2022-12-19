@@ -59,6 +59,7 @@ import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
+import com.blockchain.core.mercuryexperiments.MercuryExperimentsRepository
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
@@ -104,6 +105,7 @@ import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.mercuryexperiments.MercuryExperimentsService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -609,6 +611,12 @@ val coreModule = module {
                 simpleBuyService = get(),
                 custodialWalletManager = get(),
                 currencyPrefs = get()
+            )
+        }
+
+        scoped<MercuryExperimentsService> {
+            MercuryExperimentsRepository(
+                mercuryExperimentsApiService = get()
             )
         }
     }

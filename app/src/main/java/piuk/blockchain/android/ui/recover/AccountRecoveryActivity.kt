@@ -5,7 +5,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -133,7 +133,7 @@ class AccountRecoveryActivity :
         analytics.logEvent(AccountRecoveryAnalytics.ResetClicked(isCustodialAccount = true))
         hideKeyboard()
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetAccountFragment.newInstance(
@@ -149,7 +149,7 @@ class AccountRecoveryActivity :
 
     private fun launchResetPasswordFlow(recoveryPhrase: String) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(

@@ -13,6 +13,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.Blue600
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
@@ -86,8 +88,8 @@ class KycCtaViewPagerAdapter(
             rowTier.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_verification_badge,
-                    backgroundColour = R.color.white,
-                    iconTintColour = R.color.grey_400,
+                    backgroundColor = White,
+                    iconColor = Grey400,
                     alpha = 0f
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_basic_level)
@@ -102,8 +104,8 @@ class KycCtaViewPagerAdapter(
             rowSendReceive.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_sent,
-                    backgroundColour = R.color.blue_600,
-                    iconTintColour = R.color.blue_600
+                    backgroundColor = Blue600,
+                    iconColor = Blue600
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_basic_send_receive_title)
                 secondaryText = context.getString(R.string.kyc_upgrade_now_basic_send_receive_description)
@@ -115,8 +117,8 @@ class KycCtaViewPagerAdapter(
             rowSwap.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_swap,
-                    backgroundColour = R.color.blue_600,
-                    iconTintColour = R.color.blue_600
+                    backgroundColor = Blue600,
+                    iconColor = Blue600
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_basic_swap_title)
                 secondaryText = context.getString(R.string.kyc_upgrade_now_basic_swap_description)
@@ -151,8 +153,8 @@ class KycCtaViewPagerAdapter(
             rowTier.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_verification_badge,
-                    backgroundColour = R.color.white,
-                    iconTintColour = R.color.blue_600,
+                    backgroundColor = White,
+                    iconColor = Blue600,
                     alpha = 0f
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_verified_level)
@@ -164,8 +166,8 @@ class KycCtaViewPagerAdapter(
             rowSwap.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_swap,
-                    backgroundColour = R.color.blue_600,
-                    iconTintColour = R.color.blue_600
+                    backgroundColor = Blue600,
+                    iconColor = Blue600
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_verified_swap_title)
                 secondaryText = context.getString(R.string.kyc_upgrade_now_verified_swap_description)
@@ -177,8 +179,8 @@ class KycCtaViewPagerAdapter(
             rowBuySell.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_buy,
-                    backgroundColour = R.color.blue_600,
-                    iconTintColour = R.color.blue_600
+                    backgroundColor = Blue600,
+                    iconColor = Blue600
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_verified_buy_title)
                 secondaryText = context.getString(R.string.kyc_upgrade_now_verified_buy_description)
@@ -190,8 +192,8 @@ class KycCtaViewPagerAdapter(
             rowRewards.apply {
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_interest,
-                    backgroundColour = R.color.blue_600,
-                    iconTintColour = R.color.blue_600
+                    backgroundColor = Blue600,
+                    iconColor = Blue600
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_verified_interest_title)
                 secondaryText = context.getString(R.string.kyc_upgrade_now_verified_interest_description)

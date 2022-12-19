@@ -93,12 +93,12 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                     (host as? Host)?.onLinkedBankRemoved(bank.id)
                     dismiss()
                 }, onError = {
-                BlockchainSnackbar.make(
-                    dialog?.window?.decorView ?: binding.root,
-                    getString(R.string.settings_bank_remove_error),
-                    type = SnackbarType.Error
-                ).show()
-            }
+                    BlockchainSnackbar.make(
+                        dialog?.window?.decorView ?: binding.root,
+                        getString(R.string.settings_bank_remove_error),
+                        type = SnackbarType.Error
+                    ).show()
+                }
             )
     }
 

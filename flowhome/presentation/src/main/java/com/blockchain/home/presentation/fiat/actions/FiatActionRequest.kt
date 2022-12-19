@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.fiat.actions
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.FiatAccount
 
 sealed interface FiatActionRequest {
     data class Restart(

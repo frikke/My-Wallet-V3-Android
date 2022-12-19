@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -293,7 +293,7 @@ class SimpleBuyActivity :
     ) {
         analytics.logEvent(BuyAssetSelectedEvent(type = preselectedAsset.networkTicker))
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 R.id.content_frame,
                 SimpleBuyCryptoFragment.newInstance(
@@ -317,7 +317,7 @@ class SimpleBuyActivity :
     override fun goToCheckOutScreen(addToBackStack: Boolean) {
         hideKeyboard()
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, SimpleBuyCheckoutFragment(), SimpleBuyCheckoutFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -329,7 +329,7 @@ class SimpleBuyActivity :
 
     override fun goToPendingOrderScreen() {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 R.id.content_frame,
                 SimpleBuyCheckoutFragment.newInstance(true),
@@ -340,7 +340,7 @@ class SimpleBuyActivity :
 
     override fun goToKycVerificationScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, SimpleBuyPendingKycFragment(), SimpleBuyPendingKycFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -357,7 +357,7 @@ class SimpleBuyActivity :
             is BlockedReason.NotEligible,
             is BlockedReason.TooManyInFlightTransactions -> {
                 supportFragmentManager.beginTransaction()
-                    .addAnimationTransaction()
+                    .addTransactionAnimation()
                     .replace(
                         R.id.content_frame,
                         SimpleBuyBlockedFragment.newInstance(FeatureAccess.Blocked(reason), resources),
@@ -387,7 +387,7 @@ class SimpleBuyActivity :
         recurringBuyFrequencyRemote: RecurringBuyFrequency?
     ) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 R.id.content_frame,
                 SimpleBuyPaymentFragment.newInstance(
@@ -413,7 +413,7 @@ class SimpleBuyActivity :
 
     override fun goToSetupFirstRecurringBuy(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
             .apply {
                 if (addToBackStack) {
@@ -425,7 +425,7 @@ class SimpleBuyActivity :
 
     override fun goToFirstRecurringBuyCreated(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
             .apply {
                 if (addToBackStack) {

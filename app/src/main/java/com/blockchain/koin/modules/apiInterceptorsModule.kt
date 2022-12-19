@@ -10,7 +10,7 @@ import com.blockchain.api.interceptors.SessionIdInterceptor
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.interceptors.UserAgentInterceptor
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.instrumentation.InstrumentationInterceptor
+import com.blockchain.instrumentation.InstrumentationInterceptor // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
 import com.blockchain.network.modules.OkHttpLoggingInterceptors

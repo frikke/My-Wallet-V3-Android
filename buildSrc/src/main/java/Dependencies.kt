@@ -24,7 +24,7 @@ object Versions {
     const val immutableCollections = "0.3.5"
 
     const val googleServicesPlugin = "4.3.3"
-    const val ktlint = "0.43.0"
+    const val ktlint = "0.45.0"
     const val detekt = "1.20.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
@@ -196,6 +196,7 @@ object Libraries {
         "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.immutableCollections}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
+    const val ktlintCore = "com.pinterest.ktlint:ktlint-core:${Versions.ktlint}"
     const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
     const val detektFormat = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detekt}"
 

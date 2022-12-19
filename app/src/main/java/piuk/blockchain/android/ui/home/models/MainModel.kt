@@ -17,6 +17,7 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
@@ -41,7 +42,6 @@ import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
-import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -673,10 +673,10 @@ class MainModel(
                             handleOrderState(it)
                         } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                     }, onError = {
-                    Timber.e("Error doing SB sync for bank linking $it")
-                    interactor.resetLocalBankAuthState()
-                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                }
+                        Timber.e("Error doing SB sync for bank linking $it")
+                        interactor.resetLocalBankAuthState()
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                    }
                 )
         }
     }
