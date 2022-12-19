@@ -1,10 +1,8 @@
 package com.blockchain.home.presentation.fiat.fundsdetail
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
@@ -13,6 +11,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -78,17 +77,17 @@ class FiatFundsDetailViewModel(
                 loadData()
             }
 
-            is FiatFundsDetailIntent.Deposit -> {
-                fiatActions.deposit(
-                    account = intent.account,
-                    action = intent.action,
-                    shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                    shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
-                )
-            }
-
-            is FiatFundsDetailIntent.Withdraw -> {
-                handleWithdraw(intent)
+            is FiatFundsDetailIntent.FiatAction -> {
+                when (intent.action) {
+                    AssetAction.FiatDeposit -> fiatActions.deposit(
+                        account = intent.account,
+                        action = intent.action,
+                        shouldLaunchBankLinkTransfer = false,
+                        shouldSkipQuestionnaire = false
+                    )
+                    AssetAction.FiatWithdraw -> handleWithdraw(intent)
+                    else -> error("unsupported")
+                }
             }
         }
     }
@@ -137,10 +136,9 @@ class FiatFundsDetailViewModel(
         }
     }
 
-    private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
-        firstOrNull { it.action == action && it.state == ActionState.Available } != null
+    private fun handleWithdraw(intent: FiatFundsDetailIntent.FiatAction) {
+        require(intent.action == AssetAction.FiatWithdraw) { "action is not AssetAction.FiatWithdraw" }
 
-    private fun handleWithdraw(intent: FiatFundsDetailIntent.Withdraw) {
         viewModelScope.launch {
             intent.account.canWithdrawFunds()
                 .collectLatest { dataResource ->
@@ -161,8 +159,8 @@ class FiatFundsDetailViewModel(
                                     fiatActions.withdraw(
                                         account = intent.account,
                                         action = intent.action,
-                                        shouldLaunchBankLinkTransfer = intent.shouldLaunchBankLinkTransfer,
-                                        shouldSkipQuestionnaire = intent.shouldSkipQuestionnaire
+                                        shouldLaunchBankLinkTransfer = false,
+                                        shouldSkipQuestionnaire = false
                                     )
                                 } else {
                                     updateState { it.copy(actionError = FiatActionError.WithdrawalInProgress) }

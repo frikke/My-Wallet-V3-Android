@@ -51,7 +51,7 @@ fun NavGraphBuilder.homeGraph(
 
     bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) { backStackEntry ->
         MoreActions(
-            onBackPressed = onBackPressed,
+            dismiss = onBackPressed,
             assetActionsNavigation = assetActionsNavigation
         )
     }

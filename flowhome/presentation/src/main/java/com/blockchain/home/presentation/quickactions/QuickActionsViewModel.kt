@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.quickactions
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
@@ -13,15 +14,18 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
+import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
+import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Observable
-import java.lang.IllegalStateException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -31,13 +35,16 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
+import kotlinx.coroutines.rx3.await
 
 class QuickActionsViewModel(
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val fiatActions: FiatActionsUseCase
 ) : MviViewModel<
     QuickActionsIntent,
     QuickActionsViewState,
@@ -46,6 +53,8 @@ class QuickActionsViewModel(
     ModelConfigArgs.NoArgs>(
     QuickActionsModelState()
 ) {
+    private var fiatActionJob: Job? = null
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: QuickActionsModelState): QuickActionsViewState {
@@ -95,6 +104,9 @@ class QuickActionsViewModel(
                     }
                 }
             }
+            is QuickActionsIntent.FiatAction -> {
+                handleFiatAction(action = intent.action)
+            }
         }
     }
 
@@ -124,12 +136,22 @@ class QuickActionsViewModel(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
+        val stateAwareActions = coincore.allFiats()
+            .map {
+                it.first { it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker }
+                    as FiatAccount
+            }.flatMap {
+                it.stateAwareActions
+            }
+            .asFlow()
+
         return combine(
             custodialBalance,
             depositFiatFeature,
             withdrawFiatFeature,
             hasFiatBalance,
-        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance ->
+            stateAwareActions
+        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
             listOf(
                 MoreActionItem(
                     icon = R.drawable.ic_more_send,
@@ -143,14 +165,14 @@ class QuickActionsViewModel(
                     title = R.string.common_deposit,
                     subtitle = R.string.add_cash_from_your_bank_or_card,
                     action = QuickAction.TxAction(AssetAction.FiatDeposit),
-                    enabled = depositEnabled && hasAnyFiatBalance
+                    enabled = depositEnabled && hasAnyFiatBalance && actions.hasAvailableAction(AssetAction.FiatDeposit)
                 ),
                 MoreActionItem(
                     icon = R.drawable.ic_more_withdraw,
                     title = R.string.common_withdraw,
                     subtitle = R.string.cash_out_bank,
                     action = QuickAction.TxAction(AssetAction.FiatWithdraw),
-                    enabled = withdrawEnabled
+                    enabled = withdrawEnabled && actions.hasAvailableAction(AssetAction.FiatWithdraw)
                 ),
             )
         }
@@ -258,6 +280,78 @@ class QuickActionsViewModel(
             )
         }
     }
+
+    private fun handleFiatAction(action: AssetAction) {
+        fiatActionJob?.cancel()
+        fiatActionJob = viewModelScope.launch {
+            val account = coincore.allFiats()
+                .map {
+                    it.first {
+                        it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker
+                    } as FiatAccount
+                }
+                .await()
+
+            when (action) {
+                AssetAction.FiatDeposit -> fiatActions.deposit(
+                    account = account,
+                    action = action,
+                    shouldLaunchBankLinkTransfer = false,
+                    shouldSkipQuestionnaire = false
+                )
+                AssetAction.FiatWithdraw -> handleWithdraw(
+                    account = account,
+                    action = action
+                )
+                else -> {
+                }
+            }
+        }
+    }
+
+    private suspend fun handleWithdraw(account: FiatAccount, action: AssetAction) {
+        require(action == AssetAction.FiatWithdraw) { "action is not AssetAction.FiatWithdraw" }
+
+        account.canWithdrawFunds()
+            .collectLatest { dataResource ->
+                when (dataResource) {
+                    DataResource.Loading -> {
+                        //                        updateState {
+                        //                            it.copy(
+                        //                                withdrawChecksLoading = true,
+                        //                                actionError = FiatActionError.None
+                        //                            )
+                        //                        }
+                    }
+                    is DataResource.Data -> {
+                        //                        updateState { it.copy(withdrawChecksLoading = false) }
+
+                        dataResource.data.let { canWithdrawFunds ->
+                            if (canWithdrawFunds) {
+                                fiatActions.withdraw(
+                                    account = account,
+                                    action = action,
+                                    shouldLaunchBankLinkTransfer = false,
+                                    shouldSkipQuestionnaire = false
+                                )
+                            } else {
+                                //                                updateState { it.copy(actionError = FiatActionError.WithdrawalInProgress) }
+                                //                                startDismissErrorTimeout()
+                            }
+                        }
+                    }
+                    is DataResource.Error -> {
+                        //                        updateState {
+                        //                            it.copy(
+                        //                                withdrawChecksLoading = false,
+                        //                                actionError = FiatActionError.Unknown
+                        //                            )
+                        //                        }
+                        //                        startDismissErrorTimeout()
+                    }
+                }
+            }
+    }
 }
 
 data class QuickActionsModelState(
@@ -288,9 +382,13 @@ data class MoreActionItem(
     val enabled: Boolean
 )
 
-sealed class QuickActionsIntent : Intent<QuickActionsModelState> {
+sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
     // class ActionClicked(val action: QuickAction) : QuickActionsIntent()
-    class LoadActions(val type: ActionType) : QuickActionsIntent()
+    class LoadActions(val type: ActionType) : QuickActionsIntent
+
+    data class FiatAction(
+        val action: AssetAction,
+    ) : QuickActionsIntent
 }
 
 sealed class QuickAction {
