@@ -37,7 +37,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
@@ -48,7 +47,6 @@ import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
-import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetScreenViewedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetSelectedEvent
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -59,8 +57,7 @@ import retrofit2.HttpException
 class SellIntroFragment :
     MVIViewPagerFragment<SellViewState>(),
     NavigationRouter<SellNavigation>,
-    KoinScopeComponent,
-    KycUpgradeNowSheet.Host {
+    KoinScopeComponent {
 
     override val scope: Scope
         get() = payloadScope
@@ -389,14 +386,6 @@ class SellIntroFragment :
     }
 
     override fun route(navigationEvent: SellNavigation) {
-        // do nothing
-    }
-
-    override fun startKycClicked() {
-        (requireActivity() as? HomeNavigator)?.launchKyc(CampaignType.SimpleBuy)
-    }
-
-    override fun onSheetClosed() {
         // do nothing
     }
 }
