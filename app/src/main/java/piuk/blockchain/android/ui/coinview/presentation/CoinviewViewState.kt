@@ -93,8 +93,6 @@ sealed interface CoinviewAccountsState {
     object Loading : CoinviewAccountsState
     object Error : CoinviewAccountsState
     data class Data(
-        val style: CoinviewAccountsStyle,
-        val header: CoinviewAccountsHeaderState,
         val accounts: List<CoinviewAccountState>
     ) : CoinviewAccountsState {
         sealed interface CoinviewAccountState {
@@ -124,13 +122,6 @@ sealed interface CoinviewAccountsState {
             object NoHeader : CoinviewAccountsHeaderState
         }
     }
-}
-
-/**
- * The accounts section can be drawn either boxed (defi) or simple (custodial)
- */
-enum class CoinviewAccountsStyle {
-    Simple, Boxed
 }
 
 // Recurring buys

@@ -14,10 +14,10 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Green400
-import com.blockchain.componentlib.theme.Green600
+import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.theme.Red400
-import com.blockchain.componentlib.theme.Red600
 import java.text.NumberFormat
 
 @Composable
@@ -31,13 +31,13 @@ fun PercentageChange(
 ) {
 
     val positiveTextColor = if (!isDarkMode) {
-        Green600
+        Green700
     } else {
         Green400
     }
 
     val negativeTextColor = if (!isDarkMode) {
-        Red600
+        Pink700
     } else {
         Red400
     }

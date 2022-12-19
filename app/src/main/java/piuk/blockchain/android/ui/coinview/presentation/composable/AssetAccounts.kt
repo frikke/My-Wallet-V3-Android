@@ -52,7 +52,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.isTradingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsStyle
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
@@ -125,10 +124,8 @@ fun AssetAccountsData(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .applyStyle(data.style)
+            .boxed()
     ) {
-        // header
-        AssetAccountHeader(header = data.header)
 
         // accounts
         data.accounts.forEach { account ->
@@ -203,22 +200,6 @@ fun AssetAccountsData(
 }
 
 @Composable
-fun AssetAccountHeader(header: CoinviewAccountsHeaderState) {
-    when (header) {
-        is CoinviewAccountsHeaderState.ShowHeader -> {
-            SmallSectionHeader(
-                modifier = Modifier.fillMaxWidth(),
-                text = header.text.value()
-            )
-        }
-
-        CoinviewAccountsHeaderState.NoHeader -> {
-            Empty()
-        }
-    }
-}
-
-@Composable
 fun Separator() {
     Box(
         modifier = Modifier
@@ -229,22 +210,17 @@ fun Separator() {
 }
 
 @Composable
-private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
-    return when (style) {
-        CoinviewAccountsStyle.Boxed -> {
-            run {
-                padding(AppTheme.dimensions.smallSpacing)
-            }.run {
-                border(
-                    width = AppTheme.dimensions.borderSmall,
-                    color = AppTheme.colors.medium,
-                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-                )
-            }.run {
-                background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-            }
-        }
-        CoinviewAccountsStyle.Simple -> this
+private fun Modifier.boxed(): Modifier {
+    return run {
+        padding(AppTheme.dimensions.smallSpacing)
+    }.run {
+        border(
+            width = AppTheme.dimensions.borderSmall,
+            color = AppTheme.colors.medium,
+            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+        )
+    }.run {
+        background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     }
 }
 
@@ -281,8 +257,6 @@ fun PreviewAssetAccounts_Error() {
 fun PreviewAssetAccounts_Data_Simple() {
     AssetAccounts(
         CoinviewAccountsState.Data(
-            style = CoinviewAccountsStyle.Simple,
-            header = CoinviewAccountsHeaderState.ShowHeader(TextValue.StringValue("wallet & accounts")),
             accounts = listOf(
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,
@@ -320,8 +294,6 @@ fun PreviewAssetAccounts_Data_Simple() {
 fun PreviewAssetAccounts_Data_Boxed() {
     AssetAccounts(
         CoinviewAccountsState.Data(
-            style = CoinviewAccountsStyle.Boxed,
-            header = CoinviewAccountsHeaderState.NoHeader,
             accounts = listOf(
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,

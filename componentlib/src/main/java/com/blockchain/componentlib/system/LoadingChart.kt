@@ -38,6 +38,7 @@ import kotlin.random.Random
 
 @Composable
 fun LoadingChart(
+    modifier : Modifier = Modifier,
     historicalRates: List<SparkLineHistoricalRate>,
     loadingText: String,
 ) {
@@ -62,10 +63,9 @@ fun LoadingChart(
     )
 
     Column(
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(240.dp)
-            .background(AppTheme.colors.background)
     ) {
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_blockchain),

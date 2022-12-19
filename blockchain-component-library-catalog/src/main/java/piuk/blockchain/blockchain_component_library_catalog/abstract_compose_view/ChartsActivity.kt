@@ -48,22 +48,18 @@ class ChartsActivity : AppCompatActivity() {
         }
 
         findViewById<BalanceView>(R.id.default_chart).apply {
-            title = "Current Balance"
             price = "$51423.00"
             percentageChangeData = PercentageChangeData("$50.00", 0.24, "Last Hour")
         }
 
 
         findViewById<BalanceView>(R.id.balance_with_icon).apply {
-            title = "Current Balance"
             price = "$51423.00"
             percentageChangeData = PercentageChangeData("$50.00", 0.24, "Last Hour")
-            endIcon = ImageResource.Local(R.drawable.ic_blockchain)
         }
 
 
         findViewById<BalanceView>(R.id.today_chart).apply {
-            title = "Today"
             price = "$51423.00"
             percentageChangeData = PercentageChangeData("$50.00", -0.24, "Last Hour")
         }

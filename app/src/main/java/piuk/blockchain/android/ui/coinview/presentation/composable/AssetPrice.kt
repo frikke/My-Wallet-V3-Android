@@ -90,14 +90,13 @@ fun AssetPriceInfoData(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Balance(
-            title = stringResource(R.string.coinview_price_label, data.assetName),
+            modifier = Modifier.fillMaxWidth(),
             price = data.price,
             percentageChangeData = PercentageChangeData(
                 priceChange = data.priceChange,
                 percentChange = data.percentChange,
                 interval = stringResource(data.intervalName)
-            ),
-            endIcon = ImageResource.Remote(url = data.assetLogo, shape = CircleShape)
+            )
         )
 
         when (data.chartData) {
@@ -264,9 +263,7 @@ fun PreviewAssetPrice_Data() {
             priceChange = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
-            chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
-                listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
-            ),
+            chartData = CoinviewPriceState.Data.CoinviewChartState.Loading,
             selectedTimeSpan = HistoricalTimeSpan.DAY
         ),
         assetTicker = "ETH",
