@@ -32,6 +32,7 @@ import com.blockchain.componentlib.control.TabLayoutLive
 import com.blockchain.componentlib.system.LoadingChart
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.toDatePattern
 import com.github.mikephil.charting.data.Entry
@@ -254,7 +255,8 @@ fun PreviewAssetPrice_Loading() {
 @Preview
 @Composable
 fun PreviewAssetPrice_Data() {
-    AssetPrice(
+    AssetPriceInfoData(
+        previewAnalytics,
         CoinviewPriceState.Data(
             assetName = "Ethereum",
             assetLogo = "logo//",

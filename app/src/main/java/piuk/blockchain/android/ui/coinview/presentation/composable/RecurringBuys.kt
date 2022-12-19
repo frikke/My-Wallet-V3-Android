@@ -1,9 +1,13 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +28,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue200
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
@@ -33,6 +38,7 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 @Composable
 fun RecurringBuys(
+    analytics: Analytics = get(),
     data: CoinviewRecurringBuysState,
     assetTicker: String,
     onRecurringBuyUpsellClick: () -> Unit,
@@ -52,11 +58,15 @@ fun RecurringBuys(
         }
 
         CoinviewRecurringBuysState.Upsell -> {
-            RecurringBuysUpsell(onRecurringBuyUpsellClick = onRecurringBuyUpsellClick)
+            RecurringBuysUpsell(
+                analytics = analytics,
+                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
+            )
         }
 
         is CoinviewRecurringBuysState.Data -> {
             RecurringBuysData(
+                analytics = analytics,
                 data = data,
                 assetTicker = assetTicker,
                 onRecurringBuyItemClick = onRecurringBuyItemClick
@@ -144,37 +154,50 @@ fun RecurringBuysData(
         modifier = Modifier.fillMaxWidth()
     ) {
         // header
-        SmallSectionHeader(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.dashboard_recurring_buy_title)
+        Text(
+            modifier = Modifier.padding(
+                vertical = AppTheme.dimensions.tinySpacing,
+                horizontal = AppTheme.dimensions.smallSpacing
+            ),
+            text =  stringResource(R.string.dashboard_recurring_buy_title),
+            style = AppTheme.typography.body2,
+            color = AppTheme.colors.muted
         )
 
         // list
-        data.recurringBuys.forEachIndexed { index, recurringBuy ->
-            DefaultTableRow(
-                primaryText = recurringBuy.description.value(),
-                secondaryText = recurringBuy.status.value(),
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_tx_rb,
-                    colorFilter = ColorFilter.tint(
-                        Color(android.graphics.Color.parseColor(recurringBuy.assetColor))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppTheme.dimensions.smallSpacing)
+                .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+        ) {
+            data.recurringBuys.forEachIndexed { index, recurringBuy ->
+                DefaultTableRow(
+                    primaryText = recurringBuy.description.value(),
+                    secondaryText = recurringBuy.status.value(),
+                    startImageResource = ImageResource.Local(
+                        id = R.drawable.ic_tx_rb,
+                        colorFilter = ColorFilter.tint(
+                            Color(android.graphics.Color.parseColor(recurringBuy.assetColor))
+                        ),
+                        shape = CircleShape
                     ),
-                    shape = CircleShape
-                ),
-                onClick = {
-                    analytics.logEvent(
-                        RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                            LaunchOrigin.CURRENCY_PAGE,
-                            assetTicker
+                    backgroundColor = Color.Transparent,
+                    onClick = {
+                        analytics.logEvent(
+                            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                                LaunchOrigin.CURRENCY_PAGE,
+                                assetTicker
+                            )
                         )
-                    )
 
-                    onRecurringBuyItemClick(recurringBuy.id)
+                        onRecurringBuyItemClick(recurringBuy.id)
+                    }
+                )
+
+                if (data.recurringBuys.lastIndex != index) {
+                    Divider(color = Color(0XFFF1F2F7))
                 }
-            )
-
-            if (data.recurringBuys.lastIndex != index) {
-                Separator()
             }
         }
     }
@@ -183,25 +206,29 @@ fun RecurringBuysData(
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Loading() {
-    RecurringBuys(CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
+    RecurringBuys(previewAnalytics,
+        CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Error() {
-    RecurringBuys(CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
+    RecurringBuys(previewAnalytics,
+        CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Upsell() {
-    RecurringBuys(CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
+    RecurringBuys(previewAnalytics,
+        CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Data() {
     RecurringBuys(
+        previewAnalytics,
         CoinviewRecurringBuysState.Data(
             listOf(
                 CoinviewRecurringBuyState(

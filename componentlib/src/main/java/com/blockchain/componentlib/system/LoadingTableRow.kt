@@ -32,7 +32,8 @@ import com.blockchain.componentlib.theme.Grey100
 @Composable
 fun ShimmerLoadingTableRow(
     showIconLoader: Boolean = true,
-    showEndBlocks: Boolean = true
+    showEndBlocks: Boolean = true,
+    showBottomBlock: Boolean = true
 ) {
     val transition = rememberInfiniteTransition()
     val translateAnim by transition.animateFloat(
@@ -56,7 +57,7 @@ fun ShimmerLoadingTableRow(
         if (showIconLoader) {
             ShimmerIcon(brush = brush)
         }
-        ShimmerRow(brush = brush, showEndBlocks = showEndBlocks)
+        ShimmerRow(brush = brush, showEndBlocks = showEndBlocks, showBottomBlock = showBottomBlock)
     }
 }
 
@@ -82,7 +83,8 @@ fun ShimmerIcon(
 @Composable
 fun ShimmerRow(
     brush: Brush,
-    showEndBlocks: Boolean = true
+    showEndBlocks: Boolean = true,
+    showBottomBlock: Boolean = true
 ) {
     Column(
         modifier = Modifier.padding(
@@ -93,7 +95,9 @@ fun ShimmerRow(
         )
     ) {
         ShimmerLargeBlock(brush = brush, showEndBlock = showEndBlocks)
-        ShimmerSmallBlock(brush = brush, showEndBlock = showEndBlocks)
+        if (showBottomBlock) {
+            ShimmerSmallBlock(brush = brush, showEndBlock = showEndBlocks)
+        }
     }
 }
 

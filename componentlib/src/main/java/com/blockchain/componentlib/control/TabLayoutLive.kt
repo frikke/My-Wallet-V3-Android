@@ -44,6 +44,7 @@ fun TabLayoutLive(
         backgroundColor = Color.Transparent,
         contentColor = AppTheme.colors.primary,
         divider = {},
+        indicator = {},
         modifier = modifier,
     ) {
         items.forEachIndexed { index, itemName ->
@@ -103,8 +104,8 @@ private fun TabLayoutItem(
 ) {
     Text(
         text = itemName,
-        color = if (isSelected) AppTheme.colors.primary else Grey400,
-        style = AppTheme.typography.body2,
+        color = if (isSelected) AppTheme.colors.title else Grey400,
+        style = AppTheme.typography.paragraph2,
         modifier = modifier,
         textAlign = TextAlign.Center
     )

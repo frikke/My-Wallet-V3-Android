@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
@@ -15,6 +17,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.value
+import com.blockchain.nfts.help.screen.Separator
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 
@@ -44,7 +47,7 @@ fun BottomQuickActions(
 @Composable
 fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Separator()
+        Divider(color = Color(0XFFF1F2F7))
 
         Row(
             modifier = Modifier
@@ -80,7 +83,7 @@ fun BottomQuickActionData(
 
     if (atLeastOneButton) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Separator()
+            Divider(color = Color(0XFFF1F2F7))
 
             Row(
                 modifier = Modifier

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -45,6 +46,7 @@ fun BalanceTableRow(
     postStartTitleImageResourceOnClick: () -> Unit = {},
     isInlineTags: Boolean = false,
     tags: List<TagViewState> = emptyList(),
+    backgroundColor: Color = AppTheme.colors.background,
     onClick: () -> Unit = {}
 ) {
 
@@ -126,6 +128,7 @@ fun BalanceTableRow(
                 )
             }
         },
+        backgroundColor = backgroundColor,
         onContentClicked = onClick
     )
 }
