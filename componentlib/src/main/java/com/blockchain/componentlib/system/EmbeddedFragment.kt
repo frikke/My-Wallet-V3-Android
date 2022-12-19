@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -20,7 +19,7 @@ fun EmbeddedFragment(
     modifier: Modifier = Modifier,
     tag: String
 ) {
-    var viewId by rememberSaveable { mutableStateOf(View.generateViewId()) }
+    val viewId by rememberSaveable { mutableStateOf(View.generateViewId()) }
 
     AndroidView(
         modifier = modifier,
@@ -30,7 +29,7 @@ fun EmbeddedFragment(
                 ?: FragmentContainerView(context)
                     .apply { id = viewId }
                     .also {
-                        fragmentManager.beginTransaction().replace(viewId, fragment, tag).commitNowAllowingStateLoss()
+                        fragmentManager.beginTransaction().replace(viewId, fragment, tag).commit()
                     }
         },
         update = {
