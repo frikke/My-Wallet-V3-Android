@@ -16,7 +16,7 @@ sealed interface FiatActionsResult : NavigationEvent {
     data class TransactionFlow(
         override val account: FiatAccount = NullFiatAccount,
         override val action: AssetAction,
-        val target: TransactionTarget = NullFiatAccount
+        val target: TransactionTarget
     ) : FiatActionsResult
 
     data class WireTransferAccountDetails(

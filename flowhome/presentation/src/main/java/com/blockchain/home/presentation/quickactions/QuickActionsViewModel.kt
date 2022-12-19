@@ -293,7 +293,7 @@ class QuickActionsViewModel(
                 .await()
 
             when (action) {
-                AssetAction.FiatDeposit -> fiatActions.withdraw(
+                AssetAction.FiatDeposit -> fiatActions.deposit(
                     account = account,
                     action = action,
                     shouldLaunchBankLinkTransfer = false,

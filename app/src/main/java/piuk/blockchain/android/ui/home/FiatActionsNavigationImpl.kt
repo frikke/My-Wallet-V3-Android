@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -43,7 +45,7 @@ class FiatActionsNavigationImpl(
         activity?.startActivity(
             TransactionFlowActivity.newIntent(
                 context = activity,
-                sourceAccount = account,
+                sourceAccount = account.takeIf { it !is NullFiatAccount },
                 target = target,
                 action = action
             )
