@@ -339,10 +339,6 @@ class CoinviewViewModelTest {
                 )
                 awaitItem().run {
                     val expected = CoinviewAccountsState.Data(
-                        style = CoinviewAccountsStyle.Simple,
-                        header = CoinviewAccountsState.Data.CoinviewAccountsHeaderState.ShowHeader(
-                            TextValue.IntResValue(R.string.coinview_accounts_label)
-                        ),
                         accounts = listOf(
                             CoinviewAccountsState.Data.CoinviewAccountState.Available(
                                 cvAccount = coinviewAccount,

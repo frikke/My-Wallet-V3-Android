@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.value
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
@@ -50,12 +50,13 @@ fun CenterQuickActionsData(
                 .padding(AppTheme.dimensions.standardSpacing)
         ) {
 
-            PrimaryButton(
+            TertiaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = data.center.name.value(),
+                textColor = AppTheme.colors.title,
                 icon = ImageResource.Local(
                     data.center.logo.value,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    colorFilter = ColorFilter.tint(AppTheme.colors.title),
                     size = AppTheme.dimensions.standardSpacing
                 ),
                 state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,

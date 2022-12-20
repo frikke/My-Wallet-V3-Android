@@ -39,7 +39,7 @@ fun Button(
         icon: ImageResource
     ) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = AppTheme.shapes.small,
+    shape: Shape = AppTheme.shapes.extraLarge,
     defaultTextColor: Color = Color.Unspecified,
     defaultBackgroundLightColor: Color = Color.Unspecified,
     defaultBackgroundDarkColor: Color = Color.Unspecified,

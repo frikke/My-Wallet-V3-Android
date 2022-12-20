@@ -7,7 +7,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +37,7 @@ import kotlin.random.Random
 
 @Composable
 fun LoadingChart(
+    modifier: Modifier = Modifier,
     historicalRates: List<SparkLineHistoricalRate>,
     loadingText: String,
 ) {
@@ -62,10 +62,9 @@ fun LoadingChart(
     )
 
     Column(
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(240.dp)
-            .background(AppTheme.colors.background)
     ) {
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_blockchain),

@@ -109,7 +109,8 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(horizontal = dimensionResource(R.dimen.medium_spacing))
+                .padding(horizontal = dimensionResource(R.dimen.medium_spacing)),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {
@@ -131,7 +132,7 @@ fun NavigationBar(
                 modifier = Modifier.weight(1f),
                 text = title,
                 color = AppTheme.colors.title,
-                style = AppTheme.typography.title2
+                style = AppTheme.typography.body2
             )
             endNavigationBarButtons.forEach {
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_spacing)))

@@ -1,14 +1,12 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,13 +26,13 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import info.blockchain.balance.CryptoCurrency
@@ -51,13 +49,12 @@ import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isTradingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsStyle
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetAccounts(
+    analytics: Analytics = get(),
     data: CoinviewAccountsState,
     assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
@@ -78,6 +75,7 @@ fun AssetAccounts(
 
         is CoinviewAccountsState.Data -> {
             AssetAccountsData(
+                analytics = analytics,
                 data = data,
                 assetTicker = assetTicker,
                 onAccountClick = onAccountClick,
@@ -100,8 +98,7 @@ fun AssetAccountsError() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = AppTheme.dimensions.standardSpacing,
-                vertical = AppTheme.dimensions.smallSpacing
+                horizontal = AppTheme.dimensions.standardSpacing
             )
     ) {
         CardAlert(
@@ -125,13 +122,11 @@ fun AssetAccountsData(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .applyStyle(data.style)
+            .padding(horizontal = AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
-        // header
-        AssetAccountHeader(header = data.header)
-
         // accounts
-        data.accounts.forEach { account ->
+        data.accounts.forEachIndexed { index, account ->
             when (account) {
                 is CoinviewAccountState.Available -> {
                     BalanceTableRow(
@@ -154,6 +149,7 @@ fun AssetAccountsData(
                             }
                         },
                         tags = emptyList(),
+                        backgroundColor = Color.Transparent,
                         onClick = {
                             account.cvAccount.account.let { account ->
                                 if (account is CryptoAccount && account is TradingAccount) {
@@ -192,59 +188,16 @@ fun AssetAccountsData(
                         endImageResource = ImageResource.Local(
                             R.drawable.ic_lock, colorFilter = ColorFilter.tint(Grey400)
                         ),
+                        backgroundColor = Color.Transparent,
                         onClick = { onLockedAccountClick() }
                     )
                 }
             }
 
-            Separator()
-        }
-    }
-}
-
-@Composable
-fun AssetAccountHeader(header: CoinviewAccountsHeaderState) {
-    when (header) {
-        is CoinviewAccountsHeaderState.ShowHeader -> {
-            SmallSectionHeader(
-                modifier = Modifier.fillMaxWidth(),
-                text = header.text.value()
-            )
-        }
-
-        CoinviewAccountsHeaderState.NoHeader -> {
-            Empty()
-        }
-    }
-}
-
-@Composable
-fun Separator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(AppTheme.dimensions.borderSmall)
-            .background(AppTheme.colors.medium)
-    )
-}
-
-@Composable
-private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
-    return when (style) {
-        CoinviewAccountsStyle.Boxed -> {
-            run {
-                padding(AppTheme.dimensions.smallSpacing)
-            }.run {
-                border(
-                    width = AppTheme.dimensions.borderSmall,
-                    color = AppTheme.colors.medium,
-                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-                )
-            }.run {
-                background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            if (index < data.accounts.lastIndex) {
+                Divider(color = Color(0XFFF1F2F7))
             }
         }
-        CoinviewAccountsStyle.Simple -> this
     }
 }
 
@@ -260,6 +213,7 @@ private fun CoinviewAccount.toAccountType() = when {
 @Composable
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
+        previewAnalytics,
         CoinviewAccountsState.Loading,
         assetTicker = "ETH",
         {}, {}
@@ -270,6 +224,7 @@ fun PreviewAssetAccounts_Loading() {
 @Composable
 fun PreviewAssetAccounts_Error() {
     AssetAccounts(
+        previewAnalytics,
         CoinviewAccountsState.Error,
         assetTicker = "ETH",
         {}, {}
@@ -278,50 +233,10 @@ fun PreviewAssetAccounts_Error() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewAssetAccounts_Data_Simple() {
+fun PreviewAssetAccounts_Data() {
     AssetAccounts(
+        previewAnalytics,
         CoinviewAccountsState.Data(
-            style = CoinviewAccountsStyle.Simple,
-            header = CoinviewAccountsHeaderState.ShowHeader(TextValue.StringValue("wallet & accounts")),
-            accounts = listOf(
-                CoinviewAccountState.Available(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 1",
-                    subtitle = TextValue.StringValue("ETH"),
-                    cryptoBalance = "0.90349281 ETH",
-                    fiatBalance = "$2,000.00",
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                    assetColor = "#324921"
-                ),
-                CoinviewAccountState.Available(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 2",
-                    subtitle = TextValue.StringValue("ETH"),
-                    cryptoBalance = "0.90349281 ETH",
-                    fiatBalance = "$2,000.00",
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                    assetColor = "#324921"
-                ),
-                CoinviewAccountState.Unavailable(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 2",
-                    subtitle = TextValue.StringValue("ETH"),
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
-                )
-            )
-        ),
-        assetTicker = "ETH",
-        {}, {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAssetAccounts_Data_Boxed() {
-    AssetAccounts(
-        CoinviewAccountsState.Data(
-            style = CoinviewAccountsStyle.Boxed,
-            header = CoinviewAccountsHeaderState.NoHeader,
             accounts = listOf(
                 CoinviewAccountState.Available(
                     cvAccount = previewCvAccount,

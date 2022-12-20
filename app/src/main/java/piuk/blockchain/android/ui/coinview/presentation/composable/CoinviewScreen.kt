@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,16 +13,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.SnackbarAlert
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.home.presentation.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
@@ -39,6 +48,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun Coinview(
@@ -107,6 +117,8 @@ fun Coinview(
 
 @Composable
 fun CoinviewScreen(
+    analytics: Analytics = get(),
+
     backOnClick: () -> Unit,
 
     asset: CoinviewAssetState,
@@ -142,11 +154,46 @@ fun CoinviewScreen(
 
     snackbarAlert: CoinviewSnackbarAlertState
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0XFFF1F2F7))
+    ) {
+
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
                 title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
-                onBackButtonClick = backOnClick
+                onBackButtonClick = backOnClick,
+                navigationBarButtons = listOfNotNull(
+                    (watchlist as? CoinviewWatchlistState.Data)?.isInWatchlist?.let { isInWatchlist ->
+                        NavigationBarButton.IconResource(
+                            image = if (isInWatchlist) {
+                                Icons.Filled.Star
+                            } else {
+                                Icons.Star
+                            }.copy(contentDescription = stringResource(R.string.accessibility_filter)),
+                            onIconClick = {
+                                (asset as? CoinviewAssetState.Data)?.asset?.networkTicker?.let {
+                                    analytics.logEvent(
+                                        if (isInWatchlist) {
+                                            CoinViewAnalytics.CoinRemovedFromWatchlist(
+                                                origin = LaunchOrigin.COIN_VIEW,
+                                                currency = it
+                                            )
+                                        } else {
+                                            CoinViewAnalytics.CoinAddedFromWatchlist(
+                                                origin = LaunchOrigin.COIN_VIEW,
+                                                currency = it
+                                            )
+                                        }
+                                    )
+
+                                    onWatchlistClick()
+                                }
+                            }
+                        )
+                    }
+                )
             )
 
             when (asset) {
@@ -170,11 +217,13 @@ fun CoinviewScreen(
                                 onNewTimeSpanSelected = onNewTimeSpanSelected
                             )
 
+                            CenterQuickActions(
+                                data = quickActionsCenter,
+                                onQuickActionClick = onQuickActionClick
+                            )
+
                             TotalBalance(
-                                totalBalanceData = totalBalance,
-                                watchlistData = watchlist,
-                                assetTicker = asset.asset.networkTicker,
-                                onWatchlistClick = onWatchlistClick
+                                totalBalanceData = totalBalance
                             )
 
                             NonTradeableAsset(
@@ -186,11 +235,6 @@ fun CoinviewScreen(
                                 assetTicker = asset.asset.networkTicker,
                                 onAccountClick = onAccountClick,
                                 onLockedAccountClick = onLockedAccountClick
-                            )
-
-                            CenterQuickActions(
-                                data = quickActionsCenter,
-                                onQuickActionClick = onQuickActionClick
                             )
 
                             RecurringBuys(

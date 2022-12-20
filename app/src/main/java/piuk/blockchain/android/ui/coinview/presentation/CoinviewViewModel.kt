@@ -58,7 +58,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
 
@@ -292,18 +291,6 @@ class CoinviewViewModel(
 
                 with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     CoinviewAccountsState.Data(
-                        style = when (accounts) {
-                            is CoinviewAccounts.Universal,
-                            is CoinviewAccounts.Custodial -> CoinviewAccountsStyle.Simple
-                            is CoinviewAccounts.Defi -> CoinviewAccountsStyle.Boxed
-                        },
-                        header = when (accounts) {
-                            is CoinviewAccounts.Universal,
-                            is CoinviewAccounts.Custodial -> CoinviewAccountsHeaderState.ShowHeader(
-                                TextValue.IntResValue(R.string.coinview_accounts_label)
-                            )
-                            is CoinviewAccounts.Defi -> CoinviewAccountsHeaderState.NoHeader
-                        },
                         accounts = accounts.accounts.map { cvAccount ->
                             val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
                                 when (blockchainAccount) {

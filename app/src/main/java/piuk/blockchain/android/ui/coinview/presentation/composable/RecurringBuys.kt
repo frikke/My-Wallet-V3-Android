@@ -1,9 +1,12 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,12 +21,12 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.card.ButtonType
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.DefaultCard
-import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue200
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
@@ -33,6 +36,7 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 @Composable
 fun RecurringBuys(
+    analytics: Analytics = get(),
     data: CoinviewRecurringBuysState,
     assetTicker: String,
     onRecurringBuyUpsellClick: () -> Unit,
@@ -52,11 +56,15 @@ fun RecurringBuys(
         }
 
         CoinviewRecurringBuysState.Upsell -> {
-            RecurringBuysUpsell(onRecurringBuyUpsellClick = onRecurringBuyUpsellClick)
+            RecurringBuysUpsell(
+                analytics = analytics,
+                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
+            )
         }
 
         is CoinviewRecurringBuysState.Data -> {
             RecurringBuysData(
+                analytics = analytics,
                 data = data,
                 assetTicker = assetTicker,
                 onRecurringBuyItemClick = onRecurringBuyItemClick
@@ -67,37 +75,32 @@ fun RecurringBuys(
 
 @Composable
 fun RecurringBuysLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+    ) {
         ShimmerLoadingTableRow()
     }
 }
 
 @Composable
 fun RecurringBuysError() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // header
-        SmallSectionHeader(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.dashboard_recurring_buy_title)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+    ) {
+        CardAlert(
+            title = stringResource(R.string.coinview_recuring_buy_load_error_title),
+            subtitle = stringResource(R.string.coinview_recuring_buy_load_error_subtitle),
+            alertType = AlertType.Warning,
+            backgroundColor = AppTheme.colors.background,
+            isBordered = false,
+            isDismissable = false,
         )
-
-        // error
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = AppTheme.dimensions.standardSpacing,
-                    vertical = AppTheme.dimensions.smallSpacing
-                )
-        ) {
-            CardAlert(
-                title = stringResource(R.string.coinview_recuring_buy_load_error_title),
-                subtitle = stringResource(R.string.coinview_recuring_buy_load_error_subtitle),
-                alertType = AlertType.Warning,
-                isBordered = true,
-                isDismissable = false,
-            )
-        }
     }
 }
 
@@ -109,10 +112,7 @@ fun RecurringBuysUpsell(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = AppTheme.dimensions.standardSpacing,
-                vertical = AppTheme.dimensions.smallSpacing
-            )
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         DefaultCard(
             title = stringResource(R.string.coinview_rb_card_title),
@@ -141,15 +141,11 @@ fun RecurringBuysData(
     onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
-        // header
-        SmallSectionHeader(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.dashboard_recurring_buy_title)
-        )
-
-        // list
         data.recurringBuys.forEachIndexed { index, recurringBuy ->
             DefaultTableRow(
                 primaryText = recurringBuy.description.value(),
@@ -161,6 +157,7 @@ fun RecurringBuysData(
                     ),
                     shape = CircleShape
                 ),
+                backgroundColor = Color.Transparent,
                 onClick = {
                     analytics.logEvent(
                         RecurringBuyAnalytics.RecurringBuyDetailsClicked(
@@ -174,34 +171,44 @@ fun RecurringBuysData(
             )
 
             if (data.recurringBuys.lastIndex != index) {
-                Separator()
+                Divider(color = Color(0XFFF1F2F7))
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Loading() {
-    RecurringBuys(CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {}
+    )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Error() {
-    RecurringBuys(CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {}
+    )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Upsell() {
-    RecurringBuys(CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {}
+    )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Data() {
     RecurringBuys(
+        previewAnalytics,
         CoinviewRecurringBuysState.Data(
             listOf(
                 CoinviewRecurringBuyState(
