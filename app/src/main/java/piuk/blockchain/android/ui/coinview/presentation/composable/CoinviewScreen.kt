@@ -26,6 +26,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
@@ -221,6 +222,7 @@ fun CoinviewScreen(
                             )
 
                             AssetAccounts(
+                                analytics = analytics,
                                 data = accounts,
                                 assetTicker = asset.asset.networkTicker,
                                 onAccountClick = onAccountClick,
@@ -228,6 +230,7 @@ fun CoinviewScreen(
                             )
 
                             RecurringBuys(
+                                analytics = analytics,
                                 data = recurringBuys,
                                 assetTicker = asset.asset.networkTicker,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
@@ -235,6 +238,7 @@ fun CoinviewScreen(
                             )
 
                             AssetInfo(
+                                analytics = analytics,
                                 data = assetInfo,
                                 assetTicker = asset.asset.networkTicker,
                                 onWebsiteClick = onWebsiteClick
@@ -274,6 +278,8 @@ fun Empty() {
 @Composable
 fun PreviewCoinviewScreen() {
     CoinviewScreen(
+        analytics = previewAnalytics,
+
         backOnClick = {},
 
         asset = CoinviewAssetState.Data(CryptoCurrency.ETHER),
@@ -313,6 +319,8 @@ fun PreviewCoinviewScreen() {
 @Composable
 fun PreviewCoinviewScreen_Unknown() {
     CoinviewScreen(
+        analytics = previewAnalytics,
+
         backOnClick = {},
 
         asset = CoinviewAssetState.Error,

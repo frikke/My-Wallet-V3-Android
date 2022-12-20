@@ -51,7 +51,7 @@ fun DefaultCard(
         modifier = Modifier
             .padding(2.dp)
             .defaultMinSize(minWidth = 340.dp)
-            .background(color = backgroundColor, shape = AppTheme.shapes.medium)
+            .background(color = backgroundColor, shape = AppTheme.shapes.large)
     ) {
         Surface(
             modifier = Modifier
