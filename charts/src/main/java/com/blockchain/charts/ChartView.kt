@@ -253,7 +253,6 @@ class ChartView : FrameLayout {
             highlightLineWidth = 1f
             highLightColor = ContextCompat.getColor(context, R.color.colorText)
             setDrawFilled(false)
-            //            fillDrawable = ContextCompat.getDrawable(context, R.drawable.chart_background)
         }
     }
 
