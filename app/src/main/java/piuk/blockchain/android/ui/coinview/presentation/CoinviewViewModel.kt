@@ -11,7 +11,6 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -31,9 +30,9 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
-import com.stripe.android.model.SourceTypeModel
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -61,7 +60,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Co
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     private val walletModeService: WalletModeService,
@@ -226,11 +224,13 @@ class CoinviewViewModel(
 
             else -> {
                 assetDetail.map {
-                    if(it is CoinviewAssetDetail.Tradeable) {
+                    if (it is CoinviewAssetDetail.Tradeable) {
                         check(asset != null) { "reduceAccounts - asset not initialized" }
 
                         with(it) {
-                            check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+                            check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) {
+                                "balance not initialized"
+                            }
 
                             CoinviewAccountsState(
                                 totalBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
