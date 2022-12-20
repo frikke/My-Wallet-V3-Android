@@ -22,10 +22,12 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.SnackbarAlert
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
@@ -158,6 +160,14 @@ fun CoinviewScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
                 title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
+                icon = (asset as? CoinviewAssetState.Data)?.let { assetState ->
+                    assetState.l1Network?.let { l1Network ->
+                        StackedIcon.SmallTag(
+                            main = ImageResource.Remote(assetState.asset.logo),
+                            tag = ImageResource.Remote(l1Network.logo),
+                        )
+                    } ?: StackedIcon.SingleIcon(ImageResource.Remote(assetState.asset.logo))
+                } ?: StackedIcon.None,
                 onBackButtonClick = backOnClick,
                 navigationBarButtons = listOfNotNull(
                     (watchlist as? DataResource.Data)?.data?.let { isInWatchlist ->
@@ -282,7 +292,7 @@ fun PreviewCoinviewScreen() {
 
         backOnClick = {},
 
-        asset = CoinviewAssetState.Data(CryptoCurrency.ETHER),
+        asset = CoinviewAssetState.Data(CryptoCurrency.ETHER, null),
         onContactSupportClick = {},
 
         price = CoinviewPriceState.Loading,

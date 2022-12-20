@@ -9,6 +9,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
@@ -30,7 +31,8 @@ data class CoinviewViewState(
 sealed interface CoinviewAssetState {
     object Error : CoinviewAssetState
     data class Data(
-        val asset: AssetInfo
+        val asset: AssetInfo,
+        val l1Network: Currency?
     ) : CoinviewAssetState
 }
 

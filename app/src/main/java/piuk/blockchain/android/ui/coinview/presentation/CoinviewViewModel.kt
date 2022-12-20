@@ -134,7 +134,16 @@ class CoinviewViewModel(
         if (asset == null) {
             CoinviewAssetState.Error
         } else {
-            CoinviewAssetState.Data(asset.currency)
+            CoinviewAssetState.Data(
+                asset = asset.currency,
+                l1Network = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    asset.currency.l1chainTicker?.let {
+                        assetCatalogue.fromNetworkTicker(it)
+                    }
+                } else {
+                    null
+                }
+            )
         }
     }
 
