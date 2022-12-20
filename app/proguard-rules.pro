@@ -192,6 +192,9 @@
 -keep class com.github.mikephil.charting.** { *; }
 -dontwarn io.realm.**
 
+# VGS
+-keep public class com.google.android.material**  { *; }
+
 # Guava (official)
 ## Not yet defined: follow https://github.com/google/guava/issues/2117
 # Guava (unofficial)

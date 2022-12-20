@@ -374,10 +374,6 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:domain')
     implementation project(':common:presentation')
-    implementation project(':payments:checkoutcom')
-    implementation project(':payments:stripe')
-    implementation project(':payments:googlepay:presentation')
-    implementation project(':payments:core')
     implementation project(':deeplinking')
     implementation project(':logging:domain')
     implementation project(':logging:data')
@@ -403,6 +399,12 @@ dependencies {
     implementation project(':appRating:data')
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
+
+    implementation project(':payments:core')
+    implementation project(':payments:checkoutcom')
+    implementation project(':payments:stripe')
+    implementation project(':payments:vgs')
+    implementation project(':payments:googlepay:presentation')
 
     implementation project(':chrome:common')
     implementation project(':chrome:presentation')
@@ -544,7 +546,7 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.accompanistSwipeRefresh
 
-    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    // TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"
     debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
 
@@ -557,6 +559,9 @@ dependencies {
     implementation(Libraries.stripe) {
         exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
     }
+
+    // VGS
+    implementation Libraries.vgs
 
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {

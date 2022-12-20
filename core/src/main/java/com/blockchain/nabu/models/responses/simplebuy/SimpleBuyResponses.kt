@@ -202,10 +202,13 @@ class ProductTransferRequestBody(
 
 @Serializable
 data class PaymentAttributesResponse(
+    val paymentId: String? = null,
     val everypay: EverypayPaymentAttributesResponse? = null,
     val authorisationUrl: String? = null,
     val error: String? = null,
-    val cardProvider: CardProviderPaymentAttributesResponse? = null
+    val cardProvider: CardProviderPaymentAttributesResponse? = null,
+    val needCvv: Boolean? = false,
+    val cardCassy: CardProviderPaymentAttributesResponse? = null
 )
 
 @Serializable

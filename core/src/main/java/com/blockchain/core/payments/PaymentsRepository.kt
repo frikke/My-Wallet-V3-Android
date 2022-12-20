@@ -382,6 +382,26 @@ class PaymentsRepository(
             }
     }
 
+    override suspend fun getCardDetailsCo(cardId: String): Outcome<Exception, PaymentMethod.Card> =
+        paymentMethodsService.getCardDetailsCo(cardId = cardId).fold(
+            onSuccess = {
+                it.ux?.let { error ->
+                    Outcome.Failure(NabuApiExceptionFactory.fromServerSideError(error))
+                } ?: Outcome.Success(
+                    it.toPaymentMethod().toCardPaymentMethod(
+                        cardLimits = PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            FiatCurrency.fromCurrencyCode(it.currency)
+                        )
+                    )
+                )
+            },
+            onFailure = {
+                Outcome.Failure(it)
+            }
+        )
+
     override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo> =
         paymentMethodsService.getGooglePayInfo(currency).map {
             GooglePayInfo(
@@ -663,6 +683,9 @@ class PaymentsRepository(
         }.mapError {
             CardRejectionCheckError.REQUEST_FAILED
         }
+
+    override suspend fun updateCvv(paymentId: String, cvv: String): Outcome<Exception, Unit> =
+        paymentMethodsService.updateCvv(paymentId, cvv)
 
     private fun CardRejectionStateResponse.toDomain(): CardRejectionState =
         when (this.block) {

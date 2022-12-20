@@ -7,6 +7,7 @@ import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.paymentmethods.models.UpdateCvvRequestBody
 import com.blockchain.api.payments.data.Attributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
@@ -65,6 +66,10 @@ class PaymentMethodsService internal constructor(
     fun getCardDetails(
         cardId: String
     ) = api.getCardDetails(cardId)
+
+    suspend fun getCardDetailsCo(
+        cardId: String
+    ) = api.getCardDetailsCo(cardId)
 
     fun deleteCard(cardId: String) = api.deleteCard(cardId)
 
@@ -188,6 +193,11 @@ class PaymentMethodsService internal constructor(
     ) = api.checkNewCardRejectionState(
         binNumber = binNumber
     )
+
+    suspend fun updateCvv(
+        paymentId: String,
+        cvv: String
+    ) = api.updateCvv(UpdateCvvRequestBody(paymentId = paymentId, cvv = cvv))
 
     private fun getLocalisedErrorIfEnabled(): String? =
         if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {

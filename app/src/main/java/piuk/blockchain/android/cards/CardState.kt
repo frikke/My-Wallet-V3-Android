@@ -17,9 +17,14 @@ import piuk.blockchain.android.R
 
 @Serializable
 data class CardState(
+    val showCardCreationError: Boolean = false,
+    val isLoading: Boolean = false,
+    val isVgsEnabled: Boolean = false,
+    val vgsTokenResponse: String? = null,
     val fiatCurrency: FiatCurrency,
     val cardId: String? = null,
     val cardStatus: CardStatus? = null,
+    val bin: String? = null,
     val billingAddress: BillingAddress? = null,
     val addCard: Boolean = false,
     val linkedCards: List<@Contextual LinkedPaymentMethod.Card>? = null,
@@ -27,14 +32,19 @@ data class CardState(
     val authoriseCard: CardAcquirerCredentials? = null,
     @Transient
     val cardRequestStatus: CardRequestStatus? = null,
+    val isCardRejectionStateLoading: Boolean = false,
     val cardRejectionState: @Contextual CardRejectionState? = null,
     val usStateList: List<@Contextual Region.State>? = null,
+    val cardTokenId: String? = null,
+    val vaultId: String? = null
 ) : MviState
 
 @Serializable
 sealed class CardAcquirerCredentials {
     // This used to be EverypayAuthOptions
     data class Everypay(val paymentLink: String, val exitLink: String) : CardAcquirerCredentials()
+
+    data class FakeCardAcquirer(val paymentLink: String, val exitLink: String) : CardAcquirerCredentials()
 
     data class Stripe(val apiKey: String, val clientSecret: String) : CardAcquirerCredentials()
 

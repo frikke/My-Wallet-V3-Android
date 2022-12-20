@@ -35,6 +35,7 @@ import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppMvpFeatureFlag
 import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -191,6 +192,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_rb_frequency_suggestion",
                 "Enable Recurring Buy suggestion"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(vgsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_vgs",
+                "Enable VGS"
             )
         )
     }.bind(FeatureFlag::class)

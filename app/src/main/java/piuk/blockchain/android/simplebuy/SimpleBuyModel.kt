@@ -58,6 +58,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
@@ -490,17 +491,25 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
-                previousState.id ?: throw IllegalStateException("Order Id not available")
-            ).subscribeBy(
-                onSuccess =
-                { buySellOrder ->
-                    processOrderStatus(buySellOrder.value)
-                },
-                onError =
-                {
-                    processOrderErrors(it)
-                }
-            )
+                orderId = previousState.id ?: throw IllegalStateException("Order Id not available"),
+                hasHandled3ds = previousState.hasHandled3ds,
+                hasHandledCvv = previousState.hasHandledCvv,
+            ).zipWith(cardPaymentAsyncFF.enabled)
+                .subscribeBy(
+                    onSuccess =
+                    { (buySellOrder, isCardPaymentAsyncEnabled) ->
+                        processOrderStatus(
+                            buySellOrder = buySellOrder.value,
+                            hasHandled3ds = previousState.hasHandled3ds,
+                            hasHandledCvv = previousState.hasHandledCvv,
+                            isCardPaymentAsyncEnabled = isCardPaymentAsyncEnabled
+                        )
+                    },
+                    onError =
+                    {
+                        processOrderErrors(it)
+                    }
+                )
             is SimpleBuyIntent.PaymentSucceeded -> {
                 interactor.checkTierLevel().map { it.kycState != KycState.VERIFIED_AND_ELIGIBLE }.subscribeBy(
                     onSuccess = {
@@ -611,7 +620,12 @@ class SimpleBuyModel(
             else -> null
         }
 
-    private fun processOrderStatus(buySellOrder: BuySellOrder) {
+    private fun processOrderStatus(
+        buySellOrder: BuySellOrder,
+        hasHandled3ds: Boolean,
+        hasHandledCvv: Boolean,
+        isCardPaymentAsyncEnabled: Boolean
+    ) {
         when {
             buySellOrder.state == OrderState.FINISHED -> {
                 updatePersistingCountersForCompletedOrders(
@@ -620,6 +634,14 @@ class SimpleBuyModel(
                     paymentMethodId = buySellOrder.paymentMethodId
                 )
                 process(SimpleBuyIntent.PaymentSucceeded)
+            }
+            buySellOrder.attributes?.cardPaymentState == CardPaymentState.WAITING_FOR_3DS && !hasHandled3ds &&
+                isCardPaymentAsyncEnabled -> {
+                handleCardPayment(buySellOrder)
+            }
+            buySellOrder.attributes?.needCvv == true && !hasHandledCvv &&
+                isCardPaymentAsyncEnabled -> {
+                process(SimpleBuyIntent.OpenCvvInput(buySellOrder.depositPaymentId))
             }
             buySellOrder.state.isPending() -> {
                 process(SimpleBuyIntent.PaymentPending)
@@ -1348,6 +1370,18 @@ class SimpleBuyModel(
                     if (paymentAttributes.paymentState == CardPaymentState.WAITING_FOR_3DS) {
                         SimpleBuyIntent.Open3dsAuth(
                             CardAcquirerCredentials.Everypay(
+                                paymentLink = paymentAttributes.paymentLink,
+                                exitLink = cardActivator.redirectUrl
+                            )
+                        )
+                    } else {
+                        SimpleBuyIntent.CheckOrderStatus
+                    }
+                }
+                CardAcquirer.FAKE_CARD_ACQUIRER -> {
+                    if (paymentAttributes.paymentState == CardPaymentState.WAITING_FOR_3DS) {
+                        SimpleBuyIntent.Open3dsAuth(
+                            CardAcquirerCredentials.FakeCardAcquirer(
                                 paymentLink = paymentAttributes.paymentLink,
                                 exitLink = cardActivator.redirectUrl
                             )

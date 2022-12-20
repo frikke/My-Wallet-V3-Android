@@ -245,9 +245,11 @@
         <activity
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+
         <activity
             android:name=".ui.linkbank.alias.BankAliasLinkActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+
         <activity
             android:name=".ui.transactionflow.flow.TransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -268,6 +270,7 @@
         <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
         <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />
+        <activity android:name=".cards.cvv.SecurityCodeActivity" />
 
         <!-- Force Theme.AppCompat on internal PLAID Activity to prevent crash -->
         <activity

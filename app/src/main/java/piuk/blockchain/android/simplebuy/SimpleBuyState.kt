@@ -95,6 +95,10 @@ data class SimpleBuyState constructor(
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
     @Transient val showAppRating: Boolean = false,
     @Transient val sideEventsChecked: Boolean = false,
+    @Transient val hasHandled3ds: Boolean = false,
+    @Transient val openCvvInput: Boolean = false,
+    @Transient val hasHandledCvv: Boolean = false,
+    @Transient val securityCodePaymentId: String? = null,
     @Transient val hasAmountComeFromDeeplink: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 

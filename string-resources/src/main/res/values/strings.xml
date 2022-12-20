@@ -1470,7 +1470,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="card_number">Card Number</string>
     <string name="name_on_card">Name on Card</string>
     <string name="expiry_date">Expiry Date</string>
-    <string name="card_cvv">CVV2</string>
+    <string name="card_cvv">CVV</string>
     <string name="card_cvc">CVC</string>
     <string name="card_not_supported">Card Not Supported</string>
     <string name="privacy_protected_ssl">Privacy protected with 256-Bit SSL encryption.</string>
@@ -1503,6 +1503,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
+    <string name="invalid_card_name">Invalid Card Name</string>
     <string name="full_name">Full Name</string>
     <string name="address_line_1">Address Line 1</string>
     <string name="address_line_2">Address Line 2</string>
@@ -1913,7 +1914,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_small_amounts">Buy Small Amounts</string>
     <string name="buy_search">Search Cryptos</string>
     <string name="search_empty">No Cryptos Match Your Search</string>
-
+    <string name="security_code">Security Code</string>
+    <string name="security_code_info">Please re-enter the %1$s digit CVV code associated with the card below</string>
+    <string name="cvv_code">CVV Code</string>
+    <string name="security_last_card_digits">Card ending in %1$s</string>
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
     <string name="scan_failed">QR code not recognised, please try again.</string>
