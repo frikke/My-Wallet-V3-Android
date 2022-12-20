@@ -226,7 +226,11 @@ class TradingToOnChainTxEngine(
         return if (memoConfirmation.isNullOrBlank()) {
             true
         } else {
-            memoConfirmation.length in 1..28
+            when (sourceAssetInfo.networkTicker) {
+                "XLM" -> memoConfirmation.length in 1..28
+                "STX" -> memoConfirmation.length in 1..34
+                else -> memoConfirmation.length in 1..28
+            }
         }
     }
 

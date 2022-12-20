@@ -75,7 +75,7 @@ class CustodialTradingAccount(
 
     private val hasFunds = AtomicBoolean(false)
 
-    override val isMemoSupported: Boolean = currency.networkTicker == "XLM"
+    override val isMemoSupported: Boolean = currency.networkTicker == "XLM" || currency.networkTicker == "STX"
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
