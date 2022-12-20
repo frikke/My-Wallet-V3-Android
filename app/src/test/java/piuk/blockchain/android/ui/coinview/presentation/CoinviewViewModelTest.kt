@@ -267,7 +267,7 @@ class CoinviewViewModelTest {
             viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
             dataResource.emit(DataResource.Data(true))
             awaitItem().run {
-                assertEquals(CoinviewWatchlistState.Data(true), watchlist)
+                assertEquals(DataResource.Data(true), watchlist)
             }
         }
     }
@@ -285,37 +285,7 @@ class CoinviewViewModelTest {
                 viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
                 dataResource.emit(DataResource.Data(false))
                 awaitItem().run {
-                    assertEquals(CoinviewWatchlistState.Data(false), watchlist)
-                }
-            }
-        }
-
-    // total balance
-    @Test
-    fun `GIVEN valid accounts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
-        runTest {
-            val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
-            coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
-            val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
-            coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
-
-            viewModel.viewState.test {
-                viewModel.viewCreated(coinviewArgs)
-                expectMostRecentItem()
-
-                viewModel.onIntent(CoinviewIntent.LoadAccountsData)
-                dataResource.emit(
-                    DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
-                )
-                awaitItem().run {
-                    assertEquals(
-                        CoinviewTotalBalanceState.Data(
-                            assetName = networkTicker,
-                            totalFiatBalance = balanceFormatted,
-                            totalCryptoBalance = balanceFormatted
-                        ),
-                        totalBalance
-                    )
+                    assertEquals(DataResource.Data(false), watchlist)
                 }
             }
         }
@@ -338,16 +308,19 @@ class CoinviewViewModelTest {
                     DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
                 )
                 awaitItem().run {
-                    val expected = CoinviewAccountsState.Data(
-                        accounts = listOf(
-                            CoinviewAccountsState.Data.CoinviewAccountState.Available(
-                                cvAccount = coinviewAccount,
-                                title = tradingWalletLabel,
-                                subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
-                                cryptoBalance = balanceFormatted,
-                                fiatBalance = balanceFormatted,
-                                logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
-                                assetColor = color
+                    val expected = DataResource.Data(
+                        CoinviewAccountsState(
+                            totalBalance = balanceFormatted,
+                            accounts = listOf(
+                                CoinviewAccountsState.CoinviewAccountState.Available(
+                                    cvAccount = coinviewAccount,
+                                    title = tradingWalletLabel,
+                                    subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
+                                    cryptoBalance = balanceFormatted,
+                                    fiatBalance = balanceFormatted,
+                                    logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+                                    assetColor = color
+                                )
                             )
                         )
                     )
