@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -21,7 +22,7 @@ data class CoinviewViewState(
     val accounts: CoinviewAccountsState,
     val centerQuickAction: CoinviewCenterQuickActionsState,
     val recurringBuys: CoinviewRecurringBuysState,
-    val bottomQuickAction: CoinviewBottomQuickActionsState,
+    val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
@@ -153,72 +154,53 @@ sealed interface CoinviewCenterQuickActionsState {
     ) : CoinviewCenterQuickActionsState
 }
 
-// bottom
-sealed interface CoinviewBottomQuickActionsState {
-    object NotSupported : CoinviewBottomQuickActionsState
-    object Loading : CoinviewBottomQuickActionsState
-    data class Data(
-        val start: CoinviewQuickActionState,
-        val end: CoinviewQuickActionState
-    ) : CoinviewBottomQuickActionsState
-}
-
 sealed interface CoinviewQuickActionState {
     val name: TextValue
     val logo: LogoSource.Resource
-    val enabled: Boolean
 
-    data class Buy(override val enabled: Boolean) : CoinviewQuickActionState {
+    object Buy : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(R.string.common_buy)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_buy)
     }
 
-    data class Sell(override val enabled: Boolean) : CoinviewQuickActionState {
+    object Sell : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(R.string.common_sell)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_sell)
     }
 
-    data class Send(override val enabled: Boolean) : CoinviewQuickActionState {
+    object Send : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(R.string.common_send)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_send)
     }
 
-    data class Receive(override val enabled: Boolean) : CoinviewQuickActionState {
+    object Receive : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(R.string.common_receive)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_receive)
     }
 
-    data class Swap(override val enabled: Boolean) : CoinviewQuickActionState {
+    object Swap : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(R.string.common_swap)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_swap)
-    }
-
-    object None : CoinviewQuickActionState {
-        override val name: TextValue get() = error("None action doesn't have name property")
-        override val logo: LogoSource.Resource get() = error("None action doesn't have log property")
-        override val enabled: Boolean get() = error("None action doesn't have enabled property")
     }
 }
 
 fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
     when (this) {
-        is CoinviewQuickAction.Buy -> CoinviewQuickActionState.Buy(enabled)
-        is CoinviewQuickAction.Sell -> CoinviewQuickActionState.Sell(enabled)
-        is CoinviewQuickAction.Send -> CoinviewQuickActionState.Send(enabled)
-        is CoinviewQuickAction.Receive -> CoinviewQuickActionState.Receive(enabled)
-        is CoinviewQuickAction.Swap -> CoinviewQuickActionState.Swap(enabled)
-        CoinviewQuickAction.None -> CoinviewQuickActionState.None
+        is CoinviewQuickAction.Buy -> CoinviewQuickActionState.Buy
+        is CoinviewQuickAction.Sell -> CoinviewQuickActionState.Sell
+        is CoinviewQuickAction.Send -> CoinviewQuickActionState.Send
+        is CoinviewQuickAction.Receive -> CoinviewQuickActionState.Receive
+        is CoinviewQuickAction.Swap -> CoinviewQuickActionState.Swap
     }
 }
 
 fun CoinviewQuickActionState.toModelState(): CoinviewQuickAction = run {
     when (this) {
-        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy(enabled)
-        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell(enabled)
-        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send(enabled)
-        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive(enabled)
-        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap(enabled)
-        CoinviewQuickActionState.None -> CoinviewQuickAction.None
+        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy
+        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell
+        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send
+        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive
+        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap
     }
 }
 

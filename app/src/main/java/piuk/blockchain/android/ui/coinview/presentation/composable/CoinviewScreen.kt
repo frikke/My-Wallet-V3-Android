@@ -27,6 +27,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
@@ -36,7 +37,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
@@ -146,7 +146,7 @@ fun CoinviewScreen(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewBottomQuickActionsState,
+    quickActionsBottom: DataResource<List<CoinviewQuickActionState>>,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit,
 
     assetInfo: CoinviewAssetInfoState,
@@ -310,7 +310,7 @@ fun PreviewCoinviewScreen() {
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
-        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        quickActionsBottom = DataResource.Loading,
         onQuickActionClick = {},
 
         assetInfo = CoinviewAssetInfoState.Loading,
@@ -350,7 +350,7 @@ fun PreviewCoinviewScreen_Unknown() {
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
-        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        quickActionsBottom = DataResource.Loading,
         onQuickActionClick = {},
 
         assetInfo = CoinviewAssetInfoState.Loading,

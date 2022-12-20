@@ -125,14 +125,38 @@ class LoadQuickActionsUseCase(
                              */
                             val canSwap = hasPositiveFilterBalance
 
+                            /**
+                             * Send button will be enabled if
+                             * * Balance is positive
+                             *
+                             * *AND*
+                             *
+                             * * Is available for trading ([isAvailableForTrading])
+                             */
+                            val canSend = isAvailableForTradingData && hasPositiveFilterBalance
+
+                            /**
+                             * Receive button will be enabled if
+                             * * Is available for trading ([isAvailableForTrading])
+                             */
+                            @Suppress("UnnecessaryVariable")
+                            val canReceive = isAvailableForTradingData
+
+                            val centerButtons = listOfNotNull(
+                                CoinviewQuickAction.Swap.takeIf { canSwap },
+                                CoinviewQuickAction.Send.takeIf { canSend },
+                                CoinviewQuickAction.Receive.takeIf { canReceive },
+                            )
+
+                            val bottomButtons = listOfNotNull(
+                                CoinviewQuickAction.Receive.takeIf { centerButtons.isEmpty() && canSell.not() && canReceive },
+                                CoinviewQuickAction.Sell.takeIf { canSell },
+                                CoinviewQuickAction.Buy.takeIf { canBuy },
+                            )
+
                             CoinviewQuickActions(
-                                center = if (isSupportedForSwapData) {
-                                    CoinviewQuickAction.Swap(canSwap)
-                                } else {
-                                    CoinviewQuickAction.None
-                                },
-                                bottomStart = CoinviewQuickAction.Sell(canSell),
-                                bottomEnd = CoinviewQuickAction.Buy(canBuy)
+                                center = centerButtons,
+                                bottom = bottomButtons
                             )
                         }
                     }
@@ -167,16 +191,7 @@ class LoadQuickActionsUseCase(
                          */
                         val canSwap = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
 
-                        CoinviewQuickActions(
-                            center = if (canSwap) {
-                                CoinviewQuickAction.Swap(canSwap)
-                            } else {
-                                CoinviewQuickAction.None
-                            },
-                            bottomStart = CoinviewQuickAction.Receive(canReceive),
-                            bottomEnd = CoinviewQuickAction.Send(canSend)
-                            //                                    actionableAccount = custodialAccount todo
-                        )
+                        CoinviewQuickActions.none()
                     }
                 }
             }

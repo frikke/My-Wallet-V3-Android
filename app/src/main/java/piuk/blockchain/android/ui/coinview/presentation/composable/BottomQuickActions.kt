@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,29 +19,24 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.value
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
+import com.blockchain.data.DataResource
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 
 @Composable
 fun BottomQuickActions(
-    data: CoinviewBottomQuickActionsState,
+    data: DataResource<List<CoinviewQuickActionState>>,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
-        CoinviewBottomQuickActionsState.NotSupported -> {
-            Empty()
-        }
-
-        CoinviewBottomQuickActionsState.Loading -> {
-            BottomQuickActionLoading()
-        }
-
-        is CoinviewBottomQuickActionsState.Data -> {
+        DataResource.Loading -> BottomQuickActionLoading()
+        is DataResource.Error -> Empty()
+        is DataResource.Data -> {
             BottomQuickActionData(
                 data = data,
                 onQuickActionClick = onQuickActionClick
             )
         }
+
     }
 }
 
@@ -60,7 +57,7 @@ fun BottomQuickActionLoading() {
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -74,112 +71,91 @@ fun BottomQuickActionLoading() {
 
 @Composable
 fun BottomQuickActionData(
-    data: CoinviewBottomQuickActionsState.Data,
+    data: DataResource.Data<List<CoinviewQuickActionState>>,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
-    val atLeastOneButton =
-        data.start !is CoinviewQuickActionState.None || data.end !is CoinviewQuickActionState.None
-
-    if (atLeastOneButton) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Divider(color = Color(0XFFF1F2F7))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AppTheme.dimensions.mediumSpacing)
-            ) {
-                val showSpacer =
-                    data.start !is CoinviewQuickActionState.None && data.end !is CoinviewQuickActionState.None
-
-                if (data.start !is CoinviewQuickActionState.None) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = data.start.name.value(),
-                        icon = ImageResource.Local(
-                            data.start.logo.value,
-                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                            size = AppTheme.dimensions.standardSpacing
-                        ),
-                        state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { onQuickActionClick(data.start) }
+    if (data.data.isEmpty()) {
+        Empty()
+    } else {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(
+                        topStart = AppTheme.dimensions.borderRadiiMedium,
+                        topEnd = AppTheme.dimensions.borderRadiiMedium
                     )
-                }
+                )
+                .padding(AppTheme.dimensions.smallSpacing)
+        ) {
+            data.data.forEachIndexed { index, action ->
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = action.name.value(),
+                    icon = ImageResource.Local(
+                        action.logo.value,
+                        colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                        size = AppTheme.dimensions.standardSpacing
+                    ),
+                    onClick = { onQuickActionClick(action) }
+                )
 
-                if (showSpacer) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-                }
-
-                if (data.end !is CoinviewQuickActionState.None) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = data.end.name.value(),
-                        icon = ImageResource.Local(
-                            data.end.logo.value,
-                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                            size = AppTheme.dimensions.standardSpacing
-                        ),
-                        state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { onQuickActionClick(data.end) }
-                    )
+                if (index < data.data.lastIndex) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewBottomQuickActions_Loading() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Loading, {}
+        data = DataResource.Loading,
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewBottomQuickActions_Data_Enabled() {
+fun PreviewBottomQuickActions_Data_2() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.Send(true),
-            end = CoinviewQuickActionState.Receive(true)
+        data = DataResource.Data(
+            listOf(CoinviewQuickActionState.Send, CoinviewQuickActionState.Receive)
         ),
-        {}
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewBottomQuickActions_Data_Disabled() {
+fun PreviewBottomQuickActions_Data_1() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.Buy(false),
-            end = CoinviewQuickActionState.Sell(false)
+        data = DataResource.Data(
+            listOf(CoinviewQuickActionState.Send)
         ),
-        {}
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewQuickActionsBottom_Data_1None() {
+fun PreviewQuickActionsBottom_Data_0() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.None,
-            end = CoinviewQuickActionState.Sell(false)
+        data = DataResource.Data(
+            listOf()
         ),
-        {}
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewQuickActionsBottom_Data_None() {
+fun PreviewQuickActionsBottom_Data_Error() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.None,
-            end = CoinviewQuickActionState.None
-        ),
-        {}
+        data = DataResource.Error(Exception()),
+        onQuickActionClick = {}
     )
 }

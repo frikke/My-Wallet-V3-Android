@@ -32,7 +32,6 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -60,6 +59,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Da
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
+import java.text.DecimalFormat
 
 class CoinviewViewModel(
     private val walletModeService: WalletModeService,
@@ -644,19 +644,19 @@ class CoinviewViewModel(
                 CoinviewCenterQuickActionsState.Loading
             }
 
-            quickActions is DataResource.Error -> {
-                CoinviewCenterQuickActionsState.Data(
-                    center = CoinviewQuickAction.None.toViewState()
-                )
-            }
-
-            quickActions is DataResource.Data -> {
-                with(quickActions.data) {
-                    CoinviewCenterQuickActionsState.Data(
-                        center = center.toViewState()
-                    )
-                }
-            }
+            //            quickActions is DataResource.Error -> {
+            //                CoinviewCenterQuickActionsState.Data(
+            //                    center = CoinviewQuickAction.None.toViewState()
+            //                )
+            //            }
+            //
+            //            quickActions is DataResource.Data -> {
+            //                with(quickActions.data) {
+            //                    CoinviewCenterQuickActionsState.Data(
+            //                        center = center.toViewState()
+            //                    )
+            //                }
+            //            }
 
             else -> {
                 CoinviewCenterQuickActionsState.Loading
@@ -664,34 +664,18 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceBottomQuickActions(state: CoinviewModelState): CoinviewBottomQuickActionsState = state.run {
+    private fun reduceBottomQuickActions(
+        state: CoinviewModelState
+    ): DataResource<List<CoinviewQuickActionState>> = state.run {
         when {
             isTradeableAsset == false -> {
-                CoinviewBottomQuickActionsState.NotSupported
-            }
-
-            quickActions is DataResource.Loading -> {
-                CoinviewBottomQuickActionsState.Loading
-            }
-
-            quickActions is DataResource.Error -> {
-                CoinviewBottomQuickActionsState.Data(
-                    start = CoinviewQuickAction.None.toViewState(),
-                    end = CoinviewQuickAction.None.toViewState()
-                )
-            }
-
-            quickActions is DataResource.Data -> {
-                with(quickActions.data) {
-                    CoinviewBottomQuickActionsState.Data(
-                        start = bottomStart.toViewState(),
-                        end = bottomEnd.toViewState()
-                    )
-                }
+                DataResource.Data(emptyList())
             }
 
             else -> {
-                CoinviewBottomQuickActionsState.Loading
+                quickActions.map {
+                    it.bottom.map { it.toViewState() }
+                }
             }
         }
     }
@@ -975,8 +959,6 @@ class CoinviewViewModel(
                             )
                         )
                     }
-
-                    CoinviewQuickAction.None -> error("CoinviewQuickAction.None action doesn't have an action")
                 }
             }
 
@@ -1417,11 +1399,11 @@ class CoinviewViewModel(
     }
 
     private fun CoinviewQuickActions.canBuy(): Boolean {
-        return actions.any { it == CoinviewQuickAction.Buy(true) }
+        return actions.any { it is CoinviewQuickAction.Buy }
     }
 
     private fun CoinviewQuickActions.canSend(): Boolean {
-        return actions.any { it == CoinviewQuickAction.Send(true) }
+        return actions.any { it is CoinviewQuickAction.Send }
     }
 
     // //////////////////////
