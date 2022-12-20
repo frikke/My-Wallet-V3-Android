@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
@@ -16,8 +17,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.auth.LogoutTimer
@@ -28,13 +31,20 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
+import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 /**
@@ -80,9 +90,32 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     private var progressDialog: MaterialProgressDialog? = null
 
+    protected open val applyModeBackground: Boolean = false
+    private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
+
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (applyModeBackground) {
+            lifecycleScope.launch {
+                val bg = walletMde.walletMode.map {
+                    when (it) {
+                        WalletMode.CUSTODIAL_ONLY -> R.drawable.custodial_bg
+                        WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.defi_bg
+                        WalletMode.UNIVERSAL -> error("not supported")
+                    }
+                }.first()
+
+                val window: Window = window
+                val background = ContextCompat.getDrawable(this@BlockchainActivity, bg)
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+                window.statusBarColor = ContextCompat.getColor(this@BlockchainActivity, android.R.color.transparent)
+                window.setBackgroundDrawable(background)
+            }
+        }
+
         lockScreenOrientation()
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(
