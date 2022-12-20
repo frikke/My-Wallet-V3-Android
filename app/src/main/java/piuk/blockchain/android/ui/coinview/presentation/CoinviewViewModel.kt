@@ -634,32 +634,18 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceCenterQuickActions(state: CoinviewModelState): CoinviewCenterQuickActionsState = state.run {
+    private fun reduceCenterQuickActions(
+        state: CoinviewModelState
+    ): DataResource<List<CoinviewQuickActionState>> = state.run {
         when {
             isTradeableAsset == false -> {
-                CoinviewCenterQuickActionsState.NotSupported
+                DataResource.Data(emptyList())
             }
-
-            quickActions is DataResource.Loading -> {
-                CoinviewCenterQuickActionsState.Loading
-            }
-
-            //            quickActions is DataResource.Error -> {
-            //                CoinviewCenterQuickActionsState.Data(
-            //                    center = CoinviewQuickAction.None.toViewState()
-            //                )
-            //            }
-            //
-            //            quickActions is DataResource.Data -> {
-            //                with(quickActions.data) {
-            //                    CoinviewCenterQuickActionsState.Data(
-            //                        center = center.toViewState()
-            //                    )
-            //                }
-            //            }
 
             else -> {
-                CoinviewCenterQuickActionsState.Loading
+                quickActions.map {
+                    it.center.map { it.toViewState() }
+                }
             }
         }
     }

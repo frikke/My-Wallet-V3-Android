@@ -13,7 +13,6 @@ fun DefaultBalance_Preview() {
     AppTheme {
         AppSurface {
             Balance(
-                title = "Current Balance",
                 price = "$2574.37",
                 percentageChangeData = PercentageChangeData(
                     priceChange = "$50.00",

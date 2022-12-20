@@ -123,6 +123,7 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
+                            @Suppress("UnnecessaryVariable")
                             val canSwap = hasPositiveFilterBalance
 
                             /**
@@ -149,14 +150,18 @@ class LoadQuickActionsUseCase(
                             )
 
                             val bottomButtons = listOfNotNull(
-                                CoinviewQuickAction.Receive.takeIf { centerButtons.isEmpty() && canSell.not() && canReceive },
                                 CoinviewQuickAction.Sell.takeIf { canSell },
                                 CoinviewQuickAction.Buy.takeIf { canBuy },
                             )
 
+                            /**
+                             * if true, combine both lists on the bottom
+                             */
+                            val canListsBeCombined = centerButtons.size == 1 && bottomButtons.size == 1
+
                             CoinviewQuickActions(
-                                center = centerButtons,
-                                bottom = bottomButtons
+                                center = if (canListsBeCombined) listOf() else centerButtons,
+                                bottom = if (canListsBeCombined) centerButtons + bottomButtons else bottomButtons
                             )
                         }
                     }
@@ -191,7 +196,24 @@ class LoadQuickActionsUseCase(
                          */
                         val canSwap = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
 
-                        CoinviewQuickActions.none()
+                        val centerButtons = listOfNotNull(
+                            CoinviewQuickAction.Send.takeIf { canSend },
+                            CoinviewQuickAction.Receive.takeIf { canReceive },
+                        )
+
+                        val bottomButtons = listOfNotNull(
+                            CoinviewQuickAction.Swap.takeIf { canSwap }
+                        )
+
+                        /**
+                         * if true, put the centerbottons on the bottom
+                         */
+                        val shouldSwitch = bottomButtons.isEmpty()
+
+                        CoinviewQuickActions(
+                            center = if (shouldSwitch) emptyList() else centerButtons,
+                            bottom = if (shouldSwitch) centerButtons else bottomButtons
+                        )
                     }
                 }
             }

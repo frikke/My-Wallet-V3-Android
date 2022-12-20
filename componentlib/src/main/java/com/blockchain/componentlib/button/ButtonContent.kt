@@ -49,28 +49,28 @@ fun ButtonContent(
                         imageResource = icon,
                         modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                    if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedDrawable -> {
                     Image(
                         imageResource = icon,
                         modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                    if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithBackground -> {
                     Image(
                         imageResource = icon,
                         modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                    if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.Remote -> {
                     Image(
                         imageResource = icon,
                         modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                    if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedBitmap,
                 is ImageResource.LocalWithBackgroundAndExternalResources,

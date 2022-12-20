@@ -20,7 +20,7 @@ data class CoinviewViewState(
     val watchlist: CoinviewWatchlistState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
-    val centerQuickAction: CoinviewCenterQuickActionsState,
+    val centerQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val recurringBuys: CoinviewRecurringBuysState,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
@@ -145,15 +145,6 @@ sealed interface CoinviewRecurringBuysState {
 }
 
 // Quick actions
-// center
-sealed interface CoinviewCenterQuickActionsState {
-    object NotSupported : CoinviewCenterQuickActionsState
-    object Loading : CoinviewCenterQuickActionsState
-    data class Data(
-        val center: CoinviewQuickActionState,
-    ) : CoinviewCenterQuickActionsState
-}
-
 sealed interface CoinviewQuickActionState {
     val name: TextValue
     val logo: LogoSource.Resource

@@ -37,7 +37,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
@@ -140,7 +139,7 @@ fun CoinviewScreen(
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit,
 
-    quickActionsCenter: CoinviewCenterQuickActionsState,
+    quickActionsCenter: DataResource<List<CoinviewQuickActionState>>,
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
@@ -304,7 +303,7 @@ fun PreviewCoinviewScreen() {
         onAccountClick = {},
         onLockedAccountClick = {},
 
-        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+        quickActionsCenter = DataResource.Loading,
 
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
@@ -344,7 +343,7 @@ fun PreviewCoinviewScreen_Unknown() {
         onAccountClick = {},
         onLockedAccountClick = {},
 
-        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+        quickActionsCenter = DataResource.Loading,
 
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},

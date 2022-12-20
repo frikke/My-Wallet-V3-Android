@@ -1,7 +1,10 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.requiredWidthIn
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +25,8 @@ fun TertiaryButton(
     modifier: Modifier = Modifier,
     textColor: Color = Blue600,
     defaultBackgroundColor: Color? = null,
-    icon: ImageResource = ImageResource.None
+    icon: ImageResource = ImageResource.None,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding
 ) {
     Button(
         text = text,
@@ -38,6 +42,7 @@ fun TertiaryButton(
         pressedBackgroundColor = Blue000,
         modifier = modifier.requiredHeightIn(min = 48.dp),
         icon = icon,
+        contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             ButtonContent(
                 state = state,
