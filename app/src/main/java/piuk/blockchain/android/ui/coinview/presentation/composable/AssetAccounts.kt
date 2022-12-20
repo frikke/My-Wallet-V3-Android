@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
@@ -29,7 +33,10 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -229,6 +236,44 @@ fun AssetAccountsData(
                     }
                 }
             }
+
+            // l1 netwrok
+            it.networkInfo?.let { networkInfo ->
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                        )
+                        .padding(AppTheme.dimensions.tinySpacing),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        ImageResource.Remote(
+                            url = networkInfo.logo,
+                            shape = CircleShape,
+                            size = AppTheme.dimensions.mediumSpacing
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = stringResource(R.string.coinview_asset_l1, it.assetName, networkInfo.name),
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.muted,
+                    )
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Image(
+                        Icons.Filled.Info.copy(colorFilter = ColorFilter.tint(AppTheme.colors.dark))
+                    )
+                }
+            }
         }
     }
 }
@@ -296,7 +341,9 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                     )
-                )
+                ),
+                assetName = "Ethereum",
+                networkInfo = CoinviewAccountsState.CoinviewNetworkInfoState(logo = "", name = "USDC")
             )
         ),
         assetTicker = "ETH",

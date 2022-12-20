@@ -30,9 +30,9 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -60,10 +60,12 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Co
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
+import java.text.DecimalFormat
 
 class CoinviewViewModel(
     private val walletModeService: WalletModeService,
     private val coincore: Coincore,
+    private val assetCatalogue: AssetCatalogue,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
@@ -233,6 +235,7 @@ class CoinviewViewModel(
                             }
 
                             CoinviewAccountsState(
+                                assetName = asset.currency.networkTicker,
                                 totalBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
                                 accounts = accounts.accounts.map { cvAccount ->
                                     val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
@@ -275,6 +278,18 @@ class CoinviewViewModel(
                                             }
                                         }
                                     }
+                                },
+                                networkInfo = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                                    asset.currency.l1chainTicker?.let {
+                                        assetCatalogue.fromNetworkTicker(it)
+                                    }?.let {
+                                        CoinviewAccountsState.CoinviewNetworkInfoState(
+                                            logo = it.logo,
+                                            name = it.name
+                                        )
+                                    }
+                                } else {
+                                    null
                                 }
                             )
                         }

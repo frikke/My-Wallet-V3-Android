@@ -79,8 +79,10 @@ sealed interface CoinviewTotalBalanceState {
 
 // Accounts
 data class CoinviewAccountsState(
+    val assetName: String,
     val totalBalance: String,
-    val accounts: List<CoinviewAccountState>
+    val accounts: List<CoinviewAccountState>,
+    val networkInfo: CoinviewNetworkInfoState?
 ) {
     sealed interface CoinviewAccountState {
         // todo find a better way to identify an account for the viewmodel without sending the whole object
@@ -103,6 +105,11 @@ data class CoinviewAccountsState(
             val logo: LogoSource
         ) : CoinviewAccountState
     }
+
+    data class CoinviewNetworkInfoState(
+        val logo: String,
+        val name: String
+    )
 }
 
 // Recurring buys

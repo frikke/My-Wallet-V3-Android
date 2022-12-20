@@ -10,6 +10,7 @@ val coinviewPresentationModule = module {
             CoinviewViewModel(
                 walletModeService = get(),
                 coincore = get(),
+                assetCatalogue = get(),
                 currencyPrefs = get(),
                 labels = get(),
                 getAssetPriceUseCase = get(),
