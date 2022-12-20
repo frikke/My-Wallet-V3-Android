@@ -19,7 +19,7 @@ fun MinimalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
-    shape: Shape = AppTheme.shapes.small,
+    shape: Shape = AppTheme.shapes.extraLarge,
     icon: ImageResource = ImageResource.None,
     minHeight: Dp = 48.dp,
 ) {

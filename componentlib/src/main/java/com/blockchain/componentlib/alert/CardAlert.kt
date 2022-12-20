@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,6 +45,7 @@ fun CardAlert(
     subtitle: String,
     alertType: AlertType = AlertType.Default,
     isBordered: Boolean = true,
+    backgroundColor: Color = AppTheme.colors.light,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     isDismissable: Boolean = true,
     onClose: () -> Unit = {},
@@ -71,7 +73,7 @@ fun CardAlert(
     var boxModifier = Modifier
         .padding(dimensionResource(R.dimen.smallest_spacing))
         .defaultMinSize(minWidth = 340.dp)
-        .background(color = AppTheme.colors.light, shape = AppTheme.shapes.small)
+        .background(color = backgroundColor, shape = AppTheme.shapes.small)
 
     if (isBordered) {
         boxModifier = boxModifier.border(1.dp, borderColor, AppTheme.shapes.small)
@@ -83,18 +85,17 @@ fun CardAlert(
         Surface(
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.small_spacing))
-                .background(AppTheme.colors.light)
+                .background(backgroundColor)
                 .clip(AppTheme.shapes.small)
 
         ) {
             Column(
-                modifier = Modifier.background(AppTheme.colors.light)
+                modifier = Modifier.background(backgroundColor)
             ) {
                 Row {
                     if (title.isNotEmpty()) {
                         Text(
                             modifier = Modifier
-                                .background(AppTheme.colors.light)
                                 .weight(1f, true),
                             text = title,
                             style = AppTheme.typography.body2,
@@ -109,7 +110,6 @@ fun CardAlert(
                 if (subtitle.isNotEmpty()) {
                     Text(
                         modifier = Modifier
-                            .background(AppTheme.colors.light)
                             .padding(
                                 top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
                             ),

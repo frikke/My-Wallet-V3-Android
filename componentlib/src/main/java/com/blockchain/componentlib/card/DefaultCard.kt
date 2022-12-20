@@ -51,7 +51,6 @@ fun DefaultCard(
     Box(
         modifier = Modifier
             .padding(2.dp)
-            .shadow(2.dp, AppTheme.shapes.medium)
             .defaultMinSize(minWidth = 340.dp)
             .background(color = backgroundColor, shape = AppTheme.shapes.medium)
     ) {

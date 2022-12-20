@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +21,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.card.ButtonType
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.DefaultCard
-import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
@@ -77,37 +75,32 @@ fun RecurringBuys(
 
 @Composable
 fun RecurringBuysLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+    ) {
         ShimmerLoadingTableRow()
     }
 }
 
 @Composable
 fun RecurringBuysError() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // header
-        SmallSectionHeader(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.dashboard_recurring_buy_title)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+    ) {
+        CardAlert(
+            title = stringResource(R.string.coinview_recuring_buy_load_error_title),
+            subtitle = stringResource(R.string.coinview_recuring_buy_load_error_subtitle),
+            alertType = AlertType.Warning,
+            backgroundColor = AppTheme.colors.background,
+            isBordered = false,
+            isDismissable = false,
         )
-
-        // error
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = AppTheme.dimensions.standardSpacing,
-                    vertical = AppTheme.dimensions.smallSpacing
-                )
-        ) {
-            CardAlert(
-                title = stringResource(R.string.coinview_recuring_buy_load_error_title),
-                subtitle = stringResource(R.string.coinview_recuring_buy_load_error_subtitle),
-                alertType = AlertType.Warning,
-                isBordered = true,
-                isDismissable = false,
-            )
-        }
     }
 }
 
@@ -119,10 +112,7 @@ fun RecurringBuysUpsell(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = AppTheme.dimensions.standardSpacing,
-                vertical = AppTheme.dimensions.smallSpacing
-            )
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         DefaultCard(
             title = stringResource(R.string.coinview_rb_card_title),
@@ -151,80 +141,64 @@ fun RecurringBuysData(
     onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
-        // header
-        Text(
-            modifier = Modifier.padding(
-                vertical = AppTheme.dimensions.tinySpacing,
-                horizontal = AppTheme.dimensions.smallSpacing
-            ),
-            text =  stringResource(R.string.dashboard_recurring_buy_title),
-            style = AppTheme.typography.body2,
-            color = AppTheme.colors.muted
-        )
-
-        // list
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = AppTheme.dimensions.smallSpacing)
-                .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-        ) {
-            data.recurringBuys.forEachIndexed { index, recurringBuy ->
-                DefaultTableRow(
-                    primaryText = recurringBuy.description.value(),
-                    secondaryText = recurringBuy.status.value(),
-                    startImageResource = ImageResource.Local(
-                        id = R.drawable.ic_tx_rb,
-                        colorFilter = ColorFilter.tint(
-                            Color(android.graphics.Color.parseColor(recurringBuy.assetColor))
-                        ),
-                        shape = CircleShape
+        data.recurringBuys.forEachIndexed { index, recurringBuy ->
+            DefaultTableRow(
+                primaryText = recurringBuy.description.value(),
+                secondaryText = recurringBuy.status.value(),
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_tx_rb,
+                    colorFilter = ColorFilter.tint(
+                        Color(android.graphics.Color.parseColor(recurringBuy.assetColor))
                     ),
-                    backgroundColor = Color.Transparent,
-                    onClick = {
-                        analytics.logEvent(
-                            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                                LaunchOrigin.CURRENCY_PAGE,
-                                assetTicker
-                            )
+                    shape = CircleShape
+                ),
+                backgroundColor = Color.Transparent,
+                onClick = {
+                    analytics.logEvent(
+                        RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                            LaunchOrigin.CURRENCY_PAGE,
+                            assetTicker
                         )
+                    )
 
-                        onRecurringBuyItemClick(recurringBuy.id)
-                    }
-                )
-
-                if (data.recurringBuys.lastIndex != index) {
-                    Divider(color = Color(0XFFF1F2F7))
+                    onRecurringBuyItemClick(recurringBuy.id)
                 }
+            )
+
+            if (data.recurringBuys.lastIndex != index) {
+                Divider(color = Color(0XFFF1F2F7))
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Loading() {
     RecurringBuys(previewAnalytics,
         CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Error() {
     RecurringBuys(previewAnalytics,
         CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Upsell() {
     RecurringBuys(previewAnalytics,
         CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Data() {
     RecurringBuys(
