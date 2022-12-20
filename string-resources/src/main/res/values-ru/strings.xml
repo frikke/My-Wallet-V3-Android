@@ -1381,7 +1381,7 @@
     <string name="rewards_summary_hold_period">Начальный период удержания</string>
     <string name="rewards_summary_hold_period_days">%1$d дней</string>
     <string name="rewards_summary_rate">Показатель вознаграждений</string>
-    <string name="rewards_dashboard_title">Счет Rewards</string>
+    <string name="earn_dashboard_title">Счет Rewards</string>
     <string name="rewards_dashboard_item_balance_title">Баланс %1$s</string>
     <string name="rewards_dashboard_item_accrued_title">Всего заработанных Rewards</string>
     <string name="rewards_dashboard_item_action_earn">Зарабатывайте Rewards</string>

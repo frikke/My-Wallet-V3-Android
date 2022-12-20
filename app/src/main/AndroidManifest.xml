@@ -240,7 +240,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.interest.InterestDashboardActivity"
+            android:name=".ui.interest.EarnDashboardActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.linkbank.BankAuthActivity"

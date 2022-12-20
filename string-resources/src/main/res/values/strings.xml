@@ -1870,7 +1870,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="rewards_summary_hold_period">Initial Hold Period</string>
     <string name="rewards_summary_hold_period_days">%1$d Days</string>
     <string name="rewards_summary_rate">Rewards Rate</string>
-    <string name="rewards_dashboard_title">Rewards Account</string>
+    <string name="earn_dashboard_title">Earn</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Balance</string>
     <string name="rewards_dashboard_item_accrued_title">Total Rewards Earned</string>
     <string name="rewards_dashboard_item_action_earn">Earn Rewards</string>

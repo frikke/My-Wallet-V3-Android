@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.customviews.account
 
 import android.content.Context
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -66,7 +66,7 @@ class AccountList @JvmOverloads constructor(
     var activityIndicator: ActivityIndicator? = null
 
     init {
-        setBackgroundColor(Color.WHITE)
+        setBackgroundColor(ContextCompat.getColor(context, R.color.grey_000))
         setFadingEdgeLength(resources.getDimensionPixelSize(R.dimen.size_small))
         isVerticalFadingEdgeEnabled = true
         layoutManager = LinearLayoutManager(
