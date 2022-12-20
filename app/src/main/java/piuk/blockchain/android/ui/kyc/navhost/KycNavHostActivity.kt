@@ -20,22 +20,25 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragmentDirections
 
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
@@ -57,6 +60,7 @@ class KycNavHostActivity :
 
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
+    private val fraudService: FraudService by inject()
 
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
@@ -75,7 +79,6 @@ class KycNavHostActivity :
         setupBackPress()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.identity_verification),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         analytics.logEvent(
@@ -97,8 +100,8 @@ class KycNavHostActivity :
         onViewReady()
     }
 
-    override fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton>) {
-        updateToolbarTitle(getString(title))
+    override fun setupHostToolbar(@StringRes title: Int?, navigationBarButtons: List<NavigationBarButton>) {
+        updateToolbarTitle(title?.let { getString(title) }.orEmpty())
         updateToolbarMenuItems(navigationBarButtons)
     }
 
@@ -120,6 +123,9 @@ class KycNavHostActivity :
     }
 
     override fun navigate(directions: NavDirections) {
+        if (directions.actionId != R.id.action_startTierCurrentState) {
+            updateToolbarTitle(getString(R.string.identity_verification))
+        }
         navController.navigate(directions)
         navInitialDestination = navController.currentDestination
     }
@@ -135,12 +141,10 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        updateToolbarTitle(
-            title = getString(R.string.identity_verification)
-        )
+        updateToolbarBackAction(null)
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         updateToolbarTitle(
             title = getString(R.string.kyc_email_title)
         )
@@ -156,7 +160,7 @@ class KycNavHostActivity :
                 .subscribeBy(
                     onSuccess = { (country, state) ->
                         navigate(
-                            KycEmailEntryFragmentDirections.actionAfterValidation(country, state, state)
+                            KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
                         )
                     },
                     onError = {
@@ -171,6 +175,7 @@ class KycNavHostActivity :
 
     override fun onDestroy() {
         compositeDisposable.clear()
+        fraudService.endFlows(FraudFlow.ONBOARDING, FraudFlow.KYC)
         super.onDestroy()
     }
 
@@ -274,7 +279,7 @@ interface KycProgressListener {
 
     val campaignType: CampaignType
 
-    fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton> = emptyList())
+    fun setupHostToolbar(@StringRes title: Int?, navigationBarButtons: List<NavigationBarButton> = emptyList())
 
     fun hideBackButton()
 }

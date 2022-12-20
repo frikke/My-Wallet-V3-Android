@@ -1,18 +1,23 @@
 package com.blockchain.logging.data
 
-import com.blockchain.logging.BuildConfig
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import timber.log.Timber
 
 class CompoundRemoteLogger(
-    private val remoteLoggers: List<RemoteLogger>
+    private val remoteLoggers: List<RemoteLogger>,
+    private val environmentConfig: EnvironmentConfig,
 ) : RemoteLogger {
 
     override val isDebugBuild: Boolean
-        get() = BuildConfig.DEBUG
+        get() = environmentConfig.isRunningInDebugMode()
 
     override fun init(context: Any) {
         remoteLoggers.forEach { it.init(context) }
+    }
+
+    override fun logUserId(userId: String) {
+        remoteLoggers.forEach { it.logUserId(userId) }
     }
 
     override fun logEvent(message: String) {

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.onboarding
 
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.settings.SettingsDataManager
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -13,8 +15,6 @@ import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class OnboardingPresenterTest {
 

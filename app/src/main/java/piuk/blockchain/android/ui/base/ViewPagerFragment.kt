@@ -23,8 +23,10 @@ open class ViewPagerFragment : Fragment() {
 
         val blockchainActivity = activity as? BlockchainActivity
 
+        if (!isFirstLoad) {
+            onResumeFragment()
+        }
         isFirstLoad = false
-        if (!isFirstLoad) onResumeFragment()
 
         if (blockchainActivity == null) return
         disposable += activityIndicator.loading

@@ -10,14 +10,13 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.domain.models.interest.InterestLimits
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
@@ -30,6 +29,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -138,7 +138,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when assets mismatched`() {
         val sourceAccount = mockSourceAccount()
-        val txTarget: CryptoInterestAccount = mock {
+        val txTarget: CustodialInterestAccount = mock {
             on { currency }.thenReturn(WRONG_ASSET)
         }
 
@@ -219,7 +219,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(MIN_DEPOSIT_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -498,10 +498,11 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
@@ -510,14 +511,14 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         )
     }
 
-    private fun mockTransactionTarget() = mock<CryptoInterestAccount> {
+    private fun mockTransactionTarget() = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
     }
 
     private fun verifyOnChainEngineStarted(sourceAccount: CryptoAccount) {
         verify(onChainEngine).start(
             sourceAccount = eq(sourceAccount),
-            txTarget = argThat { this is CryptoInterestAccount },
+            txTarget = argThat { this is CustodialInterestAccount },
             exchangeRates = eq(exchangeRates),
             refreshTrigger = any()
         )

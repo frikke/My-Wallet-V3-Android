@@ -46,16 +46,16 @@ fun SheetHeader(
         )
         Column {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Spacer(Modifier.width(dimensionResource(R.dimen.standard_margin)))
+                Spacer(Modifier.width(AppTheme.dimensions.smallSpacing))
 
                 if (startImageResource != ImageResource.None) {
                     Image(
                         imageResource = startImageResource,
                         modifier = Modifier
-                            .padding(top = dimensionResource(R.dimen.standard_margin))
+                            .padding(top = dimensionResource(R.dimen.standard_spacing))
                             .size(28.dp)
                     )
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
 
                 SheetHeaderTitle(
@@ -64,7 +64,7 @@ fun SheetHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(R.dimen.standard_margin),
+                            top = dimensionResource(R.dimen.standard_spacing),
                             bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                         )
                 )
@@ -73,8 +73,8 @@ fun SheetHeader(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
                     modifier = Modifier.padding(
-                        top = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin)
+                        top = dimensionResource(R.dimen.medium_spacing),
+                        end = AppTheme.dimensions.smallSpacing
                     )
                 )
             }

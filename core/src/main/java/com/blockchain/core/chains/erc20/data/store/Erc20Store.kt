@@ -5,6 +5,7 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.core.chains.erc20.data.domain.Erc20TokenBalancesStore
 import com.blockchain.core.chains.erc20.data.domain.toDomain
 import com.blockchain.core.chains.erc20.data.domain.toStore
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.store.CachedData
@@ -16,7 +17,6 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 internal class Erc20Store(
     private val erc20Service: NonCustodialErc20Service,

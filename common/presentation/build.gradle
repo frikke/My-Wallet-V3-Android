@@ -1,0 +1,40 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+
+android {
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.compose
+    }
+}
+
+dependencies {
+    implementation project(':componentlib')
+    implementation project(':logging:domain')
+    implementation project(':common:interface')
+    implementation project(':balance')
+    implementation project(':common:domain')
+    implementation project(':core')
+    implementation project(':commonarch')
+    implementation project(':analytics:domain')
+    implementation project(':coincore')
+
+    // Compose
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeNavigation
+    implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistFlowLayout
+    implementation Libraries.constraintLayoutCompose
+    implementation Libraries.composeUiPoolingContainer
+    implementation Libraries.accompanistSystemUi
+    implementation Libraries.accompanistNavigationMaterial
+
+    implementation Libraries.rxJava
+    implementation Libraries.rxAndroid
+    implementation Libraries.koin
+    implementation Libraries.rxKotlin
+}

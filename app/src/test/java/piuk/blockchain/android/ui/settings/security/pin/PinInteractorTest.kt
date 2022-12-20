@@ -1,9 +1,15 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
+import android.app.Application
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -20,12 +26,6 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class PinInteractorTest {
     private lateinit var interactor: PinInteractor
@@ -34,7 +34,7 @@ class PinInteractorTest {
     private val apiStatus = mock<ApiStatus>()
     private val authPrefs = mock<AuthPrefs>()
     private val sessionPrefs = mock<SessionPrefs>()
-    private val walletStatusPrefs = mock<WalletStatusPrefs>()
+    private val remoteLogger = mock<RemoteLogger>()
     private val walletOptionsDataManager = mock<WalletOptionsDataManager>()
     private val credentialsWiper = mock<CredentialsWiper>()
     private val payloadDataManager = mock<PayloadDataManager>()
@@ -42,6 +42,7 @@ class PinInteractorTest {
     private val biometricsController = mock<BiometricsController>()
     private val defaultLabels = mock<DefaultLabels>()
     private val isIntercomEnabledFlag = mock<FeatureFlag>()
+    private val application: Application = mock()
 
     @Before
     fun setup() {
@@ -60,9 +61,10 @@ class PinInteractorTest {
                 apiStatus = apiStatus,
                 authPrefs = authPrefs,
                 sessionPrefs = sessionPrefs,
-                walletStatusPrefs = walletStatusPrefs,
+                remoteLogger = remoteLogger,
                 defaultLabels = defaultLabels,
-                isIntercomEnabledFlag = isIntercomEnabledFlag
+                isIntercomEnabledFlag = isIntercomEnabledFlag,
+                application = application
             )
         )
     }
@@ -70,10 +72,9 @@ class PinInteractorTest {
     @Test
     fun `validatePIN then call validatePin`() {
         val pin = "1234"
-        whenever(authDataManager.validatePin(pin)).thenReturn(Observable.just(pin))
-        whenever(isIntercomEnabledFlag.enabled).thenReturn(Single.just(false))
+        whenever(authDataManager.validatePin(pin)).thenReturn(Single.just(pin))
         doNothing().whenever(interactor).registerIntercomUser()
-        val test = interactor.validatePIN(pin).test()
+        val test = interactor.validatePIN(pin, isIntercomEnabled = false).test()
         test.assertValue {
             it == pin
         }

@@ -95,6 +95,10 @@ fun Date.toFormattedString(locale: Locale = Locale.getDefault()): String {
     return "$timeText on $dateText"
 }
 
+fun Calendar.toFormattedString(locale: Locale = Locale.getDefault()): String {
+    return time.toFormattedString(locale)
+}
+
 /**
  * Takes a [Date] object and converts it to the standard MEDIUM date format, ie 21 Jun 2020.
  *
@@ -104,6 +108,8 @@ fun Date.toFormattedDate(): String {
     val dateFormat = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM)
     return dateFormat.format(this)
 }
+
+fun Calendar.toFormattedDate() = time.toFormattedDate()
 
 /**
  * Takes a [Date] object and converts it to our standard date and time format, ie June 21, 01:23 pm.
@@ -129,3 +135,59 @@ fun String.toZonedDateTime(): ZonedDateTime =
     )
 
 private const val SECONDS_OF_DAY: Long = 86400
+
+/**
+ * Takes a [Date] object and returns a string with the full month name, ie 'June'
+ *
+ * @param locale The current [Locale].
+ * @return The month's name.
+ */
+fun Date.getMonthName(locale: Locale = Locale.getDefault()): String {
+    val dateTimeFormat = SimpleDateFormat("MMMM", locale)
+    return dateTimeFormat.format(this)
+}
+
+fun Calendar.getMonthName(locale: Locale = Locale.getDefault()): String {
+    return time.getMonthName(locale)
+}
+
+/**
+ * Takes an expiration date in "MMyy" format and formats it to UI-ready "MM/yy" format
+ *
+ * @param locale The current [Locale].
+ * @return the formatted expiration date.
+ */
+fun String.toFormattedExpirationDate(locale: Locale = Locale.getDefault()): String {
+    val expDateOriginalFormat = SimpleDateFormat("MMyy", locale)
+    val expDateFinalFormat = SimpleDateFormat("MM/yy", locale)
+
+    val expDateOriginal = expDateOriginalFormat.parse(this)
+
+    return expDateFinalFormat.format(expDateOriginal)
+}
+
+/**
+ * Takes a date string in "MM/yy" format and formats it to UI-ready "Jun, 2022" format
+ *
+ * @param locale The current [Locale].
+ * @return the formatted date string.
+ */
+fun String.toShortMonthYearDate(locale: Locale = Locale.getDefault()): String {
+    val originalFormat = SimpleDateFormat("MM/yyyy", locale)
+    val finalFormat = SimpleDateFormat("MMM, yyyy", locale)
+
+    val originalDate = originalFormat.parse(this)
+
+    return finalFormat.format(originalDate)
+}
+
+fun Date.toDayAndMonth(locale: Locale = Locale.getDefault()): String {
+    val defaultDateTimeFormat = SimpleDateFormat("dd MMMM", locale)
+    val usDateTimeFormat = SimpleDateFormat("MMMM dd", locale)
+    return if (locale == Locale.US) usDateTimeFormat.format(this) else defaultDateTimeFormat.format(this)
+}
+
+fun Calendar.toMonthAndYear(locale: Locale = Locale.getDefault()): String {
+    val defaultDateTimeFormat = SimpleDateFormat("MMMM yyyy", locale)
+    return defaultDateTimeFormat.format(time)
+}

@@ -6,11 +6,11 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -29,13 +29,14 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance = AccountBalance(
             total = 100.testValue(),
+            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
         val account: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -45,7 +46,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balance.test()
+        subject.balanceRx.test()
             .assertComplete()
             .assertValue {
                 it.total == accountBalance.total &&
@@ -60,23 +61,25 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance1 = AccountBalance(
             total = 100.testValue(),
+            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
         val account1: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance1))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance1))
         }
 
         val accountBalance2 = AccountBalance(
             total = 50.testValue(),
+            dashboardDisplay = 50.testValue(),
             pending = 0.testValue(),
             withdrawable = 40.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
         val account2: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance2))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance2))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -86,9 +89,9 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balance.test()
+        subject.balanceRx.test()
             .assertComplete()
-            .assertValue {
+            .assertValueAt(1) {
                 it.total == accountBalance1.total + accountBalance2.total &&
                     it.pending == accountBalance1.pending + accountBalance2.pending &&
                     it.withdrawable == accountBalance1.withdrawable + accountBalance2.withdrawable &&

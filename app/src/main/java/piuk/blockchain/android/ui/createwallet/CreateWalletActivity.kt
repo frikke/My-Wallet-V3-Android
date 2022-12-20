@@ -24,8 +24,10 @@ import piuk.blockchain.android.cards.PickerItem
 import piuk.blockchain.android.cards.PickerItemListener
 import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.login.GoogleReCaptchaClient
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import timber.log.Timber
 
 class CreateWalletActivity :
@@ -43,6 +45,7 @@ class CreateWalletActivity :
     private val viewModel: CreateWalletViewModel by viewModel()
 
     private val environmentConfig: EnvironmentConfig by inject()
+    private val fraudService: FraudService by inject()
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
@@ -50,6 +53,8 @@ class CreateWalletActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fraudService.trackFlow(FraudFlow.SIGNUP)
 
         recaptchaClient.initReCaptcha()
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
@@ -67,7 +72,8 @@ class CreateWalletActivity :
                         SearchPickerItemBottomSheet.newInstance(
                             it.countries.map { country ->
                                 CountryPickerItem(country.countryCode)
-                            }
+                            },
+                            it.suggested?.let { CountryPickerItem(it.countryCode) },
                         )
                     )
                 },
@@ -110,6 +116,7 @@ class CreateWalletActivity :
             CreateWalletNavigation.Back -> {
                 backPressCallback.remove()
                 onBackPressedDispatcher.onBackPressed()
+                fraudService.endFlow(FraudFlow.SIGNUP)
             }
             is CreateWalletNavigation.PinEntry -> {
                 hideKeyboard()

@@ -5,15 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/standard_margin"
+    android:layout_marginTop="@dimen/standard_spacing"
     android:orientation="horizontal"
-    android:paddingBottom="@dimen/medium_margin">
+    android:paddingBottom="@dimen/medium_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/yapily_header_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/ic_safeconnect" />
@@ -23,7 +23,7 @@
         style="@style/Text.Standard.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/medium_spacing"
         app:layout_constraintStart_toEndOf="@id/yapily_header_icon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/yapily_agreement_title" />
@@ -33,7 +33,7 @@
         style="@style/Text.Standard.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/standard_margin"
+        android:paddingTop="@dimen/standard_spacing"
         android:text="@string/yapily_approval_header"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="@id/yapily_header_icon"

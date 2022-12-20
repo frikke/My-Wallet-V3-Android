@@ -5,10 +5,12 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -18,11 +20,10 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate(
-    private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources,
+    private val walletModeService: WalletModeService
 ) : AdapterDelegate<DashboardItem> {
 
     override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
@@ -31,8 +32,8 @@ class BalanceCardDelegate(
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         BalanceCardViewHolder(
             binding = ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            selectedFiat = selectedFiat,
             assetResources = assetResources,
+            walletMode = walletModeService.enabledWalletMode()
         )
 
     override fun onBindViewHolder(
@@ -46,8 +47,8 @@ class BalanceCardDelegate(
 
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
-    private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources,
+    private val walletMode: WalletMode
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var isFirstLoad = true
@@ -79,8 +80,9 @@ private class BalanceCardViewHolder(
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
-            label.text = context.getString(R.string.dashboard_total_balance)
-
+            label.text =
+                if (walletMode == WalletMode.UNIVERSAL) context.getString(R.string.dashboard_total_balance)
+                else context.getString(R.string.common_balance)
             if (state.delta == null) {
                 balanceDeltaValue.text = ""
                 balanceDeltaPercent.text = ""
@@ -120,7 +122,9 @@ private class BalanceCardViewHolder(
 
             val entries = ArrayList<PieEntry>().apply {
                 assets.forEach { assetState ->
-                    val point = assetState.fiatBalance?.toFloat() ?: 0f
+                    val point = assetState.fiatBalance(
+                        useDisplayBalance = assetState.assetDisplayBalanceFFEnabled
+                    )?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
             }

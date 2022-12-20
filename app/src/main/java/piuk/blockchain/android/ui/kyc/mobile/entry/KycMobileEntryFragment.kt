@@ -12,7 +12,9 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
-import com.blockchain.koin.scopedInject
+import com.blockchain.core.settings.PhoneNumber
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -32,8 +34,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.androidcore.data.settings.PhoneNumber
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycMobileEntryFragment :
     BaseFragment<KycMobileEntryView, KycMobileEntryPresenter>(),

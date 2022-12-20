@@ -1,14 +1,14 @@
 package piuk.blockchain.android.maintenance.data.remoteconfig
 
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.preferences.AppMaintenancePrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 
 internal class AppMaintenanceRemoteConfig(
-    private val remoteConfig: RemoteConfig,
+    private val remoteConfigService: RemoteConfigService,
     private val json: Json,
     private val appMaintenancePrefs: AppMaintenancePrefs
 ) {
@@ -27,7 +27,7 @@ internal class AppMaintenanceRemoteConfig(
         return if (appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled) {
             appMaintenancePrefs.appMaintenanceDebugJson
         } else {
-            remoteConfig.getRawJson(APP_MAINTENANCE_KEY).await()
+            remoteConfigService.getRawJson(APP_MAINTENANCE_KEY).await()
         }
     }
 }

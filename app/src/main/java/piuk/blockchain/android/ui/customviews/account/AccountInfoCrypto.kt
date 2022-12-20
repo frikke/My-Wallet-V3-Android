@@ -14,6 +14,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -115,7 +116,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
             assetTitle.text = item.title
             assetSubtitle.text = item.subTitle
 
-            compositeDisposable += account.balance.firstOrError().map { it.total }
+            compositeDisposable += account.balanceRx.firstOrError().map { it.total }
                 .doOnSuccess {
                     accountBalance = it
                 }.startWithValueIfCondition(
@@ -207,10 +208,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
-    }
-
-    companion object {
-        private const val ACCOUNT_INFO_CRYPTO_VIEW_ID = "AccountInfoCrypto_"
     }
 }
 

@@ -1,5 +1,6 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.domain.session.SessionIdService
 import com.blockchain.utils.withBearerPrefix
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
@@ -13,12 +14,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
-import retrofit2.Call
 import retrofit2.Response
 
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
     private val api: ApiCode,
+    private val sessionIdService: SessionIdService,
+    private val byPassCaptchaOrigin: String?,
     private val captchaSiteKey: String
 ) {
     fun updateFirebaseNotificationToken(
@@ -70,12 +72,12 @@ class WalletApi(
         return explorerInstance.getExternalIp().map { it.ip }
     }
 
-    fun setAccess(key: String, value: String, pin: String): Observable<Response<Status>> {
+    fun setAccess(key: String, value: String, pin: String): Single<Response<Status>> {
         val hex = Hex.toHexString(value.toByteArray())
         return explorerInstance.pinStore(key, pin, hex, "put", api.apiCode)
     }
 
-    fun validateAccess(key: String, pin: String): Observable<Response<Status>> {
+    fun validateAccess(key: String, pin: String): Single<Response<Status>> {
         return explorerInstance.pinStore(key, pin, null, "get", api.apiCode)
     }
 
@@ -88,23 +90,25 @@ class WalletApi(
         email: String?,
         device: String?,
         recaptchaToken: String?
-    ): Call<ResponseBody> {
+    ): Completable {
         val pipedAddresses = activeAddressList?.joinToString("|")
 
         return explorerInstance.syncWalletCall(
-            "insert",
-            guid,
-            sharedKey,
-            encryptedPayload,
-            encryptedPayload.length,
-            URLEncoder.encode(newChecksum, "utf-8"),
-            pipedAddresses,
-            email,
-            device,
-            null,
-            api.apiCode,
-            recaptchaToken,
-            captchaSiteKey
+            sessionId = null,
+            method = "insert",
+            guid = guid,
+            sharedKey = sharedKey,
+            payload = encryptedPayload,
+            length = encryptedPayload.length,
+            checksum = URLEncoder.encode(newChecksum, "utf-8"),
+            active = pipedAddresses,
+            email = email,
+            device = device,
+            origin = byPassCaptchaOrigin,
+            old_checksum = null,
+            apiCode = api.apiCode,
+            recaptchaToken = recaptchaToken,
+            siteKey = captchaSiteKey
         )
     }
 
@@ -124,61 +128,59 @@ class WalletApi(
         newChecksum: String?,
         oldChecksum: String?,
         device: String?
-    ): Call<ResponseBody> {
-
+    ): Completable {
         val pipedAddresses = activeAddressList?.joinToString("|") ?: ""
-
-        return explorerInstance.syncWalletCall(
-            "update",
-            guid,
-            sharedKey,
-            encryptedPayload,
-            encryptedPayload.length,
-            URLEncoder.encode(newChecksum, "utf-8"),
-            pipedAddresses,
-            null,
-            device,
-            oldChecksum,
-            api.apiCode,
-            null,
-            null
-        )
+        return sessionIdService.sessionId().flatMapCompletable { sessionId ->
+            explorerInstance.syncWalletCall(
+                method = "secure-update",
+                guid = guid,
+                sessionId = sessionId.withBearerPrefix(),
+                sharedKey = sharedKey,
+                payload = encryptedPayload,
+                length = encryptedPayload.length,
+                checksum = URLEncoder.encode(newChecksum, "utf-8"),
+                email = pipedAddresses,
+                origin = null,
+                device = device,
+                old_checksum = oldChecksum,
+                apiCode = api.apiCode,
+                recaptchaToken = null,
+                siteKey = null,
+                active = null
+            )
+        }
     }
 
-    fun fetchWalletData(guid: String, sharedKey: String): Call<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<ResponseBody> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
+            sessionId.withBearerPrefix(),
             sharedKey,
             "json",
             api.apiCode
         )
     }
 
-    fun submitTwoFactorCode(sessionId: String, guid: String?, twoFactorCode: String): Observable<ResponseBody> {
-        val headerMap: MutableMap<String, String> =
-            HashMap()
-        headerMap["Authorization"] = sessionId.withBearerPrefix()
-        return explorerInstance.submitTwoFactorCode(
-            headerMap,
-            "get-wallet",
-            guid,
-            twoFactorCode,
-            twoFactorCode.length,
-            "plain",
-            api.apiCode
-        )
-    }
-
-    fun getSessionId(guid: String): Observable<Response<ResponseBody>> {
-        return explorerInstance.getSessionId(guid)
+    fun submitTwoFactorCode(guid: String?, twoFactorCode: String): Single<ResponseBody> {
+        return sessionIdService.sessionId().flatMap {
+            explorerInstance.submitTwoFactorCode(
+                sessionId = it.withBearerPrefix(),
+                method = "get-wallet",
+                guid = guid,
+                twoFactorCode = twoFactorCode,
+                length = twoFactorCode.length,
+                format = "plain",
+                apiCode = api.apiCode
+            )
+        }
     }
 
     fun fetchEncryptedPayload(
         guid: String,
         sessionId: String,
         resend2FASms: Boolean
-    ): Observable<Response<ResponseBody>> =
+    ): Single<Response<ResponseBody>> =
         explorerInstance.fetchEncryptedPayload(
             guid,
             "SID=$sessionId",
@@ -187,7 +189,7 @@ class WalletApi(
             api.apiCode
         )
 
-    fun fetchPairingEncryptionPasswordCall(guid: String?): Call<ResponseBody> {
+    fun fetchPairingEncryptionPasswordCall(guid: String?): Single<ResponseBody> {
         return explorerInstance.fetchPairingEncryptionPasswordCall(
             "pairing-encryption-password",
             guid,
@@ -220,16 +222,19 @@ class WalletApi(
         payload: String,
         context: String?
     ): Observable<ResponseBody> {
-        return explorerInstance.updateSettings(
-            method,
-            guid,
-            sharedKey,
-            payload,
-            payload.length,
-            "plain",
-            context,
-            api.apiCode
-        )
+        return sessionIdService.sessionId().flatMapObservable { sessionId ->
+            explorerInstance.updateSettings(
+                sessionId.withBearerPrefix(),
+                method,
+                guid,
+                sharedKey,
+                payload,
+                payload.length,
+                "plain",
+                context,
+                api.apiCode
+            )
+        }
     }
 
     fun updateSettings(
@@ -240,33 +245,35 @@ class WalletApi(
         context: String?,
         forceJson: Boolean?
     ): Single<Response<ResponseBody>> {
-        return explorerInstance.updateSettings(
-            method,
-            guid,
-            sharedKey,
-            payload,
-            payload.length,
-            "plain",
-            context,
-            api.apiCode,
-            forceJson
-        )
+        return sessionIdService.sessionId().flatMap { sessionId ->
+            explorerInstance.updateSettings(
+                sessionId.withBearerPrefix(),
+                method,
+                guid,
+                sharedKey,
+                payload,
+                payload.length,
+                "plain",
+                context,
+                api.apiCode,
+                forceJson
+            )
+        }
     }
 
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(api.apiCode)
 
-    fun createSessionId(email: String): Single<ResponseBody> =
-        explorerInstance.createSessionId(email, api.apiCode)
-
-    fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
-        explorerInstance.authorizeSession(
-            sessionId.withBearerPrefix(),
-            authToken,
-            api.apiCode,
-            "authorize-approve",
-            true
-        )
+    fun authorizeSession(authToken: String): Single<Response<ResponseBody>> =
+        sessionIdService.sessionId().flatMap {
+            explorerInstance.authorizeSession(
+                it.withBearerPrefix(),
+                authToken,
+                api.apiCode,
+                "authorize-approve",
+                true
+            )
+        }
 
     fun updateMobileSetup(
         guid: String,

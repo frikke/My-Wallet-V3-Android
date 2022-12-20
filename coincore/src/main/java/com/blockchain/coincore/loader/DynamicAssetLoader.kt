@@ -12,30 +12,40 @@ import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
-import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.onErrorReturn
+import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.getOrThrow
-import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.mapData
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.utils.filterList
+import com.blockchain.utils.filterListItemIsInstance
+import com.blockchain.utils.mapList
+import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isNonCustodial
+import info.blockchain.balance.isDelegatedNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
@@ -44,16 +54,11 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.filterList
-import piuk.blockchain.androidcore.utils.extensions.filterListItemIsInstance
-import piuk.blockchain.androidcore.utils.extensions.mapList
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
@@ -61,24 +66,28 @@ private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 
 internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
-    private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
-    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val tradingService: TradingService,
     private val interestService: InterestService,
+    private val ethDataManager: EthDataManager,
     private val labels: DefaultLabels,
     private val custodialWalletManager: CustodialWalletManager,
     private val remoteLogger: RemoteLogger,
     private val formatUtils: FormatUtilities,
+    private val unifiedBalancesService: Lazy<UnifiedBalancesService>,
     private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag,
+    private val unifiedBalancesFeatureFlag: FeatureFlag,
+    private val stakingService: StakingService,
+    private val coinNetworksEnabledFlag: FeatureFlag,
+    private val kycService: KycService,
+    private val walletModeService: WalletModeService
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -89,7 +98,7 @@ internal class DynamicAssetLoader(
         when {
             currency.isErc20() -> loadErc20Asset(currency)
             (currency as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(currency)
-            (currency as? AssetInfo)?.isNonCustodial == true -> loadSelfCustodialAsset(currency)
+            (currency as? AssetInfo)?.isDelegatedNonCustodial == true -> loadSelfCustodialAsset(currency)
             currency is FiatCurrency -> FiatAsset(currency)
             else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
         }.also {
@@ -101,29 +110,66 @@ internal class DynamicAssetLoader(
         get() {
             return Singles.zip(
                 layerTwoFeatureFlag.enabled,
-                erc20DataManager.getSupportedNetworks()
-            ).map { (isEnabled, evmNetworks) ->
-                if (isEnabled) {
-                    experimentalL1EvmAssets.filter { evmAsset ->
-                        evmNetworks.find {
-                            it.networkTicker == evmAsset.networkTicker ||
-                                it.networkTicker == evmAsset.displayTicker
-                        } != null
-                    }.map { asset ->
-                        L1EvmAsset(
-                            currency = asset,
-                            l1BalanceStore = l1BalanceStore,
-                            erc20DataManager = erc20DataManager,
-                            feeDataManager = feeDataManager,
-                            walletPreferences = walletPreferences,
-                            labels = labels,
-                            formatUtils = formatUtils,
-                            addressResolver = ethHotWalletAddressResolver,
-                            layerTwoFeatureFlag = layerTwoFeatureFlag
-                        )
-                    }.toSet()
-                } else {
-                    emptySet()
+                coinNetworksEnabledFlag.enabled
+            ).flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
+                when {
+                    isL2Enabled && isCoinNetworksEnabled -> {
+                        // When the both flags are enabled, load the asset info (except the hard-coded ETH for now)
+                        // from the coin definitions endpoint, then intersect with the supported networks using the new
+                        // coin networks endpoint. That was we only load coins when their networks are supported/enabled
+                        assetCatalogue.otherEvmAssets().map { evmAssets ->
+                            evmAssets.map { asset ->
+                                L1EvmAsset(
+                                    currency = asset,
+                                    erc20DataManager = erc20DataManager,
+                                    feeDataManager = feeDataManager,
+                                    walletPreferences = walletPreferences,
+                                    labels = labels,
+                                    formatUtils = formatUtils,
+                                    addressResolver = ethHotWalletAddressResolver,
+                                    layerTwoFeatureFlag = layerTwoFeatureFlag,
+                                    coinNetworksFlag = coinNetworksEnabledFlag,
+                                    evmNetworks = assetCatalogue.otherEvmNetworks(),
+                                    ethDataManager = ethDataManager
+                                )
+                            }.toSet()
+                        }
+                    }
+                    isL2Enabled -> {
+                        Singles.zip(
+                            erc20DataManager.getSupportedNetworks(),
+                            assetCatalogue.availableL1Assets()
+                        ).map { (evmNetworks, evmAssets) ->
+                            // When the coin networks flags is disabled, load the asset info (except the hard-coded ETH
+                            // for now) from the coin definitions endpoint, then intersect with the supported networks
+                            // from the remote config.
+                            evmAssets.filter { asset ->
+                                evmNetworks.find { network ->
+                                    (
+                                        asset.networkTicker == network.networkTicker ||
+                                            asset.displayTicker == network.networkTicker
+                                        ) &&
+                                        asset.networkTicker != CryptoCurrency.ETHER.networkTicker
+                                } != null
+                            }
+                                .map { asset ->
+                                    L1EvmAsset(
+                                        currency = asset,
+                                        erc20DataManager = erc20DataManager,
+                                        feeDataManager = feeDataManager,
+                                        walletPreferences = walletPreferences,
+                                        labels = labels,
+                                        formatUtils = formatUtils,
+                                        addressResolver = ethHotWalletAddressResolver,
+                                        layerTwoFeatureFlag = layerTwoFeatureFlag,
+                                        coinNetworksFlag = coinNetworksEnabledFlag,
+                                        evmNetworks = erc20DataManager.getSupportedNetworks().map { it.toList() },
+                                        ethDataManager = ethDataManager
+                                    )
+                                }.toSet()
+                        }
+                    }
+                    else -> Single.just(emptySet())
                 }
             }
         }
@@ -154,7 +200,8 @@ internal class DynamicAssetLoader(
                     nonCustodialAssets + supportedEvmL1Assets + loadedAssets
                 }
             }
-            .doOnSuccess { assetList ->
+            .doOnSuccess {
+                assetList ->
                 assetList.map { it.currency.networkTicker }.let { ids ->
                     /**
                      * checking that values here are unique
@@ -165,7 +212,7 @@ internal class DynamicAssetLoader(
                  * Persisting to loaded any custodial+the standardL1s
                  */
                 assetMap.putAll(
-                    assetList.filter { (it.currency as? AssetInfo)?.isCustodial == true || it is StandardL1Asset }
+                    assetList.filter { it.currency.isCustodial || it is StandardL1Asset }
                         .associateBy { it.currency }
                 )
             }
@@ -189,40 +236,6 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    @OptIn(FlowPreview::class)
-    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return selfCustodyService.getSubscriptions()
-            .flatMapConcat { result ->
-                when (result) {
-                    is Outcome.Success ->
-                        flow {
-                            emit(
-                                result.value.mapNotNull {
-                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        loadSelfCustodialAsset(asset)
-                                    }
-                                }
-                            )
-                        }
-                    is Outcome.Failure -> {
-                        // getSubscriptions might fail because the wallet has never called auth before
-                        val isSuccess = selfCustodyService.authenticate().getOrThrow()
-                        if (isSuccess) {
-                            selfCustodyService.getSubscriptions().map { subscriptions ->
-                                subscriptions.getOrThrow().mapNotNull {
-                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        loadSelfCustodialAsset(asset)
-                                    }
-                                }
-                            }
-                        } else {
-                            throw IllegalStateException("Could not load subscriptions")
-                        }
-                    }
-                }
-            }
-    }
-
     private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
         allAssets.mapNotNull { currency ->
             when {
@@ -241,6 +254,40 @@ internal class DynamicAssetLoader(
      * */
 
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
+        return flow {
+            val unifiedBalancesServiceEnabled = unifiedBalancesFeatureFlag.coEnabled()
+            if (unifiedBalancesServiceEnabled)
+                emitAll(loadNonCustodialAssetsUsingUnifiedBalances())
+            else
+                emitAll(loadNonCustodialLegacyAssets())
+        }
+    }
+
+    private fun loadNonCustodialAssetsUsingUnifiedBalances(): Flow<List<Asset>> {
+        val selfCustodialAssetsFlow = unifiedBalancesService.value.balances().mapData { balances ->
+            balances.map {
+                get(it.currency)
+            }
+        }.onErrorReturn {
+            emptyList()
+        }.filterIsInstance<DataResource.Data<List<Asset>>>()
+
+        val enabledL1AssetsFlow = flow {
+            val evmAssets = enabledEvmL1Assets.await()
+            emit(nonCustodialAssets.plus(evmAssets.toSet()))
+        }
+
+        return combine(
+            selfCustodialAssetsFlow,
+            enabledL1AssetsFlow
+        ) { dynamicSelfCustodyAssets, standardAssets ->
+            dynamicSelfCustodyAssets.data.filter {
+                it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
+            } + standardAssets
+        }
+    }
+
+    private fun loadNonCustodialLegacyAssets(): Flow<List<Asset>> {
         val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
             .filterList { it.isErc20() }
             .mapList { loadErc20Asset(it) }
@@ -266,6 +313,41 @@ internal class DynamicAssetLoader(
         }
     }
 
+    /**
+     * Remove this once unified balances ff gets removed
+     */
+    @OptIn(FlowPreview::class)
+    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
+        return selfCustodyService.getSubscriptions()
+            .flatMapConcat { result ->
+                when (result) {
+                    is Outcome.Success ->
+                        flow {
+                            emit(
+                                result.value.mapNotNull {
+                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                                        if (asset.isDelegatedNonCustodial) {
+                                            loadSelfCustodialAsset(asset)
+                                        } else {
+                                            null
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    is Outcome.Failure -> {
+                        // getSubscriptions might fail because the wallet has never called auth before
+                        flow {
+                            emit(emptyList())
+                        }
+                    }
+                    else -> {
+                        throw IllegalStateException("Could not load subscriptions")
+                    }
+                }
+            }
+    }
+
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
         val activeTradingFlow = tradingService.getActiveAssets()
             .filterListItemIsInstance<AssetInfo>()
@@ -276,6 +358,10 @@ internal class DynamicAssetLoader(
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
+        val activeStakingFlow = stakingService.getActiveAssets()
+            .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
+
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
             .mapList { FiatAsset(currency = it) }
             .catch { emit(emptyList()) }
@@ -283,10 +369,12 @@ internal class DynamicAssetLoader(
         return combine(
             activeTradingFlow,
             activeInterestFlow,
-            supportedFiatsFlow
-        ) { activeTrading, activeInterest, supportedFiats ->
+            supportedFiatsFlow,
+            activeStakingFlow
+        ) { activeTrading, activeInterest, supportedFiats, activeStaking ->
             activeTrading +
                 activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
+                activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } } +
                 supportedFiats
         }
     }
@@ -299,27 +387,14 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadSelfCustodialAsset(assetInfo: AssetInfo): CryptoAsset {
-        // TODO(dtverdota): Remove Stx-specific code once it is enabled for all users
-        return if (assetInfo.networkTicker == "STX" && stxForAllFeatureFlag.isEnabled) {
-            StxAsset(
-                currency = assetInfo,
-                payloadManager = payloadManager,
-                addressValidation = defaultCustodialAddressValidation,
-                addressResolver = identityAddressResolver,
-                selfCustodyService = selfCustodyService,
-                stxForAllFeatureFlag = stxForAllFeatureFlag,
-                walletPreferences = walletPreferences
-            )
-        } else {
-            return DynamicSelfCustodyAsset(
-                currency = assetInfo,
-                payloadManager = payloadManager,
-                addressValidation = defaultCustodialAddressValidation,
-                addressResolver = identityAddressResolver,
-                selfCustodyService = selfCustodyService,
-                walletPreferences = walletPreferences
-            )
-        }
+        return DynamicSelfCustodyAsset(
+            currency = assetInfo,
+            payloadManager = payloadManager,
+            addressValidation = defaultCustodialAddressValidation,
+            addressResolver = identityAddressResolver,
+            selfCustodyService = selfCustodyService,
+            walletPreferences = walletPreferences
+        )
     }
 
     private fun loadErc20Asset(assetInfo: Currency): CryptoAsset {
@@ -333,7 +408,12 @@ internal class DynamicAssetLoader(
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
-            layerTwoFeatureFlag = layerTwoFeatureFlag
+            layerTwoFeatureFlag = layerTwoFeatureFlag,
+            coinNetworksFeatureFlag = coinNetworksEnabledFlag,
+            evmNetworks = assetCatalogue.allEvmNetworks(),
+            kycService = kycService,
+            tradingService = tradingService,
+            walletModeService = walletModeService,
         )
     }
 

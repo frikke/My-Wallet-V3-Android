@@ -11,6 +11,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.ui.password.SecondPasswordHandler
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
@@ -20,18 +21,16 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.CurrentContextAccess
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class ErrorDialogCancelled : Exception("Dialog Cancelled")
 
 class SecondPasswordDialog(
-    private val contextAccess: CurrentContextAccess,
+    private val context: Context,
     private val payloadManager: PayloadDataManager
 ) : SecondPasswordHandler {
     private var progressDlg: MaterialProgressDialog? = null
 
-    override fun validate(ctx: Context, listener: SecondPasswordHandler.ResultListener) {
+    fun validate(ctx: Context, listener: SecondPasswordHandler.ResultListener) {
         if (!hasSecondPasswordSet) {
             listener.onNoSecondPassword()
         } else {
@@ -55,10 +54,6 @@ class SecondPasswordDialog(
                 .show()
         }
     }
-
-    @Deprecated(message = "Context access is deprecated. Use validate(listener) instead")
-    override fun validate(listener: SecondPasswordHandler.ResultListener) =
-        validate(contextAccess.context!!, listener)
 
     @SuppressLint("CheckResult")
     private fun doValidatePassword(
@@ -151,7 +146,7 @@ class SecondPasswordDialog(
             else -> null
         }
 
-    override fun secondPassword(ctx: Context): Maybe<String> {
+    fun secondPassword(ctx: Context): Maybe<String> {
         val subject = MaybeSubject.create<String>()
         val password = verifiedPassword
 
@@ -183,6 +178,7 @@ class SecondPasswordDialog(
 
         return Maybe.defer {
             validate(
+                context,
                 object : SecondPasswordHandler.ResultListener {
                     override fun onCancelled() {
                         password.onComplete()

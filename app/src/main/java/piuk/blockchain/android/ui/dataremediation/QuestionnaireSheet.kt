@@ -16,19 +16,26 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.koin.payloadScope
+import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
+import org.koin.java.KoinJavaComponent.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 
-class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeComponent {
+class QuestionnaireSheet() :
+    MVIBottomSheet<QuestionnaireState>(),
+    AndroidScopeComponent,
+    QuestionnaireDropdownPickerSheet.Host {
 
-    interface Host {
+    interface Host : MVIBottomSheet.Host {
         fun questionnaireSubmittedSuccessfully()
         fun questionnaireSkipped()
     }
 
-    private val host: Host by lazy {
+    override val host: Host by lazy {
         (activity as? Host) ?: (parentFragment as? Host) ?: throw IllegalStateException(
             "Host is not a QuestionnaireFragment.Host"
         )
@@ -37,10 +44,23 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
     override val scope: Scope = payloadScope
 
     private val model: QuestionnaireModel by viewModel()
+    private val fraudService: FraudService by inject()
 
     private val navigator: NavigationRouter<Navigation> = object : NavigationRouter<Navigation> {
         override fun route(navigationEvent: Navigation) {
             when (navigationEvent) {
+                is Navigation.OpenDropdownPickerForSingleSelection -> {
+                    if (!childFragmentManager.isDestroyed) {
+                        QuestionnaireDropdownPickerSheet.newInstance(navigationEvent.original, navigationEvent.node)
+                            .show(childFragmentManager, "BOTTOM_DIALOG")
+                    }
+                }
+                is Navigation.OpenDropdownPickerForMultipleSelection -> {
+                    if (!childFragmentManager.isDestroyed) {
+                        QuestionnaireDropdownPickerSheet.newInstance(navigationEvent.original, navigationEvent.node)
+                            .show(childFragmentManager, "BOTTOM_DIALOG")
+                    }
+                }
                 Navigation.FinishSuccessfully -> {
                     host.questionnaireSubmittedSuccessfully()
                     if (showsDialog) dismiss()
@@ -71,8 +91,8 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
                     isSkipVisible = !questionnaire.isMandatory,
                     header = questionnaire.header,
                     state = state,
-                    onDropdownChoiceChanged = { node, newChoice ->
-                        model.onIntent(QuestionnaireIntent.DropdownChoiceChanged(node, newChoice))
+                    onDropdownOpenPickerClicked = { node ->
+                        model.onIntent(QuestionnaireIntent.DropdownOpenPickerClicked(node))
                     },
                     onSelectionClicked = { node ->
                         model.onIntent(QuestionnaireIntent.SelectionClicked(node))
@@ -81,6 +101,7 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
                         model.onIntent(QuestionnaireIntent.OpenEndedInputChanged(node, newInput))
                     },
                     onContinueClicked = {
+                        fraudService.endFlow(FraudFlow.KYC)
                         model.onIntent(QuestionnaireIntent.ContinueClicked)
                     },
                     onSkipClicked = {
@@ -109,6 +130,13 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
             ).show()
             model.onIntent(QuestionnaireIntent.ErrorHandled)
         }
+    }
+
+    override fun selectionChanged(node: FlatNode.Dropdown, newSelectedChoices: List<FlatNode.Selection>) {
+        model.onIntent(QuestionnaireIntent.DropdownChoicesChanged(node, newSelectedChoices))
+    }
+
+    override fun onSheetClosed() {
     }
 
     companion object {

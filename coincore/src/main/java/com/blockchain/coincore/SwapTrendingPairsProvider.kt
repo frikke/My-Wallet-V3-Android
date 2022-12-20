@@ -1,5 +1,7 @@
 package com.blockchain.coincore
 
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -9,10 +11,8 @@ import io.reactivex.rxjava3.core.Single
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
     val destinationAccount: CryptoAccount,
-    val isSourceFunded: Boolean,
-) {
-    val enabled = isSourceFunded
-}
+    val enabled: Single<Boolean>
+)
 
 interface TrendingPairsProvider {
     fun getTrendingPairs(): Single<List<TrendingPair>>
@@ -21,30 +21,38 @@ interface TrendingPairsProvider {
 internal class SwapTrendingPairsProvider(
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
+    private val walletModeService: WalletModeService
 ) : TrendingPairsProvider {
 
-    override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        coincore.activeWallets()
-            .map { it.accounts.isNotEmpty() }
-            .flatMap { useCustodial ->
-                val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
-                val assetList = makeRequiredAssetSet()
-                val accountGroups = assetList.map { asset ->
-                    coincore[asset].accountGroup(filter)
-                        .toSingle()
+    override fun getTrendingPairs(): Single<List<TrendingPair>> {
+        return coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode()).map { grp ->
+            grp.accounts.filterIsInstance<CryptoAccount>()
+                .filterNot { it is InterestAccount }
+                .filter {
+                    when (walletModeService.enabledWalletMode()) {
+                        WalletMode.CUSTODIAL_ONLY,
+                        WalletMode.UNIVERSAL -> it is TradingAccount
+                        WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
+                    }
                 }
-
-                Single.zip(
-                    accountGroups
-                ) { groups: Array<Any> ->
-                    getAccounts(groups)
+                .filter {
+                    if (it is NonCustodialAccount)
+                        it.isDefault
+                    else
+                        true
                 }
-            }.map { accountList ->
-                val accountMap = accountList.associateBy { it.currency }
-                buildPairs(accountMap)
-            }.onErrorReturn {
-                emptyList()
+        }.map { activeAccounts ->
+            val assetList = makeRequiredAssetSet()
+            activeAccounts.filter { account ->
+                account.currency.networkTicker in assetList.map { it.networkTicker }
             }
+        }.map { accountList ->
+            val accountMap = accountList.associateBy { it.currency }
+            buildPairs(accountMap)
+        }.onErrorReturn {
+            emptyList()
+        }.firstOrError()
+    }
 
     private fun makeRequiredAssetSet() =
         DEFAULT_SWAP_PAIRS.map { pair ->
@@ -54,25 +62,20 @@ internal class SwapTrendingPairsProvider(
             .filterNotNull()
             .toSet()
 
-    private fun getAccounts(list: Array<Any>): List<CryptoAccount> =
-        list.filterIsInstance<AccountGroup>()
-            .filter { it.accounts.isNotEmpty() }
-            .map { it.selectFirstAccount() }
-
     private fun buildPairs(accountMap: Map<AssetInfo, CryptoAccount>): List<TrendingPair> =
         DEFAULT_SWAP_PAIRS.mapNotNull { pair ->
             val source = accountMap[pair.first]
             val target = accountMap[pair.second]
 
             if (source != null && target != null) {
-                val chain = pair.first.l1chain(assetCatalogue)?.let { asset ->
-                    accountMap[asset]
-                }
+                TrendingPair(
+                    sourceAccount = source,
+                    destinationAccount = target,
+                    enabled = source.balanceRx.firstOrError().map {
 
-                val isFunded = source.isFunded &&
-                    (source.isTrading() || chain == null || chain.isFunded)
-
-                TrendingPair(source, target, isFunded)
+                        it.total.isPositive
+                    }
+                )
             } else {
                 null
             }

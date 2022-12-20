@@ -5,15 +5,15 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.BackupWallet
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 interface BackupVerifyView : View {

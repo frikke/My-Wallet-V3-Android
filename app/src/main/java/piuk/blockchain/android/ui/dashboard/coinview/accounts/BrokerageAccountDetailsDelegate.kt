@@ -77,7 +77,7 @@ private class AssetWalletViewHolder(
             val walletLabel = when (item.assetFilter) {
                 // todo (othman) should be removed once universal mode is removed
                 AssetFilter.NonCustodial -> item.account.label
-                AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+                AssetFilter.Trading -> labels.getDefaultTradingWalletLabel()
                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Filer not supported for account label")
             }

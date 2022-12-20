@@ -4,11 +4,12 @@ object Versions {
 
     // Release info
     const val minSdk = 24
-    const val targetSdk = 30
-    const val compileSdk = 32
 
-    const val versionCode = 23519
-    const val versionName = "202209.2.5"
+    const val targetSdk = 33
+    const val compileSdk = 33
+
+    const val versionCode = 25045
+    const val versionName = "202212.1.4"
 
     const val buildTools = "30.0.3"
 
@@ -17,7 +18,10 @@ object Versions {
     const val kotlin = "1.7.0"
 
     // Coroutines
-    const val coroutines = "1.5.2"
+    const val coroutines = "1.6.4"
+
+    // Kotlin Immutable Collections
+    const val immutableCollections = "0.3.5"
 
     const val googleServicesPlugin = "4.3.3"
     const val ktlint = "0.43.0"
@@ -46,19 +50,23 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.6.0"
+    const val googleServicesPlaces = "2.7.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
+    const val googleServicesCoroutines = "1.6.4"
+    const val googleServicesTapAndPay = "18.2.0"
+    const val googleServicesBasement = "18.1.0"
+    const val googleServicesTasks = "18.0.2"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "29.2.1"
+    const val firebaseBom = "31.0.1"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
 
     // Networking, RxJava
-    const val chucker = "3.4.0"
+    const val chucker = "3.5.2"
     const val retrofit = "2.9.0"
-    const val okHttp = "4.9.0"
+    const val okHttp = "4.10.0"
     const val gson = "2.8.5"
     const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"
@@ -66,7 +74,8 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.2.0"
+    const val koin = "3.2.2"
+    const val koinAndroid = "3.3.0"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -135,7 +144,7 @@ object Versions {
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
-    const val intercomVersion = "10.6.0"
+    const val intercomVersion = "12.5.1"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
 
@@ -150,7 +159,7 @@ object Versions {
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
-    const val firebaseCrashlyticsPlugin = "2.8.1"
+    const val firebaseCrashlyticsPlugin = "2.9.2"
     const val embraceIO = "5.0.4"
 
     // Debugging
@@ -183,6 +192,8 @@ object Libraries {
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
+    const val kotlinImmutableCollections =
+        "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.immutableCollections}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
     const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
@@ -221,17 +232,25 @@ object Libraries {
     const val firebaseDynamicLink = "com.google.firebase:firebase-dynamic-links"
     const val googlePlayServicesBase =
         "com.google.android.gms:play-services-base:${Versions.googleServices}"
+    const val googlePlayServicesBasement =
+        "com.google.android.gms:play-services-basement:${Versions.googleServicesBasement}"
+    const val googlePlayServicesTasks =
+        "com.google.android.gms:play-services-tasks:${Versions.googleServicesTasks}"
     const val googlePlayServicesAuth =
         "com.google.android.gms:play-services-auth:${Versions.googleServicesAuth}"
-    const val googlePlaces =
-        "com.google.android.libraries.places:places:${Versions.googleServicesPlaces}"
     const val googleServicesReCaptcha =
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
     const val googleServicesWallet =
         "com.google.android.gms:play-services-wallet:${Versions.googleServicesWallet}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
+    const val googlePlayServicesCoroutines =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${Versions.googleServicesCoroutines}"
+    const val googlePlayServicesTapAndPay =
+        "com.google.android.gms:play-services-tapandpay:${Versions.googleServicesTapAndPay}"
+
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
+
 
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
@@ -251,10 +270,10 @@ object Libraries {
     const val coroutinesSqlDelight = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
-    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
+    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koinAndroid}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val koinTestJunit = "io.insert-koin:koin-test-junit4:${Versions.koin}"
-    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroid}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"

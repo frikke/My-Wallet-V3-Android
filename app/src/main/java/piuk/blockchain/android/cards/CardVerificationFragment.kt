@@ -14,9 +14,10 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.disableBackPress
+import com.blockchain.presentation.koin.scopedInject
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig
@@ -28,7 +29,6 @@ import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
-import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class CardVerificationFragment :
@@ -214,7 +214,7 @@ class CardVerificationFragment :
                     )
                 }
                 CardError.ActivationFailed -> renderLegacyError(
-                    title = R.string.title_cardInsufficientFunds,
+                    title = R.string.title_cardCreateBankDeclined,
                     subtitle = R.string.could_not_activate_card
                 )
                 CardError.CardAcquirerDeclined -> renderLegacyError(

@@ -11,5 +11,6 @@ data class FundsLocks(
 
 data class FundsLock(
     val amount: Money,
-    val date: ZonedDateTime
+    val date: ZonedDateTime,
+    val buyAmount: Money?,
 ) : Serializable

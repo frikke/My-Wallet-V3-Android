@@ -3,9 +3,17 @@ package com.blockchain.blockchaincard.domain
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardKycUpdate
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
+import com.blockchain.blockchaincard.domain.models.BlockchainCardPostMessageType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatement
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
@@ -21,7 +29,11 @@ interface BlockchainCardRepository {
 
     suspend fun createCard(
         productCode: String,
-        ssn: String
+        shippingAddress: BlockchainCardAddress?
+    ): Outcome<BlockchainCardError, BlockchainCard>
+
+    suspend fun getCard(
+        cardId: String
     ): Outcome<BlockchainCardError, BlockchainCard>
 
     suspend fun deleteCard(
@@ -39,7 +51,8 @@ interface BlockchainCardRepository {
     suspend fun getCardWidgetUrl(
         cardId: String,
         last4Digits: String,
-        userFullName: String
+        userFullName: String,
+        cardType: BlockchainCardType
     ): Outcome<BlockchainCardError, String>
 
     suspend fun getEligibleTradingAccounts(
@@ -75,7 +88,10 @@ interface BlockchainCardRepository {
 
     suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
 
-    suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
+    suspend fun getTransactions(
+        limit: Int? = null,
+        toId: String? = null
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
 
     suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>>
 
@@ -84,4 +100,30 @@ interface BlockchainCardRepository {
     suspend fun acceptLegalDocuments(
         acceptedLegalDocuments: List<BlockchainCardLegalDocument>
     ): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>>
+
+    suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletData
+    ): Outcome<BlockchainCardError, BlockchainCardGoogleWalletPushTokenizeData>
+
+    suspend fun getGoogleWalletId(): Outcome<BlockchainCardError, String>
+    suspend fun getGoogleWalletStableHardwareId(): Outcome<BlockchainCardError, String>
+    suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean>
+
+    fun getDefaultCard(): String
+    fun saveCardAsDefault(cardId: String)
+
+    suspend fun getCardOrderState(cardId: String): Outcome<BlockchainCardError, BlockchainCardOrderState>
+
+    suspend fun getCardActivationUrl(): Outcome<BlockchainCardError, String>
+
+    suspend fun getCardStatements(): Outcome<BlockchainCardError, List<BlockchainCardStatement>>
+
+    suspend fun getCardStatementUrl(statementId: String): Outcome<BlockchainCardError, String>
+
+    suspend fun decodePostMessageType(postMessage: String): Outcome<BlockchainCardError, BlockchainCardPostMessageType>
+
+    suspend fun getKycStatus(): Outcome<BlockchainCardError, BlockchainCardKycStatus>
+
+    suspend fun updateKyc(kycUpdate: BlockchainCardKycUpdate): Outcome<BlockchainCardError, BlockchainCardKycStatus>
 }

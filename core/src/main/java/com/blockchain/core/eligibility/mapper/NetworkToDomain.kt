@@ -9,6 +9,7 @@ import com.blockchain.api.eligibility.data.ReasonNotEligibleResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleTypeResponse
 import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.eligibility.data.SwapEligibilityResponse
+import com.blockchain.api.eligibility.data.UseTradingAccountsResponse
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -20,13 +21,23 @@ import com.blockchain.extensions.enumValueOfOrNull
 fun ProductEligibilityResponse.toDomain(): List<ProductEligibility> =
     listOfNotNull(
         buy?.toProductEligibility(),
+        useTradingAccount?.toProductEligibility(),
         swap?.toProductEligibility(),
         sell?.toProductEligibility(EligibleProduct.SELL),
         depositFiat?.toProductEligibility(EligibleProduct.DEPOSIT_FIAT),
         depositCrypto?.toProductEligibility(EligibleProduct.DEPOSIT_CRYPTO),
         depositInterest?.toProductEligibility(EligibleProduct.DEPOSIT_INTEREST),
-        withdrawFiat?.toProductEligibility(EligibleProduct.WITHDRAW_FIAT)
+        withdrawFiat?.toProductEligibility(EligibleProduct.WITHDRAW_FIAT),
+        depositStaking?.toProductEligibility(EligibleProduct.DEPOSIT_STAKING)
     )
+
+fun UseTradingAccountsResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
+    product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
+    canTransact = enabled,
+    isDefault = defaultProduct,
+    maxTransactionsCap = TransactionsLimit.Unlimited,
+    reasonNotEligible = null /*not needed for the time being*/
+)
 
 fun BuyEligibilityResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
     product = EligibleProduct.BUY,
@@ -36,6 +47,7 @@ fun BuyEligibilityResponse.toProductEligibility(): ProductEligibility = ProductE
     } else {
         TransactionsLimit.Unlimited
     },
+    isDefault = false,
     reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
 )
 
@@ -47,12 +59,14 @@ fun SwapEligibilityResponse.toProductEligibility(): ProductEligibility = Product
     } else {
         TransactionsLimit.Unlimited
     },
+    isDefault = false,
     reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
 )
 
 fun DefaultEligibilityResponse.toProductEligibility(product: EligibleProduct): ProductEligibility = ProductEligibility(
     product = product,
     canTransact = enabled,
+    isDefault = false,
     maxTransactionsCap = TransactionsLimit.Unlimited,
     reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
 )
@@ -69,7 +83,8 @@ fun ReasonNotEligibleResponse.toDomain(): ProductNotEligibleReason {
             else -> ProductNotEligibleReason.InsufficientTier.Unknown(message)
         }
         ReasonNotEligibleTypeResponse.SANCTIONS -> when (reason) {
-            ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5
+            ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5(message)
+            ReasonNotEligibleReasonResponse.EU_8_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU8(message)
             else -> ProductNotEligibleReason.Sanctions.Unknown(message)
         }
         null -> ProductNotEligibleReason.Unknown(message)

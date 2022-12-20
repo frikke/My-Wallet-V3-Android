@@ -5,6 +5,7 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
+import info.blockchain.wallet.payload.WalletPayloadService
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -14,15 +15,14 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class BackupPhraseServiceTest {
-    private val payloadManager = mockk<PayloadDataManager>()
+    private val payloadManager = mockk<WalletPayloadService>()
     private val backupWallet = mockk<BackupWallet>()
     private val walletStatusPrefs = mockk<WalletStatusPrefs>()
 
     private val backupPhraseService: BackupPhraseService = BackupPhraseRepository(
-        payloadManager = payloadManager,
+        walletPayloadService = payloadManager,
         backupWallet = backupWallet,
         walletStatusPrefs = walletStatusPrefs
     )

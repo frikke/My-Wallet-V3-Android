@@ -19,20 +19,20 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.auth.isValidGuid
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.signin.UnifiedSignInEventListener
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.PayloadHandler
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
@@ -40,7 +40,7 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STE
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
@@ -48,12 +48,10 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginAuthActivity :
-    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
-    AccountUnificationBottomSheet.Host {
+    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
@@ -65,6 +63,7 @@ class LoginAuthActivity :
 
     private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
+    private val fraudService: FraudService by inject()
 
     private lateinit var currentState: LoginAuthState
 
@@ -76,7 +75,6 @@ class LoginAuthActivity :
         intent.getStringExtra(BASE_64_ENCODED_PAYLOAD).orEmpty()
     }
 
-    private var willUnifyAccount: Boolean = false
     private var email: String = ""
     private var userId: String = ""
     private var recoveryToken: String = ""
@@ -234,7 +232,6 @@ class LoginAuthActivity :
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
-            AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
             AuthStatus.Complete -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
                 startActivity(
@@ -275,6 +272,7 @@ class LoginAuthActivity :
                     .setCancelable(false)
                     .setPositiveButton(R.string.common_go_back) { _, _ ->
                         clearKeyboardAndFinish()
+                        fraudService.endFlow(FraudFlow.LOGIN)
                     }
                     .create()
                     .show()
@@ -285,85 +283,6 @@ class LoginAuthActivity :
     private fun clearKeyboardAndFinish() {
         hideKeyboard()
         finish()
-    }
-
-    private fun showUnificationBottomSheet(accountType: BlockchainAccountType) {
-        val benefitsList = mutableListOf(
-            VerifyIdentityNumericBenefitItem(
-                title = getString(R.string.unification_sheet_item_one_title),
-                subtitle = getString(R.string.unification_sheet_item_one_blurb)
-            ),
-            VerifyIdentityNumericBenefitItem(
-                title = getString(R.string.unification_sheet_item_two_title),
-                subtitle = getString(R.string.unification_sheet_item_two_blurb)
-            )
-        )
-        when (accountType) {
-            BlockchainAccountType.EXCHANGE -> {
-                benefitsList.add(
-                    VerifyIdentityNumericBenefitItem(
-                        title = getString(R.string.unification_sheet_item_three_title),
-                        subtitle = getString(R.string.unification_sheet_item_three_blurb)
-                    )
-                )
-            }
-            BlockchainAccountType.WALLET_EXCHANGE_NOT_LINKED -> {
-                // TODO do we need anything for this case
-            }
-            else -> {
-                // TODO this case should never happen
-            }
-        }
-
-        showBottomSheet(
-            AccountUnificationBottomSheet.newInstance(benefitsList as ArrayList<VerifyIdentityNumericBenefitItem>)
-        )
-    }
-
-    override fun upgradeAccountClicked() {
-        willUnifyAccount = true
-    }
-
-    override fun doLaterClicked() {
-        willUnifyAccount = false
-    }
-
-    override fun onSheetClosed() {
-        if (willUnifyAccount) {
-            showUnificationUI()
-        } else {
-            model.process(LoginAuthIntents.ShowAuthComplete)
-        }
-    }
-
-    private fun showUnificationUI() {
-        with(binding) {
-            unifiedSignInWebview.initWebView(
-                object : UnifiedSignInEventListener {
-                    override fun onLoaded() {
-                        progressBar.gone()
-                    }
-
-                    override fun onFatalError(error: Throwable) {
-                        // TODO nothing for now
-                    }
-
-                    override fun onTimeout() {
-                        // TODO show timeout message?
-                    }
-
-                    override fun onAuthComplete() {
-                        progressBar.visible()
-                        unifiedSignInWebview.gone()
-                        model.process(LoginAuthIntents.ShowAuthComplete)
-                    }
-                },
-                UNIFICATION_WALLET_URL, base64EncodedPayload
-            )
-
-            unifiedSignInWebview.visible()
-            progressBar.visible()
-        }
     }
 
     private fun renderRemainingTries(state: TwoFaCodeState) =
@@ -511,6 +430,5 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
-        private const val UNIFICATION_WALLET_URL = "${BuildConfig.WEB_WALLET_URL}?product=wallet&platform=android"
     }
 }

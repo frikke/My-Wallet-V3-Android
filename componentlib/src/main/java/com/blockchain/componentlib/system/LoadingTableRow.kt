@@ -66,15 +66,15 @@ fun ShimmerIcon(
     Box(
         modifier = Modifier
             .padding(
-                start = dimensionResource(R.dimen.very_small_margin),
-                top = dimensionResource(R.dimen.large_margin),
-                end = dimensionResource(R.dimen.smallest_margin)
+                start = dimensionResource(R.dimen.very_small_spacing),
+                top = dimensionResource(R.dimen.large_spacing),
+                end = dimensionResource(R.dimen.smallest_spacing)
             )
             .background(
                 brush = brush,
                 shape = CircleShape
             )
-            .size(dimensionResource(R.dimen.standard_margin))
+            .size(dimensionResource(R.dimen.standard_spacing))
     )
 }
 
@@ -84,10 +84,10 @@ fun ShimmerRow(
 ) {
     Column(
         modifier = Modifier.padding(
-            start = dimensionResource(R.dimen.medium_margin),
-            top = dimensionResource(R.dimen.standard_margin),
-            end = dimensionResource(R.dimen.standard_margin),
-            bottom = dimensionResource(R.dimen.standard_margin)
+            start = dimensionResource(R.dimen.medium_spacing),
+            top = dimensionResource(R.dimen.standard_spacing),
+            end = dimensionResource(R.dimen.standard_spacing),
+            bottom = dimensionResource(R.dimen.standard_spacing)
         )
     ) {
         ShimmerLargeBlock(brush = brush)
@@ -103,9 +103,9 @@ fun ShimmerLargeBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(3f)
-                .height(dimensionResource(R.dimen.standard_margin))
+                .height(dimensionResource(R.dimen.standard_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_margin),
+                    vertical = dimensionResource(R.dimen.smallest_spacing),
                 )
                 .background(brush = brush)
         )
@@ -118,8 +118,8 @@ fun ShimmerLargeBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.standard_margin))
-                .padding(vertical = dimensionResource(R.dimen.smallest_margin))
+                .height(dimensionResource(R.dimen.standard_spacing))
+                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
                 .background(brush = brush)
         )
     }
@@ -133,9 +133,9 @@ fun ShimmerSmallBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.medium_margin))
+                .height(dimensionResource(R.dimen.medium_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_margin),
+                    vertical = dimensionResource(R.dimen.smallest_spacing),
                 )
                 .background(brush = brush)
         )
@@ -148,8 +148,8 @@ fun ShimmerSmallBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(1f)
-                .height(dimensionResource(R.dimen.medium_margin))
-                .padding(vertical = dimensionResource(R.dimen.smallest_margin))
+                .height(dimensionResource(R.dimen.medium_spacing))
+                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
                 .background(brush = brush)
         )
     }

@@ -13,7 +13,7 @@ import com.blockchain.componentlib.theme.Grey700
 fun DefaultTag(
     text: String,
     size: TagSize = TagSize.Primary,
-    onClick: (() -> Unit)?
+    onClick: (() -> Unit)? = null
 ) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {

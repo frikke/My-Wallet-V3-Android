@@ -52,7 +52,9 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.componentlib.viewextensions.windowRect
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.dapps.ConnectedDappsActivity
@@ -74,8 +76,6 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 /**

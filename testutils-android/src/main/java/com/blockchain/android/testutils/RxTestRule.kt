@@ -23,7 +23,7 @@ class RxInit : com.blockchain.testutils.RxInit() {
         RxAndroidPlugins.setMainThreadSchedulerHandler { scheduler }
     }
 
-    fun mainTrampoline() {
+    override fun mainTrampoline() {
         main(Schedulers.trampoline())
     }
 }

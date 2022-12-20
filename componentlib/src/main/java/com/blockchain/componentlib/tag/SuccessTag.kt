@@ -11,7 +11,7 @@ import com.blockchain.componentlib.theme.Green400
 import com.blockchain.componentlib.theme.Green600
 
 @Composable
-fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)?) {
+fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)? = null) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Green100

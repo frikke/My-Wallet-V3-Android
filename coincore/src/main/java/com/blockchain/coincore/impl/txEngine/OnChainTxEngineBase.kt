@@ -1,14 +1,20 @@
 package com.blockchain.coincore.impl.txEngine
 
+import com.blockchain.api.selfcustody.BalancesResponse
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -16,7 +22,6 @@ import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.inject
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,
@@ -30,11 +35,23 @@ abstract class OnChainTxEngineBase(
     private val settingsDataManager: SettingsDataManager by scopedInject()
     private val authPrefs: AuthPrefs by inject()
 
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
+
     override fun assertInputsValid() {
         val tgt = txTarget
         check(tgt is CryptoAddress)
         check(tgt.address.isNotEmpty())
         check(sourceAsset == tgt.asset)
+    }
+
+    override fun start(
+        sourceAccount: BlockchainAccount,
+        txTarget: TransactionTarget,
+        exchangeRates: ExchangeRatesDataManager,
+        refreshTrigger: RefreshTrigger
+    ) {
+        balancesCache.markAsStale()
+        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
     }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
@@ -74,10 +91,10 @@ abstract class OnChainTxEngineBase(
                     FeeState.FeeUnderMinLimit
                 }
                 pTx.feeSelection.customAmount >= MINIMUM_CUSTOM_FEE &&
-                    pTx.feeSelection.customAmount <= feeOptions?.limits?.min ?: 0L -> {
+                    pTx.feeSelection.customAmount <= (feeOptions?.limits?.min ?: 0L) -> {
                     FeeState.FeeUnderRecommended
                 }
-                pTx.feeSelection.customAmount >= feeOptions?.limits?.max ?: 0L -> {
+                pTx.feeSelection.customAmount >= (feeOptions?.limits?.max ?: 0L) -> {
                     FeeState.FeeOverRecommended
                 }
                 else -> FeeState.ValidCustomFee

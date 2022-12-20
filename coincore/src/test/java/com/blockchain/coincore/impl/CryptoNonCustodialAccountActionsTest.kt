@@ -13,6 +13,7 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_ASSET
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_TO_USER_RATE
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.userFiatToUserFiat
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -20,6 +21,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
@@ -37,7 +39,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class CryptoNonCustodialAccountActionsTest : KoinTest {
 
@@ -233,33 +234,20 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     }
 
     @Test
-    fun `when base actions contains InterestDeposit but interest crypto is blocked then InterestDeposit is unavailable`() {
+    fun `when base actions contains StakingDeposit but staking crypto is blocked then InterestDeposit is unavailable`() {
         val subject = configureActionSubject(true)
 
-        configureActionTest(userAccessForInterestDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
+        configureActionTest(userAccessForStakingDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
 
         subject.stateAwareActions
             .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
-                    it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.InterestDeposit))
+                    it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.StakingDeposit))
             }
     }
 
     @Test
-    fun `when base actions contains InterestDeposit but user not eligible for interest then InterestDeposit is locked for tier`() {
-        val subject = configureActionSubject(true)
-
-        configureActionTest(eligibleForInterest = false)
-
-        subject.stateAwareActions
-            .test().await().assertValue {
-                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
-                    it.contains(StateAwareAction(ActionState.LockedForTier, AssetAction.InterestDeposit))
-            }
-    }
-
-    @Test
-    fun `when base actions contains InterestDeposit but account not funded then InterestDeposit is locked for balance`() {
+    fun `when base actions contains StakingDeposit but account not funded then StakingDeposit is locked for balance`() {
         val subject = configureActionSubject(false)
 
         configureActionTest()
@@ -267,7 +255,74 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         subject.stateAwareActions
             .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
-                    it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.InterestDeposit))
+                    it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.StakingDeposit))
+            }
+    }
+
+    @Test
+    fun `when base actions contains StakingDeposit and all other criteria met then StakingDeposit is available`() {
+        val subject = configureActionSubject(true)
+
+        configureActionTest()
+
+        subject.stateAwareActions
+            .test().await().assertValue {
+                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
+                    it.contains(StateAwareAction(ActionState.Available, AssetAction.StakingDeposit))
+            }
+    }
+
+    @Test
+    fun `when base actions contains StakingDeposit but deposit crypto is blocked then StakingDeposit is unavailable`() {
+        val subject = configureActionSubject(true)
+
+        configureActionTest(userAccessForCryptoDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
+
+        subject.stateAwareActions
+            .test().await().assertValue {
+                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
+                    it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.StakingDeposit))
+            }
+    }
+
+    @Test
+    fun `when base actions contains StakingDeposit but staking is blocked then StakingDeposit is unavailable`() {
+        val subject = configureActionSubject(true)
+
+        configureActionTest(userAccessForStakingDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
+
+        subject.stateAwareActions
+            .test().await().assertValue {
+                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
+                    it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.StakingDeposit))
+            }
+    }
+
+    @Test
+    fun `when base actions contains StakingDeposit but user not eligible for staking then StakingDeposit is locked for tier`() {
+        val subject = configureActionSubject(true)
+
+        configureActionTest(
+            userAccessForStakingDeposit = FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)
+        )
+
+        subject.stateAwareActions
+            .test().await().assertValue {
+                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
+                    it.contains(StateAwareAction(ActionState.LockedForTier, AssetAction.StakingDeposit))
+            }
+    }
+
+    @Test
+    fun `when base actions contains InterestDeposit but account not funded then StakingDeposit is locked for balance`() {
+        val subject = configureActionSubject(false)
+
+        configureActionTest()
+
+        subject.stateAwareActions
+            .test().await().assertValue {
+                it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
+                    it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.StakingDeposit))
             }
     }
 
@@ -303,6 +358,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         userAccessForSell: FeatureAccess = FeatureAccess.Granted(),
         userAccessForInterestDeposit: FeatureAccess = FeatureAccess.Granted(),
         userAccessForCryptoDeposit: FeatureAccess = FeatureAccess.Granted(),
+        userAccessForStakingDeposit: FeatureAccess = FeatureAccess.Granted(),
         eligibleForInterest: Boolean = true,
         supportedFiatFunds: List<FiatCurrency> = listOf(FiatCurrency.Dollars),
         isAssetSupportedForSwap: Boolean = true,
@@ -320,7 +376,12 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         whenever(userIdentity.userAccessForFeature(Feature.DepositCrypto)).thenReturn(
             Single.just(userAccessForCryptoDeposit)
         )
-        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET)).thenReturn(Single.just(isAssetSupportedForSwap))
+        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+            Single.just(userAccessForStakingDeposit)
+        )
+        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(
+            Single.just(isAssetSupportedForSwap)
+        )
     }
 }
 
@@ -334,8 +395,16 @@ private class NonCustodialTestAccount(
     override val isFunded: Boolean,
     currency: AssetInfo,
 ) : CryptoNonCustodialAccount(currency) {
+
     override fun getOnChainBalance(): Observable<Money> =
         Observable.just(Money.zero(currency))
+
+    override val index: Int
+        get() = 1
+
+    override suspend fun publicKey(): List<PublicKey> {
+        return listOf()
+    }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine = mock()
 }

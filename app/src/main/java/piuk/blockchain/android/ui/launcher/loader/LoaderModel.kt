@@ -1,11 +1,12 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -15,7 +16,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
 class LoaderModel(
@@ -29,7 +29,7 @@ class LoaderModel(
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
     private val walletModeService: WalletModeService,
-    private val educationalScreensPrefs: EducationalScreensPrefs
+    private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {

@@ -3,9 +3,12 @@ package com.blockchain.walletconnect.data
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.utils.emptySubscribe
+import com.blockchain.utils.then
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
@@ -33,8 +36,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.UUID
 import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class WalletConnectService(
@@ -125,10 +126,13 @@ class WalletConnectService(
             val session = WCSession.from(url) ?: throw IllegalArgumentException(
                 "Not a valid wallet connect url $url"
             )
+            // Example: wc:@1?bridge=https://x.bridge.walletconnect.org&key=
+            val chainId = url.split(EVM_CHAIN_ID_DELIMITER).lastOrNull()?.firstOrNull()?.toString()?.toInt()
+                ?: EthDataManager.ethChain.chainId
             val peerId = UUID.randomUUID().toString()
 
             wcClient.onSessionRequest = { _, peerMeta ->
-                onNewSessionRequested(session, peerMeta, wcClient.remotePeerId.orEmpty(), peerId)
+                onNewSessionRequested(session, peerMeta, wcClient.remotePeerId.orEmpty(), peerId, chainId)
             }
 
             wcClients[session.toUri()] = wcClient
@@ -153,7 +157,7 @@ class WalletConnectService(
         walletConnectAccountProvider.address().map { address ->
             wcClients[session.url]?.approveSession(
                 listOf(address),
-                WalletConnectSession.DEFAULT_WALLET_CONNECT_CHAIN_ID
+                session.dAppInfo.chainId
             ) ?: throw IllegalStateException("No connected client found")
         }.map { approved ->
             if (approved == true) {
@@ -202,7 +206,13 @@ class WalletConnectService(
             _sessionEvents.onNext(WalletConnectSessionEvent.DidDisconnect(session))
         }
 
-    private fun onNewSessionRequested(session: WCSession, peerMeta: WCPeerMeta, remotePeerId: String, peerId: String) {
+    private fun onNewSessionRequested(
+        session: WCSession,
+        peerMeta: WCPeerMeta,
+        remotePeerId: String,
+        peerId: String,
+        chainId: Int
+    ) {
         _sessionEvents.onNext(
             WalletConnectSessionEvent.ReadyForApproval(
                 WalletConnectSession.fromWCSession(
@@ -210,6 +220,7 @@ class WalletConnectService(
                     peerMeta = peerMeta,
                     remotePeerId = remotePeerId,
                     peerId = peerId,
+                    chainId = chainId
                 )
             )
         )
@@ -221,6 +232,7 @@ class WalletConnectService(
             url = "https://blockchain.com",
             icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png")
         )
+        const val EVM_CHAIN_ID_DELIMITER = "@"
     }
 
     private fun WCClient.addSignEthHandler(session: WalletConnectSession) {

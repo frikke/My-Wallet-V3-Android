@@ -32,6 +32,13 @@ android {
             keyAlias buildProperties.secrets['debugKeyAlias'].toString()
         }
 
+        prod {
+            storeFile file('blockchainAndroid.keystore')
+            storePassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyPassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyAlias buildProperties.secrets['prodKeyAlias'].toString()
+        }
+
         prodInternal {
             storeFile file('blockchainInternalKey.keystore')
             storePassword buildProperties.secrets['keyPasswordInternal'].toString()
@@ -66,12 +73,9 @@ android {
 
         resConfigs 'en',
                 'es',
-                'b+es+419',
                 'fr',
                 'pt',
-                'pt-rBR',
-                'ru',
-                'tr'
+                'ru'
     }
 
     bundle {
@@ -109,11 +113,12 @@ android {
             buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
+            buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['prodUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
@@ -128,6 +133,7 @@ android {
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "boolean",  "INTERNAL", "false"
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
@@ -139,10 +145,16 @@ android {
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
 
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
+            buildConfigField "boolean", "ALPHA", "false"
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
             }
+
+            signingConfig signingConfigs.prod
         }
 
         envInternalProd {
@@ -159,11 +171,12 @@ android {
             buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
+            buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['prodUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
@@ -186,6 +199,11 @@ android {
             buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
+
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
+            buildConfigField "boolean", "ALPHA", "true"
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -194,6 +212,8 @@ android {
                 versionCode = ciVersionCode.toInteger()
                 versionNameSuffix = ".${ciVersionCode}_alpha"
             }
+
+            signingConfig signingConfigs.prodInternal
         }
 
         envStaging {
@@ -210,11 +230,12 @@ android {
             buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['stagingGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
+            buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['stagingEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['stagingApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""
+            buildConfigField "String", "UNIFIED_ACTIVITY_WS_URL", "\"${buildProperties.secrets['stagingUAWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['stagingHorizonUrl']}\""
-            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['stagingExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_staging"'
             buildConfigField "String", "COMMIT_HASH", "\"${getGitCommitHash()}\""
@@ -230,6 +251,7 @@ android {
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassStaging']}\""
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
@@ -238,8 +260,14 @@ android {
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketStaging']}\""
 
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineStaging']}\""
+
+            buildConfigField "boolean", "ALPHA", "false"
+
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
+
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -254,6 +282,7 @@ android {
             multiDexEnabled true
         }
         debug {
+            signingConfig null
             multiDexEnabled true
             buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
@@ -333,21 +362,23 @@ dependencies {
     implementation project(':sunriver') // Just for pit linking TODO: Fix that
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':coreandroid')
     implementation project(':metadata')
-    implementation project(':veriff')
+    implementation project(':veriff:presentation')
     implementation project(':blockchainApi')
     implementation project(':componentlib')
     implementation project(':biometrics')
     implementation project(':walletconnect')
     implementation project(':commonarch')
+    implementation project(':common-mp:utils:data')
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common:domain')
-    implementation project(':common-view')
+    implementation project(':common:presentation')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
-    implementation project(':payments:googlepay')
+    implementation project(':payments:googlepay:presentation')
     implementation project(':payments:core')
     implementation project(':deeplinking')
     implementation project(':logging:domain')
@@ -357,6 +388,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
+    implementation project(':store:persisters:persistedjsonsqldelight')
     implementation project(':blockchainCard')
     implementation project(':addressVerification')
 
@@ -368,17 +400,35 @@ dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':defiwalletbackup:data')
 
-    implementation project(':nfts:presentation')
-
     implementation project(':appRating:data')
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
+
+    implementation project(':chrome:presentation')
+
+    implementation project(':flowhome:presentation')
+    implementation project(':flowhome:data')
+
+    implementation project(':fraud:data')
+    implementation project(':fraud:domain')
+    implementation project(':unifiedcryptowallet:data')
+    implementation project(':unifiedcryptowallet:domain')
+
+    implementation project(':nfts:data')
+    implementation project(':nfts:domain')
+    implementation project(':nfts:presentation')
+    implementation project(':membership:presentation')
+
+    implementation project(':earn:data')
+    implementation project(':earn:domain')
+    implementation project(':earn:presentation')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Views
     implementation Libraries.countryPicker
@@ -420,7 +470,6 @@ dependencies {
         exclude group: 'com.android.support'
     }
     implementation Libraries.googlePlayServicesAuth
-    implementation Libraries.googlePlaces
     implementation Libraries.adsIdentifier
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi
@@ -449,6 +498,7 @@ dependencies {
     implementation Libraries.rxBindingCompat
     implementation Libraries.rxBindingCore
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxKotlin
 
     //Animations
     implementation Libraries.lottie
@@ -478,6 +528,8 @@ dependencies {
 
     // Compose
     implementation Libraries.composeUi
+    implementation Libraries.composeUiUtil
+    implementation Libraries.accompanistSystemUi
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeActivity
@@ -485,6 +537,7 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.composeLottie
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.accompanistSwipeRefresh
 
     // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"

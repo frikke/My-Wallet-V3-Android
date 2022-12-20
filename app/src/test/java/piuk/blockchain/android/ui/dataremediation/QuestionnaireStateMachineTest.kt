@@ -37,7 +37,7 @@ class QuestionnaireStateMachineTest {
                 selection(id = "ss2-s2")
             ),
             multipleSelection(
-                id = "ms1",
+                id = "ms1", isDropdown = false,
                 selection(id = "ms1-s1"),
                 selection(id = "ms1-s2")
             ),
@@ -73,6 +73,11 @@ class QuestionnaireStateMachineTest {
                 id = "ss1", isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(id = "ss1-s2")
+            ),
+            multipleSelection(
+                id = "ss2", isDropdown = true,
+                selection(id = "ss2-s1"),
+                selection(id = "ss2-s2")
             )
         )
         subject.setRoot(root)
@@ -80,13 +85,20 @@ class QuestionnaireStateMachineTest {
         state.test()
             .assertValue {
                 it.root == root &&
-                    it.presentables.size == 1 &&
+                    it.presentables.size == 2 &&
                     it.presentables.first().let {
                         (
-                            (it.id == "ss1") && it is FlatNode.Dropdown &&
+                            (it.id == "ss1") && it is FlatNode.Dropdown && !it.isMultiSelection &&
                                 it.choices[0].let { it.id == "ss1-s1" } &&
                                 it.choices[1].let { it.id == "ss1-s2" }
-                            ) && it.selectedChoice == null
+                            ) && it.selectedChoices.isEmpty()
+                    } &&
+                    it.presentables[1].let {
+                        (
+                            (it.id == "ss2") && it is FlatNode.Dropdown && it.isMultiSelection &&
+                                it.choices[0].let { it.id == "ss2-s1" } &&
+                                it.choices[1].let { it.id == "ss2-s2" }
+                            ) && it.selectedChoices.isEmpty()
                     }
             }
     }
@@ -105,7 +117,7 @@ class QuestionnaireStateMachineTest {
                 )
             ),
             multipleSelection(
-                id = "ms1",
+                id = "ms1", isDropdown = true,
                 selection(id = "ms1-s1"),
                 selection(
                     id = "ms1-s2", isChecked = false,
@@ -185,7 +197,7 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             multipleSelection(
-                id = "ss1",
+                id = "ss1", isDropdown = false,
                 selection(id = "ss1-s1", isChecked = true),
                 selection(id = "ss1-s2", isChecked = true)
             )
@@ -201,7 +213,7 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             multipleSelection(
-                id = "ss1",
+                id = "ss1", isDropdown = false,
                 selection(id = "ss1-s1", isChecked = false),
                 selection(id = "ss1-s2", isChecked = false)
             )
@@ -251,7 +263,7 @@ class QuestionnaireStateMachineTest {
     }
 
     @Test
-    fun `valid form should be valid and contain invalid nodes`() {
+    fun `invalid form should be invalid and contain invalid nodes`() {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
@@ -264,7 +276,7 @@ class QuestionnaireStateMachineTest {
                 )
             ),
             multipleSelection(
-                id = "ms1",
+                id = "ms1", isDropdown = true,
                 selection(id = "ms1-s1"),
                 selection(
                     id = "ms1-s2", isChecked = false,
@@ -312,9 +324,10 @@ class QuestionnaireStateMachineTest {
 
     private fun multipleSelection(
         id: NodeId = randomId(),
+        isDropdown: Boolean = false,
         vararg children: TreeNode
     ): TreeNode.MultipleSelection =
-        TreeNode.MultipleSelection(id, id, children.toList(), id)
+        TreeNode.MultipleSelection(id, id, children.toList(), id, isDropdown)
 
     private fun openEnded(
         id: NodeId = randomId(),

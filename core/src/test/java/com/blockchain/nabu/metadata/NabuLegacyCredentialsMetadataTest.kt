@@ -1,6 +1,7 @@
 package com.blockchain.nabu.metadata
 
-import com.blockchain.serializers.jsonSerializers
+import com.blockchain.api.blockchainApiModule
+import com.blockchain.testutils.KoinTestRule
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -8,7 +9,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 
 @OptIn(InternalSerializationApi::class)
@@ -18,7 +18,7 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {
-        modules(jsonSerializers)
+        modules(blockchainApiModule)
     }
 
     @Test

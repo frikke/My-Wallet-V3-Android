@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.charts.ChartEntry
 import com.blockchain.charts.ChartView
 import com.blockchain.componentlib.alert.AlertType
@@ -34,12 +36,15 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.toDatePattern
 import com.github.mikephil.charting.data.Entry
 import kotlin.random.Random
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetPrice(
     data: CoinviewPriceState,
+    assetTicker: String,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
@@ -56,6 +61,7 @@ fun AssetPrice(
         is CoinviewPriceState.Data -> {
             AssetPriceInfoData(
                 data = data,
+                assetTicker = assetTicker,
                 onChartEntryHighlighted = onChartEntryHighlighted,
                 resetPriceInformation = resetPriceInformation,
                 onNewTimeSpanSelected = onNewTimeSpanSelected
@@ -75,7 +81,9 @@ fun AssetPriceInfoLoading() {
 
 @Composable
 fun AssetPriceInfoData(
+    analytics: Analytics = get(),
     data: CoinviewPriceState.Data,
+    assetTicker: String,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
@@ -93,14 +101,17 @@ fun AssetPriceInfoData(
         )
 
         when (data.chartData) {
-            CoinviewPriceState.Data.CoinviewChart.Loading -> {
+            CoinviewPriceState.Data.CoinviewChartState.Loading -> {
                 LoadingChart()
             }
 
-            is CoinviewPriceState.Data.CoinviewChart.Data -> {
+            is CoinviewPriceState.Data.CoinviewChartState.Data -> {
                 ContentChart(
+                    analytics = analytics,
+                    assetTicker = assetTicker,
                     fiatSymbol = data.fiatSymbol,
                     chartData = data.chartData.chartData,
+                    selectedTimeSpan = data.selectedTimeSpan,
                     onChartEntryHighlighted = onChartEntryHighlighted,
                     resetPriceInformation = resetPriceInformation
                 )
@@ -110,7 +121,17 @@ fun AssetPriceInfoData(
         TabLayoutLive(
             items = HistoricalTimeSpan.values().map { stringResource(it.toSimpleName()) },
             onItemSelected = { index ->
-                onNewTimeSpanSelected(HistoricalTimeSpan.fromValue(index))
+                HistoricalTimeSpan.fromValue(index).let { selectedTimeSpan ->
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartTimeIntervalSelected(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = selectedTimeSpan.toTimeInterval()
+                        )
+                    )
+
+                    onNewTimeSpanSelected(selectedTimeSpan)
+                }
             },
             selectedItemIndex = data.selectedTimeSpan.value,
             showLiveIndicator = false
@@ -134,7 +155,7 @@ fun AssetPriceError() {
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
-            .padding(AppTheme.dimensions.paddingLarge),
+            .padding(AppTheme.dimensions.standardSpacing),
         contentAlignment = Alignment.Center
     ) {
         CardAlert(
@@ -162,8 +183,11 @@ fun LoadingChart() {
 
 @Composable
 fun ContentChart(
+    analytics: Analytics = get(),
+    assetTicker: String,
     fiatSymbol: String,
     chartData: List<ChartEntry>,
+    selectedTimeSpan: HistoricalTimeSpan,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
 ) {
@@ -181,27 +205,27 @@ fun ContentChart(
                 }
                 onActionPressDown = {
                     isInteractingWithChart = true
-                    //                        analytics.logEvent(
-                    //                            CoinViewAnalytics.ChartEngaged(
-                    //                                origin = LaunchOrigin.COIN_VIEW,
-                    //                                currency = assetTicker,
-                    //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
-                    //                            )
-                    //                        )
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartEngaged(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = selectedTimeSpan.toTimeInterval()
+                        )
+                    )
                 }
                 onScrubRelease = {
                     isInteractingWithChart = false
-                    //                        analytics.logEvent(
-                    //                            CoinViewAnalytics.ChartDisengaged(
-                    //                                origin = LaunchOrigin.COIN_VIEW,
-                    //                                currency = assetTicker,
-                    //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
-                    //                            )
-                    //                        )
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartDisengaged(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = selectedTimeSpan.toTimeInterval()
+                        )
+                    )
                     resetPriceInformation()
                 }
 
-                datePattern = HistoricalTimeSpan.fromValue(0).toDatePattern()
+                datePattern = selectedTimeSpan.toDatePattern()
                 this.fiatSymbol = fiatSymbol
                 setData(chartData)
             }
@@ -212,10 +236,20 @@ fun ContentChart(
     )
 }
 
+private fun HistoricalTimeSpan.toTimeInterval(): CoinViewAnalytics.Companion.TimeInterval =
+    when (this) {
+        HistoricalTimeSpan.DAY -> CoinViewAnalytics.Companion.TimeInterval.DAY
+        HistoricalTimeSpan.WEEK -> CoinViewAnalytics.Companion.TimeInterval.WEEK
+        HistoricalTimeSpan.MONTH -> CoinViewAnalytics.Companion.TimeInterval.MONTH
+        HistoricalTimeSpan.YEAR -> CoinViewAnalytics.Companion.TimeInterval.YEAR
+        HistoricalTimeSpan.ALL_TIME -> CoinViewAnalytics.Companion.TimeInterval.ALL_TIME
+        else -> CoinViewAnalytics.Companion.TimeInterval.LIVE
+    }
+
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
-    AssetPrice(CoinviewPriceState.Loading, {}, {}, {})
+    AssetPrice(CoinviewPriceState.Loading, assetTicker = "ETH", {}, {}, {})
 }
 
 @Preview
@@ -230,11 +264,12 @@ fun PreviewAssetPrice_Data() {
             priceChange = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
-            chartData = CoinviewPriceState.Data.CoinviewChart.Data(
+            chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
                 listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
             ),
             selectedTimeSpan = HistoricalTimeSpan.DAY
         ),
+        assetTicker = "ETH",
         {},
         {},
         {}

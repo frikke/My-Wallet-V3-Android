@@ -9,6 +9,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.referral.ReferralService
@@ -16,19 +18,20 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import info.blockchain.wallet.util.PasswordUtil
 import java.util.Locale
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 enum class CreateWalletPasswordError {
     InvalidPasswordTooLong,
@@ -107,6 +110,7 @@ class CreateWalletViewModel(
     private val eligibilityService: EligibilityService,
     private val referralService: ReferralService,
     private val payloadDataManager: PayloadDataManager,
+    private val nabuUserDataManager: NabuUserDataManager,
 ) : MviViewModel<
     CreateWalletIntent,
     CreateWalletViewState,
@@ -119,18 +123,31 @@ class CreateWalletViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         viewModelScope.launch {
-            eligibilityService.getCountriesList(GetRegionScope.Signup)
+            val userGeolocationDeferred = async { nabuUserDataManager.getUserGeolocation().getOrDefault(null) }
+            val countriesResult = eligibilityService.getCountriesList(GetRegionScope.Signup)
+            val userGeolocation = userGeolocationDeferred.await()
+
+            countriesResult
                 .doOnSuccess { countries ->
                     val localisedCountries = countries.map {
                         val locale = Locale("", it.countryCode)
                         it.copy(name = locale.displayCountry)
                     }
-                    updateState { it.copy(countryInputState = CountryInputState.Loaded(localisedCountries, null)) }
+                    val suggested = localisedCountries.find { it.countryCode == userGeolocation }
+                    updateState {
+                        it.copy(
+                            countryInputState = CountryInputState.Loaded(
+                                countries = localisedCountries,
+                                selected = null,
+                                suggested = suggested,
+                            )
+                        )
+                    }
                 }
                 .doOnFailure { error ->
                     updateState {
                         it.copy(
-                            countryInputState = CountryInputState.Loaded(emptyList(), null),
+                            countryInputState = CountryInputState.Loaded(emptyList(), null, null),
                             error = CreateWalletError.Unknown(error.message)
                         )
                     }

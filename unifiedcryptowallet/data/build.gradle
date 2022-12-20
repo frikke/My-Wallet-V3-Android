@@ -1,0 +1,20 @@
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.squareup.sqldelight'
+
+dependencies {
+    implementation project(':common:domain')
+    implementation project(":common:interface")
+    implementation project(":blockchainApi")
+    implementation project(":wallet")
+    implementation project(":logging:domain")
+    implementation project(":store:caches:persistedjsonsqldelight")
+    implementation project(":store:core")
+    implementation project(":unifiedcryptowallet:domain")
+    implementation Libraries.bitcoinj
+    // Database
+    implementation Libraries.sqlDelight
+    implementation Libraries.coroutinesSqlDelight
+    implementation Libraries.koinAndroid
+    implementation Libraries.kotlinJson
+}

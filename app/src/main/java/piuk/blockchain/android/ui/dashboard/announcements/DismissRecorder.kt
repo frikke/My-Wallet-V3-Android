@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
-import piuk.blockchain.androidcore.utils.SessionPrefs
+import com.blockchain.preferences.SessionPrefs
 
 /**
  * Maintains a boolean flag for recording if a dialog has been dismissed.

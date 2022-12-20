@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.ssl
 
+import com.blockchain.core.utils.SSLVerifyUtil
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 class SSLVerifyPresenter(
     private val sslVerifyUtil: SSLVerifyUtil

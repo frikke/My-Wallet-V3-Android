@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.interest.domain.model
 
-import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 

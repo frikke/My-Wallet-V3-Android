@@ -1,7 +1,6 @@
 package com.blockchain.coincore
 
 import android.os.Parcelable
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -12,6 +11,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -23,7 +23,8 @@ enum class AssetFilter {
     NonCustodial,
     Trading,
     Interest,
-    Custodial // Trading + Interest (Whatever lives in our backend)
+    Staking,
+    Custodial // Trading + Interest + Staking (Accounts held by Blockchain.com)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =
@@ -81,7 +82,10 @@ enum class AssetAction(
     FiatDeposit(ActionOrigin.FROM_SOURCE),
 
     // Receive crypto to crypto
-    Sign(ActionOrigin.FROM_SOURCE);
+    Sign(ActionOrigin.FROM_SOURCE),
+
+    // Receive to a Staking account
+    StakingDeposit(ActionOrigin.FROM_SOURCE);
 }
 
 @Parcelize
@@ -123,6 +127,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
     is BlockedReason.Sanctions -> ActionState.LockedDueToSanctions(reason)
     is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
+    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> ActionState.Unavailable
 }
 
 interface Asset {
@@ -156,6 +161,7 @@ interface Asset {
 interface CryptoAsset : Asset {
     override val currency: AssetInfo
     fun interestRate(): Single<Double>
+    fun stakingRate(): Single<Double>
 }
 
 interface MultipleWalletsAsset {

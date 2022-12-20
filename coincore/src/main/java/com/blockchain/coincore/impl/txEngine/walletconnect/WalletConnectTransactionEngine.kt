@@ -14,7 +14,10 @@ import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -26,9 +29,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class WalletConnectTransactionEngine(
     private val feeManager: FeeDataManager,
@@ -67,12 +67,12 @@ class WalletConnectTransactionEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        sourceAccount.balance.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
+        sourceAccount.balanceRx.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
             pendingTx.copy(
                 availableBalance = balance.withdrawable - fees,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.WalletConnectHeader(
                         dAppLogo = ethSignMessageTarget.dAppLogoURL,
                         dAppUrl = ethSignMessageTarget.dAppAddress,
@@ -148,7 +148,7 @@ class WalletConnectTransactionEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balance.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, fee ->
             if (fee + pendingTx.amount > balance) {

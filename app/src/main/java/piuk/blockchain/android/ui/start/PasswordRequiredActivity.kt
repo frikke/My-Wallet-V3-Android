@@ -10,22 +10,24 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.koin.scopedInject
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 
 class PasswordRequiredActivity :
     MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
@@ -39,6 +41,7 @@ class PasswordRequiredActivity :
     private val walletPrefs: WalletStatusPrefs by inject()
 
     private val momentLogger: MomentLogger by inject()
+    private val fraudService: FraudService by inject()
 
     private var isTwoFATimerRunning = false
     private val twoFATimer by lazy {
@@ -64,6 +67,7 @@ class PasswordRequiredActivity :
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
             params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
         )
+        fraudService.trackFlow(FraudFlow.LOGIN)
 
         with(binding) {
             walletIdentifier.apply {
@@ -79,6 +83,7 @@ class PasswordRequiredActivity :
             buttonForget.apply {
                 onClick = {
                     presenter.onForgetWalletClicked()
+                    fraudService.endFlow(FraudFlow.LOGIN)
                 }
                 text = getString(R.string.wipe_wallet)
             }
@@ -106,7 +111,7 @@ class PasswordRequiredActivity :
     }
 
     override fun restartPage() {
-        val intent = Intent(this, LauncherActivity::class.java)
+        val intent = Intent(this, LauncherActivityV2::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
@@ -164,7 +169,6 @@ class PasswordRequiredActivity :
 
     override fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
-        sessionId: String,
         authType: Int,
         guid: String,
         password: String
@@ -177,7 +181,6 @@ class PasswordRequiredActivity :
             positiveAction = {
                 presenter.submitTwoFactorCode(
                     responseObject,
-                    sessionId,
                     guid,
                     password,
                     it

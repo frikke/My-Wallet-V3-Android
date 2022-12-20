@@ -20,7 +20,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -33,17 +33,19 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber
@@ -59,6 +61,7 @@ class LoginActivity :
     override val alwaysDisableScreenshots: Boolean = true
 
     private val environmentConfig: EnvironmentConfig by inject()
+    private val fraudService: FraudService by inject()
 
     private val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
 
@@ -93,6 +96,7 @@ class LoginActivity :
         super.onStart()
 
         analytics.logEvent(LoginAnalytics.LoginViewed)
+        fraudService.trackFlow(FraudFlow.LOGIN)
         with(binding) {
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
@@ -259,6 +263,7 @@ class LoginActivity :
             // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising
             LoginStep.REQUEST_APPROVAL -> showLoginApprovalDialog()
             LoginStep.NAVIGATE_TO_LANDING_PAGE -> {
+                fraudService.endFlow(FraudFlow.LOGIN)
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
                 model.process(LoginIntents.ResetState)
                 restartToLauncherActivity()
@@ -280,14 +285,16 @@ class LoginActivity :
         }
 
     private fun restartToLauncherActivity() {
+        fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
-            Intent(this, LauncherActivity::class.java).apply {
+            Intent(this, LauncherActivityV2::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )
     }
 
     private fun navigateToMainWithWCLink(url: String) {
+        fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
             MainActivity.newIntent(
                 context = application,
@@ -297,6 +304,7 @@ class LoginActivity :
     }
 
     private fun showLoginApprovalDialog() {
+        fraudService.endFlow(FraudFlow.LOGIN)
         AlertDialog.Builder(this)
             .setTitle(R.string.login_approval_dialog_title)
             .setMessage(R.string.login_approval_dialog_message)
@@ -383,6 +391,7 @@ class LoginActivity :
     }
 
     private fun navigateToAppMaintenance() {
+        fraudService.endFlow(FraudFlow.LOGIN)
         showBottomSheet(AppMaintenanceFragment.newInstance())
         observeResumeAppFlow()
     }
@@ -409,7 +418,7 @@ class LoginActivity :
                 .replace(
                     R.id.content_frame,
                     VerifyDeviceFragment.newInstance(
-                        newState.sessionId, newState.email, newState.captcha
+                        newState.email, newState.captcha
                     ),
                     VerifyDeviceFragment::class.simpleName
                 )
@@ -422,13 +431,23 @@ class LoginActivity :
         recaptchaClient.verify(
             verificationType = RecaptchaActionType.LOGIN,
             onSuccess = { response ->
-                analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
-                model.process(
-                    LoginIntents.ObtainSessionIdForEmail(
-                        selectedEmail = selectedEmail,
-                        captcha = response.tokenResult
+                // If the captcha token is "null" or empty, log it.
+                if (
+                    response.tokenResult.isEmpty() ||
+                    response.tokenResult == NULL_STRING ||
+                    response.tokenResult == NULL_STRING.uppercase()
+                ) {
+                    analytics.logEvent(LoginAnalytics.LoginCaptchaTokenIncorrect)
+                    showSnackbar(SnackbarType.Error, R.string.common_error)
+                } else {
+                    analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
+                    model.process(
+                        LoginIntents.SendEmail(
+                            selectedEmail = selectedEmail,
+                            captcha = response.tokenResult
+                        )
                     )
-                )
+                }
             },
             onError = { showSnackbar(SnackbarType.Error, R.string.common_error) }
         )
@@ -450,5 +469,6 @@ class LoginActivity :
 
     companion object {
         private const val RC_SIGN_IN = 10
+        private const val NULL_STRING = "null"
     }
 }

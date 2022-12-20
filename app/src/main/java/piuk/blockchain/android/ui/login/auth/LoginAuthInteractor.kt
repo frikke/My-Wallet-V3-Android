@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login.auth
 
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
@@ -12,15 +13,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
     private val authPrefs: AuthPrefs,
-    private val accountUnificationFF: FeatureFlag,
     private val walletStatusPrefs: WalletStatusPrefs
 ) {
     fun getAuthInfo(json: String): Single<LoginAuthInfo> {
@@ -40,8 +37,8 @@ class LoginAuthInteractor(
 
     fun clearSessionId() = authPrefs.clearSessionId()
 
-    fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
-        return authDataManager.authorizeSessionObject(authToken, sessionId)
+    fun authorizeApproval(authToken: String): Single<JsonObject> {
+        return authDataManager.authorizeSessionObject(authToken)
     }
 
     fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
@@ -66,7 +63,7 @@ class LoginAuthInteractor(
     private fun consume2FaRetry() = walletStatusPrefs.setResendSmsRetries(walletStatusPrefs.resendSmsRetries - 1)
 
     fun reset2FaRetries(): Completable =
-        Completable.fromCallable { walletStatusPrefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
+        Completable.fromCallable { walletStatusPrefs.setResendSmsRetries(WalletStatusPrefs.MAX_ALLOWED_RETRIES) }
 
     fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
         if (getRemaining2FaRetries() > 0) {
@@ -78,26 +75,23 @@ class LoginAuthInteractor(
 
     fun submitCode(
         guid: String,
-        sessionId: String,
         code: String,
         payloadJson: String
     ): Single<ResponseBody> {
-        return Single.fromObservable(
-            authDataManager.submitTwoFactorCode(sessionId, guid, code).map { response ->
-                val responseObject = JSONObject(payloadJson).apply {
-                    put(LoginAuthIntents.PAYLOAD, response.string())
-                }
-                responseObject.toString()
-                    .toResponseBody("application/json".toMediaTypeOrNull())
+        return authDataManager.submitTwoFactorCode(guid, code).map { response ->
+            val responseObject = JSONObject(payloadJson).apply {
+                put(LoginAuthIntents.PAYLOAD, response.string())
             }
-        )
+            responseObject.toString()
+                .toResponseBody("application/json".toMediaTypeOrNull())
+        }
     }
 
-    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Single<Boolean> =
+    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =
         authDataManager.updateMobileSetup(
             guid = authPrefs.walletGuid,
             sharedKey = authPrefs.sharedKey,
             isMobileSetup = isMobileSetup,
             deviceType = deviceType
-        ).toSingle { accountUnificationFF.isEnabled }
+        )
 }

@@ -11,11 +11,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileError
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileIntent
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 
 class ProfileModelTest {
     private lateinit var model: ProfileModel

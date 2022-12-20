@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -13,7 +14,6 @@ import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming

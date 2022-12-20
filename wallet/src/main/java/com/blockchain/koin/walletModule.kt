@@ -2,10 +2,12 @@ package com.blockchain.koin
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.getBaseUrl
+import com.blockchain.domain.session.SessionIdService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import info.blockchain.wallet.api.dust.BchDustService
 import info.blockchain.wallet.api.dust.DustApi
 import info.blockchain.wallet.api.dust.DustService
+import info.blockchain.wallet.api.session.SessionIdRepository
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
 import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
@@ -89,11 +91,34 @@ val walletModule = module {
             .build()
     }
 
+    single(evmNodesApiRetrofit) {
+        val json = Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+        }
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("evm-nodes-api"))
+            .client(get())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
     factory {
         EthAccountApi(
             ethEndpoints = get<Retrofit>(apiRetrofit).create(EthEndpoints::class.java),
-            ethNodeEndpoints = get<Retrofit>(kotlinXApiRetrofit).create(EthNodeEndpoints::class.java),
+            ethNodeEndpoints = get<Retrofit>(evmNodesApiRetrofit).create(EthNodeEndpoints::class.java),
             apiCode = getProperty("api-code")
         )
     }
+
+    single {
+        SessionIdRepository(
+            authPrefs = get(),
+            api = get(),
+            explorerEndpoints = get()
+        )
+    }.bind(SessionIdService::class)
 }

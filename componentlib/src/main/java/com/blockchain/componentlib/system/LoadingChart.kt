@@ -72,7 +72,7 @@ fun LoadingChart(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.medium_margin))
+                .padding(top = dimensionResource(R.dimen.medium_spacing))
         )
         Text(
             text = loadingText,
@@ -80,14 +80,14 @@ fun LoadingChart(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.smallest_margin)),
+                .padding(top = dimensionResource(R.dimen.smallest_spacing)),
             color = AppTheme.colors.body
         )
         Canvas(
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = dimensionResource(R.dimen.medium_margin))
+                .padding(top = dimensionResource(R.dimen.medium_spacing))
         ) {
             val width = this.size.width
             val interval = width / historicalRates.size

@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 interface PasswordRequiredView : PasswordAuthView {
     fun restartPage()
@@ -19,7 +19,7 @@ class PasswordRequiredPresenter(
     override val authPrefs: AuthPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val remoteLogger: RemoteLogger
+    override val remoteLogger: RemoteLogger,
 ) : PasswordAuthPresenter<PasswordRequiredView>() {
 
     fun onContinueClicked(password: String) {

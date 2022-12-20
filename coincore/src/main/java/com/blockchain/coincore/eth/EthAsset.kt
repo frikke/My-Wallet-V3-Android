@@ -11,7 +11,8 @@ import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
@@ -21,12 +22,9 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 internal class EthAsset(
     private val ethDataManager: EthDataManager,
-    private val l1BalanceStore: L1BalanceStore,
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
     private val walletPrefs: WalletStatusPrefs,
@@ -50,7 +48,6 @@ internal class EthAsset(
         Single.just(
             EthCryptoWalletAccount(
                 ethDataManager = ethDataManager,
-                l1BalanceStore = l1BalanceStore,
                 fees = feeDataManager,
                 jsonAccount = ethDataManager.ehtAccount,
                 walletPreferences = walletPrefs,

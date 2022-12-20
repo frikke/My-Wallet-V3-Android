@@ -6,7 +6,6 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -27,7 +26,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.validOfflineToken
 
 class KycHomeAddressPresenterTest {
 
@@ -37,9 +35,6 @@ class KycHomeAddressPresenterTest {
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
     private val nabuUserSync: NabuUserSync = mock()
-    private val nabuToken: NabuToken = mock {
-        on { fetchNabuToken() }.thenReturn(Single.just(validOfflineToken))
-    }
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val kycTiersStore: KycTiersStore = mock()
 
@@ -57,7 +52,6 @@ class KycHomeAddressPresenterTest {
     @Before
     fun setUp() {
         subject = KycHomeAddressPresenter(
-            nabuToken,
             nabuDataManager,
             eligibilityService,
             userService,
@@ -71,35 +65,6 @@ class KycHomeAddressPresenterTest {
     }
 
     @Test
-    fun `on continue clicked all data correct, metadata fetch failure`() {
-        // Arrange
-        val firstLine = "1"
-        val city = "2"
-        val zipCode = "3"
-        val countryCode = "UK"
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error { Throwable() })
-        whenever(
-            nabuDataManager.addAddress(
-                validOfflineToken,
-                firstLine,
-                null,
-                city,
-                null,
-                zipCode,
-                countryCode
-            )
-        ).thenReturn(Completable.complete())
-        // Act
-        subject.onContinueClicked(null, addressModel(firstLine, city, zipCode, countryCode))
-        // Assert
-        verify(view).showProgressDialog()
-        verify(view).dismissProgressDialog()
-        verify(view).showErrorWhileSaving(any())
-    }
-
-    @Test
     fun `on continue clicked all data correct, continue to veriff`() {
         // Arrange
         val firstLine = "1"
@@ -108,11 +73,7 @@ class KycHomeAddressPresenterTest {
         val zipCode = "4"
         val countryCode = "UK"
         whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(
             nabuDataManager.addAddress(
-                validOfflineToken,
                 firstLine,
                 null,
                 city,
@@ -139,11 +100,7 @@ class KycHomeAddressPresenterTest {
         val zipCode = "4"
         val countryCode = "UK"
         whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(
             nabuDataManager.addAddress(
-                validOfflineToken,
                 firstLine,
                 null,
                 city,
@@ -171,11 +128,7 @@ class KycHomeAddressPresenterTest {
         val zipCode = "4"
         val countryCode = "UK"
         whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(
             nabuDataManager.addAddress(
-                validOfflineToken,
                 firstLine,
                 null,
                 city,
@@ -204,14 +157,10 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(false))
         givenRequestJwtAndUpdateWalletInfoSucceds()
         whenever(
             nabuDataManager.addAddress(
-                validOfflineToken,
                 firstLine,
                 null,
                 city,
@@ -231,9 +180,6 @@ class KycHomeAddressPresenterTest {
     @Test
     fun `countryCodeSingle should return sorted country map`() = runTest {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         val countryList = listOf(
             Region.Country("DE", "Germany", true, emptyList()),
             Region.Country("UK", "United Kingdom", true, emptyList()),
@@ -328,11 +274,11 @@ class KycHomeAddressPresenterTest {
     }
 
     private fun addressModel(
-        firstLine: String = "",
-        city: String = "",
-        state: String = "",
-        postCode: String = "",
-        country: String = ""
+        firstLine: String,
+        city: String,
+        state: String?,
+        postCode: String,
+        country: String
     ): AddressDetails = AddressDetails(
         firstLine = firstLine,
         secondLine = null,
@@ -352,7 +298,6 @@ class KycHomeAddressPresenterTest {
     private fun givenAddressCompletes() {
         whenever(
             nabuDataManager.addAddress(
-                any(),
                 any(),
                 anyOrNull(),
                 any(),

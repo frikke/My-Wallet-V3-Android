@@ -20,11 +20,12 @@ import kotlinx.coroutines.flow.Flow
 interface CardService {
 
     fun getLinkedCards(
-        request: FreshnessStrategy,
+        request: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
         vararg states: CardStatus
     ): Flow<DataResource<List<LinkedPaymentMethod.Card>>>
 
-    fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
+    @Deprecated("use flow getLinkedCards")
+    fun getLinkedCardsLegacy(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
 
     fun addNewCard(
         fiatCurrency: FiatCurrency,
@@ -36,7 +37,13 @@ interface CardService {
 
     fun activateCard(cardId: String, redirectUrl: String, cvv: String): Single<PartnerCredentials>
 
-    fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
+    @Deprecated("use flow getCardDetails")
+    fun getCardDetailsLegacy(cardId: String): Single<PaymentMethod.Card>
+
+    fun getCardDetails(
+        cardId: String,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+    ): Flow<DataResource<PaymentMethod.Card>>
 
     fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo>
 

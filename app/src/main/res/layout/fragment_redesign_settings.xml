@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fadingEdge="vertical"
-    android:fadingEdgeLength="@dimen/very_small_margin"
+    android:fadingEdgeLength="@dimen/very_small_spacing"
     android:fitsSystemWindows="true"
     android:requiresFadingEdge="vertical"
     app:layout_constraintTop_toBottomOf="@id/toolbar">
@@ -20,20 +20,20 @@
             android:id="@+id/referral_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
             tools:visibility="visible" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/user_initials"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/xlarge_margin"
+            android:layout_marginTop="@dimen/xlarge_spacing"
             android:background="@drawable/bkgd_profile_circle_empty"
             android:gravity="center"
             android:textColor="@color/purple_700"
@@ -57,9 +57,9 @@
             style="@style/TextAppearance.Blockchain.Title3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             android:alpha="0"
             android:ellipsize="middle"
             app:layout_constraintEnd_toEndOf="parent"
@@ -70,8 +70,8 @@
             android:id="@+id/email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/name" />
@@ -80,7 +80,7 @@
             android:id="@+id/see_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/medium_margin"
+            android:layout_marginTop="@dimen/medium_spacing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -89,7 +89,7 @@
             android:id="@+id/header_payments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/xlarge_margin"
+            android:layout_marginTop="@dimen/xlarge_spacing"
             app:layout_constraintTop_toBottomOf="@id/see_profile" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -97,8 +97,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="@dimen/very_small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:paddingTop="@dimen/very_small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             app:layout_constraintTop_toBottomOf="@id/header_payments">
 
             <com.blockchain.componentlib.system.LoadingTableRowView
@@ -115,7 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/payments_container"
-            app:layout_goneMarginTop="@dimen/xlarge_margin" />
+            app:layout_goneMarginTop="@dimen/xlarge_spacing" />
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/account_group"
@@ -153,11 +153,26 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/security_group" />
 
+
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/general_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/divider_3" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:id="@+id/divider_general"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/general_group" />
+
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/about_app_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/divider_3" />
+            app:layout_constraintTop_toBottomOf="@id/divider_general" />
 
         <com.blockchain.componentlib.divider.HorizontalDividerView
             android:id="@+id/divider_4"
@@ -169,17 +184,52 @@
             android:id="@+id/sign_out_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:paddingBottom="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
+            android:paddingBottom="@dimen/standard_spacing"
             app:layout_constraintTop_toBottomOf="@id/divider_4" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:src="@drawable/ic_blockchain_logo_with_text"
+            app:layout_constraintTop_toBottomOf="@id/sign_out_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/app_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            style="@style/Text.Light.12"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/app_version"
+            />
+
+        <TextView
+            android:id="@+id/legal_entity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Text.Light.12"
+            android:layout_marginTop="@dimen/smallest_spacing"
+            app:layout_constraintTop_toBottomOf="@id/app_version"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/legal_entity_copyright"
+            />
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/settings_debug"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/sign_out_btn" />
+            app:layout_constraintTop_toBottomOf="@id/legal_entity" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

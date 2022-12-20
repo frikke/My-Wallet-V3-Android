@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/standard_margin">
+    android:padding="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/biometric_logo"
@@ -20,7 +20,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginTop="@dimen/medium_spacing"
         android:gravity="center"
         android:text="@string/biometrics_enrollment_title"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,12 +30,12 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/biometric_label"
         style="@style/Text.Standard.14"
-        android:layout_marginStart="@dimen/medium_margin"
-        android:layout_marginEnd="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/medium_spacing"
+        android:layout_marginEnd="@dimen/medium_spacing"
         android:layout_width="0dp"
         android:gravity="center"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         android:text="@string/biometrics_enrollment_desc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +46,7 @@
         style="@style/CtaButton.NoMargin.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         android:text="@string/common_ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
         style="@style/CtaButton.NoMargin.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         android:text="@string/not_now"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

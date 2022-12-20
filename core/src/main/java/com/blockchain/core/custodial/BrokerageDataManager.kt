@@ -1,6 +1,7 @@
 package com.blockchain.core.custodial
 
 import com.blockchain.api.brokerage.data.BrokerageQuoteResponse
+import com.blockchain.api.brokerage.data.DepositTermsResponse
 import com.blockchain.api.brokerage.data.FeeDetailsResponse
 import com.blockchain.api.brokerage.data.SettlementDetails
 import com.blockchain.api.services.BrokerageService
@@ -8,9 +9,10 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
-import com.blockchain.nabu.Authenticator
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.Money
@@ -18,7 +20,6 @@ import io.reactivex.rxjava3.core.Single
 import java.time.ZonedDateTime
 
 class BrokerageDataManager(
-    private val authenticator: Authenticator,
     private val brokerageService: BrokerageService
 ) {
 
@@ -29,19 +30,15 @@ class BrokerageDataManager(
         paymentMethodId: String?,
         product: Product
     ): Single<BrokerageQuote> =
-        authenticator.authenticate { tokenResponse ->
-            brokerageService.fetchQuote(
-                authHeader = tokenResponse.authHeader,
-                inputValue = amount.toBigInteger().toString(),
-                paymentMethod = paymentMethodType.name,
-                paymentMethodId = paymentMethodId,
-                pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
-                profile = product.toProfileRequestString()
-            )
+        brokerageService.fetchQuote(
+            inputValue = amount.toBigInteger().toString(),
+            paymentMethod = paymentMethodType.name,
+            paymentMethodId = paymentMethodId,
+            pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
+            profile = product.toProfileRequestString()
+        ).map { response ->
+            response.toDomainModel(pair)
         }
-            .map { response ->
-                response.toDomainModel(pair)
-            }
 }
 
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQuote =
@@ -57,7 +54,8 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQ
             fee = Money.fromMinor(pair.source, feeDetails.fee.toBigInteger()),
             feeBeforePromo = Money.fromMinor(pair.source, feeDetails.feeWithoutPromo.toBigInteger()),
             promo = feeDetails.feeFlags.firstOrNull()?.toPromo() ?: Promo.NO_PROMO
-        )
+        ),
+        depositTerms = depositTerms?.toDepositTerms()
     )
 
 private fun String.toPromo(): Promo =
@@ -80,10 +78,35 @@ private fun String.toSettlementReason(): SettlementReason = try {
     SettlementReason.UNKNOWN
 }
 
+private fun String.toSettlementType(): SettlementType = try {
+    SettlementType.valueOf(this)
+} catch (ex: Exception) {
+    SettlementType.UNKNOWN
+}
+
 private fun Product.toProfileRequestString(): String =
     when (this) {
         Product.BUY -> "SIMPLEBUY"
         else -> this.toString()
     }
+
+private fun DepositTermsResponse.toDepositTerms(): DepositTerms =
+    DepositTerms(
+        creditCurrency = this.creditCurrency,
+        availableToTradeMinutesMin = this.availableToTradeMinutesMin,
+        availableToTradeMinutesMax = this.availableToTradeMinutesMax,
+        availableToTradeDisplayMode = this.availableToTradeDisplayMode.toDisplayMode(),
+        availableToWithdrawMinutesMin = this.availableToWithdrawMinutesMin,
+        availableToWithdrawMinutesMax = this.availableToWithdrawMinutesMax,
+        availableToWithdrawDisplayMode = this.availableToWithdrawDisplayMode.toDisplayMode(),
+        settlementType = this.settlementType?.toSettlementType(),
+        settlementReason = this.settlementReason?.toSettlementReason()
+    )
+
+private fun String.toDisplayMode(): DepositTerms.DisplayMode = try {
+    DepositTerms.DisplayMode.valueOf(this)
+} catch (ex: Exception) {
+    DepositTerms.DisplayMode.NONE
+}
 
 // for feature reference add  SIMPLEBUY / SIMPLETRADE / SWAP_FROM_USERKEY / SWAP_INTERNAL / SWAP_ON_CHAIN

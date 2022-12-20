@@ -1,7 +1,6 @@
 package com.blockchain.core.price.impl
 
 import com.blockchain.api.services.AssetPriceService
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
@@ -19,10 +18,13 @@ import com.blockchain.store.asObservable
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import com.blockchain.store.mapError
+import com.blockchain.utils.rxCompletableOutcome
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -31,8 +33,6 @@ import java.math.RoundingMode
 import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -56,7 +56,29 @@ internal class ExchangeRatesDataManagerImpl(
             priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Fresh).firstOutcome()
         }
 
-    override fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
+    override fun exchangeRate(
+        fromAsset: Currency,
+        toAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<ExchangeRate>> {
+        val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
+        val base = if (shouldInverse) toAsset else fromAsset
+        val quote = if (shouldInverse) fromAsset else toAsset
+        return priceStore.getCurrentPriceForAsset(base, quote, freshnessStrategy)
+            .mapData {
+                ExchangeRate(
+                    from = base,
+                    to = quote,
+                    rate = it.rate
+                ).apply {
+                    if (shouldInverse) {
+                        inverse()
+                    }
+                }
+            }
+    }
+
+    override fun exchangeRateLegacy(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
@@ -74,8 +96,11 @@ internal class ExchangeRatesDataManagerImpl(
             }
     }
 
-    override fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate> =
-        priceStore.getCurrentPriceForAsset(fromAsset, userFiat, FreshnessStrategy.Cached(forceRefresh = true))
+    override fun exchangeRateToUserFiat(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<ExchangeRate> =
+        priceStore.getCurrentPriceForAsset(fromAsset, userFiat, freshnessStrategy)
             .asObservable()
             .map {
                 ExchangeRate(

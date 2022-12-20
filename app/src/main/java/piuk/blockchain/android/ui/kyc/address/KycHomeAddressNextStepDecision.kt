@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.kyc.address
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.utils.rxMaybeOutcome
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 
 class KycHomeAddressNextStepDecision(
     private val userService: UserService,

@@ -6,13 +6,12 @@ import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
-import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
@@ -36,7 +35,6 @@ class LimitsDataManagerImpl(
     private val limitsService: TxLimitsService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val assetCatalogue: AssetCatalogue,
-    private val authenticator: Authenticator
 ) : LimitsDataManager {
 
     override fun getLimits(
@@ -46,16 +44,15 @@ class LimitsDataManagerImpl(
         sourceAccountType: AssetCategory,
         targetAccountType: AssetCategory,
         legacyLimits: Single<LegacyLimits>
-    ): Single<TxLimits> = authenticator.authenticate { token ->
+    ): Single<TxLimits> {
 
         val legacyLimitsToOutputCurrency = legacyLimits.toOutputCurrency(
             outputCurrency, exchangeRatesDataManager
         )
 
-        Single.zip(
+        return Single.zip(
             legacyLimitsToOutputCurrency,
             limitsService.getCrossborderLimits(
-                authHeader = token.authHeader,
                 outputCurrency = outputCurrency.networkTicker,
                 sourceCurrency = sourceCurrency.networkTicker,
                 targetCurrency = targetCurrency.networkTicker,
@@ -136,12 +133,11 @@ class LimitsDataManagerImpl(
         }
     }
 
-    override fun getFeatureLimits(): Single<List<FeatureWithLimit>> = authenticator.authenticate { token ->
-        limitsService.getFeatureLimits(token.authHeader)
+    override fun getFeatureLimits(): Single<List<FeatureWithLimit>> =
+        limitsService.getFeatureLimits()
             .map { response ->
                 response.limits.mapNotNull { it.toFeatureWithLimit(assetCatalogue) }
             }
-    }
 
     private fun Single<LegacyLimits>.toOutputCurrency(
         outputCurrency: Currency,
@@ -150,7 +146,7 @@ class LimitsDataManagerImpl(
         return flatMap { legacy ->
             val legacyCurrency = assetCatalogue.fromNetworkTicker(legacy.currency)
             if (legacyCurrency != null && outputCurrency != legacyCurrency) {
-                exchangeRatesDataManager.exchangeRate(outputCurrency, legacyCurrency)
+                exchangeRatesDataManager.exchangeRateLegacy(outputCurrency, legacyCurrency)
                     .firstOrError()
                     .map { exchangeRate ->
                         object : LegacyLimits {
@@ -256,14 +252,14 @@ data class TxLimits(
     val maxAmount: Money
         get() = max.amount
 
-    fun isMinViolatedByAmount(amount: Money) = min.amount > amount
+    fun isAmountUnderMin(amount: Money) = min.amount > amount
 
-    fun isMaxViolatedByAmount(amount: Money) = (max as? TxLimit.Limited)?.let {
+    fun isAmountOverMax(amount: Money) = (max as? TxLimit.Limited)?.let {
         it.amount < amount
     } ?: false
 
     fun isAmountInRange(amount: Money): Boolean =
-        !(isMinViolatedByAmount(amount) || isMaxViolatedByAmount(amount))
+        !(isAmountUnderMin(amount) || isAmountOverMax(amount))
 
     // TODO we need to combine the suggested upgrades also but this requires some refactoring and can wait for now
     fun combineWith(other: TxLimits): TxLimits =

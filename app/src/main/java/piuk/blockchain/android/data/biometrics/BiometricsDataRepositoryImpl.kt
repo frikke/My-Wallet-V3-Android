@@ -1,24 +1,26 @@
 package piuk.blockchain.android.data.biometrics
 
 import com.blockchain.biometrics.BiometricDataRepository
-import piuk.blockchain.androidcore.utils.PrefsUtil
+import com.blockchain.preferences.AuthPrefs
 
-class BiometricsDataRepositoryImpl(val prefsUtil: PrefsUtil) : BiometricDataRepository {
+class BiometricsDataRepositoryImpl(
+    val authPrefs: AuthPrefs,
+) : BiometricDataRepository {
     override fun isBiometricsEnabled(): Boolean =
-        prefsUtil.biometricsEnabled
+        authPrefs.biometricsEnabled
 
     override fun setBiometricsEnabled(enabled: Boolean) {
-        prefsUtil.biometricsEnabled = enabled
+        authPrefs.biometricsEnabled = enabled
     }
 
     override fun storeBiometricEncryptedData(value: String) {
-        prefsUtil.encodedPin = value
+        authPrefs.encodedPin = value
     }
 
     override fun getBiometricEncryptedData(): String? =
-        prefsUtil.encodedPin
+        authPrefs.encodedPin
 
     override fun clearBiometricEncryptedData() {
-        prefsUtil.clearEncodedPin()
+        authPrefs.clearEncodedPin()
     }
 }

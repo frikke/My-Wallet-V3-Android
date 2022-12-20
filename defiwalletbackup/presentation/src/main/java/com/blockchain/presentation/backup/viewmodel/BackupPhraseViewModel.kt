@@ -3,6 +3,9 @@ package com.blockchain.presentation.backup.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.core.utils.EncryptedPrefs
+import com.blockchain.defiwalletbackup.domain.analytics.BackupPhraseAnalytics
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
@@ -23,8 +26,6 @@ import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,

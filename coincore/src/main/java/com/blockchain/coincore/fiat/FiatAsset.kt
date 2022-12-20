@@ -8,7 +8,6 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -20,6 +19,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -47,11 +47,12 @@ class FiatAsset(
             AssetFilter.Custodial,
             AssetFilter.Trading -> Maybe.just(
                 FiatAccountGroup(
-                    label = labels.getDefaultCustodialWalletLabel(),
+                    label = labels.getDefaultTradingWalletLabel(),
                     accounts = listOf(custodialAccount)
                 )
             )
             AssetFilter.NonCustodial,
+            AssetFilter.Staking,
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }
 

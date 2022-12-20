@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -12,7 +13,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.util.Date
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class DynamicActivitySummaryItem(
     override val asset: AssetInfo,

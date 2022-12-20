@@ -4,31 +4,29 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
+import com.blockchain.utils.emptySubscribe
+import com.blockchain.utils.then
+import com.blockchain.utils.toJsonElement
 import com.blockchain.utils.toUtcIso8601
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalArgumentException
 import java.util.Date
 import java.util.Locale
-import kotlinx.serialization.json.JsonArray
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import piuk.blockchain.androidcore.utils.SessionPrefs
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NabuAnalytics(
@@ -129,15 +127,19 @@ class NabuAnalytics(
     }
 
     private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
-        tokenStore.getAccessToken().firstOrError().flatMapCompletable {
-            analyticsService.postEvents(
-                events = events,
-                id = id,
-                analyticsContext = analyticsContextProvider.context(),
-                platform = "WALLET",
-                device = "APP-Android",
-                authorization = if (it is Optional.Some) it.element.authHeader else null
-            )
+        rxSingle {
+            analyticsContextProvider.context()
+        }.flatMapCompletable { context ->
+            tokenStore.getAccessToken().firstOrError().flatMapCompletable {
+                analyticsService.postEvents(
+                    events = events,
+                    id = id,
+                    analyticsContext = context,
+                    platform = "WALLET",
+                    device = "APP-Android",
+                    authorization = if (it is Optional.Some) it.element.authHeader else null
+                )
+            }
         }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {}
@@ -158,20 +160,6 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
             it.value.toJsonElement()
         }.plusOriginIfAvailable(this.origin)
     )
-
-private fun Any?.toJsonElement(): JsonElement {
-    return when (this) {
-        null -> JsonNull
-        is JsonElement -> this
-        is Boolean -> JsonPrimitive(this)
-        is Number -> JsonPrimitive(this)
-        is String -> JsonPrimitive(this)
-        is Iterable<*> -> JsonArray(this.map { it.toJsonElement() })
-        // key simply converted to string
-        is Map<*, *> -> JsonObject(this.map { it.key.toString() to it.value.toJsonElement() }.toMap())
-        else -> throw IllegalArgumentException("Type not supported ${this::class}=$this}")
-    }
-}
 
 private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this

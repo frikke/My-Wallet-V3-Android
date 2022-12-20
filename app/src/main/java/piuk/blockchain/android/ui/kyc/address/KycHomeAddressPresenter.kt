@@ -9,12 +9,14 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.PollService
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.thenSingle
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -26,10 +28,7 @@ import java.util.SortedMap
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 interface KycNextStepDecision {
@@ -49,7 +48,6 @@ interface KycNextStepDecision {
 }
 
 class KycHomeAddressPresenter(
-    nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
     private val userService: UserService,
@@ -58,15 +56,12 @@ class KycHomeAddressPresenter(
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics,
     private val kycTiersStore: KycTiersStore,
-) : BaseKycPresenter<KycHomeAddressView>(nabuToken) {
+) : BasePresenter<KycHomeAddressView>() {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
-        fetchOfflineToken
-            .flatMap {
-                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
-                    eligibilityService.getCountriesList(GetRegionScope.None)
-                }.subscribeOn(Schedulers.io())
-            }
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            eligibilityService.getCountriesList(GetRegionScope.None)
+        }.subscribeOn(Schedulers.io())
             .map { list ->
                 list.associateBy({ it.name }, { it.countryCode })
                     .toSortedMap()
@@ -160,9 +155,8 @@ class KycHomeAddressPresenter(
             campaignType == CampaignType.SimpleBuy
     }
 
-    private fun addAddress(address: AddressDetails): Completable = fetchOfflineToken.flatMapCompletable {
+    private fun addAddress(address: AddressDetails): Completable =
         nabuDataManager.addAddress(
-            it,
             address.firstLine,
             address.secondLine,
             address.city,
@@ -170,7 +164,6 @@ class KycHomeAddressPresenter(
             address.postCode,
             address.countryIso
         ).subscribeOn(Schedulers.io())
-    }
 
     internal fun onProgressCancelled() {
         compositeDisposable.clear()

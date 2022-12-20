@@ -3,8 +3,8 @@
     android:id="@+id/crypto_account_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/smallest_margin"
-    android:layout_marginEnd="@dimen/smallest_margin">
+    android:layout_marginStart="@dimen/smallest_spacing"
+    android:layout_marginEnd="@dimen/smallest_spacing">
 
     <piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
         android:id="@+id/crypto_account"

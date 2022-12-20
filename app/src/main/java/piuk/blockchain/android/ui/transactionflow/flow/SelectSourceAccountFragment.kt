@@ -8,14 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.extensions.enumValueOfOrNull
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -31,7 +36,7 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
+import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.engine.BankLinkingState
 import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -45,12 +50,17 @@ class SelectSourceAccountFragment :
     ErrorSlidingBottomDialog.Host {
 
     private val customiser: SourceSelectionCustomisations by inject()
+    private val assetAction: AssetAction? by lazy {
+        enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
+    }
 
     private var availableSources: List<BlockchainAccount>? = null
     private var linkingBankState: BankLinkingState = BankLinkingState.NotStarted
+    private var hasEnteredSearchTerm: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        analyticsHooks.onFromSourcesAccountViewed(assetAction)
         with(binding) {
             accountList.apply {
                 onListLoaded = ::doOnListLoaded
@@ -65,12 +75,31 @@ class SelectSourceAccountFragment :
                     model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
                 }
             }
+
+            with(binding) {
+                assetAction?.let {
+                    if (customiser.selectSourceShouldHaveSearch(it)) {
+                        setupSearch()
+                    } else {
+                        sourceSelectSearch.gone()
+                    }
+
+                    if (customiser.shouldShowSourceAccountWalletsSwitch(it)) {
+                        pkwSwitchLayout.visible()
+                        pkwAccountsSwitch.onCheckChanged = { isChecked ->
+                            model.process(TransactionIntent.UpdatePrivateKeyFilter(isChecked))
+                        }
+                    }
+                }
+            }
         }
     }
 
     override fun render(newState: TransactionState) {
         binding.accountList.onAccountSelected = {
             require(it is SingleAccount)
+            requireActivity().hideKeyboard()
+
             model.process(TransactionIntent.SourceAccountSelected(it))
             analyticsHooks.onSourceAccountSelected(it, newState)
         }
@@ -98,6 +127,49 @@ class SelectSourceAccountFragment :
 
         availableSources = newState.availableSources
         linkingBankState = newState.linkBankState
+
+        binding.pkwAccountsSwitch.isChecked = newState.isPkwAccountFilterActive
+    }
+
+    private fun FragmentTxAccountSelectorBinding.setupSearch() {
+        sourceSelectSearch.visible()
+        sourceSelectSearch.apply {
+            label = getString(R.string.search_wallets_hint)
+            onValueChange = { searchTerm ->
+                this@setupSearch.onSearchTermUpdated(searchTerm)
+            }
+        }
+
+        sourceListSearchEmpty.apply {
+            text = getString(R.string.select_target_source_no_search_results)
+            gravity = ComposeGravities.Centre
+            style = ComposeTypographies.Body1
+        }
+    }
+
+    private fun FragmentTxAccountSelectorBinding.onSearchTermUpdated(searchTerm: String) {
+        hasEnteredSearchTerm = searchTerm.isNotEmpty()
+        sourceListSearchEmpty.gone()
+
+        with(accountList) {
+            visible()
+            loadItems(
+                accountsSource = Single.just(
+                    availableSources?.filter { account ->
+                        if (searchTerm.isNotEmpty()) {
+                            val singleAccountCurrency = (account as? SingleAccount)?.currency
+                            singleAccountCurrency?.networkTicker?.contains(searchTerm, true) ?: false ||
+                                singleAccountCurrency?.name?.contains(searchTerm, true) ?: false ||
+                                account.label.contains(searchTerm, true)
+                        } else {
+                            true
+                        }
+                    }?.map(AccountListViewItem.Companion::create) ?: emptyList()
+                ),
+                accountsLocksSource = Single.just(emptyList()),
+                showLoader = false
+            )
+        }
     }
 
     private fun renderDepositOptions(newState: TransactionState) {
@@ -223,8 +295,16 @@ class SelectSourceAccountFragment :
 
     private fun doOnListLoaded(isEmpty: Boolean) {
         with(binding) {
-            accountListEmpty.visibleIf { isEmpty }
-            accountList.visibleIf { !isEmpty }
+            if (isEmpty) {
+                if (hasEnteredSearchTerm) {
+                    accountListEmpty.gone()
+                    sourceListSearchEmpty.visible()
+                } else {
+                    accountListEmpty.visible()
+                    accountList.visible()
+                    sourceListSearchEmpty.gone()
+                }
+            }
             progress.gone()
         }
     }
@@ -239,6 +319,7 @@ class SelectSourceAccountFragment :
     private fun doOnListLoading() {
         with(binding) {
             accountListEmpty.gone()
+            sourceListSearchEmpty.gone()
             progress.visible()
         }
     }
@@ -268,6 +349,12 @@ class SelectSourceAccountFragment :
     override fun onSheetClosed() {}
 
     companion object {
-        fun newInstance(): SelectSourceAccountFragment = SelectSourceAccountFragment()
+        private const val ACTION = "ASSET_ACTION"
+        fun newInstance(assetAction: AssetAction): SelectSourceAccountFragment =
+            SelectSourceAccountFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ACTION, assetAction.name)
+                }
+            }
     }
 }

@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -22,7 +23,7 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBO
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
 class AssetMap(private val map: Map<Currency, DashboardAsset>) :
     Map<Currency, DashboardAsset> by map {
@@ -47,6 +48,14 @@ class AssetMap(private val map: Map<Currency, DashboardAsset>) :
     fun copy(patchAsset: DashboardAsset): AssetMap {
         val assets = toMutableMap()
         assets[patchAsset.currency] = patchAsset
+        return AssetMap(assets)
+    }
+
+    fun copy(patchAssets: List<DashboardAsset>): AssetMap {
+        val assets = toMutableMap()
+        patchAssets.forEach {
+            assets[it.currency] = it
+        }
         return AssetMap(assets)
     }
 
@@ -76,7 +85,7 @@ interface DashboardItem {
 }
 
 data class FiatBalanceInfo(
-    val funds: List<BrokearageFiatAsset>,
+    val funds: List<BrokerageFiatAsset>,
 ) : DashboardItem {
     override val index: Int
         get() = DASHBOARD_FIAT_ASSETS
@@ -134,8 +143,14 @@ data class DashboardState(
     val canPotentiallyTransactWithBanks: Boolean = true,
     val showedAppRating: Boolean = false,
     val referralSuccessData: Pair<String, String>? = null,
-    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden
+    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden,
+    val isStakingEnabled: Boolean = false,
 ) : MviState, DashboardBalanceStateHost {
+
+    init {
+        val loadingAssets = activeAssets.values.filter { it.isFetchingBalance }.map { it.currency.networkTicker }
+        Timber.i("Fetching balances for assets: $loadingAssets")
+    }
 
     override val dashboardBalance: DashboardBalance?
         get() = when {
@@ -148,14 +163,14 @@ data class DashboardState(
             )
             activeAssets.values.all { it is DefiAsset } -> DefiBalanceState(
                 isLoading = activeAssets.values.all { it.isUILoading },
-                fiatBalance = cryptoAssetsFiatBalances()
+                fiatBalance = cryptoAssetsFiatBalances(useTotalDisplayFF = true)
             )
             else -> throw IllegalStateException("Active assets should all be Defi or Brokerage")
         }
 
     private fun totalFiatAndCryptoBalance(): Money? {
-        val fiatBalance = fiatAssetsFiatBalance()
-        val cryptoBalance = cryptoAssetsFiatBalances()
+        val fiatBalance = fiatAssetsDisplayFiatBalance()
+        val cryptoBalance = cryptoAssetsFiatBalances(useTotalDisplayFF = true)
         return when {
             fiatBalance != null && cryptoBalance != null -> fiatBalance + cryptoBalance
             fiatBalance != null -> fiatBalance
@@ -164,36 +179,73 @@ data class DashboardState(
         }
     }
 
-    private fun cryptoAssetsFiatBalances() = activeAssets.values
-        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.CRYPTO }
-        .map { it.fiatBalance ?: Money.zero(it.currency) }
+    private fun cryptoAssetsFiatBalances(useTotalDisplayFF: Boolean) = activeAssets.values
+        .filter {
+            val useDisplayBalance = if (useTotalDisplayFF) {
+                it.totalDisplayBalanceFFEnabled
+            } else {
+                it.assetDisplayBalanceFFEnabled
+            }
+            !it.isUILoading &&
+                it.fiatBalance(useDisplayBalance = useDisplayBalance) != null &&
+                it.currency.type == CurrencyType.CRYPTO
+        }
+        .map {
+            val useDisplayBalance = if (useTotalDisplayFF) {
+                it.totalDisplayBalanceFFEnabled
+            } else {
+                it.assetDisplayBalanceFFEnabled
+            }
+            it.fiatBalance(useDisplayBalance = useDisplayBalance) ?: Money.zero(it.currency)
+        }
         .ifEmpty { null }?.total()
 
     private fun cryptoAssetsFiatBalances24hAgo() = activeAssets.values
-        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.CRYPTO }
+        .filter {
+            !it.isUILoading &&
+                it.fiatBalance(useDisplayBalance = it.assetDisplayBalanceFFEnabled) != null &&
+                it.currency.type == CurrencyType.CRYPTO
+        }
         .filterIsInstance<BrokerageCryptoAsset>()
-        .map { it.fiatBalance24h ?: Money.zero(it.currency) }
+        .map {
+            val balance = if (it.assetDisplayBalanceFFEnabled) {
+                it.displayFiatBalance24h
+            } else {
+                it.fiatBalance24h
+            }
+            balance ?: Money.zero(it.currency)
+        }
         .ifEmpty { null }?.total()
 
-    private fun fiatAssetsFiatBalance() = activeAssets.values
-        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.FIAT }
-        .mapNotNull { it.fiatBalance }
+    private fun fiatAssetsDisplayFiatBalance() = activeAssets.values
+        .filter {
+            !it.isUILoading &&
+                it.fiatBalance(useDisplayBalance = it.totalDisplayBalanceFFEnabled) != null &&
+                it.currency.type == CurrencyType.FIAT
+        }
+        .mapNotNull { it.fiatBalance(useDisplayBalance = it.totalDisplayBalanceFFEnabled) }
         .ifEmpty { null }?.total()
 
-    val fiatDashboardAssets: List<BrokearageFiatAsset>
-        get() = activeAssets.values.filterIsInstance<BrokearageFiatAsset>()
+    val fiatDashboardAssets: List<BrokerageFiatAsset>
+        get() = activeAssets.values.filterIsInstance<BrokerageFiatAsset>()
 
     /**
      * The idea here is that
-     * - When in Defi mode we display all the non custodial coins regardless the balance
-     * - When in Brokerage or Universal we display only assets with balances
+     * - When in Defi mode:
+     *      - Display all L1 non-custodial coins regardless of balance
+     *      - Honour the Dust hiding setting (balance <$0.01)
+     * - When in Brokerage or Universal:
+     *      - For other assets - show accounts with balances
+     *      - Honour the Dust hiding setting (balance <$0.01)
      */
     val displayableAssets: List<DashboardAsset>
         get() {
             if (activeAssets.isEmpty()) return emptyList()
-            if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.toList()
+            if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.filter {
+                it.shouldAssetShow
+            }
             if (activeAssets.all { it.value is BrokerageDashboardAsset }) return activeAssets.values.filter {
-                it.accountBalance?.total?.isPositive ?: false
+                it.accountBalance?.total?.isPositive ?: false && it.shouldAssetShow
             }
             throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
         }
@@ -217,7 +269,7 @@ data class DashboardState(
         }
 
     private val delta: Pair<Money, Double>? by unsafeLazy {
-        val current = cryptoAssetsFiatBalances() ?: return@unsafeLazy null
+        val current = cryptoAssetsFiatBalances(useTotalDisplayFF = false) ?: return@unsafeLazy null
         val old = cryptoAssetsFiatBalances24hAgo() ?: return@unsafeLazy null
         Pair(current - old, current.percentageDelta(old))
     }
@@ -229,7 +281,7 @@ data class DashboardState(
         return activeAssets.values.firstOrNull {
             it.id == dashboardAsset.id
         }?.let {
-            it.fiatBalance?.isPositive == true
+            it.fiatBalance(useDisplayBalance = it.totalDisplayBalanceFFEnabled)?.isPositive == true
         } ?: false
     }
 }

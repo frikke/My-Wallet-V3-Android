@@ -14,7 +14,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.koin.scopedInject
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,7 +28,6 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import timber.log.Timber
 
 class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), KycSplashView {

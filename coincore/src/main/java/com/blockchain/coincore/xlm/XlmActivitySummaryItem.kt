@@ -2,18 +2,18 @@ package com.blockchain.coincore.xlm
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.sunriver.models.XlmTransaction
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class XlmActivitySummaryItem(
     private val xlmTransaction: XlmTransaction,

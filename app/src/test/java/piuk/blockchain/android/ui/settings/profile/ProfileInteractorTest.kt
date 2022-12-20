@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.profile
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -9,8 +10,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class ProfileInteractorTest {
     private lateinit var interactor: ProfileInteractor

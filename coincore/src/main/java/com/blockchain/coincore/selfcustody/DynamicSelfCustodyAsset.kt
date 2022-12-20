@@ -6,14 +6,14 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 internal class DynamicSelfCustodyAsset(
     override val currency: AssetInfo,
@@ -26,12 +26,12 @@ internal class DynamicSelfCustodyAsset(
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         rxSingle {
-            selfCustodyService.getCoinConfigurationFor(currency)?.let { coinConfiguration ->
+            selfCustodyService.getCoinTypeFor(currency)?.let { coinType ->
                 listOf(
                     DynamicNonCustodialAccount(
                         payloadManager,
                         currency,
-                        coinConfiguration,
+                        coinType,
                         addressResolver,
                         selfCustodyService,
                         exchangeRates,

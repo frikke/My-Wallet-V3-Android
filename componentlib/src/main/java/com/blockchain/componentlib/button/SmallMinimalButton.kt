@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.ButtonDefaults
@@ -20,18 +21,19 @@ fun SmallMinimalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
-    icon: ImageResource = ImageResource.None
+    icon: ImageResource = ImageResource.None,
+    isTransparent: Boolean = true
 ) {
 
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_margin)
+            dimensionResource(R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_margin)
+            dimensionResource(R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
-        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_margin) else dimensionResource(
-            R.dimen.very_small_margin
+        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_spacing) else dimensionResource(
+            R.dimen.very_small_spacing
         ),
         bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
     )
@@ -41,25 +43,33 @@ fun SmallMinimalButton(
         onClick = onClick,
         shape = AppTheme.shapes.extraLarge,
         state = state,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_margin)),
+        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
         contentPadding = contentPadding,
         icon = icon,
-        buttonContent = {
-            state: ButtonState,
+        backgroundColour = if (isTransparent) {
+            Color.Unspecified
+        } else {
+            if (isSystemInDarkTheme()) {
+                AppTheme.colors.muted
+            } else {
+                Color.White
+            }
+        },
+        buttonContent = { state: ButtonState,
             text: String,
             textColor: Color,
             textAlpha: Float,
             loadingIconResId: Int,
-            icon: ImageResource, ->
+            icon: ImageResource ->
             ButtonContentSmall(
                 state = state,
                 text = text,
                 textColor = textColor,
                 contentAlpha = textAlpha,
                 icon = icon,
-                loadingIconResId = loadingIconResId,
+                loadingIconResId = loadingIconResId
             )
-        },
+        }
     )
 }
 
@@ -154,6 +164,21 @@ private fun SmallMinimalButton_DarkDisabled() {
                 onClick = { },
                 text = "Small Minimal Button",
                 state = ButtonState.Disabled,
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun SmallMinimalButton_Non_Transparent() {
+    AppTheme {
+        AppSurface {
+            SmallMinimalButton(
+                onClick = { },
+                text = "Small Minimal Button",
+                state = ButtonState.Enabled,
+                isTransparent = false
             )
         }
     }

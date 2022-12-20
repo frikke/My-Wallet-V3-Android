@@ -2,8 +2,11 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -11,9 +14,9 @@ import com.blockchain.core.kyc.domain.model.KycTierDetail
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -21,14 +24,17 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -45,14 +51,14 @@ class AnnouncementQueriesTest {
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
-    private val remoteConfig: RemoteConfig = mock()
+    private val remoteConfigService: RemoteConfigService = mock()
     private val googlePayManager: GooglePayManager = mock()
     private val googlePayEnabledFlag: FeatureFlag = mock()
     private val paymentMethodsService: PaymentMethodsService = mock()
-    private val authenticator: AuthHeaderProvider = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
+    private val hideDustFF: FeatureFlag = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
 
@@ -68,21 +74,21 @@ class AnnouncementQueriesTest {
                 userIdentity = userIdentity,
                 coincore = coincore,
                 assetCatalogue = assetCatalogue,
-                remoteConfig = remoteConfig,
+                remoteConfigService = remoteConfigService,
                 googlePayManager = googlePayManager,
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
-                authenticator = authenticator,
                 fiatCurrenciesService = fiatCurrenciesService,
                 exchangeRatesDataManager = exchangeRatesDataManager,
-                currencyPrefs = currencyPrefs
+                currencyPrefs = currencyPrefs,
+                hideDustFF = hideDustFF
             )
         )
     }
 
     @Test
     fun `asset ticker raw json is empty`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
         whenever(assetCatalogue.fromNetworkTicker(any())).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -91,7 +97,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json doesn't exist`() {
         val testException = Throwable()
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
 
         subject.getAssetFromCatalogue().test().assertError(testException)
     }
@@ -99,7 +105,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json returns unknown ticker`() {
         val moonToken = "TTM"
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
         whenever(assetCatalogue.fromNetworkTicker(moonToken)).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -107,7 +113,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json returns known ticker`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER))
             .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
         whenever(assetCatalogue.assetInfoFromNetworkTicker(CryptoCurrency.BTC.networkTicker))
             .thenReturn(CryptoCurrency.BTC)
@@ -351,14 +357,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay feature flag disabled then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -383,14 +387,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when goggle pay not a supported payment method then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(Single.just(emptyList()))
 
@@ -401,14 +403,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay not supported by device then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -433,14 +433,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay flag enabled and a supported payment method and supported by device then return true`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -477,6 +475,95 @@ class AnnouncementQueriesTest {
             .thenReturn(Observable.just(prices24HrWithDelta))
 
         subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)
+    }
+
+    @Test
+    fun `given dust ff is off when query is checked then don't show`() {
+        whenever(hideDustFF.enabled).thenReturn(Single.just(false))
+
+        val test = subject.hasDustBalances().test()
+        test.assertValue {
+            !it
+        }
+
+        verify(hideDustFF).enabled
+        verifyNoMoreInteractions(coincore)
+        verifyNoMoreInteractions(hideDustFF)
+    }
+
+    @Test
+    fun `given dust ff is on and no dust wallets when query is checked then don't show`() {
+        whenever(hideDustFF.enabled).thenReturn(Single.just(true))
+        val noDustFiat: Money = mock {
+            on { isDust() }.thenReturn(false)
+        }
+        val noDustBalance: AccountBalance = mock {
+            on { totalFiat }.thenReturn(noDustFiat)
+        }
+        val accountsList: SingleAccountList = listOf(
+            mock<CryptoAccount> {
+                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+            },
+            mock<CryptoAccount> {
+                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+            }
+        )
+        val accountGroup: AccountGroup = mock {
+            on { accounts }.thenReturn(accountsList)
+        }
+        whenever(coincore.allWallets(includeArchived = false)).thenReturn(Single.just(accountGroup))
+
+        val test = subject.hasDustBalances().test()
+        test.assertValue {
+            it == false
+        }
+
+        verify(hideDustFF).enabled
+        verify(coincore).allWallets(includeArchived = false)
+
+        verifyNoMoreInteractions(coincore)
+        verifyNoMoreInteractions(hideDustFF)
+    }
+
+    @Test
+    fun `given dust ff is on and some dust wallets when query is checked then show`() {
+        whenever(hideDustFF.enabled).thenReturn(Single.just(true))
+        val noDustFiat: Money = mock {
+            on { isDust() }.thenReturn(false)
+        }
+        val noDustBalance: AccountBalance = mock {
+            on { totalFiat }.thenReturn(noDustFiat)
+        }
+
+        val dustFiat: Money = mock {
+            on { isDust() }.thenReturn(true)
+        }
+        val dustBalance: AccountBalance = mock {
+            on { totalFiat }.thenReturn(dustFiat)
+        }
+        val accountsList: SingleAccountList = listOf(
+            mock<CryptoAccount> {
+                on { balanceRx }.thenReturn(Observable.just(dustBalance))
+            },
+            mock<CryptoAccount> {
+                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+            }
+        )
+        val accountGroup: AccountGroup = mock {
+            on { accounts }.thenReturn(accountsList)
+        }
+        whenever(coincore.allWallets(includeArchived = false)).thenReturn(Single.just(accountGroup))
+
+        val test = subject.hasDustBalances().test()
+        test.assertValue {
+            it == true
+        }
+
+        verify(hideDustFF).enabled
+        verify(coincore).allWallets(includeArchived = false)
+
+        verifyNoMoreInteractions(coincore)
+        verifyNoMoreInteractions(hideDustFF)
     }
 
     companion object {

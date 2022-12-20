@@ -10,17 +10,20 @@ import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 interface UserIdentity {
+    @Deprecated("use UserFeaturePermissionService")
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+    @Deprecated("use UserFeaturePermissionService")
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
     fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun isArgentinian(): Single<Boolean>
     fun isCowboysUser(): Single<Boolean>
+    fun isSSO(): Single<Boolean>
 }
 
 sealed class Feature {
@@ -34,6 +37,7 @@ sealed class Feature {
     object DepositCrypto : Feature()
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
+    object DepositStaking : Feature()
 }
 
 data class BasicProfileInfo(
@@ -62,8 +66,12 @@ sealed class BlockedReason : Serializable {
         data class Unknown(val message: String) : InsufficientTier()
     }
     sealed class Sanctions : BlockedReason() {
-        object RussiaEU5 : Sanctions()
-        data class Unknown(val message: String) : Sanctions()
+        abstract val message: String
+
+        data class RussiaEU5(override val message: String) : Sanctions()
+        data class RussiaEU8(override val message: String) : Sanctions()
+        data class Unknown(override val message: String) : Sanctions()
     }
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
+    class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String) : BlockedReason()
 }

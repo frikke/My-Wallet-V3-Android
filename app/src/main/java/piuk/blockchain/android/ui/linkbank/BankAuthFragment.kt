@@ -27,17 +27,17 @@ import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.getResolvedDrawable
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthState, FragmentLinkABankBinding>() {
 
@@ -279,7 +279,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         })
         val receiverIntent = Intent(context, receiver.javaClass)
         val pendingIntent =
-            PendingIntent.getBroadcast(context, 0, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getBroadcast(
+                context, 0, receiverIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         try {
             startActivity(
                 Intent.createChooser(

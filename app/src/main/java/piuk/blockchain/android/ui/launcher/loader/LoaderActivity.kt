@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -17,16 +18,19 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
-import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
 class LoaderActivity :
@@ -48,6 +52,8 @@ class LoaderActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
+    private val superappRedesignFF: FeatureFlag by inject(superappRedesignFeatureFlag)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -61,7 +67,7 @@ class LoaderActivity :
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
-            is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
+            is LoadingStep.Launcher -> startSingleActivity(LauncherActivityV2::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
@@ -123,10 +129,10 @@ class LoaderActivity :
         }
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) =
         updateToolbar(
             getString(R.string.security_check),
-            if (shouldShowButton) {
+            if (showSkipButton) {
                 listOf(
                     NavigationBarButton.TextWithColorInt(
                         getString(R.string.common_skip),
@@ -166,15 +172,24 @@ class LoaderActivity :
     }
 
     private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
-        startActivity(
-            MainActivity.newIntent(
-                context = this,
-                intentData = mainData,
-                shouldLaunchUiTour = shouldLaunchUiTour,
-                shouldBeNewTask = true
+        superappRedesignFF.enabled.subscribe { isEnabled ->
+            startActivity(
+                if (isEnabled) {
+                    MultiAppActivity.newIntent(
+                        context = this
+                    )
+                } else {
+                    MainActivity.newIntent(
+                        context = this,
+                        intentData = mainData,
+                        shouldLaunchUiTour = shouldLaunchUiTour,
+                        shouldBeNewTask = true
+                    )
+                }
             )
-        )
-        finish()
+
+            finish()
+        }
     }
 
     private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
@@ -192,13 +207,15 @@ class LoaderActivity :
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.content_frame,
-                KycEmailEntryFragment.newInstance(canBeSkipped = true),
-                KycEmailEntryFragment::class.simpleName
-            )
-            .commitAllowingStateLoss()
+        if (supportFragmentManager.findFragmentById(R.id.content_frame) !is KycEmailVerificationFragment) {
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.content_frame,
+                    KycEmailVerificationFragment.newInstance(canBeSkipped = true),
+                    KycEmailVerificationFragment::class.simpleName
+                )
+                .commitAllowingStateLoss()
+        }
     }
 
     private fun showMetadataNodeFailure() {

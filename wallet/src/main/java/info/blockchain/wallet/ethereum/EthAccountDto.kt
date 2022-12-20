@@ -13,7 +13,9 @@ data class EthAccountDto(
     @SerialName("correct")
     private val _isCorrect: Boolean? = null,
     @SerialName("addr")
-    val address: String
+    val address: String,
+    @SerialName("publicKey")
+    val publicKey: String? = null
 ) {
     fun rename(label: String): EthAccountDto {
         return copy(label = label)
@@ -30,12 +32,13 @@ data class EthAccountDto(
         get() = _isCorrect ?: false
 
     companion object {
-        fun fromCheckSumAddress(address: String, label: String): EthAccountDto =
+        fun fromCheckSumAddress(address: String, label: String, pubKey: String): EthAccountDto =
             EthAccountDto(
                 address = address,
                 label = label,
                 _isCorrect = true,
                 _archived = false,
+                publicKey = pubKey
             )
     }
 }

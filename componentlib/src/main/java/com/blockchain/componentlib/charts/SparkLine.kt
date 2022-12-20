@@ -84,7 +84,7 @@ private fun SparkLinePreview() {
         AppSurface {
             SparkLine(
                 historicalRates = data,
-                modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_margin))
+                modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_spacing))
             )
         }
     }

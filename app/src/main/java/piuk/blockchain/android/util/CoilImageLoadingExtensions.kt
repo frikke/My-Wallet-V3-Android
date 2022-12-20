@@ -25,8 +25,8 @@ fun Context.loadRemoteErrorAndStatusIcons(
     val statusIconRequest = ImageRequest.Builder(this)
         .data(statusIconUrl)
         .size(
-            resources.getDimension(R.dimen.standard_margin).toInt(),
-            resources.getDimension(R.dimen.standard_margin).toInt()
+            resources.getDimension(R.dimen.standard_spacing).toInt(),
+            resources.getDimension(R.dimen.standard_spacing).toInt()
         )
         .target(
             onSuccess = { drawable ->

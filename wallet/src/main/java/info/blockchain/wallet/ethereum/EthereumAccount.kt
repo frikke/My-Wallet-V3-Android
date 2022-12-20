@@ -25,9 +25,13 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
                     computeAddress(addressKey.pubKeyPoint.getEncoded(false))
                 )
             ),
-            label = label
+            label = label,
+            pubKey = addressKey.publicKeyAsHex
         )
     )
+
+    val publicKey: String?
+        get() = ethAccountDto.publicKey
 
     fun withUpdatedLabel(label: String): EthereumAccount =
         EthereumAccount(ethAccountDto.copy(label = label))
@@ -90,7 +94,6 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
         this.ethAccountDto.address == Keys.toChecksumAddress(this.ethAccountDto.address)
 
     companion object {
-        private const val DERIVATION_PATH = "m/44'/60'/0'/0"
         private const val DERIVATION_PATH_PURPOSE = 44
         private const val DERIVATION_PATH_COIN = 60
         private const val CHANGE_INDEX = 0
@@ -110,7 +113,7 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
             return HashUtil.sha3omit12(pubBytes.copyOfRange(1, pubBytes.size))
         }
 
-        private fun deriveECKey(masterKey: DeterministicKey, accountIndex: Int): ECKey {
+        fun deriveECKey(masterKey: DeterministicKey, accountIndex: Int): ECKey {
 
             val purposeKey =
                 HDKeyDerivation.deriveChildKey(

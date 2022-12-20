@@ -1,0 +1,11 @@
+package piuk.blockchain.android.ui.brokerage.sell
+
+import com.blockchain.analytics.AnalyticsEvent
+
+enum class SellAnalytics(
+    override val event: String,
+    override val params: Map<String, String> = emptyMap()
+) : AnalyticsEvent {
+    SellTabInfo("sell_send_now_clicked"),
+    SellIntroCta("sell_now_banner_clicked")
+}

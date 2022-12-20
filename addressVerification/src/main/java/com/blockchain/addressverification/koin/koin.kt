@@ -11,7 +11,6 @@ val addressVerificationModule = module {
     scope(payloadScopeQualifier) {
         factory<AddressVerificationService> {
             AddressVerificationRepository(
-                authenticator = get(),
                 api = get(),
                 userService = get(),
             )

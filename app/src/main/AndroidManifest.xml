@@ -31,28 +31,30 @@
     <application
         android:name=".BlockchainApplication"
         android:allowBackup="true"
-        android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
+        android:backupAgent="com.blockchain.coreandroid.utils.CloudBackupAgent"
+        android:enabled="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${APP_NAME}"
-        android:launchMode="singleTask"
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         tools:replace="android:label, android:allowBackup, android:theme">
+
         <activity
-            android:name=".ui.launcher.LauncherActivity"
+            android:name=".ui.launcher.LauncherActivityV2"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.Splash">
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.Splash"
+            android:exported="true">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -72,7 +74,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <intent-filter android:autoVerify="true" >
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -90,6 +92,7 @@
         <activity
             android:name=".ui.linkbank.yodlee.YodleeEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:theme="@style/AppTheme.Splash">
             <intent-filter
                 android:autoVerify="true"
@@ -124,10 +127,16 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name="com.blockchain.chrome.MultiAppActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.kyc.limits.KycLimitsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name=".ui.transfer.receive.detail.ReceiveDetailActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.dashboard.onboarding.DashboardOnboardingActivity"
@@ -135,6 +144,7 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter android:autoVerify="true">
@@ -150,7 +160,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.settings.v2.security.pin.PinActivity"
+            android:name=".ui.settings.security.pin.PinActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
@@ -250,14 +260,71 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ActionActivity" />
         <activity
-            android:name=".ui.settings.v2.SettingsActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:name=".ui.settings.SettingsActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.settings.v2.profile.ProfileActivity"
+            android:name=".ui.settings.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
-        <activity android:name=".ui.coinview.presentation.CoinviewActivity" />
+        <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
+        <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />
+
+        <!-- Force Theme.AppCompat on internal PLAID Activity to prevent crash -->
+        <activity
+            android:name="com.plaid.internal.LinkRedirectActivity"
+            android:label="LinkRedirectActivity"
+            android:theme="@style/Theme.AppCompat"
+            tools:replace="android:theme" />
+
+        <!-- MEMBERSHIPS -->
+        <activity android:name=".ui.membership.AppIconUpdateActivity" />
+        <activity android:name=".ui.membership.MembershipActivity" />
+        <activity android:name="com.blockchain.membership.presentation.MembershipHubActivity" />
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.launcher.LauncherActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.membership.LauncherOneAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_blockchain_blue_circle"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="piuk.blockchain.android.ui.membership.LauncherTwoAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_blockchain"
+            android:label="${APP_NAME}"
+            android:targetActivity=".ui.launcher.LauncherActivityV2">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- /end -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -301,6 +368,7 @@
         <service
             android:name=".data.notifications.FcmCallbackService"
             android:enabled="true"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

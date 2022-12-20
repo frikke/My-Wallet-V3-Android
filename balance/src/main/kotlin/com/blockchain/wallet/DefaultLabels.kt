@@ -12,9 +12,11 @@ interface DefaultLabels {
     fun getAssetMasterWalletLabel(asset: Currency): String
     fun getDefaultNonCustodialWalletLabel(): String
     fun getOldDefaultNonCustodialWalletLabel(asset: AssetInfo): String
-    fun getDefaultCustodialWalletLabel(): String
+    fun getDefaultTradingWalletLabel(): String
     fun getDefaultFiatWalletLabel(): String
     fun getDefaultInterestWalletLabel(): String
     fun getDefaultExchangeWalletLabel(): String
+    fun getDefaultStakingWalletLabel(): String
     fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String
+    fun getDefaultCustodialGroupLabel(): String
 }

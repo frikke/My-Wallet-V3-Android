@@ -10,10 +10,12 @@ class ProductEligibilityResponse(
     val buy: BuyEligibilityResponse?,
     val swap: SwapEligibilityResponse?,
     val sell: DefaultEligibilityResponse?,
+    val useTradingAccount: UseTradingAccountsResponse?,
     val depositFiat: DefaultEligibilityResponse?,
     val depositCrypto: DefaultEligibilityResponse?,
     val depositInterest: DefaultEligibilityResponse?,
-    val withdrawFiat: DefaultEligibilityResponse?
+    val withdrawFiat: DefaultEligibilityResponse?,
+    val depositStaking: DefaultEligibilityResponse?
 )
 
 @Serializable
@@ -35,7 +37,8 @@ enum class ReasonNotEligibleReasonResponse {
     TIER_1_TRADE_LIMIT,
 
     // SANCTIONS:
-    EU_5_SANCTION
+    EU_5_SANCTION,
+    EU_8_SANCTION,
 }
 
 @Serializable
@@ -58,4 +61,10 @@ class SwapEligibilityResponse(
 class DefaultEligibilityResponse(
     val enabled: Boolean,
     val reasonNotEligible: ReasonNotEligibleResponse?
+)
+
+@Serializable
+class UseTradingAccountsResponse(
+    val enabled: Boolean,
+    val defaultProduct: Boolean
 )

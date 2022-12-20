@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="@dimen/medium_margin">
+    android:padding="@dimen/medium_spacing">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/info_title"
@@ -23,7 +23,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/very_small_margin"
+        android:layout_marginStart="@dimen/very_small_spacing"
         android:ellipsize="middle"
         android:gravity="end"
         android:maxLines="2"

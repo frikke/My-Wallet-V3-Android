@@ -14,11 +14,14 @@ import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewFragmentContainerBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
@@ -27,7 +30,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAddressVerificationFragment :
     BaseMvpFragment<KycHomeAddressView, KycHomeAddressPresenter>(),
@@ -40,6 +42,7 @@ class KycAddressVerificationFragment :
 
     private val presenter: KycHomeAddressPresenter by scopedInject()
     private val analytics: Analytics by inject()
+    private val fraudService: FraudService by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(this)
     private var progressDialog: MaterialProgressDialog? = null
@@ -56,6 +59,8 @@ class KycAddressVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         logEvent(AnalyticsEvents.KycAddress)
+        fraudService.trackFlow(FraudFlow.ONBOARDING)
+
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         if (addressVerificationFragment == null) {
             childFragmentManager.beginTransaction()
@@ -69,6 +74,7 @@ class KycAddressVerificationFragment :
     }
 
     override fun launchContactSupport() {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
         startActivity(SupportCentreActivity.newIntent(requireContext()))
     }
 
@@ -76,6 +82,8 @@ class KycAddressVerificationFragment :
         if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
             analytics.logEvent(CowboysAnalytics.KycAddressConfirmed)
         }
+
+        fraudService.endFlow(FraudFlow.ONBOARDING)
 
         presenter.onContinueClicked(progressListener.campaignType, address)
         analytics.logEvent(KYCAnalyticsEvents.AddressChanged)
@@ -99,16 +107,22 @@ class KycAddressVerificationFragment :
     }
 
     override fun continueToVeriffSplash(countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         requireActivity().hideKeyboard()
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
     }
 
     override fun continueToTier2MoreInfoNeeded(countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         requireActivity().hideKeyboard()
         navigate(KycNavXmlDirections.actionStartTier2NeedMoreInfo(countryCode))
     }
 
     override fun continueToQuestionnaire(questionnaire: Questionnaire, countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         requireActivity().hideKeyboard()
         navigate(
             KycAddressVerificationFragmentDirections.actionKycAddressVerificationFragmentToKycQuestionnaireFragment(

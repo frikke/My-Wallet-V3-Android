@@ -4,11 +4,17 @@ import com.blockchain.data.DataResource
 import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -24,7 +30,9 @@ suspend fun <T> Flow<DataResource<T>>.firstOutcome(): Outcome<Exception, T> =
 /**
  * todo filter any loading and take first.
  */
-fun <T : Any> Flow<DataResource<T>>.asSingle(): Single<T> = rxSingle {
+fun <T : Any> Flow<DataResource<T>>.asSingle(
+    dispatcher: CoroutineDispatcher = Schedulers.io().asCoroutineDispatcher()
+): Single<T> = rxSingle(dispatcher) {
     val first = this@asSingle.filterNot { it is DataResource.Loading }.first()
     when (first) {
         is DataResource.Data -> first.data
@@ -85,3 +93,13 @@ fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
 
 fun <T> Flow<DataResource<T>>.filterNotLoading(): Flow<DataResource<T>> =
     filterNot { it is DataResource.Loading }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: (T) -> Flow<DataResource<R>>): Flow<DataResource<R>> =
+    flatMapLatest {
+        when (it) {
+            is DataResource.Data -> mapper(it.data)
+            is DataResource.Error -> flowOf(it)
+            is DataResource.Loading -> flowOf(it)
+        }
+    }

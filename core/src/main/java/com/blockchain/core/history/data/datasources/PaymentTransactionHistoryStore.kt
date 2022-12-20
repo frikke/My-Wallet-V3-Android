@@ -1,6 +1,5 @@
 package com.blockchain.core.history.data.datasources
 
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.Fetcher
@@ -14,20 +13,16 @@ import kotlinx.serialization.Serializable
 // todo(othman) refactor dto
 // todo(othman) rename?
 class PaymentTransactionHistoryStore(
-    private val authenticator: Authenticator,
     private val nabuService: NabuService,
 ) : KeyedStore<PaymentTransactionHistoryStore.Key, TransactionsResponse> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = { key ->
-                authenticator.authenticate { token ->
-                    nabuService.getTransactions(
-                        sessionToken = token,
-                        product = key.product,
-                        type = key.type
-                    )
-                }
+                nabuService.getTransactions(
+                    product = key.product,
+                    type = key.type
+                )
             }
         ),
         keySerializer = Key.serializer(),

@@ -6,6 +6,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -15,21 +16,18 @@ import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun ToggleTableRow(
+private fun ToggleTableRow(
+    paddingValues: PaddingValues,
     onCheckedChange: (isChecked: Boolean) -> Unit,
     primaryText: String,
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     FlexibleTableRow(
-        paddingValues = PaddingValues(
-            start = dimensionResource(R.dimen.standard_margin),
-            end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
-            top = dimensionResource(R.dimen.medium_margin),
-            bottom = dimensionResource(R.dimen.medium_margin),
-        ),
+        paddingValues = paddingValues,
         content = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -63,11 +61,82 @@ fun ToggleTableRow(
                     )
                 }
             }
-        }
+        },
+        backgroundColor = backgroundColor
+    )
+}
+
+@Composable
+fun ToggleTableRow(
+    onCheckedChange: (isChecked: Boolean) -> Unit,
+    primaryText: String,
+    secondaryText: String = "",
+    isChecked: Boolean = false,
+    enabled: Boolean = true,
+    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
+    backgroundColor: Color = AppTheme.colors.background
+) {
+    ToggleTableRow(
+        paddingValues = PaddingValues(
+            start = dimensionResource(R.dimen.standard_spacing),
+            end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
+            top = dimensionResource(R.dimen.medium_spacing),
+            bottom = dimensionResource(R.dimen.medium_spacing),
+        ),
+        onCheckedChange = onCheckedChange,
+        primaryText = primaryText,
+        secondaryText = secondaryText,
+        isChecked = isChecked,
+        enabled = enabled,
+        toggleTableRowType = toggleTableRowType,
+        backgroundColor = backgroundColor
+    )
+}
+
+@Composable
+fun FlexibleToggleTableRow(
+    paddingValues: PaddingValues = PaddingValues(
+        start = dimensionResource(R.dimen.standard_spacing),
+        end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
+        top = dimensionResource(R.dimen.medium_spacing),
+        bottom = dimensionResource(R.dimen.medium_spacing),
+    ),
+    onCheckedChange: (isChecked: Boolean) -> Unit,
+    primaryText: String,
+    secondaryText: String = "",
+    isChecked: Boolean = false,
+    enabled: Boolean = true,
+    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
+    backgroundColor: Color = AppTheme.colors.background
+) {
+    ToggleTableRow(
+        paddingValues = paddingValues,
+        onCheckedChange = onCheckedChange,
+        primaryText = primaryText,
+        secondaryText = secondaryText,
+        isChecked = isChecked,
+        enabled = enabled,
+        toggleTableRowType = toggleTableRowType,
+        backgroundColor = backgroundColor
     )
 }
 
 enum class ToggleTableRowType { Primary, Success }
+
+@Preview
+@Composable
+private fun FlexibleToggleTableRow_SingleLine_NotChecked() {
+    AppTheme {
+        Surface {
+            FlexibleToggleTableRow(
+                paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
+                onCheckedChange = {},
+                primaryText = "Enable this ?",
+                backgroundColor = Color.Red
+            )
+        }
+    }
+}
 
 @Preview
 @Composable

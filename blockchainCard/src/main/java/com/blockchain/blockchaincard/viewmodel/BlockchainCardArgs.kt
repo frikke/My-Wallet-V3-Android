@@ -7,8 +7,12 @@ import kotlinx.parcelize.Parcelize
 
 sealed class BlockchainCardArgs : ModelConfigArgs.ParcelableArgs {
     @Parcelize
-    data class CardArgs(val card: BlockchainCard) : ModelConfigArgs.ParcelableArgs
+    data class CardArgs(
+        val cards: List<BlockchainCard>,
+        val cardProducts: List<BlockchainCardProduct>,
+        val preselectedCard: BlockchainCard? = null,
+    ) : ModelConfigArgs.ParcelableArgs
 
     @Parcelize
-    data class ProductArgs(val product: BlockchainCardProduct) : ModelConfigArgs.ParcelableArgs
+    data class ProductArgs(val products: List<BlockchainCardProduct>) : ModelConfigArgs.ParcelableArgs
 }

@@ -15,8 +15,10 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -29,8 +31,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class Erc20OnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
@@ -73,7 +73,7 @@ class Erc20OnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
@@ -138,7 +138,7 @@ class Erc20OnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             absoluteFees(),
             l1Asset
         ) { balance, feesForLevels, asset ->
@@ -198,7 +198,7 @@ class Erc20OnChainTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balance.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(

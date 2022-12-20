@@ -11,7 +11,11 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.earn.EarnAnalytics
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
+import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.utils.consume
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
@@ -21,10 +25,7 @@ import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragmen
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardNavigationEvent
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class InterestDashboardActivity :
     BlockchainActivity(),
@@ -57,7 +58,7 @@ class InterestDashboardActivity :
             toolbarTitle = getString(R.string.rewards_dashboard_title),
             backAction = { onSupportNavigateUp() }
         )
-        analytics.logEvent(InterestAnalytics.InterestViewed)
+        analytics.logEvent(EarnAnalytics.InterestViewed)
 
         goToInterestDashboardFragment()
     }
@@ -140,7 +141,7 @@ class InterestDashboardActivity :
     }
 
     private fun startKyc() {
-        analytics.logEvent(InterestAnalytics.InterestDashboardKyc)
+        analytics.logEvent(EarnAnalytics.InterestDashboardKyc)
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 

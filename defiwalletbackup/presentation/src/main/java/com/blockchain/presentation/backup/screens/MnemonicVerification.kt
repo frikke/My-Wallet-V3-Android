@@ -55,11 +55,11 @@ fun MnemonicVerification(
                 shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
             )
             .background(color = Grey000, shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall)))
-            .padding(dimensionResource(R.dimen.small_margin))
+            .padding(dimensionResource(R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
-        crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
+        mainAxisSpacing = dimensionResource(R.dimen.tiny_spacing),
+        crossAxisSpacing = dimensionResource(R.dimen.tiny_spacing)
     ) {
         mnemonic.forEachIndexed { index, selectableWord ->
             MnemonicVerificationWord(index = index.inc(), selectableWord = selectableWord) {
@@ -78,8 +78,8 @@ fun MnemonicSelection(
         modifier = Modifier
             .fillMaxWidth(),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
-        crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
+        mainAxisSpacing = dimensionResource(R.dimen.tiny_spacing),
+        crossAxisSpacing = dimensionResource(R.dimen.tiny_spacing)
     ) {
         mnemonic.forEach { selectableWord ->
             MnemonicVerificationWord(selectableWord = selectableWord) {
@@ -110,8 +110,8 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
                     onClick = onClick
                 )
                 .padding(
-                    vertical = dimensionResource(R.dimen.minuscule_margin),
-                    horizontal = dimensionResource(R.dimen.very_small_margin)
+                    vertical = dimensionResource(R.dimen.minuscule_spacing),
+                    horizontal = dimensionResource(R.dimen.very_small_spacing)
                 ),
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -123,7 +123,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
                     textAlign = TextAlign.End
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             }
 
             Text(

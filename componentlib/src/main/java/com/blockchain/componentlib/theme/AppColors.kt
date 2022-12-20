@@ -3,6 +3,14 @@ package com.blockchain.componentlib.theme
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+val START_TRADING = Color(0XFFFF0095)
+val END_TRADING = Color(0XFF7C33B9)
+val START_DEFI = Color(0XFF6D39BD)
+val END_DEFI = Color(0XFF2878D4)
+
+val GOOGLE_PAY_BUTTON_BORDER = Color(0x7FFFFFFF)
+val GOOGLE_PAY_BUTTON_DIVIDER = Color(0xFF3C4043)
+
 val Blue700 = Color(0XFF1656B9)
 val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)
@@ -41,6 +49,8 @@ val Grey200 = Color(0XFFCCD2DE)
 val Grey100 = Color(0XFFDFE3EB)
 val Grey000 = Color(0XFFF0F2F7)
 
+val White = Color(0xFFFFFFFF)
+
 val Dark900 = Color(0XFF0E121B)
 val Dark800 = Color(0XFF20242C)
 val Dark700 = Color(0XFF2C3038)
@@ -74,6 +84,7 @@ val defLightColors = SemanticColors(
     light = Grey000,
     background = Color.White,
     primary = Blue600,
+    primaryMuted = Blue400,
     success = Green600,
     warning = Orange600,
     error = Red600,
@@ -90,6 +101,7 @@ val defDarkColors = SemanticColors(
     light = Dark800,
     background = Dark900,
     primary = Blue400,
+    primaryMuted = Blue400, // todo unknown atm
     success = Green400,
     warning = Orange400,
     error = Red400,

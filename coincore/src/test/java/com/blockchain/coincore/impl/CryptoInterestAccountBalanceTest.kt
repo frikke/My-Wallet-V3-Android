@@ -1,10 +1,9 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
@@ -12,6 +11,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
@@ -26,7 +26,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     private val identity: UserIdentity = mock()
     private val kycService: KycService = mock()
 
-    private val subject = CryptoInterestAccount(
+    private val subject = CustodialInterestAccount(
         currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
@@ -59,7 +59,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertComplete()
             .assertValue {
@@ -89,7 +89,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertComplete()
             .assertValue {
@@ -125,7 +125,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
-        val testSubscriber = subject.balance
+        val testSubscriber = subject.balanceRx
             .subscribeOn(scheduler)
             .test()
             .assertNoValues()

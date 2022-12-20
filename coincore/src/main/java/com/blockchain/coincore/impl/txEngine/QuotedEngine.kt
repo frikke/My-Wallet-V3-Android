@@ -24,6 +24,8 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.utils.emptySubscribe
+import com.blockchain.utils.thenSingle
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -34,8 +36,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import java.math.RoundingMode
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 const val QUOTE_SUB = "quote_sub"
 private val PendingTx.quoteSub: Disposable?
@@ -105,7 +105,7 @@ abstract class QuotedEngine(
         map {
             it.quoteSub?.dispose()
             it.copy(
-                confirmations = emptyList(),
+                txConfirmations = emptyList(),
                 engineState = it.engineState.toMutableMap().apply { remove(QUOTE_SUB) }.toMap()
             )
         }

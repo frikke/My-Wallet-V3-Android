@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/standard_margin">
+    android:padding="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/backup_sheet_indicator"
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity='center'
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/ic_exchange_logo" />
 
@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:textAlignment="center"
         tools:text="Connect to Exchange" />
 
@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:textAlignment="center"
         tools:text="Connect to Exchange" />
 
@@ -49,19 +49,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         android:visibility="gone" />
 
     <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/exchange_primary_cta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin" />
+        android:layout_marginTop="@dimen/small_spacing" />
 
     <com.blockchain.componentlib.button.MinimalButtonView
         android:id="@+id/exchange_secondary_cta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin" />
+        android:layout_marginTop="@dimen/small_spacing" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

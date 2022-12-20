@@ -16,6 +16,8 @@ class UnknownValue private constructor(
     override val maxDecimalPlaces: Int
         get() = 0
 
+    override fun isDust(): Boolean = false
+
     override fun toZero(): Money {
         throw IllegalStateException("Cannot Zero unknown value")
     }
@@ -38,6 +40,7 @@ class UnknownValue private constructor(
         }
     }
 
+    override fun abs(): Money = this
     override fun add(other: Money): Money = this
     override fun subtract(other: Money): Money = this
     override fun division(other: Money): Money = this
@@ -46,6 +49,7 @@ class UnknownValue private constructor(
         require(other.currencyCode == currencyCode)
         return 0
     }
+    override fun multiply(multiplier: Float): Money = this
 
     companion object {
         fun unknownValue(currency: Currency) =

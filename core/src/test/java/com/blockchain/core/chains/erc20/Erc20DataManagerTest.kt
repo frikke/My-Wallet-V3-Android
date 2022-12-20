@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
@@ -10,8 +9,10 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.data.DataResource
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -39,7 +40,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20DataManagerTest {
 
@@ -69,6 +69,7 @@ class Erc20DataManagerTest {
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
                     EthDataManager.ETH_CHAIN_ID,
+                    "",
                     ""
                 )
             )
@@ -426,7 +427,8 @@ class Erc20DataManagerTest {
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456"
+            colour = "#123456",
+            isErc20 = true
         ) {}
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
@@ -438,7 +440,8 @@ class Erc20DataManagerTest {
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456"
+            colour = "#123456",
+            isErc20 = true
         ) {}
     }
 }

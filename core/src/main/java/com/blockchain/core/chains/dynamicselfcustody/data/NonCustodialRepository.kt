@@ -14,10 +14,14 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTx
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.domain.wallet.CoinType
+import com.blockchain.domain.wallet.NetworkType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -32,58 +36,54 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class NonCustodialRepository(
-    private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
-    private val payloadDataManager: PayloadDataManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteConfig: RemoteConfig
+    private val remoteConfigService: RemoteConfigService,
+    private val networkConfigsFF: FeatureFlag,
+    private val coinTypeStore: CoinTypeStore
 ) : NonCustodialService {
 
-    private val supportedCoins: Single<Map<String, CoinConfiguration>>
+    private val supportedCoins: Single<Map<String, CoinType>>
         get() = getAllSupportedCoins()
 
-    private fun getAllSupportedCoins(): Single<Map<String, CoinConfiguration>> {
-        return remoteConfig.getRawJson(COIN_CONFIGURATIONS).map { json ->
-            jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
+    private fun getAllSupportedCoins(): Single<Map<String, CoinType>> {
+        return networkConfigsFF.enabled.flatMap { isEnabled ->
+            if (isEnabled) {
+                coinTypeStore.stream(FreshnessStrategy.Cached(false)).asSingle().map { coinTypes ->
+                    coinTypes.map { coinTypeDto ->
+                        coinTypeDto.derivations.map { derivationDto ->
+                            CoinType(
+                                network = coinTypeDto.type,
+                                type = derivationDto.coinType,
+                                purpose = derivationDto.purpose
+                            )
+                        }
+                    }
+                        .flatten()
+                        .associateBy { it.network.name }
+                }
+            } else {
+                remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
+                    jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
+                        .map {
+                            CoinType(
+                                network = NetworkType.valueOf(it.key),
+                                type = it.value.coinType,
+                                purpose = it.value.purpose
+                            )
+                        }.associateBy { it.network.name }
+                }
+            }
         }
     }
 
-    override suspend fun getCoinConfigurationFor(currency: Currency): CoinConfiguration? {
+    override suspend fun getCoinTypeFor(currency: Currency): CoinType? {
         return supportedCoins.await()[currency.networkTicker]
     }
-
-    override suspend fun authenticate(): Outcome<Exception, Boolean> =
-        dynamicSelfCustodyService.authenticate(
-            guid = payloadDataManager.guid,
-            sharedKey = getHashedString(payloadDataManager.sharedKey)
-        )
-            .map { it.success }
-
-    override suspend fun subscribe(
-        currency: String,
-        label: String,
-        addresses: List<String>
-    ): Outcome<Exception, Boolean> =
-        dynamicSelfCustodyService.subscribe(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
-            currency = currency,
-            accountName = label,
-            addresses = addresses
-        )
-            .map { it.success }
-
-    override suspend fun unsubscribe(currency: String): Outcome<Exception, Boolean> =
-        dynamicSelfCustodyService.unsubscribe(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
-            currency = currency
-        )
-            .map { it.success }
 
     override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<Outcome<Exception, List<String>>> {
         return subscriptionsStore.stream(refreshStrategy)
@@ -97,19 +97,35 @@ internal class NonCustodialRepository(
             }
     }
 
+    override suspend fun subscribe(
+        currency: String,
+        label: String,
+        addresses: List<String>
+    ): Outcome<Exception, Boolean> =
+        dynamicSelfCustodyService.subscribe(
+            currency = currency,
+            accountName = label,
+            addresses = addresses
+        )
+            .map { it.success }
+
+    override suspend fun unsubscribe(currency: String): Outcome<Exception, Boolean> =
+        dynamicSelfCustodyService.unsubscribe(
+            currency = currency
+        )
+            .map { it.success }
+
     override suspend fun getBalances(currencies: List<String>):
         Outcome<Exception, List<NonCustodialAccountBalance>> =
         dynamicSelfCustodyService.getBalances(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
             currencies = currencies,
             fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker
         ).map { balancesResponse ->
-            balancesResponse.balances.map { balanceResponse ->
+            balancesResponse.balances.mapNotNull { balanceResponse ->
                 NonCustodialAccountBalance(
                     networkTicker = balanceResponse.currency,
-                    amount = balanceResponse.balance.amount,
-                    pending = balanceResponse.pending.amount,
+                    amount = balanceResponse.balance?.amount ?: return@mapNotNull null,
+                    pending = balanceResponse.pending?.amount ?: return@mapNotNull null,
                     price = balanceResponse.price
                 )
             }
@@ -118,8 +134,6 @@ internal class NonCustodialRepository(
     override suspend fun getAddresses(currencies: List<String>):
         Outcome<Exception, List<NonCustodialDerivedAddress>> =
         dynamicSelfCustodyService.getAddresses(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
             currencies = currencies
         ).map { addressesResponse ->
             addressesResponse.addressEntries.map { addressEntry ->
@@ -141,8 +155,6 @@ internal class NonCustodialRepository(
         contractAddress: String?
     ): Outcome<Exception, List<NonCustodialTxHistoryItem>> =
         dynamicSelfCustodyService.getTransactionHistory(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
             currency = currency,
             contractAddress = contractAddress
         ).map { response ->
@@ -162,8 +174,6 @@ internal class NonCustodialRepository(
         feeCurrency: String
     ): Outcome<Exception, BuildTxResponse> =
         dynamicSelfCustodyService.buildTransaction(
-            getHashedString(payloadDataManager.guid),
-            getHashedString(payloadDataManager.sharedKey),
             currency,
             accountIndex,
             type,
@@ -184,8 +194,6 @@ internal class NonCustodialRepository(
         signatures: List<TransactionSignature>
     ): Outcome<Exception, PushTxResponse> =
         dynamicSelfCustodyService.pushTransaction(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
             currency = currency,
             rawTx = rawTx,
             signatures = signatures.map {

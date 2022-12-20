@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.model
 
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.store.Store
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,6 +20,7 @@ class DashboardModel(
     initialState: DashboardState,
     mainScheduler: Scheduler,
     private val interactor: DashboardActionInteractor,
+    private val balancesCache: Store<BalancesResponse>,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val appRatingService: AppRatingService,
@@ -46,7 +49,10 @@ class DashboardModel(
             is DashboardIntent.UpdateActiveAssets -> {
                 interactor.fetchAccounts(
                     intent.assetList,
-                    this
+                    this,
+                    intent.walletMode,
+                    intent.totalDisplayBalanceFFEnabled,
+                    intent.assetDisplayBalanceFFEnabled,
                 )
                 null
             }
@@ -54,17 +60,19 @@ class DashboardModel(
                 process(DashboardIntent.LoadFundsLocked)
                 interactor.refreshBalances(
                     model = this,
-                    activeAssets = intent.assetList.map { it.currency }.toSet()
+                    activeAssets = intent.assetList.map { it.currency }.toSet(),
+                    walletMode = intent.walletMode
                 )
             }
-            is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is DashboardIntent.BalanceUpdate -> {
-                process(DashboardIntent.RefreshPrices(previousState[intent.asset]))
+            is DashboardIntent.BalanceUpdateForAssets -> {
+                process(DashboardIntent.RefreshPrices(intent.models.map { previousState[it.currency] }))
                 null
             }
-            is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is DashboardIntent.AssetPriceWithDeltaUpdate ->
-                if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPriceHistory(this, intent.asset)
+            is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.assets)
+            is DashboardIntent.AssetsPriceWithDeltaUpdate ->
+                if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPricesHistory(
+                    this, intent.pricedAssets.keys
+                )
                 else null
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
             is DashboardIntent.CancelSimpleBuyOrder -> interactor.cancelSimpleBuyOrder(intent.orderId)
@@ -84,7 +92,21 @@ class DashboardModel(
                 interactor.dismissReferralSuccess()
             }
             is DashboardIntent.OnSwipeToRefresh -> {
+                balancesCache.markAsStale()
                 process(DashboardIntent.GetActiveAssets(true))
+                null
+            }
+            is DashboardIntent.LoadStakingFlag ->
+                interactor.getStakingFeatureFlag().subscribeBy(
+                    onSuccess = {
+                        process(DashboardIntent.UpdateStakingFlag(it))
+                    },
+                    onError = {
+                        process(DashboardIntent.UpdateStakingFlag(false))
+                    }
+                )
+            is DashboardIntent.DisposePricesAndBalances -> {
+                interactor.disposeBalances()
                 null
             }
             is DashboardIntent.ShowBankLinkingWithAlias,
@@ -93,7 +115,6 @@ class DashboardModel(
             is DashboardIntent.PriceHistoryUpdate,
             is DashboardIntent.ClearAnnouncement,
             is DashboardIntent.ShowAnnouncement,
-            is DashboardIntent.AssetPriceUpdate,
             is DashboardIntent.ShowFiatAssetDetails,
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,
@@ -114,7 +135,9 @@ class DashboardModel(
             DashboardIntent.NoActiveAssets,
             is DashboardIntent.BalanceFetching,
             is DashboardIntent.UpdateNavigationAction,
-            is DashboardIntent.UpdateCowboysViewState -> null
+            is DashboardIntent.UpdateCowboysViewState,
+            is DashboardIntent.BalanceUpdate,
+            is DashboardIntent.UpdateStakingFlag -> null
         }.exhaustive
     }
 

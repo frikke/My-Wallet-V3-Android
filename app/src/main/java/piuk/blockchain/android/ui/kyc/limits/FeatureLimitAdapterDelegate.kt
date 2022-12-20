@@ -182,7 +182,7 @@ class FeatureWithLimitItemViewHolder(
                     Feature.CARD_PURCHASES -> R.drawable.vector_card
                     Feature.FIAT_DEPOSIT -> R.drawable.ic_transfer_bank
                     Feature.FIAT_WITHDRAWAL -> R.drawable.ic_transfer_bank
-                    Feature.REWARDS -> R.drawable.ic_bottom_nav_rewards
+                    Feature.REWARDS -> R.drawable.ic_bottom_nav_earn
                 }
             )
 

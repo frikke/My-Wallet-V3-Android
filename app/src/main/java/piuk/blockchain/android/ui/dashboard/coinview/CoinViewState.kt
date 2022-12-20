@@ -65,6 +65,7 @@ sealed class AssetDisplayInfo(
     open val fiatValue: Money,
     open val actions: Set<StateAwareAction>,
     open val interestRate: Double,
+    open val stakingRate: Double,
     open val filter: AssetFilter
 ) {
     data class BrokerageDisplayInfo(
@@ -74,9 +75,10 @@ sealed class AssetDisplayInfo(
         override val fiatValue: Money,
         override val actions: Set<StateAwareAction>,
         override val interestRate: Double,
+        override val stakingRate: Double,
         override val filter: AssetFilter
     ) : AssetDisplayInfo(
-        account, amount, pendingAmount, fiatValue, actions, interestRate, filter
+        account, amount, pendingAmount, fiatValue, actions, interestRate, stakingRate, filter
     )
 
     data class DefiDisplayInfo(
@@ -86,7 +88,7 @@ sealed class AssetDisplayInfo(
         override val fiatValue: Money,
         override val actions: Set<StateAwareAction>,
     ) : AssetDisplayInfo(
-        account, amount, pendingAmount, fiatValue, actions, Double.NaN, AssetFilter.NonCustodial
+        account, amount, pendingAmount, fiatValue, actions, Double.NaN, Double.NaN, AssetFilter.NonCustodial
     )
 }
 

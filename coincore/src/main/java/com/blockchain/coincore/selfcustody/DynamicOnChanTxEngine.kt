@@ -20,6 +20,8 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -30,8 +32,6 @@ import java.math.BigInteger
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class DynamicOnChanTxEngine(
@@ -53,7 +53,7 @@ class DynamicOnChanTxEngine(
             .map { response ->
                 val estimatedFee = Money.fromMinor(sourceAsset, response.summary.absoluteFeeEstimate.toBigInteger())
                 pendingTx.copy(
-                    confirmations = listOfNotNull(
+                    txConfirmations = listOfNotNull(
                         TxConfirmationValue.From(sourceAccount, sourceAsset),
                         TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
                         TxConfirmationValue.CompoundNetworkFee(
@@ -96,7 +96,7 @@ class DynamicOnChanTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return sourceAccount.balance.firstOrError().map { balance ->
+        return sourceAccount.balanceRx.firstOrError().map { balance ->
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
@@ -206,7 +206,7 @@ class DynamicOnChanTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balance.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(

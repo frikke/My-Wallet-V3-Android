@@ -1,7 +1,6 @@
 package com.blockchain.core.price.impl
 
 import app.cash.turbine.test
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -12,6 +11,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

@@ -9,7 +9,9 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.FiatCurrency
 import java.io.Serializable
 import org.koin.android.ext.android.inject
@@ -17,21 +19,20 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
 import piuk.blockchain.android.simplebuy.BankTransferViewed
 import piuk.blockchain.android.simplebuy.BuyMethodOptionsViewed
+import piuk.blockchain.android.simplebuy.BuyPaymentAddNewClickedEvent
 import piuk.blockchain.android.simplebuy.paymentMethodsShown
 import piuk.blockchain.android.simplebuy.toAnalyticsString
 import piuk.blockchain.android.simplebuy.toPaymentTypeAnalyticsString
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymentMethodChooserBinding>() {
 
     interface Host : SlidingModalBottomDialog.Host {
         fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
         fun showAvailableToAddPaymentMethods()
-        fun onCardTagClicked(cardInfo: CardRejectionState)
+        fun onRejectableCardSelected(cardInfo: CardRejectionState)
     }
 
     private val paymentMethods: List<PaymentMethod> by unsafeLazy {
@@ -67,7 +68,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                     adapterItems = paymentMethods.map { it.toPaymentMethodItem() },
                     assetResources = assetResources,
                     canUseCreditCards = canUseCreditCards,
-                    onCardTagClicked = ::onCardTagClicked
+                    onRejectableCardSelected = ::onRejectableCardSelected
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -79,6 +80,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             if (isShowingPaymentMethods) getString(R.string.pay_with_my_dotted) else getString(R.string.payment_methods)
         binding.addPaymentMethod.setOnClickListener {
             (host as? Host)?.showAvailableToAddPaymentMethods()
+            analytics.logEvent(BuyPaymentAddNewClickedEvent)
             dismiss()
         }
 
@@ -92,8 +94,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
     }
 
-    private fun onCardTagClicked(cardInfo: CardRejectionState) {
-        (host as? Host)?.onCardTagClicked(cardInfo)
+    private fun onRejectableCardSelected(cardInfo: CardRejectionState) {
+        (host as? Host)?.onRejectableCardSelected(cardInfo)
         dismiss()
     }
 
@@ -112,6 +114,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         private const val CAN_ADD_NEW_PAYMENT = "CAN_ADD_NEW_PAYMENT"
         private const val DISPLAY_MODE = "DISPLAY_MODE"
         private const val CAN_USE_CREDIT_CARDS = "CAN_USE_CREDIT_CARDS"
+        private const val CARD_REJECTION_FF_ENABLED = "CARD_REJECTION_FF_ENABLED"
 
         fun newInstance(
             paymentMethods: List<PaymentMethod>,
@@ -141,11 +144,13 @@ private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
     assetResources: AssetResources,
     canUseCreditCards: Boolean,
-    onCardTagClicked: (cardInfo: CardRejectionState) -> Unit
+    onRejectableCardSelected: (cardInfo: CardRejectionState) -> Unit
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
-        val cardPaymentDelegate = CardPaymentDelegate(onCardTagClicked)
+        val cardPaymentDelegate = CardPaymentDelegate(
+            onRejectableCardSelected = onRejectableCardSelected
+        )
         val bankPaymentDelegate = BankPaymentDelegate()
         val depositTooltipDelegate = DepositTooltipDelegate()
         val addCardPaymentDelegate = AddCardDelegate(canUseCreditCards)

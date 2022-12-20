@@ -13,6 +13,7 @@ import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
+import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -23,7 +24,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 
 class WalletConnectSignEngineTest : CoincoreTestBase() {
 
@@ -162,7 +162,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
             )
         ).test()
             .assertValue {
-                it.confirmations == listOf(
+                it.txConfirmations == listOf(
                     TxConfirmationValue.WalletConnectHeader(
                         dAppName = "dAppName",
                         dAppLogo = "dAppLogoUrl",

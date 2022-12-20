@@ -6,6 +6,7 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
@@ -14,9 +15,12 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -28,8 +32,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class L1EvmOnChainTxEngine(
@@ -73,7 +75,7 @@ class L1EvmOnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
@@ -97,12 +99,12 @@ class L1EvmOnChainTxEngine(
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
         feeOptions().map { feeOptions ->
-            val gasLimitContract = feeOptions.gasLimitContract
+            val gasLimit = if (txTarget.isContract) { feeOptions.gasLimitContract } else { feeOptions.gasLimit }
             mapOf(
                 FeeLevel.None to CryptoValue.zero(sourceAssetInfo),
-                FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, feeOptions.regularFee),
-                FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee),
-                FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee)
+                FeeLevel.Regular to getValueForFeeLevel(gasLimit, feeOptions.regularFee),
+                FeeLevel.Priority to getValueForFeeLevel(gasLimit, feeOptions.priorityFee),
+                FeeLevel.Custom to getValueForFeeLevel(gasLimit, feeOptions.priorityFee)
             )
         }
 
@@ -131,14 +133,18 @@ class L1EvmOnChainTxEngine(
             ?: sourceAssetInfo.networkTicker
 
     private fun feeOptions(): Single<FeeOptions> =
-        feeManager.getEvmFeeOptions(evmNetworkTicker)
-            .singleOrError()
+        if (sourceAssetInfo.networkTicker == CryptoCurrency.MATIC_ON_POLYGON) {
+            feeManager.getEvmFeeOptions(evmNetworkTicker).singleOrError()
+        } else {
+            // Once MATIC is migrated onto the new endpoint, remember that the suffix needs to be removed from its ticker
+            erc20DataManager.getFeesForEvmTransaction(evmNetworkTicker)
+        }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             absoluteFees()
         ) { balance, feesForLevels ->
             val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)
@@ -197,7 +203,7 @@ class L1EvmOnChainTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balance.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(
@@ -210,7 +216,7 @@ class L1EvmOnChainTxEngine(
 
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balance.map { it.total }.firstOrError(),
+            sourceAccount.balanceRx.map { it.total }.firstOrError(),
             absoluteFees()
         ) { balance, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)
@@ -290,6 +296,9 @@ class L1EvmOnChainTxEngine(
         get() = BigInteger.valueOf(
             gasLimitContract
         )
+
+    private val TransactionTarget.isContract: Boolean
+        get() = (this as? L1EvmAddress)?.isContract ?: false
 
     companion object {
         private val AVAILABLE_FEE_LEVELS =

@@ -20,6 +20,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -27,13 +28,18 @@ import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.presentation.checkValidUrlAndOpen
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -45,6 +51,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
@@ -53,7 +61,6 @@ import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -65,11 +72,6 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
-import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.util.checkValidUrlAndOpen
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class SimpleBuyActivity :
     BlockchainActivity(),
@@ -93,6 +95,7 @@ class SimpleBuyActivity :
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private var primaryErrorCtaAction = {}
     private var secondaryErrorCtaAction = {}
@@ -112,6 +115,10 @@ class SimpleBuyActivity :
 
     private val preselectedAmount: String? by unsafeLazy {
         intent.getStringExtra(PRESELECTED_AMOUNT)
+    }
+
+    private val preselectedFiatTicker: String? by unsafeLazy {
+        intent.getStringExtra(PRESELECTED_FIAT_TICKER)
     }
 
     private val startedFromKycResume: Boolean by unsafeLazy {
@@ -155,6 +162,7 @@ class SimpleBuyActivity :
             toolbarTitle = getString(R.string.common_buy),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        analytics.logEvent(BuyAssetScreenViewedEvent)
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
@@ -169,7 +177,7 @@ class SimpleBuyActivity :
                     )
                 }
             }
-            analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
+            analytics.logEvent(BuySellViewedEvent(BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
         }
     }
@@ -186,8 +194,7 @@ class SimpleBuyActivity :
                 if (!isUpdatingCurrency) subscribeForNavigation(true)
             }
             is ErrorSlidingBottomDialog -> {
-                // do nothing for now
-                Timber.e("----- ErrorSlidingBottomDialog sheet closed")
+                // do nothing
             }
             else -> subscribeForNavigation(true)
         }
@@ -207,7 +214,10 @@ class SimpleBuyActivity :
                     is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
                     is BuyNavigation.BlockBuy -> blockBuy(it.reason)
-                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
+                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(
+                        addToBackStack = false,
+                        isPaymentAuthorised = startedFromApprovalDeepLink
+                    )
                     BuyNavigation.CurrencyNotAvailable -> finish()
                 }.exhaustive
             }
@@ -232,6 +242,7 @@ class SimpleBuyActivity :
                     preselectedAsset = screenWithCurrency.cryptoCurrency,
                     preselectedPaymentMethodId = preselectedPaymentMethodId,
                     preselectedAmount = preselectedAmount,
+                    preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
                     launchPaymentMethodSelection = launchSelectNewPaymentMethod
                 )
@@ -244,6 +255,9 @@ class SimpleBuyActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        fraudService.endFlows(
+            FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.CARD_DEPOSIT, FraudFlow.MOBILE_WALLET_DEPOSIT
+        )
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
         payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
@@ -273,7 +287,9 @@ class SimpleBuyActivity :
         preselectedAmount: String?,
         launchLinkCard: Boolean,
         launchPaymentMethodSelection: Boolean,
+        preselectedFiatTicker: String?
     ) {
+        analytics.logEvent(BuyAssetSelectedEvent(type = preselectedAsset.networkTicker))
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
@@ -282,6 +298,7 @@ class SimpleBuyActivity :
                     asset = preselectedAsset,
                     preselectedMethodId = preselectedPaymentMethodId,
                     preselectedAmount = preselectedAmount,
+                    preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
                     launchPaymentMethodSelection = launchSelectNewPaymentMethod
                 ),
@@ -346,6 +363,9 @@ class SimpleBuyActivity :
                     )
                     .commitAllowingStateLoss()
             }
+            is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
+                // do nothing
+            }
         }
     }
 
@@ -361,13 +381,18 @@ class SimpleBuyActivity :
     override fun goToPaymentScreen(
         addToBackStack: Boolean,
         isPaymentAuthorised: Boolean,
-        showRecurringBuySuggestion: Boolean
+        showRecurringBuySuggestion: Boolean,
+        recurringBuyFrequencyRemote: RecurringBuyFrequency?
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised, showRecurringBuySuggestion),
+                SimpleBuyPaymentFragment.newInstance(
+                    isFromDeepLink = isPaymentAuthorised,
+                    showRecurringBuySuggestion = showRecurringBuySuggestion,
+                    recurringBuyFrequency = recurringBuyFrequencyRemote
+                ),
                 SimpleBuyPaymentFragment::class.simpleName
             )
             .apply {
@@ -607,6 +632,7 @@ class SimpleBuyActivity :
         private const val ASSET_KEY = "crypto_currency_key"
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val PRESELECTED_AMOUNT = "preselected_amount_key"
+        private const val PRESELECTED_FIAT_TICKER = "preselected_fiat_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
         private const val LAUNCH_LINK_CARD = "launch_link_card"
         private const val LAUNCH_SELECT_PAYMENT_METHOD = "launch_select_new_method"
@@ -618,6 +644,7 @@ class SimpleBuyActivity :
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             preselectedAmount: String? = null,
+            preselectedFiatTicker: String? = null,
             launchFromApprovalDeepLink: Boolean = false,
             launchLinkCard: Boolean = false,
             launchNewPaymentMethodSelection: Boolean = false,
@@ -627,6 +654,7 @@ class SimpleBuyActivity :
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(PRESELECTED_AMOUNT, preselectedAmount)
+            putExtra(PRESELECTED_FIAT_TICKER, preselectedFiatTicker)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
             putExtra(LAUNCH_LINK_CARD, launchLinkCard)
             putExtra(LAUNCH_SELECT_PAYMENT_METHOD, launchNewPaymentMethodSelection)

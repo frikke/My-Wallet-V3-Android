@@ -12,16 +12,19 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.BillingAddress
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -33,6 +36,7 @@ class BillingAddressFragment :
 
     private var usSelected = false
     private val userService: UserService by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -90,6 +94,7 @@ class BillingAddressFragment :
                 })
 
             btnNext.setOnClickListener {
+                fraudService.endFlow(FraudFlow.CARD_LINK)
                 model.process(
                     CardIntent.UpdateBillingAddress(
                         BillingAddress(

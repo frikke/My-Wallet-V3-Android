@@ -18,11 +18,9 @@ import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 internal class Erc20L2StoreRepository(
     private val assetCatalogue: AssetCatalogue,
-    private val ethDataManager: EthDataManager,
     private val erc20L2DataSource: Erc20L2DataSource
 ) : Erc20L2StoreService {
 
@@ -33,7 +31,9 @@ internal class Erc20L2StoreRepository(
         return erc20L2DataSource
             .streamData(refreshStrategy)
             .mapData {
-                it.addresses.firstOrNull { it.address == ethDataManager.accountAddress }
+                // It's ok to take first here, by the time we support multiple ETH addresses we'll be using
+                // unified balances anyway.
+                it.addresses.firstOrNull()
                     ?.balances?.mapNotNull { balance ->
                         val asset = if (balance.contractAddress == NonCustodialEvmService.NATIVE_IDENTIFIER) {
                             assetCatalogue.assetInfoFromNetworkTicker(networkTicker)

@@ -3,11 +3,14 @@ package info.blockchain.wallet.payload
 import com.blockchain.AppVersion
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.Device
 import info.blockchain.wallet.ImportedAddressHelper.getImportedAddress
 import info.blockchain.wallet.WalletApiMockedResponseTest
+import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
@@ -17,24 +20,59 @@ import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
-import java.util.LinkedList
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.bitcoinj.core.Base58
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.DeterministicKey
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import retrofit2.HttpException
+import retrofit2.Response
 
 class PayloadManagerTest : WalletApiMockedResponseTest() {
     private val bitcoinApi = Mockito.mock(
         NonCustodialBitcoinService::class.java
     )
+    private val walletApi: WalletApi = mock()
+
     private lateinit var payloadManager: PayloadManager
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+            )
+        ).thenReturn(Completable.complete())
+
+        whenever(
+            walletApi.updateWallet(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+            )
+        ).thenReturn(Completable.complete())
+
         payloadManager = PayloadManager(
             walletApi,
             bitcoinApi,
@@ -55,17 +93,21 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test
     fun create_v4() {
-        val responseList = LinkedList<String>()
-        responseList.add("MyWallet save successful.")
-        mockInterceptor!!.setResponseStringList(responseList)
         mockEmptyBalance(bitcoinApi)
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(),
+                anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "SomePassword",
             "CAPTCHA"
-        )
-        val walletBody = payloadManager.payload!!
+        ).test()
+        val walletBody = payloadManager.payload
         Assert.assertEquals(36, walletBody.guid.length.toLong()) // GUIDs are 36 in length
         Assert.assertEquals("My HDWallet", walletBody.walletBody!!.accounts[0].label)
         Assert.assertEquals(1, walletBody.walletBody!!.accounts.size.toLong())
@@ -76,24 +118,25 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         Assert.assertEquals(10000, walletBody.options.feePerKb as Long)
     }
 
-    @Test(expected = ServerConnectionException::class) @Throws(Exception::class)
+    @Test
     fun create_ServerConnectionException() {
-        mockInterceptor!!.setResponseString("Save failed.")
-        mockInterceptor!!.setResponseCode(500)
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.error(HttpException(Response.error<String>(500, ResponseBody.create(null, "")))))
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "SomePassword",
             "CAPTCHA"
-        )
+        ).test().assertError(ServerConnectionException::class.java)
     }
 
     @Test
     fun recoverFromMnemonic_v4() {
         val mnemonic = "all all all all all all all all all all all all"
-        val responseList = LinkedList<String>()
-        responseList.add("HDWallet successfully synced with server")
-        mockInterceptor!!.setResponseStringList(responseList)
 
         // Responses for checking how many accounts to recover
         val balance1 = loadResourceContent("balance/wallet_all_balance_1.txt")
@@ -116,14 +159,17 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             .thenReturn(balanceResponse3)
             .thenReturn(balanceResponse4)
             .thenReturn(balanceResponse5)
+
         payloadManager.recoverFromMnemonic(
             mnemonic,
             "My HDWallet",
             "name@email.com",
             "SomePassword"
-        )
+        ).test()
+
         val walletBody = payloadManager
             .payload
+
         Assert.assertEquals(36, walletBody.guid.length.toLong()) // GUIDs are 36 in length
         Assert.assertEquals("My HDWallet", walletBody.walletBody!!.accounts[0].label)
         Assert.assertEquals("0660cc198330660cc198330660cc1983", walletBody.walletBody!!.seedHex)
@@ -133,18 +179,11 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         Assert.assertEquals(10000, walletBody.options.feePerKb as Long)
     }
 
-    @Test(expected = ServerConnectionException::class) @Throws(Exception::class)
+    @Test
     fun recoverFromMnemonic_ServerConnectionException_v3() {
         val mnemonic = "all all all all all all all all all all all all"
-        val responseList = LinkedList<String>()
-        responseList.add("Save failed")
-        mockInterceptor!!.setResponseStringList(responseList)
 
         // checking if xpubs has txs succeeds but then saving fails
-        val codes = LinkedList<Int>()
-        codes.add(500)
-        mockInterceptor!!.setResponseCodeList(codes)
-
         // Responses for checking how many accounts to recover
         val balance1 = loadResourceContent("balance/wallet_all_balance_1.txt")
         val balanceResponse1 = makeBalanceResponse(balance1)
@@ -166,190 +205,265 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             .thenReturn(balanceResponse3)
             .thenReturn(balanceResponse4)
             .thenReturn(balanceResponse5)
-        payloadManager.recoverFromMnemonic(
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+            )
+        ).thenReturn(
+            Completable.error(HttpException(Response.error<String>(500, ResponseBody.Companion.create(null, ""))))
+        )
+
+        val testRecoverPayload = payloadManager.recoverFromMnemonic(
             mnemonic,
             "My HDWallet",
             "name@email.com",
             "SomePassword"
-        )
-        val walletBody = payloadManager
-            .payload
+        ).test().await()
 
-        Assert.assertEquals(36, walletBody!!.guid.length.toLong()) // GUIDs are 36 in length
-        Assert.assertEquals("My HDWallet", walletBody.walletBody!!.accounts[0].label)
-        Assert.assertEquals("0660cc198330660cc198330660cc1983", walletBody.walletBody!!.seedHex)
-        Assert.assertEquals(10, walletBody.walletBody!!.accounts.size.toLong())
-        Assert.assertEquals(5000, walletBody.options.pbkdf2Iterations)
-        Assert.assertEquals(600000, walletBody.options.logoutTime)
-        Assert.assertEquals(10000, walletBody.options.feePerKb as Long)
+        testRecoverPayload.assertError(
+            ServerConnectionException::class.java
+        )
     }
 
-    @Test(expected = UnsupportedVersionException::class)
+    @Test
     fun initializeAndDecrypt_unsupported_version_v4() {
         val walletBase = loadResourceContent("wallet_v5_unsupported.txt")
-        mockInterceptor!!.setResponseString(walletBase)
+        whenever(
+            walletApi.fetchWalletData(
+                "any_guid", "any_shared_key", "sid"
+            )
+        ).thenReturn(
+            Single.just(
+                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            )
+        )
         payloadManager.initializeAndDecrypt(
             "any_shared_key",
             "any_guid",
-            "SomeTestPassword"
-        )
+            "SomeTestPassword",
+            "sid"
+        ).test().assertError(UnsupportedVersionException::class.java)
     }
 
     @Test
     fun initializeAndDecrypt_v4() {
         val walletBase = loadResourceContent("wallet_v4_encrypted.txt")
-        val responseList = LinkedList<String>()
-        responseList.add(walletBase)
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
+        whenever(
+            walletApi.fetchWalletData(
+                "any", "any", "sid"
+            )
+        ).thenReturn(
+            Single.just(
+                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            )
+        )
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "blockchain"
-        )
+            "blockchain",
+            "sid"
+        ).test().assertComplete()
     }
 
     @Test
     fun addLegacyAddress_v3() {
-        var responseList = LinkedList<String?>()
-        responseList.add("MyWallet save successful.")
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
+        whenever(
+            walletApi.updateWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "MyTestWallet",
             "CAPTCHA"
-        )
-        Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size)
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addImportedAddress(getImportedAddress())
-        Assert.assertEquals(1, payloadManager.payload!!.importedAddressList.size)
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addImportedAddress(getImportedAddress())
-        Assert.assertEquals(2, payloadManager.payload!!.importedAddressList.size)
+        ).test()
+        Assert.assertEquals(0, payloadManager.payload.importedAddressList.size)
+        payloadManager.addImportedAddress(getImportedAddress()).test()
+        Assert.assertEquals(1, payloadManager.payload.importedAddressList.size)
+        payloadManager.addImportedAddress(getImportedAddress()).test()
+        Assert.assertEquals(2, payloadManager.payload.importedAddressList.size)
     }
 
     @Test
     fun setKeyForLegacyAddress_v3() {
-        var responseList = LinkedList<String?>()
-        responseList.add("MyWallet save successful.")
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+        whenever(
+            walletApi.updateWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "MyTestWallet",
             "CAPTCHA"
-        )
-        Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size.toLong())
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addImportedAddress(getImportedAddress())
-        Assert.assertEquals(1, payloadManager.payload!!.importedAddressList.size)
+        ).test()
+        Assert.assertEquals(0, payloadManager.payload.importedAddressList.size.toLong())
+        payloadManager.addImportedAddress(getImportedAddress()).test()
+        Assert.assertEquals(1, payloadManager.payload.importedAddressList.size)
 
-        val importedAddressBody = payloadManager.payload!!.importedAddressList[0]
+        val importedAddressBody = payloadManager.payload.importedAddressList[0]
 
         val signingKey = SigningKeyImpl(
             DeterministicKey.fromPrivate(Base58.decode(importedAddressBody.privateKey))
         )
-
-        mockInterceptor!!.setResponseString("MyWallet save successful.")
-        payloadManager.setKeyForImportedAddress(signingKey, null)
-
+        payloadManager.setKeyForImportedAddress(signingKey, null).test()
         Assert.assertEquals(importedAddressBody.privateKey, "tb1TutW9CCZUqsXQ9nhvatCW51sauRJapY5YpW3zddF")
     }
 
-    @Test(expected = InvalidCredentialsException::class)
+    @Test
     fun initializeAndDecrypt_invalidGuid() {
         val walletBase = loadResourceContent("invalid_guid.txt")
-        mockInterceptor!!.setResponseString(walletBase)
-        mockInterceptor!!.setResponseCode(500)
+        whenever(walletApi.fetchWalletData("any", "any", "sid")).thenReturn(
+            Single.error(
+                HttpException(
+                    Response.error<String>(500, walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+                )
+            )
+        )
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "SomeTestPassword"
-        )
+            "SomeTestPassword",
+            "sid"
+        ).test().assertError(InvalidCredentialsException::class.java)
     }
 
-    @Test @Throws(Exception::class) fun setKeyForLegacyAddress_NoSuchAddressException() {
-        var responseList = LinkedList<String?>()
-        responseList.add("MyWallet save successful.")
+    @Test
+    fun setKeyForLegacyAddress_NoSuchAddressException() {
+
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+        whenever(
+            walletApi.updateWallet(
+                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "MyTestWallet",
             "CAPTCHA"
-        )
-        Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size.toLong())
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addImportedAddress(getImportedAddress())
-        Assert.assertEquals(1, payloadManager.payload!!.importedAddressList.size.toLong())
-        val (address, privateKey) = payloadManager.payload!!.importedAddressList[0]
+        ).test()
+        Assert.assertEquals(0, payloadManager.payload.importedAddressList.size.toLong())
+        payloadManager.addImportedAddress(getImportedAddress()).test()
+        Assert.assertEquals(1, payloadManager.payload.importedAddressList.size.toLong())
+        val (address, privateKey) = payloadManager.payload.importedAddressList[0]
 
         // Try non matching ECKey
         val key: SigningKey = SigningKeyImpl(ECKey())
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
         val newlyAdded = payloadManager
-            .setKeyForImportedAddress(key, null)
-
+            .setKeyForImportedAddress(key, null).test()
         // Ensure new address is created if no match found
-        Assert.assertNotNull(newlyAdded)
-        Assert.assertNotNull(newlyAdded.privateKey)
-        Assert.assertNotNull(newlyAdded.address)
-        Assert.assertNotEquals(privateKey, newlyAdded.privateKey)
-        Assert.assertNotEquals(address, newlyAdded.address)
+        newlyAdded.assertValue {
+            it.privateKey != null && it.privateKey != privateKey && it.address != address
+        }
     }
 
     @Test
     fun addAccount_v4() {
-        var responseList = LinkedList<String>()
-        responseList.add("MyWallet save successful.")
+
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+            )
+        ).thenReturn(
+            Completable.complete()
+        )
+
+        whenever(
+            walletApi.updateWallet(
+                any(),
+                any(),
+                any(),
+                anyString(),
+                any(),
+                any(),
+                any(),
+            )
+        ).thenReturn(
+            Completable.complete()
+        )
+
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
+
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "MyTestWallet",
             "CAPTCHA"
-        )
+        ).test()
+
         Assert.assertEquals(1, payloadManager.payload!!.walletBody!!.accounts.size.toLong())
-        responseList.add("MyWallet save successful")
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addAccount("Some Label", null)
+        payloadManager.addAccount("Some Label", null).test()
         Assert.assertEquals(2, payloadManager.payload!!.walletBody!!.accounts.size.toLong())
-        responseList = LinkedList()
-        responseList.add("MyWallet save successful")
-        mockInterceptor!!.setResponseStringList(responseList)
-        payloadManager.addAccount("Some Label", null)
+        payloadManager.addAccount("Some Label", null).test().await()
         Assert.assertEquals(3, payloadManager.payload!!.walletBody!!.accounts.size.toLong())
     }
 
     @Test
     fun save_v4() {
-        val responseList = LinkedList<String>()
-        responseList.add("MyWallet save successful.")
+
         mockEmptyBalance(bitcoinApi)
-        mockInterceptor!!.setResponseStringList(responseList)
+        whenever(
+            walletApi.insertWallet(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+            )
+        ).thenReturn(
+            Completable.complete()
+        )
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
             "SomePassword",
             "CAPTCHA"
-        )
-        mockInterceptor!!.setResponseString("MyWallet save successful.")
+        ).test().assertComplete()
     }
 
     @Test fun upgradeV2PayloadToV3() {
@@ -371,9 +485,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         // Increment Change and check
 
         val walletBase = loadResourceContent("wallet_v3_5.txt")
-        val responseList = LinkedList<String>()
-        responseList.add(walletBase)
-        mockInterceptor!!.setResponseStringList(responseList)
+
         mockEmptyBalance(bitcoinApi)
         val multi1 = loadResourceContent("multiaddress/wallet_v3_5_m1.txt")
         val multiResponse1 = makeMultiAddressResponse(multi1)
@@ -397,15 +509,27 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             .thenReturn(multiResponse2)
             .thenReturn(multiResponse3)
             .thenReturn(multiResponse4)
+
+        whenever(
+            walletApi.fetchWalletData(
+                "4750d125-5344-4b79-9cf9-6e3c97bc9523", "06f6fa9c-d0fe-403d-815a-111ee26888e2", "sid"
+            )
+        ).thenReturn(
+            Single.just(
+                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            )
+        )
+
         payloadManager.initializeAndDecrypt(
             "06f6fa9c-d0fe-403d-815a-111ee26888e2",
             "4750d125-5344-4b79-9cf9-6e3c97bc9523",
-            "MyTestWallet"
-        )
+            "MyTestWallet",
+            "sid"
+        ).test().assertComplete()
         val wallet = payloadManager.payload
 
         // Reserve an address to ensure it gets skipped
-        val account = wallet!!.walletBody!!.accounts[0].addAddressLabel(1, "Reserved")
+        val account = wallet.walletBody!!.accounts[0].addAddressLabel(1, "Reserved")
 
         // set up indexes first
         payloadManager.getAccountTransactions(
@@ -433,9 +557,15 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test fun balance() {
         val walletBase = loadResourceContent("wallet_v3_6.txt")
-        val responseList = LinkedList<String>()
-        responseList.add(walletBase)
-        mockInterceptor!!.setResponseStringList(responseList)
+        whenever(
+            walletApi.fetchWalletData(
+                "any", "any", "sid"
+            )
+        ).thenReturn(
+            Single.just(
+                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            )
+        )
 
         // Bitcoin
         val btcBalance = loadResourceContent("balance/wallet_v3_6_balance.txt")
@@ -463,8 +593,9 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "MyTestWallet"
-        )
+            "MyTestWallet",
+            "sid"
+        ).test().assertComplete()
         payloadManager.updateAllBalances()
 
         // 'All' wallet balance and transactions
@@ -535,9 +666,17 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         // Savings account
 
         val walletBase = loadResourceContent("wallet_v3_6.txt")
-        val responseList = LinkedList<String>()
-        responseList.add(walletBase)
-        mockInterceptor!!.setResponseStringList(responseList)
+        whenever(
+            walletApi.fetchWalletData(
+                "5350e5d5-bd65-456f-b150-e6cc089f0b26",
+                "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
+                "sid"
+            )
+        ).thenReturn(
+            Single.just(
+                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            )
+        )
 
         // Bitcoin
         val btcBalance = loadResourceContent("balance/wallet_v3_6_balance.txt")
@@ -570,8 +709,9 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.initializeAndDecrypt(
             "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
             "5350e5d5-bd65-456f-b150-e6cc089f0b26",
-            "MyTestWallet"
-        )
+            "MyTestWallet",
+            "sid"
+        ).test().assertComplete()
 
         // Account 1
         val first = XPubs(

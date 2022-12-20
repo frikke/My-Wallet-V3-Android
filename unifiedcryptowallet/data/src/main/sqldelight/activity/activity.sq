@@ -1,0 +1,50 @@
+CREATE TABLE activityItem(
+    tx_id TEXT NOT NULL,
+    network TEXT NOT NULL,
+    pubkey TEXT NOT NULL,
+    external_url TEXT NOT NULL,
+    summary_view TEXT NOT NULL,
+    status TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    last_fetched INTEGER NOT NULL,
+    PRIMARY KEY (tx_id)
+);
+
+selectAllActivity:
+SELECT *
+FROM activityItem;
+
+selectByTxId:
+SELECT *
+FROM activityItem
+WHERE tx_id = ?;
+
+selectByNetwork:
+SELECT *
+FROM activityItem
+WHERE network = ?;
+
+selectByPubKey:
+SELECT *
+FROM activityItem
+WHERE pubkey = ?;
+
+selectByStatus:
+SELECT *
+FROM activityItem
+WHERE status = ?;
+
+insert:
+INSERT OR REPLACE INTO activityItem(tx_id, network, pubkey, external_url, summary_view, status, timestamp, last_fetched)
+VALUES ?;
+
+markAsStale:
+UPDATE activityItem SET last_fetched = 0
+WHERE tx_id = ?;
+
+markStoreAsStale:
+UPDATE activityItem SET last_fetched = 0
+WHERE tx_id = ?;
+
+deleteAll:
+DELETE FROM activityItem;

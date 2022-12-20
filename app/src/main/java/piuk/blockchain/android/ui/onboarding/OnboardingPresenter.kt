@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.onboarding
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.settings.SettingsDataManager
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 internal class OnboardingPresenter constructor(
     private val biometricsController: BiometricsController,

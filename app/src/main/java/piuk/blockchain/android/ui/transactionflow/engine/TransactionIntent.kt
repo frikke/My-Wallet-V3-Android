@@ -12,13 +12,14 @@ import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
@@ -26,8 +27,10 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.util.Stack
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import retrofit2.HttpException
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
@@ -132,10 +135,12 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         val transactionTarget: TransactionTarget,
         val action: AssetAction,
         private val passwordRequired: Boolean,
-        val eligibility: FeatureAccess? = null
+        val eligibility: FeatureAccess? = null,
+        private val quickFillRoundingData: List<QuickFillRoundingData> = emptyList()
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
             currentStep = selectStep(passwordRequired, transactionTarget),
+            quickFillRoundingData = quickFillRoundingData
         ).updateBackstack(oldState)
 
         private fun selectStep(
@@ -148,6 +153,22 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
                 else -> TransactionStep.ENTER_AMOUNT
             }
+    }
+
+    data class GetNetworkName(
+        val fromAccount: SingleAccount
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class SetNetworkName(
+        private val networkName: String
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState {
+            return oldState.copy(
+                networkName = networkName
+            )
+        }
     }
 
     object ClearBackStack : TransactionIntent() {
@@ -203,7 +224,9 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 availableTargets = targets,
-                currentStep = selectStep(oldState.passwordRequired)
+                selectedTarget = NullAddress,
+                currentStep = selectStep(oldState.passwordRequired),
+                isLoading = false
             ).updateBackstack(oldState)
 
         private fun selectStep(passwordRequired: Boolean): TransactionStep =
@@ -217,7 +240,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 availableSources = accounts,
-                currentStep = TransactionStep.SELECT_SOURCE
+                currentStep = TransactionStep.SELECT_SOURCE,
+                isLoading = false
             ).updateBackstack(oldState)
     }
 
@@ -279,6 +303,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(
                 errorState = TransactionErrorState.NONE,
                 currentStep = TransactionStep.SELECT_TARGET_ACCOUNT,
+                nextEnabled = false
+            ).updateBackstack(oldState)
+    }
+
+    object ShowSourceSelection : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                errorState = TransactionErrorState.NONE,
+                currentStep = TransactionStep.SELECT_SOURCE,
                 nextEnabled = false
             ).updateBackstack(oldState)
     }
@@ -350,6 +383,17 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 nextEnabled = false,
                 setMax = false
             ).updateBackstack(oldState)
+    }
+
+    class UpdatePrefillAmount(
+        private val amounts: PrefillAmounts
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(amountsToPrefill = amounts)
+    }
+
+    object ResetPrefillAmount : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(amountsToPrefill = null)
     }
 
     object UseMaxSpendable : TransactionIntent() {
@@ -630,6 +674,77 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             shouldShowSendToDomainBanner = shouldShowSendToDomain
         )
+    }
+
+    class FilterTradingTargets(val showTrading: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState.copy(
+            selectedTarget = NullAddress,
+            nextEnabled = false,
+            isLoading = true
+        )
+
+        override fun isValidFor(oldState: TransactionState): Boolean {
+            return if (showTrading) {
+                oldState.availableTargets.none { it is TradingAccount }
+            } else {
+                oldState.availableTargets.any { it is TradingAccount }
+            }
+        }
+    }
+
+    class UpdateTradingAccountsFilterState(private val canFilterTradingAccounts: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                canFilterOutTradingAccounts = canFilterTradingAccounts
+            )
+    }
+
+    class UpdatePrivateKeyAccountsFilterState(private val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+    }
+
+    class UpdatePrivateKeyFilter(val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+
+        override fun isValidFor(oldState: TransactionState): Boolean =
+            isPkwAccountFilterActive != oldState.isPkwAccountFilterActive
+    }
+
+    object LoadDepositTerms : TransactionIntent() {
+
+        override fun isValidFor(oldState: TransactionState): Boolean = oldState.depositTerms == null
+
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class DepositTermsReceived(private val depositTerms: DepositTerms) : TransactionIntent() {
+
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                depositTerms = depositTerms
+            )
+    }
+
+    object LoadImprovedPaymentUxFeatureFlag : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    data class ImprovedPaymentUxFeatureFlagLoaded(private val isLoadImprovedPaymentUxFeatureFlagEnabled: Boolean) :
+        TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                ffImprovedPaymentUxEnabled = isLoadImprovedPaymentUxFeatureFlagEnabled
+            )
+    }
+
+    class UpdateStakingWithdrawalSeen(val networkTicker: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 }
 

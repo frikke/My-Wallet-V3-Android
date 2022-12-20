@@ -76,6 +76,7 @@ class AddressVerificationModel(
                         prefilledAddress.firstLine,
                         TextRange(prefilledAddress.firstLine.length)
                     ),
+                    mainLineInput = prefilledAddress.firstLine,
                     secondLineInput = prefilledAddress.secondLine.orEmpty(),
                     cityInput = prefilledAddress.city,
                     postCodeInput = prefilledAddress.postCode,
@@ -154,7 +155,12 @@ class AddressVerificationModel(
                         container = newContainer
                     )
                 }
-                if (intent.newInput.text.length < MIN_QUERY_LENGTH) {
+
+                if (intent.newInput.text.isEmpty()) {
+                    updateState {
+                        it.copy(results = emptyList())
+                    }
+                } else if (intent.newInput.text.length < MIN_QUERY_LENGTH) {
                     updateState {
                         it.copy(areResultsHidden = true, isSearchLoading = false, showManualOverride = false)
                     }
@@ -236,7 +242,9 @@ class AddressVerificationModel(
             }
             AddressVerificationIntent.BackClicked -> {
                 if (modelState.step == AddressVerificationStep.DETAILS) {
-                    updateState { it.copy(step = AddressVerificationStep.SEARCH) }
+                    val searchInput = modelState.searchInput
+                    updateState { it.copy(step = AddressVerificationStep.SEARCH, searchInput = TextFieldValue("")) }
+                    onIntent(AddressVerificationIntent.SearchInputChanged(searchInput))
                 } else {
                     navigate(Navigation.Back)
                 }

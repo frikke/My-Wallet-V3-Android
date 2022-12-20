@@ -3,16 +3,16 @@ package com.blockchain.store_caches_persistedjsonsqldelight
 import com.blockchain.store.Cache
 import com.blockchain.store.CachedData
 import com.blockchain.store.Parser
-import com.blockchain.store.Persister
 import com.blockchain.store.PersisterData
 import com.blockchain.store.StoreId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.parameter.parametersOf
 
 class PersistedJsonSqlDelightCache<K, T> internal constructor(
-    private val persister: Persister,
+    private val persister: SqlDelightStoreIdScopedPersister,
     private val keyParser: Parser<K>,
     private val dataParser: Parser<T>
 ) : Cache<K, T> {
@@ -40,7 +40,7 @@ class PersistedJsonSqlDelightCache<K, T> internal constructor(
     ) : KoinComponent {
         fun build(): PersistedJsonSqlDelightCache<K, T> =
             PersistedJsonSqlDelightCache(
-                SqlDelightStoreIdScopedPersister(storeId, get()),
+                get { parametersOf(storeId) },
                 keyParser,
                 dataParser
             )

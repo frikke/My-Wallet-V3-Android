@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.FiatAccount
@@ -18,15 +19,17 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
@@ -34,23 +37,32 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.canConvert
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Maybes
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
@@ -136,7 +148,16 @@ data class TransactionState(
     val locks: FundsLocks? = null,
     val shouldShowSendToDomainBanner: Boolean = false,
     override val transactionsLimit: TransactionsLimit? = null,
-    val featureBlockedReason: BlockedReason? = null
+    val featureBlockedReason: BlockedReason? = null,
+    val quickFillButtonData: QuickFillButtonData? = null,
+    val amountsToPrefill: PrefillAmounts? = null,
+    val canFilterOutTradingAccounts: Boolean = false,
+    val isPkwAccountFilterActive: Boolean = false,
+    val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
+    val isLoading: Boolean = false,
+    val ffImprovedPaymentUxEnabled: Boolean = false,
+    val depositTerms: DepositTerms? = null,
+    val networkName: String? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -179,10 +200,15 @@ data class TransactionState(
         get() {
             return pendingTx?.let {
                 val available = availableToAmountCurrency(it.availableBalance, amount)
-                Money.min(
+                val maxSpendableWithoutFees = Money.min(
                     available,
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
                 )
+                if (it.feeAmount.currencyCode == maxSpendableWithoutFees.currencyCode) {
+                    maxSpendableWithoutFees.minus(it.feeAmount)
+                } else {
+                    maxSpendableWithoutFees
+                }
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
@@ -212,14 +238,14 @@ data class TransactionState(
         }
     }
 
-    fun availableBalanceInFiat(availableBalance: Money, fiatRate: ExchangeRate?): Money {
-        return if (availableBalance is CryptoValue &&
+    fun convertBalanceToFiat(balance: Money, fiatRate: ExchangeRate?): Money {
+        return if (balance is CryptoValue &&
             fiatRate != null &&
-            fiatRate.canConvert(availableBalance)
+            fiatRate.canConvert(balance)
         ) {
-            fiatRate.convert(availableBalance)
+            fiatRate.convert(balance)
         } else {
-            availableBalance
+            balance
         }
     }
 }
@@ -228,6 +254,7 @@ class TransactionModel(
     initialState: TransactionState,
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
+    private val walletModeService: WalletModeService,
     private val errorLogger: TxFlowErrorReporting,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -242,17 +269,35 @@ class TransactionModel(
         Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
         return when (intent) {
+            is TransactionIntent.GetNetworkName -> {
+                when (val account = intent.fromAccount) {
+                    is MultiChainAccount -> { // PKW
+                        process(TransactionIntent.SetNetworkName(account.l1Network.networkName))
+                        null
+                    }
+                    is CustodialTradingAccount -> { // Trading Accounts
+                        account.currency.l1chainTicker?.let { l1Ticker ->
+                            getNetworkNameForTradingAccount(l1Ticker)
+                        }
+                    }
+                    else -> null
+                }
+            }
             is TransactionIntent.InitialiseWithSourceAccount -> processAccountsListUpdate(
-                previousState,
-                intent.fromAccount,
-                intent.action
+                selectedTarget = previousState.selectedTarget,
+                fromAccount = intent.fromAccount,
+                action = intent.action
+            )?.processTargets(
+                action = intent.action,
+                fromAccount = intent.fromAccount,
+                passwordRequired = previousState.passwordRequired
             )
             is TransactionIntent.InitialiseWithNoSourceOrTargetAccount -> processSourceAccountsListUpdate(
                 intent.action, NullAddress
             )
-            is TransactionIntent.InitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
-                intent.action, intent.target
-            )
+            is TransactionIntent.InitialiseWithTargetAndNoSource -> {
+                processSourceAccountsListUpdate(intent.action, intent.target)
+            }
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
                 intent.action, intent.target, true
             )
@@ -264,14 +309,14 @@ class TransactionModel(
                 intent.eligibility
             )
             is TransactionIntent.ValidatePassword -> processPasswordValidation(intent.password)
-            is TransactionIntent.UpdatePasswordIsValidated -> null
-            is TransactionIntent.UpdatePasswordNotValidated -> null
-            is TransactionIntent.PrepareTransaction -> null
-            is TransactionIntent.AvailableSourceAccountsListUpdated -> null
             is TransactionIntent.SourceAccountSelected -> processAccountsListUpdate(
-                previousState,
-                intent.sourceAccount,
-                previousState.action
+                selectedTarget = previousState.selectedTarget,
+                fromAccount = intent.sourceAccount,
+                action = previousState.action
+            )?.processTargets(
+                action = previousState.action,
+                fromAccount = intent.sourceAccount,
+                passwordRequired = previousState.passwordRequired
             )
             is TransactionIntent.ExecuteTransaction -> processExecuteTransaction(previousState.secondPassword)
             is TransactionIntent.ValidateInputTargetAddress ->
@@ -296,29 +341,11 @@ class TransactionModel(
                     action = previousState.action,
                     passwordRequired = previousState.passwordRequired
                 )
-            is TransactionIntent.TargetSelectionUpdated -> null
-            is TransactionIntent.InitialiseWithSourceAndPreferredTarget ->
-                processAccountsListUpdate(previousState, intent.fromAccount, intent.action)
-            is TransactionIntent.PendingTransactionStarted -> null
-            is TransactionIntent.TargetAccountSelected -> null
-            is TransactionIntent.FatalTransactionError -> null
             is TransactionIntent.AmountChanged -> processAmountChanged(intent.amount)
             is TransactionIntent.ModifyTxOption -> processModifyTxOptionRequest(intent.confirmation)
-            is TransactionIntent.PendingTxUpdated -> null
-            is TransactionIntent.DisplayModeChanged -> null
-            is TransactionIntent.UpdateTransactionComplete -> null
-            is TransactionIntent.ReturnToPreviousStep -> null
-            is TransactionIntent.ShowTargetSelection -> null
             is TransactionIntent.FetchFiatRates -> processGetFiatRate()
             is TransactionIntent.FetchTargetRates -> processGetTargetRate()
-            is TransactionIntent.FiatRateUpdated -> null
-            is TransactionIntent.CryptoRateUpdated -> null
             is TransactionIntent.ValidateTransaction -> processValidateTransaction()
-            is TransactionIntent.EnteredAddressReset -> null
-            is TransactionIntent.AvailableAccountsListUpdated -> null
-            is TransactionIntent.UpdateTransactionCancelled -> null
-            is TransactionIntent.ShowMoreAccounts -> null
-            is TransactionIntent.UseMaxSpendable -> null
             is TransactionIntent.SetFeeLevel -> processSetFeeLevel(intent)
             is TransactionIntent.InvalidateTransaction -> processInvalidateTransaction()
             is TransactionIntent.InvalidateTransactionKeepingTarget -> processInvalidationAndNavigate(previousState)
@@ -331,6 +358,17 @@ class TransactionModel(
             )
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
+            is TransactionIntent.FilterTradingTargets -> interactor.getTargetAccounts(
+                previousState.sendingAccount, previousState.action
+            ).map { accounts ->
+                accounts.filter {
+                    it is NonCustodialAccount || intent.showTrading
+                }
+            }.processTargets(
+                action = previousState.action,
+                fromAccount = previousState.sendingAccount,
+                passwordRequired = previousState.passwordRequired
+            )
             is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
             is TransactionIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(
                 model = this,
@@ -339,6 +377,30 @@ class TransactionModel(
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
             is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
+            is TransactionIntent.LoadDepositTerms -> processDepositTerms(
+                (previousState.sendingAccount as? LinkedBankAccount)?.accountId, previousState.amount
+            )
+            is TransactionIntent.LoadImprovedPaymentUxFeatureFlag -> processImprovedPaymentUxFF()
+            is TransactionIntent.UpdateStakingWithdrawalSeen -> {
+                interactor.updateStakingExplainerAcknowledged(intent.networkTicker)
+                null
+            }
+            is TransactionIntent.ShowSourceSelection ->
+                loadAvailableSourceAccounts(
+                    action = previousState.action,
+                    transactionTarget = previousState.selectedTarget,
+                    shouldResetBackStack = true,
+                    shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+                )
+            is TransactionIntent.UpdatePrivateKeyFilter -> {
+                interactor.updatePkwFilterState(intent.isPkwAccountFilterActive)
+                loadAvailableSourceAccounts(
+                    action = previousState.action,
+                    transactionTarget = previousState.selectedTarget,
+                    shouldResetBackStack = true,
+                    shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+                )
+            }
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -349,9 +411,48 @@ class TransactionModel(
             is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
             is TransactionIntent.ShowFeatureBlocked,
-            is TransactionIntent.FiatDepositOptionSelected -> null
+            is TransactionIntent.FiatDepositOptionSelected,
+            is TransactionIntent.UpdatePrefillAmount,
+            is TransactionIntent.UpdateTradingAccountsFilterState,
+            is TransactionIntent.DepositTermsReceived,
+            is TransactionIntent.ResetPrefillAmount,
+            is TransactionIntent.SetNetworkName,
+            is TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded,
+            is TransactionIntent.ShowTargetSelection,
+            is TransactionIntent.TargetSelectionUpdated,
+            is TransactionIntent.InitialiseWithSourceAndPreferredTarget,
+            is TransactionIntent.PendingTransactionStarted,
+            is TransactionIntent.TargetAccountSelected,
+            is TransactionIntent.FatalTransactionError,
+            is TransactionIntent.PendingTxUpdated,
+            is TransactionIntent.DisplayModeChanged,
+            is TransactionIntent.UpdateTransactionComplete,
+            is TransactionIntent.ReturnToPreviousStep,
+            is TransactionIntent.FiatRateUpdated,
+            is TransactionIntent.CryptoRateUpdated,
+            is TransactionIntent.EnteredAddressReset,
+            is TransactionIntent.AvailableAccountsListUpdated,
+            is TransactionIntent.UpdateTransactionCancelled,
+            is TransactionIntent.ShowMoreAccounts,
+            is TransactionIntent.UseMaxSpendable,
+            is TransactionIntent.UpdatePasswordIsValidated,
+            is TransactionIntent.UpdatePasswordNotValidated,
+            is TransactionIntent.PrepareTransaction,
+            is TransactionIntent.AvailableSourceAccountsListUpdated,
+            is TransactionIntent.UpdatePrivateKeyAccountsFilterState -> null
         }
     }
+
+    private fun getNetworkNameForTradingAccount(currency: String): Disposable =
+        interactor.getEvmNetworkForCurrency(currency)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SetNetworkName(it.networkName))
+                },
+                onError = {
+                    Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")
+                }
+            )
 
     private fun getInitialAmountFromTarget(
         intent: TransactionIntent.InitialiseWithSourceAndTargetAccount
@@ -386,44 +487,121 @@ class TransactionModel(
             )
 
     private fun processAccountsListUpdate(
-        previousState: TransactionState,
+        selectedTarget: TransactionTarget,
         fromAccount: SingleAccount,
         action: AssetAction
-    ): Disposable? =
-        if (previousState.selectedTarget is NullAddress) {
-            interactor.getTargetAccounts(fromAccount, action).subscribeBy(
-                onSuccess = {
-                    if (action == AssetAction.Sell && it.size == 1) {
-                        process(
-                            TransactionIntent.InitialiseWithSourceAndTargetAccount(
-                                action = action,
-                                fromAccount = fromAccount,
-                                target = it.first(),
-                                passwordRequired = previousState.passwordRequired
-                            )
-                        )
-                    } else {
-                        process(TransactionIntent.AvailableAccountsListUpdated(it))
-                    }
-                },
-                onError = {
-                    process(TransactionIntent.FatalTransactionError(it))
-                }
-            )
+    ): Single<List<SingleAccount>>? =
+        if (selectedTarget is NullAddress) {
+            interactor.getTargetAccounts(fromAccount, action)
         } else {
             process(TransactionIntent.TargetSelected)
             null
+        }?.doOnSuccess { accounts ->
+            if (action == AssetAction.Swap && walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL) {
+                process(
+                    TransactionIntent.UpdateTradingAccountsFilterState(
+                        canFilterTradingAccounts = accounts.any { it is TradingAccount } &&
+                            accounts.any { it is NonCustodialAccount }
+                    )
+                )
+            }
         }
+
+    private fun Single<List<SingleAccount>>.processTargets(
+        action: AssetAction,
+        fromAccount: SingleAccount,
+        passwordRequired: Boolean
+    ): Disposable =
+        subscribeBy(
+            onSuccess = {
+                if (action == AssetAction.Sell && it.size == 1) {
+                    process(
+                        TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                            action = action,
+                            fromAccount = fromAccount,
+                            target = it.first(),
+                            passwordRequired = passwordRequired
+                        )
+                    )
+                } else {
+                    process(TransactionIntent.AvailableAccountsListUpdated(it))
+                }
+            },
+            onError = {
+                process(TransactionIntent.FatalTransactionError(it))
+            }
+        )
 
     private fun processSourceAccountsListUpdate(
         action: AssetAction,
         transactionTarget: TransactionTarget,
         shouldResetBackStack: Boolean = false
-    ): Disposable =
-        interactor.getAvailableSourceAccounts(action, transactionTarget).subscribeBy(
-            onSuccess = {
+    ): Disposable {
+        val shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
+        process(TransactionIntent.UpdatePrivateKeyAccountsFilterState(shouldShowPkwOnTrading))
+
+        return if (action == AssetAction.StakingDeposit) {
+            checkWithdrawalNoticeAndProceed(
+                action = action,
+                transactionTarget = transactionTarget,
+                shouldResetBackStack = shouldResetBackStack,
+                shouldShowPkwOnTrading = shouldShowPkwOnTrading
+            )
+        } else {
+            loadAvailableSourceAccounts(
+                action = action,
+                transactionTarget = transactionTarget,
+                shouldResetBackStack = shouldResetBackStack,
+                shouldShowPkwOnTrading = shouldShowPkwOnTrading
+            )
+        }
+    }
+
+    private fun checkWithdrawalNoticeAndProceed(
+        action: AssetAction,
+        transactionTarget: TransactionTarget,
+        shouldResetBackStack: Boolean,
+        shouldShowPkwOnTrading: Boolean
+    ) = Singles.zip(
+        fetchProductEligibility(action, NullCryptoAccount(), transactionTarget).toSingle(),
+        interactor.getAvailableSourceAccounts(action, transactionTarget)
+    ).subscribeBy(
+        onSuccess = { (access, accountList) ->
+            if (access is FeatureAccess.Blocked) {
+                process(TransactionIntent.ShowFeatureBlocked(access.reason))
+            } else {
                 process(
-                    TransactionIntent.AvailableSourceAccountsListUpdated(it)
+                    TransactionIntent.AvailableSourceAccountsListUpdated(
+                        accountList.filter {
+                            shouldShowPkwOnTrading || it !is NonCustodialAccount
+                        }
+                    )
+                )
+            }
+
+            if (shouldResetBackStack) {
+                process(TransactionIntent.ClearBackStack)
+            }
+        },
+        onError = {
+            process(TransactionIntent.FatalTransactionError(it))
+        }
+    )
+
+    private fun loadAvailableSourceAccounts(
+        action: AssetAction,
+        transactionTarget: TransactionTarget,
+        shouldResetBackStack: Boolean,
+        shouldShowPkwOnTrading: Boolean
+    ) = interactor.getAvailableSourceAccounts(action, transactionTarget)
+        .subscribeBy(
+            onSuccess = { accountList ->
+                process(
+                    TransactionIntent.AvailableSourceAccountsListUpdated(
+                        accountList.filter {
+                            shouldShowPkwOnTrading || it !is NonCustodialAccount
+                        }
+                    )
                 )
                 if (shouldResetBackStack) {
                     process(TransactionIntent.ClearBackStack)
@@ -532,6 +710,11 @@ class TransactionModel(
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
+        AssetAction.StakingDeposit -> interactor.checkShouldShowInterstitial(
+            sourceAccount = sourceAccount,
+            asset = (target as CryptoAccount).currency,
+            feature = Feature.DepositStaking
+        ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,
         AssetAction.ViewActivity,
@@ -551,48 +734,51 @@ class TransactionModel(
         action: AssetAction,
         passwordRequired: Boolean
     ): Disposable =
-        fetchProductEligibility(action, sourceAccount, transactionTarget)
-            .subscribeBy(
-                onSuccess = {
-                    if (it is FeatureAccess.Blocked) {
-                        process(TransactionIntent.ShowFeatureBlocked(it.reason))
-                    } else {
-                        process(
-                            TransactionIntent.InitialiseTransaction(
-                                sourceAccount,
-                                amount,
-                                transactionTarget,
-                                action,
-                                passwordRequired,
-                                it
-                            )
-                        )
-                    }
-                },
-                onComplete = {
+        Maybes.zip(
+            fetchProductEligibility(action, sourceAccount, transactionTarget),
+            interactor.getRoundingDataForAction(action).toMaybe()
+        ).subscribeBy(
+            onSuccess = { (featureAccess, roundingData) ->
+                if (featureAccess is FeatureAccess.Blocked) {
+                    process(TransactionIntent.ShowFeatureBlocked(featureAccess.reason))
+                } else {
                     process(
                         TransactionIntent.InitialiseTransaction(
-                            sourceAccount,
-                            amount,
-                            transactionTarget,
-                            action,
-                            passwordRequired
+                            sourceAccount = sourceAccount,
+                            amount = amount,
+                            transactionTarget = transactionTarget,
+                            action = action,
+                            passwordRequired = passwordRequired,
+                            eligibility = featureAccess,
+                            quickFillRoundingData = roundingData
                         )
                     )
-                },
-                onError = {
-                    process(
-                        TransactionIntent.InitialiseTransaction(
-                            sourceAccount,
-                            amount,
-                            transactionTarget,
-                            action,
-                            passwordRequired
-                        )
-                    )
-                    Timber.i(it)
                 }
-            )
+            },
+            onComplete = {
+                process(
+                    TransactionIntent.InitialiseTransaction(
+                        sourceAccount = sourceAccount,
+                        amount = amount,
+                        transactionTarget = transactionTarget,
+                        action = action,
+                        passwordRequired = passwordRequired
+                    )
+                )
+            },
+            onError = {
+                process(
+                    TransactionIntent.InitialiseTransaction(
+                        sourceAccount = sourceAccount,
+                        amount = amount,
+                        transactionTarget = transactionTarget,
+                        action = action,
+                        passwordRequired = passwordRequired
+                    )
+                )
+                Timber.i(it)
+            }
+        )
 
     private fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
@@ -602,17 +788,21 @@ class TransactionModel(
         eligibility: FeatureAccess?
     ): Disposable =
         interactor.initialiseTransaction(sourceAccount, transactionTarget, action)
-            .doOnFirst {
-                if (it.validationState == ValidationState.UNINITIALISED ||
-                    it.validationState == ValidationState.CAN_EXECUTE
+            .doOnFirst { pTx ->
+                if (pTx.validationState == ValidationState.UNINITIALISED ||
+                    pTx.validationState == ValidationState.CAN_EXECUTE
                 ) {
                     onFirstUpdate(amount)
                 }
             }
             .subscribeBy(
-                onNext = {
+                onNext = { pTx ->
                     val transactionsLimit = (eligibility as? FeatureAccess.Granted)?.transactionsLimit
-                    process(TransactionIntent.PendingTxUpdated(it.copy(transactionsLimit = transactionsLimit)))
+                    process(
+                        TransactionIntent.PendingTxUpdated(
+                            pendingTx = pTx.copy(transactionsLimit = transactionsLimit)
+                        )
+                    )
                 },
                 onError = {
                     Timber.e("!TRANSACTION!> Processor failed: $it")
@@ -749,6 +939,27 @@ class TransactionModel(
                 }
             )
 
+    private fun processDepositTerms(paymentMethodId: String?, amount: Money) =
+        paymentMethodId?.let { paymentId ->
+            interactor.getDepositTerms(paymentId, amount).zipWith(interactor.isImprovedPaymentUxFFEnabled())
+                .subscribeBy(
+                    onSuccess = {
+                        if (it.second) {
+                            process(TransactionIntent.DepositTermsReceived(it.first))
+                        }
+                    },
+                    onError = { Timber.e(it) }
+                )
+        }
+
+    private fun processImprovedPaymentUxFF() = interactor.isImprovedPaymentUxFFEnabled()
+        .subscribeBy(
+            onSuccess = {
+                process(TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded(it))
+            },
+            onError = { Timber.e(it) }
+        )
+
     override fun distinctIntentFilter(
         previousIntent: TransactionIntent,
         nextIntent: TransactionIntent
@@ -777,3 +988,8 @@ fun <T> Observable<T>.doOnFirst(onAction: (T) -> Unit): Observable<T> {
         }
     }
 }
+
+data class PrefillAmounts(
+    val cryptoValue: Money,
+    val fiatValue: Money
+)

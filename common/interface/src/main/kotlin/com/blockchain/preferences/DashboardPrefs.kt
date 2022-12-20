@@ -5,6 +5,7 @@ interface DashboardPrefs {
     var isCustodialIntroSeen: Boolean
     var isPrivateKeyIntroSeen: Boolean
     var isRewardsIntroSeen: Boolean
+    var isStakingIntroSeen: Boolean
     var remainingSendsWithoutBackup: Int
     var dashboardAssetOrder: List<String>
     var hasTappedFabButton: Boolean

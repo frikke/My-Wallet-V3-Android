@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="@dimen/standard_margin"
-    android:paddingTop="@dimen/very_small_margin"
-    android:paddingEnd="@dimen/standard_margin"
-    android:paddingBottom="@dimen/very_small_margin">
+    android:paddingStart="@dimen/standard_spacing"
+    android:paddingTop="@dimen/very_small_spacing"
+    android:paddingEnd="@dimen/standard_spacing"
+    android:paddingBottom="@dimen/very_small_spacing">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/confirmation_fee_label"
@@ -43,7 +43,7 @@
         style="@style/Text.Semibold.12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         tools:text="Learn more about network fees" />
 
 </LinearLayout>

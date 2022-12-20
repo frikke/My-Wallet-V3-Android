@@ -54,6 +54,7 @@ import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.Region
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,8 +129,8 @@ fun CreateWalletScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = AppTheme.dimensions.paddingMedium,
-                        vertical = AppTheme.dimensions.paddingLarge,
+                        horizontal = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.standardSpacing,
                     ),
                 text = stringResource(ctaText),
                 state = state.nextButtonState,
@@ -151,7 +152,7 @@ private fun RegionAndReferralStep(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -159,12 +160,12 @@ private fun RegionAndReferralStep(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                modifier = Modifier.padding(top = AppTheme.dimensions.xxPaddingLarge),
+                modifier = Modifier.padding(top = AppTheme.dimensions.hugeSpacing),
                 imageResource = ImageResource.Local(R.drawable.ic_world_blue),
             )
         }
         SimpleText(
-            modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge),
+            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = stringResource(R.string.create_wallet_step_1_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
@@ -172,8 +173,8 @@ private fun RegionAndReferralStep(
         )
         SimpleText(
             modifier = Modifier.padding(
-                top = AppTheme.dimensions.paddingSmall,
-                bottom = AppTheme.dimensions.paddingLarge
+                top = AppTheme.dimensions.tinySpacing,
+                bottom = AppTheme.dimensions.standardSpacing
             ),
             text = stringResource(R.string.create_wallet_step_1_subheader),
             style = ComposeTypographies.Paragraph1,
@@ -277,7 +278,7 @@ private fun RegionAndReferralStep(
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge),
+                .padding(top = AppTheme.dimensions.standardSpacing),
             value = state.referralCodeInput,
             label = stringResource(R.string.new_account_referral_code_label),
             placeholder = stringResource(R.string.new_account_referral_code),
@@ -304,7 +305,7 @@ private fun EmailAndPasswordStep(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val emailFocusRequester = FocusRequester()
@@ -318,7 +319,7 @@ private fun EmailAndPasswordStep(
         }
 
         SimpleText(
-            modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge),
+            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = stringResource(R.string.create_wallet_step_2_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
@@ -326,7 +327,7 @@ private fun EmailAndPasswordStep(
         )
         SimpleText(
             modifier = Modifier.padding(
-                top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge
+                top = AppTheme.dimensions.tinySpacing, bottom = AppTheme.dimensions.standardSpacing
             ),
             text = stringResource(R.string.create_wallet_step_2_subheader),
             style = ComposeTypographies.Paragraph1,
@@ -368,7 +369,7 @@ private fun EmailAndPasswordStep(
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge)
+                .padding(top = AppTheme.dimensions.standardSpacing)
                 .focusRequester(passwordFocusRequester),
             value = state.passwordInput,
             label = stringResource(R.string.password),
@@ -397,9 +398,9 @@ private fun EmailAndPasswordStep(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        top = AppTheme.dimensions.xPaddingSmall,
-                        start = AppTheme.dimensions.paddingSmall,
-                        end = AppTheme.dimensions.paddingSmall,
+                        top = AppTheme.dimensions.smallestSpacing,
+                        start = AppTheme.dimensions.tinySpacing,
+                        end = AppTheme.dimensions.tinySpacing,
                     ),
                 factory = { context ->
                     PasswordStrengthView(context, null)
@@ -410,15 +411,19 @@ private fun EmailAndPasswordStep(
             )
         }
 
+        val checkboxTopPadding =
+            if (isPasswordStrengthVisible) AppTheme.dimensions.smallSpacing
+            else AppTheme.dimensions.standardSpacing
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge),
+                .padding(top = checkboxTopPadding, bottom = AppTheme.dimensions.verySmallSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 state = if (state.areTermsOfServiceChecked) CheckboxState.Checked else CheckboxState.Unchecked,
                 onCheckChanged = { isChecked ->
+                    keyboardController?.hide()
                     onIntent(CreateWalletIntent.TermsOfServiceStateChanged(isChecked))
                 }
             )
@@ -428,13 +433,13 @@ private fun EmailAndPasswordStep(
                 "terms" to URL_TOS_POLICY,
                 "privacy" to URL_PRIVACY_POLICY
             )
-            val disclaimerText = StringUtils.getAnnotatedStringWithMappedAnnotations(
+            val disclaimerText = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
                 context,
                 R.string.password_disclaimer,
                 linksMap
             )
             SimpleText(
-                modifier = Modifier.padding(start = AppTheme.dimensions.paddingSmall),
+                modifier = Modifier.padding(start = AppTheme.dimensions.tinySpacing),
                 text = disclaimerText,
                 style = ComposeTypographies.Micro2,
                 color = ComposeColors.Title,
@@ -460,7 +465,7 @@ private fun Preview_RegionAndReferral() {
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
         passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
-        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1]),
+        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
         areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",
@@ -486,7 +491,7 @@ private fun Preview_EmailAndPassword() {
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
         passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
-        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1]),
+        countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
         areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",

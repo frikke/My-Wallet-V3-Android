@@ -7,7 +7,8 @@ data class ProductDto(
     val productCode: String,
     val price: PriceDto,
     val brand: String,
-    val type: String
+    val type: String,
+    val remainingCards: Int,
 )
 
 @Serializable
@@ -18,6 +19,7 @@ data class CardDto(
     val expiry: String,
     val brand: String,
     val status: String,
+    val orderStatus: String?,
     val createdAt: String
 )
 
@@ -30,7 +32,7 @@ data class PriceDto(
 @Serializable
 data class CardCreationRequestBodyDto(
     val productCode: String,
-    val ssn: String
+    val shippingAddress: ResidentialAddressDto?
 )
 
 @Serializable
@@ -50,7 +52,6 @@ data class CardAccountLinkDto(
 
 @Serializable
 data class ResidentialAddressRequestDto(
-    val userId: String,
     val address: ResidentialAddressDto
 )
 
@@ -106,4 +107,75 @@ data class BlockchainCardAcceptedDocsFormDto(
 data class BlockchainCardAcceptedDocumentDto(
     val name: String,
     val acceptedVersion: String
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletProvisionRequestDto(
+    val deviceId: String,
+    val deviceType: String,
+    val provisioningAppVersion: String,
+    val walletAccountId: String
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletProvisionResponseDto(
+    val cardType: String,
+    val displayName: String,
+    val opaquePaymentCard: String,
+    val last4: String,
+    val network: String,
+    val tokenServiceProvider: String,
+    val userAddress: BlockchainCardGoogleWalletUserAddressDto
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletUserAddressDto(
+    val name: String,
+    val address1: String,
+    val address2: String,
+    val city: String,
+    val stateCode: String,
+    val postalCode: String,
+    val countryCode: String,
+    val phone: String
+)
+
+@Serializable
+data class BlockchainCardOrderStateResponseDto(
+    val status: String,
+    val address: ResidentialAddressDto?
+)
+
+@Serializable
+data class BlockchainCardActivationUrlResponseDto(
+    val url: String
+)
+
+@Serializable
+data class BlockchainCardStatementsResponseDto(
+    val statementId: String,
+    val year: String,
+    val month: String,
+)
+
+@Serializable
+data class BlockchainCardStatementUrlResponseDto(
+    val url: String
+)
+
+@Serializable
+data class BlockchainCardWebViewPostMessage(
+    val type: String,
+)
+
+@Serializable
+data class BlockchainCardKycStatusDto(
+    val status: String,
+    val errorFields: List<String>?
+)
+
+@Serializable
+data class BlockchainCardKycUpdateRequestDto(
+    val address: ResidentialAddressDto?,
+    val ssn: String?
 )

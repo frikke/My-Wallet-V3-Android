@@ -27,11 +27,18 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.getTarget
+import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.presentation.extensions.putTarget
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -41,9 +48,10 @@ import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -53,18 +61,17 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.StakingAccountWithdrawWarning
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.getTarget
-import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.putTarget
+import piuk.blockchain.android.urllinks.ETH_STAKING_CONSIDERATIONS
 import timber.log.Timber
 
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
     QuestionnaireSheet.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    StakingAccountWithdrawWarning.Host {
 
     private val scopeId: String by lazy {
         "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
@@ -88,6 +95,8 @@ class TransactionFlowActivity :
     private val remoteLogger: RemoteLogger by inject()
     private val dashboardPrefs: DashboardPrefs by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
+    private val fraudService: FraudService by inject()
+    private lateinit var startingIntent: TransactionIntent
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -128,10 +137,21 @@ class TransactionFlowActivity :
                     contentDescription = R.string.accessibility_close
                 ) { finish() }
             ),
-            backAction = { onBackPressedDispatcher.onBackPressed() }
+            backAction = {
+                onBackPressedDispatcher.onBackPressed()
+                onBackPressedAnalytics(state)
+            }
         )
         binding.txProgress.visible()
         startModel()
+    }
+
+    private fun onBackPressedAnalytics(state: TransactionState) {
+        if (state.currentStep == TransactionStep.ENTER_AMOUNT) {
+            analyticsHooks.onAmountScreenBackClicked(state)
+        } else if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
+            analyticsHooks.onCheckoutScreenBackClicked(state)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -149,10 +169,12 @@ class TransactionFlowActivity :
             action = action
         )
 
+        model.process(TransactionIntent.GetNetworkName(sourceAccount))
         compositeDisposable += sourceAccount.requireSecondPassword()
             .map { intentMapper.map(it) }
             .subscribeBy(
                 onSuccess = { transactionIntent ->
+                    startingIntent = transactionIntent
                     model.process(transactionIntent)
                 },
                 onError = {
@@ -195,7 +217,7 @@ class TransactionFlowActivity :
         }
 
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
-            showFlowStep(step, state.featureBlockedReason)
+            showFlowStep(step, state.featureBlockedReason, state.action)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
                 updateToolbarTitle(it)
             } ?: updateToolbar()
@@ -228,6 +250,7 @@ class TransactionFlowActivity :
 
     private fun setupBackPress() {
         onBackPressedDispatcher.addCallback(owner = this) {
+            onBackPressedAnalytics(state)
             navigateOnBackPressed { finish() }
         }
     }
@@ -255,7 +278,7 @@ class TransactionFlowActivity :
         }
     }
 
-    private fun showFlowStep(step: TransactionStep, featureBlockedReason: BlockedReason?) {
+    private fun showFlowStep(step: TransactionStep, featureBlockedReason: BlockedReason?, assetAction: AssetAction) {
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
@@ -264,32 +287,39 @@ class TransactionFlowActivity :
                 is BlockedReason.NotEligible -> BlockedDueToNotEligibleSheet.newInstance(featureBlockedReason)
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
+                is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
+                    featureBlockedReason.assetIconUrl
+                )
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )
             }
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
-            TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
+            TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance(assetAction)
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
             TransactionStep.ENTER_AMOUNT -> {
                 checkRemainingSendAttemptsWithoutBackup()
-                EnterAmountFragment.newInstance()
+                EnterAmountFragment.newInstance(assetAction)
             }
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
-            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
+            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance(assetAction)
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
         }?.let {
             binding.txProgress.gone()
 
-            val transaction = supportFragmentManager.beginTransaction()
-                .addAnimationTransaction()
-                .replace(R.id.tx_flow_content, it, it.toString())
+            if (it is BottomSheetDialogFragment) {
+                showBottomSheet(it)
+            } else {
+                val transaction = supportFragmentManager.beginTransaction()
+                    .addAnimationTransaction()
+                    .replace(R.id.tx_flow_content, it, it.toString())
 
-            if (!supportFragmentManager.fragments.contains(it)) {
-                transaction.addToBackStack(it.toString())
+                if (!supportFragmentManager.fragments.contains(it)) {
+                    transaction.addToBackStack(it.toString())
+                }
+
+                transaction.commit()
             }
-
-            transaction.commit()
         }
     }
 
@@ -308,6 +338,8 @@ class TransactionFlowActivity :
     }
 
     private fun dismissFlow() {
+        fraudService.endFlows(FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.WITHDRAWAL)
+
         compositeDisposable.clear()
         model.destroy()
         if (scope.isNotClosed()) {
@@ -337,6 +369,18 @@ class TransactionFlowActivity :
             else -> CampaignType.None
         }
         startKycForResult.launch(KycNavHostActivity.newIntent(this, campaign))
+    }
+
+    override fun learnMoreClicked() {
+        openUrl(ETH_STAKING_CONSIDERATIONS)
+    }
+
+    override fun onNextClicked() {
+        model.process(TransactionIntent.ShowSourceSelection)
+    }
+
+    override fun onClose() {
+        dismissFlow()
     }
 
     override fun onSheetClosed() {

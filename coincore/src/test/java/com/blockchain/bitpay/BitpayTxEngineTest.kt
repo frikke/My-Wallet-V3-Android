@@ -14,7 +14,6 @@ import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
@@ -27,6 +26,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -420,10 +420,11 @@ class BitpayTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

@@ -56,7 +56,7 @@ fun CtaAnnouncementCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_margin))
+                .padding(dimensionResource(R.dimen.medium_spacing))
         ) {
             Column(
                 modifier = Modifier
@@ -69,7 +69,7 @@ fun CtaAnnouncementCard(
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(dimensionResource(R.dimen.large_margin)),
+                            .size(dimensionResource(R.dimen.large_spacing)),
                         imageResource = iconResource
                     )
 
@@ -100,7 +100,7 @@ fun CtaAnnouncementCard(
                 }
 
                 Text(
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.medium_margin)),
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.medium_spacing)),
                     text = title,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
@@ -114,7 +114,7 @@ fun CtaAnnouncementCard(
 
                 PrimaryButton(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.medium_margin))
+                        .padding(top = dimensionResource(R.dimen.medium_spacing))
                         .fillMaxWidth(),
                     defaultBackgroundColor = callToActionButton.backgroundColor,
                     text = callToActionButton.text,

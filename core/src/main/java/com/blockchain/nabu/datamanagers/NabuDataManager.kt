@@ -1,10 +1,13 @@
 package com.blockchain.nabu.datamanagers
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
@@ -17,17 +20,14 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.MaybeSource
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleSource
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
+import kotlinx.coroutines.rx3.asObservable
 
 interface NabuDataManager {
 
@@ -35,17 +35,13 @@ interface NabuDataManager {
         firstName: String,
         lastName: String,
         dateOfBirth: String,
-        offlineTokenResponse: NabuOfflineToken
     ): Completable
 
     fun requestJwt(): Single<String>
 
-    fun getAirdropCampaignStatus(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<AirdropStatusList>
+    fun getAirdropCampaignStatus(): Single<AirdropStatusList>
 
     fun addAddress(
-        offlineTokenResponse: NabuOfflineToken,
         line1: String,
         line2: String?,
         city: String,
@@ -55,49 +51,28 @@ interface NabuDataManager {
     ): Completable
 
     fun recordCountrySelection(
-        offlineTokenResponse: NabuOfflineToken,
         jwt: String,
         countryCode: String,
         stateCode: String?,
         notifyWhenAvailable: Boolean
     ): Completable
 
-    fun startVeriffSession(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<VeriffApplicantAndToken>
+    fun startVeriffSession(): Single<VeriffApplicantAndToken>
 
-    fun submitVeriffVerification(
-        offlineTokenResponse: NabuOfflineToken
-    ): Completable
+    fun submitVeriffVerification(): Completable
 
     fun getSupportedDocuments(
-        offlineTokenResponse: NabuOfflineToken,
         countryCode: String
     ): Single<List<SupportedDocuments>>
 
     fun registerCampaign(
-        offlineTokenResponse: NabuOfflineToken,
         campaignRequest: RegisterCampaignRequest,
         campaignName: String
     ): Completable
 
     fun getAuthToken(jwt: String): Single<NabuOfflineTokenResponse>
 
-    fun getSessionToken(offlineTokenResponse: NabuOfflineToken): Single<NabuSessionTokenResponse>
-
-    fun <T> authenticate(
-        offlineToken: NabuOfflineToken,
-        singleFunction: (NabuSessionTokenResponse) -> Single<T>
-    ): Single<T>
-
-    fun <T> authenticateMaybe(
-        offlineToken: NabuOfflineToken,
-        maybeFunction: (NabuSessionTokenResponse) -> Maybe<T>
-    ): Maybe<T>
-
     fun clearAccessToken()
-
-    fun invalidateToken()
 
     fun refreshToken(offlineToken: NabuOfflineToken): Single<NabuSessionTokenResponse>
 
@@ -121,6 +96,7 @@ internal class NabuDataManagerImpl(
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: SessionPrefs,
+    private val userService: UserService,
 ) : NabuDataManager {
 
     private val guid
@@ -155,9 +131,9 @@ internal class NabuDataManagerImpl(
 
     private var sessionToken: Single<NabuSessionTokenResponse>? = null
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    // VisibleForTesting
     @Synchronized
-    override fun getSessionToken(
+    fun getSessionToken(
         offlineTokenResponse: NabuOfflineToken
     ): Single<NabuSessionTokenResponse> {
         sessionToken?.let {
@@ -178,7 +154,7 @@ internal class NabuDataManagerImpl(
     ): Single<NabuSessionTokenResponse> {
         return emailSingle.flatMap {
             nabuService.getSessionToken(
-                userId = offlineTokenResponse.userId, // FLAG_AUTH_REMOVAL
+                userId = offlineTokenResponse.userId,
                 offlineToken = offlineTokenResponse.token,
                 guid = guid,
                 email = it,
@@ -192,81 +168,63 @@ internal class NabuDataManagerImpl(
         firstName: String,
         lastName: String,
         dateOfBirth: String,
-        offlineTokenResponse: NabuOfflineToken
     ): Completable =
-        authenticate(offlineTokenResponse) {
-            nabuService.createBasicUser(
-                firstName,
-                lastName,
-                dateOfBirth,
-                it
-            ).toSingleDefault(Any())
-        }.ignoreElement()
+        nabuService.createBasicUser(
+            firstName,
+            lastName,
+            dateOfBirth,
+        )
 
-    override fun getAirdropCampaignStatus(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<AirdropStatusList> =
-        authenticate(offlineTokenResponse) {
-            nabuService.getAirdropCampaignStatus(it)
-        }
+    override fun getAirdropCampaignStatus(): Single<AirdropStatusList> =
+        nabuService.getAirdropCampaignStatus()
 
     override fun addAddress(
-        offlineTokenResponse: NabuOfflineToken,
         line1: String,
         line2: String?,
         city: String,
         state: String?,
         postCode: String,
         countryCode: String
-    ): Completable = authenticate(offlineTokenResponse) {
+    ): Completable =
         nabuService.addAddress(
-            it,
             line1,
             line2,
             city,
             state,
             postCode,
             countryCode
-        ).toSingleDefault(Any())
-    }.ignoreElement()
+        )
 
     override fun recordCountrySelection(
-        offlineTokenResponse: NabuOfflineToken,
         jwt: String,
         countryCode: String,
         stateCode: String?,
         notifyWhenAvailable: Boolean
-    ): Completable = authenticate(offlineTokenResponse) {
+    ): Completable =
         nabuService.recordCountrySelection(
-            it,
             jwt,
             countryCode,
             stateCode,
             notifyWhenAvailable
-        ).toSingleDefault(Any())
-    }.ignoreElement()
+        )
 
-    override fun startVeriffSession(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<VeriffApplicantAndToken> = authenticate(offlineTokenResponse) {
-        nabuService.startVeriffSession(it)
-    }
+    override fun startVeriffSession(): Single<VeriffApplicantAndToken> =
+        nabuService.startVeriffSession()
 
-    override fun submitVeriffVerification(
-        offlineTokenResponse: NabuOfflineToken
-    ): Completable = authenticate(offlineTokenResponse) {
-        nabuService.submitVeriffVerification(it)
-            .toSingleDefault(Any())
-    }.ignoreElement()
+    // TODO(aromano): move these to KycService once Othman's PR is merged and remove NabuDataManager dependency on UserService
+    override fun submitVeriffVerification(): Completable =
+        userService.getUserFlow(FreshnessStrategy.Cached(false))
+            .asObservable()
+            .firstOrError()
+            .flatMapCompletable { user ->
+                nabuService.submitVeriffVerification(user.id)
+            }
 
     override fun registerCampaign(
-        offlineTokenResponse: NabuOfflineToken,
         campaignRequest: RegisterCampaignRequest,
         campaignName: String
-    ): Completable = authenticate(offlineTokenResponse) {
-        nabuService.registerCampaign(it, campaignRequest, campaignName)
-            .toSingleDefault(Any())
-    }.ignoreElement()
+    ): Completable =
+        nabuService.registerCampaign(campaignRequest, campaignName)
 
     /**
      * Invalidates the [NabuSessionTokenStore] so that on logging out or switching accounts, no data
@@ -277,14 +235,9 @@ internal class NabuDataManagerImpl(
     }
 
     override fun getSupportedDocuments(
-        offlineTokenResponse: NabuOfflineToken,
         countryCode: String
-    ): Single<List<SupportedDocuments>> = authenticate(offlineTokenResponse) {
-        nabuService.getSupportedDocuments(it, countryCode)
-    }
-
-    private fun unauthenticated(throwable: Throwable) =
-        (throwable as? NabuApiException?)?.getErrorStatusCode() == NabuErrorStatusCodes.TokenExpired
+    ): Single<List<SupportedDocuments>> =
+        nabuService.getSupportedDocuments(countryCode)
 
     // TODO: Replace prefix checking with a proper error code -> needs backend changes
     private fun userRestored(throwable: Throwable): Boolean =
@@ -292,31 +245,6 @@ internal class NabuDataManagerImpl(
             nabuApiException.getErrorStatusCode() == NabuErrorStatusCodes.Conflict &&
                 !nabuApiException.isUserWalletLinkError()
         } ?: false
-
-    // TODO: Refactor this logic into a reusable, thoroughly tested class - see AND-1335
-    override fun <T> authenticate(
-        offlineToken: NabuOfflineToken,
-        singleFunction: (NabuSessionTokenResponse) -> Single<T>
-    ): Single<T> =
-        currentToken(offlineToken)
-            .flatMap { tokenResponse ->
-                singleFunction(tokenResponse)
-                    .onErrorResumeNext { refreshOrReturnError(it, offlineToken, singleFunction) }
-            }
-
-    override fun <T> authenticateMaybe(
-        offlineToken: NabuOfflineToken,
-        maybeFunction: (NabuSessionTokenResponse) -> Maybe<T>
-    ): Maybe<T> =
-        currentToken(offlineToken)
-            .flatMapMaybe { tokenResponse ->
-                maybeFunction(tokenResponse)
-                    .onErrorResumeNext { e: Throwable -> refreshOrReturnError(e, offlineToken, maybeFunction) }
-            }
-
-    override fun invalidateToken() {
-        nabuTokenStore.invalidate()
-    }
 
     override fun currentToken(offlineToken: NabuOfflineToken): Single<NabuSessionTokenResponse> =
         if (nabuTokenStore.requiresRefresh()) {
@@ -371,32 +299,6 @@ internal class NabuDataManagerImpl(
         }
     }
 
-    private fun <T> refreshOrReturnError(
-        throwable: Throwable,
-        offlineToken: NabuOfflineToken,
-        singleFunction: (NabuSessionTokenResponse) -> Single<T>
-    ): SingleSource<T> =
-        if (unauthenticated(throwable)) {
-            refreshToken(offlineToken)
-                .doOnSubscribe { clearAccessToken() }
-                .flatMap { singleFunction(it) }
-        } else {
-            Single.error(throwable)
-        }
-
-    private fun <T> refreshOrReturnError(
-        throwable: Throwable,
-        offlineToken: NabuOfflineToken,
-        maybeFunction: (NabuSessionTokenResponse) -> Maybe<T>
-    ): MaybeSource<T> =
-        if (unauthenticated(throwable)) {
-            refreshToken(offlineToken)
-                .doOnSubscribe { clearAccessToken() }
-                .flatMapMaybe { maybeFunction(it) }
-        } else {
-            Maybe.error(throwable)
-        }
-
     private fun recoverOrReturnError(
         throwable: Throwable,
         offlineToken: NabuOfflineToken
@@ -404,7 +306,7 @@ internal class NabuDataManagerImpl(
         if (userRestored(throwable)) {
             recoverUserAndContinue(offlineToken)
         } else {
-            Single.error(throwable)
+            Single.error(throwable as Exception)
         }
 
     private fun recoverUserAndContinue(
@@ -421,5 +323,7 @@ internal class NabuDataManagerImpl(
             .subscribeOn(Schedulers.io())
             .flatMapObservable(nabuTokenStore::store)
             .singleOrError()
-            .onErrorResumeNext { recoverOrReturnError(it, offlineToken) }
+            .onErrorResumeNext {
+                recoverOrReturnError(it, offlineToken)
+            }
 }

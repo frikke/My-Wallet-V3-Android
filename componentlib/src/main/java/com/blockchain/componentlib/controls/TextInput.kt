@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.controls
 
+import android.view.KeyEvent.ACTION_DOWN
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,10 +23,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -37,6 +45,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.ImageResource.None.shape
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -117,6 +126,7 @@ fun TextInput(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
@@ -199,6 +209,7 @@ fun TextInput(
         value
     }
     Column {
+        val focusManager = LocalFocusManager.current
         TextField(
             value = newTextFieldValue,
             onValueChange = { newValue ->
@@ -215,6 +226,14 @@ fun TextInput(
             },
             modifier = modifier
                 .fillMaxWidth(1f)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                        focusManager.moveFocus(FocusDirection.Next)
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .onFocusChanged { focusState ->
                     onFocusChanged.invoke(focusState)
                 },
@@ -272,8 +291,8 @@ fun TextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )
@@ -343,6 +362,7 @@ fun TextInput_Preview() {
 @Composable
 fun OutlinedTextInput(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp),
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
@@ -377,6 +397,7 @@ fun OutlinedTextInput(
 
     OutlinedTextInput(
         modifier = modifier,
+        shape = shape,
         value = textFieldValue,
         onValueChange = { newTextFieldValueState ->
             textFieldValueState = newTextFieldValueState
@@ -408,9 +429,11 @@ fun OutlinedTextInput(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OutlinedTextInput(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp),
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
@@ -495,10 +518,11 @@ fun OutlinedTextInput(
     }
 
     Column(modifier = modifier) {
+        val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
-                .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
-                .background(color = backgroundColor)
+                .border(BorderStroke(1.dp, borderColor), shape)
+                .background(color = backgroundColor, shape = shape)
         ) {
             val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
                 val newValueString = value.annotatedString.subSequence(
@@ -525,6 +549,14 @@ fun OutlinedTextInput(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     .onFocusChanged { focusState ->
                         onFocusChanged.invoke(focusState)
                         hasFocus.value = focusState.isFocused
@@ -581,7 +613,7 @@ fun OutlinedTextInput(
                     disabledPlaceholderColor = placeholderColor
                 ),
                 interactionSource = interactionSource,
-                shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp)
+                shape = shape
             )
         }
 
@@ -593,8 +625,8 @@ fun OutlinedTextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )

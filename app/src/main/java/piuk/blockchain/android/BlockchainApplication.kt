@@ -15,6 +15,8 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AppLaunchEvent
+import com.blockchain.core.connectivity.ConnectionEvent
+import com.blockchain.core.connectivity.SSLPinningObservable
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -30,23 +32,18 @@ import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import com.google.firebase.FirebaseApp
 import io.embrace.android.embracesdk.Embrace
-import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.data.connectivity.ConnectivityManager
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
-import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
 import timber.log.Timber
 
 open class BlockchainApplication : Application() {
@@ -54,13 +51,12 @@ open class BlockchainApplication : Application() {
     private val environmentSettings: EnvironmentConfig by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
-    private val rxBus: RxBus by inject()
     private val sslPinningObservable: SSLPinningObservable by inject()
-    private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
     private val analytics: Analytics by inject()
     private val remoteLogger: RemoteLogger by inject()
     private val trust: SiftDigitalTrust by inject()
+    private val fraudService: FraudService by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
@@ -91,10 +87,7 @@ open class BlockchainApplication : Application() {
         KoinStarter.start(this)
         initRemoteLogger()
         initLifecycleListener()
-
-        if (environmentSettings.isCompanyInternalBuild() || environmentSettings.isRunningInDebugMode()) {
-            Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
-        }
+        initFraudService()
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)
@@ -105,8 +98,6 @@ open class BlockchainApplication : Application() {
         RxJavaPlugins.setErrorHandler { _throwable ->
             Timber.tag(RX_ERROR_TAG).e(_throwable)
         }
-
-        ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 
         checkSecurityProviderAndPatchIfNeeded()
 
@@ -202,6 +193,15 @@ open class BlockchainApplication : Application() {
         remoteLogger.userLanguageLocale(resources.configuration.locale.language)
     }
 
+    private fun initFraudService() {
+        with(fraudService) {
+            updateSessionId {
+                updateUnauthenticatedUserFlows()
+                initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
+            }
+        }
+    }
+
     /**
      * This patches a device's Security Provider asynchronously to help defend against various
      * vulnerabilities. This provider is normally updated in Google Play Services anyway, but this
@@ -273,12 +273,10 @@ open class BlockchainApplication : Application() {
         }
 
         override fun onActivityResumed(activity: Activity) {
-            currentContextAccess.contextOpen(activity)
             trust.onActivityResume(activity)
         }
 
         override fun onActivityPaused(activity: Activity) {
-            currentContextAccess.contextClose(activity)
             trust.onActivityPause()
         }
 

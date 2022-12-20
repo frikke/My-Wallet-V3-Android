@@ -2,10 +2,10 @@ package com.blockchain.bitpay
 
 import com.blockchain.bitpay.models.BitPaymentRequest
 import com.blockchain.bitpay.models.RawPaymentRequest
+import com.blockchain.core.utils.schedulers.applySchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
-import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 
 class BitPayDataManager constructor(
     private val bitPayService: BitPayService

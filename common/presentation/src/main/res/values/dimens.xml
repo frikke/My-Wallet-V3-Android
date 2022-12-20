@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="epic_spacing">72dp</dimen>
+    <dimen name="xhuge_spacing">48dp</dimen>
+    <dimen name="huge_spacing">40dp</dimen>
+    <dimen name="xlarge_spacing">36dp</dimen>
+    <dimen name="large_spacing">32dp</dimen>
+    <dimen name="standard_spacing">24dp</dimen>
+    <dimen name="medium_spacing">20dp</dimen>
+    <dimen name="small_spacing">16dp</dimen>
+    <dimen name="very_small_spacing">12dp</dimen>
+    <dimen name="tiny_spacing">8dp</dimen>
+    <dimen name="minuscule_spacing">6dp</dimen>
+    <dimen name="smallest_spacing">4dp</dimen>
+
+    <dimen name="zero_spacing">0dp</dimen>
+    <dimen name="compose_smallest_spacing">2dp</dimen>
+    <dimen name="compose_border_small_spacing">1dp</dimen>
+
+    <dimen name="borderRadiiSmallest">4dp</dimen>
+    <dimen name="borderRadiiSmall">8dp</dimen>
+    <dimen name="borderRadiiMedium">16dp</dimen>
+    <dimen name="borderRadiiLarge">100dp</dimen>
+
+    <dimen name="size_epic">96dp</dimen>
+    <dimen name="size_massive">64dp</dimen>
+    <dimen name="size_huge">40dp</dimen>
+    <dimen name="size_large">32dp</dimen>
+    <dimen name="size_medium">24dp</dimen>
+    <dimen name="size_standard">16dp</dimen>
+    <dimen name="size_small">12dp</dimen>
+    <dimen name="size_tiny">8dp</dimen>
+
+    <dimen name="small_elevation">2dp</dimen>
+
+    <dimen name="asset_icon_size">32dp</dimen>
+    <dimen name="asset_icon_size_large">72dp</dimen>
+
+    <dimen name="grid_0.25">1dp</dimen>
+    <dimen name="grid_12">48dp</dimen>
+    <dimen name="grid_13">52dp</dimen>
+    <dimen name="grid_14">56dp</dimen>
+    <dimen name="grid_15">60dp</dimen>
+
+    <dimen name="swipe_receive_qr_size">240dp</dimen>
+
+    <dimen name="action_bar_height">56dp</dimen>
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="expandable_layout_base_height">72dp</dimen>
+    <dimen name="balance_bar_height">72dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+
+    <dimen name="pinentry_num_text_size">25sp</dimen>
+    <dimen name="pinentry_alpha_text_size">9sp</dimen>
+    <dimen name="pinentry_padding">5dp</dimen>
+    <dimen name="pinentry_hint_size">16sp</dimen>
+    <dimen name="pin_box_size">48dp</dimen>
+
+    <dimen name="buy_sell_payment_button_text_size">16sp</dimen>
+    <dimen name="buy_sell_payment_button_margin">16dp</dimen>
+
+    <!-- Override BottomNavigation dimens for smaller icons -->
+    <dimen name="design_bottom_navigation_icon_size">18dp</dimen>
+    <dimen name="design_bottom_navigation_margin">12dp</dimen>
+    <dimen name="design_bottom_navigation_text_size">10sp</dimen>
+    <dimen name="design_bottom_navigation_active_text_size">10sp</dimen>
+
+    <dimen name="animated_loader_view">56dp</dimen>
+</resources>

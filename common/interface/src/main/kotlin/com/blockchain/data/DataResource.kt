@@ -1,5 +1,8 @@
 package com.blockchain.data
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
 /**
  * [Loading] : emitted exclusively when fetching from network, the next emitted Data or Error will be related to the network fetch and mean that Store is no longer Loading
  * [Data] : emitted when the fetcher completes successfully or when we get a Cached value
@@ -8,12 +11,91 @@ package com.blockchain.data
 sealed class DataResource<out T> {
     object Loading : DataResource<Nothing>()
     data class Data<out T>(val data: T) : DataResource<T>()
-    data class Error(val error: Exception) : DataResource<Nothing>()
+    data class Error(val error: Exception) : DataResource<Nothing>() {
+        override fun equals(other: Any?): Boolean {
+            return if (other is Error) {
+                error.message == other.error.message
+            } else false
+        }
+
+        override fun hashCode(): Int {
+            return error.hashCode()
+        }
+    }
+}
+
+fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(transform(data))
+    }
+}
+
+fun <T> DataResource<Iterable<T>>.filter(transform: (T) -> Boolean): DataResource<List<T>> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(this.data.filter { transform(it) })
+    }
+}
+
+fun <T, R> DataResource<T>.flatMap(transform: (T) -> DataResource<R>): DataResource<R> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> transform(data)
+    }
+}
+
+fun <T> DataResource<T>.doOnLoading(f: () -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Loading) f()
+    }
+}
+
+fun <T> DataResource<T>.doOnData(f: (T) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Data) f(this.data)
+    }
+}
+
+fun <T> Flow<DataResource<T>>.doOnData(f: (T) -> Unit): Flow<DataResource<T>> {
+    return map { dataResource ->
+        dataResource.also {
+            if (it is DataResource.Data) f(it.data)
+        }
+    }
+}
+
+fun <T> Flow<DataResource<T>>.doOnError(f: (Exception) -> Unit): Flow<DataResource<T>> {
+    return map { dataResource ->
+        dataResource.also {
+            if (it is DataResource.Error) f(it.error)
+        }
+    }
+}
+
+fun <T> DataResource<T>.doOnError(f: (Exception) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Error) f(this.error)
+    }
 }
 
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
+
+fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow<DataResource<T>> {
+    return map { dataResource ->
+        when (dataResource) {
+            is DataResource.Error -> {
+                DataResource.Data(errorToData(dataResource.error))
+            }
+            else -> dataResource
+        }
+    }
+}
 
 fun <T1, T2, R> combineDataResources(
     r1: DataResource<T1>,
@@ -115,5 +197,21 @@ fun <T, R> combineDataResources(
         else -> {
             DataResource.Data(transform(results.map { (it as DataResource.Data).data }))
         }
+    }
+}
+
+fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T> {
+    return when (this) {
+        DataResource.Loading -> updated
+        is DataResource.Error -> updated
+        is DataResource.Data -> if (updated is DataResource.Data) updated else this
+    }
+}
+
+fun <T> DataResource<T>.dataOrDefault(default: T): T {
+    return when (this) {
+        DataResource.Loading -> default
+        is DataResource.Error -> default
+        is DataResource.Data -> this.data
     }
 }

@@ -21,7 +21,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(project(":logging:domain"))
-                api(project(":common-mp:utils"))
+                api(project(":common-mp:utils:domain"))
 
                 implementation(Libraries.timber)
             }

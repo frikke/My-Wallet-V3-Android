@@ -37,8 +37,8 @@ fun BottomItem(sheetAction: SheetAction, onClick: (AssetAction) -> Unit) {
             .clickable { onClick(sheetAction.action) }
             .background(AppTheme.colors.background)
             .padding(
-                horizontal = dimensionResource(id = R.dimen.standard_margin),
-                vertical = dimensionResource(id = R.dimen.standard_margin)
+                horizontal = dimensionResource(id = R.dimen.standard_spacing),
+                vertical = dimensionResource(id = R.dimen.standard_spacing)
             )
     ) {
         Row(
@@ -51,8 +51,8 @@ fun BottomItem(sheetAction: SheetAction, onClick: (AssetAction) -> Unit) {
                     )
                 )
                 .padding(
-                    horizontal = dimensionResource(id = R.dimen.small_margin),
-                    vertical = dimensionResource(id = R.dimen.small_margin)
+                    horizontal = dimensionResource(id = R.dimen.small_spacing),
+                    vertical = dimensionResource(id = R.dimen.small_spacing)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -61,7 +61,7 @@ fun BottomItem(sheetAction: SheetAction, onClick: (AssetAction) -> Unit) {
                 modifier = Modifier
                     .weight(1f, true)
                     .padding(
-                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin)
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
                     )
                     .align(Alignment.Top)
             ) {
@@ -70,7 +70,7 @@ fun BottomItem(sheetAction: SheetAction, onClick: (AssetAction) -> Unit) {
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
                 )
-                Spacer(Modifier.height(dimensionResource(id = R.dimen.smallest_margin)))
+                Spacer(Modifier.height(dimensionResource(id = R.dimen.smallest_spacing)))
                 Text(
                     text = stringResource(id = sheetAction.subtitle),
                     style = AppTheme.typography.paragraph1,
@@ -113,7 +113,7 @@ private fun PreviewDefiBuyCrypto() {
     AppTheme {
         BottomItem(
             sheetAction = SheetAction(
-                icon = R.drawable.ic_sheet_menu_swap,
+                icon = R.drawable.ic_cta_swap,
                 title = R.string.common_buy,
                 subtitle = R.string.common_buy,
                 action = AssetAction.Buy,

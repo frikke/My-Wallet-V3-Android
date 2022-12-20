@@ -9,6 +9,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.Currency
 
 sealed class MainIntent : MviIntent<MainState> {
     data class PerformInitialChecks(val deeplinkIntent: Intent) : MainIntent() {
@@ -19,12 +20,15 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    object NavigationTabs : MainIntent() {
+    object RefreshTabs : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class RefreshTabs(val walletMode: WalletMode) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState.copy(walletMode = walletMode)
+    class UpdateNavigationTabs(val walletMode: WalletMode) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                walletMode = walletMode
+            )
     }
 
     class ReferralCodeIntent(private val referralState: ReferralState) : MainIntent() {
@@ -62,10 +66,10 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateViewToLaunch(private val nextState: ViewToLaunch) : MainIntent() {
+    class UpdateViewToLaunch(private val view: ViewToLaunch) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
-                viewToLaunch = nextState
+                viewToLaunch = view
             )
     }
 
@@ -99,11 +103,19 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    class SelectNetworkForWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class GetNetworkInfoForWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class SwitchWalletMode(val walletMode: WalletMode) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateDeepLinkResult(val deeplinkResult: DeepLinkResult) : MainIntent() {
+    class UpdateDeepLinkResult(private val deeplinkResult: DeepLinkResult) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 deeplinkResult = deeplinkResult
@@ -118,6 +130,30 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     data class ProcessPendingDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    object LoadFeatureFlags : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy()
+    }
+
+    class UpdateFlags(
+        private val isStakingEnabled: Boolean,
+        private val isEarnEnabled: Boolean
+    ) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(isStakingEnabled = isStakingEnabled, isEarnOnNavEnabled = isEarnEnabled)
+    }
+
+    class LaunchTransactionFlowFromDeepLink(val networkTicker: String, val action: AssetAction) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectRewardsAccountForAsset(val cryptoTicker: String) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectStakingAccountForAction(val currency: Currency, val assetAction: AssetAction) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

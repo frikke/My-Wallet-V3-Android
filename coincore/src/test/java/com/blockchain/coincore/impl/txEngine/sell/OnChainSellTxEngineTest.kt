@@ -23,7 +23,6 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -44,6 +43,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -251,7 +251,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -311,7 +311,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -363,7 +363,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
@@ -526,10 +526,11 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(SRC_ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(SRC_ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

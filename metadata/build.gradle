@@ -1,4 +1,5 @@
 apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply from: rootProject.file('gradle/local/common-tests.gradle')
 apply plugin: 'kotlinx-serialization'
 
 compileKotlin {
@@ -16,14 +17,4 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.koin
     implementation Libraries.kotlin
-    testImplementation Libraries.junit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation Libraries.koinTest
-    testImplementation Libraries.koinTestJunit
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-
-    testImplementation project(':testutils')
 }

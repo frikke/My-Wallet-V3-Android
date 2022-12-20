@@ -5,7 +5,6 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
@@ -14,6 +13,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
@@ -54,13 +54,14 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
 
         whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertComplete()
             .assertValue {
@@ -81,13 +82,14 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 0.testValue(TEST_ASSET),
+            dashboardDisplay = 0.testValue(TEST_ASSET),
             withdrawable = 0.testValue(TEST_ASSET),
             pending = 0.testValue(TEST_ASSET)
         )
 
         whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertComplete()
             .assertValue {
@@ -116,13 +118,14 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
+            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
 
         whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
-        val testSubscriber = subject.balance
+        val testSubscriber = subject.balanceRx
             .subscribeOn(scheduler)
             .test()
             .assertNoValues()

@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:SettingsDataManager.kt$SettingsDataManager$notifications.size == 1 &amp;&amp; ( notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &amp;&amp; notificationType == SettingsManager.NOTIFICATION_TYPE_SMS || notifications.contains(SettingsManager.NOTIFICATION_TYPE_SMS) &amp;&amp; notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL )</ID>
+    <ID>ComplexMethod:LimitsDataManager.kt$LimitsDataManagerImpl$override fun getLimits( outputCurrency: Currency, sourceCurrency: Currency, targetCurrency: Currency, sourceAccountType: AssetCategory, targetAccountType: AssetCategory, legacyLimits: Single&lt;LegacyLimits> ): Single&lt;TxLimits></ID>
+    <ID>ComplexMethod:NabuUserIdentity.kt$NabuUserIdentity$override fun userAccessForFeature(feature: Feature): Single&lt;FeatureAccess></ID>
+    <ID>ComplexMethod:TransactionErrorMapper.kt$TransactionErrorMapper$fun mapToTransactionError(exception: Throwable): TransactionError</ID>
+    <ID>ConstructorParameterNaming:LimitsDataManager.kt$TxLimit$private val _amount: Money?</ID>
+    <ID>ConstructorParameterNaming:NabuUser.kt$NabuSettings$val MERCURY_EMAIL_VERIFIED: Boolean? = false</ID>
+    <ID>EmptyKtFile:RecurringBuyRepository.kt$.RecurringBuyRepository.kt</ID>
+    <ID>ImplicitDefaultLocale:ApiLoggingInterceptor.kt$ApiLoggingInterceptor$String.format( "Sending request of type %s to %s with headers: %s", request.method, request.url, request.headers )</ID>
+    <ID>LargeClass:LiveCustodialWalletManager.kt$LiveCustodialWalletManager : CustodialWalletManager</ID>
+    <ID>LongMethod:LimitsDataManager.kt$LimitsDataManagerImpl$override fun getLimits( outputCurrency: Currency, sourceCurrency: Currency, targetCurrency: Currency, sourceAccountType: AssetCategory, targetAccountType: AssetCategory, legacyLimits: Single&lt;LegacyLimits> ): Single&lt;TxLimits></ID>
+    <ID>LongMethod:LimitsDataManagerImplTest.kt$LimitsDataManagerImplTest$@Test fun `get feature limits should fetch the feature limits and map result`()</ID>
+    <ID>LongMethod:LimitsDataManagerImplTest.kt$LimitsDataManagerImplTest$@Test fun `should fetch crossborder limits and correctly construct TxLimits`()</ID>
+    <ID>LongMethod:PaymentsDataManager.kt$PaymentsDataManagerImpl$override fun getAvailablePaymentMethodsTypes( fiatCurrency: FiatCurrency, fetchSddLimits: Boolean, onlyEligible: Boolean ): Single&lt;List&lt;PaymentMethodTypeWithEligibility>></ID>
+    <ID>LongParameterList:Erc20DataManager.kt$Erc20DataManager$( asset: AssetInfo, evmNetwork: String, to: String, amount: BigInteger, gasPriceWei: BigInteger, gasLimitGwei: BigInteger, hotWalletAddress: String )</ID>
+    <ID>LongParameterList:Erc20DataManager.kt$Erc20DataManager$( asset: AssetInfo, to: String, amount: BigInteger, gasPriceWei: BigInteger, gasLimitGwei: BigInteger, hotWalletAddress: String )</ID>
+    <ID>LongParameterList:EthDataManager.kt$EthDataManager$( nonce: BigInteger, to: String, gasPriceWei: BigInteger, gasLimitGwei: BigInteger, weiValue: BigInteger, data: String = "" )</ID>
+    <ID>LongParameterList:EthDataManager.kt$EthDataManager$( private val payloadDataManager: PayloadDataManager, private val ethAccountApi: EthAccountApi, private val ethDataStore: EthDataStore, private val metadataRepository: MetadataRepository, private val lastTxUpdater: LastTxUpdater, private val evmNetworksService: EvmNetworksService, private val nonCustodialEvmService: NonCustodialEvmService )</ID>
+    <ID>LongParameterList:ExchangeRatesDataManagerImpl.kt$ExchangeRatesDataManagerImpl$( private val priceStore: AssetPriceStore, private val priceStore2: AssetPriceStore2, private val newAssetPriceStoreFeatureFlag: FeatureFlag, private val sparklineCall: SparklineCallCache, private val assetPriceService: AssetPriceService, private val assetCatalogue: AssetCatalogue, private val currencyPrefs: CurrencyPrefs )</ID>
+    <ID>LongParameterList:LimitsDataManager.kt$LimitsDataManager$( outputCurrency: Currency, sourceCurrency: Currency, targetCurrency: Currency, sourceAccountType: AssetCategory, targetAccountType: AssetCategory, legacyLimits: Single&lt;LegacyLimits> )</ID>
+    <ID>LongParameterList:LiveCustodialWalletManager.kt$LiveCustodialWalletManager$( private val assetCatalogue: AssetCatalogue, private val nabuService: NabuService, private val authenticator: Authenticator, private val pairsCache: BuyPairsCache, private val transactionsCache: TransactionsCache, private val buyOrdersCache: BuyOrdersCache, private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore, private val paymentAccountMapperMappers: Map&lt;String, PaymentAccountMapper>, private val interestRepository: InterestRepository, private val currencyPrefs: CurrencyPrefs, private val custodialRepository: CustodialRepository, private val transactionErrorMapper: TransactionErrorMapper )</ID>
+    <ID>LongParameterList:Nabu.kt$Nabu$( @Header("authorization") authorization: String, @Query("currency") currency: String, @Query("product") product: String, @Query("minor") useMinor: Boolean = true, @Query("side") side: String?, @Query("orderDirection") orderDirection: String? )</ID>
+    <ID>LongParameterList:Nabu.kt$Nabu$( @Query("userId") userId: String, @Header("authorization") authorization: String, @Header("X-WALLET-GUID") guid: String, @Header("X-WALLET-EMAIL") email: String, @Header("X-APP-VERSION") appVersion: String, @Header("X-CLIENT-TYPE") clientType: String, @Header("X-DEVICE-ID") deviceId: String )</ID>
+    <ID>LongParameterList:NabuDataManager.kt$NabuDataManager$( offlineTokenResponse: NabuOfflineTokenResponse, line1: String, line2: String?, city: String, state: String?, postCode: String, countryCode: String )</ID>
+    <ID>LongParameterList:NabuDataManager.kt$NabuDataManagerImpl$( private val nabuService: NabuService, private val retailWalletTokenService: RetailWalletTokenService, private val nabuTokenStore: NabuSessionTokenStore, private val appVersion: String, private val settingsDataManager: SettingsDataManager, private val userReporter: NabuUserReporter, private val walletReporter: WalletReporter, private val trust: DigitalTrust, private val payloadDataManager: PayloadDataManager, private val prefs: PersistentPrefs, private val userCache: UserCache )</ID>
+    <ID>LongParameterList:NabuService.kt$NabuService$( sessionToken: NabuSessionTokenResponse, currency: String, address: String, hash: String, amount: String, product: String )</ID>
+    <ID>LongParameterList:NabuService.kt$NabuService$( sessionToken: NabuSessionTokenResponse, line1: String, line2: String?, city: String, state: String?, postCode: String, countryCode: String )</ID>
+    <ID>LongParameterList:NabuService.kt$NabuService$( userId: String, offlineToken: String, guid: String, email: String, appVersion: String, deviceId: String )</ID>
+    <ID>LongParameterList:NabuUser.kt$AddAddressRequest.Companion$( line1: String, line2: String?, city: String, state: String?, postCode: String, countryCode: String )</ID>
+    <ID>LongParameterList:PaymentService.kt$PaymentService$( unspentCoins: List&lt;Utxo>, targetOutputType: OutputType, changeOutputType: OutputType, paymentAmount: BigInteger, feePerKb: BigInteger, includeReplayProtection: Boolean )</ID>
+    <ID>LongParameterList:PaymentsDataManager.kt$PaymentsDataManagerImpl$( private val paymentsService: PaymentsService, private val paymentMethodsService: PaymentMethodsService, private val linkedCardsStore: LinkedCardsStore, private val cardsCache: CardsCache, private val cachingStoreFeatureFlag: FeatureFlag, private val tradingBalanceDataManager: TradingBalanceDataManager, private val assetCatalogue: AssetCatalogue, private val simpleBuyPrefs: SimpleBuyPrefs, private val authenticator: AuthHeaderProvider, private val googlePayManager: GooglePayManager, private val googlePayFeatureFlag: FeatureFlag, )</ID>
+    <ID>LongParameterList:PrefsUtil.kt$PrefsUtil$( private val ctx: Context, private val store: SharedPreferences, private val backupStore: SharedPreferences, private val idGenerator: DeviceIdGenerator, private val uuidGenerator: UUIDGenerator, private val assetCatalogue: AssetCatalogue, private val environmentConfig: EnvironmentConfig )</ID>
+    <ID>LongParameterList:SwapRequestResponseModels.kt$QuoteResponse$( val id: String, val product: String, val pair: String, val quote: Quote, val networkFee: String, val staticFee: String, val createdAt: String, val sampleDepositAddress: String, val expiresAt: String )</ID>
+    <ID>MagicNumber:ApiLoggingInterceptor.kt$ApiLoggingInterceptor$101</ID>
+    <ID>MagicNumber:ApiLoggingInterceptor.kt$ApiLoggingInterceptor$200</ID>
+    <ID>MagicNumber:ApiLoggingInterceptor.kt$ApiLoggingInterceptor$201</ID>
+    <ID>MagicNumber:AssetPriceStore.kt$AssetPriceRecord$4</ID>
+    <ID>MagicNumber:AssetPriceStore.kt$AssetPriceStore$1000</ID>
+    <ID>MagicNumber:AuthDataManager.kt$AuthDataManager$403</ID>
+    <ID>MagicNumber:AuthDataManager.kt$AuthDataManager$60</ID>
+    <ID>MagicNumber:BchDataManager.kt$BchDataManager$50</ID>
+    <ID>MagicNumber:ExchangeRatesDataManagerImpl.kt$ExchangeRatesDataManagerImpl$4</ID>
+    <ID>MagicNumber:HistoricRateRemoteSource.kt$HistoricRateRemoteSource$1000</ID>
+    <ID>MagicNumber:LinkedCardsStore.kt$LinkedCardsStore$5L</ID>
+    <ID>MagicNumber:NabuService.kt$NabuService$200</ID>
+    <ID>MagicNumber:NabuService.kt$NabuService$204</ID>
+    <ID>MagicNumber:NabuService.kt$NabuService$409</ID>
+    <ID>MagicNumber:PayloadService.kt$PayloadService$50</ID>
+    <ID>MagicNumber:PaymentMethodsEligibilityStore.kt$PaymentMethodsEligibilityStore$20L</ID>
+    <ID>MagicNumber:SSLPinningInterceptor.kt$SSLPinningInterceptor$403</ID>
+    <ID>MagicNumber:SemanticVersion.kt$SemanticVersion.Companion$3</ID>
+    <ID>MagicNumber:WalletAuthService.kt$WalletAuthService$4</ID>
+    <ID>MatchingDeclarationName:RecurringBuyResponses.kt$RecurringBuyResponse</ID>
+    <ID>MaxLineLength:AirdropStatusSerializationTest.kt$AirdropStatusSerializationTest$CampaignTransactionState::class.sealedSubclasses.map { it.objectInstance as CampaignTransactionState }</ID>
+    <ID>MaxLineLength:AssetPriceStoreTest.kt$AssetPriceStoreTest$cache.stream(KeyedStoreRequest.Cached(AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), forceRefresh = false))</ID>
+    <ID>MaxLineLength:AssetPriceStoreTest.kt$AssetPriceStoreTest$cache.stream(KeyedStoreRequest.Cached(AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), forceRefresh = false))</ID>
+    <ID>MaxLineLength:AssetPriceStoreTest.kt$AssetPriceStoreTest$fun</ID>
+    <ID>MaxLineLength:AssetPriceStoreTest.kt$AssetPriceStoreTest$val supportedTickersStoreFlow = MutableSharedFlow&lt;StoreResponse&lt;AssetPriceError, SupportedTickerGroup>>(replay = 1)</ID>
+    <ID>MaxLineLength:BchDataManager.kt$BchDataManager$// Only use this [DeterministicAccount] to derive receive/change addresses. Don't use xpub as multiaddr etc parameter.</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:106</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:35</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:36</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:48</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:62</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:73</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:92</ID>
+    <ID>MaximumLineLength:com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreTest.kt:95</ID>
+    <ID>MaximumLineLength:com.blockchain.nabu.models.responses.nabu.AirdropStatusSerializationTest.kt:61</ID>
+    <ID>MultiLineIfElse:com.blockchain.core.chains.bitcoincash.BchDataManager.kt:86</ID>
+    <ID>MultiLineIfElse:com.blockchain.core.payments.PaymentsDataManager.kt:525</ID>
+    <ID>MultiLineIfElse:com.blockchain.core.price.ExchangeRate.kt:47</ID>
+    <ID>MultiLineIfElse:com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl.kt:81</ID>
+    <ID>MultiLineIfElse:com.blockchain.nabu.datamanagers.NabuAuthenticator.kt:57</ID>
+    <ID>MultiLineIfElse:com.blockchain.remoteconfig.RemoteFeatureFlag.kt:50</ID>
+    <ID>MultiLineIfElse:com.blockchain.remoteconfig.RemoteFeatureFlag.kt:52</ID>
+    <ID>MultiLineIfElse:com.blockchain.remoteconfig.RemoteFeatureFlag.kt:61</ID>
+    <ID>MultiLineIfElse:com.blockchain.remoteconfig.RemoteFeatureFlag.kt:65</ID>
+    <ID>ReturnCount:LimitsDataManager.kt$private fun FeatureLimitResponse.toFeatureWithLimit(assetCatalogue: AssetCatalogue): FeatureWithLimit?</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$InstitutionCountry : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$LinkBankTransfer : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$LinkedBank : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$YapilyAttributes : LinkBankAttributesSerializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$YapilyInstitution : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankTransferModels.kt$YodleeAttributes : LinkBankAttributesSerializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankingInterfaces.kt$BankPaymentApproval : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:CustodialWalletManager.kt$PaymentLimits : SerializableLegacyLimits</ID>
+    <ID>SerialVersionUIDInSerializableClass:CustodialWalletManager.kt$PaymentMethod : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:CustodialWalletManager.kt$PaymentMethod$Bank : PaymentMethodSerializableRecurringBuyPaymentDetails</ID>
+    <ID>SerialVersionUIDInSerializableClass:CustodialWalletManager.kt$PaymentMethod$Card : PaymentMethodSerializableRecurringBuyPaymentDetails</ID>
+    <ID>SerialVersionUIDInSerializableClass:FundsLocksModel.kt$FundsLock : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:FundsLocksModel.kt$FundsLocks : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:KycResponse.kt$TiersResponse : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PaymentsDataManager.kt$LinkedPaymentMethod$Bank : LinkedPaymentMethodSerializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:RecurringBuyModels.kt$RecurringBuy : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:UserIdentity.kt$BasicProfileInfo : Serializable</ID>
+    <ID>SwallowedException:ApiLoggingInterceptor.kt$ApiLoggingInterceptor$e: IOException</ID>
+    <ID>SwallowedException:AssetPriceStore.kt$AssetPriceRecord$t: ArithmeticException</ID>
+    <ID>SwallowedException:EthDataManager.kt$EthDataManager$e: HDWalletException</ID>
+    <ID>SwallowedException:ExchangeRatesDataManagerImpl.kt$ExchangeRatesDataManagerImpl$t: ArithmeticException</ID>
+    <ID>SwallowedException:PayloadDataManagerSeedAccessAdapter.kt$PayloadDataManagerSeedAccessAdapter$hd: HDWalletException</ID>
+    <ID>SwallowedException:PaymentsDataManager.kt$PaymentsDataManagerImpl$ex: Exception</ID>
+    <ID>SwallowedException:PrefsUtil.kt$PrefsUtil$e: Exception</ID>
+    <ID>SwallowedException:PrefsUtil.kt$PrefsUtil$t: Throwable</ID>
+    <ID>SwallowedException:SSLPinningInterceptor.kt$SSLPinningInterceptor$exception: SSLPeerUnverifiedException</ID>
+    <ID>TooGenericExceptionCaught:CoroutinesExtensions.kt$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:PayloadDataManager.kt$PayloadDataManager$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:PaymentsDataManager.kt$PaymentsDataManagerImpl$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:PrefsUtil.kt$PrefsUtil$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PrefsUtil.kt$PrefsUtil$t: Throwable</ID>
+    <ID>TooGenericExceptionThrown:AirdropStatus.kt$CampaignStateSerializer$throw Exception("Unknown CampaignState: $input")</ID>
+    <ID>TooGenericExceptionThrown:AirdropStatus.kt$CampaignTransactionStateSerializer$throw Exception("Unknown CampaignTransactionState: $input")</ID>
+    <ID>TooGenericExceptionThrown:AirdropStatus.kt$UserCampaignStateSerializer$throw Exception("Unknown UserCampaignState: $input")</ID>
+    <ID>TooGenericExceptionThrown:EthDataManager.kt$EthDataManager$throw Exception("No ETH address found")</ID>
+    <ID>TooGenericExceptionThrown:FakeAuthenticator.kt$FakeAuthenticator$throw Exception("Not expected")</ID>
+    <ID>TooGenericExceptionThrown:KycTierStateSerializer.kt$KycTierStateSerializer$throw Exception("Unknown KYC Tier State: $input, unsupported data type")</ID>
+    <ID>TooGenericExceptionThrown:NabuUser.kt$KycStateSerializer$throw Exception("Unknown KYC State: $input, unsupported data type")</ID>
+    <ID>TooGenericExceptionThrown:NabuUser.kt$UserStateSerializer$throw Exception("Unknown User State: $input, unsupported data type")</ID>
+    <ID>TooManyFunctions:AssetPriceStore.kt$AssetPriceStore</ID>
+    <ID>TooManyFunctions:AuthDataManager.kt$AuthDataManager</ID>
+    <ID>TooManyFunctions:BchDataManager.kt$BchDataManager</ID>
+    <ID>TooManyFunctions:CustodialWalletManager.kt$CustodialWalletManager</ID>
+    <ID>TooManyFunctions:Erc20DataManager.kt$Erc20DataManager</ID>
+    <ID>TooManyFunctions:Erc20DataManager.kt$Erc20DataManagerImpl : Erc20DataManager</ID>
+    <ID>TooManyFunctions:EthDataManager.kt$EthDataManager : EthMessageSigner</ID>
+    <ID>TooManyFunctions:ExchangeRatesDataManagerImpl.kt$ExchangeRatesDataManagerImpl : ExchangeRatesDataManager</ID>
+    <ID>TooManyFunctions:KycTiers.kt$KycTiers : JsonSerializable</ID>
+    <ID>TooManyFunctions:LiveCustodialWalletManager.kt$LiveCustodialWalletManager : CustodialWalletManager</ID>
+    <ID>TooManyFunctions:LiveCustodialWalletManager.kt$com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager.kt</ID>
+    <ID>TooManyFunctions:Nabu.kt$Nabu</ID>
+    <ID>TooManyFunctions:NabuDataManager.kt$NabuDataManager</ID>
+    <ID>TooManyFunctions:NabuDataManager.kt$NabuDataManagerImpl : NabuDataManager</ID>
+    <ID>TooManyFunctions:NabuService.kt$NabuService</ID>
+    <ID>TooManyFunctions:NabuUserIdentity.kt$NabuUserIdentity : UserIdentity</ID>
+    <ID>TooManyFunctions:PayloadDataManager.kt$PayloadDataManager : WalletPayloadService</ID>
+    <ID>TooManyFunctions:PayloadService.kt$PayloadService</ID>
+    <ID>TooManyFunctions:PaymentService.kt$PaymentService</ID>
+    <ID>TooManyFunctions:PaymentsDataManager.kt$PaymentsDataManager</ID>
+    <ID>TooManyFunctions:PaymentsDataManager.kt$PaymentsDataManagerImpl : PaymentsDataManager</ID>
+    <ID>TooManyFunctions:PersistentPrefs.kt$PersistentPrefs : CurrencyPrefsNotificationPrefsDashboardPrefsSecurityPrefsSecureChannelPrefsThePitLinkingPrefsSimpleBuyPrefsRatingPrefsWalletStatusEncryptedPrefsAuthPrefsBankLinkingPrefsAppInfoPrefsRemoteConfigPrefsOnboardingPrefs</ID>
+    <ID>TooManyFunctions:PrefsUtil.kt$PrefsUtil : PersistentPrefs</ID>
+    <ID>TooManyFunctions:RxSubscriptionExtensions.kt$piuk.blockchain.androidcore.utils.extensions.RxSubscriptionExtensions.kt</ID>
+    <ID>TooManyFunctions:SendDataManager.kt$SendDataManager</ID>
+    <ID>TooManyFunctions:SettingsDataManager.kt$SettingsDataManager</ID>
+    <ID>TooManyFunctions:SettingsService.kt$SettingsService</ID>
+    <ID>TooManyFunctions:UserIdentity.kt$UserIdentity</ID>
+    <ID>TooManyFunctions:WalletAuthService.kt$WalletAuthService</ID>
+    <ID>TooManyFunctions:WalletOptionsDataManager.kt$WalletOptionsDataManager : XlmTransactionTimeoutFetcherXlmHorizonUrlFetcher</ID>
+    <ID>UnnecessaryAbstractClass:FetchStrategy.kt$FetchStrategy&lt;T></ID>
+    <ID>UnusedPrivateClass:LiveCustodialWalletManager.kt$CustodialFiatBalance</ID>
+    <ID>UnusedPrivateMember:AuthDataManagerTest.kt$AuthDataManagerTest.Companion$private const val ERROR_BODY = "{\n" + "\t\"authorization_required\": \"true\"\n" + "}"</ID>
+    <ID>UnusedPrivateMember:CustodialWalletManager.kt$OrderInput$private val amount: String? = null</ID>
+    <ID>UnusedPrivateMember:CustodialWalletManager.kt$OrderInput$private val symbol: String</ID>
+    <ID>UnusedPrivateMember:CustodialWalletManager.kt$OrderOutput$private val amount: String? = null</ID>
+    <ID>UnusedPrivateMember:CustodialWalletManager.kt$OrderOutput$private val symbol: String</ID>
+    <ID>UnusedPrivateMember:Erc20HistoryCallCache.kt$Erc20HistoryCallCache$asset: AssetInfo</ID>
+    <ID>UnusedPrivateMember:EthDataManager.kt$EthDataManager$assetCatalogue: AssetCatalogue</ID>
+    <ID>UnusedPrivateMember:ExchangeRate.kt$ExchangeRate$round: Boolean = true</ID>
+    <ID>UnusedPrivateMember:LiveCustodialWalletManager.kt$LiveCustodialWalletManager.Companion$private const val ACH_CURRENCY = "USD"</ID>
+    <ID>UnusedPrivateMember:LiveCustodialWalletManager.kt$private fun PaymentMethodResponse.isEligibleCard()</ID>
+    <ID>UnusedPrivateMember:PayloadServiceTest.kt$PayloadServiceTest$val v4Enabled = true</ID>
+    <ID>UnusedPrivateMember:PaymentsDataManager.kt$PaymentsDataManagerImpl$private fun String.isActive(): Boolean</ID>
+    <ID>UnusedPrivateMember:PrefsUtil.kt$PrefsUtil.Companion$// AppUpdate (app maintenance) private const val KEY_SKIPPED_VERSION_CODE = "KEY_SKIPPED_VERSION_CODE"</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val destinationCurrency: String</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val inputCurrency: String</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val inputValue: String</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val nextPayment: String? = null</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val paymentMethod: String</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val paymentMethodId: String? = null</ID>
+    <ID>UnusedPrivateMember:RecurringBuyRequestBody.kt$RecurringBuyRequestBody$private val period: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$ConfirmOrderRequestBody$private val action: String = "confirm"</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$ConfirmOrderRequestBody$private val attributes: SimpleBuyConfirmationAttributes? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$ConfirmOrderRequestBody$private val paymentMethodId: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$ConfirmOrderRequestBody$private val paymentType: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val action: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val input: OrderInput</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val output: OrderOutput</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val pair: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val paymentMethodId: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val paymentType: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val period: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$CustodialWalletOrder$private val quoteId: String? = null</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$DepositRequestBody$private val amount: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$DepositRequestBody$private val currency: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$DepositRequestBody$private val depositAddress: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$DepositRequestBody$private val product: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$DepositRequestBody$private val txHash: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$WithdrawLocksCheckRequestBody$private val currency: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$WithdrawLocksCheckRequestBody$private val paymentMethod: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$WithdrawRequestBody$private val amount: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$WithdrawRequestBody$private val beneficiary: String</ID>
+    <ID>UnusedPrivateMember:SimpleBuyResponses.kt$WithdrawRequestBody$private val currency: String</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$CreateOrderRequest$private val destinationAddress: String? = null</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$CreateOrderRequest$private val direction: String</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$CreateOrderRequest$private val quoteId: String</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$CreateOrderRequest$private val refundAddress: String? = null</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$CreateOrderRequest$private val volume: String</ID>
+    <ID>UnusedPrivateMember:SwapRequestResponseModels.kt$UpdateSwapOrderBody$private val action: String</ID>
+  </CurrentIssues>
+</SmellBaseline>

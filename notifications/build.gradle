@@ -1,9 +1,8 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 android {
     buildTypes {
         release {
-            consumerProguardFiles 'proguard-rules.pro'
             buildConfigField "boolean", "USE_CRASHLYTICS", 'true'
         }
         debug {
@@ -11,7 +10,7 @@ android {
         }
     }
 
-    lintOptions {
+    lint {
         baseline file("lint-baseline.xml")
         warningsAsErrors true
         abortOnError true
@@ -27,6 +26,7 @@ dependencies {
     implementation project(':balance')
 
     api platform(Libraries.firebaseBom)
+    implementation Libraries.firebaseCrashlytics
 
     implementation(Libraries.firebaseConfig) {
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
@@ -35,7 +35,6 @@ dependencies {
     api Libraries.firebaseMessaging
 
     implementation Libraries.koinAndroid
-    implementation Libraries.timber
 
     // RxJava
     implementation Libraries.rxJava
@@ -43,14 +42,5 @@ dependencies {
     implementation Libraries.rxAndroid
 
     // Unit Test dependencies
-    testImplementation project(':testutils')
     testImplementation project(':testutils-android')
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
 }

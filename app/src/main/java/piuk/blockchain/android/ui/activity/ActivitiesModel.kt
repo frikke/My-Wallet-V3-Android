@@ -29,6 +29,7 @@ enum class ActivityType {
     NON_CUSTODIAL,
     CUSTODIAL_TRADING,
     CUSTODIAL_INTEREST,
+    CUSTODIAL_STAKING,
     CUSTODIAL_TRANSFER,
     SWAP,
     SELL,
@@ -90,7 +91,7 @@ class ActivitiesModel(
                             process(ActivityListUpdatedErrorIntent)
                         }
                     )
-                fetchSubscription += intent.account.balance.subscribeBy(onError = {
+                fetchSubscription += intent.account.balanceRx.subscribeBy(onError = {
                     process(BalanceUpdatedErrorIntent)
                 }, onNext = {
                     process(BalanceUpdatedIntent(it.totalFiat))

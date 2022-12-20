@@ -9,6 +9,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
@@ -113,7 +114,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             on { withdrawable }.thenReturn(expectedBalance)
         }
         val sourceAccount = mock<FiatAccount>()
-        whenever(sourceAccount.balance).thenReturn(Observable.just(balance))
+        whenever(sourceAccount.balanceRx).thenReturn(Observable.just(balance))
         whenever(sourceAccount.currency).thenReturn(TEST_API_FIAT)
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(
@@ -142,7 +143,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == expectedMinAmountAndFee.fee &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(min = expectedMinAmountAndFee.minLimit) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()

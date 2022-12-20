@@ -8,6 +8,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.utils.flatMapBy
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -15,7 +16,6 @@ import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.utils.extensions.flatMapBy
 import timber.log.Timber
 
 // Ensure that the local and remote SimpleBuy state is the same.
@@ -124,7 +124,7 @@ class SimpleBuySyncFactory(
 
     private fun BuySellOrder.toSimpleBuyStateMaybe(): Maybe<SimpleBuyState> = when {
         isDefinedCardPayment() -> {
-            cardService.getCardDetails(paymentMethodId).flatMapMaybe {
+            cardService.getCardDetailsLegacy(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     this.toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(
@@ -139,7 +139,7 @@ class SimpleBuySyncFactory(
             }
         }
         isDefinedBankTransferPayment() -> {
-            bankService.getLinkedBank(paymentMethodId).flatMapMaybe {
+            bankService.getLinkedBankLegacy(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(

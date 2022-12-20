@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.auth.model.AuthRequiredException
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
@@ -27,7 +26,6 @@ class LoginAuthModelTest {
     private val interactor: LoginAuthInteractor = mock {
         on { reset2FaRetries() }.thenReturn(Completable.complete())
     }
-    private val unifiedSignInFlag: FeatureFlag = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -54,7 +52,7 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN)).thenReturn(
             Single.just(mock())
         )
         val payload: kotlinx.serialization.json.JsonObject = mock()
@@ -119,7 +117,7 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN)).thenReturn(
             Single.just(mock())
         )
         whenever(interactor.getPayload(GUID, sessionId)).thenReturn(Single.error(AuthRequiredException()))
@@ -196,10 +194,8 @@ class LoginAuthModelTest {
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Single.just(true)
+            Completable.complete()
         )
-
-        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.VerifyPassword(password))
@@ -260,16 +256,15 @@ class LoginAuthModelTest {
         val twoFACode = "code"
         val isMobileSetup = true
         val deviceType = DEVICE_TYPE_ANDROID
-        whenever(interactor.submitCode(anyString(), anyString(), anyString(), anyString())).thenReturn(
+        whenever(interactor.submitCode(anyString(), anyString(), anyString())).thenReturn(
             Single.just(TWO_FA_PAYLOAD.toResponseBody((JSON_HEADER).toMediaTypeOrNull()))
         )
         whenever(interactor.verifyPassword(anyString(), anyString())).thenReturn(
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Single.just(true)
+            Completable.complete()
         )
-        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.SubmitTwoFactorCode(password, twoFACode))
@@ -311,7 +306,7 @@ class LoginAuthModelTest {
     fun `fail to verify 2fa`() {
         val password = "password"
         val twoFACode = "code"
-        whenever(interactor.submitCode(anyString(), anyString(), anyString(), anyString())).thenReturn(
+        whenever(interactor.submitCode(anyString(), anyString(), anyString())).thenReturn(
             Single.error(Exception())
         )
 

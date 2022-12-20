@@ -12,6 +12,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
@@ -20,7 +21,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.user.WatchlistDataManager
@@ -38,10 +38,12 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.store.asSingle
+import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -51,7 +53,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class CoinViewInteractor(
     private val coincore: Coincore,
@@ -111,7 +112,7 @@ class CoinViewInteractor(
                     identity.userAccessForFeature(Feature.Buy),
                     identity.userAccessForFeature(Feature.Sell),
                     custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
-                    custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                    custodialWalletManager.isAssetSupportedForSwapLegacy(asset.currency)
                 ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair, isSwapSupported ->
 
                     val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
@@ -179,7 +180,7 @@ class CoinViewInteractor(
             }
 
             WalletMode.NON_CUSTODIAL_ONLY -> {
-                custodialWalletManager.isAssetSupportedForSwap(asset.currency).map { isSwapSupported ->
+                custodialWalletManager.isAssetSupportedForSwapLegacy(asset.currency).map { isSwapSupported ->
                     val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
                     /**
@@ -226,7 +227,7 @@ class CoinViewInteractor(
     fun getAccountActions(asset: CryptoAsset, account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
         account.stateAwareActions,
         custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
-        account.balance.firstOrError()
+        account.balanceRx.firstOrError()
     ).map { (actions, isSupportedPair, balance) ->
         assetActionsComparator.initAccount(account, balance)
 
@@ -303,8 +304,9 @@ class CoinViewInteractor(
             accounts,
             load24hPriceDelta(asset),
             asset.interestRate(),
+            asset.stakingRate(),
             watchlistDataManager.isAssetInWatchlist(asset.currency)
-        ) { accounts, prices, interestRate, isAddedToWatchlist ->
+        ) { accounts, prices, interestRate, stakingRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
             val tradeableAsset = accounts.any {
@@ -318,7 +320,7 @@ class CoinViewInteractor(
                 )
             } else {
                 val accountsList = mapAccounts(
-                    accounts, prices.currentRate, interestRate
+                    accounts, prices.currentRate, interestRate, stakingRate
                 )
                 var totalCryptoMoneyAll = Money.zero(asset.currency)
                 val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
@@ -358,7 +360,8 @@ class CoinViewInteractor(
     private fun mapAccounts(
         accounts: List<DetailsItem>,
         exchangeRate: ExchangeRate,
-        interestRate: Double = Double.NaN
+        interestRate: Double = Double.NaN,
+        stakingRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
 
         val accountComparator = object : Comparator<DetailsItem> {
@@ -371,7 +374,8 @@ class CoinViewInteractor(
                     detailItem.account is NonCustodialAccount && detailItem.isDefault -> 0
                     detailItem.account is TradingAccount -> 1
                     detailItem.account is InterestAccount -> 2
-                    detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 3
+                    detailItem.account is StakingAccount -> 3
+                    detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 4
                     else -> Int.MAX_VALUE
                 }
             }
@@ -388,6 +392,7 @@ class CoinViewInteractor(
                         filter = when (it.account) {
                             is TradingAccount -> AssetFilter.Trading
                             is InterestAccount -> AssetFilter.Interest
+                            is StakingAccount -> AssetFilter.Staking
                             // todo (othman) should be removed once universal mode is removed
                             is NonCustodialAccount -> AssetFilter.NonCustodial
                             else -> error("account type not supported")
@@ -398,7 +403,8 @@ class CoinViewInteractor(
                         actions = it.actions.filter { action ->
                             action.action != AssetAction.InterestDeposit
                         }.toSet(),
-                        interestRate = interestRate
+                        interestRate = interestRate,
+                        stakingRate = stakingRate
                     )
                 }
                 WalletMode.NON_CUSTODIAL_ONLY -> {
@@ -421,7 +427,7 @@ class CoinViewInteractor(
             (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
         }.map { account ->
             Single.zip(
-                account.balance.firstOrError(),
+                account.balanceRx.firstOrError(),
                 account.stateAwareActions
             ) { balance, actions ->
                 DetailsItem(

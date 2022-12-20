@@ -10,7 +10,7 @@
         android:id="@+id/icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,7 +28,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginStart="@dimen/small_spacing"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintStart_toEndOf="@+id/icon"
         tools:text="PoolTogether" />
@@ -38,7 +38,7 @@
         style="@style/Text.Light.12"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginStart="@dimen/small_spacing"
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toBottomOf="@+id/guideline"
         tools:text="app.pooltogether.com" />
@@ -47,8 +47,8 @@
         style="@style/Text.Standard.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:text="@string/dapp_confirmation_warning"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

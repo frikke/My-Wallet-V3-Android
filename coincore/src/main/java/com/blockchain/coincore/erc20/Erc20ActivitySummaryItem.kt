@@ -5,6 +5,7 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -12,7 +13,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /*internal*/ class Erc20ActivitySummaryItem(
     override val asset: AssetInfo,

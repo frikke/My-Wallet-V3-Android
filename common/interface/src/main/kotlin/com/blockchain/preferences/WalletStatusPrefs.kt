@@ -32,4 +32,8 @@ interface WalletStatusPrefs {
     var isNewlyCreated: Boolean
     var isRestored: Boolean
     var isAppUnlocked: Boolean
+
+    companion object {
+        const val MAX_ALLOWED_RETRIES = 3
+    }
 }

@@ -11,11 +11,11 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -60,6 +60,9 @@ class FiatCryptoInputView(
             convertAmount()
         }
 
+    var syncLatestAmount: Money? = null
+        private set
+
     private val exchangeRates: ExchangeRatesDataManager by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -78,6 +81,60 @@ class FiatCryptoInputView(
         }
 
     private val disposables = CompositeDisposable()
+
+    var configuration: FiatCryptoViewConfiguration by Delegates.observable(
+        FiatCryptoViewConfiguration(
+            inputCurrency = currencyPrefs.selectedFiatCurrency,
+            outputCurrency = currencyPrefs.selectedFiatCurrency,
+            exchangeCurrency = currencyPrefs.selectedFiatCurrency
+        )
+    ) { _, oldValue, newValue ->
+        if (oldValue != newValue || !configured) {
+            configured = true
+            with(binding) {
+                enterAmount.filters = emptyArray()
+
+                val inputSymbol = newValue.inputCurrency.symbol
+                currencySwap.visibleIf { newValue.swapEnabled }
+                exchangeAmount.visibleIf { !newValue.inputIsSameAsExchange }
+                exchangeAmount.goneIf { !newValue.showExchangeRate }
+
+                maxLimit?.let { amount ->
+                    disposables += conversionModel.convert(amount, newValue)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeBy(
+                            onSuccess = { updateFilters(inputSymbol, it) }
+                        )
+                }
+
+                fakeHint.text = Money.zero(newValue.inputCurrency).toStringWithoutSymbol()
+                enterAmount.configuration = PrefixedOrSuffixedEditText.Configuration(
+                    prefixOrSuffix = inputSymbol,
+                    isPrefix = newValue.inputCurrency.type == CurrencyType.FIAT,
+                    initialText = newValue.predefinedAmount.toStringWithoutSymbol()
+                        .replace(DecimalFormatSymbols(Locale.getDefault()).groupingSeparator.toString(), "")
+                        .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
+                )
+                enterAmount.resetForTyping()
+                conversionModel.configUpdated(configuration)
+            }
+        }
+    }
+
+    var maxLimit by Delegates.observable<Money?>(null) { _, oldValue, newValue ->
+        if (newValue != oldValue && newValue != null) {
+            disposables += conversionModel.convert(newValue, configuration)
+                .subscribeBy(
+                    onSuccess = {
+                        updateFilters(
+                            binding.enterAmount.configuration.prefixOrSuffix,
+                            it
+                        )
+                    }
+                )
+        }
+    }
 
     init {
         with(binding) {
@@ -137,9 +194,9 @@ class FiatCryptoInputView(
             fakeHint.afterMeasured {
                 it.translationX =
                     if (hasPrefix) (enterAmount.width / 2f + textSize / 2f) +
-                        resources.getDimensionPixelOffset(R.dimen.smallest_margin) else
+                        resources.getDimensionPixelOffset(R.dimen.smallest_spacing) else
                         enterAmount.width / 2f - textSize / 2f - it.width -
-                            resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+                            resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
             }
         }
     }
@@ -154,60 +211,6 @@ class FiatCryptoInputView(
         binding.enterAmount.bigDecimalValue?.let { enterAmount ->
             Money.fromMajor(configuration.inputCurrency, enterAmount)
         } ?: Money.zero(configuration.inputCurrency)
-
-    var configuration: FiatCryptoViewConfiguration by Delegates.observable(
-        FiatCryptoViewConfiguration(
-            inputCurrency = currencyPrefs.selectedFiatCurrency,
-            outputCurrency = currencyPrefs.selectedFiatCurrency,
-            exchangeCurrency = currencyPrefs.selectedFiatCurrency
-        )
-    ) { _, oldValue, newValue ->
-        if (oldValue != newValue || !configured) {
-            configured = true
-            with(binding) {
-                enterAmount.filters = emptyArray()
-
-                val inputSymbol = newValue.inputCurrency.symbol
-                currencySwap.visibleIf { newValue.swapEnabled }
-                exchangeAmount.visibleIf { !newValue.inputIsSameAsExchange }
-                exchangeAmount.goneIf { !newValue.showExchangeRate }
-
-                maxLimit?.let { amount ->
-                    disposables += conversionModel.convert(amount, newValue)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeBy(
-                            onSuccess = { updateFilters(inputSymbol, it) }
-                        )
-                }
-
-                fakeHint.text = Money.zero(newValue.inputCurrency).toStringWithoutSymbol()
-                enterAmount.configuration = PrefixedOrSuffixedEditText.Configuration(
-                    prefixOrSuffix = inputSymbol,
-                    isPrefix = newValue.inputCurrency.type == CurrencyType.FIAT,
-                    initialText = newValue.predefinedAmount.toStringWithoutSymbol()
-                        .replace(DecimalFormatSymbols(Locale.getDefault()).groupingSeparator.toString(), "")
-                        .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
-                )
-                enterAmount.resetForTyping()
-                conversionModel.configUpdated(configuration)
-            }
-        }
-    }
-
-    var maxLimit by Delegates.observable<Money?>(null) { _, oldValue, newValue ->
-        if (newValue != oldValue && newValue != null) {
-            disposables += conversionModel.convert(newValue, configuration)
-                .subscribeBy(
-                    onSuccess = {
-                        updateFilters(
-                            binding.enterAmount.configuration.prefixOrSuffix,
-                            it
-                        )
-                    }
-                )
-        }
-    }
 
     @Deprecated("Error messages arent part of the input")
     fun showError(errorMessage: String, shouldDisableInput: Boolean = false) {
@@ -247,7 +250,7 @@ class FiatCryptoInputView(
     }
 
     private fun showExchangeAmount() {
-        if (!configuration.inputIsSameAsExchange) {
+        if (configuration.showExchangeRate) {
             binding.exchangeAmount.visible()
         }
     }
@@ -287,10 +290,12 @@ class FiatCryptoInputView(
                 updateValue(amounts.outputAmount)
             }
             amountSubject.onNext(amounts.outputAmount)
+            syncLatestAmount = amounts.outputAmount
         }
     }
 
-    fun fixExchange(it: Money) {
+    fun updateExchangeAmount(it: Money) {
+        showExchangeAmount()
         binding.exchangeAmount.text = it.toStringWithSymbol()
     }
 

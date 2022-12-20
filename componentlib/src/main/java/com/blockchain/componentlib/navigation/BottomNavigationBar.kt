@@ -210,7 +210,7 @@ fun BottomNavigationItemWithIndicator(
                     .absoluteOffset(y = (-2).dp)
                     .fillMaxWidth(0.6f)
                     .clip(AppTheme.shapes.small),
-                thickness = dimensionResource(R.dimen.smallest_margin),
+                thickness = dimensionResource(R.dimen.smallest_spacing),
                 color = AppTheme.colors.primary
             )
         }
@@ -236,4 +236,5 @@ sealed class NavigationItem(val route: String, val icon: Int, val title: Int) {
     object BuyAndSell : NavigationItem("buy_and_sell", R.drawable.ic_bottom_nav_buy, R.string.bottom_nav_buy_and_sell)
     object Activity : NavigationItem("activity", R.drawable.ic_bottom_nav_activity, R.string.bottom_nav_activity)
     object Nfts : NavigationItem("nfts", R.drawable.ic_bottom_nav_nfts, R.string.bottom_nav_nfts)
+    object Earn : NavigationItem("earn", R.drawable.ic_bottom_nav_earn, R.string.bottom_nav_earn)
 }

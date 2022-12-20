@@ -14,12 +14,10 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -28,6 +26,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.TransferQuote
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -39,6 +38,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -52,7 +52,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
-    private val swapTransactionsCache: SwapTransactionsCache = mock()
+    private val swapTransactionsStore: SwapTransactionsStore = mock()
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -75,7 +75,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,
         userIdentity = userIdentity,
-        swapTransactionsCache = swapTransactionsCache,
+        swapTransactionsStore = swapTransactionsStore,
     )
 
     @Before
@@ -254,7 +254,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == totalBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
@@ -307,7 +307,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
@@ -550,10 +550,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<CustodialTradingAccount> {
             on { currency }.thenReturn(SRC_ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
+                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = Money.zero(totalBalance.currency),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

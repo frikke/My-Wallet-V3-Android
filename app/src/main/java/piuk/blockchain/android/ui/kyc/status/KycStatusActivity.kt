@@ -17,17 +17,17 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.model.KycTierState
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.getResolvedColor
+import com.blockchain.presentation.getResolvedDrawable
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycStatusActivity :
     BaseMvpActivity<KycStatusView, KycStatusPresenter>(),

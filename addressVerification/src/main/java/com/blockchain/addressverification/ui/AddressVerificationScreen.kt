@@ -55,7 +55,7 @@ fun AddressVerificationScreen(
 
     Column(
         modifier = Modifier
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.standardSpacing)
             .fillMaxWidth()
     ) {
         when (state.step) {
@@ -76,7 +76,7 @@ private fun ColumnScope.SearchStep(
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = AppTheme.dimensions.paddingMedium),
+            .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.searchInput,
         label = stringResource(R.string.address_verification_home_address),
         onValueChange = {
@@ -98,65 +98,65 @@ private fun ColumnScope.SearchStep(
             }
         }
 
-        val suggestions = state.results
-        if (state.showManualOverride) {
-            Column {
+        Column {
+            if (state.showManualOverride) {
                 SimpleText(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
                             onIntent(AddressVerificationIntent.ManualOverrideClicked)
                         }
-                        .padding(vertical = AppTheme.dimensions.paddingSmall),
+                        .padding(vertical = AppTheme.dimensions.tinySpacing),
                     text = stringResource(R.string.address_verification_my_address_is_not_here),
                     style = ComposeTypographies.Body2,
                     color = ComposeColors.Primary,
                     gravity = ComposeGravities.Start
                 )
+            }
 
-                val listState = rememberLazyListState()
+            val listState = rememberLazyListState()
+            val suggestions = state.results
 
-                LaunchedEffect(suggestions) {
-                    listState.scrollToItem(0)
-                }
+            LaunchedEffect(suggestions) {
+                listState.scrollToItem(0)
+            }
 
-                LazyColumn(
-                    modifier = Modifier.padding(vertical = AppTheme.dimensions.paddingSmall),
-                    state = listState,
-                ) {
-                    itemsIndexed(
-                        items = suggestions,
-                        itemContent = { index, suggestion ->
-                            Box(
-                                modifier = Modifier.clickable {
-                                    onIntent(AddressVerificationIntent.ResultClicked(suggestion))
-                                }
-                            ) {
-                                AutoCompleteItem(
-                                    isContainer = suggestion.type != AutocompleteAddressType.ADDRESS,
-                                    containedAddressesCount = suggestion.containedAddressesCount,
-                                    isLoading = state.loadingAddressDetails == suggestion,
-                                    title = suggestion.title,
-                                    titleHighlightRange = suggestion.titleHighlightRanges,
-                                    description = suggestion.description,
-                                    descriptionHighlightRange = suggestion.descriptionHighlightRanges
-                                )
+            LazyColumn(
+                modifier = Modifier.padding(vertical = AppTheme.dimensions.tinySpacing),
+                state = listState,
+            ) {
+                itemsIndexed(
+                    items = suggestions,
+                    itemContent = { index, suggestion ->
+                        Box(
+                            modifier = Modifier.clickable {
+                                onIntent(AddressVerificationIntent.ResultClicked(suggestion))
                             }
-                            if (index < suggestions.lastIndex)
-                                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        ) {
+                            AutoCompleteItem(
+                                isContainer = suggestion.type != AutocompleteAddressType.ADDRESS,
+                                containedAddressesCount = suggestion.containedAddressesCount,
+                                isLoading = state.loadingAddressDetails == suggestion,
+                                title = suggestion.title,
+                                titleHighlightRange = suggestion.titleHighlightRanges,
+                                description = suggestion.description,
+                                descriptionHighlightRange = suggestion.descriptionHighlightRanges
+                            )
                         }
-                    )
-                }
+                        if (index < suggestions.lastIndex)
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
+                )
+            }
 
-                if (suggestions.isEmpty()) {
-                    SimpleText(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.common_no_results_found),
-                        style = ComposeTypographies.Paragraph1,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Centre,
-                    )
-                }
+            if (suggestions.isEmpty() && state.searchInput.text.isNotEmpty() && !state.isSearchLoading) {
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.common_no_results_found),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre,
+                )
             }
         }
     }
@@ -170,7 +170,7 @@ private fun ColumnScope.DetailsStep(
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = AppTheme.dimensions.paddingMedium),
+            .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.mainLineInput,
         label = stringResource(R.string.address_verification_home_address),
         onValueChange = {
@@ -189,7 +189,7 @@ private fun ColumnScope.DetailsStep(
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = AppTheme.dimensions.paddingMedium),
+            .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.secondLineInput,
         label = stringResource(R.string.address_verification_apt_suite),
         onValueChange = {
@@ -202,7 +202,7 @@ private fun ColumnScope.DetailsStep(
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = AppTheme.dimensions.paddingMedium),
+            .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.cityInput,
         label = stringResource(R.string.address_verification_city),
         onValueChange = {
@@ -213,13 +213,13 @@ private fun ColumnScope.DetailsStep(
     )
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.paddingMedium)
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
     ) {
         if (state.isShowingStateInput) {
             OutlinedTextInput(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = AppTheme.dimensions.paddingMedium),
+                    .padding(bottom = AppTheme.dimensions.smallSpacing),
                 value = state.stateInput,
                 label = stringResource(R.string.address_verification_state),
                 onValueChange = {},
@@ -237,7 +237,7 @@ private fun ColumnScope.DetailsStep(
         OutlinedTextInput(
             modifier = Modifier
                 .weight(1f)
-                .padding(bottom = AppTheme.dimensions.paddingMedium),
+                .padding(bottom = AppTheme.dimensions.smallSpacing),
             value = state.postCodeInput,
             label = postcodeLabel,
             onValueChange = {
@@ -293,7 +293,7 @@ fun AutoCompleteItem(
     }
 
     Row(
-        modifier = Modifier.padding(vertical = AppTheme.dimensions.paddingMedium),
+        modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -324,14 +324,14 @@ fun AutoCompleteItem(
 
         if (isContainer) {
             SimpleText(
-                modifier = Modifier.padding(start = AppTheme.dimensions.xPaddingSmall),
+                modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
                 text = stringResource(R.string.address_verification_addresses_count, containedAddressesCount ?: 0),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.End
             )
             Image(
-                modifier = Modifier.padding(start = AppTheme.dimensions.paddingMedium),
+                modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
                 imageResource = ImageResource.Local(R.drawable.ic_arrow_right)
             )
         } else {
@@ -339,7 +339,7 @@ fun AutoCompleteItem(
             // and the text doesn't jump around
             CircularProgressBar(
                 Modifier
-                    .padding(start = AppTheme.dimensions.paddingMedium)
+                    .padding(start = AppTheme.dimensions.smallSpacing)
                     .size(24.dp)
                     .alpha(if (isLoading) 1f else 0f)
             )

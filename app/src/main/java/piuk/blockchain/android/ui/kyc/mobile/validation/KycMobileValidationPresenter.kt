@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.kyc.mobile.validation
 
+import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.utils.rxMaybeOutcome
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
-import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
 
 class KycMobileValidationPresenter(

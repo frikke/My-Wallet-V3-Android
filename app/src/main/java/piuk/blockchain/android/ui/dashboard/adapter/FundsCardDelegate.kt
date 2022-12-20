@@ -12,7 +12,7 @@ import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
+import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 
@@ -60,7 +60,9 @@ private class FundsCardViewHolder(
             val item = fiats.funds[0]
             singleLayoutBinding.apply {
                 fundsUserFiatBalance.visibleIf { selectedFiat != item.currency }
-                fundsUserFiatBalance.text = item.fiatBalance?.toStringWithSymbol()
+                fundsUserFiatBalance.text = item.fiatBalance(
+                    useDisplayBalance = item.assetDisplayBalanceFFEnabled
+                )?.toStringWithSymbol()
                 binding.fundsSingleItem.setOnClickListener {
                     onFundsItemClicked(item.fiatAccount)
                 }
@@ -89,7 +91,7 @@ private class MultipleFundsAdapter(
     private val selectedFiat: Currency
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var items = listOf<BrokearageFiatAsset>()
+    var items = listOf<BrokerageFiatAsset>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -115,7 +117,7 @@ private class MultipleFundsAdapter(
         private val selectedFiat: Currency
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: BrokearageFiatAsset) {
+        fun bind(item: BrokerageFiatAsset) {
             val currency = item.currency as FiatCurrency
             binding.apply {
                 borderedFundsBalanceOtherFiat.visibleIf { selectedFiat != currency }
@@ -125,8 +127,9 @@ private class MultipleFundsAdapter(
                 }
                 borderedFundsTitle.text = currency.name
                 borderedFundsFiatTicker.text = currency.displayTicker
-                borderedFundsBalance.text =
-                    item.fiatBalance?.toStringWithSymbol()
+                borderedFundsBalance.text = item.fiatBalance(
+                    useDisplayBalance = item.assetDisplayBalanceFFEnabled
+                )?.toStringWithSymbol()
                 borderedFundsIcon.setIcon(currency)
             }
         }

@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,6 +40,9 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     DefaultTableRow(
         primaryText = buildAnnotatedString { append(primaryText) },
@@ -48,7 +53,10 @@ fun DefaultTableRow(
         tags = tags,
         endTag = endTag,
         startImageResource = startImageResource,
-        endImageResource = endImageResource
+        endImageResource = endImageResource,
+        backgroundColor = backgroundColor,
+        primaryTextColor = primaryTextColor,
+        secondaryTextColor = secondaryTextColor
     )
 }
 
@@ -61,26 +69,22 @@ fun DefaultTableRow(
     endText: AnnotatedString? = null,
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
-    startImageResource: ImageResource = ImageResource.None,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
     endImageResource: ImageResource = ImageResource.Local(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     TableRow(
-        contentStart = {
-            Image(
-                imageResource = startImageResource,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_margin))
-            )
-        },
+        contentStart = contentStart,
         content = {
-            val startPadding = if (startImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+            val startPadding = if (contentStart != null) {
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
             Column(
                 modifier = Modifier
@@ -90,14 +94,14 @@ fun DefaultTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title
+                    color = primaryTextColor
                 )
                 if (secondaryText != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body
+                        color = secondaryTextColor
                     )
                 }
             }
@@ -122,8 +126,116 @@ fun DefaultTableRow(
                     Image(
                         imageResource = endImageResource,
                         modifier = Modifier.requiredSizeIn(
-                            maxWidth = dimensionResource(R.dimen.standard_margin),
-                            maxHeight = dimensionResource(R.dimen.standard_margin),
+                            maxWidth = dimensionResource(R.dimen.standard_spacing),
+                            maxHeight = dimensionResource(R.dimen.standard_spacing),
+                        ),
+                    )
+                }
+            }
+        },
+        onContentClicked = onClick,
+        contentBottom = {
+            val startPadding = if (contentStart != null) 40.dp else 0.dp
+            Column(Modifier.padding(start = startPadding)) {
+                if (paragraphText != null) {
+                    Text(
+                        text = paragraphText,
+                        style = AppTheme.typography.caption1,
+                        color = AppTheme.colors.body,
+                        modifier = Modifier
+                            .padding(
+                                top = dimensionResource(R.dimen.smallest_spacing),
+                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
+                            )
+                    )
+                }
+                if (!tags.isNullOrEmpty()) {
+                    TagsRow(
+                        tags = tags,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+        },
+        backgroundColor = backgroundColor
+    )
+}
+
+@Composable
+fun DefaultTableRow(
+    primaryText: AnnotatedString,
+    onClick: () -> Unit,
+    secondaryText: AnnotatedString? = null,
+    paragraphText: AnnotatedString? = null,
+    endText: AnnotatedString? = null,
+    tags: List<TagViewState>? = null,
+    endTag: TagViewState? = null,
+    startImageResource: ImageResource = ImageResource.None,
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end,
+        contentDescription = null
+    ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
+) {
+    TableRow(
+        contentStart = {
+            Image(
+                imageResource = startImageResource,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(dimensionResource(R.dimen.standard_spacing))
+            )
+        },
+        content = {
+            val startPadding = if (startImageResource != ImageResource.None) {
+                dimensionResource(R.dimen.medium_spacing)
+            } else {
+                dimensionResource(R.dimen.zero_spacing)
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = startPadding, end = 8.dp)
+            ) {
+                Text(
+                    text = primaryText,
+                    style = AppTheme.typography.body2,
+                    color = primaryTextColor
+                )
+                if (secondaryText != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = secondaryText,
+                        style = AppTheme.typography.paragraph1,
+                        color = secondaryTextColor
+                    )
+                }
+            }
+        },
+        contentEnd = {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                if (endText != null) {
+                    Text(
+                        text = endText,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                if (endTag != null) {
+                    TagsRow(listOf(endTag))
+                } else {
+                    Image(
+                        imageResource = endImageResource,
+                        modifier = Modifier.requiredSizeIn(
+                            maxWidth = dimensionResource(R.dimen.standard_spacing),
+                            maxHeight = dimensionResource(R.dimen.standard_spacing),
                         ),
                     )
                 }
@@ -140,7 +252,7 @@ fun DefaultTableRow(
                         color = AppTheme.colors.body,
                         modifier = Modifier
                             .padding(
-                                top = dimensionResource(R.dimen.smallest_margin),
+                                top = dimensionResource(R.dimen.smallest_spacing),
                                 bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
                     )
@@ -152,7 +264,8 @@ fun DefaultTableRow(
                     )
                 }
             }
-        }
+        },
+        backgroundColor = backgroundColor
     )
 }
 

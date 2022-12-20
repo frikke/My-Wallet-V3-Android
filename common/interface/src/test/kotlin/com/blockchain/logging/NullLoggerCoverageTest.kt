@@ -4,7 +4,7 @@ import org.junit.Test
 
 class NullLoggerCoverageTest {
 
-    private val nullLogger: Logger = NullLogger
+    private val nullLogger: ILogger = NullLogger
 
     @Test
     fun `does not crash - tests for coverage`() {

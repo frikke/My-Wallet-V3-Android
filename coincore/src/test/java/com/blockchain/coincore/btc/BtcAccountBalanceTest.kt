@@ -2,26 +2,27 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.chains.bitcoin.SendDataManager
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
+import io.mockk.coEvery
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertFalse
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
 
 class BtcAccountBalanceTest : CoincoreTestBase() {
 
@@ -36,6 +37,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     private val jsonAccount: Account = mock {
         on { isArchived }.thenReturn(false)
         on { xpubs }.thenReturn(xpubs)
+        on { label }.thenReturn("label")
     }
 
     private val subject =
@@ -64,11 +66,24 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     fun `non zero balance calculated correctly`() {
         val btcBalance = 100.bitcoin()
 
-        whenever(payloadDataManager.getAddressBalanceRefresh(eq(xpubs), any()))
-            .thenReturn(Single.just(btcBalance))
+        coEvery {
+            unifiedBalancesService.balanceForWallet(
+                subject
+            )
+        } returns flowOf(
+            DataResource.Data(
+                NetworkBalance(
+                    currency = subject.currency,
+                    balance = btcBalance,
+                    unconfirmedBalance = 0.bitcoin(),
 
-        subject.balance
-            .test()
+                    exchangeRate = BTC_TO_USER_RATE
+                )
+            )
+        )
+
+        subject.balanceRx
+            .test().await()
             .assertValue {
                 it.total == btcBalance &&
                     it.withdrawable == btcBalance &&
@@ -81,13 +96,23 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `zero balance calculated correctly`() {
-        val btcBalance = 0.bitcoin()
+        coEvery {
+            unifiedBalancesService.balanceForWallet(
+                subject
+            )
+        } returns flowOf(
+            DataResource.Data(
+                NetworkBalance(
+                    currency = subject.currency,
+                    balance = 0.bitcoin(),
+                    unconfirmedBalance = 0.bitcoin(),
+                    exchangeRate = BTC_TO_USER_RATE
+                )
+            )
+        )
 
-        whenever(payloadDataManager.getAddressBalanceRefresh(eq(xpubs), any()))
-            .thenReturn(Single.just(btcBalance))
-
-        subject.balance
-            .test()
+        subject.balanceRx
+            .test().await()
             .assertValue {
                 it.total.isZero &&
                     it.withdrawable.isZero &&

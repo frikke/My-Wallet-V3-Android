@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.wallet.api.data.Settings
@@ -11,7 +12,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class TwoFAAnnouncement(
     dismissRecorder: DismissRecorder,

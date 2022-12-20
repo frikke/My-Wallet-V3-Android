@@ -10,10 +10,10 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.common.model.BuySellViewType
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
-import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface HomeScreenFragment {
     fun navigator(): HomeNavigator
@@ -30,10 +30,10 @@ interface HomeNavigator {
     fun launchSetup2Fa()
     fun launchOpenExternalEmailApp()
     fun launchSetupFingerprintLogin()
-    fun launchReceive()
+    fun launchReceive(cryptoTicker: String?)
     fun launchSend()
     fun launchBuySell(
-        viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
+        viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
         asset: AssetInfo? = null,
         reload: Boolean = false
     )

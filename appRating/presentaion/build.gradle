@@ -2,14 +2,6 @@ apply from: rootProject.file('gradle/local/common-feature-android-presentation.g
 apply plugin: 'kotlin-parcelize'
 
 android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {}
-    }
-
     lintOptions {
         warningsAsErrors true
         abortOnError true
@@ -22,15 +14,8 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
 
     // review
     implementation Libraries.googlePlayCore
-
-    // test
-    testImplementation project(':testutils')
-    testImplementation Libraries.kotlinTest
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.coreTesting
-    testImplementation Libraries.mockk
-    testImplementation Libraries.turbine
 }

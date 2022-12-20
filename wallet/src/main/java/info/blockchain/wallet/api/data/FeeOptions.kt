@@ -1,5 +1,6 @@
 package info.blockchain.wallet.api.data
 
+import info.blockchain.balance.CryptoCurrency
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -82,5 +83,20 @@ class FeeOptions constructor(
         }
 
         fun defaultForErc20(): FeeOptions = defaultForEth()
+
+        fun defaultForEvm(networkTicker: String): FeeOptions {
+            return if (networkTicker == CryptoCurrency.AVAX) {
+                // Fees for Avalanche are significantly higher than for other EVM networks
+                FeeOptions(
+                    gasLimit = 25000,
+                    priorityFee = 35,
+                    regularFee = 26,
+                    gasLimitContract = 65000,
+                    limits = FeeLimits(26, 35)
+                )
+            } else {
+                defaultForEth()
+            }
+        }
     }
 }

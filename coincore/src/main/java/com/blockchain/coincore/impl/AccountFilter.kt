@@ -19,52 +19,72 @@ fun SingleAccountList.makeAccountGroup(
         AssetFilter.NonCustodial ->
             buildNonCustodialGroup(asset, labels, this)
         AssetFilter.Trading ->
-            buildCustodialGroup(labels, this)
+            buildTradingGroup(labels, this)
+        AssetFilter.Staking ->
+            buildStakingGroup(labels, this)
         AssetFilter.Interest ->
             buildInterestGroup(labels, this)
-        AssetFilter.Custodial -> buildCustodialPlusInterestGroup(labels, this)
+        AssetFilter.Custodial -> buildAllCustodialAccountsGroup(labels, this)
     }.exhaustive
 
-private fun buildCustodialPlusInterestGroup(
+private fun buildAllCustodialAccountsGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
     val grpAccounts =
-        accountList.filterIsInstance<CryptoInterestAccount>() + accountList.filterIsInstance<CustodialTradingAccount>()
+        accountList.filterIsInstance<CustodialInterestAccount>() +
+            accountList.filterIsInstance<CustodialTradingAccount>() +
+            accountList.filterIsInstance<CustodialStakingAccount>()
 
-    return if (grpAccounts.isNotEmpty())
+    return if (grpAccounts.isNotEmpty()) {
         CryptoAccountCustodialGroup(
-            label = labels.getDefaultInterestWalletLabel(),
+            label = labels.getDefaultCustodialGroupLabel(),
             accounts = grpAccounts
         )
-    else
+    } else {
         null
+    }
 }
 
 private fun buildInterestGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
-    val grpAccounts = accountList.filterIsInstance<CryptoInterestAccount>()
+    val grpAccounts = accountList.filterIsInstance<CustodialInterestAccount>()
     return if (grpAccounts.isNotEmpty())
-        CryptoAccountTradingGroup(
+        CryptoAccountCustodialSingleGroup(
             labels.getDefaultInterestWalletLabel(), grpAccounts
         )
     else
         null
 }
 
-private fun buildCustodialGroup(
+private fun buildTradingGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
-    return if (grpAccounts.isNotEmpty())
-        CryptoAccountTradingGroup(
-            labels.getDefaultCustodialWalletLabel(), grpAccounts
+    return if (grpAccounts.isNotEmpty()) {
+        CryptoAccountCustodialSingleGroup(
+            labels.getDefaultTradingWalletLabel(), grpAccounts
         )
-    else
+    } else {
         null
+    }
+}
+
+private fun buildStakingGroup(
+    labels: DefaultLabels,
+    accountList: List<SingleAccount>
+): AccountGroup? {
+    val grpAccounts = accountList.filterIsInstance<CustodialStakingAccount>()
+    return if (grpAccounts.isNotEmpty()) {
+        CryptoAccountCustodialSingleGroup(
+            labels.getDefaultStakingWalletLabel(), grpAccounts
+        )
+    } else {
+        null
+    }
 }
 
 private fun buildNonCustodialGroup(
@@ -73,12 +93,13 @@ private fun buildNonCustodialGroup(
     accountList: List<SingleAccount>
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CryptoNonCustodialAccount>()
-    return if (grpAccounts.isNotEmpty())
+    return if (grpAccounts.isNotEmpty()) {
         CryptoAccountNonCustodialGroup(
-            asset, labels.getDefaultCustodialWalletLabel(), grpAccounts
+            asset, labels.getDefaultTradingWalletLabel(), grpAccounts
         )
-    else
+    } else {
         null
+    }
 }
 
 private fun buildAssetMasterGroup(
@@ -86,12 +107,13 @@ private fun buildAssetMasterGroup(
     labels: DefaultLabels,
     accountList: List<SingleAccount>
 ): AccountGroup? {
-    return if (accountList.isEmpty())
+    return if (accountList.isEmpty()) {
         null
-    else
+    } else {
         CryptoAccountNonCustodialGroup(
             asset,
             labels.getAssetMasterWalletLabel(asset),
             accountList
         )
+    }
 }

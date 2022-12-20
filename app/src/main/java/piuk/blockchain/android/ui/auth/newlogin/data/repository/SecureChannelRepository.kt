@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.auth.newlogin.data.repository
 
+import com.blockchain.coreandroid.utils.pubKeyHash
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.SecureChannelPrefs
@@ -22,7 +23,6 @@ import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingR
 import piuk.blockchain.android.ui.auth.newlogin.data.model.toDomain
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
-import piuk.blockchain.androidcore.utils.pubKeyHash
 import timber.log.Timber
 
 class SecureChannelRepository(

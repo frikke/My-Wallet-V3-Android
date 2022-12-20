@@ -34,7 +34,7 @@ fun ActionStackedIconTableRow(
                 bottomImageResource = bottomImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_margin))
+                    .padding(end = dimensionResource(R.dimen.medium_spacing))
             )
         },
         content = {
@@ -61,8 +61,8 @@ fun ActionStackedIconTableRow(
             Image(
                 imageResource = endImageResource,
                 modifier = Modifier.requiredSizeIn(
-                    maxWidth = dimensionResource(R.dimen.standard_margin),
-                    maxHeight = dimensionResource(R.dimen.standard_margin),
+                    maxWidth = dimensionResource(R.dimen.standard_spacing),
+                    maxHeight = dimensionResource(R.dimen.standard_spacing),
                 ),
             )
         },

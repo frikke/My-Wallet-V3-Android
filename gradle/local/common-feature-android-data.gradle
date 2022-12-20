@@ -1,0 +1,22 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+dependencies {
+    //caching
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    // koin
+    implementation Libraries.koin
+
+    // RxJava
+    implementation Libraries.rxReplayShareKotlin
+    implementation Libraries.rxRelay
+    implementation Libraries.rxBinding
+    implementation Libraries.rxBindingCompat
+    implementation Libraries.rxBindingCore
+    implementation Libraries.rxjava3Coroutines
+    implementation Libraries.koinAndroid
+    implementation Libraries.kotlinJson
+
+    // coroutines
+    implementation Libraries.androidCoroutines
+}

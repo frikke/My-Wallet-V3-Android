@@ -20,7 +20,7 @@ interface KycProfileView : View {
 
     fun setButtonEnabled(enabled: Boolean)
 
-    fun continueSignUp(profileModel: ProfileModel)
+    fun navigateToAddressVerification(profileModel: ProfileModel)
 
     fun showErrorSnackbar(message: String)
 

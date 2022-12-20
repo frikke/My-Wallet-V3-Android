@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.kyc.countryselection
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -14,8 +16,6 @@ import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.countryselection.models.CountrySelectionState
 import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 import piuk.blockchain.android.ui.kyc.countryselection.util.toDisplayList
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 internal class KycCountrySelectionPresenter(

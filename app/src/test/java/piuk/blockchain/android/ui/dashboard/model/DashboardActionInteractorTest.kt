@@ -9,6 +9,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -45,14 +46,14 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
 class DashboardActionInteractorTest {
 
@@ -76,6 +77,10 @@ class DashboardActionInteractorTest {
     private val cowboysDataProvider: CowboysPromoDataProvider = mock()
     private val referralService: ReferralService = mock()
     private val cowboysPrefs: CowboysPrefs = mock()
+    private val stakingFF: FeatureFlag = mock()
+    private val totalDisplayBalanceFF: FeatureFlag = mock()
+    private val assetDisplayBalanceFF: FeatureFlag = mock()
+    private val shouldAssetShowUseCase: ShouldAssetShowUseCase = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -114,8 +119,14 @@ class DashboardActionInteractorTest {
             settingsDataManager = settingsDataManager,
             cowboysDataProvider = cowboysDataProvider,
             referralService = referralService,
-            cowboysPrefs = cowboysPrefs
+            cowboysPrefs = cowboysPrefs,
+            stakingFeatureFlag = stakingFF,
+            shouldAssetShowUseCase = shouldAssetShowUseCase,
+            totalDisplayBalanceFF = totalDisplayBalanceFF,
+            assetDisplayBalanceFF = assetDisplayBalanceFF,
         )
+
+        whenever(shouldAssetShowUseCase.invoke(any())).thenReturn(flowOf(true))
     }
 
     @Test
@@ -383,7 +394,7 @@ class DashboardActionInteractorTest {
             )
         )
         whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
-            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5)))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("error message"))))
         whenever(dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT))
             .thenReturn(Outcome.Success(null))
 

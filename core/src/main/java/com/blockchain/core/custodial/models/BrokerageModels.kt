@@ -1,5 +1,6 @@
 package com.blockchain.core.custodial.models
 
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import info.blockchain.balance.Money
@@ -15,6 +16,7 @@ data class BrokerageQuote(
     val feeDetails: QuoteFee,
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,
+    val depositTerms: DepositTerms?
 ) {
     fun millisToExpire(): Long {
         return Duration.between(

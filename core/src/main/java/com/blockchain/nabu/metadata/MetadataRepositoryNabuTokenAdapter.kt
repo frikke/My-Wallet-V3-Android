@@ -6,9 +6,9 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.rx.maybeCache
+import com.blockchain.utils.thenSingle
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class MetadataRepositoryNabuTokenAdapter(
     private val accountCredentialsMetadata: AccountCredentialsMetadata,

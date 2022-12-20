@@ -4,6 +4,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -14,7 +15,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class TransactionInOutMapper(
     private val transactionHelper: TransactionHelper,

@@ -5,6 +5,7 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.data.domain.Erc20L2BalancesStore
 import com.blockchain.core.chains.erc20.data.domain.toDomain
 import com.blockchain.core.chains.erc20.data.domain.toStore
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.map
@@ -14,12 +15,11 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
+import com.blockchain.utils.rxSingleOutcome
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,

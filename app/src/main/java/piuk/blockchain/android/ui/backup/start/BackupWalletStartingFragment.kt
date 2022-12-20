@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.scopedInjectActivity
 
 class BackupWalletStartingFragment :
@@ -22,7 +23,7 @@ class BackupWalletStartingFragment :
         BackupWalletStartingState,
         FragmentBackupStartBinding>() {
 
-    private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
+    private val secondPasswordDialog: SecondPasswordDialog by scopedInjectActivity()
 
     override val model: BackupWalletStartingModel by scopedInject()
 
@@ -78,7 +79,7 @@ class BackupWalletStartingFragment :
 
     private fun pinCodeValidatedForChange() {
         model.process(BackupWalletStartingIntents.TriggerEmailAlert)
-        secondPasswordHandler.validate(
+        secondPasswordDialog.validate(
             requireContext(),
             object : SecondPasswordHandler.ResultListener {
                 override fun onNoSecondPassword() {

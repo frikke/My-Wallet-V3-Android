@@ -6,6 +6,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -59,8 +60,20 @@ interface ExchangeRates {
 interface ExchangeRatesDataManager : ExchangeRates {
     fun init(): Completable
 
-    fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
-    fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
+    @Deprecated("Use the reactive flow exchangeRate")
+    fun exchangeRateLegacy(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
+
+    fun exchangeRate(
+        fromAsset: Currency,
+        toAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<ExchangeRate>>
+
+    fun exchangeRateToUserFiat(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+    ): Observable<ExchangeRate>
+
     fun exchangeRateToUserFiatFlow(
         fromAsset: Currency,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)

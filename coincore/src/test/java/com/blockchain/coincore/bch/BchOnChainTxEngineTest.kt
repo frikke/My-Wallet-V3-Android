@@ -9,19 +9,23 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.atMost
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.payload.data.XPub
@@ -33,9 +37,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
 
 class BchOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -179,7 +180,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -212,8 +213,6 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         val totalSweepable = totalBalance - totalFee
 
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
-
-        whenever(bchDataManager.getAddressBalance(SOURCE_XPUB)).thenReturn(totalBalance)
 
         val unspentOutputs = listOf<Utxo>(
             mock(), mock()
@@ -289,8 +288,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).xpubAddress
-        verify(sourceAccount).balance
-        verify(bchDataManager).getAddressBalance(SOURCE_XPUB)
+        verify(sourceAccount, times(2)).balanceRx
         verify(feeManager).bchFeeOptions
         verify(bchFeeOptions).regularFee
         verify(sendDataManager).getUnspentBchOutputs(SOURCE_XPUB)
@@ -499,10 +497,11 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<BchCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
+                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = Money.zero(totalBalance.currency),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

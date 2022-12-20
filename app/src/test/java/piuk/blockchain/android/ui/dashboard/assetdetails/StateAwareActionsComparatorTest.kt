@@ -4,8 +4,8 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.StateAwareAction
-import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
@@ -40,6 +40,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.Receive),
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
+            StateAwareAction(ActionState.Available, AssetAction.StakingDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
@@ -68,13 +69,14 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.Receive),
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
+            StateAwareAction(ActionState.Available, AssetAction.StakingDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)
         )
-        val account: CryptoInterestAccount = mock()
+        val account: CustodialInterestAccount = mock()
         val balance: AccountBalance = mock {
             on { total }.thenReturn(Money.zero(testAsset))
         }
@@ -96,6 +98,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.Buy),
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
+            StateAwareAction(ActionState.Available, AssetAction.StakingDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
@@ -125,6 +128,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.Buy),
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
+            StateAwareAction(ActionState.Available, AssetAction.StakingDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),

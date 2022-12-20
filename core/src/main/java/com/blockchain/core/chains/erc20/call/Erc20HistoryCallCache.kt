@@ -7,16 +7,17 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.filterIf
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import java.math.BigInteger
 
 // This doesn't cache anything at this time, since it makes a call for a single
 // asset. We can review this, when we look at activity caching in detail
@@ -80,7 +81,8 @@ internal class Erc20HistoryCallCache(
         ethDataManager.supportedNetworks.map { supportedNetworks ->
             supportedNetworks.firstOrNull { it.networkTicker == parentChain }?.let { evmNetwork ->
                 assetCatalogue.fromNetworkTicker(evmNetwork.networkTicker)?.let { asset ->
-                    val fee = evmTransactionResponse.extraData.gasUsed * evmTransactionResponse.extraData.gasPrice
+                    val fee = (evmTransactionResponse.extraData.gasUsed)
+                        ?: (BigInteger.ZERO * evmTransactionResponse.extraData.gasPrice)
                     Money.fromMinor(asset, fee)
                 } ?: throw IllegalAccessException("Unsupported L2 Network")
             } ?: throw IllegalAccessException("Unsupported L2 Network")
@@ -125,7 +127,7 @@ private fun EvmTransactionResponse.toHistoryEvent(
         value = CryptoValue.fromMinor(asset, movements.first().amount),
         from = sourceAddress,
         to = targetAddress,
-        blockNumber = extraData.blockNumber,
+        blockNumber = extraData.blockNumber ?: BigInteger.ZERO,
         timestamp = timeStamp,
         fee = feeFetcher
     )

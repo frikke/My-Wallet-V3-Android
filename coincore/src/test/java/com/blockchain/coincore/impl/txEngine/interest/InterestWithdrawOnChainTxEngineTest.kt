@@ -9,15 +9,14 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.domain.models.interest.InterestLimits
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -27,6 +26,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -153,7 +153,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits ==
                     TxLimits.fromAmounts(CryptoValue.fromMinor(ASSET, fees.minLimit), MAX_WITHDRAW_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
@@ -167,7 +167,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -200,7 +200,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -231,7 +231,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -266,10 +266,10 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         subject.doBuildConfirmations(mockPendingTx)
             .test()
             .assertValue { pTx ->
-                pTx.confirmations.find { it is TxConfirmationValue.From } != null &&
-                    pTx.confirmations.find { it is TxConfirmationValue.To } != null &&
-                    pTx.confirmations.find { it is TxConfirmationValue.Total } != null
-                pTx.confirmations.find { it is TxConfirmationValue.NetworkFee } != null
+                pTx.txConfirmations.find { it is TxConfirmationValue.From } != null &&
+                    pTx.txConfirmations.find { it is TxConfirmationValue.To } != null &&
+                    pTx.txConfirmations.find { it is TxConfirmationValue.Total } != null
+                pTx.txConfirmations.find { it is TxConfirmationValue.NetworkFee } != null
             }
             .assertNoErrors()
             .assertComplete()
@@ -286,12 +286,13 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
-    ) = mock<CryptoInterestAccount> {
+    ) = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

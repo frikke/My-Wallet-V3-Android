@@ -20,11 +20,13 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.presentation.disableBackPress
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
@@ -58,7 +60,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :
@@ -78,7 +79,11 @@ class SimpleBuyPaymentFragment :
     }
 
     private val showRecurringBuyToggle: Boolean by lazy {
-        arguments?.getBoolean(RECURRING_BUY_SUGGESTION, false) ?: false
+        arguments?.getBoolean(RECURRING_BUY_TOGGLE, false) ?: false
+    }
+
+    private val recurringBuyFrequencyRemote: RecurringBuyFrequency? by lazy {
+        enumValueOfOrNull<RecurringBuyFrequency>(arguments?.getString(RECURRING_BUY_REMOTE).orEmpty())
     }
 
     override fun onAttach(context: Context) {
@@ -97,12 +102,6 @@ class SimpleBuyPaymentFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
-
-        binding.transactionProgressView.showToggleUI(
-            showToggle = showRecurringBuyToggle,
-            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
-        )
-
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
@@ -130,6 +129,17 @@ class SimpleBuyPaymentFragment :
                 )
             )
             return
+        }
+
+        if (newState.sideEventsChecked) {
+            recurringBuyFrequencyRemote?.let {
+                if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
+                    binding.transactionProgressView.showToggleUI(
+                        showToggle = showRecurringBuyToggle,
+                        recurringBuyFrequency = it
+                    )
+                }
+            }
         }
 
         newState.selectedCryptoAsset.let {
@@ -175,7 +185,9 @@ class SimpleBuyPaymentFragment :
                 }
                 !newState.paymentPending -> {
                     if (showRecurringBuyToggle && binding.transactionProgressView.isRecurringBuyEnabled()) {
-                        model.process(SimpleBuyIntent.CreateRecurringBuy(RecurringBuyFrequency.WEEKLY))
+                        recurringBuyFrequencyRemote?.let {
+                            model.process(SimpleBuyIntent.CreateRecurringBuy(it))
+                        }
                     } else {
                         navigator().exitSimpleBuyFlow()
                     }
@@ -294,8 +306,7 @@ class SimpleBuyPaymentFragment :
     private fun handleErrorStates(errorState: ErrorState, currencyCode: String) {
         when (errorState) {
             ErrorState.ApproveBankInvalid,
-            ErrorState.ApprovedBankAccountInvalid,
-            -> showLegacyError(
+            ErrorState.ApprovedBankAccountInvalid -> showLegacyError(
                 title = getString(R.string.bank_transfer_payment_invalid_title),
                 subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
@@ -303,8 +314,7 @@ class SimpleBuyPaymentFragment :
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankFailed,
-            ErrorState.ApprovedBankFailedInternal,
-            -> showLegacyError(
+            ErrorState.ApprovedBankFailedInternal -> showLegacyError(
                 title = getString(R.string.bank_transfer_payment_failed_title),
                 subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle),
                 errorState = errorState.toString(),
@@ -521,11 +531,10 @@ class SimpleBuyPaymentFragment :
                 currencyCode = currencyCode
             )
             ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
-                " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
+                "ErrorState LinkedBankNotSupported should not get handled in Payments screen"
             )
             ErrorState.UnknownCardProvider,
-            ErrorState.ProviderIsNotSupported,
-            -> showLegacyError(
+            ErrorState.ProviderIsNotSupported -> showLegacyError(
                 getString(R.string.sb_card_provider_not_supported),
                 getString(R.string.sb_checkout_contact_support),
                 R.drawable.ic_cross_white_bckg,
@@ -865,15 +874,21 @@ class SimpleBuyPaymentFragment :
 
     companion object {
         private const val IS_PAYMENT_AUTHORISED = "IS_PAYMENT_AUTHORISED"
-        private const val RECURRING_BUY_SUGGESTION = "RECURRING_BUY_SUGGESTION"
+        private const val RECURRING_BUY_TOGGLE = "RECURRING_BUY_TOGGLE"
+        private const val RECURRING_BUY_REMOTE = "RECURRING_BUY_REMOTE"
         private const val BANK_APPROVAL = 5123
         private const val SUPPORT_SB_SUBJECT = "Issue with Payments"
 
-        fun newInstance(isFromDeepLink: Boolean, showRecurringBuySuggestion: Boolean) =
+        fun newInstance(
+            isFromDeepLink: Boolean,
+            showRecurringBuySuggestion: Boolean,
+            recurringBuyFrequency: RecurringBuyFrequency?
+        ) =
             SimpleBuyPaymentFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(IS_PAYMENT_AUTHORISED, isFromDeepLink)
-                    putBoolean(RECURRING_BUY_SUGGESTION, showRecurringBuySuggestion)
+                    putBoolean(RECURRING_BUY_TOGGLE, showRecurringBuySuggestion)
+                    putString(RECURRING_BUY_REMOTE, recurringBuyFrequency?.name)
                 }
             }
     }

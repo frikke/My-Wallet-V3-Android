@@ -1,9 +1,9 @@
 package com.blockchain.core.chains.bitcoincash
 
+import com.blockchain.core.chains.datastores.SimpleDataStore
 import info.blockchain.wallet.BitcoinCashWallet
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import java.math.BigInteger
-import piuk.blockchain.androidcore.data.datastores.SimpleDataStore
 
 /**
  * A simple data store class to cache the Bitcoin cash Wallet (bitcoin chain M/44H/0H)

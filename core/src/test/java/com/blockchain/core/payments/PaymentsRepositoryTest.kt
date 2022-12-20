@@ -1,15 +1,15 @@
 package com.blockchain.core.payments
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
+import com.blockchain.api.brokerage.data.DepositTermsResponse
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -17,16 +17,21 @@ import com.blockchain.api.payments.data.BankTransferChargeAttributes
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferFiatAmount
 import com.blockchain.api.payments.data.BankTransferPaymentResponse
+import com.blockchain.api.payments.data.CardDetailsResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
+import com.blockchain.api.payments.data.ExtraAttributes
 import com.blockchain.api.payments.data.FastlinkParamsResponse
 import com.blockchain.api.payments.data.LinkBankAttrsResponse
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
+import com.blockchain.api.payments.data.LinkedBankDetailsResponse
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.PaymentAccountResponse
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.RefreshPlaidResponse
 import com.blockchain.api.payments.data.SettlementBody
@@ -38,9 +43,11 @@ import com.blockchain.api.services.CollateralLock
 import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.payments.cache.CardDetailsStore
+import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -53,6 +60,7 @@ import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -62,6 +70,7 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
@@ -88,9 +97,11 @@ import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
 import com.blockchain.testutils.USD
+import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
@@ -105,11 +116,11 @@ import junit.framework.Assert.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PaymentsRepositoryTest {
@@ -124,9 +135,6 @@ class PaymentsRepositoryTest {
     @get:Rule
     val mockKRule = MockKRule()
 
-    @get:Rule
-    val instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
-
     @ExperimentalCoroutinesApi
     @get:Rule
     var coroutineTestRule = CoroutineTestRule()
@@ -135,18 +143,19 @@ class PaymentsRepositoryTest {
         private const val AUTH = "auth"
         private const val ID = "id"
         private const val NETWORK_TICKER = "GBP"
+        private const val BUY_NETWORK_TICKER = "BTC"
         private const val APPLICATION_ID = "applicationId"
     }
 
     private val paymentsService: PaymentsService = mockk()
+    private val paymentMethodsStore: PaymentMethodsStore = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
+    private val cardDetailsStore: CardDetailsStore = mockk(relaxed = true)
+    private val linkedBankStore: LinkedBankStore = mockk(relaxed = true)
     private val tradingService: TradingService = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
-    private val authenticator: AuthHeaderProvider = mockk<AuthHeaderProvider>().apply {
-        coEvery { getAuthHeader() } returns Single.just(AUTH)
-    }
     private val googlePayManager: GooglePayManager = mockk()
 
     private val environmentConfig: EnvironmentConfig = mockk<EnvironmentConfig>().apply {
@@ -156,7 +165,7 @@ class PaymentsRepositoryTest {
         every { enabled } returns Single.just(true)
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
-    private val withdrawLocksCache: WithdrawLocksCache = mockk()
+    private val withdrawLocksStore: WithdrawLocksStore = mockk()
     private val fiatCurrenciesService: FiatCurrenciesService = mockk()
 
     private lateinit var subject: PaymentsRepository
@@ -164,19 +173,21 @@ class PaymentsRepositoryTest {
     @Before
     fun setUp() {
         subject = PaymentsRepository(
-            paymentsService,
-            paymentMethodsService,
-            linkedCardsStore,
-            tradingService,
-            assetCatalogue,
-            simpleBuyPrefs,
-            withdrawLocksCache,
-            authenticator,
-            googlePayManager,
-            environmentConfig,
-            fiatCurrenciesService,
-            googlePayFeatureFlag,
-            plaidFeatureFlag
+            paymentsService = paymentsService,
+            paymentMethodsStore = paymentMethodsStore,
+            paymentMethodsService = paymentMethodsService,
+            cardDetailsStore = cardDetailsStore,
+            linkedCardsStore = linkedCardsStore,
+            linkedBankStore = linkedBankStore,
+            tradingService = tradingService,
+            assetCatalogue = assetCatalogue,
+            simpleBuyPrefs = simpleBuyPrefs,
+            withdrawLocksStore = withdrawLocksStore,
+            googlePayManager = googlePayManager,
+            environmentConfig = environmentConfig,
+            fiatCurrenciesService = fiatCurrenciesService,
+            googlePayFeatureFlag = googlePayFeatureFlag,
+            plaidFeatureFlag = plaidFeatureFlag
         )
     }
 
@@ -185,11 +196,12 @@ class PaymentsRepositoryTest {
     // /////////////////////////////////////////
 
     @Test
-    fun `getLinkedBank() success`() {
+    fun `getLinkedBankLegacy() success`() = runTest {
         // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
         val linkedBankTransferResponse = LinkedBankTransferResponse(
             id = "id",
-            partner = CreateLinkBankResponse.YAPILY_PARTNER,
+            partner = YAPILY_PARTNER,
             state = LinkedBankTransferResponse.ACTIVE,
             currency = NETWORK_TICKER,
             details = null,
@@ -199,10 +211,12 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(AUTH, ID) } returns Single.just(linkedBankTransferResponse)
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
 
         // ASSERT
-        subject.getLinkedBank(ID).test()
+        subject.getLinkedBankLegacy(ID).test()
+            .await()
             .assertValue {
                 it.id == "id" &&
                     it.currency == fiatCurrency &&
@@ -214,11 +228,49 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `getLinkedBank() YAPILY - missing callback path should throw error`() {
+    fun `getLinkedBank() success`() = runTest {
         // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
         val linkedBankTransferResponse = LinkedBankTransferResponse(
             id = "id",
-            partner = CreateLinkBankResponse.YAPILY_PARTNER,
+            partner = YAPILY_PARTNER,
+            state = LinkedBankTransferResponse.ACTIVE,
+            currency = NETWORK_TICKER,
+            details = null,
+            error = null,
+            attributes = LinkedBankTransferAttributesResponse(null, null, null, "callback"),
+            ux = null
+        )
+        val fiatCurrency: FiatCurrency = mockk()
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
+
+        // ASSERT
+        subject.getLinkedBank(ID).test {
+            awaitItem().run {
+                assertTrue { this is DataResource.Data }
+                (this as DataResource.Data).data.run {
+                    assertTrue {
+                        id == "id" &&
+                            currency == fiatCurrency &&
+                            partner == BankPartner.YAPILY &&
+                            state == LinkedBankState.ACTIVE &&
+                            errorStatus == LinkedBankErrorState.NONE &&
+                            callbackPath == "callback"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `getLinkedBankLegacy() YAPILY - missing callback path should throw error`() = runTest {
+        // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
+        val linkedBankTransferResponse = LinkedBankTransferResponse(
+            id = "id",
+            partner = YAPILY_PARTNER,
             state = LinkedBankTransferResponse.ACTIVE,
             currency = NETWORK_TICKER,
             details = null,
@@ -228,11 +280,40 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(AUTH, ID) } returns Single.just(linkedBankTransferResponse)
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
 
         // ASSERT
-        subject.getLinkedBank(ID).test()
-            .assertError { it is IllegalArgumentException }
+        subject.getLinkedBankLegacy(ID).test()
+            .await()
+            .assertError { it is Exception }
+    }
+
+    @Test
+    fun `getLinkedBank() YAPILY - missing callback path should throw error`() = runTest {
+        // ARRANGE
+        val linkedBankStoreFlow = MutableSharedFlow<DataResource<LinkedBankTransferResponse>>(replay = 1)
+        val linkedBankTransferResponse = LinkedBankTransferResponse(
+            id = "id",
+            partner = YAPILY_PARTNER,
+            state = LinkedBankTransferResponse.ACTIVE,
+            currency = NETWORK_TICKER,
+            details = null,
+            error = null,
+            attributes = null,
+            ux = null
+        )
+        val fiatCurrency: FiatCurrency = mockk()
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
+        every { linkedBankStore.stream(any()) } returns linkedBankStoreFlow
+        linkedBankStoreFlow.emit(DataResource.Data(linkedBankTransferResponse))
+
+        // ASSERT
+        subject.getLinkedBank(ID).test {
+            expectMostRecentItem().run {
+                assertTrue { this is DataResource.Error }
+            }
+        }
     }
 
     @Test
@@ -243,12 +324,15 @@ class PaymentsRepositoryTest {
             NETWORK_TICKER,
             "1000",
             listOf(
-                CollateralLock(NETWORK_TICKER, "10", date)
+                CollateralLock(NETWORK_TICKER, "10", date, BUY_NETWORK_TICKER, "1000")
             )
         )
         val localCurrency =
-            mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
-        every { withdrawLocksCache.withdrawLocks() } returns Single.just(locks)
+            mockk<FiatCurrency>(relaxed = true) { every { networkTicker } returns (NETWORK_TICKER) }
+        val buyCurrency =
+            mockk<CryptoCurrency>(relaxed = true) { every { networkTicker } returns (BUY_NETWORK_TICKER) }
+        every { withdrawLocksStore.stream(any()) } returns flowOf(DataResource.Data(locks))
+        every { assetCatalogue.fromNetworkTicker(BUY_NETWORK_TICKER) } returns buyCurrency
 
         // ASSERT
         subject.getWithdrawalLocks(localCurrency).test()
@@ -258,7 +342,8 @@ class PaymentsRepositoryTest {
                     listOf(
                         FundsLock(
                             Money.fromMinor(localCurrency, BigInteger("10")),
-                            date.toZonedDateTime()
+                            date.toZonedDateTime(),
+                            Money.fromMinor(buyCurrency, BigInteger("1000")),
                         )
                     )
                 )
@@ -282,7 +367,7 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getBanks(AUTH) } returns Single.just(listOf(bankResponse))
+        every { paymentMethodsService.getBanks() } returns Single.just(listOf(bankResponse))
 
         // ASSERT
         subject.getLinkedBanks().test()
@@ -302,7 +387,7 @@ class PaymentsRepositoryTest {
             every { type } returns PaymentMethodType.BANK_ACCOUNT
             every { id } returns ID
         }
-        every { paymentMethodsService.removeBeneficiary(AUTH, ID) } returns Completable.complete()
+        every { paymentMethodsService.removeBeneficiary(ID) } returns Completable.complete()
 
         // ASSERT
         subject.removeBank(bank).test().assertComplete()
@@ -327,7 +412,7 @@ class PaymentsRepositoryTest {
         val response = mockk<BankTransferPaymentResponse>(relaxed = true).apply {
             every { paymentId } returns ID
         }
-        every { paymentMethodsService.startBankTransferPayment(any(), any(), any()) } returns Single.just(response)
+        every { paymentMethodsService.startBankTransferPayment(any(), any()) } returns Single.just(response)
 
         // ASSERT
         subject.startBankTransfer(ID, Money.zero(FiatCurrency.Dollars), NETWORK_TICKER).test()
@@ -341,7 +426,7 @@ class PaymentsRepositoryTest {
 
         every {
             paymentMethodsService.updateAccountProviderId(
-                eq(AUTH), eq(ID), any()
+                eq(ID), any()
             )
         } returns
             Completable.complete()
@@ -355,7 +440,7 @@ class PaymentsRepositoryTest {
     fun `linkPlaidAccount() - success`() {
         // ARRANGE
         val attrs = LinkPlaidAccountBody.Attributes("accountId", "publicToken")
-        every { paymentMethodsService.linkPLaidAccount(AUTH, ID, LinkPlaidAccountBody(attrs)) } returns
+        every { paymentMethodsService.linkPLaidAccount(ID, LinkPlaidAccountBody(attrs)) } returns
             Completable.complete()
 
         // ASSERT
@@ -372,7 +457,7 @@ class PaymentsRepositoryTest {
             ID,
             RefreshPlaidResponse.Attributes("linkToken", "linkUrl", "tokenExpiresAt")
         )
-        every { paymentMethodsService.refreshPlaidAccount(AUTH, ID, requestBody) } returns Single.just(response)
+        every { paymentMethodsService.refreshPlaidAccount(ID, requestBody) } returns Single.just(response)
 
         // ASSERT
         subject.refreshPlaidBankAccount(ID).test()
@@ -400,7 +485,6 @@ class PaymentsRepositoryTest {
         }
         coEvery {
             paymentMethodsService.getBeneficiaryInfo(
-                authorization = AUTH,
                 currency = currency,
                 address = alias
             )
@@ -439,7 +523,6 @@ class PaymentsRepositoryTest {
         }
         coEvery {
             paymentMethodsService.getBeneficiaryInfo(
-                authorization = AUTH,
                 currency = currency,
                 address = address
             )
@@ -475,7 +558,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER),
                 applicationId = APPLICATION_ID
@@ -518,7 +600,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -568,7 +649,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -622,7 +702,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -646,7 +725,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -663,7 +741,7 @@ class PaymentsRepositoryTest {
         // ARRANGE
         val url = "url"
         val token = "token"
-        every { paymentMethodsService.updateOpenBankingToken(url, AUTH, OpenBankingTokenBody(token)) } returns
+        every { paymentMethodsService.updateOpenBankingToken(url, OpenBankingTokenBody(token)) } returns
             Completable.complete()
 
         // ASSERT
@@ -684,7 +762,7 @@ class PaymentsRepositoryTest {
             null
         )
         every { assetCatalogue.fromNetworkTicker(NETWORK_TICKER) } returns FiatCurrency.Dollars
-        every { paymentMethodsService.getBankTransferCharge(AUTH, ID) } returns Single.just(response)
+        every { paymentMethodsService.getBankTransferCharge(ID) } returns Single.just(response)
 
         // ASSERT
         subject.getBankTransferCharge(ID).test()
@@ -730,7 +808,6 @@ class PaymentsRepositoryTest {
         }
         every {
             paymentMethodsService.checkSettlement(
-                AUTH,
                 ID,
                 SettlementBody(
                     SettlementBody.Attributes(
@@ -770,7 +847,6 @@ class PaymentsRepositoryTest {
         }
         every {
             paymentMethodsService.checkSettlement(
-                AUTH,
                 ID,
                 SettlementBody(
                     SettlementBody.Attributes(
@@ -790,6 +866,77 @@ class PaymentsRepositoryTest {
                     settlementReason = SettlementReason.NONE
                 )
             )
+    }
+
+    @Test
+    fun `getDepositTerms() success should return DepositTerms`() = runTest {
+        // ARRANGE
+        val response = DepositTermsResponse(
+            creditCurrency = "USD",
+            availableToTradeMinutesMin = 1,
+            availableToTradeMinutesMax = 2,
+            availableToTradeDisplayMode = "DAY_RANGE",
+            availableToWithdrawMinutesMin = 3,
+            availableToWithdrawMinutesMax = 4,
+            availableToWithdrawDisplayMode = "MINUTE_RANGE",
+            settlementType = "INSTANT",
+            settlementReason = "REQUIRES_UPDATE"
+        )
+        val amount = Money.fromMinor(FiatCurrency.fromCurrencyCode("USD"), BigInteger.ONE)
+        val requestBody = DepositTermsRequestBody(
+            amount = DepositTermsRequestBody.Amount(
+                value = amount.toBigInteger().toString(),
+                symbol = amount.currencyCode
+            ),
+            paymentMethodId = "paymentMethodId"
+        )
+
+        coEvery { paymentMethodsService.getDepositTerms(requestBody) } returns Outcome.Success(response)
+
+        // ACT
+        val result = subject.getDepositTerms("paymentMethodId", amount)
+
+        // ASSERT
+        result.doOnSuccess {
+            assertEquals(
+                DepositTerms(
+                    creditCurrency = "USD",
+                    availableToTradeDisplayMode = DepositTerms.DisplayMode.DAY_RANGE,
+                    availableToTradeMinutesMin = 1,
+                    availableToTradeMinutesMax = 2,
+                    availableToWithdrawDisplayMode = DepositTerms.DisplayMode.MINUTE_RANGE,
+                    availableToWithdrawMinutesMin = 3,
+                    availableToWithdrawMinutesMax = 4,
+                    settlementType = SettlementType.INSTANT,
+                    settlementReason = SettlementReason.REQUIRES_UPDATE
+                ),
+                it
+            )
+        }
+    }
+
+    @Test
+    fun `getDepositTerms() failure should return error`() = runTest {
+        // ARRANGE
+        val error = Exception()
+        val amount = Money.fromMinor(FiatCurrency.fromCurrencyCode("USD"), BigInteger.ONE)
+        val requestBody = DepositTermsRequestBody(
+            amount = DepositTermsRequestBody.Amount(
+                value = amount.toBigInteger().toString(),
+                symbol = amount.currencyCode
+            ),
+            paymentMethodId = "paymentMethodId"
+        )
+
+        coEvery { paymentMethodsService.getDepositTerms(requestBody) } returns Outcome.Failure(error)
+
+        // ACT
+        val result = subject.getDepositTerms("paymentMethodId", amount)
+
+        // ASSERT
+        result.doOnFailure {
+            assertEquals(error, it)
+        }
     }
 
     // /////////////////////////////////////////
@@ -859,7 +1006,7 @@ class PaymentsRepositoryTest {
             "countryCode", "fullName", "address1", "address2", "city", "postCode", null
         )
         val fiatCurrency: FiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns NETWORK_TICKER }
-        every { paymentMethodsService.addNewCard(eq(AUTH), any()) } returns
+        every { paymentMethodsService.addNewCard(any()) } returns
             Single.just(AddNewCardResponse(id = ID, partner = "EVERYPAY"))
 
         // ASSERT
@@ -878,7 +1025,7 @@ class PaymentsRepositoryTest {
             everypay = EveryPayCardCredentialsResponse("name", "token", "link"),
             cardProvider = null
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -903,7 +1050,7 @@ class PaymentsRepositoryTest {
             everypay = null,
             cardProvider = cardProviderResponse
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -925,7 +1072,7 @@ class PaymentsRepositoryTest {
             everypay = null,
             cardProvider = null
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -936,8 +1083,9 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `getCardDetails() should return card`() {
+    fun `getCardDetailsLegacy() should return card`() = runTest {
         // ARRANGE
+        val cardDetailsStoreFlow = MutableSharedFlow<DataResource<CardResponse>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -945,10 +1093,12 @@ class PaymentsRepositoryTest {
             currency = NETWORK_TICKER
         )
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
-        every { paymentMethodsService.getCardDetails(AUTH, ID) } returns Single.just(cardResponse)
+        every { cardDetailsStore.stream(any()) } returns cardDetailsStoreFlow
+        cardDetailsStoreFlow.emit(DataResource.Data(cardResponse))
 
         // ASSERT
-        subject.getCardDetails(ID).test()
+        subject.getCardDetailsLegacy(ID).test()
+            .await()
             .assertValue {
                 it.limits == PaymentLimits(
                     BigInteger.ZERO,
@@ -959,9 +1109,40 @@ class PaymentsRepositoryTest {
     }
 
     @Test
+    fun `getCardDetails() should return card`() = runTest {
+        // ARRANGE
+        val cardDetailsStoreFlow = MutableSharedFlow<DataResource<CardResponse>>(replay = 1)
+        val cardResponse = CardResponse(
+            id = "id",
+            partner = "CARDPROVIDER",
+            state = CardResponse.ACTIVE,
+            currency = NETWORK_TICKER
+        )
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
+        every { cardDetailsStore.stream(any()) } returns cardDetailsStoreFlow
+        cardDetailsStoreFlow.emit(DataResource.Data(cardResponse))
+
+        // ASSERT
+        subject.getCardDetails(ID).test {
+            awaitItem().run {
+                assertTrue { this is DataResource.Data }
+                (this as DataResource.Data).data.run {
+                    assertTrue {
+                        limits == PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            FiatCurrency.fromCurrencyCode(NETWORK_TICKER)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun `deleteCard() should remove card and invalidate cache`() {
         // ARRANGE
-        every { paymentMethodsService.deleteCard(AUTH, ID) } returns Completable.complete()
+        every { paymentMethodsService.deleteCard(ID) } returns Completable.complete()
 
         // ASSERT
         subject.deleteCard(ID).test()
@@ -986,7 +1167,7 @@ class PaymentsRepositoryTest {
             billingAddressRequired = true,
             billingAddressParameters = GooglePayResponse.BillingAddressParameters()
         )
-        every { paymentMethodsService.getGooglePayInfo(AUTH, NETWORK_TICKER) } returns Single.just(response)
+        every { paymentMethodsService.getGooglePayInfo(NETWORK_TICKER) } returns Single.just(response)
 
         // ASSERT
         subject.getGooglePayTokenizationParameters(NETWORK_TICKER).test()
@@ -1014,18 +1195,113 @@ class PaymentsRepositoryTest {
     // /////////////////////////////////////////
 
     @Test
-    fun `getPaymentMethodForId() - happy`() = runTest {
+    fun `getPaymentMethodForId() - happy PAYMENT_CARD`() = runTest {
         // ARRANGE
-        val paymentMethodDetails: PaymentMethodDetails = mockk()
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Success(paymentMethodDetails)
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.PAYMENT_CARD,
+            cardDetails = com.blockchain.api.payments.data.CardResponse(
+                card = CardDetailsResponse(
+                    number = "number",
+                    label = "label",
+                    type = "type"
+                ),
+                mobilePaymentType = CardResponse.GOOGLE_PAY
+            )
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
 
         // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
 
         // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "label",
+            endDigits = "number",
+            mobilePaymentType = MobilePaymentType.GOOGLE_PAY
+        )
+
         result.doOnSuccess {
-            assertEquals(paymentMethodDetails, it)
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy BANK_TRANSFER`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.BANK_TRANSFER,
+            bankTransferAccountDetails = LinkedBankTransferResponse(
+                id = "", partner = "", currency = "", state = "",
+                details = LinkedBankDetailsResponse(
+                    accountNumber = "accountNumber", accountName = "accountName",
+                    bankName = null, bankAccountType = null, sortCode = null, iban = null, bic = null
+                ),
+                error = null, attributes = null, ux = null
+            )
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "accountName",
+            endDigits = "accountNumber"
+        )
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy BANK_ACCOUNT`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = PaymentMethodDetailsResponse.BANK_ACCOUNT,
+            bankAccountDetails = PaymentAccountResponse(
+                extraAttributes = ExtraAttributes(
+                    name = "name", type = null, address = "address"
+                )
+            )
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails(
+            label = "name",
+            endDigits = "address"
+        )
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun `getPaymentMethodForId() - happy Default`() = runTest {
+        // ARRANGE
+        val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
+            paymentMethodType = "any"
+        )
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
+            Outcome.Success(paymentMethodDetailsResponse)
+
+        // ACT
+        val result = subject.getPaymentMethodDetailsForIdLegacy(ID)
+
+        // ASSERT
+        val expected = PaymentMethodDetails()
+
+        result.doOnSuccess {
+            assertEquals(expected, it)
         }
     }
 }

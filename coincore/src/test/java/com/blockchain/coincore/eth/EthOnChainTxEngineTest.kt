@@ -1,5 +1,4 @@
 @file:Suppress("UnnecessaryVariable")
-
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.AccountBalance
@@ -11,7 +10,8 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.ether
 import com.blockchain.testutils.gwei
@@ -23,6 +23,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
@@ -31,8 +32,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class EthOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -151,7 +150,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -217,7 +216,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -277,7 +276,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimitContract
@@ -339,7 +338,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -418,7 +417,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -498,7 +497,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimitContract
@@ -654,10 +653,11 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<EthCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = CryptoValue.zero(CryptoCurrency.ETHER),
                     exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER)

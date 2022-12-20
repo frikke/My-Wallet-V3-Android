@@ -18,10 +18,15 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.chains.bitcoin.SendDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -44,11 +49,6 @@ import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 private const val STATE_UTXO = "btc_utxo"
@@ -124,7 +124,7 @@ class BtcOnChainTxEngine(
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         Single.zip(
-            sourceAccount.balance.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
             getDynamicFeesPerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)
         ) { total, optionsAndFeesPerKb, coins ->
@@ -143,20 +143,19 @@ class BtcOnChainTxEngine(
         )
 
     private fun getUnspentApiResponse(xpubs: XPubs): Single<List<Utxo>> {
-        val balance = btcDataManager.getAddressBalance(xpubs)
-        return if (balance.isPositive) {
-            sendDataManager.getUnspentBtcOutputs(xpubs)
-                // If we get here, we should have balance...
-                // but if we have no UTXOs then we have a problem:
-                .map { utxo ->
-                    if (utxo.isEmpty()) {
-                        throw fatalError(IllegalStateException("No BTC UTXOs found for non-zero balance"))
-                    } else {
-                        utxo
+        return sourceAccount.balanceRx.firstOrError().flatMap {
+            if (it.total.isPositive) {
+                sendDataManager.getUnspentBtcOutputs(xpubs)
+                    // If we get here, we should have balance...
+                    // but if we have no UTXOs then we have a problem:
+                    .map { utxo ->
+                        utxo.ifEmpty {
+                            throw fatalError(IllegalStateException("No BTC UTXOs found for non-zero balance"))
+                        }
                     }
-                }
-        } else {
-            Single.error(Throwable("No BTC funds"))
+            } else {
+                Single.error(IllegalStateException("No BTC funds"))
+            }
         }
     }
 
@@ -278,7 +277,7 @@ class BtcOnChainTxEngine(
         pendingTx: PendingTx
     ): Single<PendingTx> = isLargeTransaction(pendingTx).map { isLargeTransaction ->
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
                 TxConfirmationValue.CompoundNetworkFee(
@@ -313,7 +312,7 @@ class BtcOnChainTxEngine(
     //  * the Tx size is over 1kB AND
     //  * the ratio of fee/amount is over 1%
     private fun isLargeTransaction(pendingTx: PendingTx): Single<Boolean> =
-        exchangeRates.exchangeRate(pendingTx.feeAmount.currency, Dollars)
+        exchangeRates.exchangeRateLegacy(pendingTx.feeAmount.currency, Dollars)
             .firstOrError()
             .map { exchangeRate ->
                 val fiatValue = exchangeRate.convert(pendingTx.feeAmount)

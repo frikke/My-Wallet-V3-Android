@@ -25,8 +25,20 @@ private fun QuestionnaireNodeResponse.toDomain(): QuestionnaireNode? {
     return when (type) {
         NodeType.SINGLE_SELECTION ->
             QuestionnaireNode.SingleSelection(id, text, children, instructions.orEmpty(), isDropdown ?: false)
-        NodeType.MULTIPLE_SELECTION ->
-            QuestionnaireNode.MultipleSelection(id, text, children, instructions.orEmpty())
+        NodeType.MULTIPLE_SELECTION -> {
+            // There's currently no support for children of Selection inside MultipleSelection dropdowns
+            val sanitizedChildren = if (isDropdown == true) {
+                children.map { child ->
+                    if (child is QuestionnaireNode.Selection) child.copy(children = emptyList())
+                    else child
+                }
+            } else {
+                children
+            }
+            QuestionnaireNode.MultipleSelection(
+                id, text, sanitizedChildren, instructions.orEmpty(), isDropdown ?: false
+            )
+        }
         NodeType.OPEN_ENDED ->
             QuestionnaireNode.OpenEnded(id, text, children, input.orEmpty(), hint.orEmpty(), regex?.let { Regex(it) })
         NodeType.SELECTION -> QuestionnaireNode.Selection(id, text, children, checked ?: false)

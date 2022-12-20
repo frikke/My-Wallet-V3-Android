@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.interest.domain
 
 import app.cash.turbine.test
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.earn.domain.models.interest.InterestAccountBalance
+import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.testutils.USD
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
 import info.blockchain.balance.CryptoCurrency.ETHER
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.mockk.every
 import io.mockk.mockk
@@ -45,13 +45,13 @@ class GetInterestDashboardUseCaseTest {
         totalInterest = Money.fromMajor(BTC, 200.toBigDecimal()),
         totalBalance = Money.fromMajor(BTC, 200.toBigDecimal()),
         pendingInterest = mockk(), pendingDeposit = mockk(), lockedBalance = mockk(),
-        hasTransactions = mockk(relaxed = true)
+        hasTransactions = mockk(relaxed = true),
     )
     private val interestAccountBalanceEth = InterestAccountBalance(
         totalInterest = Money.fromMajor(ETHER, 300.toBigDecimal()),
         totalBalance = Money.fromMajor(ETHER, 300.toBigDecimal()),
         pendingInterest = mockk(), pendingDeposit = mockk(), lockedBalance = mockk(),
-        hasTransactions = mockk(relaxed = true)
+        hasTransactions = mockk(relaxed = true),
     )
 
     private val exchangeRateBtc = ExchangeRate(1.toBigDecimal(), BTC, USD)

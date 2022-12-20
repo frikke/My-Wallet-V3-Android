@@ -36,6 +36,7 @@ val loaderModule = module {
                 notificationTokenManager = get(),
                 settingsDataManager = get(),
                 prerequisites = get(),
+                walletModeService = get(),
                 ioScheduler = Schedulers.io(),
                 deepLinkPersistence = get(),
                 referralService = get(),
@@ -43,7 +44,13 @@ val loaderModule = module {
                 cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag),
                 cowboysPrefs = get(),
                 userIdentity = get(),
-                kycService = get()
+                kycService = get(),
+                defaultWalletModeStrategy = get(),
+                walletModePrefs = get(),
+                walletModeServices = getAll(),
+                productsEligibilityStore = get(),
+                experimentsStore = get(),
+                fraudService = get()
             )
         }
     }

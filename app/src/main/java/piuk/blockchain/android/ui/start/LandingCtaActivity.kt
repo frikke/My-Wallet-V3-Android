@@ -7,8 +7,8 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLandingCtaBinding
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity

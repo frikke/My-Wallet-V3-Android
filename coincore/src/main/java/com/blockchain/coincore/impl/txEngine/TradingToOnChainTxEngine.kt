@@ -30,6 +30,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -37,7 +38,6 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.then
 
 private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
     this.copy(
@@ -79,7 +79,7 @@ class TradingToOnChainTxEngine(
         val withdrawFeeAndMinLimit =
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY).cache()
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
                 outputCurrency = sourceAsset,
@@ -116,7 +116,7 @@ class TradingToOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY)
         ) { balance, cryptoFeeAndMin ->
             val fees = Money.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
@@ -141,7 +141,7 @@ class TradingToOnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount

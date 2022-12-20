@@ -6,7 +6,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.commonarch.presentation.base.BlockchainActivity.Companion.LOGOUT_ACTION
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.util.wiper.DataWiper

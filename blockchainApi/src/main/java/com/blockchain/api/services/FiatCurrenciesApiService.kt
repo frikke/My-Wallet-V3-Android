@@ -8,10 +8,8 @@ class FiatCurrenciesApiService(
 ) {
 
     suspend fun setSelectedTradingCurrency(
-        authHeader: String,
         currency: String
     ) = api.setSelectedTradingCurrency(
-        authHeader,
         SetSelectedTradingCurrencyRequest(
             fiatTradingCurrency = currency
         )

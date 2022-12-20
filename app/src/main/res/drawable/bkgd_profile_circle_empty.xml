@@ -9,9 +9,9 @@
         </shape>
     </item>
     <item
-        android:bottom="@dimen/large_margin"
+        android:bottom="@dimen/large_spacing"
         android:drawable="@drawable/ic_profile"
-        android:left="@dimen/large_margin"
-        android:right="@dimen/large_margin"
-        android:top="@dimen/large_margin" />
+        android:left="@dimen/large_spacing"
+        android:right="@dimen/large_spacing"
+        android:top="@dimen/large_spacing" />
 </layer-list>

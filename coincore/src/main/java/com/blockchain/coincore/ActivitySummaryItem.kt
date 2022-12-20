@@ -1,8 +1,9 @@
 package com.blockchain.coincore
 
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.OrderState
@@ -11,6 +12,7 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -20,9 +22,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
 import kotlin.math.sign
-import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
@@ -59,6 +60,9 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 
     fun fiatValue(selectedFiat: FiatCurrency): Money =
         value.toFiat(selectedFiat, exchangeRates)
+
+    val date: Calendar
+        get() = Calendar.getInstance().apply { timeInMillis = timeStampMs }
 
     final override operator fun compareTo(
         other: ActivitySummaryItem,
@@ -135,6 +139,28 @@ data class CustodialInterestActivitySummaryItem(
 
     override val stateIsFinalised: Boolean
         get() = status > InterestState.MANUAL_REVIEW
+}
+
+data class CustodialStakingActivitySummaryItem(
+    override val exchangeRates: ExchangeRatesDataManager,
+    override val asset: AssetInfo,
+    override val txId: String,
+    override val timeStampMs: Long,
+    override val value: Money,
+    override val account: CryptoAccount,
+    val status: StakingState,
+    val type: TransactionSummary.TransactionType,
+    val confirmations: Int,
+    val accountRef: String,
+    val recipientAddress: String,
+) : CryptoActivitySummaryItem() {
+    fun isPending(): Boolean =
+        status == StakingState.PENDING ||
+            status == StakingState.PROCESSING ||
+            status == StakingState.MANUAL_REVIEW
+
+    override val stateIsFinalised: Boolean
+        get() = status > StakingState.MANUAL_REVIEW
 }
 
 data class CustodialTradingActivitySummaryItem(
@@ -233,14 +259,14 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         var result = 17
         result = 31 * result + asset.hashCode()
         result = 31 * result + transactionType.hashCode()
-        result = 31 * result + JavaHashCode.hashCode(timeStampMs)
+        result = 31 * result + timeStampMs.hashCode()
         result = 31 * result + value.hashCode()
         result = 31 * result + txId.hashCode()
         result = 31 * result + inputsMap.hashCode()
         result = 31 * result + outputsMap.hashCode()
-        result = 31 * result + JavaHashCode.hashCode(confirmations)
-        result = 31 * result + JavaHashCode.hashCode(isFeeTransaction)
-        result = 31 * result + JavaHashCode.hashCode(doubleSpend)
+        result = 31 * result + confirmations.hashCode()
+        result = 31 * result + isFeeTransaction.hashCode()
+        result = 31 * result + doubleSpend.hashCode()
         result = 31 * result + (note?.hashCode() ?: 0)
         return result
     }

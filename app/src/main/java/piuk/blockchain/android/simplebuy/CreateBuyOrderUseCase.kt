@@ -16,6 +16,8 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
+import com.blockchain.utils.thenSingle
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -29,8 +31,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class CreateBuyOrderUseCase(

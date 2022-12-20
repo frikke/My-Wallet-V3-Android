@@ -3,45 +3,76 @@ package com.blockchain.coincore.loader
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
+import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.data.DataResource
+import com.blockchain.domain.wallet.CoinNetwork
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface DynamicAssetsService {
     fun availableCryptoAssets(): Single<List<AssetInfo>>
+    fun availableL1Assets(): Single<List<AssetInfo>>
+    fun otherEvmAssets(): Single<List<AssetInfo>>
+    fun allEvmNetworks(): Single<List<EvmNetwork>>
+    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
+    fun otherEvmNetworks(): Single<List<EvmNetwork>>
+    fun allNetworks(): Flow<DataResource<List<CoinNetwork>>>
 }
 
-internal fun DynamicAsset.toAssetInfo(): AssetInfo =
-    CryptoCurrency(
-        displayTicker = displayTicker,
-        networkTicker = networkTicker,
-        name = parentChain?.let {
-            assetName.forParentTicker(it)
-        } ?: assetName,
-        categories = mapCategories(products),
-        precisionDp = precision,
-        l1chainTicker = parentChain?.let { chain ->
-            // TODO this is not scalable, need a way to enable L2 networks from remote config/service
+internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
+    parentChain?.let { chain ->
+        val pChain = evmChains.find { it == chain } ?: kotlin.run {
             when (chain) {
-                AssetDiscoveryApiService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
-                AssetDiscoveryApiService.MATIC -> AssetDiscoveryApiService.MATIC
-                AssetDiscoveryApiService.BNB -> AssetDiscoveryApiService.BNB
                 AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
-                else -> throw IllegalStateException("Unknown l1 chain")
+                else -> null
             }
-        },
-        l2identifier = chainIdentifier,
-        requiredConfirmations = minConfirmations,
-        startDate = BTC_START_DATE,
-        colour = mapColour(),
-        logo = logoUrl ?: "" // TODO: Um?
-    )
+        }
+        pChain?.let {
+            CryptoCurrency(
+                displayTicker = displayTicker,
+                networkTicker = networkTicker,
+                name = parentChain?.let {
+                    assetName.forParentTicker(it)
+                } ?: assetName,
+                categories = mapCategories(products),
+                precisionDp = precision,
+                l1chainTicker = pChain,
+                l2identifier = chainIdentifier,
+                requiredConfirmations = minConfirmations,
+                startDate = BTC_START_DATE,
+                colour = mapColour(),
+                logo = logoUrl ?: "", // TODO: Um?
+                isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
+                txExplorerUrlBase = explorerUrl
+            )
+        }
+    } ?: kotlin.run {
+        // if the asset is a native/L1 token
+        CryptoCurrency(
+            displayTicker = displayTicker,
+            networkTicker = networkTicker,
+            name = assetName,
+            categories = mapCategories(products),
+            precisionDp = precision,
+            l1chainTicker = null,
+            l2identifier = chainIdentifier,
+            requiredConfirmations = minConfirmations,
+            startDate = BTC_START_DATE,
+            colour = mapColour(),
+            logo = logoUrl ?: "", // TODO: Um?
+            isErc20 = false,
+            txExplorerUrlBase = explorerUrl
+        )
+    }
 
 private const val BTC_START_DATE = 1282089600L
 
 private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == AssetDiscoveryApiService.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
+    if (parentChain == CryptoCurrency.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
         return this.plus(POLYGON_NETWORK_SUFFIX)
     }
     return this
@@ -55,7 +86,7 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
             DynamicAssetProducts.PrivateKey -> AssetCategory.NON_CUSTODIAL
             DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.CUSTODIAL
             DynamicAssetProducts.InterestBalance -> AssetCategory.CUSTODIAL
-            DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.NON_CUSTODIAL
+            DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.DELEGATED_NON_CUSTODIAL
             else -> null
         }
     }.toSet()

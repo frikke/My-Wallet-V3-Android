@@ -130,6 +130,8 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     when (state.sourceAccountType) {
                         AssetCategory.CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_custodial_info
                         AssetCategory.NON_CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_noncustodial_info
+                        AssetCategory.DELEGATED_NON_CUSTODIAL ->
+                            R.string.swap_enter_amount_max_limit_from_noncustodial_info
                     },
                     effectiveLimitAmount,
                     limitPeriodText,
@@ -330,9 +332,8 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
-    ): TransactionFlowBottomSheetInfo {
-        val fiatRate = state.fiatRate
-        check(fiatRate != null)
+    ): TransactionFlowBottomSheetInfo? {
+        val fiatRate = state.fiatRate ?: return null
         val upgradeAvailable = state.limits.suggestedUpgrade != null
         val title = if (upgradeAvailable) {
             resources.getString(R.string.over_your_limit)

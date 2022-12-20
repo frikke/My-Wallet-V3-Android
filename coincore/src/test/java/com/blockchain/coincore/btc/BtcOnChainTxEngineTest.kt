@@ -11,8 +11,10 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.chains.bitcoin.SendDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.satoshi
@@ -25,6 +27,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.payload.data.XPub
@@ -40,9 +43,6 @@ import org.bitcoinj.core.Coin
 import org.bitcoinj.core.NetworkParameters
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
 
 class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -176,7 +176,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(
                     Money.fromMinor(
                         ASSET,
@@ -219,8 +219,6 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         val totalSweepable = totalBalance - totalFee
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
-
-        whenever(btcDataManager.getAddressBalance(SOURCE_XPUBS)).thenReturn(totalBalance)
 
         val unspentOutputs = listOf<Utxo>(mock(), mock())
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
@@ -305,8 +303,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).balance
-        verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
+        verify(sourceAccount, atLeastOnce()).balanceRx
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -343,8 +340,6 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         val fullFee = totalBalance - actionableBalance
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
-
-        whenever(btcDataManager.getAddressBalance(SOURCE_XPUBS)).thenReturn(totalBalance)
 
         val unspentOutputs = listOf<Utxo>(mock(), mock())
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
@@ -430,8 +425,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).balance
-        verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
+        verify(sourceAccount, atLeastOnce()).balanceRx
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -465,8 +459,6 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             on { asset }.thenReturn(ASSET)
             on { address }.thenReturn(TARGET_ADDRESS)
         }
-
-        whenever(btcDataManager.getAddressBalance(SOURCE_XPUBS)).thenReturn(totalBalance)
 
         val unspentOutputs = listOf<Utxo>(mock(), mock())
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
@@ -558,8 +550,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).balance
-        verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
+        verify(sourceAccount, atLeastOnce()).balanceRx
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -696,8 +687,6 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             on { address }.thenReturn(TARGET_ADDRESS)
         }
 
-        whenever(btcDataManager.getAddressBalance(SOURCE_XPUBS)).thenReturn(totalBalance)
-
         val unspentOutputs = listOf<Utxo>(mock(), mock())
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
             .thenReturn(Single.just(unspentOutputs))
@@ -800,9 +789,8 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
+        verify(sourceAccount, atLeastOnce()).balanceRx
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).balance
-        verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -843,8 +831,6 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             on { asset }.thenReturn(ASSET)
             on { address }.thenReturn(TARGET_ADDRESS)
         }
-
-        whenever(btcDataManager.getAddressBalance(SOURCE_XPUBS)).thenReturn(totalBalance)
 
         val unspentOutputs = listOf<Utxo>(mock(), mock())
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
@@ -953,9 +939,8 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
+        verify(sourceAccount, atLeastOnce()).balanceRx
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).balance
-        verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -990,10 +975,11 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
+                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

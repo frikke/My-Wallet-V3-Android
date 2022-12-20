@@ -27,6 +27,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
@@ -36,7 +37,10 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -48,10 +52,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
@@ -64,7 +65,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     private val stateAwareActions by lazy { arguments?.getSerializable(STATE_AWARE_ACTIONS) as Array<StateAwareAction> }
     private val balanceFiat by lazy { arguments?.getSerializable(BALANCE_FIAT) as Money }
     private val balanceCrypto by lazy { arguments?.getSerializable(BALANCE_CRYPTO) as Money }
-    private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
+    private val interestRate: Double by lazy { arguments?.getDouble(INTEREST_RATE) ?: 0.0 }
+    private val stakingRate: Double by lazy { arguments?.getDouble(STAKING_RATE) ?: 0.0 }
 
     interface Host {
         fun navigateToAction(
@@ -103,7 +105,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(
@@ -115,12 +117,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                         DefaultTableRow(
                             primaryText = balanceFiat.toStringWithSymbol(),
                             secondaryText = balanceCrypto.toStringWithSymbol(),
-                            endTag = if (selectedAccount is InterestAccount) {
-                                TagViewState(
-                                    getString(R.string.actions_sheet_percentage_rewards, interestRate.toString()),
-                                    TagType.Success()
-                                )
-                            } else null,
+                            endTag = when (selectedAccount) {
+                                is InterestAccount -> {
+                                    TagViewState(
+                                        getString(R.string.actions_sheet_percentage_rate, interestRate.toString()),
+                                        TagType.Success()
+                                    )
+                                }
+                                is StakingAccount -> {
+                                    TagViewState(
+                                        getString(R.string.actions_sheet_percentage_rate, stakingRate.toString()),
+                                        TagType.Success()
+                                    )
+                                }
+                                else -> null
+                            },
                             endImageResource = ImageResource.None,
                             onClick = { }
                         )
@@ -152,6 +163,10 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             )
             is InterestAccount -> ImageResource.Local(
                 id = R.drawable.ic_rewards_explainer,
+                colorFilter = ColorFilter.tint(color)
+            )
+            is StakingAccount -> ImageResource.Local(
+                id = R.drawable.ic_staking_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
             else -> ImageResource.None
@@ -320,14 +335,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
-            AssetAction.ViewStatement -> AssetActionItem(
-                title = getString(R.string.dashboard_asset_actions_summary_title_1),
-                icon = R.drawable.ic_tx_interest,
-                description = getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
-                asset = asset, action = stateAwareAction
-            ) {
-                processAction(AssetAction.ViewStatement)
-            }
+            AssetAction.ViewStatement -> getViewStatementActionItemForAccount(asset, stateAwareAction, selectedAccount)
             AssetAction.InterestDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = R.drawable.ic_tx_deposit_arrow,
@@ -336,7 +344,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 action = stateAwareAction
             ) {
                 analytics.logEvent(
-                    InterestAnalytics.InterestDepositClicked(
+                    EarnAnalytics.InterestDepositClicked(
                         currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
@@ -351,7 +359,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 action = stateAwareAction
             ) {
                 analytics.logEvent(
-                    InterestAnalytics.InterestWithdrawalClicked(
+                    EarnAnalytics.InterestWithdrawalClicked(
                         currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
@@ -377,9 +385,64 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             ) {
                 processAction(AssetAction.Buy)
             }
+            AssetAction.StakingDeposit -> AssetActionItem(
+                title = getString(R.string.dashboard_asset_actions_add_title),
+                icon = R.drawable.ic_tx_deposit_arrow,
+                description = getString(R.string.dashboard_asset_actions_add_staking_dsc, asset.displayTicker),
+                asset = asset,
+                action = stateAwareAction
+            ) {
+                analytics.logEvent(
+                    EarnAnalytics.StakingDepositClicked(
+                        currency = asset.networkTicker,
+                        origin = LaunchOrigin.CURRENCY_PAGE
+                    )
+                )
+                processAction(AssetAction.StakingDeposit)
+            }
             AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
             AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
+        }
+    }
+
+    private fun getViewStatementActionItemForAccount(
+        asset: Currency,
+        stateAwareAction: StateAwareAction,
+        selectedAccount: CryptoAccount
+    ): AssetActionItem {
+        val title = getString(
+            when (selectedAccount) {
+                is InterestAccount -> R.string.dashboard_asset_actions_summary_title_1
+                is StakingAccount -> R.string.dashboard_asset_actions_summary_staking_title
+                else -> R.string.empty
+            }
+        )
+        val description =
+            when (selectedAccount) {
+                is InterestAccount -> getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker)
+                is StakingAccount -> getString(
+                    R.string.dashboard_asset_actions_summary_staking_dsc, asset.displayTicker
+                )
+                else -> getString(R.string.empty)
+            }
+
+        val icon =
+            when (selectedAccount) {
+                is InterestAccount -> R.drawable.ic_tx_interest
+                // TODO(dserrano) - STAKING - is this icon the one we want?
+                is StakingAccount -> R.drawable.ic_tx_interest
+                else -> R.drawable.ic_tx_sent
+            }
+
+        return AssetActionItem(
+            title = title,
+            icon = icon,
+            description = description,
+            asset = asset,
+            action = stateAwareAction
+        ) {
+            processAction(AssetAction.ViewStatement)
         }
     }
 
@@ -447,12 +510,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         private const val BALANCE_FIAT = "balance_fiat"
         private const val BALANCE_CRYPTO = "balance_crypto"
         private const val INTEREST_RATE = "interest_rate"
+        private const val STAKING_RATE = "staking_rate"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
             balanceFiat: Money,
             balanceCrypto: Money,
             interestRate: Double,
+            stakingRate: Double,
             stateAwareActions: Array<StateAwareAction>
         ): AccountActionsBottomSheet {
             return AccountActionsBottomSheet().apply {
@@ -461,6 +526,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     putSerializable(BALANCE_FIAT, balanceFiat)
                     putSerializable(BALANCE_CRYPTO, balanceCrypto)
                     putDouble(INTEREST_RATE, interestRate)
+                    putDouble(STAKING_RATE, stakingRate)
                     putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                 }
             }

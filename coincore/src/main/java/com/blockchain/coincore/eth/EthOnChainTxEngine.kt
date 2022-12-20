@@ -15,8 +15,12 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthLastTxCache
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -29,11 +33,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.BigInteger
+import org.koin.core.component.inject
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class EthOnChainTxEngine(
     private val ethDataManager: EthDataManager,
@@ -46,6 +48,8 @@ class EthOnChainTxEngine(
     walletPreferences,
     resolvedAddress
 ) {
+
+    private val txCache: EthLastTxCache by inject()
 
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)
@@ -73,7 +77,7 @@ class EthOnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
@@ -140,7 +144,7 @@ class EthOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             absoluteFees()
         ) { balance, feeLevels ->
             val total = balance.total as CryptoValue
@@ -187,6 +191,8 @@ class EthOnChainTxEngine(
                 } ?: Single.just(hash)
             }.onErrorResumeNext {
                 Single.error(TransactionError.ExecutionFailed)
+            }.doOnSuccess {
+                txCache.markStoreAsStale()
             }.map {
                 TxResult.HashedTxResult(it, pendingTx.amount)
             }
@@ -239,7 +245,7 @@ class EthOnChainTxEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balance.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: Money.zero(sourceAsset)

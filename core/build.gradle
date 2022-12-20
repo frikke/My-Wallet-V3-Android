@@ -1,32 +1,5 @@
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.squareup.sqldelight'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
-
-final buildProperties = new BuildProperties(
-        file('../app/secrets.properties'), file('../app/secretsDefaults.properties')
-)
-
-android {
-    compileOptions {
-        coreLibraryDesugaringEnabled true
-    }
-
-    lintOptions {
-        baseline file("lint-baseline.xml")
-        warningsAsErrors true
-        abortOnError true
-    }
-
-    buildTypes {
-        release {
-            consumerProguardFiles 'proguard-rules.pro'
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].toString()]
-        }
-        debug {
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].toString()]
-        }
-    }
-}
 
 dependencies {
     implementation project(':wallet')
@@ -34,16 +7,18 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':metadata')
-    implementation project(':common:domain')
-    implementation project(':common-mp:utils')
+    implementation project(':unifiedcryptowallet:domain')
+    api project(':common:domain')
+    implementation project(':common-mp:utils:domain')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
-    implementation project(':veriff')
+    implementation project(':veriff:domain')
     implementation project(':blockchainApi')
-    implementation project(':payments:googlepay')
+    implementation project(':payments:googlepay:domain')
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
+    implementation project(':earn:domain')
 
     api project(':balance')
 
@@ -52,43 +27,13 @@ dependencies {
     implementation Libraries.okHttpInterceptor
     implementation Libraries.kotlinJson
 
-    implementation Libraries.koin
-    implementation Libraries.cardForm
-    implementation Libraries.rxRelay
-
-    // Database
-    implementation Libraries.sqlDelight
-    implementation Libraries.rxSqlDelight
-
-    // Logging
-    implementation Libraries.timber
-
-    // Firebase
-    implementation platform(Libraries.firebaseBom)
-    implementation(Libraries.firebaseConfig) {
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    }
-
-    coreLibraryDesugaring Libraries.desugaring
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
 
     implementation Libraries.kotlinCoroutines
     implementation Libraries.rxjava3Coroutines
 
     // Unit Test dependencies
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
     testImplementation Libraries.koinTest
-    testImplementation Libraries.koinTestJunit
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation Libraries.turbine
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.mockk
-    testImplementation Libraries.coreTesting
     testImplementation project(':testutils')
-    testImplementation project(':testutils-android')
 }

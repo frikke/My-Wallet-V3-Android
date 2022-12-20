@@ -1,12 +1,12 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectSession
-import com.blockchain.walletconnect.domain.WalletConnectSession.Companion.DEFAULT_WALLET_CONNECT_CHAIN_ID
 import com.blockchain.walletconnect.domain.WalletInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +38,7 @@ class WalletConnectMetadataRepository(
                         dAppInfo = DAppInfo(
                             peerId = dapp.dAppInfo.peerId,
                             peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
-                            chainId = dapp.dAppInfo.chainId ?: DEFAULT_WALLET_CONNECT_CHAIN_ID
+                            chainId = dapp.dAppInfo.chainId ?: EthDataManager.ethChain.chainId
                         ),
                         walletInfo = WalletInfo(
                             clientId = dapp.walletInfo.clientId,

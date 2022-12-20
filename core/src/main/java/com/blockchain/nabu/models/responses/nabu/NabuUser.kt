@@ -43,7 +43,8 @@ data class NabuUser(
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val currencies: CurrenciesResponse,
-    val walletGuid: String? = null
+    val walletGuid: String? = null,
+    val unifiedAccountWalletGuid: String? = null
 ) : JsonSerializable {
     val tierInProgress
         get() =
@@ -65,16 +66,6 @@ data class NabuUser(
                 }
             } ?: 0
 
-    val currentTier
-        get() =
-            tiers?.let {
-                if (kycState == KycState.Verified) {
-                    it.current
-                } else {
-                    0
-                }
-            } ?: 0
-
     fun requireCountryCode(): String {
         return address?.countryCode ?: throw IllegalStateException("User has no country code set")
     }
@@ -86,17 +77,19 @@ data class NabuUser(
         get() = resubmission?.reason == ResubmissionResponse.ACCOUNT_RECOVERED_REASON &&
             tiers?.current != 2
 
-    val isPowerPaxTagged: Boolean
-        get() = tags?.containsKey(POWER_PAX_TAG) ?: false
-
     val exchangeEnabled: Boolean
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
 
     val isCowboysUser: Boolean
         get() = tags?.containsKey(COWBOYS_TAG) ?: false
 
+    val tagKeys: Set<String>
+        get() = tags?.keys ?: emptySet()
+
+    val isSSO: Boolean
+        get() = unifiedAccountWalletGuid != null
+
     companion object {
-        private const val POWER_PAX_TAG = "POWER_PAX"
         private const val COWBOYS_TAG = "COWBOYS_2022"
     }
 }
@@ -159,13 +152,13 @@ data class AddAddressRequest(
 }
 
 @Serializable(with = KycStateSerializer::class)
-sealed class KycState {
-    object None : KycState()
-    object Pending : KycState()
-    object UnderReview : KycState()
-    object Rejected : KycState()
-    object Expired : KycState()
-    object Verified : KycState()
+enum class KycState {
+    None,
+    Pending,
+    UnderReview,
+    Rejected,
+    Expired,
+    Verified,
 }
 
 @Serializable(with = UserStateSerializer::class)

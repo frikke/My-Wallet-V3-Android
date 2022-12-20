@@ -3,12 +3,14 @@ package piuk.blockchain.android.ui.activity.detail
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -85,6 +87,20 @@ class ActivityDetailsModelTest {
         recipientAddress = ""
     )
 
+    private val custodialStakingItem = CustodialStakingActivitySummaryItem(
+        exchangeRates = mock(),
+        asset = mock(),
+        txId = "123",
+        timeStampMs = 1L,
+        value = CryptoValue.zero(CryptoCurrency.BTC),
+        status = StakingState.COMPLETE,
+        account = NullCryptoAccount(),
+        type = TransactionSummary.TransactionType.INTEREST_EARNED,
+        confirmations = 0,
+        accountRef = "",
+        recipientAddress = ""
+    )
+
     @get:Rule
     val rx = rxInit {
         ioTrampoline()
@@ -134,6 +150,20 @@ class ActivityDetailsModelTest {
         model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_INTEREST))
 
         verify(interactor).getCustodialInterestActivityDetails(crypto, txId)
+    }
+
+    @Test
+    fun `starting the model with custodial staking item loads custodial details`() {
+        val crypto = CryptoCurrency.BCH
+        val txId = "123455"
+        whenever(interactor.getCustodialStakingActivityDetails(crypto, txId)).thenReturn(custodialStakingItem)
+        whenever(interactor.loadCustodialStakingItems(custodialStakingItem)).thenReturn(
+            Single.just(emptyList())
+        )
+
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_STAKING))
+
+        verify(interactor).getCustodialStakingActivityDetails(crypto, txId)
     }
 
     @Test
@@ -225,6 +255,19 @@ class ActivityDetailsModelTest {
         val crypto = CryptoCurrency.BCH
         val txId = "123455"
         whenever(interactor.getCustodialInterestActivityDetails(crypto, txId)).thenReturn(null)
+
+        val testObserver = model.state.test()
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_INTEREST))
+
+        testObserver.assertValueAt(0, state)
+        testObserver.assertValueAt(1, state.copy(isError = true))
+    }
+
+    @Test
+    fun `failing to load custodial staking details updates state correctly`() {
+        val crypto = CryptoCurrency.BCH
+        val txId = "123455"
+        whenever(interactor.getCustodialStakingActivityDetails(crypto, txId)).thenReturn(null)
 
         val testObserver = model.state.test()
         model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_INTEREST))

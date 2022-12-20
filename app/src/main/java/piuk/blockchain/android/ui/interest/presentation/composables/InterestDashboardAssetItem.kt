@@ -27,7 +27,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.earn.domain.models.interest.InterestEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -42,21 +42,21 @@ fun InterestDashboardAssetItem(
     isKycGold: Boolean,
     interestItemClicked: (AssetInfo, Boolean) -> Unit
 ) {
-    Column(modifier = modifier.padding(dimensionResource(R.dimen.standard_margin))) {
+    Column(modifier = modifier.padding(dimensionResource(R.dimen.standard_spacing))) {
 
         AssetName(assetInfo)
 
         // if no details available, don't show the balance and apy views
         if (assetInterestDetail != null) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
             InterestApy(assetInfo, assetInterestDetail)
 
             HorizontalDivider(
                 modifier = Modifier
                     .padding(
-                        top = dimensionResource(R.dimen.very_small_margin),
-                        bottom = dimensionResource(R.dimen.very_small_margin)
+                        top = dimensionResource(R.dimen.very_small_spacing),
+                        bottom = dimensionResource(R.dimen.very_small_spacing)
                     )
                     .fillMaxWidth()
             )
@@ -64,7 +64,7 @@ fun InterestDashboardAssetItem(
             InterestBalance(assetInfo, assetInterestDetail)
         }
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
         InterestCta(
             ctaText = stringResource(
@@ -83,7 +83,7 @@ fun InterestDashboardAssetItem(
         )
 
         if (assetInterestDetail == null || (assetInterestDetail.eligibility is InterestEligibility.Ineligible)) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             InterestExplainer(
                 stringResource(
                     when (assetInterestDetail?.eligibility) {
@@ -102,13 +102,13 @@ private fun AssetName(assetInfo: AssetInfo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier
-                .size(dimensionResource(R.dimen.large_margin))
+                .size(dimensionResource(R.dimen.large_spacing))
                 .clip(CircleShape),
             imageResource = ImageResource.Remote(assetInfo.logo)
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
             style = AppTheme.typography.title3,
             text = assetInfo.name
         )
@@ -123,7 +123,7 @@ private fun InterestApy(assetInfo: AssetInfo, assetInterestDetail: AssetInterest
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
             style = AppTheme.typography.paragraph1,
             color = Grey600,
             text = buildAnnotatedString {
@@ -166,7 +166,7 @@ private fun InterestBalance(assetInfo: AssetInfo, assetInterestDetail: AssetInte
             )
         }
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -192,7 +192,7 @@ private fun InterestExplainer(explanation: String) {
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.minuscule_margin)),
+            modifier = Modifier.padding(start = dimensionResource(R.dimen.minuscule_spacing)),
             style = AppTheme.typography.paragraph1,
             text = explanation,
             color = Grey800

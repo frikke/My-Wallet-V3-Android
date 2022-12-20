@@ -14,13 +14,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.account.AccountError
-import piuk.blockchain.android.ui.settings.v2.account.AccountInformation
-import piuk.blockchain.android.ui.settings.v2.account.AccountIntent
-import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
-import piuk.blockchain.android.ui.settings.v2.account.AccountModel
-import piuk.blockchain.android.ui.settings.v2.account.AccountState
-import piuk.blockchain.android.ui.settings.v2.account.ViewToLaunch
 
 class AccountModelTest {
 
@@ -49,6 +42,7 @@ class AccountModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
+            walletModeCache = mock(),
             interactor = interactor
         )
     }

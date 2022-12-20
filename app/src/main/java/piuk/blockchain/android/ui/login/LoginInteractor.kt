@@ -1,6 +1,9 @@
 package piuk.blockchain.android.ui.login
 
 import android.net.Uri
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.auth.isValidGuid
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.AuthPrefs
@@ -14,9 +17,6 @@ import okhttp3.ResponseBody
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginInteractor(
@@ -40,16 +40,11 @@ class LoginInteractor(
             }
             .doOnError { appUtil.clearCredentials() }
 
-    fun obtainSessionId(email: String): Single<ResponseBody> =
-        authDataManager.createSessionId(email)
-
     fun sendEmailForVerification(
-        sessionId: String,
         email: String,
         captcha: String
     ): Completable {
-        authPrefs.sessionId = sessionId
-        return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
+        return authDataManager.sendEmailForAuthentication(email, captcha)
     }
 
     @ExperimentalSerializationApi
@@ -112,9 +107,9 @@ class LoginInteractor(
         }
     }
 
-    fun pollForAuth(sessionId: String, json: Json): Single<PollResult<ResponseBody>> {
+    fun pollForAuth(json: Json): Single<PollResult<ResponseBody>> {
         authPollService = PollService(
-            authDataManager.getDeeplinkPayload(sessionId)
+            authDataManager.getDeeplinkPayload()
         ) {
             val responseBodyString = it.peekResponseBody()
             try {

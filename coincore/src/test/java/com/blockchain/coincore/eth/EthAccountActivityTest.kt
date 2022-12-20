@@ -5,6 +5,9 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.models.CombinedEthModel
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -26,9 +29,6 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.spy
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class EthAccountActivityTest : CoincoreTestBase() {
 
@@ -47,14 +47,13 @@ class EthAccountActivityTest : CoincoreTestBase() {
             EthCryptoWalletAccount(
                 jsonAccount = ethAccount,
                 ethDataManager = ethDataManager,
-                l1BalanceStore = l1BalanceStore,
                 fees = feeDataManager,
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
                 assetCatalogue = mock(),
                 addressResolver = mock(),
-                l1Network = EvmNetwork("DUMMY", "Dummy", 1, "")
+                l1Network = EvmNetwork("DUMMY", "Dummy", 1, "", "")
             )
         )
 

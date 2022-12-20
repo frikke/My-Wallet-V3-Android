@@ -47,7 +47,7 @@ fun ReferralSuccessCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         Image(
             imageResource = ImageResource.LocalWithBackground(
@@ -55,8 +55,8 @@ fun ReferralSuccessCard(
                 iconTintColour = R.color.blue_600,
                 backgroundColour = R.color.white,
                 alpha = 1F,
-                size = dimensionResource(com.blockchain.componentlib.R.dimen.huge_margin),
-                iconSize = dimensionResource(R.dimen.standard_margin)
+                size = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing),
+                iconSize = dimensionResource(R.dimen.standard_spacing)
             ),
         )
 
@@ -64,7 +64,7 @@ fun ReferralSuccessCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(dimensionResource(R.dimen.small_margin))
+                .padding(dimensionResource(R.dimen.small_spacing))
 
         ) {
             Text(
@@ -83,11 +83,11 @@ fun ReferralSuccessCard(
         Box(
             modifier = Modifier
                 .align(Alignment.Top)
-                .padding(dimensionResource(R.dimen.very_small_margin))
+                .padding(dimensionResource(R.dimen.very_small_spacing))
                 .clickable {
                     onClose()
                 }
-                .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_margin))
+                .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .background(color = colorResource(R.color.faded_white), shape = CircleShape)
         ) {
             Image(

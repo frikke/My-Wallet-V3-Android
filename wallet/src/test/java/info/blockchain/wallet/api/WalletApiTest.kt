@@ -1,5 +1,6 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.domain.session.SessionIdService
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.blockchain.testutils.getStringFromResource
 import com.blockchain.testutils.waitForCompletionWithoutErrors
@@ -10,22 +11,24 @@ import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.payload.data.WalletBase
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.security.SecureRandom
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
-import retrofit2.Call
 import retrofit2.Response
 
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()
     private val api: ApiCode = mock()
-    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, "")
+    private val sessionIdService: SessionIdService = mock {
+        on { sessionId() }.thenReturn(Single.just(""))
+    }
+    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, sessionIdService, "", "")
 
     @Test
     fun `get encrypted payload`() {
@@ -43,7 +46,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(response)
+            Single.just(response)
         )
 
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
@@ -72,7 +75,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(expectedResponse)
+            Single.just(expectedResponse)
         )
 
         subject.fetchEncryptedPayload(guid, "", false).test()
@@ -86,9 +89,6 @@ class WalletApiTest {
         val guid = "a09910d9-1906-4ea1-a956-2508c3fe0661"
         val expectedBodyString = "5001071ac0ea0b6993444716729429c1d7637def2bcc73a6ad6360c9cec06d47"
 
-        val callResponse: Call<ResponseBody> = FakeHttpExceptionFactory.mockApiCall(
-            expectedBodyString.toResponseBody("plain/text".toMediaTypeOrNull())
-        )
         whenever(
             walletExplorerEndpoints.fetchPairingEncryptionPasswordCall(
                 "pairing-encryption-password",
@@ -96,12 +96,11 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            callResponse
+            Single.just(expectedBodyString.toResponseBody("plain/text".toMediaTypeOrNull()))
         )
-        val bodyString = subject.fetchPairingEncryptionPasswordCall(guid).execute()
-            .body()!!.string()
-
-        bodyString `should be equal to` expectedBodyString
+        subject.fetchPairingEncryptionPasswordCall(guid).test().assertValue {
+            it.string() == expectedBodyString
+        }
     }
 
     @Test
@@ -138,7 +137,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(expectedResponse)
+            Single.just(expectedResponse)
         )
 
         subject.setAccess(key, value, pin).test()
@@ -162,7 +161,7 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(
+            Single.just(
                 Response.success(200, Json.decodeFromString<Status>("{ \"success\": \"$keyReturned\"}"))
             )
         )

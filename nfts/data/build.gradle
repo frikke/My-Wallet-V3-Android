@@ -1,18 +1,9 @@
 plugins {
     id 'kotlinx-serialization'
 }
-
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {}
-    }
-
     lintOptions {
         warningsAsErrors true
         abortOnError true
@@ -24,19 +15,12 @@ dependencies {
     implementation project(':nfts:domain')
     implementation project(':blockchainApi')
     implementation project(':common:interface')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
 
-    // Logging
-    implementation Libraries.timber
+    // coroutines
+    implementation Libraries.kotlinCoroutines
 
-    // RxJava
-    implementation Libraries.rxjava3Coroutines
-
-    // koin
-    implementation Libraries.koin
-
-    // test
-    testImplementation Libraries.junit
-    testImplementation Libraries.kotlinTest
-    testImplementation Libraries.mockk
-    testImplementation Libraries.kotlinCoroutinesTest
+    // json
+    implementation Libraries.kotlinJson
 }

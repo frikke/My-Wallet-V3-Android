@@ -73,12 +73,12 @@ fun ManualBackupScreen(
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -90,7 +90,7 @@ fun ManualBackupScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
@@ -100,11 +100,11 @@ fun ManualBackupScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             Mnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -112,7 +112,7 @@ fun ManualBackupScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),

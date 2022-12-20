@@ -10,7 +10,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -26,6 +26,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +39,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class CustodialTradingAccountActionsTest : KoinTest {
 
@@ -107,6 +107,8 @@ class CustodialTradingAccountActionsTest : KoinTest {
             interest = true,
             supportedFiat = listOf(USD),
             buySupported = true,
+            stakingEnabled = true,
+            stakingDepositSupported = true,
             swapSupported = true,
             userTier = KycTier.GOLD
         )
@@ -121,6 +123,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
                     AssetAction.Send,
                     AssetAction.Sell,
                     AssetAction.InterestDeposit,
+                    AssetAction.StakingDeposit,
                     AssetAction.Swap,
                     AssetAction.Receive,
                     AssetAction.Buy,
@@ -405,6 +408,76 @@ class CustodialTradingAccountActionsTest : KoinTest {
     }
 
     @Test
+    fun `If Staking is blocked then StakingDeposit is not available`() {
+        val subject = configureActionSubject()
+
+        configureActionTest(
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
+            interest = true,
+            supportedFiat = listOf(USD),
+            buySupported = true,
+            swapSupported = true,
+            stakingDepositSupported = false,
+            stakingEnabled = false,
+            interestDepositSupported = false,
+            userTier = KycTier.GOLD
+        )
+        subject.stateAwareActions
+            .test()
+            .await()
+            .assertValue {
+                it.find { it.action == AssetAction.StakingDeposit }?.state == ActionState.Unavailable
+            }
+    }
+
+    @Test
+    fun `If funded and eligible for staking then stakingdeposit is available`() {
+        val subject = configureActionSubject()
+
+        configureActionTest(
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
+            interest = true,
+            supportedFiat = listOf(USD),
+            buySupported = true,
+            stakingDepositSupported = true,
+            stakingEnabled = true,
+            swapSupported = true,
+            userTier = KycTier.GOLD
+        )
+        subject.stateAwareActions
+            .test()
+            .await()
+            .assertValue {
+                it.find { it.action == AssetAction.StakingDeposit }?.state == ActionState.Available
+            }
+    }
+
+    @Test
+    fun `If not funded and eligible for staking then StakingDeposit is locked for balance`() {
+        val subject = configureActionSubject()
+
+        configureActionTest(
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
+            interest = true,
+            supportedFiat = listOf(USD),
+            buySupported = true,
+            stakingDepositSupported = true,
+            stakingEnabled = true,
+            swapSupported = true,
+            userTier = KycTier.GOLD
+        )
+        subject.stateAwareActions
+            .test()
+            .await()
+            .assertValue {
+                it.find { it.action == AssetAction.StakingDeposit }?.state == ActionState.LockedForBalance
+            }
+    }
+
+    @Test
     fun `If asset not supported for swap then Swap is not available`() {
         val subject = configureActionSubject()
 
@@ -599,6 +672,8 @@ class CustodialTradingAccountActionsTest : KoinTest {
         interestDepositSupported: Boolean = true,
         swapAccessAvailable: Boolean = true,
         sellEligibilityAccess: Boolean = true,
+        stakingDepositSupported: Boolean = true,
+        stakingEnabled: Boolean = true,
         swapSupported: Boolean,
         userTier: KycTier,
     ) {
@@ -626,6 +701,13 @@ class CustodialTradingAccountActionsTest : KoinTest {
             }
             updated = updated.plus(Feature.DepositInterest to interestDepositAccess)
 
+            val stakingDepositAccess = if (stakingDepositSupported) {
+                FeatureAccess.Granted()
+            } else {
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
+            }
+            updated = updated.plus(Feature.DepositStaking to stakingDepositAccess)
+
             val swapAccess = if (swapAccessAvailable) {
                 FeatureAccess.Granted()
             } else {
@@ -648,8 +730,15 @@ class CustodialTradingAccountActionsTest : KoinTest {
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(userIdentity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
+        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+            Single.just(
+                if (stakingEnabled) FeatureAccess.Granted() else FeatureAccess.Blocked(BlockedReason.NotEligible(""))
+            )
+        )
+
         val balance = TradingAccountBalance(
             total = accountBalance,
+            dashboardDisplay = accountBalance,
             withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true
@@ -660,7 +749,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(flowOf(supportedFiat))
 
-        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET))
+        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET))
             .thenReturn(Single.just(swapSupported))
 
         whenever(custodialManager.getSupportedBuySellCryptoCurrencies())

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -8,10 +9,13 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.BlockchainCardWaitlistAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.ExchangeCampaignAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.HideDustAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
@@ -64,17 +68,27 @@ val dashboardAnnouncementsModule = module {
                 sbStateFactory = get(),
                 userIdentity = get(),
                 coincore = get(),
-                remoteConfig = get(),
+                remoteConfigService = get(),
                 assetCatalogue = get(),
                 googlePayManager = get(),
                 googlePayEnabledFlag = get(googlePayFeatureFlag),
                 paymentMethodsService = get(),
-                authenticator = get(),
                 fiatCurrenciesService = get(),
                 exchangeRatesDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                hideDustFF = get(hideDustFeatureFlag)
             )
         }
+
+        factory {
+            ExchangeCampaignAnnouncement(
+                dismissRecorder = get(),
+                shouldShowExchangeCampaignUseCase = get(),
+                userIdentity = get(),
+                analytics = get(),
+                userAnalytics = get()
+            )
+        }.bind(AnnouncementRule::class)
 
         factory {
             GooglePayAnnouncement(
@@ -261,6 +275,20 @@ val dashboardAnnouncementsModule = module {
             NftAnnouncement(
                 dismissRecorder = get(),
                 nftAnnouncementPrefs = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            HideDustAnnouncement(
+                dismissRecorder = get(),
+                announcementQueries = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            BlockchainCardWaitlistAnnouncement(
+                announcementQueries = get(),
+                dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
     }

@@ -7,11 +7,11 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -36,13 +36,14 @@ class LinkedBankAccount(
     fun getWithdrawalFeeAndMinLimit(): Single<FiatWithdrawalFeeAndLimit> =
         custodialWalletManager.fetchFiatWithdrawFeeAndMinLimit(currency, Product.BUY, paymentMethodType = type)
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Money.zero(currency).let { zero ->
             Observable.just(
                 AccountBalance(
                     total = zero,
                     pending = zero,
                     withdrawable = zero,
+                    dashboardDisplay = zero,
                     exchangeRate = ExchangeRate.zeroRateExchangeRate(currency)
                 )
             )
@@ -71,6 +72,8 @@ class LinkedBankAccount(
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
     fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)
+
+    fun isAchCurrency() = currency.networkTicker.equals("USD", true)
 
     internal class BankAccountAddress(
         override val address: String,

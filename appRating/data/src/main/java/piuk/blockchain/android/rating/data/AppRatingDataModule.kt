@@ -47,13 +47,13 @@ val appRatingDataModule = module {
 
         scoped {
             AppRatingRemoteConfig(
-                remoteConfig = get()
+                remoteConfigService = get()
             )
         }
 
         scoped {
             AppRatingApiKeysRemoteConfig(
-                remoteConfig = get(),
+                remoteConfigService = get(),
                 json = get()
             )
         }

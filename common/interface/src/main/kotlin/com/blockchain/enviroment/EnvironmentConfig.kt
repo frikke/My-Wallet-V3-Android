@@ -8,4 +8,6 @@ interface EnvironmentConfig : EnvironmentUrls {
     fun isRunningInDebugMode(): Boolean
 
     fun isCompanyInternalBuild(): Boolean
+
+    fun isAlphaBuild(): Boolean
 }

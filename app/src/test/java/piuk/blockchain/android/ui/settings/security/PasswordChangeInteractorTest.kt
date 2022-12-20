@@ -1,20 +1,19 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeError
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeIntent
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordViewState
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeError
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeIntent
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeInteractor
+import piuk.blockchain.android.ui.settings.security.password.PasswordViewState
 
 class PasswordChangeInteractorTest {
 

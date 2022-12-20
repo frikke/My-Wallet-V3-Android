@@ -17,7 +17,6 @@ enum class LoginStep {
     NAVIGATE_FROM_PAYLOAD,
     NAVIGATE_TO_WALLET_CONNECT,
     POLLING_PAYLOAD_ERROR,
-    GET_SESSION_ID,
     SEND_EMAIL,
     VERIFY_DEVICE,
     MANUAL_PAIRING,
@@ -29,7 +28,6 @@ enum class LoginStep {
 data class LoginState(
     val email: String = "",
     val captcha: String = "",
-    val sessionId: String = "",
     val currentStep: LoginStep = LoginStep.SELECT_METHOD,
     val shouldRestartApp: Boolean = false,
     val intentAction: String? = null,
@@ -42,7 +40,7 @@ data class LoginState(
     val loginApprovalState: LoginApprovalState = LoginApprovalState.NONE
 ) : MviState {
     val isLoading: Boolean
-        get() = setOf(LoginStep.LOG_IN, LoginStep.GET_SESSION_ID, LoginStep.SEND_EMAIL).contains(currentStep)
+        get() = setOf(LoginStep.LOG_IN, LoginStep.SEND_EMAIL).contains(currentStep)
     val isTypingEmail: Boolean
         get() = setOf(LoginStep.ENTER_EMAIL, LoginStep.SEND_EMAIL).contains(currentStep)
 }

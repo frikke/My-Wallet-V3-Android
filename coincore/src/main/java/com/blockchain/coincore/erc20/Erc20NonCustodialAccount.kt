@@ -1,5 +1,6 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -11,16 +12,18 @@ import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.rx.printTime
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class Erc20NonCustodialAccount(
     asset: AssetInfo,
@@ -49,10 +52,24 @@ class Erc20NonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         erc20DataManager.getErc20Balance(currency)
-            .printTime("----- ::getErc20Balance")
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
+
+    override val balanceRx: Observable<AccountBalance>
+        get() = super.balanceRx.onErrorResumeNext {
+            if (it is UnifiedBalanceNotFoundException)
+                Observable.just(AccountBalance.zero(currency))
+            else Observable.error(it)
+        }.doOnNext {
+            hasFunds.set(it.total.isPositive)
+        }
+    override val index: Int
+        get() = DEFAULT_SINGLE_ACCOUNT_INDEX
+
+    override suspend fun publicKey(): List<PublicKey> {
+        throw IllegalAccessException("Public key of an erc20 cannot be accessed use the L1")
+    }
 
     override val activity: Single<ActivitySummaryList>
         get() {

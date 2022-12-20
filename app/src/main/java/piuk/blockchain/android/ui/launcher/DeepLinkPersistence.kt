@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.launcher
 
-import piuk.blockchain.androidcore.utils.SessionPrefs
+import com.blockchain.preferences.SessionPrefs
 import timber.log.Timber
 
 class DeepLinkPersistence(private val sessionPrefs: SessionPrefs) {

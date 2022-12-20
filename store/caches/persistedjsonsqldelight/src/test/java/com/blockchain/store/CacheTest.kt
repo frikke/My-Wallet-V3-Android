@@ -2,6 +2,7 @@ package com.blockchain.store
 
 import app.cash.turbine.test
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightCache
+import com.blockchain.store_caches_persistedjsonsqldelight.SqlDelightStoreIdScopedPersister
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -14,7 +15,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class CacheTest {
 
-    val persister: Persister = mockk()
+    val persister: SqlDelightStoreIdScopedPersister = mockk()
     val keyParser: Parser<Key> = mockk()
     val dataParser: Parser<Item> = mockk()
 

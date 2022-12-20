@@ -26,14 +26,19 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -54,10 +59,11 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -69,7 +75,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
+import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
@@ -92,7 +98,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
-import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
@@ -100,16 +105,13 @@ import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
+import piuk.blockchain.android.ui.settings.BankLinkingHost
+import piuk.blockchain.android.ui.settings.SettingsActivity
+import piuk.blockchain.android.ui.settings.SettingsActivity.Companion.SettingsDestination
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
-import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class PortfolioFragment :
@@ -132,6 +134,8 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val momentLogger: MomentLogger by inject()
+
     private var activeFiat = currencyPrefs.selectedFiatCurrency
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
@@ -140,6 +144,7 @@ class PortfolioFragment :
             assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
+            walletModeService = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             onHoldAmountClicked = { onHoldAmountClicked(it) }
@@ -151,11 +156,6 @@ class PortfolioFragment :
     }
 
     private val compositeDisposable = CompositeDisposable()
-    private val rxBus: RxBus by inject()
-
-    private val actionEvent by unsafeLazy {
-        rxBus.register(ActionEvent::class.java)
-    }
 
     private val flowToLaunch: AssetAction? by unsafeLazy {
         arguments?.getSerializable(FLOW_TO_LAUNCH) as? AssetAction
@@ -172,7 +172,7 @@ class PortfolioFragment :
 
     private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+            (it.data?.getAccount(ACCOUNT_FOR_ACTIVITY))?.let { account ->
                 goToActivityFor(account)
             }
         }
@@ -189,8 +189,6 @@ class PortfolioFragment :
             }
         }
     }
-
-    private val momentLogger: MomentLogger by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -215,10 +213,23 @@ class PortfolioFragment :
         }
     }
 
-    private fun isDashboardLoading(state: DashboardState): Boolean {
-        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isUILoading }
-        val dashboardLoading = state.isLoadingAssets
-        return dashboardLoading || atLeastOneAssetIsLoading
+    // For the split dashboard, this onResume is called only once. When the fragment is created.
+    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
+    override fun onResume() {
+        super.onResume()
+
+        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
+            activeFiat = currencyPrefs.selectedFiatCurrency
+            model.process(DashboardIntent.ResetDashboardAssets)
+        }
+        if (isHidden) return
+
+        announcements.checkLatest(announcementHost, compositeDisposable)
+        model.process(DashboardIntent.FetchOnboardingSteps)
+        model.process(DashboardIntent.CheckCowboysFlow)
+        model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
+        model.process(DashboardIntent.FetchReferralSuccess)
+        model.process(DashboardIntent.LoadStakingFlag)
     }
 
     @UiThread
@@ -258,8 +269,10 @@ class PortfolioFragment :
             newState.fiatDashboardAssets.takeIf { it.isNotEmpty() }?.let { FiatBalanceInfo(it) }
         )
 
-        val cryptoAssets = newState.displayableAssets.filterNot { it is BrokearageFiatAsset }.sortedWith(
-            compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
+        val cryptoAssets = newState.displayableAssets.filterNot { it is BrokerageFiatAsset }.sortedWith(
+            compareByDescending<DashboardAsset> {
+                it.fiatBalance(useDisplayBalance = it.assetDisplayBalanceFFEnabled)?.toBigInteger()
+            }
                 .thenByDescending {
                     it.currency.index
                 }
@@ -294,6 +307,12 @@ class PortfolioFragment :
                 }
             }
         }
+    }
+
+    private fun isDashboardLoading(state: DashboardState): Boolean {
+        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isUILoading }
+        val dashboardLoading = state.isLoadingAssets
+        return dashboardLoading || atLeastOneAssetIsLoading
     }
 
     /**
@@ -335,11 +354,19 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    CoinViewActivity.newIntent(
-                        context = requireContext(),
-                        asset = navigationAction.asset,
-                        originScreen = LaunchOrigin.HOME.name,
-                    )
+                    if (state?.isStakingEnabled == true) {
+                        CoinViewActivityV2.newIntent(
+                            context = requireContext(),
+                            asset = navigationAction.asset,
+                            originScreen = LaunchOrigin.HOME.name,
+                        )
+                    } else {
+                        CoinViewActivity.newIntent(
+                            context = requireContext(),
+                            asset = navigationAction.asset,
+                            originScreen = LaunchOrigin.HOME.name,
+                        )
+                    }
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
@@ -585,14 +612,14 @@ class PortfolioFragment :
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
                 visibleIf { state.uiState == DashboardUIState.EMPTY && state.canPotentiallyTransactWithBanks }
-                leftButton.setOnClickListener { navigator().launchReceive() }
+                leftButton.setOnClickListener { navigator().launchReceive(null) }
                 rightButton.setOnClickListener {
                     model.process(DashboardIntent.StartBankTransferFlow(action = AssetAction.FiatDeposit))
                 }
             }
             receiveButton.apply {
                 visibleIf { state.uiState == DashboardUIState.EMPTY && !state.canPotentiallyTransactWithBanks }
-                setOnClickListener { navigator().launchReceive() }
+                setOnClickListener { navigator().launchReceive(null) }
             }
         }
     }
@@ -623,42 +650,10 @@ class PortfolioFragment :
         }
     }
 
-    // For the split dashboard, this onResume is called only once. When the fragment is created.
-    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
-    override fun onResume() {
-        super.onResume()
-        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
-            activeFiat = currencyPrefs.selectedFiatCurrency
-            model.process(DashboardIntent.ResetDashboardAssets)
-        }
-        if (isHidden) return
-
-        announcements.checkLatest(announcementHost, compositeDisposable)
-        model.process(DashboardIntent.FetchOnboardingSteps)
-        model.process(DashboardIntent.CheckCowboysFlow)
-        model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
-        model.process(DashboardIntent.FetchReferralSuccess)
-    }
-
-    // This method doesn't get called when we use the split portfolio/prices dashboard.
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (!hidden) {
-            model.process(
-                DashboardIntent.GetActiveAssets(
-                    loadSilently = activeFiat == currencyPrefs.selectedFiatCurrency
-                )
-            )
-            activeFiat = currencyPrefs.selectedFiatCurrency
-            model.process(DashboardIntent.FetchOnboardingSteps)
-        }
-    }
-
     override fun onPause() {
         saveAssetOrderingLegacy()
-
+        model.process(DashboardIntent.DisposePricesAndBalances)
         compositeDisposable.clear()
-        rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
     }
 
@@ -706,7 +701,7 @@ class PortfolioFragment :
             when (result) {
                 // Without Handler this fails with FragmentManager is already executing transactions, investigated but came up with nothing
                 DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
-                    navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+                    navigator().launchBuySell(BuySellViewType.TYPE_BUY)
                 }
                 null -> {
                 }
@@ -733,7 +728,6 @@ class PortfolioFragment :
     private fun onAssetClicked(asset: AssetInfo) {
         analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(
-
             DashboardIntent.UpdateNavigationAction(
                 DashboardNavigationAction.Coinview(
                     asset = asset
@@ -803,7 +797,7 @@ class PortfolioFragment :
                     origin = LaunchOrigin.DASHBOARD_PROMO, type = TransferAnalyticsEvent.AnalyticsTransferType.RECEIVE
                 )
             )
-            navigator().launchReceive()
+            navigator().launchReceive(null)
         }
 
         override fun finishSimpleBuySignup() {
@@ -818,7 +812,7 @@ class PortfolioFragment :
             analytics.logEvent(
                 BuySellClicked(
                     origin = LaunchOrigin.DASHBOARD_PROMO,
-                    type = BuySellFragment.BuySellViewType.TYPE_BUY
+                    type = BuySellViewType.TYPE_BUY
                 )
             )
             navigator().launchBuySell()
@@ -827,10 +821,10 @@ class PortfolioFragment :
         override fun startSell() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellFragment.BuySellViewType.TYPE_SELL
+                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellViewType.TYPE_SELL
                 )
             )
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            navigator().launchBuySell(BuySellViewType.TYPE_SELL)
         }
 
         override fun startSend() {
@@ -858,6 +852,15 @@ class PortfolioFragment :
 
         override fun startRecurringBuyUpsell() {
             startActivity(RecurringBuyOnboardingActivity.newInstance(requireActivity(), false))
+        }
+
+        override fun startSettings(destination: SettingsDestination) {
+            startActivity(
+                SettingsActivity.newIntent(
+                    context = requireContext(),
+                    deeplinkToScreen = destination
+                )
+            )
         }
 
         override fun joinNftWaitlist() {

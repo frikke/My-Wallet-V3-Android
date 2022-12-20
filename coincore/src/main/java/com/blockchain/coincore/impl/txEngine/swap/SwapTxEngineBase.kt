@@ -15,16 +15,16 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -45,7 +45,7 @@ abstract class SwapTxEngineBase(
     userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    private val swapTransactionsCache: SwapTransactionsCache,
+    private val swapTransactionsStore: SwapTransactionsStore,
 ) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
@@ -106,10 +106,7 @@ abstract class SwapTxEngineBase(
 
     private fun buildConfirmations(pendingTx: PendingTx, pricedQuote: PricedQuote): PendingTx {
         return pendingTx.copy(
-            confirmations = listOfNotNull(
-                TxConfirmationValue.QuoteCountDown(
-                    pricedQuote = pricedQuote
-                ),
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.SwapExchange(
                     unitCryptoCurrency = Money.fromMajor(sourceAsset, BigDecimal.ONE),
                     price = Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
@@ -133,6 +130,9 @@ abstract class SwapTxEngineBase(
                             target.currency
                         )
                 ),
+                TxConfirmationValue.QuoteCountDown(
+                    pricedQuote = pricedQuote
+                )
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(LATEST_QUOTE_ID, pricedQuote.transferQuote.id)
@@ -164,10 +164,6 @@ abstract class SwapTxEngineBase(
         return pendingTx.copy(
             limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
         ).addOrReplaceOption(
-            TxConfirmationValue.QuoteCountDown(
-                pricedQuote
-            )
-        ).addOrReplaceOption(
             TxConfirmationValue.SwapExchange(
                 Money.fromMajor(sourceAsset, BigDecimal.ONE),
                 Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
@@ -191,6 +187,10 @@ abstract class SwapTxEngineBase(
                         pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                         target.currency
                     )
+            )
+        ).addOrReplaceOption(
+            TxConfirmationValue.QuoteCountDown(
+                pricedQuote
             )
         )
     }
@@ -232,7 +232,7 @@ abstract class SwapTxEngineBase(
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
         return Completable.fromCallable {
-            swapTransactionsCache.invalidate()
+            swapTransactionsStore.invalidate()
         }
     }
 

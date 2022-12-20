@@ -15,8 +15,10 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.koin.scopedInject
-import com.blockchain.ui.password.SecondPasswordHandler
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -28,13 +30,11 @@ import piuk.blockchain.android.databinding.ActivityAddressesBinding
 import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
 import piuk.blockchain.android.ui.addresses.adapter.AccountListItem
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class AddressesActivity :
@@ -43,7 +43,7 @@ class AddressesActivity :
     AccountAdapter.Listener,
     AccountEditSheet.Host {
 
-    private val secondPasswordHandler: SecondPasswordHandler by scopedInject()
+    private val secondPasswordDialog: SecondPasswordDialog by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     private val binding: ActivityAddressesBinding by lazy {
@@ -69,6 +69,7 @@ class AddressesActivity :
             toolbarTitle = getString(R.string.drawer_addresses),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        onBackPressCloseHeaderCallback.isEnabled = binding.currencyHeader.isOpen()
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }
@@ -125,7 +126,7 @@ class AddressesActivity :
 
     override fun onImportAddressClicked() {
         Timber.d("Click import account")
-        compositeDisposable += secondPasswordHandler.secondPassword(this)
+        compositeDisposable += secondPasswordDialog.secondPassword(this)
             .subscribeBy(
                 onSuccess = { showScanActivity() },
                 onComplete = { showScanActivity() },
@@ -138,7 +139,7 @@ class AddressesActivity :
     }
 
     private fun createNewAccount() {
-        compositeDisposable += secondPasswordHandler.secondPassword(this)
+        compositeDisposable += secondPasswordDialog.secondPassword(this)
             .subscribeBy(
                 onSuccess = { password ->
                     promptForAccountLabel(
@@ -204,7 +205,7 @@ class AddressesActivity :
     }
 
     private fun handleImportScan(scanData: String) {
-        val walletPassword = secondPasswordHandler.verifiedPassword.takeIf { it?.isNotEmpty() == true }
+        val walletPassword = secondPasswordDialog.verifiedPassword.takeIf { it?.isNotEmpty() == true }
         if (presenter.importRequiresPassword(scanData)) {
             promptImportKeyPassword(this) { password ->
                 presenter.importScannedAddress(scanData, password, walletPassword)

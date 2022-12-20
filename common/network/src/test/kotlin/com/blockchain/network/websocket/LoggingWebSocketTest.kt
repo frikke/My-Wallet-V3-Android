@@ -1,6 +1,6 @@
 package com.blockchain.network.websocket
 
-import com.blockchain.logging.Logger
+import com.blockchain.logging.ILogger
 import com.blockchain.logging.NullLogger
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -18,7 +18,7 @@ import org.koin.test.KoinTest
 
 class LoggingWebSocketTest : KoinTest {
 
-    private val logging = mock<Logger>()
+    private val logging = mock<ILogger>()
 
     @Before
     fun setup() {
@@ -28,7 +28,7 @@ class LoggingWebSocketTest : KoinTest {
                 module {
                     single {
                         logging
-                    }.bind(Logger::class)
+                    }.bind(ILogger::class)
                 }
             )
         }
@@ -113,7 +113,7 @@ class LoggingWebSocketWithNullLoggerTest : KoinTest {
                     module {
                         single {
                             NullLogger
-                        }.bind(Logger::class)
+                        }.bind(ILogger::class)
                     }
                 )
             )

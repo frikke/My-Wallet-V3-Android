@@ -4,6 +4,8 @@ import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -12,7 +14,6 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -25,8 +26,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import retrofit2.Response
 import timber.log.Timber
 
@@ -38,7 +37,6 @@ interface PasswordAuthView : MvpView {
     fun resetPasswordField()
     fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
-        sessionId: String,
         authType: Int,
         guid: String,
         password: String
@@ -71,13 +69,10 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     override val alwaysDisableScreenshots = true
     override val enableLogoutTimer = false
 
-    private var sessionId: String? = null
-
     private var authComplete = false
 
     internal fun submitTwoFactorCode(
         responseObject: JSONObject,
-        sessionId: String,
         guid: String,
         password: String,
         code: String?
@@ -85,7 +80,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         if (code.isNullOrEmpty()) {
             view?.showSnackbar(R.string.two_factor_null_error, SnackbarType.Error)
         } else {
-            compositeDisposable += authDataManager.submitTwoFactorCode(sessionId, guid, code)
+            compositeDisposable += authDataManager.submitTwoFactorCode(guid, code)
                 .doOnSubscribe {
                     view?.showProgressDialog(R.string.please_wait)
                 }
@@ -109,39 +104,35 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         }
     }
 
-    private fun getSessionId(guid: String): Observable<String> =
-        sessionId?.let { Observable.just(it) } ?: authDataManager.getSessionId(guid)
+    private fun getSessionId(): Single<String> =
+        authDataManager.getSessionId()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     fun verifyPassword(password: String, guid: String) {
-        compositeDisposable += getSessionId(guid)
+        compositeDisposable += getSessionId()
             .doOnSubscribe {
                 view?.showProgressDialog(R.string.validating_password)
             }
-            .doOnNext { s -> sessionId = s }
-            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = false) }
+            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, resend2FASms = false) }
             .subscribeBy(
-                onNext = { response -> handleResponse(password, guid, response) },
+                onSuccess = { response -> handleResponse(password, guid, response) },
                 onError = { throwable -> handleSessionError(throwable) }
             )
     }
 
     fun requestNew2FaCode(password: String, guid: String) {
-        compositeDisposable += getSessionId(guid)
+        compositeDisposable += authDataManager.getEncryptedPayload(guid = guid, resend2FASms = true)
             .doOnSubscribe {
                 view?.showProgressDialog(R.string.two_fa_new_request)
             }
-            .doOnNext { s -> sessionId = s }
-            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = true) }
             .subscribeBy(
-                onNext = { response -> handleResponse(password, guid, response) },
+                onSuccess = { response -> handleResponse(password, guid, response) },
                 onError = { throwable -> handleSessionError(throwable) }
             )
     }
 
     private fun handleSessionError(throwable: Throwable) {
         Timber.e(throwable)
-        sessionId = null
         onAuthFailed()
     }
 
@@ -178,7 +169,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
 
     private fun pollAuthStatus(guid: String): Single<PollResult<Response<ResponseBody>>> {
         pollService = PollService(
-            authDataManager.getEncryptedPayload(guid, sessionId!!, resend2FASms = false).firstOrError()
+            authDataManager.getEncryptedPayload(guid, resend2FASms = false)
         ) {
             val errorString = it.errorBody()?.toString()
             val bodyString = it.body()?.toString()
@@ -250,7 +241,6 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             view?.dismissProgressDialog()
             view?.showTwoFactorCodeNeededDialog(
                 jsonObject,
-                sessionId!!,
                 jsonObject.getInt("auth_type"),
                 guid,
                 password
@@ -264,8 +254,8 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         compositeDisposable += payloadDataManager.initializeFromPayload(payload, password)
             .doOnComplete {
                 authPrefs.apply {
-                    sharedKey = payloadDataManager.wallet!!.sharedKey
-                    walletGuid = payloadDataManager.wallet!!.guid
+                    sharedKey = payloadDataManager.wallet.sharedKey
+                    walletGuid = payloadDataManager.wallet.guid
                     emailVerified = true
                     pinId = ""
                 }

@@ -13,11 +13,11 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransferError
 import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
-import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawOnChainTxEngine
@@ -30,11 +30,13 @@ import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TES
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.custodial.data.store.TradingStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -63,6 +65,8 @@ class TxProcessorFactoryTest {
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankService: BankService = mock()
     private val plaidFeatureFlag: FeatureFlag = mock()
+    private val stakingBalanceStore: StakingBalanceStore = mock()
+    private val stakingService: StakingService = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -86,8 +90,10 @@ class TxProcessorFactoryTest {
             bankService = bankService,
             ethDataManager = mock(),
             fees = mock(),
-            swapTransactionsCache = mock(),
-            plaidFeatureFlag = plaidFeatureFlag
+            swapTransactionsStore = mock(),
+            plaidFeatureFlag = plaidFeatureFlag,
+            stakingBalanceStore = stakingBalanceStore,
+            stakingService = stakingService
         )
     }
 
@@ -124,7 +130,7 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
 
         val mockReceiveAddress: ReceiveAddress = mock()
-        val target: CryptoInterestAccount = mock {
+        val target: CustodialInterestAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(mockReceiveAddress))
         }
         val action = AssetAction.Send
@@ -316,7 +322,7 @@ class TxProcessorFactoryTest {
             on { currency }.thenReturn(TEST_ASSET)
         }
 
-        val target: CryptoInterestAccount = mock {
+        val target: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
 
@@ -447,7 +453,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalToTradingProcessor() {
-        val source: CryptoInterestAccount = mock {
+        val source: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CustodialTradingAccount = mock {
@@ -469,7 +475,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalToOnChainProcessor() {
-        val source: CryptoInterestAccount = mock {
+        val source: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CryptoNonCustodialAccount = mock {
@@ -491,7 +497,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalUnknownProcessor() {
-        val source: CryptoInterestAccount = mock()
+        val source: CustodialInterestAccount = mock()
         val target: LinkedBankAccount.BankAccountAddress = mock()
 
         subject.createProcessor(source, target, AssetAction.Send)

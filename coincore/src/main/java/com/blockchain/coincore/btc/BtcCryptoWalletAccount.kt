@@ -1,5 +1,6 @@
 package com.blockchain.coincore.btc
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -12,26 +13,30 @@ import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
+import com.blockchain.core.chains.bitcoin.SendDataManager
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
+import com.blockchain.utils.mapList
+import com.blockchain.utils.then
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
+import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.utils.extensions.mapList
-import piuk.blockchain.androidcore.utils.extensions.then
 
 /*internal*/ class BtcCryptoWalletAccount internal constructor(
     private val payloadDataManager: PayloadDataManager,
@@ -49,7 +54,9 @@ import piuk.blockchain.androidcore.utils.extensions.then
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BTC
 ) {
-    private val hasFunds = AtomicBoolean(false)
+
+    override val isImported: Boolean
+        get() = internalAccount is ImportedAddress
 
     override val label: String
         get() = internalAccount.label
@@ -60,19 +67,23 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
 
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
-    override fun getOnChainBalance(): Observable<Money> =
-        getAccountBalance(false)
-            .toObservable()
-
-    private fun getAccountBalance(forceRefresh: Boolean): Single<Money> =
-        payloadDataManager.getAddressBalanceRefresh(xpubs, forceRefresh)
-            .doOnSuccess {
-                hasFunds.set(it.isPositive)
+    override val balanceRx: Observable<AccountBalance>
+        get() = if (internalAccount is ImportedAddress) {
+            Observable.combineLatest(
+                getOnChainBalance(),
+                exchangeRates.exchangeRateToUserFiat(currency)
+            ) { balance, rate ->
+                AccountBalance(
+                    total = balance,
+                    withdrawable = balance,
+                    pending = Money.zero(currency),
+                    dashboardDisplay = balance,
+                    exchangeRate = rate
+                )
             }
-            .map { it }
+        } else {
+            super.balanceRx
+        }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = when (internalAccount) {
@@ -86,6 +97,41 @@ import piuk.blockchain.androidcore.utils.extensions.then
             }
             else -> Single.error(IllegalStateException("Cannot receive to Imported Account"))
         }
+
+    override fun getOnChainBalance(): Observable<Money> =
+        getAccountBalance()
+            .toObservable()
+
+    private fun getAccountBalance(): Single<Money> =
+        payloadDataManager.getAddressBalanceRefresh(xpubs, false)
+            .map { it }
+
+    override suspend fun publicKey(): List<PublicKey> {
+        val segwitXpub = xpubs.forDerivation(XPub.Format.SEGWIT)
+        val legacyXpub = xpubs.forDerivation(XPub.Format.LEGACY)
+        return listOfNotNull(
+            segwitXpub?.let { xpub ->
+                PublicKey(
+                    address = xpub.address,
+                    descriptor = MULTIPLE_ADDRESSES_DESCRIPTOR,
+                    style = PubKeyStyle.EXTENDED
+                )
+            },
+            legacyXpub?.let { xpub ->
+                PublicKey(
+                    address = xpub.address,
+                    descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
+                    style = PubKeyStyle.EXTENDED
+                )
+            }
+        )
+    }
+
+    override val index: Int
+        get() = hdAccountIndex
+
+    override val pubKeyDescriptor
+        get() = BTC_PUBKEY_DESCRIPTOR
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(
@@ -151,8 +197,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
         val isArchived = this.isArchived
 
         return updateArchivedState(!isArchived)
-            .then { payloadDataManager.updateAllTransactions() }
-            .then { getAccountBalance(true).ignoreElement() }
+            .then { balanceRx.firstOrError().onErrorComplete().ignoreElement() }
             .doOnComplete { forceRefresh() }
     }
 
@@ -291,6 +336,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             addressResolver = addressResolver
         )
 
-        private const val IMPORTED_ACCOUNT_NO_INDEX = -1
+        private const val IMPORTED_ACCOUNT_NO_INDEX = Int.MAX_VALUE
+
+        private const val BTC_PUBKEY_DESCRIPTOR = "p2wpkh"
     }
 }

@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.R
@@ -47,10 +46,17 @@ fun ButtonContent(
             when (icon) {
                 is ImageResource.Local -> {
                     Image(
-                        imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
-                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_margin)),
+                        imageResource = icon,
+                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                }
+                is ImageResource.LocalWithResolvedDrawable -> {
+                    Image(
+                        imageResource = icon,
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedDrawable -> {
                     Image(
@@ -62,16 +68,16 @@ fun ButtonContent(
                 is ImageResource.LocalWithBackground -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.Remote -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedBitmap,
                 is ImageResource.LocalWithBackgroundAndExternalResources,

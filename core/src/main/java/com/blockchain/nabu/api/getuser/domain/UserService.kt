@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserService {
     // todo (othman) refactor later as Single is used in many places
+    @Deprecated("use flow")
     fun getUser(): Single<NabuUser>
 
     fun getUserFlow(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<NabuUser>
-
-    fun markAsStale()
 }

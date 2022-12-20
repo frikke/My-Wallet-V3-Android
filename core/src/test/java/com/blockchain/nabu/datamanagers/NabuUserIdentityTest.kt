@@ -1,6 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.buy.domain.SimpleBuyService
+import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -8,23 +9,27 @@ import com.blockchain.core.kyc.domain.model.KycTierDetail
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.getBlankNabuUser
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -32,7 +37,7 @@ class NabuUserIdentityTest {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestService: InterestService = mock()
-    private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
+    private val simpleBuyService: SimpleBuyService = mock()
     private val kycService: KycService = mock()
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
@@ -41,7 +46,7 @@ class NabuUserIdentityTest {
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
         interestService = interestService,
-        simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
+        simpleBuyService = simpleBuyService,
         kycService = kycService,
         eligibilityService = eligibilityService,
         userService = userService,
@@ -54,15 +59,16 @@ class NabuUserIdentityTest {
             val eligibility = ProductEligibility(
                 product = EligibleProduct.BUY,
                 canTransact = true,
+                isDefault = false,
                 maxTransactionsCap = TransactionsLimit.Unlimited,
                 reasonNotEligible = null
             )
             val mockTiers = createMockTiers(silverState = KycTierState.Verified, goldState = KycTierState.Verified)
             whenever(kycService.getTiersLegacy()).thenReturn(Single.just(mockTiers))
-            whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
+            whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY))
                 .thenReturn(Outcome.Success(eligibility))
-            whenever(simpleBuyEligibilityProvider.simpleBuyTradingEligibility())
-                .thenReturn(Single.just(SimpleBuyEligibility(true, true, 0, 1)))
+            whenever(simpleBuyService.getEligibility())
+                .thenReturn(flowOf(DataResource.Data(SimpleBuyEligibility(true, true, 0, 1))))
 
             subject.userAccessForFeature(Feature.Buy)
                 .test()
@@ -76,10 +82,11 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.SWAP,
             canTransact = true,
+            isDefault = false,
             maxTransactionsCap = transactionsLimit,
             reasonNotEligible = null
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.SWAP))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Swap)
@@ -93,10 +100,11 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_CRYPTO,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.InsufficientTier.Tier2Required
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositCrypto)
@@ -110,16 +118,17 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.SELL,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.SELL))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Sell)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -127,16 +136,17 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_FIAT,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositFiat)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -144,16 +154,17 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.DEPOSIT_INTEREST,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositInterest)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -161,16 +172,17 @@ class NabuUserIdentityTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.WITHDRAW_FIAT,
             canTransact = false,
+            isDefault = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5("reason")
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.WithdrawFiat)
             .test()
             .await()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason")))
     }
 
     @Test
@@ -201,6 +213,28 @@ class NabuUserIdentityTest {
         whenever(bindFeatureFlag.enabled).thenReturn(Single.just(true))
 
         subject.isArgentinian()
+            .test()
+            .assertValue(false)
+    }
+
+    @Test
+    fun `user is SSO`() {
+        whenever(userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))).thenReturn(
+            flowOf(getBlankNabuUser().copy(unifiedAccountWalletGuid = "unifiedAccountWalletGuid"))
+        )
+
+        subject.isSSO()
+            .test()
+            .assertValue(true)
+    }
+
+    @Test
+    fun `user is not SSO`() {
+        whenever(userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))).thenReturn(
+            flowOf(getBlankNabuUser().copy(unifiedAccountWalletGuid = null))
+        )
+
+        subject.isSSO()
             .test()
             .assertValue(false)
     }

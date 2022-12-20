@@ -35,10 +35,22 @@ private object FiatFormat {
                         currencySymbol = ""
                     }
                 }
-            minimumFractionDigits = if (key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber()
-            ) currencyInstance.defaultFractionDigits else 0
-            maximumFractionDigits = if (key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber()
-            ) currencyInstance.defaultFractionDigits else 0
+            val amount = key.value
+            // In order to avoid losing values of cryptocurrencies denominated in fiat, we need to use the scale
+            // as a guide for fractional digits for values below the penny threshold. Of course we still need to limit
+            // the maximum in order to prevent content overflow on small screen.
+            minimumFractionDigits = when {
+                amount.isPositive && amount.toFloat() < FiatValue.PENNY_THRESHOLD -> amount.toBigDecimal().scale()
+                key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber() ->
+                    currencyInstance.defaultFractionDigits
+                else -> 0
+            }
+            maximumFractionDigits = when {
+                amount.isPositive && amount.toFloat() < FiatValue.PENNY_THRESHOLD -> FiatValue.MAX_FRACTION_DIGITS
+                key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber() ->
+                    currencyInstance.defaultFractionDigits
+                else -> 0
+            }
             roundingMode = RoundingMode.DOWN
         }
     }
@@ -54,16 +66,22 @@ class FiatValue private constructor(
     override val symbol: String =
         currency.symbol
 
-    override val maxDecimalPlaces: Int get() = maxDecimalPlaces(currencyCode)
+    override val maxDecimalPlaces: Int
+        get() = maxDecimalPlaces(currencyCode)
 
-    override val isZero: Boolean get() = amount.signum() == 0
+    override val isZero: Boolean
+        get() = amount.signum() == 0
 
-    override val isPositive: Boolean get() = amount.signum() == 1
+    override val isPositive: Boolean
+        get() = amount.signum() == 1
 
     override fun toBigDecimal(): BigDecimal = amount
 
     override fun toBigInteger(): BigInteger =
         amount.movePointRight(maxDecimalPlaces).toBigInteger()
+
+    override fun isDust(): Boolean =
+        amount.toFloat() <= PENNY_THRESHOLD
 
     override fun toFloat(): Float =
         toBigDecimal().toFloat()
@@ -97,6 +115,8 @@ class FiatValue private constructor(
             .trim()
             .removeComma()
 
+    override fun abs(): FiatValue = FiatValue(currency, amount.abs())
+
     override fun add(other: Money): FiatValue {
         require(other is FiatValue)
         return FiatValue(currency, amount + other.amount)
@@ -115,6 +135,10 @@ class FiatValue private constructor(
     override fun compare(other: Money): Int {
         require(other is FiatValue)
         return amount.compareTo(other.amount)
+    }
+
+    override fun multiply(multiplier: Float): Money {
+        return fromMajor(currency, (amount * multiplier.toBigDecimal()))
     }
 
     override fun ensureComparable(operation: String, other: Money) {
@@ -140,6 +164,9 @@ class FiatValue private constructor(
 
     companion object {
 
+        const val PENNY_THRESHOLD = 0.01f
+        const val MAX_FRACTION_DIGITS = 10
+
         fun fromMinor(fiatCurrency: FiatCurrency, minor: BigInteger) =
             fromMajor(
                 fiatCurrency,
@@ -147,14 +174,23 @@ class FiatValue private constructor(
             )
 
         @JvmStatic
-        fun fromMajor(fiatCurrency: FiatCurrency, major: BigDecimal, round: Boolean = true) =
-            FiatValue(
+        fun fromMajor(fiatCurrency: FiatCurrency, major: BigDecimal, round: Boolean = true): FiatValue {
+            val valueAsFloat = major.toFloat()
+            val scale = major.scale()
+            // Keep the original scale for values below the penny threshold.
+            val precision = if (valueAsFloat < PENNY_THRESHOLD && scale <= MAX_FRACTION_DIGITS) {
+                scale
+            } else {
+                fiatCurrency.precisionDp
+            }
+            return FiatValue(
                 fiatCurrency,
                 if (round) major.setScale(
-                    fiatCurrency.precisionDp,
+                    precision,
                     RoundingMode.DOWN
                 ) else major
             )
+        }
 
         fun fromMajorOrZero(fiatCurrency: FiatCurrency, major: String, locale: Locale = Locale.getDefault()) =
             fromMajor(

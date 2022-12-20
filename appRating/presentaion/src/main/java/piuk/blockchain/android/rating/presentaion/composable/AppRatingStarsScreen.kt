@@ -46,10 +46,10 @@ fun AppRatingStarsScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = dimensionResource(R.dimen.standard_margin),
-                top = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin),
-                bottom = dimensionResource(R.dimen.small_margin)
+                start = dimensionResource(R.dimen.standard_spacing),
+                top = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.standard_spacing),
+                bottom = dimensionResource(R.dimen.small_spacing)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -58,7 +58,7 @@ fun AppRatingStarsScreen(
             imageResource = ImageResource.Local(R.drawable.ic_favorite_filled)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             style = AppTheme.typography.body2,
@@ -67,7 +67,7 @@ fun AppRatingStarsScreen(
             text = stringResource(R.string.app_rating_title)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         Text(
             style = AppTheme.typography.paragraph1,
@@ -76,7 +76,7 @@ fun AppRatingStarsScreen(
             text = stringResource(R.string.app_rating_description)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
         RatingBar(
             imageFilled = R.drawable.ic_favorite_filled,
@@ -86,7 +86,7 @@ fun AppRatingStarsScreen(
             }
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
         SmallMinimalButton(
             text = stringResource(R.string.common_cancel),

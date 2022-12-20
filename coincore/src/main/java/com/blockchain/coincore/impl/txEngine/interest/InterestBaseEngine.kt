@@ -4,8 +4,9 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestLimits
+import com.blockchain.earn.domain.models.interest.InterestLimits
+import com.blockchain.earn.domain.models.staking.StakingLimits
+import com.blockchain.earn.domain.service.InterestService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -26,14 +27,14 @@ abstract class InterestBaseEngine(
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation<Unit>(
-                    confirmation = TxConfirmation.AGREEMENT_INTEREST_T_AND_C,
+                    confirmation = TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
                     value = termsChecked
                 )
             )
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation(
                     confirmation = TxConfirmation.AGREEMENT_INTEREST_TRANSFER,
-                    data = pendingTx.amount,
+                    data = TransferData.Interest(pendingTx.amount),
                     value = agreementChecked
                 )
             )
@@ -51,16 +52,21 @@ abstract class InterestBaseEngine(
 
     private fun getTermsOptionValue(pendingTx: PendingTx): Boolean =
         pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Unit>>(
-            TxConfirmation.AGREEMENT_INTEREST_T_AND_C
+            TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C
         )?.value ?: false
 
     private fun getAgreementOptionValue(pendingTx: PendingTx): Boolean =
-        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Money>>(
+        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<TransferData>>(
             TxConfirmation.AGREEMENT_INTEREST_TRANSFER
         )?.value ?: false
 
     protected fun TxConfirmation.isInterestAgreement(): Boolean = this in setOf(
-        TxConfirmation.AGREEMENT_INTEREST_T_AND_C,
+        TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
         TxConfirmation.AGREEMENT_INTEREST_TRANSFER
     )
+}
+
+sealed class TransferData {
+    class Interest(val amount: Money) : TransferData()
+    class Staking(val amount: Money, val stakingLimits: StakingLimits) : TransferData()
 }

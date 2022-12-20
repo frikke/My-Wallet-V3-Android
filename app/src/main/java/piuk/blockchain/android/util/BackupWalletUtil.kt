@@ -1,8 +1,8 @@
 package piuk.blockchain.android.util
 
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.wallet.BackupWallet
 import java.security.SecureRandom
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
 class BackupWalletUtil(
@@ -29,7 +29,7 @@ class BackupWalletUtil(
     }
 
     override fun getMnemonic(secondPassword: String?): List<String>? = try {
-        payloadDataManager.wallet?.let {
+        payloadDataManager.wallet.let {
             it.decryptHDWallet(secondPassword)
             it.walletBody?.getMnemonic()?.toList()
         }

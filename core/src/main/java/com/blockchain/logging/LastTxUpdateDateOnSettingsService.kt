@@ -1,10 +1,10 @@
 package com.blockchain.logging
 
+import com.blockchain.core.settings.SettingsService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Calendar
 import java.util.GregorianCalendar
-import piuk.blockchain.androidcore.data.settings.SettingsService
 
 internal class LastTxUpdateDateOnSettingsService(private val settingsService: SettingsService) : LastTxUpdater {
 

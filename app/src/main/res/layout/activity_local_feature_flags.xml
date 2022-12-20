@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/standard_margin">
+    android:padding="@dimen/standard_spacing">
 
     <LinearLayout
         android:id="@+id/nested_parent"
@@ -21,35 +21,13 @@
             android:layout_marginBottom="2dp"
             android:gravity="center"
             android:text="Wallet Supported Currencies Mode" />
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/radio_defi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DeFi" />
-
-            <RadioButton
-                android:id="@+id/radio_trading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trading" />
-
-            <RadioButton
-                android:id="@+id/radio_both"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Both" />
-        </RadioGroup>
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/standard_spacing"
             android:text="Remote feature flags" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -61,8 +39,8 @@
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/medium_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:paddingTop="@dimen/medium_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:text="Server Side Error Handling" />
 
         <androidx.appcompat.widget.SwitchCompat
@@ -75,7 +53,7 @@
             android:id="@+id/brokerage_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:autoLink="web"
             android:text="@string/debug_menu_brokerage_link"
             android:visibility="gone"
@@ -85,7 +63,7 @@
             android:id="@+id/brokerage_error_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:hint="Add an error code"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -95,7 +73,7 @@
             style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:gravity="end"
             android:text="Save error"
             android:visibility="gone"
@@ -106,7 +84,7 @@
             style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/medium_margin"
+            android:layout_marginTop="@dimen/medium_spacing"
             android:layout_marginBottom="8dp"
             android:text="Reset App Rating" />
 
@@ -138,7 +116,7 @@
             android:id="@+id/app_maintenance_json"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:hint="if corrupt, copy the json from remoteconfig"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -148,7 +126,7 @@
             style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:gravity="end"
             android:text="Save Json"
             android:visibility="gone"

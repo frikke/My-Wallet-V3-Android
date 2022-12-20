@@ -60,7 +60,7 @@
         <com.blockchain.componentlib.control.CheckboxView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/very_small_margin" />
+            android:padding="@dimen/very_small_spacing" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
             android:id="@+id/checkbox_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/very_small_margin" />
+            android:padding="@dimen/very_small_spacing" />
 
 
         <androidx.appcompat.widget.AppCompatTextView

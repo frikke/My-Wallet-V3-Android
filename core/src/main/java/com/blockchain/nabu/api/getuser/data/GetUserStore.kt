@@ -1,7 +1,9 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.api.interceptors.SessionInfo
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.Authenticator
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -16,29 +18,29 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class GetUserStore(
     private val nabuService: NabuService,
-    private val authenticator: Authenticator,
     private val userReporter: NabuUserReporter,
+    private val remoteLogger: RemoteLogger,
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
+    private val sessionInfo: SessionInfo,
     private val payloadDataManager: PayloadDataManager
 ) : Store<NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
-                authenticator.authenticate { tokenResponse ->
-                    nabuService.getUser(tokenResponse)
-                        .doOnSuccess { user ->
-                            userReporter.reportUserId(user.id)
-                            userReporter.reportUser(user)
-                            trust.setUserId(user.id)
-                            walletReporter.reportWalletGuid(payloadDataManager.guid)
-                        }
-                }
+                nabuService.getUser()
+                    .doOnSuccess { user ->
+                        userReporter.reportUserId(user.id)
+                        userReporter.reportUser(user)
+                        trust.setUserId(user.id)
+                        remoteLogger.logUserId(user.id)
+                        walletReporter.reportWalletGuid(payloadDataManager.guid)
+                        sessionInfo.setUserId(user.id)
+                    }
             }
         ),
         dataSerializer = NabuUser.serializer(),

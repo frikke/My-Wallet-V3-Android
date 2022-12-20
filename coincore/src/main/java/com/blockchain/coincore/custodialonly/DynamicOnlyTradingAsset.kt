@@ -4,11 +4,11 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 internal class DynamicOnlyTradingAsset(
     override val currency: AssetInfo,

@@ -2,7 +2,7 @@ package com.blockchain.logging.data.koin
 
 import com.blockchain.koin.embraceLogger
 import com.blockchain.logging.EventLogger
-import com.blockchain.logging.Logger
+import com.blockchain.logging.ILogger
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.NullLogger
 import com.blockchain.logging.RemoteLogger
@@ -22,7 +22,8 @@ val loggingModule = module {
             listOf(
                 FirebaseRemoteLogger(),
                 get(embraceLogger)
-            )
+            ),
+            get()
         )
     }.bind(RemoteLogger::class)
 
@@ -32,7 +33,7 @@ val loggingModule = module {
         } else {
             NullLogger
         }
-    }.bind(Logger::class)
+    }.bind(ILogger::class)
 
     factory {
         InjectableLogging(get())
@@ -43,6 +44,6 @@ val loggingModule = module {
     }
 
     single(embraceLogger) {
-        EmbraceRemoteLogger()
+        EmbraceRemoteLogger(get())
     }.bind(RemoteLogger::class)
 }

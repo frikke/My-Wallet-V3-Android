@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import androidx.annotation.StringRes
+import com.blockchain.core.settings.PhoneNumber
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
-import piuk.blockchain.androidcore.data.settings.PhoneNumber
 
 interface KycMobileValidationView : View {
 

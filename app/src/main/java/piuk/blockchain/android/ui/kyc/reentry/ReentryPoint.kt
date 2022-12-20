@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.nabu.models.responses.nabu.KycState
 
 sealed class ReentryPoint(val entryPoint: String) {
     object EmailEntry : ReentryPoint("Email Entry")
@@ -13,4 +14,8 @@ sealed class ReentryPoint(val entryPoint: String) {
         ReentryPoint("Extra Info Entry")
     object MobileEntry : ReentryPoint("Mobile Entry")
     object Veriff : ReentryPoint("Veriff Splash")
+    data class TierCurrentState(
+        val kycState: KycState,
+        val isSddVerified: Boolean,
+    ) : ReentryPoint("TierCurrentState")
 }

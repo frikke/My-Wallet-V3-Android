@@ -53,7 +53,7 @@ fun BalanceTableRowLarge(
                     )
                     SparkLine(
                         historicalRates = historicalRates,
-                        modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_spacing)),
                     )
                 }
                 TableRowText(
@@ -69,8 +69,8 @@ fun BalanceTableRowLarge(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_margin))
-                    .size(dimensionResource(R.dimen.standard_margin)),
+                    .padding(end = dimensionResource(R.dimen.medium_spacing))
+                    .size(dimensionResource(R.dimen.standard_spacing)),
             )
         },
         contentBottom = {

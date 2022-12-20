@@ -1,8 +1,11 @@
 package com.blockchain.domain.paymentmethods
 
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
@@ -15,12 +18,19 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface BankService {
 
     fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
 
-    fun getLinkedBank(id: String): Single<LinkedBank>
+    @Deprecated("use flow getLinkedBank")
+    fun getLinkedBankLegacy(id: String): Single<LinkedBank>
+
+    fun getLinkedBank(
+        id: String,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+    ): Flow<DataResource<LinkedBank>>
 
     fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>>
 
@@ -49,6 +59,11 @@ interface BankService {
         accountId: String,
         amount: Money,
     ): Single<SettlementInfo>
+
+    suspend fun getDepositTerms(
+        paymentMethodId: String,
+        amount: Money,
+    ): Outcome<Exception, DepositTerms>
 
     fun startBankTransfer(
         id: String,

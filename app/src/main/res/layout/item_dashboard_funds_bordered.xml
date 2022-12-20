@@ -6,12 +6,12 @@
     android:id="@+id/bordered_funds_parent"
     style="@style/DashboardCard"
     android:layout_width="wrap_content"
-    android:layout_marginStart="@dimen/very_small_margin"
-    android:layout_marginTop="@dimen/very_small_margin"
-    android:layout_marginEnd="@dimen/tiny_margin"
-    android:layout_marginBottom="@dimen/very_small_margin"
+    android:layout_marginStart="@dimen/very_small_spacing"
+    android:layout_marginTop="@dimen/very_small_spacing"
+    android:layout_marginEnd="@dimen/tiny_spacing"
+    android:layout_marginBottom="@dimen/very_small_spacing"
     android:background="@drawable/rounded_view_grey_border"
-    android:padding="@dimen/small_margin">
+    android:padding="@dimen/small_spacing">
 
     <piuk.blockchain.android.ui.customviews.FiatCurrencySymbolView
         android:id="@+id/bordered_funds_icon"
@@ -26,7 +26,7 @@
         style="@style/Text.Standard.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginStart="@dimen/small_spacing"
         app:layout_constraintStart_toEndOf="@id/bordered_funds_icon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="British Pound" />
@@ -36,7 +36,7 @@
         style="@style/Text.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/very_small_spacing"
         android:ellipsize="end"
         app:layout_constraintEnd_toStartOf="@id/bordered_funds_balance"
         app:layout_constraintHorizontal_bias="0"
@@ -49,7 +49,7 @@
         style="@style/Text.Standard.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/large_margin"
+        android:layout_marginStart="@dimen/large_spacing"
         app:layout_constraintBottom_toTopOf="@id/bordered_funds_balance_other_fiat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"

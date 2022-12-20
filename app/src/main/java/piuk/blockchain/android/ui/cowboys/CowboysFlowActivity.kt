@@ -49,7 +49,7 @@ import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_UR
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -61,7 +61,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_SDD_COMPLETE
 import timber.log.Timber
@@ -140,9 +140,9 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         )
     }
 
-    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+    override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         emailSkipAction = buttonAction
-        shouldShowEmailSkipButton = shouldShowButton
+        shouldShowEmailSkipButton = showSkipButton
     }
 
     override fun onEmailVerified() {
@@ -308,7 +308,7 @@ fun EmailKycHost(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val emailKycFragment = remember { KycEmailEntryFragment.newInstance(true) }
+        val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true) }
 
         NavigationBar(
             title = stringResource(R.string.security_check),
@@ -328,7 +328,7 @@ fun EmailKycHost(
         EmbeddedFragment(
             fragment = emailKycFragment,
             fragmentManager = fragmentManager,
-            tag = KycEmailEntryFragment.javaClass.simpleName,
+            tag = KycEmailVerificationFragment.javaClass.simpleName,
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -363,7 +363,7 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(top = dimensionResource(R.dimen.large_margin))
+                    .padding(top = dimensionResource(R.dimen.large_spacing))
                     .constrainAs(foregroundImage) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -386,8 +386,8 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .requiredSizeIn(
-                        minWidth = dimensionResource(id = R.dimen.epic_margin),
-                        minHeight = dimensionResource(id = R.dimen.epic_margin),
+                        minWidth = dimensionResource(id = R.dimen.epic_spacing),
+                        minHeight = dimensionResource(id = R.dimen.epic_spacing),
                         maxWidth = 100.dp,
                         maxHeight = 100.dp
                     )
@@ -405,9 +405,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    top = dimensionResource(id = R.dimen.very_small_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    top = dimensionResource(id = R.dimen.very_small_spacing)
                 )
                 .constrainAs(title) {
                     top.linkTo(
@@ -430,9 +430,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    top = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    top = dimensionResource(id = R.dimen.tiny_spacing)
                 )
                 .constrainAs(subtitle) {
                     top.linkTo(title.bottom, margin = 16.dp)
@@ -468,7 +468,7 @@ fun CowboysInterstitial(
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_close_circle, null),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.standard_margin))
+                .padding(all = dimensionResource(id = R.dimen.standard_spacing))
                 .clickable(true, onClick = onCloseClicked)
                 .constrainAs(closeButton) {
                     top.linkTo(parent.top)

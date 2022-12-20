@@ -40,14 +40,24 @@ class QuestionnaireStateMachine {
     }
     fun getRoot(): TreeNode.Root = _root
 
-    fun onDropdownChoiceChanged(node: FlatNode.Dropdown, newChoice: FlatNode.Selection) {
+    fun onDropdownChoicesChanged(node: FlatNode.Dropdown, newChoices: List<FlatNode.Selection>) {
         assertMainThread()
 
-        val parentTreeNode = _root.findNode { it.id == node.id } as TreeNode.SingleSelection
+        val newChoicesIds = newChoices.map { it.id }
+        val parentTreeNode = _root.findNode { it.id == node.id }
 
-        parentTreeNode.children
-            .filterIsInstance<TreeNode.Selection>()
-            .forEach { it.isChecked = it.id == newChoice.id }
+        if (parentTreeNode is TreeNode.SingleSelection) {
+            parentTreeNode.children
+                .filterIsInstance<TreeNode.Selection>()
+                .forEach { it.isChecked = it.id == newChoicesIds.first() }
+        } else if (parentTreeNode is TreeNode.MultipleSelection) {
+            parentTreeNode.children
+                .filterIsInstance<TreeNode.Selection>()
+                .forEach { it.isChecked = it.id in newChoicesIds }
+        } else {
+            throw IllegalStateException("parentTreeNode is neither SingleSelection nor MultipleSelection")
+        }
+
         render(parentTreeNode, node.depth)
         onStateChanged(state)
     }
@@ -58,22 +68,29 @@ class QuestionnaireStateMachine {
         val parentTreeNode = _root.findNode { it.children.any { it.id == node.id } }
         val clickedTreeNode = parentTreeNode?.findNode { it.id == node.id } as TreeNode.Selection
 
-        if (parentTreeNode is TreeNode.SingleSelection && parentTreeNode.isDropdown) {
-            throw UnsupportedOperationException("Use `onDropdownChoiceChanged` instead")
-        }
-
         if (parentTreeNode is TreeNode.SingleSelection) {
-            parentTreeNode.children.forEach {
-                if (it is TreeNode.Selection && it.isChecked) {
-                    it.isChecked = false
-                    render(it, node.depth)
-                }
-            }
+            val previouslyCheckedNode = parentTreeNode.children
+                .filterIsInstance<TreeNode.Selection>()
+                .find { it.id != clickedTreeNode.id && it.isChecked }
+            previouslyCheckedNode?.isChecked = false
             clickedTreeNode.isChecked = true
-            render(clickedTreeNode, node.depth)
-        } else {
+
+            if (parentTreeNode.isDropdown) {
+                render(parentTreeNode, node.depth - 1)
+            } else {
+                if (previouslyCheckedNode != null) render(previouslyCheckedNode, node.depth)
+                render(clickedTreeNode, node.depth)
+            }
+        } else if (parentTreeNode is TreeNode.MultipleSelection) {
             clickedTreeNode.isChecked = !clickedTreeNode.isChecked
-            render(clickedTreeNode, node.depth)
+
+            if (parentTreeNode.isDropdown) {
+                render(parentTreeNode, node.depth - 1)
+            } else {
+                render(clickedTreeNode, node.depth)
+            }
+        } else {
+            throw IllegalStateException("parentTreeNode is neither SingleSelection nor MultipleSelection")
         }
         onStateChanged(state)
     }
@@ -180,6 +197,8 @@ class QuestionnaireStateMachine {
         return true
     }
 
+    fun getTreeNode(flatNode: FlatNode): TreeNode = _root.findNode { treeNode -> treeNode.id == flatNode.id }!!
+
     private fun TreeNode.findNode(predicate: (TreeNode) -> Boolean): TreeNode? {
         if (predicate(this)) return this
         children.forEach {
@@ -199,7 +218,10 @@ class QuestionnaireStateMachine {
         if (this is TreeNode.OpenEnded && this.input.isBlank()) return presentable
 
         // Don't draw dropdown children, as this is handled by the view
-        val childrenToFlatten = if (this is TreeNode.SingleSelection && this.isDropdown) {
+        val childrenToFlatten = if (
+            (this is TreeNode.SingleSelection && this.isDropdown) ||
+            (this is TreeNode.MultipleSelection && this.isDropdown)
+        ) {
             val checkedNode = this.children.firstOrNull { it is TreeNode.Selection && it.isChecked }
             // If there's a checked node we want to render it's children
             checkedNode?.children ?: emptyList()
@@ -222,11 +244,19 @@ class QuestionnaireStateMachine {
                 .filterIsInstance<TreeNode.Selection>()
                 .map { it.toViewItem(depth + 1, this) }
                 .filterIsInstance<FlatNode.Selection>()
-            FlatNode.Dropdown(id, text, depth, instructions, children, children.firstOrNull { it.isChecked })
+            FlatNode.Dropdown(id, text, depth, instructions, false, children, children.filter { it.isChecked }.take(1))
         } else {
             FlatNode.SingleSelection(id, text, depth, instructions)
         }
-        is TreeNode.MultipleSelection -> FlatNode.MultipleSelection(id, text, depth, instructions)
+        is TreeNode.MultipleSelection -> if (isDropdown) {
+            val children = children
+                .filterIsInstance<TreeNode.Selection>()
+                .map { it.toViewItem(depth + 1, this) }
+                .filterIsInstance<FlatNode.Selection>()
+            FlatNode.Dropdown(id, text, depth, instructions, true, children, children.filter { it.isChecked })
+        } else {
+            FlatNode.MultipleSelection(id, text, depth, instructions)
+        }
         is TreeNode.OpenEnded -> FlatNode.OpenEnded(id, text, depth, input, hint, regex)
         is TreeNode.Selection -> FlatNode.Selection(id, text, depth, isChecked, parent is TreeNode.SingleSelection)
     }
@@ -236,7 +266,8 @@ sealed class FlatNode(
     open val id: NodeId,
     open val text: String,
     open val depth: Int
-) {
+) : Parcelable {
+    @Parcelize
     data class SingleSelection(
         override val id: NodeId,
         override val text: String,
@@ -244,15 +275,18 @@ sealed class FlatNode(
         val instructions: String
     ) : FlatNode(id, text, depth)
 
+    @Parcelize
     data class Dropdown(
         override val id: NodeId,
         override val text: String,
         override val depth: Int,
         val instructions: String,
+        val isMultiSelection: Boolean,
         val choices: List<Selection>,
-        val selectedChoice: Selection?
+        val selectedChoices: List<Selection>
     ) : FlatNode(id, text, depth)
 
+    @Parcelize
     data class MultipleSelection(
         override val id: NodeId,
         override val text: String,
@@ -260,6 +294,7 @@ sealed class FlatNode(
         val instructions: String
     ) : FlatNode(id, text, depth)
 
+    @Parcelize
     data class OpenEnded(
         override val id: NodeId,
         override val text: String,
@@ -269,6 +304,7 @@ sealed class FlatNode(
         val regex: Regex?,
     ) : FlatNode(id, text, depth)
 
+    @Parcelize
     data class Selection(
         override val id: NodeId,
         override val text: String,
@@ -302,7 +338,8 @@ sealed class TreeNode(
         override val id: NodeId,
         override val text: String,
         override val children: List<TreeNode>,
-        val instructions: String
+        val instructions: String,
+        val isDropdown: Boolean
     ) : TreeNode(id, text, children)
 
     @Parcelize

@@ -24,11 +24,13 @@ fun Search(
     readOnly: Boolean = false,
     isDarkMode: Boolean = isSystemInDarkTheme(),
     onValueChange: (String) -> Unit = {},
+    clearInput: Boolean = false
 ) {
 
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(prePopulatedText) }
+    var shouldClearInput by remember { mutableStateOf(clearInput) }
 
     val searchIcon = ImageResource.Local(R.drawable.ic_search, null)
     val closeIcon = if (isDarkMode) {
@@ -44,7 +46,12 @@ fun Search(
     }
 
     TextInput(
-        value = value,
+        value = if (shouldClearInput) {
+            onValueChange.invoke("")
+            focusManager.clearFocus(true)
+            value = ""
+            ""
+        } else value,
         onValueChange = {
             onValueChange.invoke(it)
             value = it

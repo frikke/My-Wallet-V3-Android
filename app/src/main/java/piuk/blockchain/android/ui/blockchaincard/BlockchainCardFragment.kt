@@ -4,32 +4,44 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.commonarch.presentation.base.updateToolbar
-import info.blockchain.balance.AssetInfo
+import com.blockchain.componentlib.theme.AppTheme
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
-import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class BlockchainCardFragment : BlockchainCardHostFragment() {
+
+    val viewModel: BlockchainCardViewModel by lazy {
+        if (modelArgs is BlockchainCardArgs.CardArgs) manageCardViewModel
+        else orderCardViewModel
+    }
 
     override fun onResume() {
         super.onResume()
         updateToolbar(
             toolbarTitle = getString(R.string.blockchain_card),
-            menuItems = emptyList()
+            menuItems = emptyList(),
         )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.viewCreated(modelArgs)
     }
 
     override fun onCreateView(
@@ -39,75 +51,55 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-
-            val viewModel =
-                if (modelArgs is BlockchainCardArgs.CardArgs) manageCardViewModel
-                else orderCardViewModel
-
             setContent {
-                viewModel.viewCreated(modelArgs)
-                BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
+                AppTheme {
+                    val lifecycleOwner = LocalLifecycleOwner.current
+
+                    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+                        viewModel.viewState.flowWithLifecycle(
+                            lifecycle = lifecycleOwner.lifecycle, minActiveState = Lifecycle.State.STARTED
+                        )
+                    }
+
+                    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+                        viewModel.navigationEventFlow.flowWithLifecycle(
+                            lifecycle = lifecycleOwner.lifecycle, minActiveState = Lifecycle.State.STARTED
+                        )
+                    }
+
+                    BlockchainCardNavHost(
+                        viewModel = viewModel,
+                        modelArgs = modelArgs,
+                        stateFlowLifecycleAware = stateFlowLifecycleAware,
+                        navigationRouter = BlockchainCardNavigationRouter(rememberNavController()),
+                        navEventsFlowLifecycleAware = navEventsFlowLifecycleAware
+                    )
+                }
             }
         }
     }
 
     companion object {
-        fun newInstance(blockchainCard: BlockchainCard): BlockchainCardHostFragment =
-            (BlockchainCardFragment() as BlockchainCardHostFragment).newInstance(blockchainCard)
-        fun newInstance(blockchainCardProduct: BlockchainCardProduct): BlockchainCardHostFragment =
-            (BlockchainCardFragment() as BlockchainCardHostFragment).newInstance(blockchainCardProduct)
-    }
-
-    override fun newInstance(blockchainCard: BlockchainCard) =
-        BlockchainCardFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(BLOCKCHAIN_CARD, blockchainCard)
+        fun newInstance(
+            blockchainCards: List<BlockchainCard>,
+            preselectedCard: BlockchainCard?,
+            blockchainCardProducts: List<BlockchainCardProduct>
+        ):
+            BlockchainCardHostFragment =
+            BlockchainCardFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArray(BLOCKCHAIN_CARD_LIST, blockchainCards.toTypedArray())
+                    putParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts.toTypedArray())
+                    preselectedCard?.let { putParcelable(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard) }
+                }
             }
-        }
 
-    override fun newInstance(blockchainCardProduct: BlockchainCardProduct) =
-        BlockchainCardFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+        fun newInstance(blockchainCardProducts: List<BlockchainCardProduct>):
+            BlockchainCardHostFragment =
+            BlockchainCardFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArray(BLOCKCHAIN_CARD_PRODUCT_LIST, blockchainCardProducts.toTypedArray())
+                }
             }
-        }
-
-    override fun startBuy(asset: AssetInfo) =
-        startActivity(
-            activity?.let {
-                SimpleBuyActivity.newIntent(
-                    context = it,
-                    asset = asset,
-                    launchFromNavigationBar = true
-                )
-            }
-        )
-
-    override fun startDeposit(account: FiatAccount) {
-        startActivity(
-            TransactionFlowActivity.newIntent(
-                context = requireActivity(),
-                sourceAccount = NullCryptoAccount(),
-                target = account,
-                action = AssetAction.FiatDeposit
-            )
-        )
-    }
-
-    override fun startKycAddressVerification(address: BlockchainCardAddress) {
-        val fragment = BlockchainCardKycAddressVerificationFragment.newInstance(address)
-        requireActivity().supportFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-            .replace(((view as ViewGroup).parent as View).id, fragment, fragment::class.simpleName)
-            .addToBackStack(fragment::class.simpleName)
-            .commitAllowingStateLoss()
-    }
-
-    override fun updateKycAddress(address: BlockchainCardAddress) {
-        if (modelArgs is BlockchainCardArgs.CardArgs) {
-            manageCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
-        } else {
-            orderCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
-        }
     }
 }

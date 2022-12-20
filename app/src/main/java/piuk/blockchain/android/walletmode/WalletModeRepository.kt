@@ -1,48 +1,44 @@
 package piuk.blockchain.android.walletmode
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 class WalletModeRepository(
-    private val sharedPreferences: SharedPreferences,
-    private val featureFlag: IntegratedFeatureFlag,
+    private val walletModeStore: WalletModeStore,
 ) : WalletModeService {
 
+    private val _walletMode: MutableSharedFlow<WalletMode> = MutableSharedFlow(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
     override fun enabledWalletMode(): WalletMode {
-        if (!featureFlag.isEnabled)
-            return WalletMode.UNIVERSAL
-
-        val walletModeString = sharedPreferences.getString(
-            WALLET_MODE,
-            ""
-        )
-        return WalletMode.values().firstOrNull { walletModeString == it.name } ?: defaultMode()
+        return walletModeStore.walletMode
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun reset() {
-        _walletMode = MutableStateFlow(enabledWalletMode())
+        _walletMode.resetReplayCache()
     }
-
-    private fun defaultMode(): WalletMode =
-        WalletMode.CUSTODIAL_ONLY
-
-    private var _walletMode = MutableStateFlow(enabledWalletMode())
 
     override val walletMode: Flow<WalletMode>
-        get() = _walletMode
+        get() = _walletMode.distinctUntilChanged()
+
+    override fun start() {
+        _walletMode.tryEmit(enabledWalletMode())
+    }
 
     override fun updateEnabledWalletMode(type: WalletMode) {
-        sharedPreferences.edit {
-            putString(WALLET_MODE, type.name)
-        }.also {
-            _walletMode.value = type
+        walletModeStore.updateWalletMode(type).also {
+            _walletMode.tryEmit(type)
         }
     }
-}
 
-private const val WALLET_MODE = "WALLET_MODE"
+    override fun availableModes(): List<WalletMode> = WalletMode.values().toList()
+}

@@ -13,6 +13,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.button.ButtonState
@@ -20,8 +21,9 @@ import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -102,19 +104,24 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
+    private val transactionPrefs: TransactionPrefs by inject()
+
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
 
+            listLoadingProgress.visibleIf { newState.isLoading }
+
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
-
-                setupTransferList(newState)
                 setupLabels(newState)
+                setupTransferList(newState)
                 showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
             }
+            configureSwitch(newState)
+            updateList(newState)
             sourceSlot?.update(newState)
 
             if (customiser.selectTargetShowManualEnterAddress(newState)) {
@@ -125,7 +132,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
             customiser.issueFlashMessage(newState, null).takeIf { it.isNotEmpty() }?.let { errorMsg ->
                 addressEntry.setErrorState(errorMsg)
-                warningMessage.gone()
             } ?: hideErrorState()
 
             ctaButton.apply {
@@ -136,13 +142,50 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         state = newState
     }
 
+    private fun updateList(newState: TransactionState) {
+        if (newState.selectedTarget == NullAddress) {
+            binding.walletSelect.loadItems(
+                accountsSource = Single.just(
+                    newState.availableTargets.filterIsInstance<BlockchainAccount>().map {
+                        if (newState.action == AssetAction.Send && it is CryptoAccount) {
+                            mapToSendRecipientAccountItem(it)
+                        } else {
+                            AccountListViewItem.create(it)
+                        }
+                    }
+                ),
+                accountsLocksSource = Single.just(emptyList())
+            )
+        }
+    }
+
+    private fun configureSwitch(newState: TransactionState) {
+        with(binding) {
+            val canFilterOutTradingAccounts = newState.canFilterOutTradingAccounts
+            showTradingAccounts.visibleIf { canFilterOutTradingAccounts }
+            tradingAccountsSwitch.visibleIf { canFilterOutTradingAccounts }
+            if (canFilterOutTradingAccounts) {
+                tradingAccountsSwitch.onCheckChanged = { isChecked ->
+                    transactionPrefs.showTradingAccountsOnPkwMode = isChecked
+                    model.process(TransactionIntent.FilterTradingTargets(showTrading = isChecked))
+                }
+                val showTrading = transactionPrefs.showTradingAccountsOnPkwMode
+                binding.tradingAccountsSwitch.isChecked = showTrading
+                model.process(TransactionIntent.FilterTradingTargets(showTrading = showTrading))
+            }
+        }
+    }
+
     private fun setupLabels(state: TransactionState) {
         with(binding) {
             titleFrom.title = customiser.selectTargetSourceLabel(state)
             titleTo.title = customiser.selectTargetDestinationLabel(state)
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
-            warningMessage.text = customiser.selectTargetAddressInputWarning(state)
+            warningMessage.apply {
+                visibleIf { state.networkName != null }
+                text = customiser.selectTargetAddressInputWarning(state)
+            }
             titlePick.apply {
                 visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }
                 title = customiser.selectTargetAddressTitlePick(state)
@@ -152,7 +195,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun hideErrorState() {
         binding.addressEntry.clearErrorState()
-        binding.warningMessage.visible()
     }
 
     private fun showSendNetworkWarning(state: TransactionState) {
@@ -236,9 +278,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
             }
 
-            when (fragmentState) {
+            onAccountSelected = when (fragmentState) {
                 is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
-                    onAccountSelected = {
+                    {
                         accountSelected(it)
                     }
                 }
@@ -246,12 +288,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     updatedSelectedAccount(
                         fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
                     )
-                    onAccountSelected = {
-                        accountSelected(it)
-                    }
-                }
-                else -> {
-                    // do nothing
+                    (
+                        {
+                            accountSelected(it)
+                        }
+                        )
                 }
             }
         }

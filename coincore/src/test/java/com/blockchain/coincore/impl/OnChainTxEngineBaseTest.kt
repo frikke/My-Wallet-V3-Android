@@ -8,7 +8,6 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -17,6 +16,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -156,10 +156,11 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     fun `confirmations are refreshed`() {
         // Arrange
         val balance = CryptoValue.fromMajor(ASSET, 10.1.toBigDecimal())
-        whenever(sourceAccount.balance).thenReturn(
+        whenever(sourceAccount.balanceRx).thenReturn(
             Observable.just(
                 AccountBalance(
                     total = balance,
+                    dashboardDisplay = balance,
                     withdrawable = Money.zero(balance.currency),
                     pending = Money.zero(balance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(balance.currency),
@@ -169,7 +170,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
 
         val refreshTrigger = object : TxEngine.RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable =
-                Completable.fromAction { sourceAccount.balance }
+                Completable.fromAction { sourceAccount.balanceRx }
         }
 
         // Act
@@ -183,7 +184,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         subject.refreshConfirmations(false)
 
         // Assert
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions()
     }

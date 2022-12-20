@@ -28,6 +28,9 @@ android {
 }
 
 dependencies {
+    implementation project(':string-resources')
+    implementation project(':common:interface')
+
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.glide
@@ -52,6 +55,7 @@ dependencies {
     implementation Libraries.koinAndroid
     implementation Libraries.lifecycleRuntime
     implementation Libraries.composeMarkdown
+    implementation Libraries.accompanistSwipeRefresh
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling

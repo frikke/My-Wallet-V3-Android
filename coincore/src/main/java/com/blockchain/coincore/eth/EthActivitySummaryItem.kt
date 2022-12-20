@@ -1,7 +1,9 @@
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -11,8 +13,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.util.Locale
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /*internal*/ class EthActivitySummaryItem(
     private val ethDataManager: EthDataManager,

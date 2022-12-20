@@ -11,11 +11,18 @@ import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
+import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
@@ -24,12 +31,7 @@ import info.blockchain.wallet.coin.GenericMetadataAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 import org.bitcoinj.core.LegacyAddress
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.utils.extensions.mapList
 
 /*internal*/ class BchCryptoWalletAccount private constructor(
     private val payloadDataManager: PayloadDataManager,
@@ -49,26 +51,14 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
     CryptoCurrency.BCH
 ) {
 
-    private val hasFunds = AtomicBoolean(false)
-
     override val label: String
         get() = internalAccount.label
-
-    override fun getOnChainBalance(): Observable<Money> =
-        Single.fromCallable { internalAccount.xpubs() }
-            .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { Money.fromMinor(currency, it) }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .toObservable()
 
     override val isArchived: Boolean
         get() = internalAccount.isArchived
 
     override val isDefault: Boolean
         get() = addressIndex == bchManager.getDefaultAccountPosition()
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = bchManager.getNextReceiveAddress(
@@ -81,6 +71,28 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
             .map {
                 BchAddress(address_ = it, label = label)
             }
+
+    override suspend fun publicKey(): List<PublicKey> {
+        return listOf(
+            PublicKey(
+                address = internalAccount.xpubs().default.address,
+                style = PubKeyStyle.EXTENDED,
+                descriptor = DEFAULT_ADDRESS_DESCRIPTOR
+            )
+        )
+    }
+
+    override fun getOnChainBalance(): Observable<Money> =
+        Single.fromCallable { internalAccount.xpubs() }
+            .flatMap { xpub -> bchManager.getBalance(xpub) }
+            .map { Money.fromMinor(currency, it) }
+            .toObservable()
+
+    override val index: Int
+        get() = addressIndex
+
+    override val pubKeyDescriptor
+        get() = BCH_PUBKEY_DESCRIPTOR
 
     override val activity: Single<ActivitySummaryList>
         get() = bchManager.getAddressTransactions(
@@ -191,5 +203,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
             refreshTrigger = refreshTrigger,
             addressResolver = addressResolver
         )
+
+        const val BCH_PUBKEY_DESCRIPTOR = "p2pkh"
     }
 }

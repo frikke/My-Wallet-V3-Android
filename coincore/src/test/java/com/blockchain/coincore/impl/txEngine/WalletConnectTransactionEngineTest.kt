@@ -14,18 +14,18 @@ import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class WalletConnectTransactionEngineTest : CoincoreTestBase() {
 
@@ -119,10 +119,11 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         // Arrange
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
+                        dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
                         withdrawable = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
                         pending = Money.zero(CryptoCurrency.ETHER),
                         exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER),
@@ -172,28 +173,28 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                 it.availableBalance == Money.fromMinor(CryptoCurrency.ETHER, 9654784600766885.toBigInteger()) &&
                     it.feeForFullAvailable == Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger()) &&
                     it.feeAmount == Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger()) &&
-                    it.confirmations.size == 6 &&
-                    it.confirmations[0] == TxConfirmationValue.WalletConnectHeader(
+                    it.txConfirmations.size == 6 &&
+                    it.txConfirmations[0] == TxConfirmationValue.WalletConnectHeader(
                     dAppLogo = "dAppLogoUrl",
                     dAppUrl = "address",
                     dAppName = "Dapp!"
-                ) && it.confirmations[1] == TxConfirmationValue.From(
+                ) && it.txConfirmations[1] == TxConfirmationValue.From(
                     sourceAccount = sourceAccount,
                     sourceAsset = CryptoCurrency.ETHER
-                ) && it.confirmations[2] == TxConfirmationValue.ToWithNameAndAddress(
+                ) && it.txConfirmations[2] == TxConfirmationValue.ToWithNameAndAddress(
                     label = "Dapp!",
                     address = "0x61b0a"
-                ) && it.confirmations[3] == TxConfirmationValue.Amount(
+                ) && it.txConfirmations[3] == TxConfirmationValue.Amount(
                     amount = Money.fromMinor(CryptoCurrency.ETHER, 873957385.toBigInteger()),
                     isImportant = false
-                ) && it.confirmations[4] == TxConfirmationValue.CompoundNetworkFee(
+                ) && it.txConfirmations[4] == TxConfirmationValue.CompoundNetworkFee(
                     sendingFeeInfo = FeeInfo(
                         asset = CryptoCurrency.ETHER,
                         fiatAmount = Money.zero(TEST_USER_FIAT),
                         feeAmount = Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger())
                     ),
                     feeLevel = FeeLevel.Regular
-                ) && it.confirmations[5] == TxConfirmationValue.Total(
+                ) && it.txConfirmations[5] == TxConfirmationValue.Total(
                     totalWithFee = Money.fromMinor(CryptoCurrency.ETHER, 1147192045.toBigInteger()),
                     exchange = Money.zero(TEST_USER_FIAT)
                 )
@@ -251,13 +252,16 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         }
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         withdrawable = Money.fromMinor(
                             CryptoCurrency.ETHER, 65.toBigInteger()
                         ),
                         total = Money.fromMinor(
+                            CryptoCurrency.ETHER, 65.toBigInteger()
+                        ),
+                        dashboardDisplay = Money.fromMinor(
                             CryptoCurrency.ETHER, 65.toBigInteger()
                         ),
                         pending = Money.fromMinor(
@@ -310,13 +314,16 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         }
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         withdrawable = Money.fromMinor(
                             CryptoCurrency.ETHER, 68645465.toBigInteger()
                         ),
                         total = Money.fromMinor(
+                            CryptoCurrency.ETHER, 68645465.toBigInteger()
+                        ),
+                        dashboardDisplay = Money.fromMinor(
                             CryptoCurrency.ETHER, 68645465.toBigInteger()
                         ),
                         pending = Money.fromMinor(

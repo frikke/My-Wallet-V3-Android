@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.recover
 
+import com.blockchain.core.auth.metadata.WalletRecoveryMetadata
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.utils.then
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import piuk.blockchain.androidcore.data.auth.metadata.WalletRecoveryMetadata
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class AccountRecoveryInteractor(
     private val payloadDataManager: PayloadDataManager,
@@ -43,7 +43,7 @@ class AccountRecoveryInteractor(
     }
 
     private fun restoreWallet() = Completable.fromCallable {
-        payloadDataManager.wallet?.let { wallet ->
+        payloadDataManager.wallet.let { wallet ->
             authPrefs.sharedKey = wallet.sharedKey
             authPrefs.walletGuid = wallet.guid
         }

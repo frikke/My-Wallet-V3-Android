@@ -14,7 +14,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding

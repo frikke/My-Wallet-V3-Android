@@ -1,9 +1,14 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.analytics.data.TraitsService
+import com.blockchain.analytics.TraitsService
+import com.blockchain.koin.blockchainMembershipsFeatureFlag
+import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.superAppFeatureFlag
+import com.blockchain.koin.stakingAccountFeatureFlag
+import com.blockchain.koin.superAppModeService
+import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
@@ -15,6 +20,9 @@ import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.walletmode.SuperAppWalletModeRepository
+import piuk.blockchain.android.walletmode.WalletModeBalanceRepository
+import piuk.blockchain.android.walletmode.WalletModePrefStore
 import piuk.blockchain.android.walletmode.WalletModeRepository
 import piuk.blockchain.android.walletmode.WalletModeTraitsRepository
 
@@ -28,8 +36,7 @@ val mainModule = module {
                 interactor = get(),
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
-                remoteLogger = get(),
-                walletModeService = get()
+                remoteLogger = get()
             )
         }
 
@@ -45,13 +52,18 @@ val mainModule = module {
                 simpleBuySync = get(),
                 userIdentity = get(),
                 upsellManager = get(),
-                database = get(),
                 credentialsWiper = get(),
                 qrScanResultProcessor = get(),
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
                 referralPrefs = get(),
-                referralRepository = get()
+                referralRepository = get(),
+                ethDataManager = get(),
+                stakingAccountFlag = get(stakingAccountFeatureFlag),
+                membershipFlag = get(blockchainMembershipsFeatureFlag),
+                coincore = get(),
+                walletModeService = get(),
+                earnOnNavBarFlag = get(earnTabFeatureFlag)
             )
         }
 
@@ -73,22 +85,52 @@ val mainModule = module {
         viewModel {
             WalletModeSelectionViewModel(
                 walletModeService = get(),
-                cache = get(),
                 payloadManager = get(),
-                walletStatusPrefs = get()
+                walletModeBalanceService = get(),
+                walletStatusPrefs = get(),
+                walletModePrefs = get()
+            )
+        }
+
+        scoped<WalletModeBalanceService>(superAppModeService) {
+            WalletModeBalanceRepository(
+                walletModeService = get(superAppModeService),
+                balanceStore = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped<WalletModeBalanceService> {
+            WalletModeBalanceRepository(
+                walletModeService = get(),
+                balanceStore = get(),
+                currencyPrefs = get()
             )
         }
     }
+
+    single {
+        WalletModePrefStore(
+            walletModePrefs = get(),
+            walletModeStrategy = get()
+        )
+    }.bind(WalletModeStore::class)
+
     factory {
         WalletModeTraitsRepository(
             walletModeService = lazy { get() }
         )
     }.bind(TraitsService::class)
 
+    single(superAppModeService) {
+        SuperAppWalletModeRepository(
+            walletModeStore = get()
+        )
+    }.bind(WalletModeService::class)
+
     single {
         WalletModeRepository(
-            sharedPreferences = get(),
-            featureFlag = get(superAppFeatureFlag)
+            walletModeStore = get()
         )
     }.bind(WalletModeService::class)
 }

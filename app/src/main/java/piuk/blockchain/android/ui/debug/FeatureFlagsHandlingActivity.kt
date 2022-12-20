@@ -11,8 +11,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.access.PinRepository
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AppMaintenancePrefs
@@ -20,9 +20,9 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.serialization.SerializationException
@@ -33,8 +33,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 // todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
 class FeatureFlagsHandlingActivity : BlockchainActivity() {
@@ -51,7 +49,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
-    private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val getUserStore: GetUserStore by scopedInject()
     private val kycTiersStore: KycTiersStore by scopedInject()
@@ -73,7 +70,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
                     featureFlagHandler.setFeatureFlagState(featureFlag, featureStatus)
                 }
             )
-        }
+        }.sortedByDescending { it.name }
 
         with(binding) {
             featureFlagList.apply {
@@ -96,32 +93,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
             firebaseToken.text = notificationPrefs.firebaseToken
-
-            radioDefi.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
-                    showSnackbar("Currency mode changed to Non custodial")
-                }
-            }
-
-            radioTrading.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(WalletMode.CUSTODIAL_ONLY)
-                    showSnackbar("Currency mode changed to Trading")
-                }
-            }
-
-            radioBoth.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    walletModeService.updateEnabledWalletMode(
-                        WalletMode.UNIVERSAL
-                    )
-                    showSnackbar("Currency mode changed to Trading + Pkw")
-                }
-            }
-            radioBoth.isChecked = walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL
-            radioTrading.isChecked = walletModeService.enabledWalletMode() == WalletMode.CUSTODIAL_ONLY
-            radioDefi.isChecked = walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY
 
             brokerageErrorSwitch.setOnCheckedChangeListener { _, isChecked ->
                 brokerageErrorInput.visibleIf { isChecked }

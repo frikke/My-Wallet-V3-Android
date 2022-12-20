@@ -24,7 +24,7 @@ internal class ResourceDefaultLabels(
             asset.name
         )
 
-    override fun getDefaultCustodialWalletLabel(): String {
+    override fun getDefaultTradingWalletLabel(): String {
         return resources.getString(R.string.custodial_wallet_default_label_1)
     }
 
@@ -48,6 +48,12 @@ internal class ResourceDefaultLabels(
 
     override fun getDefaultExchangeWalletLabel(): String =
         resources.getString(R.string.exchange_default_account_label_1)
+
+    override fun getDefaultStakingWalletLabel(): String =
+        resources.getString(R.string.default_label_staking_wallet)
+
+    override fun getDefaultCustodialGroupLabel(): String =
+        resources.getString(R.string.default_label_custodial_wallets)
 
     override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String =
         fiatCurrency.name

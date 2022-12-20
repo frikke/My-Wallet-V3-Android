@@ -1,7 +1,10 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -11,7 +14,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
-import com.blockchain.utils.Optional
+import com.blockchain.preferences.SessionPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,9 +24,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuDataManagerTest {
 
@@ -37,6 +37,7 @@ class NabuDataManagerTest {
     private val walletReporter: WalletReporter = mock()
     private val digitalTrust: DigitalTrust = mock()
     private val prefs: SessionPrefs = mock()
+    private val userService: UserService = mock()
     private val appVersion = "6.23.2"
     private val deviceId = "DEVICE_ID"
     private val email = "EMAIL"
@@ -62,7 +63,8 @@ class NabuDataManagerTest {
             walletReporter,
             digitalTrust,
             payloadDataManager,
-            prefs
+            prefs,
+            userService,
         )
     }
 
@@ -165,17 +167,11 @@ class NabuDataManagerTest {
         val firstName = "FIRST_NAME"
         val lastName = "LAST_NAME"
         val dateOfBirth = "25-02-1995"
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
         whenever(
             nabuService.createBasicUser(
                 firstName,
                 lastName,
                 dateOfBirth,
-                sessionToken
             )
         ).thenReturn(Completable.complete())
         // Act
@@ -183,7 +179,6 @@ class NabuDataManagerTest {
             firstName,
             lastName,
             dateOfBirth,
-            offlineToken
         ).test()
         // Assert
         testObserver.assertComplete()
@@ -192,7 +187,6 @@ class NabuDataManagerTest {
             firstName,
             lastName,
             dateOfBirth,
-            sessionToken
         )
     }
 
@@ -205,14 +199,8 @@ class NabuDataManagerTest {
         val state = null
         val countryCode = "COUNTRY_CODE"
         val postCode = "POST_CODE"
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
         whenever(
             nabuService.addAddress(
-                sessionToken,
                 line1,
                 line2,
                 city,
@@ -223,7 +211,6 @@ class NabuDataManagerTest {
         ).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.addAddress(
-            offlineToken,
             line1,
             line2,
             city,
@@ -235,7 +222,6 @@ class NabuDataManagerTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(nabuService).addAddress(
-            sessionToken,
             line1,
             line2,
             city,
@@ -252,14 +238,8 @@ class NabuDataManagerTest {
         val countryCode = "US"
         val stateCode = "US-AL"
         val notifyWhenAvailable = true
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
         whenever(
             nabuService.recordCountrySelection(
-                sessionToken,
                 jwt,
                 countryCode,
                 stateCode,
@@ -268,7 +248,6 @@ class NabuDataManagerTest {
         ).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.recordCountrySelection(
-            offlineToken,
             jwt,
             countryCode,
             stateCode,
@@ -278,7 +257,6 @@ class NabuDataManagerTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(nabuService).recordCountrySelection(
-            sessionToken,
             jwt,
             countryCode,
             stateCode,
@@ -290,20 +268,13 @@ class NabuDataManagerTest {
     fun getSupportedDocuments() {
         // Arrange
         val countryCode = "US"
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
         whenever(
             nabuService.getSupportedDocuments(
-                sessionToken,
                 countryCode
             )
         ).thenReturn(Single.just(listOf(SupportedDocuments.PASSPORT)))
         // Act
         val testObserver = subject.getSupportedDocuments(
-            offlineToken,
             countryCode
         ).test()
         // Assert
@@ -311,7 +282,6 @@ class NabuDataManagerTest {
         testObserver.assertNoErrors()
         testObserver.assertValue(listOf(SupportedDocuments.PASSPORT))
         verify(nabuService).getSupportedDocuments(
-            sessionToken,
             countryCode
         )
     }
@@ -319,24 +289,18 @@ class NabuDataManagerTest {
     @Test
     fun registerCampaign() {
         // Arrange
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
         val campaignRequest = RegisterCampaignRequest(emptyMap(), false)
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(nabuService.registerCampaign(sessionToken, campaignRequest, "campaign"))
+        whenever(nabuService.registerCampaign(campaignRequest, "campaign"))
             .thenReturn(Completable.complete())
         // Act
         val testObserver = subject.registerCampaign(
-            offlineToken,
             campaignRequest,
             "campaign"
         ).test()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
-        verify(nabuService).registerCampaign(sessionToken, campaignRequest, "campaign")
+        verify(nabuService).registerCampaign(campaignRequest, "campaign")
     }
 
     companion object {

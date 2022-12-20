@@ -1,10 +1,13 @@
 package com.blockchain.core.chains.bitcoincash
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.utils.schedulers.applySchedulers
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.utils.then
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -26,10 +29,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import org.bitcoinj.core.LegacyAddress
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import piuk.blockchain.androidcore.utils.extensions.then
-import timber.log.Timber
 
 class BchDataManager(
     private val payloadDataManager: PayloadDataManager,
@@ -80,9 +79,7 @@ class BchDataManager(
                     Completable.complete()
                 }
                 saveToMetadataCompletable.then {
-                    Completable.fromCallable {
-                        correctBtcOffsetIfNeed()
-                    }
+                    correctBtcOffsetIfNeed()
                 }
             }
             .subscribeOn(Schedulers.io())
@@ -108,7 +105,7 @@ class BchDataManager(
     fun updateTransactions(): Completable =
         Completable.fromObservable(getWalletTransactions(50, 50))
 
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun fetchMetadata(
         defaultLabel: String,
         accountTotal: Int
@@ -125,7 +122,7 @@ class BchDataManager(
                 metaData
             }
 
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun createMetadata(defaultLabel: String, accountTotal: Int): GenericMetadataWallet {
         val bchAccounts = getAccountsAfterIndex(defaultLabel, 0, accountTotal)
 
@@ -157,7 +154,7 @@ class BchDataManager(
     /**
      * Restore bitcoin cash wallet
      */
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun restoreBchWallet(walletMetadata: GenericMetadataWallet): GenericMetadataWallet {
         if (!payloadDataManager.isDoubleEncrypted) {
             bchDataStore.bchWallet = BitcoinCashWallet.restore(
@@ -205,23 +202,25 @@ class BchDataManager(
      *
      * @return Boolean value to indicate if bitcoin wallet payload needs to sync to the server
      */
-    fun correctBtcOffsetIfNeed() {
+    fun correctBtcOffsetIfNeed(): Completable {
         val startingAccountIndex = payloadDataManager.accounts.size
         val bchAccountSize = bchDataStore.bchMetadata?.accounts?.size ?: 0
         val difference = bchAccountSize.minus(startingAccountIndex)
 
-        if (difference > 0) {
-            (startingAccountIndex until bchAccountSize)
-                .forEach {
+        return if (difference > 0) {
+            val singles = (startingAccountIndex until bchAccountSize)
+                .map {
                     val accountNumber = it + 1
                     val label = defaultLabels.getDefaultNonCustodialWalletLabel()
                     val newAccountLabel = "$label $accountNumber"
-                    val acc = payloadDataManager.addAccountWithLabel(newAccountLabel)
-                    bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
-                        it, acc.xpubForDerivation(Derivation.LEGACY_TYPE)!!
-                    )
+                    payloadDataManager.addAccountWithLabel(newAccountLabel).doOnSuccess { account ->
+                        bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
+                            it, account.xpubForDerivation(Derivation.LEGACY_TYPE)!!
+                        )
+                    }
                 }
-        }
+            Single.merge(singles).ignoreElements()
+        } else Completable.complete()
     }
 
     /**
@@ -291,7 +290,7 @@ class BchDataManager(
             it[xpubs.default.address]?.finalBalance ?: throw IllegalStateException("Balance call error")
         }.doOnSuccess { balance ->
             updateBalanceForAddress(xpubs.default.address, balance)
-        }.doOnError(Timber::e)
+        }.doOnError(Logger::e)
 
     fun getAddressTransactions(
         address: String,

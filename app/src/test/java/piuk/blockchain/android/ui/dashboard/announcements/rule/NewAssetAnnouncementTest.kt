@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable

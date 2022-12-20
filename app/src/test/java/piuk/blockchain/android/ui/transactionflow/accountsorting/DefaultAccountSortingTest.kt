@@ -4,7 +4,6 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -22,10 +21,13 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import java.math.BigInteger
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
@@ -194,8 +196,22 @@ class DefaultAccountSortingTest {
     }
 
     private fun setAccountForAssetWithBalance(currency: Currency, accountBalance: Long): CryptoAccount {
+        val mockBalance = mock<AccountBalance> {
+            on { total }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { withdrawable }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { pending }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { exchangeRate }.thenReturn(
+                ExchangeRate(
+                    BigDecimal.ONE, currency, FiatCurrency.Dollars
+                )
+            )
+        }
         val singleAccount: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
+            on { balanceRx }.thenReturn(
+                Observable.just(
+                    mockBalance
+                )
+            )
             on { this.currency }.thenReturn(currency as AssetInfo)
         }
         val prices24HrWithDelta = Prices24HrWithDelta(

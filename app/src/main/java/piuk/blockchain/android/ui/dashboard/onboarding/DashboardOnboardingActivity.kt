@@ -21,7 +21,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -167,7 +167,7 @@ class DashboardOnboardingActivity :
                 }
                 showBottomSheet(
                     PaymentMethodChooserBottomSheet.newInstance(
-                        action.eligiblePaymentMethods,
+                        paymentMethods = action.eligiblePaymentMethods,
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
                         canAddNewPayment = true
                     )
@@ -214,7 +214,7 @@ class DashboardOnboardingActivity :
         throw UnsupportedOperationException()
     }
 
-    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+    override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
         // do nothing
     }
 

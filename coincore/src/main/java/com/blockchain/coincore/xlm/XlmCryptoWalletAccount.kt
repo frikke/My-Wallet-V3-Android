@@ -1,6 +1,5 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -8,24 +7,27 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
+import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
+import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.androidcore.utils.extensions.mapList
+import kotlinx.coroutines.rx3.await
 
 internal class XlmCryptoWalletAccount(
     private val payloadManager: PayloadDataManager,
@@ -49,37 +51,33 @@ internal class XlmCryptoWalletAccount(
     internal val address: String
         get() = xlmAccountReference.accountId
 
-    private val hasFunds = AtomicBoolean(false)
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
-    override val balance: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            getMinBalance(),
-            exchangeRates.exchangeRateToUserFiat(currency)
-        ) { balanceAndMin, rate ->
-            AccountBalance(
-                total = balanceAndMin.balance,
-                withdrawable = balanceAndMin.actionable,
-                pending = Money.zero(currency),
-                exchangeRate = rate
-            )
-        }.doOnNext { hasFunds.set(it.total.isPositive) }
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = Single.just(
+            XlmAddress(_address = address, _label = label)
+        )
 
     override fun getOnChainBalance(): Observable<Money> =
-        getMinBalance()
-            .doOnNext { hasFunds.set(it.balance.isPositive) }
-            .map { it.balance as Money }
+        getMinBalance().map {
+            it.balance
+        }
 
     private fun getMinBalance(): Observable<BalanceAndMin> =
         xlmManager.getBalanceAndMin()
             .toObservable()
 
-    override val receiveAddress: Single<ReceiveAddress>
-        get() = Single.just(
-            XlmAddress(_address = address, _label = label)
+    override suspend fun publicKey(): List<PublicKey> {
+        val pubKey = xlmManager.publicKey.await()
+        return listOf(
+            PublicKey(
+                address = pubKey,
+                descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
+                style = PubKeyStyle.SINGLE
+            )
         )
+    }
+
+    override val index: Int
+        get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
     override val activity: Single<ActivitySummaryList>
         get() = xlmManager.getTransactionList()
@@ -116,4 +114,4 @@ internal class XlmCryptoWalletAccount(
 }
 
 private val BalanceAndMin.actionable: Money
-    get() = max(balance - minimumBalance, CryptoValue.zero(CryptoCurrency.XLM))
+    get() = max(balance - minimumBalance, Money.zero(CryptoCurrency.XLM))

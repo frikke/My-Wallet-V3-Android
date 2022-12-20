@@ -57,14 +57,14 @@ fun SheetHeaderBackAndAction(
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Spacer(Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+                Spacer(Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 
                 SheetHeaderBackButton(
                     onBackPress = onBackPress,
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .fillMaxHeight()
-                        .size(dimensionResource(R.dimen.standard_margin))
+                        .size(dimensionResource(R.dimen.standard_spacing))
                 )
 
                 Text(
@@ -75,8 +75,8 @@ fun SheetHeaderBackAndAction(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            start = dimensionResource(R.dimen.standard_margin),
-                            top = dimensionResource(R.dimen.smallest_margin)
+                            start = dimensionResource(R.dimen.standard_spacing),
+                            top = dimensionResource(R.dimen.smallest_spacing)
                         ),
                 )
 
@@ -95,10 +95,10 @@ fun SheetHeaderBackAndAction(
                             onClick = { onActionPress() }
                         )
                         .widthIn(min = 48.dp)
-                        .padding(top = dimensionResource(R.dimen.smallest_margin)),
+                        .padding(top = dimensionResource(R.dimen.smallest_spacing)),
                 )
 
-                Spacer(Modifier.width(dimensionResource(R.dimen.medium_margin)))
+                Spacer(Modifier.width(dimensionResource(R.dimen.medium_spacing)))
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }

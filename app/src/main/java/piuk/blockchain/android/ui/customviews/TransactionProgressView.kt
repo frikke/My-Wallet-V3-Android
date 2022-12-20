@@ -18,6 +18,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.presentation.checkValidUrlAndOpen
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -31,7 +32,6 @@ import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.simplebuy.toRecurringBuySuggestionTitle
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
 

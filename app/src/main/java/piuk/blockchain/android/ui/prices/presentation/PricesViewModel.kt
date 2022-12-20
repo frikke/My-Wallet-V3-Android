@@ -7,21 +7,18 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.PricesPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.isCustodial
-import info.blockchain.balance.isNonCustodial
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.Job
+import java.lang.IllegalArgumentException
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
-import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.ui.dashboard.format
 import piuk.blockchain.android.ui.prices.PricesItem
 import piuk.blockchain.android.ui.prices.PricesModelState
@@ -29,6 +26,7 @@ import piuk.blockchain.android.ui.prices.PricesModelState
 class PricesViewModel(
     private val walletModeService: WalletModeService,
     private val coincore: Coincore,
+    private val pricesPrefs: PricesPrefs,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
 ) : MviViewModel<PricesIntents,
@@ -40,7 +38,6 @@ class PricesViewModel(
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-    private var job: Job? = null
     override suspend fun handleIntent(modelState: PricesModelState, intent: PricesIntents) {
         when (intent) {
             is PricesIntents.LoadAssetsAvailable -> {
@@ -49,12 +46,17 @@ class PricesViewModel(
                 }
                 loadAvailableAssets()
             }
-            is PricesIntents.FilterData -> filterData(intent.filter)
+            is PricesIntents.Search -> searchData(intent.query)
 
             is PricesIntents.PricesItemClicked -> {
                 handlePriceItemClicked(
                     cryptoCurrency = intent.cryptoCurrency
                 )
+            }
+            is PricesIntents.Filter -> {
+                updateState {
+                    it.copy(filterBy = intent.filter)
+                }
             }
         }
     }
@@ -62,7 +64,7 @@ class PricesViewModel(
     private fun loadAvailableAssets() {
         viewModelScope.launch {
             try {
-                loadAssetsAndPrices().asFlow().onEach { prices ->
+                loadAssetsAndPrices().toObservable().asFlow().onEach { prices ->
                     updateState {
                         modelState.updateAssets(prices)
                     }
@@ -72,6 +74,37 @@ class PricesViewModel(
                     modelState.copy(isError = true, isLoadingData = false, data = emptyList(), fiatCurrency = null)
                 }
             }
+            walletModeService.walletMode.collectLatest {
+                updateState { state ->
+                    if (it != WalletMode.UNIVERSAL) {
+                        state.copy(
+                            filters = listOf(
+                                PricesFilter.All, PricesFilter.Tradable
+                            ),
+                            filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
+                        )
+                    } else {
+                        state.copy(
+                            filters = emptyList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initialSelectedFilter(latestPricesMode: String?, walletMode: WalletMode): PricesFilter {
+        if (latestPricesMode == null) {
+            return when (walletMode) {
+                WalletMode.CUSTODIAL_ONLY -> PricesFilter.Tradable
+                WalletMode.NON_CUSTODIAL_ONLY -> PricesFilter.All
+                else -> throw IllegalArgumentException("Price filtering is not supported for $walletMode")
+            }
+        }
+        return try {
+            PricesFilter.valueOf(latestPricesMode)
+        } catch (e: IllegalArgumentException) {
+            PricesFilter.All
         }
     }
 
@@ -79,10 +112,14 @@ class PricesViewModel(
         return PricesViewState(
             isLoading = state.isLoadingData,
             isError = state.isError,
+            availableFilters = state.filters,
+            selectedFilter = state.filterBy,
             data = state.data.filter {
-                state.filterBy.isEmpty() ||
-                    it.assetInfo.displayTicker.contains(state.filterBy, ignoreCase = true) ||
-                    it.assetInfo.name.contains(state.filterBy, ignoreCase = true)
+                state.filterBy == PricesFilter.All || it.isTradingAccount == true
+            }.filter {
+                state.queryBy.isEmpty() ||
+                    it.assetInfo.displayTicker.contains(state.queryBy, ignoreCase = true) ||
+                    it.assetInfo.name.contains(state.queryBy, ignoreCase = true)
             }.sortedWith(
                 compareByDescending<PricesItem> { it.isTradingAccount }
                     .thenByDescending { it.priceWithDelta?.marketCap }
@@ -93,30 +130,22 @@ class PricesViewModel(
         )
     }
 
-    private fun loadAssetsAndPrices(): Observable<List<AssetPriceInfo>> {
+    private fun loadAssetsAndPrices(): Single<List<AssetPriceInfo>> {
         val supportedBuyCurrencies = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
         return supportedBuyCurrencies.doOnSuccess { tradableCurrencies ->
             updateState {
                 modelState.copy(tradableCurrencies = tradableCurrencies.map { it.source.networkTicker })
             }
-        }.flatMapObservable {
-            walletModeService.walletMode.map { walletMode ->
-                coincore.availableCryptoAssets().filter {
-                    when (walletMode) {
-                        WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
-                        WalletMode.CUSTODIAL_ONLY -> it.isCustodial
-                        WalletMode.UNIVERSAL -> true
-                    }
-                }
-            }.asObservable().doOnNext {
+        }.flatMap {
+            coincore.availableCryptoAssets().doOnSuccess {
                 updateState {
                     modelState.copy(
                         isLoadingData = true,
-                        filterBy = "",
+                        queryBy = "",
                         data = emptyList()
                     )
                 }
-            }.flatMapSingle { assets ->
+            }.flatMap { assets ->
                 Single.concat(
                     assets.map { fetchAssetPrice(it) }
                 ).toList()
@@ -139,7 +168,7 @@ class PricesViewModel(
             }
     }
 
-    private fun filterData(filter: String) = updateState { it.copy(filterBy = filter) }
+    private fun searchData(query: String) = updateState { it.copy(queryBy = query) }
 
     private fun handlePriceItemClicked(cryptoCurrency: AssetInfo) {
         navigate(PricesNavigationEvent.CoinView(cryptoCurrency))
@@ -180,3 +209,7 @@ private data class AssetPriceInfo(
     val price: Prices24HrWithDelta? = null,
     val assetInfo: AssetInfo,
 )
+
+enum class PricesFilter {
+    All, Tradable
+}

@@ -37,7 +37,7 @@ class XlmMetaDataSerializationTest {
                     XlmAccount(
                         "GBCRNVZPJFDBF3JECAXOTD2LTAQMLHVYJUV5IEGYJ5H73TA3EOW7RZJY",
                         label = "My Stellar Wallet",
-                        archived = false
+                        _archived = false
                     )
                 )
                 transactionNotes `should be equal to` emptyMap<String, String>()
@@ -53,12 +53,12 @@ class XlmMetaDataSerializationTest {
                     XlmAccount(
                         "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
                         label = "My Old Stellar Wallet",
-                        archived = true
+                        _archived = true
                     ),
                     XlmAccount(
                         "GDTDFKFRZHTSGQGCSRWLJWCTR5BPM6LBLMQQ75G3DR4DANLDY73CTNU4",
                         label = "My New Stellar Wallet",
-                        archived = false
+                        _archived = false
                     )
                 )
                 transactionNotes `should be equal to` mapOf(
@@ -75,14 +75,16 @@ class XlmMetaDataSerializationTest {
                 defaultAccountIndex `should be` 0
                 accounts `should be equal to` listOf(
                     XlmAccount(
-                        "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
+                        publicKey = "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
                         label = null,
-                        archived = false
+                        pubKey = null,
+                        _archived = null
                     ),
                     XlmAccount(
-                        "GDTDFKFRZHTSGQGCSRWLJWCTR5BPM6LBLMQQ75G3DR4DANLDY73CTNU4",
+                        publicKey = "GDTDFKFRZHTSGQGCSRWLJWCTR5BPM6LBLMQQ75G3DR4DANLDY73CTNU4",
                         label = null,
-                        archived = false
+                        pubKey = null,
+                        _archived = null
                     )
                 )
                 transactionNotes `should be` null

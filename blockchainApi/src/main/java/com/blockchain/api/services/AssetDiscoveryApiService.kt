@@ -1,16 +1,29 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
-import com.blockchain.api.assetdiscovery.data.AssetInformationResponse
+import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
+import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
+import com.blockchain.api.coinnetworks.data.CoinNetworkDto
+import com.blockchain.api.coinnetworks.data.CoinTypeDto
+import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxMaybeOutcome
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 enum class DynamicAssetProducts {
     PrivateKey,
@@ -23,18 +36,32 @@ enum class DynamicAssetProducts {
     DynamicSelfCustody
 }
 
+@Serializable
 data class DynamicAsset(
+    @SerialName("assetName")
     val assetName: String,
+    @SerialName("networkTicker")
     val networkTicker: String,
+    @SerialName("displayTicker")
     val displayTicker: String,
+    @SerialName("isFiat")
     val isFiat: Boolean,
+    @SerialName("precision")
     val precision: Int,
+    @SerialName("products")
     val products: Set<DynamicAssetProducts>,
+    @SerialName("logoUrl")
     val logoUrl: String? = null,
+    @SerialName("websiteUrl")
     val websiteUrl: String? = null,
+    @SerialName("minConfirmations")
     val minConfirmations: Int = 0,
+    @SerialName("parentChain")
     val parentChain: String? = null,
-    val chainIdentifier: String? = null
+    @SerialName("chainIdentifier")
+    val chainIdentifier: String? = null,
+    @SerialName("explorerUrl")
+    val explorerUrl: String? = null
 )
 
 data class DetailedAssetInformation(
@@ -46,7 +73,8 @@ data class DetailedAssetInformation(
 typealias DynamicAssetList = List<DynamicAsset>
 
 class AssetDiscoveryApiService internal constructor(
-    private val api: AssetDiscoveryApiInterface
+    private val api: AssetDiscoveryApiInterface,
+    private val coinNetworkApi: CoinNetworkApiInterface
 ) {
 
     fun getFiatAssets(): Single<DynamicAssetList> =
@@ -58,7 +86,7 @@ class AssetDiscoveryApiService internal constructor(
     fun getErc20Assets(): Single<DynamicAssetList> =
         api.getErc20Currencies()
             .map { dto ->
-                dto.currencies.mapNotNull { it.toDynamicAsset() }
+                dto.currencies.mapNotNull { it.toDynamicAsset(listOf(CryptoCurrency.ETHER.networkTicker)) }
             }
 
     fun getCustodialAssets(): Single<DynamicAssetList> =
@@ -67,31 +95,70 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL2AssetsForL1(l1Ticker: String): Outcome<Exception, DynamicAssetList> =
-        api.getL2CurrenciesForL1(l1Ticker)
+    suspend fun getL1Coins(): Outcome<Exception, DynamicAssetList> =
+        api.getL1Coins()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, DetailedAssetInformation?> =
-        api.getAssetInfo(assetTicker).map {
-            it.toAssetInfo()
+    fun otherEvmNetworks(): Single<List<CoinNetworkDto>> {
+        return supportedEvmNetworks().map {
+            // TODO(dtverdota): remove this once Ethereum is moved to be a dynamic L1EvmAsset from the hard-coded
+            // Cryptocurrency.ETHER object
+            it.filter { coinNetwork -> coinNetwork.network != CryptoCurrency.ETHER.networkTicker }
+        }
+    }
+
+    fun supportedEvmNetworks(): Single<List<CoinNetworkDto>> {
+        return rxSingle {
+            coinNetworkApi.getCoinNetworks().map { response ->
+                response.networks.filter { coinNetwork ->
+                    coinNetwork.type == NetworkType.EVM
+                }
+            }.getOrDefault(emptyList())
+        }
+    }
+
+    fun getEvmNetworkForCurrency(currency: String): Maybe<CoinNetworkDto> {
+        return rxMaybeOutcome {
+            coinNetworkApi.getCoinNetworks().map { response ->
+                response.networks.first { coinNetwork ->
+                    coinNetwork.type == NetworkType.EVM && coinNetwork.currency == currency
+                }
+            }
+        }
+    }
+
+    suspend fun allNetworks(): Outcome<Exception, List<CoinNetworkDto>> =
+        coinNetworkApi.getCoinNetworks()
+            .map { response ->
+                response.networks.filter { it.type != NetworkType.NOT_SUPPORTED }
+            }
+
+    suspend fun allCoinTypes(): Outcome<Exception, List<CoinTypeDto>> =
+        coinNetworkApi.getCoinNetworks().map { response ->
+            response.types.filter { it.type != NetworkType.NOT_SUPPORTED }
         }
 
-    private fun AssetInformationResponse.toAssetInfo(): DetailedAssetInformation? =
-        if (description != null && website != null) {
-            DetailedAssetInformation(
-                description = description,
-                website = website,
-                whitepaper = whitepaper.orEmpty()
-            )
-        } else {
-            null
-        }
+    suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
+        api.getL2CurrenciesForL1()
+            .flatMap { dto ->
+                try {
+                    Outcome.Success(dto.currencies.mapNotNull { it.toDynamicAsset(evmTickers) })
+                } catch (ex: Exception) {
+                    Outcome.Failure(ex)
+                }
+            }
 
-    private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
+    suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
+        api.getAssetInfo(assetTicker)
+
+    // TODO(dtverdota): these methods for mapping DynamicCurrency to DynamicAsset needs to be extracted
+    // to respect single responsibility and local reasoning
+    private fun DynamicCurrency.toDynamicAsset(evmNetworks: List<String> = emptyList()): DynamicAsset? =
         when {
-            coinType is Erc20Asset && !supportedErc20Chains.contains(coinType.parentChain) -> null
+            coinType is Erc20Asset &&
+                !evmNetworks.contains(coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -109,7 +176,7 @@ class AssetDiscoveryApiService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (supportedErc20Chains.contains(coinType.parentChain)) {
+                    is Erc20Asset -> if (evmNetworks.contains(coinType.parentChain)) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")
@@ -140,11 +207,12 @@ class AssetDiscoveryApiService internal constructor(
             }
         }.toSet()
 
+    private fun isParentChainEnabledEvm(evmChains: List<AssetInfo>, parentChain: String) =
+        evmChains.find {
+            it.networkTicker == parentChain || it.displayTicker == parentChain
+        } != null
+
     companion object {
-        const val ETHEREUM = "ETH"
-        const val MATIC = "MATIC"
-        const val BNB = "BNB"
-        val supportedErc20Chains = listOf(ETHEREUM, MATIC, BNB)
         const val CELO = "CELO"
         private const val ERC20_CONFIRMATIONS = 12
         private const val CELO_CONFIRMATIONS = 1

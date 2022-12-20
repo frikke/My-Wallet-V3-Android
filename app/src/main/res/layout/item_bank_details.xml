@@ -6,12 +6,12 @@
     android:id="@+id/bank_details_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/standard_margin">
+    android:padding="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bank_icon"
-        android:layout_width="@dimen/large_margin"
-        android:layout_height="@dimen/large_margin"
+        android:layout_width="@dimen/large_spacing"
+        android:layout_height="@dimen/large_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,7 +22,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/medium_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/bank_chevron"
         app:layout_constraintHorizontal_bias="0"

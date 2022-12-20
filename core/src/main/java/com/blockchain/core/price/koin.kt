@@ -1,8 +1,7 @@
 package com.blockchain.core.price
 
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import com.blockchain.core.price.historic.HistoricRateLocalSource
-import com.blockchain.core.price.historic.HistoricRateRemoteSource
+import com.blockchain.core.price.historic.HistoricRateStore
 import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreCache
@@ -42,18 +41,15 @@ val pricesModule = module {
         )
     }
 
-    factory {
-        HistoricRateLocalSource(database = get())
-    }
-
-    factory {
-        HistoricRateRemoteSource(exchangeRates = get())
+    single {
+        HistoricRateFetcher(
+            historicRateStore = get()
+        )
     }
 
     single {
-        HistoricRateFetcher(
-            localSource = get(),
-            remoteSource = get()
+        HistoricRateStore(
+            assetPriceService = get()
         )
     }
 }

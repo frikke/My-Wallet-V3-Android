@@ -11,7 +11,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.fees.FeeType
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
@@ -25,13 +25,13 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import timber.log.Timber
 
 class XlmOnChainTxEngineTest : CoincoreTestBase() {
@@ -170,7 +170,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null
                 it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.size == 1 &&
@@ -224,7 +224,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.size == 1 &&
@@ -302,7 +302,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(xlmFeesFetcher).operationFee(FeeType.Regular)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -489,14 +489,14 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
+                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = CryptoValue.zero(ASSET),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency),
-
                     )
                 )
             )

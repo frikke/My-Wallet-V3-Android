@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.linkbank.data.yapily
 
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.domain.experiments.RemoteConfigService
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
@@ -14,20 +14,21 @@ import piuk.blockchain.android.ui.linkbank.domain.openbanking.service.SafeConnec
 
 @ExperimentalCoroutinesApi
 class SafeConnectRepositoryTest {
-    private val remoteConfig = mockk<RemoteConfig>()
-    private val service: SafeConnectService = SafeConnectRepository(remoteConfig)
+    private val remoteConfigService = mockk<RemoteConfigService>()
+    private val service: SafeConnectService = SafeConnectRepository(remoteConfigService)
 
     private val tosLink = "TosLink"
 
     @Before
     fun setUp() {
-        every { remoteConfig.getRawJson(any()) } returns Single.just(tosLink)
+        every { remoteConfigService.getRawJson(any()) } returns Single.just(tosLink)
     }
 
     @Test
-    fun `GIVEN remoteConfig returns value, WHEN service calls getTosLink, THEN value should be returned`() = runTest {
-        val result = service.getTosLink()
+    fun `GIVEN remoteConfigService returns value, WHEN service calls getTosLink, THEN value should be returned`() =
+        runTest {
+            val result = service.getTosLink()
 
-        assertEquals(tosLink, result)
-    }
+            assertEquals(tosLink, result)
+        }
 }

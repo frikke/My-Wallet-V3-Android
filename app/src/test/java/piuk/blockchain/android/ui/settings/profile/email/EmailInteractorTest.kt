@@ -1,6 +1,9 @@
 package piuk.blockchain.android.ui.settings.profile.email
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.core.settings.Email
+import com.blockchain.core.settings.EmailSyncUpdater
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
@@ -10,10 +13,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailInteractor
-import piuk.blockchain.androidcore.data.settings.Email
-import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class EmailInteractorTest {
     private lateinit var interactor: EmailInteractor

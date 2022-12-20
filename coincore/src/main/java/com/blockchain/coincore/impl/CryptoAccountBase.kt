@@ -20,18 +20,26 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.store.asObservable
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.asFiatCurrencyOrThrow
@@ -39,12 +47,13 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 internal const val transactionFetchCount = 50
 internal const val transactionFetchOffset = 0
@@ -117,12 +126,13 @@ abstract class CryptoAccountBase : CryptoAccount {
             AssetAction.Send,
             AssetAction.Sell,
             AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
             AssetAction.Swap,
             AssetAction.Receive
         )
 
         internal val defaultCustodialActions = defaultNonCustodialActions + setOf(
-            AssetAction.Sell, AssetAction.Buy, AssetAction.InterestWithdraw
+            AssetAction.Buy, AssetAction.InterestWithdraw
         )
         internal val defaultActions = (defaultNonCustodialActions + defaultCustodialActions).toSet()
     }
@@ -144,7 +154,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoExchangeAccount && other.currency == currency
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.just(AccountBalance.zero(currency))
 
     override val receiveAddress: Single<ReceiveAddress>
@@ -178,14 +188,22 @@ abstract class CryptoAccountBase : CryptoAccount {
 }
 
 abstract class CryptoNonCustodialAccount(
-    override val currency: AssetInfo,
-) : CryptoAccountBase(), NonCustodialAccount, KoinComponent {
+    override val currency: AssetInfo
+) : CryptoAccountBase(),
+    NetworkWallet,
+    NonCustodialAccount,
+    KoinComponent {
 
-    override val isFunded: Boolean = true
+    override val isFunded: Boolean
+        get() = hasFunds.get()
+
+    private val hasFunds = AtomicBoolean(false)
 
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadDataManager: PayloadDataManager by scopedInject()
-    private val walletModeService: WalletModeService by inject()
+    private val unifiedBalancesService: UnifiedBalancesService by scopedInject()
+    private val walletModeService: WalletModeService by scopedInject()
+    private val unifiedBalancesFeatureFlag: FeatureFlag by inject(unifiedBalancesFlag)
     private val identity: UserIdentity by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
 
@@ -196,22 +214,57 @@ abstract class CryptoNonCustodialAccount(
             WalletMode.UNIVERSAL -> defaultActions
         }
 
-    override val balance: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            getOnChainBalance(),
-            exchangeRates.exchangeRateToUserFiat(currency)
-        ) { balance, rate ->
-            AccountBalance(
-                total = balance,
-                withdrawable = balance,
-                pending = CryptoValue.zero(currency),
-                exchangeRate = rate
+    /**
+     * We only add this method to make it portable with NetworkWallet.
+     */
+    override val networkBalance: Flow<DataResource<NetworkBalance>>
+        get() = balance.map {
+            DataResource.Data(
+                NetworkBalance(
+                    currency = currency,
+                    balance = it.total,
+                    unconfirmedBalance = it.pending,
+                    exchangeRate = it.exchangeRate
+                )
             )
         }
 
-    protected abstract val addressResolver: AddressResolver
+    override val balanceRx: Observable<AccountBalance>
+        get() = unifiedBalancesFeatureFlag.enabled.flatMapObservable {
+            if (it) {
+                unifiedBalancesService.balanceForWallet(
+                    this@CryptoNonCustodialAccount
+                ).asObservable().map {
+                    AccountBalance(
+                        total = it.balance,
+                        pending = it.unconfirmedBalance,
+                        exchangeRate = it.exchangeRate,
+                        withdrawable = it.balance,
+                        dashboardDisplay = it.balance,
+                    )
+                }
+            } else {
+                Observable.combineLatest(
+                    getOnChainBalance(),
+                    exchangeRates.exchangeRateToUserFiat(currency)
+                ) { balance, rate ->
+                    AccountBalance(
+                        total = balance,
+                        withdrawable = balance,
+                        pending = Money.zero(currency),
+                        dashboardDisplay = balance,
+                        exchangeRate = rate
+                    )
+                }
+            }
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
 
+    /**
+     * Remove after unified balances are fully integrated and stable
+     */
     protected abstract fun getOnChainBalance(): Observable<out Money>
+
+    protected abstract val addressResolver: AddressResolver
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = baseActions.map {
@@ -222,7 +275,7 @@ abstract class CryptoNonCustodialAccount(
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 
     override val sourceState: Single<TxSourceState>
-        get() = balance.firstOrError().map {
+        get() = balanceRx.firstOrError().map {
             if (it.withdrawable.isZero) {
                 TxSourceState.NO_FUNDS
             } else {
@@ -295,6 +348,7 @@ abstract class CryptoNonCustodialAccount(
             AssetAction.Swap -> swapActionEligibility(isActiveAndFunded)
             AssetAction.Sell -> sellActionEligibility(isActiveAndFunded)
             AssetAction.InterestDeposit -> interestDepositActionEligibility(isActiveAndFunded)
+            AssetAction.StakingDeposit -> stakingDepositEligibility(isActiveAndFunded)
             AssetAction.ViewStatement,
             AssetAction.Buy,
             AssetAction.FiatWithdraw,
@@ -343,9 +397,29 @@ abstract class CryptoNonCustodialAccount(
         }
     }
 
+    private fun stakingDepositEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
+        val stakingDepositEligibility = identity.userAccessForFeature(Feature.DepositStaking)
+
+        return Single.zip(
+            depositCryptoEligibility,
+            stakingDepositEligibility
+        ) { depositCryptoEligible, stakingDepositEligible ->
+            StateAwareAction(
+                when {
+                    depositCryptoEligible is FeatureAccess.Blocked -> depositCryptoEligible.toActionState()
+                    stakingDepositEligible is FeatureAccess.Blocked -> stakingDepositEligible.toActionState()
+                    !activeAndFunded -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.StakingDeposit
+            )
+        }
+    }
+
     private fun swapActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
         val swapEligibility = identity.userAccessForFeature(Feature.Swap)
-        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwap(currency)
+        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwapLegacy(currency)
         return swapEligibility.zipWith(assetAvailableForSwap) { swapEligible, assetEligibleForSwap ->
             StateAwareAction(
                 when {
@@ -372,18 +446,24 @@ abstract class CryptoNonCustodialAccount(
         )
 }
 
-// Currently only one custodial account is supported for each asset,
-// so all the methods on this can just delegate directly
-// to the (required) CryptoSingleAccountCustodialBase
-
-class CryptoAccountTradingGroup(
+/**
+ * Shared group between all custodial accounts
+ * Currently only one custodial account per type (Interest, Custodial, Staking) is supported for each asset,
+ * so all the methods on this can just delegate directly
+ * to the (required) CryptoSingleAccountCustodialBase
+ */
+class CryptoAccountCustodialSingleGroup(
     override val label: String,
     override val accounts: SingleAccountList,
 ) : SameCurrencyAccountGroup {
 
     init {
         require(accounts.size == 1)
-        require(accounts[0] is CryptoInterestAccount || accounts[0] is CustodialTradingAccount)
+        require(
+            accounts[0] is CustodialInterestAccount ||
+                accounts[0] is CustodialTradingAccount ||
+                accounts[0] is CustodialStakingAccount
+        )
     }
 
     override val currency: Currency
@@ -391,7 +471,7 @@ class CryptoAccountTradingGroup(
 }
 
 /**
- * Group for Trading and Interest accounts
+ * Group for Trading, Staking and Interest accounts
  */
 class CryptoAccountCustodialGroup(
     override val label: String,
@@ -399,10 +479,20 @@ class CryptoAccountCustodialGroup(
 ) : SameCurrencyAccountGroup {
 
     init {
-        require(accounts.size in 1..2)
-        require(accounts.map { it is CustodialTradingAccount || it is CryptoInterestAccount }.all { it })
-        if (accounts.size == 2) {
-            require(accounts[0].currency == accounts[1].currency)
+        require(accounts.size in 1..3)
+        require(
+            accounts.map {
+                it is CustodialTradingAccount ||
+                    it is CustodialInterestAccount ||
+                    it is CustodialStakingAccount
+            }.all { it }
+        )
+        if (accounts.size == 3) {
+            require(
+                accounts[0].currency == accounts[1].currency &&
+                    accounts[0].currency == accounts[2].currency &&
+                    accounts[1].currency == accounts[2].currency
+            )
         }
     }
 

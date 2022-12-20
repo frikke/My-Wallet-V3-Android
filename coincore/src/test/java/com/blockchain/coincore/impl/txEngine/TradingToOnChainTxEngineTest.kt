@@ -15,7 +15,6 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -31,6 +30,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -175,7 +175,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(
                     CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)
                 ) &&
@@ -248,7 +248,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -412,6 +412,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
     ): Erc20NonCustodialAccount {
         val accountBalance = AccountBalance(
             total = totalBalance,
+            dashboardDisplay = totalBalance,
             pending = 0.testValue(),
             withdrawable = actionable,
             exchangeRate = ExchangeRate(
@@ -422,7 +423,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
         )
         return mock {
             on { currency }.thenReturn(ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     accountBalance
                 )

@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
@@ -10,11 +9,13 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.Logger
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.store.getDataOrThrow
@@ -23,6 +24,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -40,8 +42,6 @@ import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import timber.log.Timber
 
 interface Erc20DataManager {
     val accountHash: String
@@ -75,6 +75,8 @@ interface Erc20DataManager {
         secondPassword: String = "",
         l1Chain: String
     ): Single<ByteArray>
+
+    fun getFeesForEvmTransaction(l1Chain: String): Single<FeeOptions>
 
     fun pushErc20Transaction(signedTxBytes: ByteArray, l1Chain: String): Single<String>
 
@@ -177,31 +179,47 @@ internal class Erc20DataManagerImpl(
 
         if (ethLayerTwoFeatureFlag.coEnabled()) {
             val erc20L2ActiveAssets = getSupportedNetworks().await().let { evmNetworks ->
-                val evmNetworksWithBalances = evmNetworks.map { evmNetwork ->
-                    l1BalanceStore.stream(refreshStrategy.withKey(L1BalanceStore.Key(evmNetwork.nodeUrl)))
-                        .catch { emit(DataResource.Data(BigInteger.ZERO)) }
-                        .mapData { balance -> Pair(evmNetwork, balance) }
-                        .getDataOrThrow()
-                }
-
-                combine(evmNetworksWithBalances) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
-                    pairsEvmNetworkWithBalance
-                        .filter { (_, balance) ->
-                            shouldShow || balance > BigInteger.ZERO
-                        }
-                        .map { (evmNetwork, _) -> evmNetwork }
-                }.map {
-                    it.map { evmNetwork ->
+                if (shouldShow) {
+                    val erc20L2ActiveAssetLists = evmNetworks.map { evmNetwork ->
                         erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                             .catch { emit(emptySet()) }
                     }
-                }.flatMapMerge {
-                    if (it.isNotEmpty()) {
-                        combine(it) { assets ->
+                    if (erc20L2ActiveAssetLists.isNotEmpty()) {
+                        combine(erc20L2ActiveAssetLists) { assets ->
                             assets.reduce { acc, set -> acc.plus(set).toSet() }
                         }
                     } else {
                         flowOf(emptySet())
+                    }
+                } else {
+                    val evmNetworksWithBalances = evmNetworks.map { evmNetwork ->
+                        l1BalanceStore.stream(refreshStrategy.withKey(L1BalanceStore.Key(evmNetwork.nodeUrl)))
+                            .catch { emit(DataResource.Data(BigInteger.ZERO)) }
+                            .mapData { balance -> Pair(evmNetwork, balance) }
+                            .getDataOrThrow()
+                    }
+
+                    combine(
+                        evmNetworksWithBalances
+                    ) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
+                        pairsEvmNetworkWithBalance
+                            .filter { (_, balance) ->
+                                shouldShow || balance > BigInteger.ZERO
+                            }
+                            .map { (evmNetwork, _) -> evmNetwork }
+                    }.map {
+                        it.map { evmNetwork ->
+                            erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
+                                .catch { emit(emptySet()) }
+                        }
+                    }.flatMapMerge {
+                        if (it.isNotEmpty()) {
+                            combine(it) { assets ->
+                                assets.reduce { acc, set -> acc.plus(set).toSet() }
+                            }
+                        } else {
+                            flowOf(emptySet())
+                        }
                     }
                 }
             }
@@ -224,7 +242,7 @@ internal class Erc20DataManagerImpl(
             // coins on an L2 chain. Deal with it as part of the L2 + ETH -> EVM refactoring.
             ethDataManager.getErc20TokenData(asset) != null
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Logger.e(ex)
             return false
         }
     }
@@ -352,6 +370,9 @@ internal class Erc20DataManagerImpl(
             } ?: throw IllegalAccessException("Unsupported EVM Network")
         }
 
+    override fun getFeesForEvmTransaction(l1Chain: String): Single<FeeOptions> =
+        ethDataManager.getFeesForEvmTx(l1Chain)
+
     override fun pushErc20Transaction(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
         ethDataManager.supportedNetworks.flatMap { supportedNetworks ->
             supportedNetworks.firstOrNull { it.networkTicker == l1Chain }?.let { evmNetwork ->
@@ -401,21 +422,23 @@ internal class Erc20DataManagerImpl(
         balance: BigInteger
     ): Observable<Erc20Balance> {
         val hasNativeTokenBalance = balance > BigInteger.ZERO
-        val shouldShow = evmWithoutL1BalanceFeatureFlag.isEnabled || hasNativeTokenBalance
-        val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
-        return when {
-            // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && shouldShow -> {
-                erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
-                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-            }
+        return evmWithoutL1BalanceFeatureFlag.enabled.flatMapObservable { isEnabled ->
+            val shouldShow = isEnabled || hasNativeTokenBalance
+            val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
+            when {
+                // Only load L2 balances if we have a balance of the network's native token
+                isOnOtherEvm && shouldShow -> {
+                    erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
+                        .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                }
 
-            isOnOtherEvm.not() -> {
-                erc20StoreService.getBalanceFor(asset = asset)
-            }
+                isOnOtherEvm.not() -> {
+                    erc20StoreService.getBalanceFor(asset = asset)
+                }
 
-            else -> {
-                Observable.just(Erc20Balance.zero(asset))
+                else -> {
+                    Observable.just(Erc20Balance.zero(asset))
+                }
             }
         }
     }
@@ -430,6 +453,4 @@ internal class Erc20DataManagerImpl(
 }
 
 fun Currency.isErc20() =
-    (this as? AssetInfo)?.l1chainTicker?.let {
-        it in AssetDiscoveryApiService.supportedErc20Chains
-    } ?: false
+    (this as? AssetInfo)?.isErc20 ?: false

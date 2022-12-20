@@ -2,14 +2,14 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.TOTAL_BALANCE_INDEX
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 interface DashboardBalance : DashboardItem {
     val isLoading: Boolean
@@ -25,7 +25,7 @@ data class BrokerageBalanceState(
     override val isLoading: Boolean,
     override val fiatBalance: Money?,
     val assetList: List<DashboardAsset>,
-    val delta: Pair<Money, Double>?
+    val delta: Pair<Money, Double>?,
 ) : DashboardBalance
 
 data class DefiBalanceState(
@@ -35,7 +35,7 @@ data class DefiBalanceState(
 
 sealed interface DashboardAsset : DashboardItem {
     fun updateBalance(accountBalance: AccountBalance): DashboardAsset
-
+    fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset
     fun toErrorState(): DashboardAsset
     fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset
 
@@ -46,12 +46,15 @@ sealed interface DashboardAsset : DashboardItem {
     fun reset(): DashboardAsset
 
     val currency: Currency
-
+    val shouldAssetShow: Boolean
     val isUILoading: Boolean
     val isFetchingBalance: Boolean
     val accountBalance: AccountBalance?
     val hasBalanceError: Boolean
     val currentRate: ExchangeRate?
+
+    val totalDisplayBalanceFFEnabled: Boolean
+    val assetDisplayBalanceFFEnabled: Boolean
 
     override val index: Int
         get() = DashboardItem.DASHBOARD_CRYPTO_ASSETS
@@ -59,8 +62,12 @@ sealed interface DashboardAsset : DashboardItem {
     override val id: String
         get() = javaClass.toString() + currency.networkTicker + (currency as? AssetInfo)?.l1chainTicker.orEmpty()
 
-    val fiatBalance: Money?
-        get() = currentRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }
+    // TODO(aromano): once FF is removed we can move this back into a dynamic var
+    fun fiatBalance(useDisplayBalance: Boolean): Money? = if (useDisplayBalance) {
+        currentRate?.let { p -> accountBalance?.dashboardDisplay?.let { p.convert(it) } }
+    } else {
+        currentRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }
+    }
 }
 
 data class DefiAsset(
@@ -68,12 +75,23 @@ data class DefiAsset(
     override val accountBalance: AccountBalance? = null,
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
-    override val currentRate: ExchangeRate? = null
+    override val currentRate: ExchangeRate? = null,
+    override val shouldAssetShow: Boolean = currency.l1chainTicker == null
 ) : DashboardAsset {
+    override val totalDisplayBalanceFFEnabled: Boolean = false
+    override val assetDisplayBalanceFFEnabled: Boolean = false
+
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
 
-    override fun toErrorState(): DashboardAsset = this.copy(hasBalanceError = true)
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow || currency.l1chainTicker == null)
+
+    override fun toErrorState(): DashboardAsset = this.copy(
+        hasBalanceError = true,
+        isFetchingBalance = false
+    )
+
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
 
@@ -105,6 +123,9 @@ data class BrokerageCryptoAsset(
     val priceTrend: List<Float> = emptyList(),
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
+    override val shouldAssetShow: Boolean = false,
+    override val totalDisplayBalanceFFEnabled: Boolean = false,
+    override val assetDisplayBalanceFFEnabled: Boolean = false,
 ) : BrokerageDashboardAsset {
 
     override val currentRate: ExchangeRate?
@@ -114,12 +135,17 @@ data class BrokerageCryptoAsset(
         prices24HrWithDelta?.previousRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }
     }
 
+    val displayFiatBalance24h: Money? by unsafeLazy {
+        prices24HrWithDelta?.previousRate?.let { p -> accountBalance?.dashboardDisplay?.let { p.convert(it) } }
+    }
+
     val priceDelta: Double by unsafeLazy {
         prices24HrWithDelta?.delta24h ?: Double.NaN
     }
 
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
+
     override val isUILoading: Boolean by unsafeLazy {
         if (hasBalanceError)
             false
@@ -128,6 +154,9 @@ data class BrokerageCryptoAsset(
 
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
+
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow)
 
     override fun toErrorState(): DashboardAsset = this.copy(hasBalanceError = true, isFetchingBalance = false)
 
@@ -145,16 +174,23 @@ data class BrokerageCryptoAsset(
         prices24HrWithDelta = prices
     )
 
-    override fun reset(): BrokerageCryptoAsset = BrokerageCryptoAsset(currency)
+    override fun reset(): BrokerageCryptoAsset = BrokerageCryptoAsset(
+        currency,
+        totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
+        assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
+    )
 }
 
-data class BrokearageFiatAsset(
+data class BrokerageFiatAsset(
     override val currency: Currency,
     override val accountBalance: AccountBalance? = null,
     override val currentRate: ExchangeRate? = null,
     override val isUILoading: Boolean = false,
     override val isFetchingBalance: Boolean = false,
     override val hasBalanceError: Boolean = false,
+    override val shouldAssetShow: Boolean = false,
+    override val totalDisplayBalanceFFEnabled: Boolean,
+    override val assetDisplayBalanceFFEnabled: Boolean,
     /**
      * unfortunately, we need to know this cause click is coupled with this.
      */
@@ -168,6 +204,9 @@ data class BrokearageFiatAsset(
 
     override fun updateBalance(accountBalance: AccountBalance): DashboardAsset =
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
+
+    override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
+        this.copy(shouldAssetShow = shouldAssetShow)
 
     override fun updateFetchingBalanceState(isFetching: Boolean): DashboardAsset =
         this.copy(isFetchingBalance = isFetching)
@@ -186,5 +225,10 @@ data class BrokearageFiatAsset(
         throw IllegalStateException("Action not supported")
     }
 
-    override fun reset(): DashboardAsset = BrokearageFiatAsset(currency = currency, fiatAccount = fiatAccount)
+    override fun reset(): DashboardAsset = BrokerageFiatAsset(
+        currency = currency,
+        fiatAccount = fiatAccount,
+        totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
+        assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
+    )
 }

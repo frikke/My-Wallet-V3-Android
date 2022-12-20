@@ -24,9 +24,9 @@ data class QuestionnaireNodeResponse(
     val children: List<QuestionnaireNodeResponse>?,
 
     /* node type specific fields */
-    // SINGLE_SELECTION
+    // SINGLE_SELECTION and MULTIPLE_SELECTION
     val instructions: String?, // present in SINGLE_SELECTION and MULTIPLE_SELECTION
-    val isDropdown: Boolean?,
+    val isDropdown: Boolean?, // present in SINGLE_SELECTION and MULTIPLE_SELECTION
 
     // OPEN_ENDED
     val input: String?,

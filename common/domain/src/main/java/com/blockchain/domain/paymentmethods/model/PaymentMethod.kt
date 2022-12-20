@@ -6,6 +6,7 @@ import info.blockchain.balance.Money
 import java.io.Serializable
 import java.util.Date
 import java.util.Locale
+import kotlinx.serialization.Contextual
 
 sealed class PaymentMethod(
     val id: String,
@@ -138,10 +139,11 @@ sealed class PaymentMethod(
         val endDigits: String,
         val partner: Partner,
         val expireDate: Date,
-        val cardType: String,
+        val cardType: CardType,
         val status: CardStatus,
         val mobilePaymentType: MobilePaymentType? = null,
         override val isEligible: Boolean,
+        @Contextual
         val cardRejectionState: CardRejectionState? = null,
         val serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
@@ -161,14 +163,14 @@ sealed class PaymentMethod(
         fun dottedEndDigits() =
             "•••• $endDigits"
 
-        private fun getCardTypeLabel(cardType: String) =
+        private fun getCardTypeLabel(cardType: CardType) =
             when (cardType) {
-                "VISA" -> "Visa"
-                "MASTERCARD" -> "Mastercard"
-                "AMEX" -> "American Express"
-                "DINERS_CLUB" -> "Diners Club"
-                "MAESTRO" -> "Maestro"
-                "JCB" -> "JCB"
+                CardType.VISA -> "Visa"
+                CardType.MASTERCARD -> "Mastercard"
+                CardType.AMEX -> "American Express"
+                CardType.DINERS_CLUB -> "Diners Club"
+                CardType.MAESTRO -> "Maestro"
+                CardType.JCB -> "JCB"
                 else -> ""
             }
 

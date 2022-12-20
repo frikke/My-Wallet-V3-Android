@@ -22,16 +22,13 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20L2StoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val ethDataManager = mockk<EthDataManager>()
     private val erc20L2DataSource = mockk<Erc20L2DataSource>()
 
     private val erc20L2StoreService: Erc20L2StoreService = Erc20L2StoreRepository(
         assetCatalogue = assetCatalogue,
-        ethDataManager = ethDataManager,
         erc20L2DataSource = erc20L2DataSource
     )
 
@@ -42,7 +39,8 @@ class Erc20L2StoreRepositoryTest {
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 5,
-        colour = "#123456"
+        colour = "#123456",
+        isErc20 = true
     ) {}
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -52,7 +50,8 @@ class Erc20L2StoreRepositoryTest {
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 5,
-        colour = "#678912"
+        colour = "#678912",
+        isErc20 = true
     ) {}
 
     private val evmBalanceResponseNative = EvmBalanceResponse(
@@ -92,7 +91,6 @@ class Erc20L2StoreRepositoryTest {
         every { erc20L2DataSource.invalidate(any()) } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO_NATIVE", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative
-        every { ethDataManager.accountAddress } returns "accountHash"
     }
 
     @Test

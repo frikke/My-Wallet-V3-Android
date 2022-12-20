@@ -8,13 +8,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.HeaderMap
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -53,6 +51,7 @@ interface WalletExplorerEndpoints {
     @FormUrlEncoded
     @POST("wallet")
     fun updateSettings(
+        @Header("Authorization") sessionId: String,
         @Field("method") method: String,
         @Field("guid") guid: String,
         @Field("sharedKey") sharedKey: String,
@@ -66,6 +65,7 @@ interface WalletExplorerEndpoints {
     @FormUrlEncoded
     @POST("wallet")
     fun updateSettings(
+        @Header("Authorization") sessionId: String,
         @Field("method") method: String,
         @Field("guid") guid: String,
         @Field("sharedKey") sharedKey: String,
@@ -82,22 +82,23 @@ interface WalletExplorerEndpoints {
     fun fetchWalletData(
         @Field("method") method: String,
         @Field("guid") guid: String,
+        @Header("Authorization") sessionId: String,
         @Field("sharedKey") sharedKey: String,
         @Field("format") format: String,
         @Field("api_code") apiCode: String
-    ): Call<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")
     fun submitTwoFactorCode(
-        @HeaderMap headers: Map<String, String>?,
+        @Header("Authorization") sessionId: String,
         @Field("method") method: String,
         @Field("guid") guid: String?,
         @Field("payload") twoFactorCode: String,
         @Field("length") length: Int,
         @Field("format") format: String,
         @Field("api_code") apiCode: String
-    ): Observable<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")
@@ -112,6 +113,7 @@ interface WalletExplorerEndpoints {
     @POST("wallet")
     fun syncWalletCall(
         @Field("method") method: String,
+        @Header("Authorization") sessionId: String? = null,
         @Field("guid") guid: String?,
         @Field("sharedKey") sharedKey: String?,
         @Field("payload") payload: String,
@@ -120,11 +122,12 @@ interface WalletExplorerEndpoints {
         @Field("active") active: String?,
         @Field("email") email: String?,
         @Field("device") device: String?,
+        @Header("Origin") origin: String? = null,
         @Field("old_checksum") old_checksum: String?,
         @Field("api_code") apiCode: String,
         @Field("captcha") recaptchaToken: String?,
         @Field("siteKey") siteKey: String?
-    ): Call<ResponseBody>
+    ): Completable
 
     @FormUrlEncoded
     @POST("wallet")
@@ -132,7 +135,7 @@ interface WalletExplorerEndpoints {
         @Field("method") method: String,
         @Field("guid") guid: String?,
         @Field("api_code") apiCode: String
-    ): Call<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")
@@ -145,7 +148,7 @@ interface WalletExplorerEndpoints {
     @GET("wallet/{guid}?format=json&resend_code=false")
     fun getSessionId(
         @Path("guid") guid: String
-    ): Observable<Response<ResponseBody>>
+    ): Single<Response<ResponseBody>>
 
     @GET("wallet/{guid}")
     fun fetchEncryptedPayload(
@@ -154,7 +157,7 @@ interface WalletExplorerEndpoints {
         @Query("format") format: String,
         @Query("resend_code") resendCode: Boolean,
         @Query("api_code") apiCode: String
-    ): Observable<Response<ResponseBody>>
+    ): Single<Response<ResponseBody>>
 
     @POST("pin-store")
     fun pinStore(
@@ -163,7 +166,7 @@ interface WalletExplorerEndpoints {
         @Query("value") value: String?,
         @Query("method") method: String,
         @Query("api_code") apiCode: String
-    ): Observable<Response<Status>>
+    ): Single<Response<Status>>
 
     @GET("Resources/wallet-options.json")
     fun getWalletOptions(
@@ -175,7 +178,6 @@ interface WalletExplorerEndpoints {
 
     @FormUrlEncoded @POST("wallet/sessions")
     fun createSessionId(
-        @Field("email") email: String,
         @Field("api_code") apiCode: String
     ): Single<ResponseBody>
 

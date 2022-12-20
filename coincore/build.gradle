@@ -1,5 +1,5 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 apply plugin: 'kotlin-parcelize'
 
 android {
@@ -12,12 +12,6 @@ android {
         warningsAsErrors true
         abortOnError true
     }
-
-    buildTypes {
-        release {
-            consumerProguardFiles 'proguard-rules.pro'
-        }
-    }
 }
 
 dependencies {
@@ -28,34 +22,23 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':core')
     implementation project(':store:core')
+    implementation project(':unifiedcryptowallet:domain')
     implementation project(':blockchainApi')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
+    implementation project(':earn:domain')
+    implementation project(':earn:data')
 
     api project(':balance')
 
     implementation Libraries.kotlinJson
-    implementation Libraries.koin
-    implementation Libraries.androidXAnnotations
-    implementation Libraries.timber
 
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxKotlin
 
     coreLibraryDesugaring Libraries.desugaring
 
     // Unit Test dependencies
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.koinTest
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.koinTest
     testImplementation Libraries.koinTestJunit
-    testImplementation Libraries.kluent
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-    testImplementation Libraries.mockk
-    testImplementation project(':testutils')
     testImplementation project(':testutils-android')
 }

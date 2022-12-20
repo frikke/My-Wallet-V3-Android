@@ -5,7 +5,6 @@ import com.blockchain.api.kyc.model.KycTierDto
 import com.blockchain.api.kyc.model.KycTiersDto
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTierState
-import com.blockchain.nabu.Authenticator
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
@@ -17,15 +16,12 @@ import java.util.concurrent.TimeUnit
 
 class KycTiersStore internal constructor(
     private val kycApiService: KycApiService,
-    private val authenticator: Authenticator,
 ) : Store<KycTiersDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
-                authenticator.authenticate {
-                    kycApiService.getTiers(it.authHeader)
-                }
+                kycApiService.getTiers()
             }
         ),
         dataSerializer = KycTiersDto.serializer(),

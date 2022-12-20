@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.profile.email
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
+import com.blockchain.core.settings.Email
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -12,12 +13,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailError
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailIntent
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailInteractor
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailModel
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailState
-import piuk.blockchain.androidcore.data.settings.Email
 
 class EmailModelTest {
     private lateinit var model: EmailModel

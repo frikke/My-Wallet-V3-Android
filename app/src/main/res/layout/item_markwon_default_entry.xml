@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/Text.Standard"
-    android:paddingTop="@dimen/tiny_margin"
-    android:paddingStart="@dimen/standard_margin"
-    android:paddingEnd="@dimen/standard_margin"
+    android:paddingTop="@dimen/tiny_spacing"
+    android:paddingStart="@dimen/standard_spacing"
+    android:paddingEnd="@dimen/standard_spacing"
     />

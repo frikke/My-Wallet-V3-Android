@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
-import com.blockchain.koin.scopedInject
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
@@ -20,6 +19,8 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.emptySubscribe
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -33,8 +34,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -96,7 +96,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title,
                 body = remoteMessage.notification?.body,
                 pendingIntent = PendingIntent.getActivity(
-                    applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
+                    applicationContext, 0, Intent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT or
+                        PendingIntent.FLAG_IMMUTABLE
                 ),
                 notificationId = ID_BACKGROUND_NOTIFICATION_2FA
             )
@@ -119,7 +121,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     /**
-     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
+     * Redirects the user to the [LauncherActivityV2] if [foreground] is set to true, otherwise to
      * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
      * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      *
@@ -134,7 +136,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                         applicationContext,
                         0,
                         notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                     val notificationId = if (foreground) ID_FOREGROUND_NOTIFICATION else ID_BACKGROUND_NOTIFICATION
 
@@ -177,7 +179,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                 )
             )
             else -> Maybe.just(
-                LauncherActivity.newInstance(
+                LauncherActivityV2.newInstance(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)

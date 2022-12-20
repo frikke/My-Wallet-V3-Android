@@ -35,17 +35,25 @@ fun Tag(
     defaultBackgroundColor: Color,
     defaultTextColor: Color,
     borders: Boolean = false,
+    startImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_info_outline,
+        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
+    ),
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end_small,
+        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
+    ),
     onClick: (() -> Unit)?
 ) {
 
     val paddingHorizontal = when (size) {
         TagSize.Primary -> 8.dp
-        TagSize.Large -> dimensionResource(R.dimen.very_small_margin)
+        TagSize.Large -> dimensionResource(R.dimen.very_small_spacing)
     }
 
     val paddingVertical = when (size) {
-        TagSize.Primary -> dimensionResource(R.dimen.smallest_margin)
-        TagSize.Large -> dimensionResource(R.dimen.minuscule_margin)
+        TagSize.Primary -> dimensionResource(R.dimen.smallest_spacing)
+        TagSize.Large -> dimensionResource(R.dimen.minuscule_spacing)
     }
 
     val textStyle = when (size) {
@@ -59,22 +67,18 @@ fun Tag(
                 .border(
                     width = if (borders) 1.dp else 0.dp,
                     color = Grey000,
-                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin)),
+                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
                 )
-                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin)))
+                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
                 .background(defaultBackgroundColor)
                 .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
                 .clickable(onClick = action),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                imageResource = ImageResource.Local(
-                    id = R.drawable.ic_info_outline,
-                    colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-                )
-            )
-
-            Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_margin)))
+            if (startImageResource != ImageResource.None) {
+                Image(imageResource = startImageResource)
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+            }
 
             Text(
                 text = text,
@@ -82,14 +86,10 @@ fun Tag(
                 color = defaultTextColor
             )
 
-            Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_margin)))
-
-            Image(
-                imageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end_small,
-                    colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-                )
-            )
+            if (endImageResource != ImageResource.None) {
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
+                Image(imageResource = endImageResource)
+            }
         }
     } ?: run {
         Text(
@@ -100,9 +100,9 @@ fun Tag(
                 .border(
                     width = if (borders) 1.dp else 0.dp,
                     color = Grey000,
-                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin)),
+                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
                 )
-                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin)))
+                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
                 .background(defaultBackgroundColor)
                 .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
         )

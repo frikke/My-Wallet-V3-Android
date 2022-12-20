@@ -4,14 +4,20 @@ import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
+import com.blockchain.koin.exchangeWAPromptFeatureFlag
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
+import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.sellOrder
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.ShouldShowExchangeCampaignUseCase
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
@@ -23,6 +29,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyMo
 import piuk.blockchain.android.ui.dashboard.model.DashboardActionInteractor
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
+import piuk.blockchain.android.ui.dashboard.model.ShouldAssetShowUseCase
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -41,6 +48,7 @@ val dashboardModule = module {
                 initialState = DashboardState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                balancesCache = get(),
                 environmentConfig = get(),
                 remoteLogger = get(),
                 appRatingService = get()
@@ -74,7 +82,20 @@ val dashboardModule = module {
                 cowboysDataProvider = get(),
                 referralService = get(),
                 cowboysPrefs = get(),
-                productsEligibilityStore = get()
+                productsEligibilityStore = get(),
+                stakingFeatureFlag = get(stakingAccountFeatureFlag),
+                totalDisplayBalanceFF = get(paymentUxTotalDisplayBalanceFeatureFlag),
+                assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
+                shouldAssetShowUseCase = get()
+            )
+        }
+
+        factory {
+            ShouldAssetShowUseCase(
+                hideDustFeatureFlag = get(hideDustFeatureFlag),
+                assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
+                localSettingsPrefs = get(),
+                watchlistService = get()
             )
         }
 
@@ -206,6 +227,14 @@ val dashboardModule = module {
             CowboysPromoDataProvider(
                 config = get(),
                 json = get()
+            )
+        }
+
+        factory {
+            ShouldShowExchangeCampaignUseCase(
+                exchangeWAPromptFF = get(exchangeWAPromptFeatureFlag),
+                exchangeCampaignPrefs = get(),
+                mercuryExperimentsService = get()
             )
         }
     }

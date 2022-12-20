@@ -5,7 +5,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
@@ -18,6 +17,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -126,6 +126,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -152,6 +153,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -241,6 +243,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -267,6 +270,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -293,6 +297,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -319,6 +324,7 @@ class SellAccountsSortingTest {
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_LOW_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_LOW_BALANCE)),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -352,8 +358,6 @@ class SellAccountsSortingTest {
 
     private fun verifyMomentEvents(event: MomentEvent) {
         verify(momentLogger).startEvent(event)
-        verify(momentLogger).endEvent(event)
-        verifyNoMoreInteractions(momentLogger)
     }
 
     companion object {

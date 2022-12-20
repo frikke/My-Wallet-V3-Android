@@ -20,7 +20,8 @@ class ActionsSheetInteractor internal constructor(
                     )
                     is BlockedReason.NotEligible,
                     is BlockedReason.Sanctions,
-                    is BlockedReason.InsufficientTier ->
+                    is BlockedReason.InsufficientTier,
+                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal ->
                         // launch Buy anyways, because this is handled in that screen
                         ActionsSheetIntent.UpdateFlowToLaunch(FlowToLaunch.BuyFlow)
                 }.exhaustive

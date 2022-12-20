@@ -46,16 +46,16 @@ fun SwitcherItem(
             }
             .background(
                 backgroundColor,
-                RoundedCornerShape(dimensionResource(id = R.dimen.medium_margin))
+                RoundedCornerShape(dimensionResource(id = R.dimen.medium_spacing))
             )
-            .padding(dimensionResource(id = R.dimen.tiny_margin)),
+            .padding(dimensionResource(id = R.dimen.tiny_spacing)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             imageResource = startIcon,
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.tiny_spacing)
                 )
         )
         Text(
@@ -64,8 +64,8 @@ fun SwitcherItem(
             color = textColor,
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin),
-                    end = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.tiny_spacing),
+                    end = dimensionResource(id = R.dimen.tiny_spacing)
                 )
 
         )
@@ -73,5 +73,5 @@ fun SwitcherItem(
             imageResource = endIcon
         )
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 }

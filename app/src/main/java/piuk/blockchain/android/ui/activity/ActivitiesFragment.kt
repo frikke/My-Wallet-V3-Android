@@ -18,8 +18,12 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import com.blockchain.koin.scopedInject
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.extensions.getAccount
+import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -34,19 +38,13 @@ import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
-import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
@@ -66,14 +64,10 @@ class ActivitiesFragment :
     }
 
     private val disposables = CompositeDisposable()
-    private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val assetResources: AssetResources by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val historicRateFetcher: HistoricRateFetcher by scopedInject()
-
-    private val actionEvent by unsafeLazy {
-        rxBus.register(ActionEvent::class.java)
-    }
 
     private var state: ActivitiesState? = null
     private var selectedFiatCurrency: FiatCurrency? = null
@@ -107,20 +101,37 @@ class ActivitiesFragment :
                     showBottomSheet(AccountSelectSheet.newInstance(this))
                 }
                 ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS -> {
-                    newState.selectedCurrency?.asAssetInfoOrThrow()?.let {
-                        showBottomSheet(
-                            CryptoActivityDetailsBottomSheet.newInstance(
-                                it, newState.selectedTxId,
-                                newState.activityType
+                    try {
+                        newState.selectedCurrency?.asAssetInfoOrThrow()?.let { assetInfo ->
+                            showBottomSheet(
+                                CryptoActivityDetailsBottomSheet.newInstance(
+                                    asset = assetInfo,
+                                    txHash = newState.selectedTxId,
+                                    activityType = newState.activityType
+                                )
                             )
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        remoteLogger.logException(
+                            throwable = e,
+                            logMessage = "Failed to cast AssetInfo for ${newState.selectedCurrency?.networkTicker}"
                         )
+                        showDetailsLoadingError()
                     }
                 }
                 ActivitiesSheet.FIAT_ACTIVITY_DETAILS -> {
-                    newState.selectedCurrency?.asFiatCurrencyOrThrow()?.let {
-                        showBottomSheet(
-                            FiatActivityDetailsBottomSheet.newInstance(it, newState.selectedTxId)
+                    try {
+                        newState.selectedCurrency?.asFiatCurrencyOrThrow()?.let {
+                            showBottomSheet(
+                                FiatActivityDetailsBottomSheet.newInstance(it, newState.selectedTxId)
+                            )
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        remoteLogger.logException(
+                            throwable = e,
+                            logMessage = "Failed to cast FiatCurrency for ${newState.selectedCurrency?.networkTicker}"
                         )
+                        showDetailsLoadingError()
                     }
                 }
                 null -> {
@@ -251,7 +262,6 @@ class ActivitiesFragment :
 
     override fun onPause() {
         disposables.clear()
-        rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
     }
 
@@ -276,6 +286,15 @@ class ActivitiesFragment :
 
     override fun onAddCash(currency: String) {
         navigator().launchFiatDeposit(currency)
+    }
+
+    override fun showDetailsLoadingError() {
+        BlockchainSnackbar.make(
+            view = binding.root,
+            message = getString(R.string.activity_details_loading_error),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
     }
 
     // SlidingModalBottomDialog.Host

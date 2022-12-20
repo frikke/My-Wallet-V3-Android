@@ -12,6 +12,8 @@ sealed class KYCAnalyticsEvents(override val event: String, override val params:
     object VerifyIdentityStart : KYCAnalyticsEvents("kyc_verify_id_start_button_click")
     object VeriffInfoSubmitted : KYCAnalyticsEvents("kyc_veriff_info_submitted")
     object VeriffInfoStarted : KYCAnalyticsEvents("kyc_veriff_started")
+    data class VeriffPreIDV(val result: String) :
+        KYCAnalyticsEvents("kyc_splash_request_gold_preIDV", mapOf("result" to result))
     object Tier1Clicked : KYCAnalyticsEvents("kyc_unlock_silver_click")
     object Tier2Clicked : KYCAnalyticsEvents("kyc_unlock_gold_click")
     object PhoneNumberUpdateButtonClicked : KYCAnalyticsEvents("kyc_phone_update_button_click")

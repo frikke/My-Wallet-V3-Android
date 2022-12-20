@@ -3,10 +3,13 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigDecimal
+import piuk.blockchain.android.simplebuy.AmountType
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 
 sealed class SwapAnalyticsEvents(
@@ -70,7 +73,8 @@ sealed class SwapAnalyticsEvents(
         )
     )
 
-    object SwapViewedEvent : SwapAnalyticsEvents(AnalyticsNames.SWAP_VIEWED.eventName, params = emptyMap())
+    object SwapViewedEvent :
+        SwapAnalyticsEvents(AnalyticsNames.SWAP_FROM_WALLET_PAGE_VIEWED.eventName, params = emptyMap())
 
     class SwapMaxAmountClicked(
         private val sourceCurrency: String,
@@ -95,7 +99,7 @@ sealed class SwapAnalyticsEvents(
         private val accountType: TxFlowAnalyticsAccountType
     ) : AnalyticsEvent {
         override val event: String
-            get() = AnalyticsNames.SWAP_FROM_SELECTED.eventName
+            get() = AnalyticsNames.SWAP_FROM_WALLET_PAGE_CLICKED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "input_currency" to currency,
@@ -110,7 +114,7 @@ sealed class SwapAnalyticsEvents(
         private val outputAccountType: TxFlowAnalyticsAccountType
     ) : AnalyticsEvent {
         override val event: String
-            get() = AnalyticsNames.SWAP_AMOUNT_ENTERED.eventName
+            get() = AnalyticsNames.SWAP_AMOUNT_SCREEN_NEXT_CLICKED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "input_amount" to amount.toBigDecimal(),
@@ -143,7 +147,7 @@ sealed class SwapAnalyticsEvents(
     class SwapTargetAccountSelected(private val currency: String, private val account: TxFlowAnalyticsAccountType) :
         AnalyticsEvent {
         override val event: String
-            get() = AnalyticsNames.SWAP_RECEIVE_SELECTED.eventName
+            get() = AnalyticsNames.SWAP_RECEIVE_WALLET_PAGE_CLICKED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "output_currency" to currency,
@@ -182,5 +186,81 @@ sealed class SwapAnalyticsEvents(
             get() = AnalyticsNames.SWAP_CLICKED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf()
+    }
+
+    object SwapFromWalletPageViewedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_FROM_WALLET_PAGE_VIEWED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    class SwapFiatCryptoSwitcherClickedEvent(private val newInput: Currency) : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_FIAT_CRYPTO_CLICKED.eventName
+        override val params: Map<String, String> = mapOf(
+            "switch_to" to if (newInput.type == CurrencyType.FIAT) "FIAT" else "CRYPTO"
+        )
+    }
+
+    object SwapAmountBackScreenClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_AMOUNT_SCREEN_BACK_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    class SwapQuickFillButtonClicked(
+        amount: String,
+        amountType: AmountType,
+        currency: String
+    ) : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_QUICK_FILL_CLICKED.eventName
+        override val params: Map<String, String> = mapOf(
+            "action" to "BUY",
+            "amount" to amount,
+            "amount_type" to amountType.name,
+            "currency" to currency
+        )
+    }
+
+    object SwapCheckoutScreenViewedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_CHECKOUT_VIEWED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object SwapPriceTooltipClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_PRICE_TOOLTIP_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object SwapCheckoutNetworkFeesClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_CHECKOUT_NETWORK_FEES_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object SwapCheckoutScreenSubmittedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_CHECKOUT_SCREEN_SUBMITTED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object SwapCheckoutScreenBackClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_CHECKOUT_SCREEN_BACK_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object SwapTriggeredEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.SWAP_STATE_TRIGGERED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object FabSwapClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.FAB_SWAP_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object CoinViewSwapClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.COIN_VIEW_SWAP_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object CoinViewAccountSwapClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.COIN_VIEW_ACCOUNT_SWAP_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
     }
 }

@@ -22,6 +22,7 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -32,7 +33,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 const val BITPAY_TIMER_SUB = "bitpay_timer"

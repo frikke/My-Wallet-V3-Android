@@ -1,23 +1,24 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
-import android.text.TextUtils
-import android.util.Patterns
-import com.blockchain.commonarch.presentation.mvi.MviState
-import piuk.blockchain.androidcore.data.settings.Email
+import com.blockchain.commonarch.presentation.mvi_v2.ModelState
+import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 
-data class EmailVerificationState(
-    val email: Email = Email("", false),
-    val emailInput: String? = null,
-    val isLoading: Boolean = false,
-    val emailChanged: Boolean = false,
-    val hasError: Boolean = false
-) : MviState {
+data class EmailVerificationModelState(
+    val email: String? = null,
+    val isVerified: Boolean = false,
+    val showResendEmailConfirmation: Boolean = false,
+    val error: EmailVerificationError? = null,
+) : ModelState
 
-    val canUpdateEmail: Boolean
-        get() = emailInputIsValid() && email.address != emailInput
+data class EmailVerificationViewState(
+    val email: String?,
+    val isVerified: Boolean,
+    val showResendEmailConfirmation: Boolean,
+    val error: EmailVerificationError?,
+) : ViewState
 
-    private fun emailInputIsValid(): Boolean =
-        emailInput?.let {
-            !TextUtils.isEmpty(it) && Patterns.EMAIL_ADDRESS.matcher(it).matches()
-        } ?: false
+sealed class EmailVerificationError {
+    data class Generic(val message: String?) : EmailVerificationError()
+
+    object TooManyResendAttempts : EmailVerificationError()
 }

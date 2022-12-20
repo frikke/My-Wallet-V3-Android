@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject

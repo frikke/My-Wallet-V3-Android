@@ -7,12 +7,12 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
-import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -23,17 +23,17 @@ class TradingToTradingSwapTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    swapTransactionsCache: SwapTransactionsCache,
+    swapTransactionsStore: SwapTransactionsStore,
     quotesEngine: TransferQuotesEngine,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
-) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache) {
+) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore) {
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(tradingStore)
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balance.firstOrError().map {
+        get() = sourceAccount.balanceRx.firstOrError().map {
             it.total
         }
 

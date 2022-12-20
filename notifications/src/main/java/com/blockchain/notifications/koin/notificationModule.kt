@@ -9,14 +9,13 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.links.DynamicLinkHandler
 import com.blockchain.notifications.links.PendingLink
-import com.blockchain.remoteconfig.ABTestExperiment
-import com.blockchain.remoteconfig.RemoteConfig
-import com.blockchain.remoteconfig.RemoteConfiguration
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import timber.log.Timber
 
 val notificationModule = module {
 
@@ -24,7 +23,7 @@ val notificationModule = module {
         scoped {
             NotificationTokenManager(
                 notificationService = get(),
-                payloadDataManager = get(),
+                walletPayloadService = get(),
                 prefs = get(),
                 remoteLogger = get(),
                 authPrefs = get(),
@@ -48,19 +47,18 @@ val notificationModule = module {
     single {
         val config = FirebaseRemoteConfigSettings.Builder()
             .build()
-        FirebaseRemoteConfig.getInstance().apply {
-            setConfigSettingsAsync(config)
+        try {
+            FirebaseRemoteConfig.getInstance().apply {
+                setConfigSettingsAsync(config)
+            }
+        } catch (e: NullPointerException) {
+            Timber.e("FirebaseRemoteConfig not set up ${e.message}")
+            try {
+                FirebaseCrashlytics.getInstance().log("FirebaseRemoteConfig not set up ${e.message}")
+            } catch (e: NullPointerException) {
+                Timber.e("FirebaseCrashlytics not set up ${e.message}")
+            }
+            null
         }
-    }
-
-    factory {
-        RemoteConfiguration(
-            remoteConfig = get(),
-            environmentConfig = get(),
-            remoteConfigPrefs = get()
-        )
-    }.apply {
-        bind(RemoteConfig::class)
-        bind(ABTestExperiment::class)
     }
 }

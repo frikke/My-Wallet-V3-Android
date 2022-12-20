@@ -10,8 +10,11 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ItemCheckoutClickableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
+import piuk.blockchain.android.databinding.ItemCheckoutCtaInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleExpandableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutToggleInfoBinding
@@ -19,9 +22,11 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.util.animateColor
-import piuk.blockchain.android.util.getResolvedColor
 
-class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
+class CheckoutAdapterDelegate(
+    onToggleChanged: (Boolean) -> Unit,
+    onAction: (ActionType) -> Unit,
+) :
     DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<SimpleBuyCheckoutItem> = emptyList()
@@ -36,8 +41,10 @@ class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
         with(delegatesManager) {
             addAdapterDelegate(SimpleCheckoutItemDelegate())
             addAdapterDelegate(ComplexCheckoutItemDelegate())
-            addAdapterDelegate(ExpandableCheckoutItemDelegate())
+            addAdapterDelegate(ExpandableCheckoutItemDelegate(onAction))
             addAdapterDelegate(ToggleCheckoutItemDelegate(onToggleChanged))
+            addAdapterDelegate(ClickableCheckoutItemDelegate(onAction))
+            addAdapterDelegate(ReadMoreDisclaimerCheckoutItemDelegate(onAction))
         }
     }
 }
@@ -58,6 +65,20 @@ class SimpleBuyCheckoutItemDiffUtil(
     }
 }
 
+sealed class ActionType {
+    object Price : ActionType()
+    object Fee : ActionType()
+    object WithdrawalHold : ActionType()
+    data class TermsAndConditions(
+        val bankLabel: String,
+        val amount: String,
+        val withdrawalLock: String,
+        val isRecurringBuyEnabled: Boolean
+    ) : ActionType()
+
+    object Unknown : ActionType()
+}
+
 sealed class SimpleBuyCheckoutItem {
     data class SimpleCheckoutItem(
         val label: String,
@@ -72,12 +93,25 @@ sealed class SimpleBuyCheckoutItem {
 
     data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
 
+    data class ClickableCheckoutItem(
+        val label: String,
+        val title: String,
+        val actionType: ActionType
+    ) : SimpleBuyCheckoutItem()
+
+    data class ReadMoreCheckoutItem(
+        val text: String,
+        val cta: String,
+        val actionType: ActionType
+    ) : SimpleBuyCheckoutItem()
+
     data class ExpandableCheckoutItem(
         val label: String,
         val title: String,
         val expandableContent: CharSequence,
         val promoLayout: View? = null,
         val hasChanged: Boolean,
+        val actionType: ActionType
     ) : SimpleBuyCheckoutItem() {
         override fun equals(other: Any?) =
             (other as? ExpandableCheckoutItem)?.let { EssentialData(this) == EssentialData(it) } ?: false
@@ -227,13 +261,95 @@ private class ToggleCheckoutItemItemViewHolder(
     }
 }
 
-class ExpandableCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
+class ClickableCheckoutItemDelegate(
+    private val onTooltipClicked: (ActionType) -> Unit
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ClickableCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ClickableCheckoutItemViewHolder(
+            ItemCheckoutClickableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ClickableCheckoutItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ClickableCheckoutItem,
+        onTooltipClicked
+    )
+}
+
+private class ClickableCheckoutItemViewHolder(
+    val binding: ItemCheckoutClickableInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ClickableCheckoutItem,
+        onTooltipClicked: (ActionType) -> Unit
+    ) {
+        with(binding) {
+            clickableItemTitle.text = item.title
+            clickableItemLabel.text = item.label
+            clickableItemLabel.setOnClickListener {
+                onTooltipClicked(item.actionType)
+            }
+        }
+    }
+}
+
+class ReadMoreDisclaimerCheckoutItemDelegate(
+    private val onCtaClicked: (ActionType) -> Unit
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ReadMoreCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ReadMoreDisclaimerCheckoutItemViewHolder(
+            ItemCheckoutCtaInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ReadMoreDisclaimerCheckoutItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
+        onCtaClicked
+    )
+}
+
+private class ReadMoreDisclaimerCheckoutItemViewHolder(
+    val binding: ItemCheckoutCtaInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
+        onCtaClicked: (ActionType) -> Unit
+    ) {
+        with(binding) {
+            infoText.text = item.text
+            ctaButton.apply {
+                text = item.cta
+                onClick = { onCtaClicked(item.actionType) }
+            }
+        }
+    }
+}
+
+class ExpandableCheckoutItemDelegate(
+    private val onTooltipClicked: (ActionType) -> Unit,
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
         items[position] is SimpleBuyCheckoutItem.ExpandableCheckoutItem
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         ExpandableCheckoutItemViewHolder(
-            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false),
         )
 
     override fun onBindViewHolder(
@@ -241,7 +357,8 @@ class ExpandableCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
         position: Int,
         holder: RecyclerView.ViewHolder,
     ) = (holder as ExpandableCheckoutItemViewHolder).bind(
-        items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem
+        items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem,
+        onTooltipClicked
     )
 }
 
@@ -253,23 +370,13 @@ private class ExpandableCheckoutItemViewHolder(
     init {
         with(binding) {
             expandableItemExpansion.movementMethod = LinkMovementMethod.getInstance()
-            expandableItemLabel.setOnClickListener {
-                isExpanded = !isExpanded
-                expandableItemExpansion.visibleIf { isExpanded }
-                if (isExpanded) {
-                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(R.color.blue_600)
-                    )
-                } else {
-                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(R.color.grey_300)
-                    )
-                }
-            }
         }
     }
 
-    fun bind(item: SimpleBuyCheckoutItem.ExpandableCheckoutItem) {
+    fun bind(
+        item: SimpleBuyCheckoutItem.ExpandableCheckoutItem,
+        onTooltipClicked: (ActionType) -> Unit,
+    ) {
         with(binding) {
             expandableItemLabel.text = item.label
             expandableItemTitle.text = item.title
@@ -288,6 +395,20 @@ private class ExpandableCheckoutItemViewHolder(
                     ContextCompat.getColor(expandableItemTitle.context, R.color.grey_800)
                 )
             }
+            expandableItemLabel.setOnClickListener {
+                onTooltipClicked(item.actionType)
+                isExpanded = !isExpanded
+                expandableItemExpansion.visibleIf { isExpanded }
+                if (isExpanded) {
+                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
+                        expandableItemTitle.context.getResolvedColor(R.color.blue_600)
+                    )
+                } else {
+                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
+                        expandableItemTitle.context.getResolvedColor(R.color.grey_300)
+                    )
+                }
+            }
         }
     }
 
@@ -305,28 +426,28 @@ private class ExpandableCheckoutItemViewHolder(
             ConstraintSet.START,
             ConstraintSet.PARENT_ID,
             ConstraintSet.START,
-            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.standard_spacing)
         )
         constraintSet.connect(
             view.id,
             ConstraintSet.END,
             ConstraintSet.PARENT_ID,
             ConstraintSet.END,
-            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.standard_spacing)
         )
         constraintSet.connect(
             view.id,
             ConstraintSet.TOP,
             binding.expandableItemTitle.id,
             ConstraintSet.BOTTOM,
-            view.resources.getDimensionPixelOffset(R.dimen.tiny_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.tiny_spacing)
         )
         constraintSet.connect(
             binding.expandableItemExpansion.id,
             ConstraintSet.TOP,
             view.id,
             ConstraintSet.BOTTOM,
-            view.resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
         )
         constraintSet.applyTo(binding.root)
     }

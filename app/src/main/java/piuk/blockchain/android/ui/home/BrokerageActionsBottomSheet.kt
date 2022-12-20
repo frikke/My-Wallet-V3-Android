@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.home
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.analytics.events.LaunchOrigin
@@ -7,7 +8,9 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.Alignment
-import com.blockchain.koin.scopedInject
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
@@ -16,7 +19,6 @@ import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.FlowToLaunch
 import piuk.blockchain.android.ui.home.models.SplitButtonCtaOrdering
-import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
     fun launchSwapScreen()
@@ -24,7 +26,7 @@ interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
     fun launchBuyForDefi()
     fun launchSell()
     fun launchInterestDashboard(origin: LaunchOrigin)
-    fun launchReceive()
+    fun launchReceive(cryptoTicker: String?)
     fun launchSend()
     fun launchTooManyPendingBuys(maxTransactions: Int)
 }
@@ -43,6 +45,10 @@ class BrokerageActionsBottomSheet :
         )
     }
 
+    private val isEarnEnabled by lazy {
+        arguments?.getBoolean(EARN_ENABLED_ARG, false) ?: false
+    }
+
     override fun initControls(binding: BottomSheetRedesignActionsBinding) {
         analytics.logEvent(WalletClientAnalytics.WalletFABViewed)
         with(binding) {
@@ -55,7 +61,7 @@ class BrokerageActionsBottomSheet :
                     analytics.logEvent(
                         BuySellClicked(
                             origin = LaunchOrigin.FAB,
-                            type = BuySellFragment.BuySellViewType.TYPE_BUY
+                            type = BuySellViewType.TYPE_BUY
                         )
                     )
                     model.process(ActionsSheetIntent.CheckForPendingBuys)
@@ -65,7 +71,7 @@ class BrokerageActionsBottomSheet :
                     analytics.logEvent(
                         BuySellClicked(
                             origin = LaunchOrigin.FAB,
-                            type = BuySellFragment.BuySellViewType.TYPE_SELL
+                            type = BuySellViewType.TYPE_SELL
                         )
                     )
                     dismiss()
@@ -105,7 +111,7 @@ class BrokerageActionsBottomSheet :
                 secondaryText = context.getString(R.string.action_sheet_receive_description)
                 onClick = {
                     dismiss()
-                    host.launchReceive()
+                    host.launchReceive(cryptoTicker = null)
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_receive,
@@ -114,7 +120,9 @@ class BrokerageActionsBottomSheet :
                     contentDescription = null
                 )
             }
+
             rewardsBtn.apply {
+                visibleIf { !isEarnEnabled }
                 primaryText = getString(R.string.common_rewards)
                 secondaryText = context.getString(R.string.action_sheet_rewards_description)
                 onClick = {
@@ -166,6 +174,11 @@ class BrokerageActionsBottomSheet :
     override fun getTheme() = R.style.RedesignBottomSheetDialog
 
     companion object {
-        fun newInstance() = BrokerageActionsBottomSheet()
+        private const val EARN_ENABLED_ARG = "EARN_ENABLED_ARG"
+        fun newInstance(isEarnOnNavBarEnabled: Boolean) = BrokerageActionsBottomSheet().apply {
+            arguments = Bundle().apply {
+                putBoolean(EARN_ENABLED_ARG, isEarnOnNavBarEnabled)
+            }
+        }
     }
 }

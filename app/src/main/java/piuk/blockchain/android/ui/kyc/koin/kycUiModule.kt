@@ -2,14 +2,13 @@
 
 package piuk.blockchain.android.ui.kyc.koin
 
-import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
-import piuk.blockchain.android.ui.kyc.address.KycOldHomeAddressPresenter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsInteractor
@@ -17,14 +16,14 @@ import piuk.blockchain.android.ui.kyc.limits.KycLimitsModel
 import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostPresenter
-import piuk.blockchain.android.ui.kyc.profile.KycProfilePresenter
+import piuk.blockchain.android.ui.kyc.profile.KycProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.TiersReentryDecision
 import piuk.blockchain.android.ui.kyc.status.KycStatusPresenter
 import piuk.blockchain.android.ui.kyc.tiersplash.KycTierSplashPresenter
-import piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashPresenter
+import piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashModel
 
 val kycUiModule = module {
 
@@ -32,8 +31,8 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
+                custodialWalletManager = get(),
                 dataRemediationService = get(),
-                loqateFeatureFlag = get(loqateFeatureFlag),
             )
         }.bind(ReentryDecision::class)
 
@@ -58,32 +57,17 @@ val kycUiModule = module {
             )
         }
 
-        factory {
-            KycProfilePresenter(
-                nabuToken = get(),
+        viewModel {
+            KycProfileModel(
+                analytics = get(),
                 nabuDataManager = get(),
                 userService = get(),
-                stringUtils = get(),
+                getUserStore = get(),
             )
         }
 
         factory {
             KycHomeAddressPresenter(
-                nabuToken = get(),
-                nabuDataManager = get(),
-                eligibilityService = get(),
-                userService = get(),
-                nabuUserSync = get(),
-                custodialWalletManager = get(),
-                kycNextStepDecision = get(),
-                analytics = get(),
-                kycTiersStore = get(),
-            )
-        }
-
-        factory {
-            KycOldHomeAddressPresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 eligibilityService = get(),
                 userService = get(),
@@ -110,19 +94,19 @@ val kycUiModule = module {
             )
         }
 
-        factory {
-            VeriffSplashPresenter(
-                nabuToken = get(),
+        viewModel {
+            VeriffSplashModel(
+                userService = get(),
+                custodialWalletManager = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),
-                prefs = get()
+                sessionPrefs = get(),
             )
         }
 
         factory {
             KycStatusPresenter(
-                nabuToken = get(),
                 kycStatusHelper = get(),
                 notificationTokenManager = get()
             )
@@ -130,7 +114,6 @@ val kycUiModule = module {
 
         factory {
             KycNavHostPresenter(
-                nabuToken = get(),
                 userService = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),

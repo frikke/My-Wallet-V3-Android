@@ -18,6 +18,8 @@ data class CryptoValue(
 
     override val symbol = currency.displayTicker
 
+    override fun isDust(): Boolean = false
+
     override fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean) = formatWithUnit(
         locale = Locale.getDefault(),
         includeDecimalsWhenWhole = includeDecimalsWhenWhole
@@ -69,7 +71,7 @@ data class CryptoValue(
 
     override fun toZero(): CryptoValue = zero(currency)
 
-    fun abs(): CryptoValue = CryptoValue(currency, amount.abs())
+    override fun abs(): CryptoValue = CryptoValue(currency, amount.abs())
 
     override fun add(other: Money): CryptoValue {
         require(other is CryptoValue)
@@ -89,6 +91,10 @@ data class CryptoValue(
     override fun division(other: Money): Money {
         require(other is CryptoValue)
         return CryptoValue(currency, amount / other.amount)
+    }
+
+    override fun multiply(multiplier: Float): Money {
+        return fromMinor(currency, amount.toBigDecimal() * multiplier.toBigDecimal())
     }
 
     override fun ensureComparable(operation: String, other: Money) {

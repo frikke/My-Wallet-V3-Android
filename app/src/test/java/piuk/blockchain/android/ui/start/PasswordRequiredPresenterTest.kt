@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.any
@@ -13,8 +15,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class PasswordRequiredPresenterTest : RxTest() {
 

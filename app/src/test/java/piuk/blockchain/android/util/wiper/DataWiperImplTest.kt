@@ -1,6 +1,9 @@
 package piuk.blockchain.android.util.wiper
 
+import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -13,8 +16,6 @@ import org.junit.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 
 class DataWiperImplTest {
 
@@ -26,6 +27,7 @@ class DataWiperImplTest {
     private val assetActivityRepository: AssetActivityRepository = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val payloadScopeWiper: PayloadScopeWiper = mock()
+    private val sessionInfo: SessionInfo = mock()
     private val remoteLogger: RemoteLogger = mock()
 
     private lateinit var subject: DataWiper
@@ -41,6 +43,7 @@ class DataWiperImplTest {
             assetActivityRepository,
             walletPrefs,
             payloadScopeWiper,
+            sessionInfo,
             remoteLogger
         )
     }
@@ -59,6 +62,7 @@ class DataWiperImplTest {
         verify(walletConnectServiceAPI).clear()
         verify(walletOptionsState).wipe()
         verify(payloadScopeWiper).wipe()
+        verify(sessionInfo).clearUserId()
         assertFalse(walletPrefs.isAppUnlocked)
     }
 }

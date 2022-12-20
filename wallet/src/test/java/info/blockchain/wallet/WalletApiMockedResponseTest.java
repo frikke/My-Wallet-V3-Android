@@ -3,10 +3,12 @@ package info.blockchain.wallet;
 import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.bitcoin.data.MultiAddress;
+import com.blockchain.domain.session.SessionIdService;
 
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.WalletExplorerEndpoints;
 import info.blockchain.wallet.util.LoaderUtilKt;
+import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -26,25 +28,14 @@ import static org.mockito.Mockito.when;
 
 public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
 
-    protected WalletApi walletApi;
 
     private ApiCode api = mock(ApiCode.class);
+    private SessionIdService sessionIdService = mock(SessionIdService.class);
+
 
     @Before
     public void setWalletApiAccess() {
-        walletApi = spy(new WalletApi(
-            getRetrofit(
-                "https://explorer.staging.blockchain.info/",
-                newOkHttpClient()
-            ).create(WalletExplorerEndpoints.class),
-            api,
-            ""
-        ));
-    }
-
-    @After
-    public void clearWalletApiAccess() {
-        walletApi = null;
+        when(sessionIdService.sessionId()).thenReturn(Single.just(""));
     }
 
     @SuppressWarnings("unchecked")

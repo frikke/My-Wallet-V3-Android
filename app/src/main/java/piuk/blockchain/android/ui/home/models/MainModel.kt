@@ -6,9 +6,11 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -20,16 +22,18 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.coroutines.rx3.asObservable
 import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
@@ -41,9 +45,7 @@ import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
 class MainModel(
@@ -51,9 +53,8 @@ class MainModel(
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger,
+    remoteLogger: RemoteLogger
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
@@ -69,7 +70,7 @@ class MainModel(
         compositeDisposable += walletConnectServiceAPI.sessionEvents.subscribeBy { sessionEvent ->
             when (sessionEvent) {
                 is WalletConnectSessionEvent.ReadyForApproval -> process(
-                    MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproval(sessionEvent.session))
+                    MainIntent.GetNetworkInfoForWCSession(sessionEvent.session)
                 )
                 is WalletConnectSessionEvent.DidConnect -> process(
                     MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproved(sessionEvent.session))
@@ -85,14 +86,22 @@ class MainModel(
         }
     }
 
-    private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
+    private fun updateTabs(
+        walletMode: WalletMode,
+        currentTab: NavigationItem,
+        earnOnNavBarEnabled: Boolean
+    ): MainIntent {
         val tabs = when (walletMode) {
             WalletMode.UNIVERSAL,
             WalletMode.CUSTODIAL_ONLY ->
                 listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
-                    NavigationItem.BuyAndSell,
+                    if (earnOnNavBarEnabled) {
+                        NavigationItem.Earn
+                    } else {
+                        NavigationItem.BuyAndSell
+                    },
                     NavigationItem.Activity
                 )
             WalletMode.NON_CUSTODIAL_ONLY -> {
@@ -112,11 +121,13 @@ class MainModel(
 
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
-            MainIntent.NavigationTabs -> walletModeService.walletMode.asObservable().subscribeBy {
-                process(MainIntent.RefreshTabs(it))
-            }
-            is MainIntent.RefreshTabs -> {
-                process(updateTabs(intent.walletMode, previousState.currentTab))
+            MainIntent.RefreshTabs -> interactor.getEnabledWalletMode()
+                .subscribeBy { walletMode ->
+                    process(MainIntent.UpdateNavigationTabs(walletMode))
+                }
+
+            is MainIntent.UpdateNavigationTabs -> {
+                process(updateTabs(intent.walletMode, previousState.currentTab, previousState.isEarnOnNavEnabled))
                 null
             }
             is MainIntent.PerformInitialChecks -> {
@@ -241,18 +252,120 @@ class MainModel(
                     }
                 )
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
-            is MainIntent.SwitchWalletMode -> {
-                walletModeService.updateEnabledWalletMode(intent.walletMode)
-                null
-            }
+            is MainIntent.SwitchWalletMode -> interactor.updateWalletMode(intent.walletMode).emptySubscribe()
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
+            is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
+            is MainIntent.LoadFeatureFlags ->
+                Singles.zip(
+                    interactor.isStakingEnabled(),
+                    interactor.isEarnOnNavBarEnabled()
+                ).subscribeBy(
+                    onSuccess = { (stakingEnabled, earnEnabled) ->
+                        process(MainIntent.UpdateFlags(stakingEnabled, earnEnabled))
+                    },
+                    onError = {
+                        process(MainIntent.UpdateFlags(isStakingEnabled = false, isEarnEnabled = false))
+                    }
+                )
+            is MainIntent.LaunchTransactionFlowFromDeepLink ->
+                // the interest deposit flow requires that there are defined source and target accounts before launch
+                if (intent.action == AssetAction.InterestDeposit) {
+                    Singles.zip(
+                        interactor.selectAccountForTxFlow(intent.networkTicker, intent.action),
+                        interactor.selectRewardsAccountForAsset(intent.networkTicker)
+                    ).map { (sourceAccount, targetAccount) ->
+                        require(sourceAccount is LaunchFlowForAccount.SourceAccount)
+                        require(targetAccount is LaunchFlowForAccount.SourceAccount)
+
+                        LaunchFlowForAccount.SourceAndTargetAccount(
+                            sourceAccount = sourceAccount.source,
+                            targetAccount = targetAccount.source as TransactionTarget
+                        )
+                    }
+                } else {
+                    interactor.selectAccountForTxFlow(intent.networkTicker, intent.action)
+                }
+                    .subscribeBy(
+                        onSuccess = { account ->
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(account, intent.action)
+                                )
+                            )
+                        },
+                        onError = {
+                            Timber.e(
+                                "Error getting default account for TxFlow ${intent.action} deeplink ${it.message}"
+                            )
+
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                        LaunchFlowForAccount.NoAccount, intent.action
+                                    )
+                                )
+                            )
+                        }
+                    )
+            is MainIntent.SelectRewardsAccountForAsset ->
+                interactor.selectRewardsAccountForAsset(intent.cryptoTicker)
+                    .subscribeBy(
+                        onSuccess = { account ->
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchRewardsSummaryFromDeepLink(account)
+                                )
+                            )
+                        },
+                        onError = {
+                            Timber.e(
+                                "Error getting default account for Rewards Summary ${it.message}"
+                            )
+
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchRewardsSummaryFromDeepLink(LaunchFlowForAccount.NoAccount)
+                                )
+                            )
+                        }
+                    )
+            is MainIntent.SelectStakingAccountForAction -> interactor.selectStakingAccountForCurrency(intent.currency)
+                .subscribeBy(
+                    onSuccess = { account ->
+                        when (val action = intent.assetAction) {
+                            AssetAction.StakingDeposit -> process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
+                                        LaunchFlowForAccount.TargetAccount(account as TransactionTarget), action
+                                    )
+                                )
+                            )
+                            AssetAction.ViewActivity ->
+                                process(
+                                    MainIntent.UpdateViewToLaunch(ViewToLaunch.GoToActivityForAccount(account))
+                                )
+
+                            else -> {
+                                // do nothing
+                            }
+                        }
+                    },
+                    onError = {
+                        Timber.e("Error getting default account for Staking ${it.message}")
+                    }
+                )
+            is MainIntent.UpdateFlags -> {
+                process(MainIntent.RefreshTabs)
+                null
+            }
             MainIntent.ResetViewState,
-            is MainIntent.UpdateViewToLaunch -> null
-            is MainIntent.UpdateDeepLinkResult -> null
-            is MainIntent.ReferralCodeIntent -> null
-            is MainIntent.ShowReferralWhenAvailable -> null
-            is MainIntent.UpdateCurrentTab -> null
+            is MainIntent.SelectNetworkForWCSession,
+            is MainIntent.UpdateViewToLaunch,
+            is MainIntent.UpdateDeepLinkResult,
+            is MainIntent.ReferralCodeIntent,
+            is MainIntent.ShowReferralWhenAvailable,
+            is MainIntent.UpdateCurrentTab,
             is MainIntent.UpdateTabs -> null
         }
 
@@ -299,7 +412,7 @@ class MainModel(
             is BlockchainLinkState.Sell -> process(
                 MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
-                        BuySellFragment.BuySellViewType.TYPE_SELL,
+                        BuySellViewType.TYPE_SELL,
                         interactor.getAssetFromTicker(link.ticker)
                     )
                 )
@@ -310,7 +423,7 @@ class MainModel(
             is BlockchainLinkState.Buy -> process(
                 MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
-                        BuySellFragment.BuySellViewType.TYPE_BUY,
+                        BuySellViewType.TYPE_BUY,
                         interactor.getAssetFromTicker(link.ticker)
                     )
                 )
@@ -579,6 +692,45 @@ class MainModel(
                 )
         }
     }
+
+    private fun getNetworkInfoForWCSession(session: WalletConnectSession) =
+        interactor.getSupportedEvmNetworks().subscribeBy(
+            onError = {
+                Timber.e(it)
+                process(
+                    MainIntent.UpdateViewToLaunch(
+                        ViewToLaunch.LaunchWalletConnectSessionApproval(
+                            session
+                        )
+                    )
+                )
+            },
+            onSuccess = { networks ->
+                val network = networks.find { it.chainId == session.dAppInfo.chainId }
+                network?.let {
+                    val networkInfo = NetworkInfo(
+                        networkTicker = network.networkTicker,
+                        name = network.networkName,
+                        chainId = network.chainId,
+                        logo = interactor.getAssetFromTicker(network.networkTicker)?.logo
+                    )
+                    process(
+                        MainIntent.UpdateViewToLaunch(
+                            ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork(
+                                session,
+                                networkInfo
+                            )
+                        )
+                    )
+                } ?: process(
+                    MainIntent.UpdateViewToLaunch(
+                        ViewToLaunch.LaunchWalletConnectSessionApproval(
+                            session
+                        )
+                    )
+                )
+            }
+        )
 
     private fun handleOrderState(state: SimpleBuyState) {
         if (state.orderState == OrderState.AWAITING_FUNDS) {

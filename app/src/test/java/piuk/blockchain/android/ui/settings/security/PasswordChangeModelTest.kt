@@ -10,12 +10,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeError
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeIntent
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeModel
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeState
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordViewState
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeError
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeIntent
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeInteractor
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeModel
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeState
+import piuk.blockchain.android.ui.settings.security.password.PasswordViewState
 
 class PasswordChangeModelTest {
 

@@ -1,11 +1,13 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BasicProfileInfo
@@ -15,17 +17,19 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.store.asSingle
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.zipSingles
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
+import kotlinx.coroutines.rx3.asObservable
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
     private val interestService: InterestService,
-    private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
+    private val simpleBuyService: SimpleBuyService,
     private val kycService: KycService,
     private val userService: UserService,
     private val eligibilityService: EligibilityService,
@@ -36,7 +40,7 @@ class NabuUserIdentity(
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isInitialisedFor(feature.tier).not()
             }
-            is Feature.Interest -> interestService.getEligibilityForAssets()
+            is Feature.Interest -> interestService.getEligibilityForAssetsLegacy()
                 .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
             Feature.Buy,
@@ -45,6 +49,7 @@ class NabuUserIdentity(
             Feature.DepositCrypto,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.DepositStaking,
             Feature.WithdrawFiat -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
         }
     }
@@ -63,6 +68,7 @@ class NabuUserIdentity(
             Feature.Swap,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.DepositStaking,
             Feature.Sell,
             Feature.WithdrawFiat -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
@@ -105,8 +111,8 @@ class NabuUserIdentity(
         return when (feature) {
             Feature.Buy ->
                 Single.zip(
-                    rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
-                    simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
+                    rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY) },
+                    simpleBuyService.getEligibility().asSingle()
                 ) { buyEligibility, sbEligibility ->
                     val buyFeatureAccess = buyEligibility.toFeatureAccess()
 
@@ -122,22 +128,25 @@ class NabuUserIdentity(
                     }
                 }
             Feature.Swap ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Sell ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SELL) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositCrypto ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositInterest ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.WithdrawFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.DepositStaking ->
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_STAKING) }
                     .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
@@ -168,6 +177,14 @@ class NabuUserIdentity(
             user.isCowboysUser
         }
 
+    override fun isSSO(): Single<Boolean> =
+        userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))
+            .asObservable()
+            .firstOrError()
+            .map { user ->
+                user.isSSO
+            }
+
     private companion object {
         private const val COUNTRY_CODE_ARGENTINA = "AR"
     }
@@ -185,8 +202,10 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
                 BlockedReason.InsufficientTier.Tier2Required
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
                 BlockedReason.InsufficientTier.Unknown(reason.message)
-            ProductNotEligibleReason.Sanctions.RussiaEU5 ->
-                BlockedReason.Sanctions.RussiaEU5
+            is ProductNotEligibleReason.Sanctions.RussiaEU5 ->
+                BlockedReason.Sanctions.RussiaEU5(reason.message)
+            is ProductNotEligibleReason.Sanctions.RussiaEU8 ->
+                BlockedReason.Sanctions.RussiaEU8(reason.message)
             is ProductNotEligibleReason.Sanctions.Unknown ->
                 BlockedReason.Sanctions.Unknown(reason.message)
             is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible(reason.message)

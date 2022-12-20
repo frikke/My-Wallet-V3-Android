@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.CardType
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
@@ -12,7 +13,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
-import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,15 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.settings.v2.BankItem
-import piuk.blockchain.android.ui.settings.v2.PaymentMethods
-import piuk.blockchain.android.ui.settings.v2.SettingsError
-import piuk.blockchain.android.ui.settings.v2.SettingsIntent
-import piuk.blockchain.android.ui.settings.v2.SettingsInteractor
-import piuk.blockchain.android.ui.settings.v2.SettingsModel
-import piuk.blockchain.android.ui.settings.v2.SettingsState
-import piuk.blockchain.android.ui.settings.v2.UserDetails
-import piuk.blockchain.android.ui.settings.v2.ViewToLaunch
 
 class SettingsModelTest {
     private lateinit var model: SettingsModel
@@ -154,7 +145,7 @@ class SettingsModelTest {
                     "",
                     Partner.CARDPROVIDER,
                     Date(),
-                    CardType.AMEX.name,
+                    CardType.AMEX,
                     CardStatus.ACTIVE,
                     MobilePaymentType.GOOGLE_PAY,
                     true

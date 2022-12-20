@@ -50,7 +50,7 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                         ScanBenefit(
                             title = getString(R.string.scan_friends_qr),
                             description = getString(R.string.scan_friends_qr_description),
-                            image = ImageResource.Local(R.drawable.ic_union)
+                            image = ImageResource.Local(R.drawable.ic_region)
                         ),
                         ScanBenefit(
                             title = getString(R.string.web_access),

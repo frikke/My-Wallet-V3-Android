@@ -9,13 +9,12 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.data.DataResource
@@ -39,6 +38,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
@@ -86,30 +86,30 @@ class CoinViewInteractorTest {
     private val defaultNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(true)
         on { label }.thenReturn("default nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val secondNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val archivedNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
         on { isArchived }.thenReturn(true)
     }
     private val custodialAccount: FiatCustodialAccount = mock {
         on { label }.thenReturn("default c account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
-    private val interestAccount: CryptoInterestAccount = mock {
+    private val interestAccount: CustodialInterestAccount = mock {
         on { label }.thenReturn("default i account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val nonCustodialGroup: AccountGroup = mock {
@@ -187,7 +187,7 @@ class CoinViewInteractorTest {
         whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(availableForTrading)
         )
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(supportedForSwap)
         )
     }
@@ -286,7 +286,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has balance, WHEN loadQuickActions is called, THEN Swap(true) Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(true)
         )
 
@@ -313,7 +313,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has zero balance, WHEN loadQuickActions is called, THEN Swap(true) Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(true)
         )
 
@@ -340,7 +340,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has zero balance, no swap, WHEN loadQuickActions is called, THEN None Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(false)
         )
 
@@ -371,6 +371,7 @@ class CoinViewInteractorTest {
             on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDeltaLegacy() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
+            on { stakingRate() }.thenReturn(Single.just(5.0))
         }
         whenever(watchlistDataManager.isAssetInWatchlist(asset.currency)).thenReturn(Single.just(true))
 
@@ -395,7 +396,7 @@ class CoinViewInteractorTest {
         ) {}
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(watchlistDataManager.isAssetInWatchlist(testAsset)).thenReturn(Single.just(true))
-
+        whenever(asset.stakingRate()).thenReturn(Single.just(0.0))
         val test = subject.loadAccountDetails(asset).test()
 
         test.assertValue {
@@ -413,7 +414,7 @@ class CoinViewInteractorTest {
                 it.accountsList[0].account.label == "default nc account" &&
                 it.accountsList[1].account is FiatCustodialAccount &&
                 it.accountsList[1].account.label == "default c account" &&
-                it.accountsList[2].account is CryptoInterestAccount &&
+                it.accountsList[2].account is CustodialInterestAccount &&
                 it.accountsList[2].account.label == "default i account" &&
                 it.accountsList[3].account is CryptoNonCustodialAccount &&
                 it.accountsList[3].account.label == "second nc account" &&
@@ -475,10 +476,10 @@ class CoinViewInteractorTest {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isRewardsIntroSeen).thenReturn(true)
         whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
-        val account: CryptoInterestAccount = mock {
+        val account: CustodialInterestAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -496,7 +497,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -515,7 +516,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -533,7 +534,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -551,7 +552,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()

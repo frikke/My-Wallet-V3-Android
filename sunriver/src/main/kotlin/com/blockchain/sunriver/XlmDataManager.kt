@@ -12,21 +12,30 @@ import com.blockchain.sunriver.models.XlmTransaction
 import com.blockchain.utils.toHex
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.lang.IllegalStateException
 import org.stellar.sdk.KeyPair
 
 data class XlmAccountReference(
     val label: String,
+    /**
+     * address
+     */
     val accountId: String,
+    /**
+     * pubkey
+     */
+    val pubKey: String?,
 )
 
 data class BalanceAndMin(
-    val balance: CryptoValue,
-    val minimumBalance: CryptoValue,
+    val balance: Money,
+    val minimumBalance: Money,
 )
 
 class XlmDataManager internal constructor(
@@ -41,6 +50,11 @@ class XlmDataManager internal constructor(
     xlmHorizonUrlFetcher: XlmHorizonUrlFetcher,
     xlmHorizonDefUrl: String,
 ) {
+    val publicKey: Single<String>
+        get() = defaultAccount().map { account ->
+            account.pubKey ?: throw IllegalStateException("Missing public key")
+        }
+
     private val xlmProxyUrl = xlmHorizonUrlFetcher
         .xlmHorizonUrl(xlmHorizonDefUrl)
         .doOnSuccess {
@@ -161,7 +175,7 @@ class XlmDataManager internal constructor(
         defaultXlmAccount()
             .map(XlmAccount::toReference)
 
-    fun defaultAccountReference(): Single<XlmAccountReference> = defaultAccount().map { it }
+    fun defaultAccountReference(): Single<XlmAccountReference> = defaultAccount()
 
     fun maybeDefaultAccount(): Maybe<XlmAccountReference> =
         maybeDefaultXlmAccount().map(XlmAccount::toReference)
@@ -235,7 +249,7 @@ private val SendDetails.fromXlm
 class XlmSendException(message: String) : RuntimeException(message)
 
 private fun XlmAccount.toReference() =
-    XlmAccountReference(label ?: "", publicKey)
+    XlmAccountReference(label = label ?: "", accountId = publicKey, pubKey = pubKey)
 
 class SendException(
     result: SendFundsResult,

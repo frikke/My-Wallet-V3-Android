@@ -71,7 +71,7 @@ class ExpandedAccountViewHolder(
             icon.updateIcon(expandedItem.account)
             walletName.text = expandedItem.account.label
             root.setOnClickListener { expandedItem.onAccountClicked(expandedItem.account) }
-            compositeDisposable += expandedItem.account.balance
+            compositeDisposable += expandedItem.account.balanceRx
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy { accountBalance ->
                     walletBalance.text = accountBalance.total.toStringWithSymbol()

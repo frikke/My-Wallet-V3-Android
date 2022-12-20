@@ -26,8 +26,8 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -38,6 +38,9 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -56,14 +59,12 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
-import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
-import piuk.blockchain.android.util.openUrl
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import retrofit2.HttpException
 
 class SwapFragment :
@@ -181,14 +182,12 @@ class SwapFragment :
                 coincore.walletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap)
-            ) {
-                tiers: KycTiers,
+            ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility,
-                ->
+                eligibility ->
                 SwapComposite(
                     tiers,
                     pairs,
@@ -226,7 +225,9 @@ class SwapFragment :
                                     is BlockedReason.NotEligible -> showBlockedDueToNotEligible(reason)
                                     is BlockedReason.InsufficientTier -> showKycUpgradeNow()
                                     is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
-                                    is BlockedReason.TooManyInFlightTransactions -> { // noop
+                                    is BlockedReason.TooManyInFlightTransactions,
+                                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
+                                        // noop
                                     }
                                 }.exhaustive
                             } else if (!composite.tiers.isInitialisedFor(KycTier.GOLD)) {
@@ -288,16 +289,21 @@ class SwapFragment :
     }
 
     private fun showBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        val action = {
+            when (reason) {
+                is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                is BlockedReason.Sanctions.RussiaEU8 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU8)
+                is BlockedReason.Sanctions.Unknown -> {}
+            }
+        }
+
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
             title = R.string.account_restricted
-            descriptionText = when (reason) {
-                BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
-                is BlockedReason.Sanctions.Unknown -> reason.message
-            }
+            descriptionText = reason.message
             icon = R.drawable.ic_wallet_intro_image
             ctaText = R.string.common_learn_more
-            ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+            ctaAction = action
             visible()
         }
     }
@@ -399,33 +405,48 @@ class SwapFragment :
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapViewFlipper.visible()
-        binding.swapError.gone()
-        binding.swapCta.visible()
-        binding.swapCta.isEnabled = hasAtLeastOneAccountToSwapFrom
-        binding.swapTrending.visibleIf { !hasPendingOrder }
-        binding.pendingSwaps.container.visibleIf { hasPendingOrder }
-        binding.pendingSwaps.pendingList.apply {
-            adapter =
-                PendingSwapsAdapter(
-                    pendingOrders
-                ) { money: Money ->
-                    money.toUserFiat(exchangeRateDataManager)
+
+        with(binding) {
+            swapViewFlipper.visible()
+            swapError.gone()
+            swapTrending.visibleIf { !hasPendingOrder }
+
+            with(swapCta) {
+                visible()
+                isEnabled = hasAtLeastOneAccountToSwapFrom
+            }
+
+            with(pendingSwaps) {
+                container.visibleIf { hasPendingOrder }
+                pendingList.apply {
+                    adapter =
+                        PendingSwapsAdapter(
+                            pendingOrders
+                        ) { money: Money ->
+                            money.toUserFiat(exchangeRateDataManager)
+                        }
+                    layoutManager = LinearLayoutManager(activity)
                 }
-            layoutManager = LinearLayoutManager(activity)
+            }
         }
     }
 
     private fun showLoading() {
-        binding.progress.visible()
-        binding.progress.playAnimation()
-        binding.swapViewFlipper.gone()
-        binding.swapError.gone()
+        with(binding) {
+            with(progress) {
+                visible()
+                playAnimation()
+            }
+            swapViewFlipper.gone()
+            swapError.gone()
+        }
     }
 
     private fun hideLoading() {
-        binding.progress.gone()
-        binding.progress.pauseAnimation()
+        with(binding.progress) {
+            gone()
+            pauseAnimation()
+        }
     }
 
     companion object {
@@ -434,8 +455,7 @@ class SwapFragment :
         private const val SWAP_NO_ACCOUNTS = 1
         private const val KYC_VIEW = 2
         private const val TAG = "BOTTOM_SHEET"
-        fun newInstance(): SwapFragment =
-            SwapFragment()
+        fun newInstance(): SwapFragment = SwapFragment()
     }
 
     private data class SwapComposite(

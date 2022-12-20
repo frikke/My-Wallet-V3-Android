@@ -1,11 +1,13 @@
 package com.blockchain.logging.data
 
 import android.content.Context
-import com.blockchain.logging.BuildConfig
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import io.embrace.android.embracesdk.Embrace
 
-class EmbraceRemoteLogger : RemoteLogger {
+class EmbraceRemoteLogger(
+    private val environmentConfig: EnvironmentConfig
+) : RemoteLogger {
 
     private val embrace
         get() = Embrace.getInstance()
@@ -13,7 +15,7 @@ class EmbraceRemoteLogger : RemoteLogger {
     private var context: Context? = null
 
     override val isDebugBuild: Boolean
-        get() = BuildConfig.DEBUG
+        get() = environmentConfig.isRunningInDebugMode()
 
     override fun init(context: Any) {
         if (context is Context) {
@@ -21,6 +23,12 @@ class EmbraceRemoteLogger : RemoteLogger {
             checkEmbrace()
         } else {
             throw IllegalStateException("Unable to init Embrace. No context provided.")
+        }
+    }
+
+    override fun logUserId(userId: String) {
+        checkEmbrace {
+            embrace.setUserIdentifier(userId)
         }
     }
 

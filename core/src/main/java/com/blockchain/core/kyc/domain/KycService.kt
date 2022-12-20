@@ -52,5 +52,5 @@ interface KycService {
 
     fun getHighestApprovedTierLevel(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<KycTier>
+    ): Flow<DataResource<KycTier>>
 }

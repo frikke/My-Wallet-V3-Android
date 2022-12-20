@@ -69,7 +69,7 @@ fun CardAlert(
     }
 
     var boxModifier = Modifier
-        .padding(dimensionResource(R.dimen.smallest_margin))
+        .padding(dimensionResource(R.dimen.smallest_spacing))
         .defaultMinSize(minWidth = 340.dp)
         .background(color = AppTheme.colors.light, shape = AppTheme.shapes.small)
 
@@ -82,7 +82,7 @@ fun CardAlert(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_margin))
+                .padding(dimensionResource(R.dimen.small_spacing))
                 .background(AppTheme.colors.light)
                 .clip(AppTheme.shapes.small)
 
@@ -91,31 +91,38 @@ fun CardAlert(
                 modifier = Modifier.background(AppTheme.colors.light)
             ) {
                 Row {
-                    Text(
-                        modifier = Modifier
-                            .background(AppTheme.colors.light)
-                            .weight(1f, true),
-                        text = title,
-                        style = AppTheme.typography.body2,
-                        color = typeColor
-                    )
+                    if (title.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier
+                                .background(AppTheme.colors.light)
+                                .weight(1f, true),
+                            text = title,
+                            style = AppTheme.typography.body2,
+                            color = typeColor
+                        )
+                    }
                     if (isDismissable) {
                         CardCloseButton(onClick = onClose)
                     }
                 }
-                Text(
-                    modifier = Modifier
-                        .background(AppTheme.colors.light)
-                        .padding(top = dimensionResource(id = R.dimen.tiny_margin)),
-                    text = subtitle,
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.title
-                )
+
+                if (subtitle.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier
+                            .background(AppTheme.colors.light)
+                            .padding(
+                                top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
+                            ),
+                        text = subtitle,
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.title
+                    )
+                }
 
                 if (primaryCta != null) {
                     Row(
                         modifier = Modifier
-                            .padding(top = dimensionResource(id = R.dimen.small_margin))
+                            .padding(top = dimensionResource(id = R.dimen.small_spacing))
                     ) {
                         SmallSecondaryButton(
                             text = primaryCta.text,
@@ -126,7 +133,7 @@ fun CardAlert(
                         if (secondaryCta != null) {
                             Spacer(
                                 modifier = Modifier.size(
-                                    size = dimensionResource(id = R.dimen.tiny_margin)
+                                    size = dimensionResource(id = R.dimen.tiny_spacing)
                                 )
                             )
 
@@ -160,7 +167,7 @@ fun CardCloseButton(
             .clickable {
                 onClick.invoke()
             }
-            .size(dimensionResource(R.dimen.standard_margin))
+            .size(dimensionResource(R.dimen.standard_spacing))
             .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(
@@ -226,6 +233,25 @@ fun SuccessCardAlert_TwoButtons() {
                     text = "Secondary button",
                     onClick = {}
                 )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SuccessCardAlert_NoTitle() {
+    AppTheme {
+        AppSurface {
+            CardAlert(
+                title = "",
+                subtitle = "Subtitle",
+                alertType = AlertType.Default,
+                primaryCta = CardButton(
+                    text = "Primary button",
+                    onClick = {}
+                ),
+                isDismissable = false,
             )
         }
     }

@@ -17,8 +17,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -68,7 +68,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 fundsUserFiatBalance.gone()
             }
             disposables += Singles.zip(
-                account.balance.firstOrError().map { it.total }.flatMap { balance ->
+                account.balanceRx.firstOrError().map { it.total }.flatMap { balance ->
                     exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map {
                         it.convert(balance) to balance
                     }

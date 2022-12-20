@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycInvalidCountryBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycInvalidCountryFragment :
     BaseMvpFragment<KycInvalidCountryView, KycInvalidCountryPresenter>(),

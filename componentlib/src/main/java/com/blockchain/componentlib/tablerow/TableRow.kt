@@ -13,8 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import com.blockchain.componentlib.R
+import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -24,7 +23,8 @@ private fun TableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
 
     Column(
@@ -38,7 +38,7 @@ private fun TableRow(
                     this
                 }
             }
-            .background(AppTheme.colors.background)
+            .background(backgroundColor)
             .padding(paddingValues)
     ) {
         Row(
@@ -61,18 +61,17 @@ fun TableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
-        paddingValues = PaddingValues(
-            horizontal = dimensionResource(R.dimen.standard_margin),
-            vertical = dimensionResource(R.dimen.medium_margin)
-        ),
+        paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         content = content,
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
-        onContentClicked = onContentClicked
+        onContentClicked = onContentClicked,
+        backgroundColor = backgroundColor
     )
 }
 
@@ -83,7 +82,8 @@ fun FlexibleTableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
         paddingValues = paddingValues,
@@ -91,6 +91,7 @@ fun FlexibleTableRow(
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
-        onContentClicked = onContentClicked
+        onContentClicked = onContentClicked,
+        backgroundColor = backgroundColor
     )
 }

@@ -22,7 +22,9 @@ class BrokerageQuoteResponse(
     @SerialName("feeDetails")
     val feeDetails: FeeDetailsResponse,
     @SerialName("settlementDetails")
-    val settlementDetails: SettlementDetails?
+    val settlementDetails: SettlementDetails?,
+    @SerialName("depositTerms")
+    val depositTerms: DepositTermsResponse?
 )
 
 @Serializable
@@ -34,6 +36,30 @@ class SettlementDetails(
         val INSTANT = "INSTANT"
         val REGULAR = "REGULAR"
         val UNAVAILABLE = "UNAVAILABLE"
+    }
+}
+
+@Serializable
+class DepositTermsResponse(
+    val creditCurrency: String,
+    val availableToTradeMinutesMin: Int,
+    val availableToTradeMinutesMax: Int,
+    val availableToTradeDisplayMode: String,
+    val availableToWithdrawMinutesMin: Int,
+    val availableToWithdrawMinutesMax: Int,
+    val availableToWithdrawDisplayMode: String,
+    val settlementType: String?,
+    val settlementReason: String?
+) {
+    companion object {
+        val DAYS = "DAYS"
+        val MINUTES = "MINUTES"
+        val MINUTE_RANGE = "MINUTE_RANGE"
+        val DAY_RANGE = "DAY_RANGE"
+        val MAX_DAY = "MAX_DAY"
+        val MAX_MINUTE = "MAX_MINUTE"
+        val IMMEDIATELY = "IMMEDIATELY"
+        val NONE = "NONE"
     }
 }
 

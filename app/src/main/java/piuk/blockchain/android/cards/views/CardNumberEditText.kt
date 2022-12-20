@@ -5,12 +5,12 @@ import android.text.Editable
 import android.util.AttributeSet
 import androidx.core.widget.TextViewCompat
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.utils.unsafeLazy
 import com.braintreepayments.cardform.view.CardEditText
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CardNumberEditText : CardEditText, KoinComponent {
     interface CardNumberListener {

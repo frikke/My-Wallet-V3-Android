@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 interface ManualPairingView : PasswordAuthView
 

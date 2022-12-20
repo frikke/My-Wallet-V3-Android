@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -20,10 +20,10 @@
         style="@style/Text.Semibold.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/small_spacing"
         android:background="@color/white"
-        android:paddingBottom="@dimen/very_small_margin"
+        android:paddingBottom="@dimen/very_small_spacing"
         android:text="@string/payment_methods" />
 
     <com.blockchain.componentlib.divider.HorizontalDividerView

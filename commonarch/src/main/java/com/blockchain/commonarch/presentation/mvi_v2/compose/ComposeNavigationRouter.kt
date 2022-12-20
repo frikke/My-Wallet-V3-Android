@@ -30,13 +30,14 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRouter<TNavEvent> {
     val navController: NavHostController
@@ -102,9 +103,11 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     ModalBottomSheetLayout(
         bottomSheetNavigator = bottomSheetNavigator,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_margin),
-            topStart = dimensionResource(R.dimen.small_margin)
-        )
+            topEnd = dimensionResource(R.dimen.small_spacing),
+            topStart = dimensionResource(R.dimen.small_spacing)
+        ),
+        sheetBackgroundColor = AppTheme.colors.background,
+        scrimColor = AppTheme.colors.overlay
     ) {
         NavHost(
             navigationRouter.navController,
@@ -168,6 +171,21 @@ fun NavGraphBuilder.composable(
             }
         }
     )
+}
+
+fun NavHostController.navigate(destination: ComposeNavigationDestination) {
+    navigate(destination = destination, args = listOf())
+}
+
+fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
+    navigate(destination.routeWithArgs(args))
+}
+
+fun NavHostController.printBackStackToConsole() {
+    Timber.d("NavHostController Backstack:")
+    this.backQueue.forEach {
+        Timber.d("\n\t ${it.destination.route}")
+    }
 }
 
 @ExperimentalMaterialNavigationApi

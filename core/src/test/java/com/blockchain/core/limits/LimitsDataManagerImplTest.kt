@@ -1,6 +1,5 @@
 package com.blockchain.core.limits
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.txlimits.data.ApiMoneyMinor
 import com.blockchain.api.txlimits.data.CurrentLimits
@@ -14,13 +13,10 @@ import com.blockchain.api.txlimits.data.LimitRange
 import com.blockchain.api.txlimits.data.PeriodicLimit
 import com.blockchain.api.txlimits.data.SuggestedUpgrade
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
-import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.USD
-import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -31,6 +27,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -53,18 +50,16 @@ class LimitsDataManagerImplTest {
     private val limitsService: TxLimitsService = mock()
     private val cryptoToFiatRate: ExchangeRate = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock {
-        on { exchangeRate(OUTPUT_CRYPTO_CURRENCY, USD) }.thenReturn(
+        on { exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, USD) }.thenReturn(
             Observable.just(cryptoToFiatRate)
         )
     }
     private val assetCatalogue: AssetCatalogue = mock()
-    private val authenticator: Authenticator = FakeAuthenticator(FakeNabuSessionTokenFactory.any)
 
     private val subject = LimitsDataManagerImpl(
         limitsService = limitsService,
         exchangeRatesDataManager = exchangeRatesDataManager,
         assetCatalogue = assetCatalogue,
-        authenticator = authenticator
     )
 
     @Before
@@ -77,7 +72,7 @@ class LimitsDataManagerImplTest {
 
     @Test
     fun `given crypto output currency should call legacy api and convert it's limits to output currency`() {
-        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any()))
             .thenReturn(Single.just(NO_CROSSBORDER_LIMITS))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
@@ -119,14 +114,14 @@ class LimitsDataManagerImplTest {
             }
 
         legacyLimitsSingle.test().assertComplete()
-        verify(exchangeRatesDataManager).exchangeRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
         verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
         verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
     }
 
     @Test
     fun `given fiat output currency should not convert legacy api limits`() {
-        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any()))
             .thenReturn(Single.just(NO_CROSSBORDER_LIMITS))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
@@ -162,7 +157,7 @@ class LimitsDataManagerImplTest {
             OUTPUT_CRYPTO_CURRENCY,
             AVAILABLE_LIMIT.toBigInteger()
         )
-        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any()))
             .thenReturn(Single.just(crossborderLimitsResponse))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
@@ -242,7 +237,6 @@ class LimitsDataManagerImplTest {
 
         legacyLimitsSingle.test().assertComplete()
         verify(limitsService).getCrossborderLimits(
-            authHeader = FakeNabuSessionTokenFactory.any.authHeader,
             outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             targetCurrency = "ETH",
@@ -250,7 +244,7 @@ class LimitsDataManagerImplTest {
             targetAccountType = AssetCategory.CUSTODIAL.name
         )
         verify(assetCatalogue, atLeastOnce()).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
-        verify(exchangeRatesDataManager).exchangeRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
         verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
         verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
     }
@@ -260,7 +254,7 @@ class LimitsDataManagerImplTest {
         val crossborderLimitsResponse = createFakeCrossborderLimits(OUTPUT_FIAT_CURRENCY.networkTicker)
         val crossborderMaxLimit =
             FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, AVAILABLE_LIMIT.toBigInteger())
-        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any()))
             .thenReturn(Single.just(crossborderLimitsResponse))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
@@ -287,7 +281,6 @@ class LimitsDataManagerImplTest {
 
         legacyLimitsSingle.test().assertComplete()
         verify(limitsService).getCrossborderLimits(
-            FakeNabuSessionTokenFactory.any.authHeader,
             OUTPUT_FIAT_CURRENCY.networkTicker,
             OUTPUT_FIAT_CURRENCY.networkTicker,
             "ETH",
@@ -323,7 +316,7 @@ class LimitsDataManagerImplTest {
                 ),
             )
         )
-        whenever(limitsService.getFeatureLimits(any())).thenReturn(Single.just(response))
+        whenever(limitsService.getFeatureLimits()).thenReturn(Single.just(response))
 
         subject.getFeatureLimits()
             .test()
@@ -371,7 +364,7 @@ class LimitsDataManagerImplTest {
                 }
             }
 
-        verify(limitsService).getFeatureLimits(FakeNabuSessionTokenFactory.any.authHeader)
+        verify(limitsService).getFeatureLimits()
     }
 
     companion object {

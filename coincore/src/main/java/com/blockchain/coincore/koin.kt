@@ -11,21 +11,23 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.coincore.loader.CoinNetworksStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
+import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.coinNetworksFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.stxForAllFeatureFlag
+import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -73,7 +75,6 @@ val coincoreModule = module {
         scoped {
             EthAsset(
                 ethDataManager = get(),
-                l1BalanceStore = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
                 labels = get(),
@@ -85,12 +86,6 @@ val coincoreModule = module {
         }.bind(CryptoAsset::class)
 
         scoped {
-            val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
-            val ncAssetList = if (flag.isEnabled) {
-                emptyList<AssetInfo>()
-            } else {
-                experimentalL1EvmAssetList()
-            }
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
@@ -101,9 +96,20 @@ val coincoreModule = module {
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),
-                disabledEvmAssets = ncAssetList.toList(),
+                ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
             )
         }
+        scoped {
+            NetworkAccountsRepository(
+                coincore = get()
+            )
+        }.bind(NetworkAccountsService::class)
+
+        scoped {
+            CoinNetworksRepository(
+                dynamicAssetService = get()
+            )
+        }.bind(CoinNetworksService::class)
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
@@ -112,14 +118,14 @@ val coincoreModule = module {
             // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
                 nonCustodialAssets = ncAssets.toSet(), // All the non custodial L1s that we support
-                experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
-                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
+                unifiedBalancesService = lazy { get() },
                 tradingService = get(),
                 interestService = get(),
+                ethDataManager = get(),
                 remoteLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
@@ -129,7 +135,11 @@ val coincoreModule = module {
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stxForAllFeatureFlag = get(stxForAllFeatureFlag)
+                stakingService = get(),
+                unifiedBalancesFeatureFlag = get(unifiedBalancesFlag),
+                coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
+                kycService = get(),
+                walletModeService = get()
             )
         }.bind(AssetLoader::class)
 
@@ -169,7 +179,9 @@ val coincoreModule = module {
                 userIdentity = get(),
                 withdrawLocksRepository = get(),
                 plaidFeatureFlag = get(plaidFeatureFlag),
-                swapTransactionsCache = get()
+                swapTransactionsStore = get(),
+                stakingBalanceStore = get(),
+                stakingService = get()
             )
         }
 
@@ -203,6 +215,7 @@ val coincoreModule = module {
         factory {
             SwapTrendingPairsProvider(
                 coincore = get(),
+                walletModeService = get(),
                 assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
@@ -218,23 +231,37 @@ val coincoreModule = module {
     single {
         UniversalDynamicAssetRepository(
             dominantL1Assets = setOf(
-                CryptoCurrency.MATIC,
                 CryptoCurrency.BTC,
                 CryptoCurrency.BCH,
-                CryptoCurrency.XLM,
                 CryptoCurrency.ETHER,
-                CryptoCurrency.BNB
+                CryptoCurrency.XLM
             ),
             discoveryService = get(),
-            l2sDynamicAssetRepository = get()
+            l2sDynamicAssetRepository = get(),
+            coinNetworksStore = get()
         )
     }.bind(DynamicAssetsService::class)
 
     single {
         NonCustodialL2sDynamicAssetRepository(
-            l1EvmAssets = experimentalL1EvmAssetList(),
             discoveryService = get(),
-            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) }
+            l2Store = get(),
+            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) },
+            coinNetworksFeatureFlag = lazy { get(coinNetworksFeatureFlag) },
+            evmNetworksService = lazy { payloadScope.get() },
+            coinNetworksStore = get()
+        )
+    }
+
+    single {
+        CoinNetworksStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        NonCustodialL2sDynamicAssetStore(
+            discoveryService = get()
         )
     }
 

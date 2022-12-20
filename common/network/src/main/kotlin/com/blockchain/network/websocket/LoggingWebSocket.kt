@@ -1,12 +1,12 @@
 package com.blockchain.network.websocket
 
-import com.blockchain.logging.Logger
+import com.blockchain.logging.ILogger
 import com.blockchain.logging.NullLogger
 import io.reactivex.rxjava3.core.Observable
 import org.koin.java.KoinJavaComponent.getKoin
 
 fun <OUTGOING, INCOMING> WebSocket<OUTGOING, INCOMING>.debugLog(label: String): WebSocket<OUTGOING, INCOMING> {
-    val logger: Logger = getKoin().get()
+    val logger: ILogger = getKoin().get()
     return if (logger == NullLogger) {
         this
     } else {
@@ -17,7 +17,7 @@ fun <OUTGOING, INCOMING> WebSocket<OUTGOING, INCOMING>.debugLog(label: String): 
 private class DebugLogWebSocket<OUTGOING, INCOMING>(
     private val label: String,
     private val inner: WebSocket<OUTGOING, INCOMING>,
-    private val logger: Logger
+    private val logger: ILogger
 ) : WebSocket<OUTGOING, INCOMING> {
 
     override fun open() {

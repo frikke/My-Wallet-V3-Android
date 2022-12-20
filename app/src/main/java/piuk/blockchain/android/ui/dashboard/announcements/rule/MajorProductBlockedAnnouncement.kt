@@ -2,19 +2,20 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicReference
 import piuk.blockchain.android.R
-import piuk.blockchain.android.maintenance.presentation.openUrl
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 
 class MajorProductBlockedAnnouncement(
     dismissRecorder: DismissRecorder,
@@ -41,22 +42,22 @@ class MajorProductBlockedAnnouncement(
 
         val title = when (reason) {
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
-            ProductNotEligibleReason.Sanctions.RussiaEU5,
+            is ProductNotEligibleReason.Sanctions.RussiaEU5,
+            is ProductNotEligibleReason.Sanctions.RussiaEU8,
             is ProductNotEligibleReason.Sanctions.Unknown,
             is ProductNotEligibleReason.Unknown -> R.string.account_restricted
         }
 
         val body = when (reason) {
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
-            ProductNotEligibleReason.Sanctions.RussiaEU5 ->
-                StringResource.Id(R.string.russia_sanctions_eu5_sheet_subtitle)
-            is ProductNotEligibleReason.Sanctions.Unknown -> StringResource.Value(reason.message)
+            is ProductNotEligibleReason.Sanctions -> StringResource.Value(reason.message)
             is ProductNotEligibleReason.Unknown -> StringResource.Value(reason.message)
         }
 
         val ctaText = when (reason) {
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
-            ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.common_learn_more
+            is ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.common_learn_more
+            is ProductNotEligibleReason.Sanctions.RussiaEU8 -> R.string.common_learn_more
             is ProductNotEligibleReason.Sanctions.Unknown -> R.string.common_ok
             is ProductNotEligibleReason.Unknown -> R.string.common_ok
         }
@@ -74,6 +75,8 @@ class MajorProductBlockedAnnouncement(
                 ctaFunction = {
                     if (reason is ProductNotEligibleReason.Sanctions.RussiaEU5) {
                         host.context?.openUrl(URL_RUSSIA_SANCTIONS_EU5)
+                    } else if (reason is ProductNotEligibleReason.Sanctions.RussiaEU8) {
+                        host.context?.openUrl(URL_RUSSIA_SANCTIONS_EU8)
                     } else {
                         host.dismissAnnouncementCard()
                     }
@@ -92,7 +95,8 @@ class MajorProductBlockedAnnouncement(
                 ProductNotEligibleReason.InsufficientTier.Tier1Required,
                 ProductNotEligibleReason.InsufficientTier.Tier2Required,
                 is ProductNotEligibleReason.InsufficientTier.Unknown -> false
-                ProductNotEligibleReason.Sanctions.RussiaEU5,
+                is ProductNotEligibleReason.Sanctions.RussiaEU5,
+                is ProductNotEligibleReason.Sanctions.RussiaEU8,
                 is ProductNotEligibleReason.Sanctions.Unknown,
                 is ProductNotEligibleReason.Unknown -> true
             }

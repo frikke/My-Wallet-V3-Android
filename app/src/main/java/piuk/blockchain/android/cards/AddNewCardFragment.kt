@@ -18,21 +18,25 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.openUrl
 import com.braintreepayments.cardform.utils.CardType
 import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.mapper.isEquals
 import piuk.blockchain.android.cards.views.CardNumberEditText
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.openUrl
 
 class AddNewCardFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(),
@@ -40,6 +44,8 @@ class AddNewCardFragment :
     ErrorSlidingBottomDialog.Host {
 
     override val model: CardModel by scopedInject()
+
+    private val fraudService: FraudService by inject()
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private var secondaryCtaLink: String = ""
@@ -111,6 +117,8 @@ class AddNewCardFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+        fraudService.trackFlow(FraudFlow.CARD_LINK)
+
         model.process(CardIntent.LoadLinkedCards)
 
         with(binding) {
@@ -151,6 +159,8 @@ class AddNewCardFragment :
                     if (cardHasAlreadyBeenAdded()) {
                         showError()
                     } else {
+                        fraudService.trackFlow(FraudFlow.CARD_LINK)
+
                         cardDetailsPersistence.setCardData(
                             CardData(
                                 fullName = cardName.text.toString(),
@@ -162,8 +172,8 @@ class AddNewCardFragment :
                         )
                         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-                        navigator.navigateToBillingDetails()
                         analytics.logEvent(SimpleBuyAnalytics.CARD_INFO_SET)
+                        navigator.navigateToBillingDetails()
                     }
                 }
             }
@@ -216,7 +226,7 @@ class AddNewCardFragment :
                         year = expiryDate.year.toInt().asCalendarYear()
                     ) &&
                     cardNumber.text?.toString()?.takeLast(4) == it.endDigits &&
-                    cardNumber.cardType.name == it.cardType
+                    cardNumber.cardType.isEquals(it.cardType)
                 )
                     return true
             }

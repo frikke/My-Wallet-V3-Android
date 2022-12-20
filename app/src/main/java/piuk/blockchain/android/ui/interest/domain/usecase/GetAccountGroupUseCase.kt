@@ -4,8 +4,8 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.outcome.Outcome
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class GetAccountGroupUseCase(private val coincore: Coincore) {
 

@@ -1,15 +1,22 @@
 package com.blockchain.coincore.testutil
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.Store
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
+import io.mockk.mockk
+import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -42,6 +49,8 @@ open class CoincoreTestBase {
     }
 
     private val mockedRemoteLogger: RemoteLogger = mock()
+    private val balancesStore: Store<BalancesResponse> = mock()
+    protected val unifiedBalancesService: UnifiedBalancesService = mockk()
 
     private val userFiatToUserFiat = ExchangeRate(
         from = TEST_USER_FIAT,
@@ -71,6 +80,20 @@ open class CoincoreTestBase {
                 factory {
                     mockedRemoteLogger
                 }.bind(RemoteLogger::class)
+
+                factory {
+                    unifiedBalancesService
+                }.bind(UnifiedBalancesService::class)
+
+                factory(unifiedBalancesFlag) {
+                    mock<FeatureFlag> {
+                        on { enabled }.thenReturn(Single.just(true))
+                    }
+                }.bind(FeatureFlag::class)
+
+                factory {
+                    balancesStore
+                }.bind(Store::class)
             }
         )
     }

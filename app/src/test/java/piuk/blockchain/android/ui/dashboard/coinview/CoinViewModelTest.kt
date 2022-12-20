@@ -200,7 +200,8 @@ class CoinViewModelTest {
                 pendingAmount = mock(),
                 fiatValue = mock(),
                 actions = mock(),
-                interestRate = 0.0
+                interestRate = 0.0,
+                stakingRate = 0.0
             )
         )
         val assetInfo = AssetInformation.AccountsInfo(

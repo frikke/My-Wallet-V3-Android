@@ -14,7 +14,8 @@ class ConfirmTransactionDelegateAdapter(
     model: TransactionModel,
     mapper: TxConfirmReadOnlyMapperCheckout,
     exchangeRates: ExchangeRates,
-    selectedCurrency: FiatCurrency
+    selectedCurrency: FiatCurrency,
+    onTooltipClicked: (TxConfirmationValue) -> Unit,
 ) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<TxConfirmationValue> = emptyList()
@@ -34,7 +35,7 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(ExpandableSimpleConfirmationCheckout(mapper))
             addAdapterDelegate(ExpandableSingleValueConfirmationAdapter(mapper))
             addAdapterDelegate(HeaderConfirmationDelegate())
-            addAdapterDelegate(ExpandableComplexConfirmationCheckout(mapper))
+            addAdapterDelegate(ExpandableComplexConfirmationCheckout(mapper, onTooltipClicked))
             addAdapterDelegate(CompoundExpandableFeeConfirmationCheckoutDelegate(mapper))
 
             addAdapterDelegate(ConfirmNoteItemDelegate(model))
@@ -51,6 +52,8 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(InvoiceCountdownTimerDelegate())
             addAdapterDelegate(ConfirmInfoItemValidationStatusDelegate())
             addAdapterDelegate(QuoteCountdownConfirmationDelegate())
+            addAdapterDelegate(TooltipConfirmationCheckoutDelegate(mapper, onTooltipClicked))
+            addAdapterDelegate(ReadMoreDisclaimerDelegate(mapper, onTooltipClicked))
         }
     }
 }

@@ -18,8 +18,10 @@ abstract class Money : Serializable, Comparable<Money> {
 
     abstract val isZero: Boolean
     abstract val isPositive: Boolean
-
     abstract val maxDecimalPlaces: Int
+
+    // Dust is defined as a positive balance with a fiat value of under 1 cent/penny (eg: < $0.01)
+    abstract fun isDust(): Boolean
 
     /**
      * Where a Money type can store more decimal places than is necessary,
@@ -52,20 +54,27 @@ abstract class Money : Serializable, Comparable<Money> {
      */
     fun toStringParts() =
         toStringWithoutSymbol().let {
-            val index = it.lastIndexOf(LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator)
+            val decimalSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator
+            val groupingSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.groupingSeparator
+
+            val index = it.lastIndexOf(decimalSeparator)
             if (index != -1) {
                 Parts(
                     symbol = symbol,
                     major = it.substring(0, index),
                     minor = it.substring(index + 1),
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             } else {
                 Parts(
                     symbol = symbol,
                     major = it,
                     minor = "",
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             }
         }
@@ -74,7 +83,9 @@ abstract class Money : Serializable, Comparable<Money> {
         val symbol: String,
         val major: String,
         val minor: String,
-        val majorAndMinor: String
+        val majorAndMinor: String,
+        val groupingSeparator: Char,
+        val decimalSeparator: Char
     )
 
     fun formatOrSymbolForZero() =
@@ -99,6 +110,12 @@ abstract class Money : Serializable, Comparable<Money> {
         return division(other)
     }
 
+    operator fun times(multiplier: Float): Money {
+        return multiply(multiplier)
+    }
+
+    abstract fun abs(): Money
+
     override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)
@@ -109,6 +126,7 @@ abstract class Money : Serializable, Comparable<Money> {
     protected abstract fun subtract(other: Money): Money
     protected abstract fun division(other: Money): Money
     protected abstract fun compare(other: Money): Int
+    protected abstract fun multiply(multiplier: Float): Money
 
     companion object {
         fun min(a: Money, b: Money): Money {

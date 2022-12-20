@@ -2,7 +2,10 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -13,9 +16,6 @@ import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class ManualPairingPresenterTest {
 
@@ -26,7 +26,7 @@ class ManualPairingPresenterTest {
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val wallet: Wallet = mock()
-    private val prefsUtil: PrefsUtil = mock()
+    private val authPrefs: AuthPrefs = mock()
     private val analytics: Analytics = mock()
     private val remoteLogger: RemoteLogger = mock()
 
@@ -42,7 +42,7 @@ class ManualPairingPresenterTest {
             appUtil,
             authDataManager,
             payloadDataManager,
-            prefsUtil,
+            authPrefs,
             analytics,
             remoteLogger
         )

@@ -9,19 +9,19 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.wallet.payload.WalletPayloadService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class NotificationTokenManagerTest {
     private lateinit var subject: NotificationTokenManager
 
     private val notificationService: NotificationService = mock()
-    private val payloadDataManager: PayloadDataManager = mock()
+    private val payloadDataManager: WalletPayloadService = mock()
     private val prefs: NotificationPrefs = mock()
     private val authPrefs: AuthPrefs = mock {
         on { walletGuid }.thenReturn(GUID)

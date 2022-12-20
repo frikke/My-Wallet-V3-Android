@@ -1,5 +1,6 @@
 package com.blockchain.api.paymentmethods
 
+import com.blockchain.api.brokerage.data.DepositTermsResponse
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
@@ -7,6 +8,7 @@ import com.blockchain.api.paymentmethods.models.AliasInfoRequestBody
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
+import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
@@ -31,7 +33,6 @@ import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -42,7 +43,6 @@ interface PaymentMethodsApi {
 
     @GET("eligible/payment-methods")
     fun getAvailablePaymentMethodsTypes(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") currency: String,
         @Query("tier") tier: Int?,
         @Query("eligibleOnly") eligibleOnly: Boolean
@@ -50,71 +50,59 @@ interface PaymentMethodsApi {
 
     @GET("payments/cards")
     fun getCards(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("cardProvider") cardProvidersSupported: Boolean
     ): Single<List<CardResponse>>
 
     @POST("payments/cards")
     fun addNewCard(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Body addNewCardBody: AddNewCardBodyRequest,
         @Query("localisedError") localisedError: String?
     ): Single<AddNewCardResponse>
 
     @POST("payments/cards/{cardId}/activate")
     fun activateCard(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
         @Body attributes: SimpleBuyConfirmationAttributes
     ): Single<ActivateCardResponse>
 
     @GET("payments/cards/{cardId}")
     fun getCardDetails(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String
     ): Single<CardResponse>
 
     @DELETE("payments/cards/{cardId}")
     fun deleteCard(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String
     ): Completable
 
     @GET("payments/banking-info")
-    fun getBanks(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<List<BankInfoResponse>>
+    fun getBanks(): Single<List<BankInfoResponse>>
 
     @GET("payments/banktransfer/{id}")
     fun getLinkedBank(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Query("localisedError") localisedError: String?
     ): Single<LinkedBankTransferResponse>
 
     @DELETE("payments/banks/{id}")
     fun removeBeneficiary(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String
     ): Completable
 
     @DELETE("payments/banktransfer/{id}")
     fun removeLinkedBank(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Query("localisedError") localisedError: String?
     ): Completable
 
     @POST("payments/banktransfer")
     fun linkBank(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: CreateLinkBankRequestBody,
         @Query("localisedError") localisedError: String?
     ): Single<CreateLinkBankResponse>
 
     @POST("payments/banktransfer/{id}/update")
     fun updateProviderAccount(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: UpdateProviderAccountBody,
         @Query("localisedError") localisedError: String?
@@ -122,22 +110,25 @@ interface PaymentMethodsApi {
 
     @POST("payments/banktransfer/{id}/update")
     fun linkPlaidAccount(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: LinkPlaidAccountBody
     ): Completable
 
     @POST("payments/banktransfer/{id}/update")
     fun checkSettlement(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: SettlementBody,
         @Query("localisedError") localisedError: String?
     ): Single<SettlementResponse>
 
+    @PUT("payments/deposit/terms")
+    suspend fun getDepositTerms(
+        @Body body: DepositTermsRequestBody,
+        @Query("localisedError") localisedError: String?
+    ): Outcome<Exception, DepositTermsResponse>
+
     @POST("payments/banktransfer/{id}/payment")
     fun startBankTransferPayment(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: BankTransferPaymentBody,
         @Query("localisedError") localisedError: String?
@@ -145,7 +136,6 @@ interface PaymentMethodsApi {
 
     @POST("payments/banktransfer/{id}/refresh")
     fun refreshPlaidAccount(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: RefreshPlaidRequestBody,
         @Query("localisedError") localisedError: String?
@@ -154,39 +144,33 @@ interface PaymentMethodsApi {
     @POST
     fun updateOpenBankingToken(
         @Url url: String,
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: OpenBankingTokenBody
     ): Completable
 
     @GET("payments/payment/{paymentId}")
     fun getBankTransferCharge(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("paymentId") paymentId: String,
         @Query("localisedError") localisedError: String?
     ): Single<BankTransferChargeResponse>
 
     @GET("payments/google-pay/info")
     fun getGooglePayInfo(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") currency: String
     ): Single<GooglePayResponse>
 
     @POST("payments/bind/beneficiary")
     suspend fun getBeneficiaryInfo(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: AliasInfoRequestBody,
         @Query("localisedError") localisedError: String?
     ): Outcome<Exception, AliasInfoResponse>
 
     @PUT("payments/bind/beneficiary")
     suspend fun activateBeneficiary(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: LinkWithAliasRequestBody
     ): Outcome<Exception, Unit>
 
     @GET("payments/cards/success-rate")
     suspend fun checkNewCardRejectionState(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("bin") binNumber: String
     ): Outcome<Exception, CardRejectionStateResponse>
 }

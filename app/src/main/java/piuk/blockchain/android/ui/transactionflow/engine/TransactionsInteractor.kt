@@ -3,28 +3,36 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -33,13 +41,21 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.store.asSingle
+import com.blockchain.utils.mapList
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -49,14 +65,14 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
-import okio.`-DeprecatedOkio`.source
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
 
 class TransactionInteractor(
@@ -75,9 +91,20 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val quickFillRoundingService: QuickFillRoundingService,
+    private val hideDustFF: FeatureFlag,
+    private val localSettingsPrefs: LocalSettingsPrefs,
+    private val improvedPaymentUxFF: FeatureFlag,
+    private val dynamicAssetRepository: UniversalDynamicAssetRepository,
+    private val stakingService: StakingService,
+    private val transactionPrefs: TransactionPrefs
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
+
+    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> {
+        return dynamicAssetRepository.getEvmNetworkForCurrency(currency)
+    }
 
     fun invalidateTransaction(): Completable =
         Completable.fromAction {
@@ -181,21 +208,40 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
-                    .zipWith(
-                        custodialRepository.getSwapAvailablePairs()
-                    ).map { (accounts, pairs) ->
-                        accounts.filter { account ->
-                            (account as? CryptoAccount)?.isAvailableToSwapFrom(pairs) ?: false
+                hideDustFF.enabled.flatMap { flagEnabled ->
+                    getAvailableSwapAccounts().flatMap { accountList ->
+                        if (flagEnabled && localSettingsPrefs.hideSmallBalancesEnabled) {
+                            filterDustBalances(accountList)
+                        } else {
+                            Single.just(accountList)
                         }
-                    }.map {
-                        it.map { account -> account as CryptoAccount }
                     }
+                }
             }
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    filter = AssetFilter.All,
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
+                    it.filter { acc ->
+                        acc is CryptoAccount &&
+                            acc.currency == targetAccount.currency &&
+                            acc != targetAccount &&
+                            acc.isFunded
+                    }
+                }
+            }
+            AssetAction.StakingDeposit -> {
+                require(targetAccount is StakingAccount)
+                require(targetAccount is CryptoAccount)
+                coincore.walletsWithActions(
+                    actions = setOf(action),
+                    filter = AssetFilter.All,
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&
@@ -210,6 +256,39 @@ class TransactionInteractor(
             AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    fun shouldShowPkwOnTradingMode(): Boolean =
+        transactionPrefs.showPkwAccountsOnTradingMode
+
+    fun updatePkwFilterState(showPkwOnTradingMode: Boolean) {
+        transactionPrefs.showPkwAccountsOnTradingMode = showPkwOnTradingMode
+    }
+
+    private fun filterDustBalances(accountList: List<CryptoAccount>) =
+        accountList.map { account ->
+            account.balanceRx
+        }.zipObservables().map {
+            accountList.mapIndexedNotNull { index, singleAccount ->
+                if (!it[index].totalFiat.isDust()) {
+                    singleAccount
+                } else {
+                    null
+                }
+            }
+        }.firstOrError()
+
+    private fun getAvailableSwapAccounts() = coincore.walletsWithActions(
+        actions = setOf(AssetAction.Swap),
+        sorter = swapSourceAccountsSorting.sorter()
+    ).zipWith(
+        custodialRepository.getSwapAvailablePairs()
+    ).map { (accounts, pairs) ->
+        accounts.filter { account ->
+            (account as? CryptoAccount)?.isAvailableToSwapFrom(pairs) ?: false
+        }
+    }.map {
+        it.map { account -> account as CryptoAccount }
+    }
 
     private fun sellSourceAccounts(): Single<List<SingleAccount>> {
         return supportedCryptoCurrencies().zipWith(
@@ -339,7 +418,43 @@ class TransactionInteractor(
             dismissRecorder.isDismissed(prefsKey)
         }
 
-    fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
+    fun userAccessForFeature(feature: Feature): Single<FeatureAccess> =
+        identity.userAccessForFeature(feature)
+
+    fun checkShouldShowInterstitial(
+        sourceAccount: BlockchainAccount,
+        asset: AssetInfo,
+        feature: Feature
+    ): Single<FeatureAccess> =
+        if (sourceAccount !is NullCryptoAccount) {
+            Single.just(FeatureAccess.Granted())
+        } else {
+            stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
+                if (limits.withdrawalsDisabled) {
+                    stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                        if (accountBalance.totalBalance.isZero) {
+                            FeatureAccess.Blocked(
+                                BlockedReason.ShouldAcknowledgeStakingWithdrawal(
+                                    assetIconUrl = asset.logo
+                                )
+                            )
+                        } else FeatureAccess.Granted()
+                    }
+                } else {
+                    identity.userAccessForFeature(feature)
+                }
+            }
+        }
+
+    fun updateStakingExplainerAcknowledged(networkTicker: String) {}
+
+    fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
+        quickFillRoundingService.getQuickFillRoundingForAction(action)
+
+    fun isImprovedPaymentUxFFEnabled() = improvedPaymentUxFF.enabled
+
+    fun getDepositTerms(paymentMethodId: String, amount: Money): Single<DepositTerms> =
+        rxSingleOutcome { bankService.getDepositTerms(paymentMethodId, amount) }
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

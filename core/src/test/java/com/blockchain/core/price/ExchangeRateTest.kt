@@ -7,6 +7,7 @@ import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.ether
 import com.blockchain.testutils.usd
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.ValueTypeMismatchException
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`

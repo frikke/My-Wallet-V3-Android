@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.auth.model.AccountLockedException
+import com.blockchain.core.auth.model.AuthRequiredException
+import com.blockchain.core.auth.model.InitialErrorException
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
-import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
-import piuk.blockchain.androidcore.utils.extensions.InitialErrorException
 import timber.log.Timber
 
 class LoginAuthModel(
@@ -26,7 +26,6 @@ class LoginAuthModel(
             is LoginAuthIntents.AuthorizeApproval ->
                 authorizeApproval(
                     authToken = previousState.authToken,
-                    sessionId = intent.sessionId
                 )
             is LoginAuthIntents.GetPayload -> getPayload(guid = previousState.guid, sessionId = previousState.sessionId)
             is LoginAuthIntents.VerifyPassword ->
@@ -42,7 +41,6 @@ class LoginAuthModel(
                 submitCode(
                     guid = previousState.guid,
                     password = intent.password,
-                    sessionId = previousState.sessionId,
                     code = intent.code,
                     payloadJson = previousState.payloadJson
                 )
@@ -101,8 +99,8 @@ class LoginAuthModel(
         return null
     }
 
-    private fun authorizeApproval(authToken: String, sessionId: String): Disposable {
-        return interactor.authorizeApproval(authToken, sessionId)
+    private fun authorizeApproval(authToken: String): Disposable {
+        return interactor.authorizeApproval(authToken)
             .subscribeBy(
                 onSuccess = { process(LoginAuthIntents.GetPayload) },
                 onError = { throwable ->
@@ -147,11 +145,10 @@ class LoginAuthModel(
     private fun submitCode(
         guid: String,
         password: String,
-        sessionId: String,
         code: String,
         payloadJson: String
     ): Disposable {
-        return interactor.submitCode(guid, sessionId, code, payloadJson)
+        return interactor.submitCode(guid, code, payloadJson)
             .subscribeBy(
                 onSuccess = { responseBody ->
                     process(LoginAuthIntents.VerifyPassword(password, responseBody.string()))
@@ -161,14 +158,11 @@ class LoginAuthModel(
     }
 
     private fun updateAccount(isMobileSetup: Boolean, deviceType: Int, shouldRequestUpgrade: Boolean) =
+        // SSO - if [shouldRequestUpgrade] then user is eligible to have an Exchange account with the same email
         interactor.updateMobileSetup(isMobileSetup, deviceType)
             .subscribeBy(
-                onSuccess = { flagEnabled ->
-                    if (shouldRequestUpgrade && flagEnabled) {
-                        process(LoginAuthIntents.ShowAccountUnification)
-                    } else {
-                        process(LoginAuthIntents.ShowAuthComplete)
-                    }
+                onComplete = {
+                    process(LoginAuthIntents.ShowAuthComplete)
                 },
                 onError = { throwable ->
                     process(LoginAuthIntents.ShowError(throwable))

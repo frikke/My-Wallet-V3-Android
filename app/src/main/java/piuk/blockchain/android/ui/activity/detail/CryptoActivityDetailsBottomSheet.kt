@@ -23,13 +23,15 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.koin.scopedInject
+import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
+import com.blockchain.presentation.customviews.BlockchainListDividerDecor
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -44,10 +46,8 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.activity.detail.adapter.ActivityDetailsDelegateAdapter
-import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.analytics.DepositAnalytics
 import piuk.blockchain.android.util.StringUtils
 
@@ -58,6 +58,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     interface Host : HostedBottomSheet.Host {
         fun onAddCash(currency: String)
+        fun showDetailsLoadingError()
     }
 
     override val host: Host by lazy {
@@ -70,7 +71,6 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         DialogSheetActivityDetailsBinding.inflate(inflater, container, false)
 
     override val model: ActivityDetailsModel by scopedInject()
-    private val assetCatalogue: AssetCatalogue by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val listAdapter: ActivityDetailsDelegateAdapter by lazy {
@@ -87,9 +87,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private val asset: AssetInfo by lazy {
-        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.assetInfoFromNetworkTicker(it)
-        } ?: throw IllegalArgumentException("Crypto asset should not be null")
+        arguments?.getSerializable(ARG_CRYPTO_ASSET) as? AssetInfo
+            ?: throw IllegalArgumentException("Crypto asset cast failed")
     }
 
     private val activityType by lazy {
@@ -142,7 +141,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         }
 
         if (newState.isError) {
-            showFailedPill()
+            host.showDetailsLoadingError()
+            dismiss()
         }
 
         if (listAdapter.items != newState.listOfItems) {
@@ -155,24 +155,43 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         newState: ActivityDetailState
     ) {
         if (newState.isPending) {
-            binding.status.text = getString(
-                when (newState.interestState) {
-                    InterestState.PENDING -> R.string.activity_details_label_pending
-                    InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-                    InterestState.PROCESSING -> R.string.activity_details_label_processing
-                    else -> R.string.empty
-                }
-            )
+            showStatusLabel(newState)
             showPendingPill()
 
             if (newState.transactionType == TransactionSummary.TransactionType.DEPOSIT) {
                 showConfirmationUi(newState.confirmations, newState.totalConfirmations)
             }
-        } else if (newState.interestState == InterestState.FAILED) {
+        } else if (newState.interestState == InterestState.FAILED || newState.stakingState == StakingState.FAILED) {
             showFailedPill()
         } else {
             showCompletePill()
         }
+    }
+
+    private fun showStatusLabel(newState: ActivityDetailState) {
+        binding.status.text = getString(
+            when {
+                newState.interestState != null -> {
+                    when (newState.interestState) {
+                        InterestState.PENDING -> R.string.activity_details_label_pending
+                        InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        InterestState.PROCESSING -> R.string.activity_details_label_processing
+                        else -> R.string.empty
+                    }
+                }
+                newState.stakingState != null -> {
+                    when (newState.stakingState) {
+                        StakingState.PENDING -> R.string.activity_details_label_pending
+                        StakingState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        StakingState.PROCESSING -> R.string.activity_details_label_processing
+                        else -> R.string.empty
+                    }
+                }
+                else -> {
+                    R.string.empty
+                }
+            }
+        )
     }
 
     private fun showTransactionTypeUi(state: ActivityDetailState) {
@@ -307,7 +326,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                     analytics.logEvent(
                         BuySellClicked(
                             origin = LaunchOrigin.TRANSACTION_DETAILS,
-                            type = BuySellFragment.BuySellViewType.TYPE_BUY
+                            type = BuySellViewType.TYPE_BUY
                         )
                     )
                     startActivity(
@@ -414,11 +433,14 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         confirmations: Int,
         totalConfirmations: Int?
     ) {
-        if (totalConfirmations != null && totalConfirmations > 0 && confirmations != totalConfirmations) {
+        if (totalConfirmations != null && totalConfirmations > 0 &&
+            confirmations != totalConfirmations
+        ) {
             binding.apply {
                 confirmationLabel.text =
                     getString(
-                        R.string.activity_details_label_confirmations, confirmations,
+                        R.string.activity_details_label_confirmations,
+                        confirmations.coerceAtLeast(0),
                         totalConfirmations
                     )
                 confirmationProgress.setProgress(
@@ -566,7 +588,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
+                    putSerializable(ARG_CRYPTO_ASSET, asset)
                     putString(ARG_TRANSACTION_HASH, txHash)
                     putSerializable(ARG_ACTIVITY_TYPE, activityType)
                 }

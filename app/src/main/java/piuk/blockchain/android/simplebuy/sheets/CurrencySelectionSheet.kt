@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import org.koin.android.ext.android.inject
@@ -13,7 +14,6 @@ import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBin
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyNavigator
 import piuk.blockchain.android.simplebuy.SimpleBuyScreen
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CurrencySelectionSheet :
     SlidingModalBottomDialog<FragmentSimpleBuyCurrencySelectionBinding>(),

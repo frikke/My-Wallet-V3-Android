@@ -26,7 +26,7 @@ class PendingBalanceAccountDecorator(
     private val account: BlockchainAccount
 ) : CellDecorator {
     override fun view(context: Context): Maybe<View> {
-        return account.balance.firstOrError().map { it.pending }.flatMapMaybe {
+        return account.balanceRx.firstOrError().map { it.pending }.flatMapMaybe {
             if (it.isZero)
                 Maybe.empty()
             else Maybe.just(composePendingBalanceView(context, it))
@@ -101,5 +101,5 @@ fun ConstraintLayout.removePossibleBottomView() {
 }
 
 private const val BOTTOM_VIEW_TAG = "BOTTOM_VIEW"
-private const val ADDED_VIEW_MARGIN = R.dimen.smallest_margin
-private const val VIEW_SPACING = R.dimen.very_small_margin
+private const val ADDED_VIEW_MARGIN = R.dimen.smallest_spacing
+private const val VIEW_SPACING = R.dimen.very_small_spacing

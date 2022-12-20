@@ -12,6 +12,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
@@ -20,37 +21,41 @@ import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
-import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
+import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingDepositOnChainTxEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
-import com.blockchain.core.SwapTransactionsCache
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.custodial.data.store.TradingStore
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
+import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -70,8 +75,10 @@ class TxProcessorFactory(
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val userIdentity: UserIdentity,
-    private val swapTransactionsCache: SwapTransactionsCache,
+    private val swapTransactionsStore: SwapTransactionsStore,
     private val plaidFeatureFlag: FeatureFlag,
+    private val stakingBalanceStore: StakingBalanceStore,
+    private val stakingService: StakingService
 ) {
     fun createProcessor(
         source: BlockchainAccount,
@@ -81,14 +88,14 @@ class TxProcessorFactory(
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
             is CustodialTradingAccount -> createTradingProcessor(source, target)
-            is CryptoInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
+            is CustodialInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
             else -> Single.error(NotImplementedError())
         }
 
     private fun createInterestWithdrawalProcessor(
-        source: CryptoInterestAccount,
+        source: CustodialInterestAccount,
         target: TransactionTarget,
         action: AssetAction,
     ): Single<TransactionProcessor> =
@@ -222,8 +229,7 @@ class TxProcessorFactory(
                     )
                 )
             )
-
-            is CryptoInterestAccount ->
+            is CustodialInterestAccount ->
                 target.receiveAddress
                     .map {
                         TransactionProcessor(
@@ -233,6 +239,21 @@ class TxProcessorFactory(
                             engine = InterestDepositOnChainTxEngine(
                                 interestBalanceStore = interestBalanceStore,
                                 interestService = interestService,
+                                walletManager = walletManager,
+                                onChainEngine = engine
+                            )
+                        )
+                    }
+            is CustodialStakingAccount ->
+                target.receiveAddress
+                    .map {
+                        TransactionProcessor(
+                            exchangeRates = exchangeRates,
+                            sourceAccount = source,
+                            txTarget = it,
+                            engine = StakingDepositOnChainTxEngine(
+                                stakingBalanceStore = stakingBalanceStore,
+                                stakingService = stakingService,
                                 walletManager = walletManager,
                                 onChainEngine = engine
                             )
@@ -268,7 +289,7 @@ class TxProcessorFactory(
                                 limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
                                 engine = engine,
-                                swapTransactionsCache = swapTransactionsCache
+                                swapTransactionsStore = swapTransactionsStore
                             )
                         )
                     )
@@ -324,6 +345,20 @@ class TxProcessorFactory(
                     )
                 )
             )
+        is StakingAccount ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = StakingDepositTradingEngine(
+                        stakingBalanceStore = stakingBalanceStore,
+                        stakingService = stakingService,
+                        tradingStore = tradingStore,
+                        walletManager = walletManager
+                    )
+                )
+            )
         is FiatAccount ->
             Single.just(
                 TransactionProcessor(
@@ -351,7 +386,7 @@ class TxProcessorFactory(
                         limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity,
-                        swapTransactionsCache = swapTransactionsCache
+                        swapTransactionsStore = swapTransactionsStore
                     )
                 )
             )

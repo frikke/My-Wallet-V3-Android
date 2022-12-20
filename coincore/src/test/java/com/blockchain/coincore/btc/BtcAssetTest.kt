@@ -2,9 +2,12 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.custodial.domain.TradingService
-import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -29,9 +32,6 @@ import org.junit.Test
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
 
 class BtcAssetTest : KoinTest {
 
