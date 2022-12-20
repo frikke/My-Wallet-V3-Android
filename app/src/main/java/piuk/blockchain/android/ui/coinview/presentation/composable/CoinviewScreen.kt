@@ -44,7 +44,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysSta
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
@@ -128,7 +127,7 @@ fun CoinviewScreen(
 
     tradeable: CoinviewAssetTradeableState,
 
-    watchlist: CoinviewWatchlistState,
+    watchlist: DataResource<Boolean>,
     onWatchlistClick: () -> Unit,
 
     accounts: DataResource<CoinviewAccountsState?>,
@@ -160,7 +159,7 @@ fun CoinviewScreen(
                 title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
                 onBackButtonClick = backOnClick,
                 navigationBarButtons = listOfNotNull(
-                    (watchlist as? CoinviewWatchlistState.Data)?.isInWatchlist?.let { isInWatchlist ->
+                    (watchlist as? DataResource.Data)?.data?.let { isInWatchlist ->
                         NavigationBarButton.IconResource(
                             image = if (isInWatchlist) {
                                 Icons.Filled.Star
@@ -287,7 +286,7 @@ fun PreviewCoinviewScreen() {
 
         tradeable = CoinviewAssetTradeableState.Tradeable,
 
-        watchlist = CoinviewWatchlistState.Loading,
+        watchlist = DataResource.Loading,
         onWatchlistClick = {},
 
         accounts = DataResource.Loading,
@@ -326,7 +325,7 @@ fun PreviewCoinviewScreen_Unknown() {
 
         tradeable = CoinviewAssetTradeableState.Tradeable,
 
-        watchlist = CoinviewWatchlistState.Loading,
+        watchlist = DataResource.Loading,
         onWatchlistClick = {},
 
         accounts = DataResource.Loading,

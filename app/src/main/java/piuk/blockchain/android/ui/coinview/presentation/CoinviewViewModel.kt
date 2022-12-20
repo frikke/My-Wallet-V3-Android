@@ -210,31 +210,10 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceWatchlist(state: CoinviewModelState): CoinviewWatchlistState = state.run {
-        when {
-            // not supported for non custodial
-            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
-                CoinviewWatchlistState.NotSupported
-            }
-
-            watchlist is DataResource.Loading -> {
-                CoinviewWatchlistState.Loading
-            }
-
-            watchlist is DataResource.Error -> {
-                CoinviewWatchlistState.Error
-            }
-
-            watchlist is DataResource.Data -> {
-                CoinviewWatchlistState.Data(
-                    isInWatchlist = watchlist.data,
-                )
-            }
-
-            else -> {
-                CoinviewWatchlistState.Loading
-            }
-        }
+    private fun reduceWatchlist(
+        state: CoinviewModelState
+    ): DataResource<Boolean> = state.run {
+        watchlist
     }
 
     private fun reduceAccounts(

@@ -43,12 +43,17 @@ fun BottomQuickActions(
 @Composable
 fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Divider(color = Color(0XFFF1F2F7))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.mediumSpacing)
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(
+                        topStart = AppTheme.dimensions.borderRadiiMedium,
+                        topEnd = AppTheme.dimensions.borderRadiiMedium
+                    )
+                )
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
