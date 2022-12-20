@@ -2,11 +2,15 @@ package piuk.blockchain.android.ui.coinview.presentation.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,32 +52,27 @@ import piuk.blockchain.android.ui.coinview.domain.model.isPrivateKeyAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isTradingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetAccounts(
     analytics: Analytics = get(),
-    data: CoinviewAccountsState,
+    data: DataResource<CoinviewAccountsState?>,
     assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
 ) {
     when (data) {
-        CoinviewAccountsState.NotSupported -> {
-            Empty()
-        }
-
-        CoinviewAccountsState.Loading -> {
+        DataResource.Loading -> {
             AssetAccountsLoading()
         }
 
-        CoinviewAccountsState.Error -> {
+        is DataResource.Error -> {
             AssetAccountsError()
         }
 
-        is CoinviewAccountsState.Data -> {
+        is DataResource.Data -> {
             AssetAccountsData(
                 analytics = analytics,
                 data = data,
@@ -87,8 +86,13 @@ fun AssetAccounts(
 
 @Composable
 fun AssetAccountsLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ShimmerLoadingTableRow()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+    ) {
+        ShimmerLoadingTableRow(showIconLoader = true)
     }
 }
 
@@ -97,16 +101,16 @@ fun AssetAccountsError() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = AppTheme.dimensions.standardSpacing
-            )
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         CardAlert(
             title = stringResource(R.string.coinview_account_load_error_title),
             subtitle = stringResource(R.string.coinview_account_load_error_subtitle),
             alertType = AlertType.Warning,
-            isBordered = true,
-            isDismissable = false
+            backgroundColor = AppTheme.colors.background,
+            isBordered = false,
+            isDismissable = false,
         )
     }
 }
@@ -115,87 +119,115 @@ fun AssetAccountsError() {
 fun AssetAccountsData(
     analytics: Analytics = get(),
     assetTicker: String,
-    data: CoinviewAccountsState.Data,
+    data: DataResource.Data<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.smallSpacing)
-            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-    ) {
-        // accounts
-        data.accounts.forEachIndexed { index, account ->
-            when (account) {
-                is CoinviewAccountState.Available -> {
-                    BalanceTableRow(
-                        titleStart = buildAnnotatedString { append(account.title) },
-                        bodyStart = buildAnnotatedString { append(account.subtitle.value()) },
-                        titleEnd = buildAnnotatedString { append(account.fiatBalance) },
-                        bodyEnd = buildAnnotatedString { append(account.cryptoBalance) },
-                        startImageResource = when (account.logo) {
-                            is LogoSource.Remote -> {
-                                ImageResource.Remote(url = account.logo.value, shape = CircleShape)
-                            }
-                            is LogoSource.Resource -> {
-                                ImageResource.Local(
-                                    id = account.logo.value,
-                                    colorFilter = ColorFilter.tint(
-                                        Color(android.graphics.Color.parseColor(account.assetColor))
-                                    ),
-                                    shape = CircleShape
-                                )
-                            }
-                        },
-                        tags = emptyList(),
-                        backgroundColor = Color.Transparent,
-                        onClick = {
-                            account.cvAccount.account.let { account ->
-                                if (account is CryptoAccount && account is TradingAccount) {
-                                    analytics.logEvent(CustodialBalanceClicked(account.currency))
-                                }
-                            }
+    data.data?.let {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
+        ) {
 
-                            analytics.logEvent(
-                                CoinViewAnalytics.WalletsAccountsClicked(
-                                    origin = LaunchOrigin.COIN_VIEW,
-                                    currency = assetTicker,
-                                    accountType = account.cvAccount.toAccountType()
-                                )
-                            )
+            // balance
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(R.string.common_balance),
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.muted
+                )
 
-                            onAccountClick(account.cvAccount)
-                        }
-                    )
-                }
-                is CoinviewAccountState.Unavailable -> {
-                    DefaultTableRow(
-                        primaryText = account.title,
-                        secondaryText = account.subtitle.value(),
-                        startImageResource = when (account.logo) {
-                            is LogoSource.Remote -> {
-                                ImageResource.Remote(url = account.logo.value, shape = CircleShape)
-                            }
-                            is LogoSource.Resource -> {
-                                ImageResource.Local(
-                                    id = account.logo.value,
-                                    colorFilter = ColorFilter.tint(Grey400),
-                                    shape = CircleShape
-                                )
-                            }
-                        },
-                        endImageResource = ImageResource.Local(
-                            R.drawable.ic_lock, colorFilter = ColorFilter.tint(Grey400)
-                        ),
-                        backgroundColor = Color.Transparent,
-                        onClick = { onLockedAccountClick() }
-                    )
-                }
+                Text(
+                    text = it.totalBalance,
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.title,
+                )
             }
 
-            if (index < data.accounts.lastIndex) {
-                Divider(color = Color(0XFFF1F2F7))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            ) {
+                // accounts
+                it.accounts.forEachIndexed { index, account ->
+                    when (account) {
+                        is CoinviewAccountsState.CoinviewAccountState.Available -> {
+                            BalanceTableRow(
+                                titleStart = buildAnnotatedString { append(account.title) },
+                                bodyStart = buildAnnotatedString { append(account.subtitle.value()) },
+                                titleEnd = buildAnnotatedString { append(account.fiatBalance) },
+                                bodyEnd = buildAnnotatedString { append(account.cryptoBalance) },
+                                startImageResource = when (account.logo) {
+                                    is LogoSource.Remote -> {
+                                        ImageResource.Remote(url = account.logo.value, shape = CircleShape)
+                                    }
+                                    is LogoSource.Resource -> {
+                                        ImageResource.Local(
+                                            id = account.logo.value,
+                                            colorFilter = ColorFilter.tint(
+                                                Color(android.graphics.Color.parseColor(account.assetColor))
+                                            ),
+                                            shape = CircleShape
+                                        )
+                                    }
+                                },
+                                tags = emptyList(),
+                                backgroundColor = Color.Transparent,
+                                onClick = {
+                                    account.cvAccount.account.let { account ->
+                                        if (account is CryptoAccount && account is TradingAccount) {
+                                            analytics.logEvent(CustodialBalanceClicked(account.currency))
+                                        }
+                                    }
+
+                                    analytics.logEvent(
+                                        CoinViewAnalytics.WalletsAccountsClicked(
+                                            origin = LaunchOrigin.COIN_VIEW,
+                                            currency = assetTicker,
+                                            accountType = account.cvAccount.toAccountType()
+                                        )
+                                    )
+
+                                    onAccountClick(account.cvAccount)
+                                }
+                            )
+                        }
+                        is CoinviewAccountsState.CoinviewAccountState.Unavailable -> {
+                            DefaultTableRow(
+                                primaryText = account.title,
+                                secondaryText = account.subtitle.value(),
+                                startImageResource = when (account.logo) {
+                                    is LogoSource.Remote -> {
+                                        ImageResource.Remote(url = account.logo.value, shape = CircleShape)
+                                    }
+                                    is LogoSource.Resource -> {
+                                        ImageResource.Local(
+                                            id = account.logo.value,
+                                            colorFilter = ColorFilter.tint(Grey400),
+                                            shape = CircleShape
+                                        )
+                                    }
+                                },
+                                endImageResource = ImageResource.Local(
+                                    R.drawable.ic_lock, colorFilter = ColorFilter.tint(Grey400)
+                                ),
+                                backgroundColor = Color.Transparent,
+                                onClick = { onLockedAccountClick() }
+                            )
+                        }
+                    }
+
+                    if (index < it.accounts.lastIndex) {
+                        Divider(color = Color(0XFFF1F2F7))
+                    }
+                }
             }
         }
     }
@@ -209,58 +241,61 @@ private fun CoinviewAccount.toAccountType() = when {
     else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
         previewAnalytics,
-        CoinviewAccountsState.Loading,
+        DataResource.Loading,
         assetTicker = "ETH",
         {}, {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewAssetAccounts_Error() {
     AssetAccounts(
         previewAnalytics,
-        CoinviewAccountsState.Error,
+        DataResource.Error(Exception()),
         assetTicker = "ETH",
         {}, {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewAssetAccounts_Data() {
     AssetAccounts(
         previewAnalytics,
-        CoinviewAccountsState.Data(
-            accounts = listOf(
-                CoinviewAccountState.Available(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 1",
-                    subtitle = TextValue.StringValue("ETH"),
-                    cryptoBalance = "0.90349281 ETH",
-                    fiatBalance = "$2,000.00",
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                    assetColor = "#324921"
-                ),
-                CoinviewAccountState.Available(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 2",
-                    subtitle = TextValue.StringValue("ETH"),
-                    cryptoBalance = "0.90349281 ETH",
-                    fiatBalance = "$2,000.00",
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                    assetColor = "#324921"
-                ),
-                CoinviewAccountState.Unavailable(
-                    cvAccount = previewCvAccount,
-                    title = "Ethereum 2",
-                    subtitle = TextValue.StringValue("ETH"),
-                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+        DataResource.Data(
+            CoinviewAccountsState(
+                totalBalance = "$2,000.00",
+                accounts = listOf(
+                    CoinviewAccountsState.CoinviewAccountState.Available(
+                        cvAccount = previewCvAccount,
+                        title = "Ethereum 1",
+                        subtitle = TextValue.StringValue("ETH"),
+                        cryptoBalance = "0.90349281 ETH",
+                        fiatBalance = "$2,000.00",
+                        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
+                        assetColor = "#324921"
+                    ),
+                    CoinviewAccountsState.CoinviewAccountState.Available(
+                        cvAccount = previewCvAccount,
+                        title = "Ethereum 2",
+                        subtitle = TextValue.StringValue("ETH"),
+                        cryptoBalance = "0.90349281 ETH",
+                        fiatBalance = "$2,000.00",
+                        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
+                        assetColor = "#324921"
+                    ),
+                    CoinviewAccountsState.CoinviewAccountState.Unavailable(
+                        cvAccount = previewCvAccount,
+                        title = "Ethereum 2",
+                        subtitle = TextValue.StringValue("ETH"),
+                        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+                    )
                 )
             )
         ),

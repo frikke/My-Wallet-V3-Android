@@ -42,7 +42,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
@@ -84,7 +83,6 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
             },
 
-            totalBalance = state.totalBalance,
             accounts = state.accounts,
             onAccountClick = { account ->
                 if (account.isClickable)
@@ -133,9 +131,7 @@ fun CoinviewScreen(
     watchlist: CoinviewWatchlistState,
     onWatchlistClick: () -> Unit,
 
-    totalBalance: CoinviewTotalBalanceState,
-
-    accounts: CoinviewAccountsState,
+    accounts: DataResource<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit,
 
@@ -221,10 +217,6 @@ fun CoinviewScreen(
                                 onQuickActionClick = onQuickActionClick
                             )
 
-                            TotalBalance(
-                                totalBalanceData = totalBalance
-                            )
-
                             NonTradeableAsset(
                                 data = tradeable
                             )
@@ -298,8 +290,7 @@ fun PreviewCoinviewScreen() {
         watchlist = CoinviewWatchlistState.Loading,
         onWatchlistClick = {},
 
-        totalBalance = CoinviewTotalBalanceState.Loading,
-        accounts = CoinviewAccountsState.Loading,
+        accounts = DataResource.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},
 
@@ -338,8 +329,7 @@ fun PreviewCoinviewScreen_Unknown() {
         watchlist = CoinviewWatchlistState.Loading,
         onWatchlistClick = {},
 
-        totalBalance = CoinviewTotalBalanceState.Loading,
-        accounts = CoinviewAccountsState.Loading,
+        accounts = DataResource.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},
 

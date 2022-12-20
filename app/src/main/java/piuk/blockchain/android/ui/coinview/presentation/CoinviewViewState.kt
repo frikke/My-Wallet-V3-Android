@@ -18,8 +18,7 @@ data class CoinviewViewState(
     val assetPrice: CoinviewPriceState,
     val tradeable: CoinviewAssetTradeableState,
     val watchlist: CoinviewWatchlistState,
-    val totalBalance: CoinviewTotalBalanceState,
-    val accounts: CoinviewAccountsState,
+    val accounts: DataResource<CoinviewAccountsState?>,
     val centerQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val recurringBuys: CoinviewRecurringBuysState,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
@@ -89,39 +88,30 @@ sealed interface CoinviewTotalBalanceState {
 }
 
 // Accounts
-sealed interface CoinviewAccountsState {
-    object NotSupported : CoinviewAccountsState
-    object Loading : CoinviewAccountsState
-    object Error : CoinviewAccountsState
-    data class Data(
-        val accounts: List<CoinviewAccountState>
-    ) : CoinviewAccountsState {
-        sealed interface CoinviewAccountState {
-            // todo find a better way to identify an account for the viewmodel without sending the whole object
-            val cvAccount: CoinviewAccount
+data class CoinviewAccountsState(
+    val totalBalance: String,
+    val accounts: List<CoinviewAccountState>
+) {
+    sealed interface CoinviewAccountState {
+        // todo find a better way to identify an account for the viewmodel without sending the whole object
+        val cvAccount: CoinviewAccount
 
-            data class Available(
-                override val cvAccount: CoinviewAccount,
-                val title: String,
-                val subtitle: TextValue,
-                val cryptoBalance: String,
-                val fiatBalance: String,
-                val logo: LogoSource,
-                val assetColor: String,
-            ) : CoinviewAccountState
+        data class Available(
+            override val cvAccount: CoinviewAccount,
+            val title: String,
+            val subtitle: TextValue,
+            val cryptoBalance: String,
+            val fiatBalance: String,
+            val logo: LogoSource,
+            val assetColor: String,
+        ) : CoinviewAccountState
 
-            data class Unavailable(
-                override val cvAccount: CoinviewAccount,
-                val title: String,
-                val subtitle: TextValue,
-                val logo: LogoSource
-            ) : CoinviewAccountState
-        }
-
-        sealed interface CoinviewAccountsHeaderState {
-            data class ShowHeader(val text: TextValue) : CoinviewAccountsHeaderState
-            object NoHeader : CoinviewAccountsHeaderState
-        }
+        data class Unavailable(
+            override val cvAccount: CoinviewAccount,
+            val title: String,
+            val subtitle: TextValue,
+            val logo: LogoSource
+        ) : CoinviewAccountState
     }
 }
 

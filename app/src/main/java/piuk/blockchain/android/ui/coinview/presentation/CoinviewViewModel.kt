@@ -11,6 +11,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -30,6 +31,7 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
+import com.stripe.android.model.SourceTypeModel
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.Job
@@ -55,8 +57,8 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Available
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -119,7 +121,6 @@ class CoinviewViewModel(
             tradeable = reduceAssetTradeable(this),
             assetPrice = reduceAssetPrice(this),
             watchlist = reduceWatchlist(this),
-            totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
             centerQuickAction = reduceCenterQuickActions(this),
             recurringBuys = reduceRecurringBuys(this),
@@ -236,109 +237,72 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceTotalBalance(state: CoinviewModelState): CoinviewTotalBalanceState = state.run {
-        when {
-            // not supported for non custodial
-            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
-                CoinviewTotalBalanceState.NotSupported
-            }
-
-            assetDetail is DataResource.Loading -> {
-                CoinviewTotalBalanceState.Loading
-            }
-
-            assetDetail is DataResource.Error -> {
-                CoinviewTotalBalanceState.Error
-            }
-
-            assetDetail is DataResource.Data -> {
-                check(asset != null) { "asset not initialized" }
-
-                with(assetDetail.data) {
-                    check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
-
-                    CoinviewTotalBalanceState.Data(
-                        assetName = asset.currency.name,
-                        totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
-                        totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]?.toStringWithSymbol()
-                            .orEmpty()
-                    )
-                }
-            }
-
-            else -> {
-                CoinviewTotalBalanceState.Loading
-            }
-        }
-    }
-
-    private fun reduceAccounts(state: CoinviewModelState): CoinviewAccountsState = state.run {
+    private fun reduceAccounts(
+        state: CoinviewModelState
+    ): DataResource<CoinviewAccountsState?> = state.run {
         when {
             isTradeableAsset == false -> {
-                CoinviewAccountsState.NotSupported
-            }
-
-            assetDetail is DataResource.Loading -> {
-                CoinviewAccountsState.Loading
-            }
-
-            assetDetail is DataResource.Error -> {
-                CoinviewAccountsState.Error
-            }
-
-            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
-                check(asset != null) { "reduceAccounts - asset not initialized" }
-
-                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
-                    CoinviewAccountsState.Data(
-                        accounts = accounts.accounts.map { cvAccount ->
-                            val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
-                                when (blockchainAccount) {
-                                    is CryptoAccount -> blockchainAccount
-                                    is AccountGroup -> blockchainAccount.selectFirstAccount()
-                                    else -> throw IllegalStateException(
-                                        "Unsupported account type for asset details ${cvAccount.account}"
-                                    )
-                                }
-                            }
-
-                            when (cvAccount.isEnabled) {
-                                true -> {
-                                    when (cvAccount) {
-                                        is CoinviewAccount.Universal ->
-                                            makeAvailableUniversalAccount(cvAccount, account, asset)
-                                        is CoinviewAccount.Custodial.Trading ->
-                                            makeAvailableTradingAccount(cvAccount, asset)
-                                        is CoinviewAccount.Custodial.Interest ->
-                                            makeAvailableInterestAccount(cvAccount, asset)
-                                        is CoinviewAccount.Custodial.Staking ->
-                                            makeAvailableStakingAccount(cvAccount, asset)
-                                        is CoinviewAccount.PrivateKey ->
-                                            makeAvailablePrivateKeyAccount(cvAccount, account, asset)
-                                    }
-                                }
-                                false -> {
-                                    when (cvAccount) {
-                                        is CoinviewAccount.Universal ->
-                                            makeUnavailableUniversalAccount(cvAccount, account, asset)
-                                        is CoinviewAccount.Custodial.Trading ->
-                                            makeUnavailableTradingAccount(cvAccount, asset)
-                                        is CoinviewAccount.Custodial.Interest ->
-                                            makeUnavailableInterestAccount(cvAccount)
-                                        is CoinviewAccount.Custodial.Staking ->
-                                            makeUnavailableStakingAccount(cvAccount)
-                                        is CoinviewAccount.PrivateKey ->
-                                            makeUnavailablePrivateKeyAccount(cvAccount, account)
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
+                DataResource.Data(null)
             }
 
             else -> {
-                CoinviewAccountsState.Loading
+                assetDetail.map {
+                    if(it is CoinviewAssetDetail.Tradeable) {
+                        check(asset != null) { "reduceAccounts - asset not initialized" }
+
+                        with(it) {
+                            check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+
+                            CoinviewAccountsState(
+                                totalBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
+                                accounts = accounts.accounts.map { cvAccount ->
+                                    val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
+                                        when (blockchainAccount) {
+                                            is CryptoAccount -> blockchainAccount
+                                            is AccountGroup -> blockchainAccount.selectFirstAccount()
+                                            else -> throw IllegalStateException(
+                                                "Unsupported account type for asset details ${cvAccount.account}"
+                                            )
+                                        }
+                                    }
+
+                                    when (cvAccount.isEnabled) {
+                                        true -> {
+                                            when (cvAccount) {
+                                                is CoinviewAccount.Universal ->
+                                                    makeAvailableUniversalAccount(cvAccount, account, asset)
+                                                is CoinviewAccount.Custodial.Trading ->
+                                                    makeAvailableTradingAccount(cvAccount, asset)
+                                                is CoinviewAccount.Custodial.Interest ->
+                                                    makeAvailableInterestAccount(cvAccount, asset)
+                                                is CoinviewAccount.Custodial.Staking ->
+                                                    makeAvailableStakingAccount(cvAccount, asset)
+                                                is CoinviewAccount.PrivateKey ->
+                                                    makeAvailablePrivateKeyAccount(cvAccount, account, asset)
+                                            }
+                                        }
+                                        false -> {
+                                            when (cvAccount) {
+                                                is CoinviewAccount.Universal ->
+                                                    makeUnavailableUniversalAccount(cvAccount, account, asset)
+                                                is CoinviewAccount.Custodial.Trading ->
+                                                    makeUnavailableTradingAccount(cvAccount, asset)
+                                                is CoinviewAccount.Custodial.Interest ->
+                                                    makeUnavailableInterestAccount(cvAccount)
+                                                is CoinviewAccount.Custodial.Staking ->
+                                                    makeUnavailableStakingAccount(cvAccount)
+                                                is CoinviewAccount.PrivateKey ->
+                                                    makeUnavailablePrivateKeyAccount(cvAccount, account)
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        null
+                    }
+                }
             }
         }
     }
