@@ -147,6 +147,7 @@ object Versions {
     const val intercomVersion = "12.5.1"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
+    const val vgsVersion = "1.7.1"
 
     /**
      * [composeMarkdownVersion]
@@ -369,6 +370,7 @@ object Libraries {
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
     const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoPlayerVersion}"
     const val composeMarkdown = "com.github.jeziellago:compose-markdown:${Versions.composeMarkdownVersion}"
+    const val vgs = "com.verygoodsecurity:vgscollect:${Versions.vgsVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

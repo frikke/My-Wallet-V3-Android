@@ -1379,7 +1379,7 @@
     <string name="rewards_summary_hold_period">Período inicial de retenção</string>
     <string name="rewards_summary_hold_period_days">%1$d Dias</string>
     <string name="rewards_summary_rate">Taxa de Recompensas</string>
-    <string name="rewards_dashboard_title">Conta Rewards</string>
+    <string name="earn_dashboard_title">Conta Rewards</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Saldo</string>
     <string name="rewards_dashboard_item_accrued_title">Total de Rewards ganhos</string>
     <string name="rewards_dashboard_item_action_earn">Ganhe Rewards</string>

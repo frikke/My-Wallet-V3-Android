@@ -296,15 +296,15 @@ class FiatActionsUseCase(
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts -> {
                 FiatActionsResult.TransactionFlow(
-                    action = action,
-                    target = fiatAccount
+                    account = fiatAccount,
+                    action = action
                 )
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlow -> {
                 FiatActionsResult.TransactionFlow(
-                    account = fiatTxRequestResult.preselectedBankAccount,
+                    account = fiatAccount,
                     action = action,
-                    target = fiatAccount
+                    target = fiatTxRequestResult.preselectedBankAccount
                 )
             }
             is FiatTransactionRequestResult.LaunchBankLink -> {

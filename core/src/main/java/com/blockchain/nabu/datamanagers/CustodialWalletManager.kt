@@ -208,11 +208,21 @@ interface CustodialWalletManager {
 }
 
 data class PaymentAttributes(
+    val paymentId: String?,
     val authorisationUrl: String?,
-    val cardAttributes: CardAttributes = CardAttributes.Empty
+    val cardAttributes: CardAttributes = CardAttributes.Empty,
+    val needCvv: Boolean = false
 ) {
     val isCardPayment: Boolean by lazy {
         cardAttributes != CardAttributes.Empty
+    }
+
+    val cardPaymentState: CardPaymentState? by lazy {
+        when (cardAttributes) {
+            is CardAttributes.Provider -> cardAttributes.paymentState
+            is CardAttributes.EveryPay -> cardAttributes.paymentState
+            is CardAttributes.Empty -> null
+        }
     }
 }
 

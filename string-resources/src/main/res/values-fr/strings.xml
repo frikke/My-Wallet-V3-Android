@@ -1380,7 +1380,7 @@
     <string name="rewards_summary_hold_period">Période de conservation initiale</string>
     <string name="rewards_summary_hold_period_days">%1$d Jours</string>
     <string name="rewards_summary_rate">Taux de récompenses</string>
-    <string name="rewards_dashboard_title">Compte Rewards</string>
+    <string name="earn_dashboard_title">Compte Rewards</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Solde</string>
     <string name="rewards_dashboard_item_accrued_title">Total des Rewards gagnées</string>
     <string name="rewards_dashboard_item_action_earn">Gagnez des récompenses</string>

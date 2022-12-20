@@ -261,7 +261,8 @@ class SimpleBuyCryptoFragment :
                     iconUrl = cardInfo.iconUrl.orEmpty(),
                     statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
                     actions = cardInfo.actions,
-                    analyticsCategories = cardInfo.analyticsCategories
+                    analyticsCategories = cardInfo.analyticsCategories,
+                    closeFlowOnDeeplinkFallback = true,
                 )
             is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
                 title = cardInfo.title.orEmpty(),
@@ -270,7 +271,8 @@ class SimpleBuyCryptoFragment :
                 iconUrl = cardInfo.iconUrl.orEmpty(),
                 statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
                 actions = cardInfo.actions,
-                analyticsCategories = cardInfo.analyticsCategories
+                analyticsCategories = cardInfo.analyticsCategories,
+                closeFlowOnDeeplinkFallback = false,
             )
             CardRejectionState.NotRejected -> {
                 // do nothing
@@ -285,7 +287,8 @@ class SimpleBuyCryptoFragment :
         iconUrl: String?,
         statusIconUrl: String?,
         actions: List<ServerErrorAction>,
-        analyticsCategories: List<String>
+        analyticsCategories: List<String>,
+        closeFlowOnDeeplinkFallback: Boolean,
     ) {
         navigator().showErrorInBottomSheet(
             title = title.orEmpty(),
@@ -299,7 +302,8 @@ class SimpleBuyCryptoFragment :
                 statusUrl = statusIconUrl.orEmpty(),
                 actions = actions,
                 categories = analyticsCategories
-            )
+            ),
+            closeFlowOnDeeplinkFallback = closeFlowOnDeeplinkFallback,
         )
     }
 

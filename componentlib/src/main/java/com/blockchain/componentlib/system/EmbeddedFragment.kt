@@ -1,11 +1,15 @@
 package com.blockchain.componentlib.system
 
-import android.widget.FrameLayout
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 
 @Composable
@@ -15,19 +19,20 @@ fun EmbeddedFragment(
     modifier: Modifier = Modifier,
     tag: String
 ) {
+    val viewId by rememberSaveable { mutableStateOf(View.generateViewId()) }
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            FrameLayout(context).apply {
-                id = ViewCompat.generateViewId()
-            }
+            fragmentManager.findFragmentById(viewId)?.view
+                ?.also { (it.parent as? ViewGroup)?.removeView(it) }
+                ?: FragmentContainerView(context)
+                    .apply { id = viewId }
+                    .also {
+                        fragmentManager.beginTransaction().replace(viewId, fragment, tag).commit()
+                    }
         },
         update = {
-            val fragmentAlreadyAdded = fragmentManager.findFragmentByTag(tag) != null
-
-            if (!fragmentAlreadyAdded) {
-                fragmentManager.beginTransaction().replace(it.id, fragment, tag).commit()
-            }
         }
     )
 }

@@ -41,6 +41,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
@@ -522,19 +523,35 @@ class SimpleBuyInteractor(
         )
     }
 
-    fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
+    fun pollForOrderStatus(
+        orderId: String,
+        hasHandled3ds: Boolean,
+        hasHandledCvv: Boolean
+    ): Single<PollResult<BuySellOrder>> =
         cardPaymentAsyncFF.enabled.flatMap { isCardPaymentAsyncEnabled ->
             PollService(custodialWalletManager.getBuyOrder(orderId)) {
-                it.state == OrderState.FINISHED ||
+                val canFinishPolling = it.state == OrderState.FINISHED ||
                     it.state == OrderState.FAILED ||
-                    it.state == OrderState.CANCELED ||
-                    (isCardPaymentAsyncEnabled && it.canFinishPollingForAsyncCardPayments())
-            }.start(INTERVAL, RETRIES_SHORT)
+                    it.state == OrderState.CANCELED
+
+                canFinishPolling ||
+                    it.canFinishPollingForAsyncCardPayments(isCardPaymentAsyncEnabled, hasHandled3ds, hasHandledCvv)
+            }.start(INTERVAL, RETRIES_DEFAULT)
         }
 
-    private fun BuySellOrder.canFinishPollingForAsyncCardPayments() =
-        (paymentMethodType == PaymentMethodType.PAYMENT_CARD || paymentMethodType == PaymentMethodType.GOOGLE_PAY) &&
-            attributes != null
+    private fun BuySellOrder.canFinishPollingForAsyncCardPayments(
+        isCardPaymentAsyncEnabled: Boolean,
+        hasHandled3ds: Boolean,
+        hasHandledCvv: Boolean
+    ): Boolean {
+        if (!isCardPaymentAsyncEnabled) return false
+        val isPaymentMethodValid =
+            paymentMethodType == PaymentMethodType.PAYMENT_CARD || paymentMethodType == PaymentMethodType.GOOGLE_PAY
+        val isCvvRequired = attributes?.needCvv == true && !hasHandledCvv
+        val is3dsRequired = attributes?.cardPaymentState == CardPaymentState.WAITING_FOR_3DS && !hasHandled3ds
+
+        return isPaymentMethodValid && (isCvvRequired || is3dsRequired)
+    }
 
     fun pollForAuthorisationUrl(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(

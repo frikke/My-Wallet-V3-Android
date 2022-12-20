@@ -709,11 +709,21 @@ fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
             paymentLink = everypay.paymentLink,
             paymentState = everypay.paymentState.toCardPaymentState()
         )
+        cardCassy != null -> CardAttributes.Provider(
+            cardAcquirerName = cardCassy.cardAcquirerName,
+            cardAcquirerAccountCode = cardCassy.cardAcquirerAccountCode,
+            paymentLink = cardCassy.paymentLink.orEmpty(),
+            paymentState = cardCassy.paymentState.toCardPaymentState(),
+            clientSecret = cardCassy.clientSecret.orEmpty(),
+            publishableApiKey = cardCassy.publishableApiKey.orEmpty()
+        )
         else -> CardAttributes.Empty
     }
     return PaymentAttributes(
+        paymentId = paymentId,
         authorisationUrl = authorisationUrl,
-        cardAttributes = cardAttributes
+        cardAttributes = cardAttributes,
+        needCvv = needCvv ?: false
     )
 }
 

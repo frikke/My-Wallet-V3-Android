@@ -43,6 +43,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
+import piuk.blockchain.android.cards.cvv.SecurityCodeActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
@@ -85,6 +86,23 @@ class SimpleBuyPaymentFragment :
     private val recurringBuyFrequencyRemote: RecurringBuyFrequency? by lazy {
         enumValueOfOrNull<RecurringBuyFrequency>(arguments?.getString(RECURRING_BUY_REMOTE).orEmpty())
     }
+
+    private val securityCodeContractLauncher =
+        registerForActivityResult(SecurityCodeActivity.BlockchainActivityResultContract()) { result ->
+            when (result) {
+                SecurityCodeActivity.ActivityResult.Success -> {
+                    model.process(SimpleBuyIntent.CvvInputResult(true))
+                    model.process(SimpleBuyIntent.CheckOrderStatus)
+                }
+                is SecurityCodeActivity.ActivityResult.Failure -> {
+                    model.process(SimpleBuyIntent.ErrorIntent(ErrorState.ServerSideUxError(result.error)))
+                }
+                SecurityCodeActivity.ActivityResult.Skipped -> {
+                    cancelAndGoBackToEnterAmountScreen()
+                }
+                null -> navigator().goToCheckOutScreen(false)
+            }
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -203,6 +221,16 @@ class SimpleBuyPaymentFragment :
             model.process(SimpleBuyIntent.ResetCardPaymentAuth)
         }
 
+        if (newState.openCvvInput && newState.securityCodePaymentId != null) {
+            securityCodeContractLauncher.launch(
+                SecurityCodeActivity.ActivityArgs(
+                    paymentId = newState.securityCodePaymentId,
+                    cardId = newState.selectedPaymentMethod.id
+                )
+            )
+            model.process(SimpleBuyIntent.OpenCvvInputHandled)
+        }
+
         if (newState.shouldLaunchExternalFlow()) {
             newState.order.amount?.let { orderValue ->
                 launchExternalAuthoriseUrlFlow(
@@ -236,6 +264,10 @@ class SimpleBuyPaymentFragment :
                 }
             }
             is CardAcquirerCredentials.Everypay -> openWebView(
+                cardAcquirerCredentials.paymentLink,
+                cardAcquirerCredentials.exitLink
+            )
+            is CardAcquirerCredentials.FakeCardAcquirer -> openWebView(
                 cardAcquirerCredentials.paymentLink,
                 cardAcquirerCredentials.exitLink
             )

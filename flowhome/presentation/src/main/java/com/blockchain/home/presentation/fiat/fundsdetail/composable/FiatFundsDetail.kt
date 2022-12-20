@@ -100,10 +100,9 @@ fun FiatFundDetail(
             //            analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.CURRENCY_PAGE))
 
             viewModel.onIntent(
-                FiatFundsDetailIntent.Deposit(
+                FiatFundsDetailIntent.FiatAction(
                     account = account,
-                    action = AssetAction.FiatDeposit,
-                    shouldLaunchBankLinkTransfer = false
+                    action = AssetAction.FiatDeposit
                 )
             )
         },
@@ -114,10 +113,9 @@ fun FiatFundDetail(
             //            analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.CURRENCY_PAGE))
 
             viewModel.onIntent(
-                FiatFundsDetailIntent.Withdraw(
+                FiatFundsDetailIntent.FiatAction(
                     account = account,
-                    action = AssetAction.FiatWithdraw,
-                    shouldLaunchBankLinkTransfer = false
+                    action = AssetAction.FiatWithdraw
                 )
             )
         },

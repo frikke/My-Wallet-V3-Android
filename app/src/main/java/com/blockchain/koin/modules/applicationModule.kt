@@ -49,6 +49,7 @@ import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.usd
+import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -81,6 +82,7 @@ import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.auth.AppLockTimer
 import piuk.blockchain.android.cards.CardModel
+import piuk.blockchain.android.cards.cvv.SecurityCodeViewModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
@@ -649,6 +651,9 @@ val applicationModule = module {
                 json = get(),
                 prefs = get(),
                 environmentConfig = get(),
+                vgsFeatureFlag = get(vgsFeatureFlag),
+                vgsCardTokenizerService = get(),
+                paymentsService = get(),
                 remoteLogger = get()
             )
         }
@@ -897,6 +902,12 @@ val applicationModule = module {
             securityPrefs = get(),
             referralPrefs = get(),
             encryptedPrefs = get()
+        )
+    }
+
+    viewModel {
+        SecurityCodeViewModel(
+            paymentMethodsService = get()
         )
     }
 

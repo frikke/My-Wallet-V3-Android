@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/grey_000"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -116,7 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacing"
         android:padding="@dimen/smallest_spacing"
-        android:background="@drawable/rounded_view_grey_border"
+        android:background="@drawable/bkgd_white_large_rounding"
         android:visibility="gone"
         tools:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/tx_primary_btn"

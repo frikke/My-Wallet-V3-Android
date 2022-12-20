@@ -25,7 +25,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
-class InterestDashboardActivity :
+class EarnDashboardActivity :
     BlockchainActivity(), EarnDashboardFragment.Host {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
@@ -43,7 +43,7 @@ class InterestDashboardActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         updateToolbar(
-            toolbarTitle = getString(R.string.rewards_dashboard_title),
+            toolbarTitle = getString(R.string.earn_dashboard_title),
             backAction = { onSupportNavigateUp() }
         )
         analytics.logEvent(EarnAnalytics.InterestViewed)
@@ -85,7 +85,7 @@ class InterestDashboardActivity :
     companion object {
         const val ACTIVITY_ACCOUNT = "ACTIVITY_ACCOUNT"
         fun newInstance(context: Context) =
-            Intent(context, InterestDashboardActivity::class.java)
+            Intent(context, EarnDashboardActivity::class.java)
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {

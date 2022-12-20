@@ -22,6 +22,8 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
@@ -359,7 +361,7 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
@@ -371,7 +373,7 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
@@ -383,35 +385,44 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
 
     @Test
-    fun `pollForOrderStatus for PAYMENT_CARD should finish when attributes are returned`() {
+    fun `pollForOrderStatus should finish when needCvv is TRUE`() {
         val order: BuySellOrder = mock()
-        val attributes: PaymentAttributes = mock()
+        val attributes = PaymentAttributes(
+            paymentId = null,
+            authorisationUrl = null,
+            cardAttributes = CardAttributes.Empty,
+            needCvv = true
+        )
         whenever(order.attributes).thenReturn(attributes)
         whenever(order.paymentMethodType).thenReturn(PaymentMethodType.PAYMENT_CARD)
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
 
     @Test
-    fun `pollForOrderStatus for GOOGLE_PAY should finish when attributes are returned`() {
+    fun `pollForOrderStatus should finish when cardPaymentState is WAITING_FOR_3DS`() {
         val order: BuySellOrder = mock()
-        val attributes: PaymentAttributes = mock()
+        val attributes = PaymentAttributes(
+            paymentId = null,
+            authorisationUrl = null,
+            cardAttributes = CardAttributes.EveryPay("", CardPaymentState.WAITING_FOR_3DS)
+        )
         whenever(order.attributes).thenReturn(attributes)
-        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.GOOGLE_PAY)
+        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.PAYMENT_CARD)
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }

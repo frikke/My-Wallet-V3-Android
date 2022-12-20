@@ -137,7 +137,7 @@ class SelectSourceAccountFragment :
     private fun FragmentTxAccountSelectorBinding.setupSearch() {
         sourceSelectSearch.visible()
         sourceSelectSearch.apply {
-            label = getString(R.string.search_wallets_hint)
+            placeholder = getString(R.string.search_wallets_hint)
             onValueChange = { searchTerm ->
                 this@setupSearch.onSearchTermUpdated(searchTerm)
             }

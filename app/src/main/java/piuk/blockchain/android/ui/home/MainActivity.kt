@@ -120,7 +120,7 @@ import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
-import piuk.blockchain.android.ui.interest.InterestDashboardActivity
+import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -502,7 +502,7 @@ class MainActivity :
             INTEREST_DASHBOARD -> {
                 if (resultCode == RESULT_FIRST_USER) {
                     data?.let { intent ->
-                        val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
+                        val account = intent.extras?.getAccount(EarnDashboardActivity.ACTIVITY_ACCOUNT)
                         startActivitiesFragment(account)
                     }
                 }
@@ -1373,7 +1373,7 @@ class MainActivity :
 
     override fun launchInterestDashboard(origin: LaunchOrigin) {
         startActivityForResult(
-            InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
+            EarnDashboardActivity.newInstance(this), INTEREST_DASHBOARD
         )
         analytics.logEvent(EarnAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
     }

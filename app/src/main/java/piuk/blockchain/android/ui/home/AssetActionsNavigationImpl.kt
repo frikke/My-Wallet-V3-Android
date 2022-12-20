@@ -18,7 +18,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
-import piuk.blockchain.android.ui.interest.InterestDashboardActivity
+import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
 
@@ -102,7 +102,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun earnRewards() {
         activity!!.startActivity(
-            InterestDashboardActivity.newInstance(
+            EarnDashboardActivity.newInstance(
                 activity
             )
         )

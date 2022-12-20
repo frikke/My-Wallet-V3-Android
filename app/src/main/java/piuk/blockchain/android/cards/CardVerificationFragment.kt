@@ -60,7 +60,9 @@ class CardVerificationFragment :
     }
 
     override fun render(newState: CardState) {
-        if (newState.addCard) {
+        if (!newState.vgsTokenResponse.isNullOrEmpty() && newState.isVgsEnabled && newState.cardRequestStatus == null) {
+            model.process(CardIntent.CheckCardStatus(newState.vgsTokenResponse))
+        } else if (newState.addCard) {
             cardDetailsPersistence.getCardData()?.let {
                 model.process(CardIntent.CardAddRequested)
                 model.process(CardIntent.AddNewCard(it))
@@ -84,6 +86,12 @@ class CardVerificationFragment :
     private fun processCardAuthRequest(cardAcquirerCredentials: CardAcquirerCredentials) {
         when (cardAcquirerCredentials) {
             is CardAcquirerCredentials.Everypay -> {
+                openWebView(
+                    cardAcquirerCredentials.paymentLink,
+                    cardAcquirerCredentials.exitLink
+                )
+            }
+            is CardAcquirerCredentials.FakeCardAcquirer -> {
                 openWebView(
                     cardAcquirerCredentials.paymentLink,
                     cardAcquirerCredentials.exitLink
@@ -113,7 +121,7 @@ class CardVerificationFragment :
                 // Reset here in order to call CheckCardStatus safely
                 model.process(CardIntent.ResetCardAuth)
                 // Start polling in absence of a callback in the case of Stripe
-                model.process(CardIntent.CheckCardStatus)
+                model.process(CardIntent.CheckCardStatus())
             }
             is CardAcquirerCredentials.Checkout -> {
                 // For Checkout no 3DS is required if the link is empty. For Stripe they take care of all scenarios.
@@ -128,7 +136,7 @@ class CardVerificationFragment :
                         )
                     }
                 } else {
-                    model.process(CardIntent.CheckCardStatus)
+                    model.process(CardIntent.CheckCardStatus())
                 }
             }
         }
@@ -310,7 +318,7 @@ class CardVerificationFragment :
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == EVERYPAY_AUTH_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                model.process(CardIntent.CheckCardStatus)
+                model.process(CardIntent.CheckCardStatus())
                 analytics.logEvent(SimpleBuyAnalytics.CARD_3DS_COMPLETED)
             }
         }
@@ -334,7 +342,7 @@ class CardVerificationFragment :
             object : PaymentForm.On3DSFinished {
                 override fun onSuccess(token: String?) {
                     binding.checkoutCardForm.gone()
-                    model.process(CardIntent.CheckCardStatus)
+                    model.process(CardIntent.CheckCardStatus())
                 }
 
                 override fun onError(errorMessage: String?) {

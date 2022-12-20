@@ -14,6 +14,8 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.payments.core.CardBillingAddress
+import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -35,7 +37,9 @@ class BillingAddressFragment :
     SlidingModalBottomDialog.Host {
 
     private var usSelected = false
+    private var isVgsEnabled = false
     private val userService: UserService by scopedInject()
+    private val cardTokenizerService: VgsCardTokenizerService by scopedInject()
     private val fraudService: FraudService by inject()
 
     private val compositeDisposable = CompositeDisposable()
@@ -95,21 +99,34 @@ class BillingAddressFragment :
 
             btnNext.setOnClickListener {
                 fraudService.endFlow(FraudFlow.CARD_LINK)
-                model.process(
-                    CardIntent.UpdateBillingAddress(
-                        BillingAddress(
-                            countryCode = countryPickerItem?.code
-                                ?: throw java.lang.IllegalStateException("No country selected"),
-                            postCode = (if (usSelected) zipUsa.text else postcode.text).toString(),
-                            state = if (usSelected) state.text.toString() else null,
-                            city = city.text.toString(),
-                            addressLine1 = addressLine1.text.toString(),
-                            addressLine2 = addressLine2.text.toString(),
-                            fullName = fullName.text.toString()
+
+                val billingAddress = BillingAddress(
+                    countryCode = countryPickerItem?.code
+                        ?: throw java.lang.IllegalStateException("No country selected"),
+                    postCode = (if (usSelected) zipUsa.text else postcode.text).toString(),
+                    state = if (usSelected) state.text.toString() else null,
+                    city = city.text.toString(),
+                    addressLine1 = addressLine1.text.toString(),
+                    addressLine2 = addressLine2.text.toString(),
+                    fullName = fullName.text.toString()
+                )
+
+                if (isVgsEnabled) {
+                    cardTokenizerService.bindAddressDetails(
+                        CardBillingAddress(
+                            city = billingAddress.city,
+                            country = billingAddress.countryCode,
+                            addressLine1 = billingAddress.addressLine1,
+                            addressLine2 = billingAddress.addressLine2,
+                            postalCode = billingAddress.postCode,
+                            state = billingAddress.state
                         )
                     )
-                )
-                model.process(CardIntent.ReadyToAddNewCard)
+                    model.process(CardIntent.SubmitVgsCardInfo)
+                } else {
+                    model.process(CardIntent.UpdateBillingAddress(billingAddress))
+                    model.process(CardIntent.ReadyToAddNewCard)
+                }
 
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
@@ -176,8 +193,22 @@ class BillingAddressFragment :
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
 
     override fun render(newState: CardState) {
+        isVgsEnabled = newState.isVgsEnabled
+        newState.vgsTokenResponse?.let {
+            navigator.navigateToCardVerification()
+        }
+
         if (newState.addCard) {
             navigator.navigateToCardVerification()
+        }
+
+        if (newState.showCardCreationError) {
+            BlockchainSnackbar.make(
+                view = binding.root,
+                message = R.string.something_went_wrong_try_again,
+                type = SnackbarType.Error,
+            ).show()
+            model.process(CardIntent.ErrorHandled)
         }
 
         newState.usStateList?.let { stateList ->

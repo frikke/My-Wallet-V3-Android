@@ -45,6 +45,10 @@ interface CardService {
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
     ): Flow<DataResource<PaymentMethod.Card>>
 
+    suspend fun getCardDetailsCo(cardId: String): Outcome<Exception, PaymentMethod.Card>
+
+    suspend fun updateCvv(paymentId: String, cvv: String): Outcome<Exception, Unit>
+
     fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo>
 
     suspend fun checkNewCardRejectionState(binNumber: String): Outcome<CardRejectionCheckError, CardRejectionState>

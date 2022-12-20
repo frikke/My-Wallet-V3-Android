@@ -140,8 +140,26 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class Open3dsAuth(private val cardAcquirerCredentials: CardAcquirerCredentials) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(cardAcquirerCredentials = cardAcquirerCredentials)
+            oldState.copy(
+                cardAcquirerCredentials = cardAcquirerCredentials,
+                hasHandled3ds = true
+            )
     }
+
+    data class OpenCvvInput(val paymentId: String) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                securityCodePaymentId = paymentId,
+                openCvvInput = true,
+            )
+    }
+
+    object OpenCvvInputHandled : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(openCvvInput = false, hasHandledCvv = true)
+    }
+
+    class CvvInputResult(val cvvUpdateSuccessful: Boolean) : SimpleBuyIntent()
 
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =

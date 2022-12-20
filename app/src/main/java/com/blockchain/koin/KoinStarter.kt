@@ -39,6 +39,7 @@ import com.blockchain.nfts.data.koin.nftDataModule
 import com.blockchain.nfts.koin.nftPresentationModule
 import com.blockchain.notifications.koin.notificationModule
 import com.blockchain.payments.googlepay.googlePayPresentationModule
+import com.blockchain.payments.vgs.tokenizerModule
 import com.blockchain.presentation.commonPresentationModule
 import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
@@ -174,6 +175,7 @@ object KoinStarter {
                     bankAliasLinkPresentationModule,
                     educationalWalletModesPresentationModule,
                     fraudDataModule,
+                    tokenizerModule,
                     nftDataModule, nftPresentationModule,
                     multiAppModule,
                     earnDataModule, earnPresentationModule

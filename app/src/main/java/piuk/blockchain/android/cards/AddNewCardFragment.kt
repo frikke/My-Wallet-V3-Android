@@ -15,12 +15,18 @@ import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.utils.VibrationManager
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
 import com.braintreepayments.cardform.utils.CardType
+import com.verygoodsecurity.vgscollect.core.model.state.FieldState
+import com.verygoodsecurity.vgscollect.core.storage.OnFieldStateChangeListener
+import com.verygoodsecurity.vgscollect.view.InputFieldView
+import com.verygoodsecurity.vgscollect.widget.VGSTextInputLayout
 import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
@@ -44,11 +50,13 @@ class AddNewCardFragment :
     ErrorSlidingBottomDialog.Host {
 
     override val model: CardModel by scopedInject()
+    private val cardTokenizerService: VgsCardTokenizerService by scopedInject()
 
     private val fraudService: FraudService by inject()
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private var secondaryCtaLink: String = ""
+    private var isCardRejectionStateLoading: Boolean = false
     private var cardRejectionState: CardRejectionState? = null
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
@@ -71,8 +79,32 @@ class AddNewCardFragment :
                     }
 
                     text?.let { input ->
-                        if (input.length == CARD_BIN_LENGTH) {
-                            model.process(CardIntent.CheckProviderFailureRate(input.toString()))
+                        if (input.length >= CARD_BIN_LENGTH) {
+                            model.process(CardIntent.CheckProviderFailureRate(input.toString().take(CARD_BIN_LENGTH)))
+                        } else if (input.length < CARD_BIN_LENGTH) {
+                            model.process(CardIntent.ResetCardRejectionState)
+                        }
+                    }
+                }
+
+                checkAllFieldsValidity()
+            }
+            hideError()
+        }
+    }
+
+    private val cardTextChangedListener = object : InputFieldView.OnTextChangedListener {
+        override fun onTextChange(view: InputFieldView, isEmpty: Boolean) {
+            with(binding) {
+                with(vgsCardNumber) {
+                    binding.vgsCardInputForm.setErrorEnabled(false)
+                    binding.vgsCardInputForm.setError(null)
+                    if (this.getState()?.isValid == false) {
+                        resetCardRejectionState()
+                    }
+                    getState()?.bin?.let { input ->
+                        if (input.length >= CARD_BIN_LENGTH) {
+                            model.process(CardIntent.CheckProviderFailureRate(input.take(CARD_BIN_LENGTH)))
                         } else if (input.length < CARD_BIN_LENGTH) {
                             model.process(CardIntent.ResetCardRejectionState)
                         }
@@ -87,11 +119,21 @@ class AddNewCardFragment :
 
     private val otherFieldsTextWatcher = object : AfterTextChangedWatcher() {
         override fun afterTextChanged(s: Editable?) {
-            with(binding) {
-                checkAllFieldsValidity()
-            }
-            hideError()
+            afterTextChangedOnOtherFields()
         }
+    }
+
+    private val otherFieldsTextChangedListener = object : InputFieldView.OnTextChangedListener {
+        override fun onTextChange(view: InputFieldView, isEmpty: Boolean) {
+            afterTextChangedOnOtherFields()
+        }
+    }
+
+    private fun afterTextChangedOnOtherFields() {
+        with(binding) {
+            checkAllFieldsValidity()
+        }
+        hideError()
     }
 
     private val cardTypeWatcher = object : AfterTextChangedWatcher() {
@@ -113,12 +155,32 @@ class AddNewCardFragment :
         }
     }
 
+    private val cardTypeChangedListener = object : InputFieldView.OnTextChangedListener {
+        override fun onTextChange(view: InputFieldView, isEmpty: Boolean) {
+            with(binding) {
+                if (vgsCardNumber.getState()?.cardBrand?.equals("MASTERCARD", ignoreCase = true) == true) {
+                    vgsCardCvvInput.setHint(R.string.card_cvc)
+                    vgsCardCvvInput.tag = getString(R.string.invalid_cvc)
+                } else {
+                    vgsCardCvvInput.setHint(R.string.card_cvv)
+                    vgsCardCvvInput.tag = getString(R.string.invalid_cvv)
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cardTokenizerService.destroy()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         fraudService.trackFlow(FraudFlow.CARD_LINK)
 
+        model.process(CardIntent.CheckTokenizer)
         model.process(CardIntent.LoadLinkedCards)
 
         with(binding) {
@@ -136,7 +198,7 @@ class AddNewCardFragment :
                         if (cardNumberValue.length >= CARD_BIN_LENGTH) {
                             model.process(
                                 CardIntent.CheckProviderFailureRate(
-                                    cardNumberValue.substring(0, CARD_BIN_LENGTH)
+                                    cardNumberValue.take(CARD_BIN_LENGTH)
                                 )
                             )
                         }
@@ -159,8 +221,6 @@ class AddNewCardFragment :
                     if (cardHasAlreadyBeenAdded()) {
                         showError()
                     } else {
-                        fraudService.trackFlow(FraudFlow.CARD_LINK)
-
                         cardDetailsPersistence.setCardData(
                             CardData(
                                 fullName = cardName.text.toString(),
@@ -170,10 +230,7 @@ class AddNewCardFragment :
                                 cvv = cvv.text.toString()
                             )
                         )
-                        activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-
-                        analytics.logEvent(SimpleBuyAnalytics.CARD_INFO_SET)
-                        navigator.navigateToBillingDetails()
+                        navigateToBillingDetails()
                     }
                 }
             }
@@ -186,10 +243,64 @@ class AddNewCardFragment :
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
     }
 
+    private fun navigateToBillingDetails() {
+        fraudService.trackFlow(FraudFlow.CARD_LINK)
+
+        activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        navigator.navigateToBillingDetails()
+        analytics.logEvent(SimpleBuyAnalytics.CARD_INFO_SET)
+    }
+
+    private fun addVgsErrorListeners(
+        inputLayout: VGSTextInputLayout,
+        inputFieldView: InputFieldView,
+        error: () -> String
+    ) {
+        inputFieldView.addOnTextChangeListener(object : InputFieldView.OnTextChangedListener {
+            override fun onTextChange(view: InputFieldView, isEmpty: Boolean) {
+                inputLayout.setErrorEnabled(false)
+                inputLayout.setError(null)
+            }
+        })
+        inputFieldView.setOnFieldStateChangeListener(object : OnFieldStateChangeListener {
+            override fun onStateChange(state: FieldState) {
+                if (state.contentLength > 0 && state.validationErrors.isNotEmpty() && !state.hasFocus) {
+                    inputLayout.setErrorEnabled(true)
+                    inputLayout.setError(error())
+                }
+            }
+        })
+    }
+
+    private fun initVgsFields() {
+        with(binding.vgsCardName) {
+            addOnTextChangeListener(otherFieldsTextChangedListener)
+            addVgsErrorListeners(binding.vgsCardNameInput, this, { getString(R.string.invalid_card_name) })
+        }
+        with(binding.vgsCardNumber) {
+            addOnTextChangeListener(cardTypeChangedListener)
+            addOnTextChangeListener(cardTextChangedListener)
+            addVgsErrorListeners(binding.vgsCardInputForm, this, { getString(R.string.invalid_card_number) })
+        }
+        with(binding.vgsCvv) {
+            addOnTextChangeListener(otherFieldsTextChangedListener)
+            addVgsErrorListeners(binding.vgsCardCvvInput, this, { binding.vgsCardCvvInput.tag as String })
+        }
+        with(binding.vgsExpiryDate) {
+            addOnTextChangeListener(otherFieldsTextChangedListener)
+            addVgsErrorListeners(binding.vgsCardDateInput, this, { getString(R.string.invalid_date) })
+        }
+    }
+
     override fun render(newState: CardState) {
+        renderTokenizer(newState.isLoading, newState.isVgsEnabled, newState.vaultId, newState.cardTokenId)
+
         newState.linkedCards?.let {
             availableCards = it
         }
+
+        isCardRejectionStateLoading = newState.isCardRejectionStateLoading
 
         newState.cardRejectionState?.let { state ->
             cardRejectionState = state
@@ -197,6 +308,37 @@ class AddNewCardFragment :
             handleCardRejectionState(state)
         } ?: run {
             resetCardRejectionState()
+        }
+    }
+
+    private fun renderTokenizer(isLoading: Boolean, isVgsEnabled: Boolean, vaultId: String?, cardTokenId: String?) {
+        with(binding) {
+            loading.visibleIf { isLoading }
+            cardScrollContainer.visibleIf { !isLoading }
+
+            cardInputGroup.visibleIf { !isVgsEnabled }
+            vgsCardInputGroup.visibleIf { isVgsEnabled }
+
+            if (isVgsEnabled && vaultId != null && cardTokenId != null) {
+                if (!cardTokenizerService.isInitialised()) {
+                    cardTokenizerService.init(requireContext(), vaultId)
+                    initVgsFields()
+                    cardTokenizerService.bindCardDetails(
+                        name = binding.vgsCardName,
+                        cardNumber = binding.vgsCardNumber,
+                        expiration = binding.vgsExpiryDate,
+                        cvv = binding.vgsCvv,
+                        cardTokenId = cardTokenId
+                    )
+                }
+
+                btnNext.apply {
+                    text = getString(R.string.common_next)
+                    onClick = {
+                        navigateToBillingDetails()
+                    }
+                }
+            }
         }
     }
 
@@ -367,11 +509,14 @@ class AddNewCardFragment :
     }
 
     private fun FragmentAddNewCardBinding.isCardInfoDataValid() =
-        cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid
+        (cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid) ||
+            (cardTokenizerService.isInitialised() && cardTokenizerService.isValid())
 
     private fun FragmentAddNewCardBinding.checkAllFieldsValidity() =
         if (isCardInfoDataValid()) {
-            if (cardRejectionState != null && cardRejectionState !is CardRejectionState.AlwaysRejected) {
+            if (!isCardRejectionStateLoading &&
+                (cardRejectionState == null || cardRejectionState !is CardRejectionState.AlwaysRejected)
+            ) {
                 btnNext.buttonState = ButtonState.Enabled
             } else {
                 btnNext.buttonState = ButtonState.Disabled
@@ -388,9 +533,13 @@ class AddNewCardFragment :
         resetCardRejectionState()
         with(binding) {
             cardName.setText("")
+            vgsCardName.setText("")
             cardNumber.setText("")
+            vgsCardNumber.setText("")
             expiryDate.setText("")
+            vgsExpiryDate.setText("")
             cvv.setText("")
+            vgsCvv.setText("")
         }
     }
 
@@ -425,7 +574,7 @@ class AddNewCardFragment :
         if (this < 100) 2000 + this else this
 
     companion object {
-        // Card BIN - 8 digit code which can be looked up for its success rate
-        private const val CARD_BIN_LENGTH = 8
+        // Card BIN - 6 digit code which can be looked up for its success rate
+        private const val CARD_BIN_LENGTH = 6
     }
 }

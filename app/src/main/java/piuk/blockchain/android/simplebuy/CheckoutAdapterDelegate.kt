@@ -262,8 +262,7 @@ private class ToggleCheckoutItemItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.rootView.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
-
+            toggleParent.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
             toggleRow.apply {
                 primaryText = item.title
                 secondaryText = item.subtitle

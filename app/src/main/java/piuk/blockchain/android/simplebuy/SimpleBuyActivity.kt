@@ -472,9 +472,10 @@ class SimpleBuyActivity :
         error: String,
         errorDescription: String?,
         nabuApiException: NabuApiException?,
-        serverSideUxErrorInfo: ServerSideUxErrorInfo?
+        serverSideUxErrorInfo: ServerSideUxErrorInfo?,
+        closeFlowOnDeeplinkFallback: Boolean,
     ) {
-        serverSideUxErrorInfo?.actions?.assignErrorActions()
+        serverSideUxErrorInfo?.actions?.assignErrorActions(closeFlowOnDeeplinkFallback)
 
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
@@ -538,27 +539,27 @@ class SimpleBuyActivity :
         }
     }
 
-    private fun List<ServerErrorAction>.assignErrorActions() =
+    private fun List<ServerErrorAction>.assignErrorActions(closeFlowOnDeeplinkFallback: Boolean) =
         mapIndexed { index, info ->
             when (index) {
                 0 -> primaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
-                    } else {
+                    } else if (closeFlowOnDeeplinkFallback) {
                         finish()
                     }
                 }
                 1 -> secondaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
-                    } else {
+                    } else if (closeFlowOnDeeplinkFallback) {
                         finish()
                     }
                 }
                 2 -> tertiaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
-                    } else {
+                    } else if (closeFlowOnDeeplinkFallback) {
                         finish()
                     }
                 }

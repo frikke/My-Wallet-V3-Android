@@ -1140,6 +1140,31 @@ class PaymentsRepositoryTest {
     }
 
     @Test
+    fun `getCardDetailsCo() should return card`() = runTest {
+        // ARRANGE
+        val cardResponse = CardResponse(
+            id = "id",
+            partner = "CARDPROVIDER",
+            state = CardResponse.ACTIVE,
+            currency = NETWORK_TICKER
+        )
+        every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
+        coEvery { paymentMethodsService.getCardDetailsCo(ID) } returns Outcome.Success(cardResponse)
+
+        // ASSERT
+        subject.getCardDetailsCo(ID).doOnSuccess {
+            assertEquals(
+                it.limits,
+                PaymentLimits(
+                    BigInteger.ZERO,
+                    BigInteger.ZERO,
+                    FiatCurrency.fromCurrencyCode(NETWORK_TICKER)
+                )
+            )
+        }
+    }
+
+    @Test
     fun `deleteCard() should remove card and invalidate cache`() {
         // ARRANGE
         every { paymentMethodsService.deleteCard(ID) } returns Completable.complete()
