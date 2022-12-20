@@ -113,7 +113,7 @@ fun AssetAccountsError() {
 
 @Composable
 fun AssetAccountsData(
-    analytics: Analytics,
+    analytics: Analytics = get(),
     assetTicker: String,
     data: CoinviewAccountsState.Data,
     onAccountClick: (CoinviewAccount) -> Unit,

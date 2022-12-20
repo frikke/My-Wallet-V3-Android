@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -158,7 +157,7 @@ fun PreviewAssetInfo_Data() {
                         |the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s 
                         |with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop 
                         |publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    """.trimMargin(),
+            """.trimMargin(),
             website = null
         ),
         assetTicker = "ETH",

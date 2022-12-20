@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +23,6 @@ import com.blockchain.charts.ChartEntry
 import com.blockchain.charts.ChartView
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.Balance
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
@@ -265,7 +263,9 @@ fun PreviewAssetPrice_Data() {
             priceChange = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
-            chartData = CoinviewPriceState.Data.CoinviewChartState.Loading,
+            chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
+                listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
+            ),
             selectedTimeSpan = HistoricalTimeSpan.DAY
         ),
         assetTicker = "ETH",

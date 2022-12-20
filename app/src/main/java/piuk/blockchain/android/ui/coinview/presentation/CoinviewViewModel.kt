@@ -58,7 +58,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
 

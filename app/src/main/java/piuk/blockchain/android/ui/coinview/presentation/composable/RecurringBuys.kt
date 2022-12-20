@@ -180,22 +180,28 @@ fun RecurringBuysData(
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Loading() {
-    RecurringBuys(previewAnalytics,
-        CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {}
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Error() {
-    RecurringBuys(previewAnalytics,
-        CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {}
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewRecurringBuys_Upsell() {
-    RecurringBuys(previewAnalytics,
-        CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {})
+    RecurringBuys(
+        previewAnalytics,
+        CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {}
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
