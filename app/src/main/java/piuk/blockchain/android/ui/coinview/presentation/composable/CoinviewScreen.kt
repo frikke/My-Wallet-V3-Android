@@ -27,6 +27,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
@@ -36,17 +37,13 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
@@ -85,7 +82,6 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
             },
 
-            totalBalance = state.totalBalance,
             accounts = state.accounts,
             onAccountClick = { account ->
                 if (account.isClickable)
@@ -131,22 +127,20 @@ fun CoinviewScreen(
 
     tradeable: CoinviewAssetTradeableState,
 
-    watchlist: CoinviewWatchlistState,
+    watchlist: DataResource<Boolean>,
     onWatchlistClick: () -> Unit,
 
-    totalBalance: CoinviewTotalBalanceState,
-
-    accounts: CoinviewAccountsState,
+    accounts: DataResource<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit,
 
-    quickActionsCenter: CoinviewCenterQuickActionsState,
+    quickActionsCenter: DataResource<List<CoinviewQuickActionState>>,
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewBottomQuickActionsState,
+    quickActionsBottom: DataResource<List<CoinviewQuickActionState>>,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit,
 
     assetInfo: CoinviewAssetInfoState,
@@ -165,7 +159,7 @@ fun CoinviewScreen(
                 title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
                 onBackButtonClick = backOnClick,
                 navigationBarButtons = listOfNotNull(
-                    (watchlist as? CoinviewWatchlistState.Data)?.isInWatchlist?.let { isInWatchlist ->
+                    (watchlist as? DataResource.Data)?.data?.let { isInWatchlist ->
                         NavigationBarButton.IconResource(
                             image = if (isInWatchlist) {
                                 Icons.Filled.Star
@@ -220,10 +214,6 @@ fun CoinviewScreen(
                             CenterQuickActions(
                                 data = quickActionsCenter,
                                 onQuickActionClick = onQuickActionClick
-                            )
-
-                            TotalBalance(
-                                totalBalanceData = totalBalance
                             )
 
                             NonTradeableAsset(
@@ -296,21 +286,20 @@ fun PreviewCoinviewScreen() {
 
         tradeable = CoinviewAssetTradeableState.Tradeable,
 
-        watchlist = CoinviewWatchlistState.Loading,
+        watchlist = DataResource.Loading,
         onWatchlistClick = {},
 
-        totalBalance = CoinviewTotalBalanceState.Loading,
-        accounts = CoinviewAccountsState.Loading,
+        accounts = DataResource.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},
 
-        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+        quickActionsCenter = DataResource.Loading,
 
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
-        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        quickActionsBottom = DataResource.Loading,
         onQuickActionClick = {},
 
         assetInfo = CoinviewAssetInfoState.Loading,
@@ -336,21 +325,20 @@ fun PreviewCoinviewScreen_Unknown() {
 
         tradeable = CoinviewAssetTradeableState.Tradeable,
 
-        watchlist = CoinviewWatchlistState.Loading,
+        watchlist = DataResource.Loading,
         onWatchlistClick = {},
 
-        totalBalance = CoinviewTotalBalanceState.Loading,
-        accounts = CoinviewAccountsState.Loading,
+        accounts = DataResource.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},
 
-        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+        quickActionsCenter = DataResource.Loading,
 
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
-        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        quickActionsBottom = DataResource.Loading,
         onQuickActionClick = {},
 
         assetInfo = CoinviewAssetInfoState.Loading,

@@ -123,16 +123,45 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
+                            @Suppress("UnnecessaryVariable")
                             val canSwap = hasPositiveFilterBalance
 
+                            /**
+                             * Send button will be enabled if
+                             * * Balance is positive
+                             *
+                             * *AND*
+                             *
+                             * * Is available for trading ([isAvailableForTrading])
+                             */
+                            val canSend = isAvailableForTradingData && hasPositiveFilterBalance
+
+                            /**
+                             * Receive button will be enabled if
+                             * * Is available for trading ([isAvailableForTrading])
+                             */
+                            @Suppress("UnnecessaryVariable")
+                            val canReceive = isAvailableForTradingData
+
+                            val centerButtons = listOfNotNull(
+                                CoinviewQuickAction.Swap.takeIf { canSwap },
+                                CoinviewQuickAction.Send.takeIf { canSend },
+                                CoinviewQuickAction.Receive.takeIf { canReceive },
+                            )
+
+                            val bottomButtons = listOfNotNull(
+                                CoinviewQuickAction.Sell.takeIf { canSell },
+                                CoinviewQuickAction.Buy.takeIf { canBuy },
+                            )
+
+                            /**
+                             * if true, combine both lists on the bottom
+                             */
+                            val canListsBeCombined = centerButtons.size == 1 && bottomButtons.size == 1
+
                             CoinviewQuickActions(
-                                center = if (isSupportedForSwapData) {
-                                    CoinviewQuickAction.Swap(canSwap)
-                                } else {
-                                    CoinviewQuickAction.None
-                                },
-                                bottomStart = CoinviewQuickAction.Sell(canSell),
-                                bottomEnd = CoinviewQuickAction.Buy(canBuy)
+                                center = if (canListsBeCombined) listOf() else centerButtons,
+                                bottom = if (canListsBeCombined) centerButtons + bottomButtons else bottomButtons
                             )
                         }
                     }
@@ -167,15 +196,23 @@ class LoadQuickActionsUseCase(
                          */
                         val canSwap = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
 
+                        val centerButtons = listOfNotNull(
+                            CoinviewQuickAction.Send.takeIf { canSend },
+                            CoinviewQuickAction.Receive.takeIf { canReceive },
+                        )
+
+                        val bottomButtons = listOfNotNull(
+                            CoinviewQuickAction.Swap.takeIf { canSwap }
+                        )
+
+                        /**
+                         * if true, put the centerbottons on the bottom
+                         */
+                        val shouldSwitch = bottomButtons.isEmpty()
+
                         CoinviewQuickActions(
-                            center = if (canSwap) {
-                                CoinviewQuickAction.Swap(canSwap)
-                            } else {
-                                CoinviewQuickAction.None
-                            },
-                            bottomStart = CoinviewQuickAction.Receive(canReceive),
-                            bottomEnd = CoinviewQuickAction.Send(canSend)
-                            //                                    actionableAccount = custodialAccount todo
+                            center = if (shouldSwitch) emptyList() else centerButtons,
+                            bottom = if (shouldSwitch) centerButtons else bottomButtons
                         )
                     }
                 }
