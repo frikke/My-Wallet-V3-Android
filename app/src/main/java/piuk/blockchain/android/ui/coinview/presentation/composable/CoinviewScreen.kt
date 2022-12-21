@@ -1,10 +1,14 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -17,10 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.composable.ANIMATION_DURATION
+import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
@@ -42,6 +49,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewPillAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -110,6 +118,7 @@ fun Coinview(
             onWebsiteClick = {
                 viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
             },
+            pillAlert = state.pillAlert,
             snackbarAlert = state.snackbarError
         )
     }
@@ -150,6 +159,8 @@ fun CoinviewScreen(
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
 
+    pillAlert: CoinviewPillAlertState,
+
     snackbarAlert: CoinviewSnackbarAlertState
 ) {
     Box(
@@ -157,8 +168,6 @@ fun CoinviewScreen(
             .fillMaxSize()
             .background(color = AppTheme.colors.backgroundMuted)
     ) {
-
-
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
                 title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
@@ -268,6 +277,26 @@ fun CoinviewScreen(
             }
         }
 
+        val pillAlertOffsetY by animateIntAsState(
+            targetValue = if (pillAlert is CoinviewPillAlertState.None) -300 else 0,
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION
+            )
+        )
+        PillAlert(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(AppTheme.dimensions.tinySpacing)
+                .offset {
+                    IntOffset(
+                        x = 0,
+                        y = pillAlertOffsetY
+                    )
+                },
+            message = "Added to favorites",
+            icon = Icons.Filled.Star.withTint(   Color(0XFFFFCD53))
+        )
+
         if (snackbarAlert != CoinviewSnackbarAlertState.None) {
             Box(modifier = Modifier.align(Alignment.BottomCenter)) {
                 SnackbarAlert(
@@ -323,6 +352,7 @@ fun PreviewCoinviewScreen() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
+        pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
 }
@@ -364,6 +394,7 @@ fun PreviewCoinviewScreen_Unknown() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
+        pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
 }

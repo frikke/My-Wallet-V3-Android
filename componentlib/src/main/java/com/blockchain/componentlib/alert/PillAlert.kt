@@ -23,13 +23,14 @@ import com.blockchain.componentlib.theme.Dark800
 // todo(othman) customize it with types
 @Composable
 fun PillAlert(
+    modifier: Modifier = Modifier,
     message: String,
     icon: ImageResource = ImageResource.None,
     backgroundColor: Color = Dark800,
     textColor: Color = AppTheme.colors.background
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = backgroundColor,
                 shape = AppTheme.shapes.extraLarge
@@ -38,7 +39,7 @@ fun PillAlert(
                 horizontal = AppTheme.dimensions.standardSpacing,
                 vertical = AppTheme.dimensions.verySmallSpacing
             )
-            .clickable(true, onClick = {}),
+            .clickable(true, onClick = {}) ,
         verticalAlignment = Alignment.CenterVertically
     ) {
 

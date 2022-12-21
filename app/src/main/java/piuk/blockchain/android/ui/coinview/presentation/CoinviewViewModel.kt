@@ -95,6 +95,7 @@ class CoinviewViewModel(
     private var loadRecurringBuyJob: Job? = null
     private var loadAssetInfoJob: Job? = null
     private var snackbarMessageJob: Job? = null
+    private var pillAlertJob: Job? = null
 
     private val fiatCurrency: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -126,6 +127,7 @@ class CoinviewViewModel(
             recurringBuys = reduceRecurringBuys(this),
             bottomQuickAction = reduceBottomQuickActions(this),
             assetInfo = reduceAssetInfo(this),
+            pillAlert = reducePillAlert(this),
             snackbarError = reduceSnackbarError(this)
         )
     }
@@ -657,6 +659,25 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reducePillAlert(state: CoinviewModelState): CoinviewPillAlertState = state.run {
+        when (state.alert) {
+            CoinviewPillAlert.WatchlistAdded -> CoinviewPillAlertState.Alert(R.string.coinview_added_watchlist)
+            CoinviewPillAlert.None -> CoinviewPillAlertState.None
+        }.also {
+            // reset to None
+            if (it != CoinviewPillAlertState.None) {
+                pillAlertJob?.cancel()
+                pillAlertJob = viewModelScope.launch {
+                    delay(SNACKBAR_MESSAGE_DURATION)
+
+                    updateState {
+                        it.copy(alert = CoinviewPillAlert.None)
+                    }
+                }
+            }
+        }
+    }
+
     private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarAlertState = state.run {
         when (state.error) {
             CoinviewError.AccountsLoadError -> CoinviewSnackbarAlertState.AccountsLoadError
@@ -1070,8 +1091,18 @@ class CoinviewViewModel(
                     }
                     is DataResource.Data -> {
                         loadWatchlistData(
-                            asset = asset,
+                            asset = asset
                         )
+
+                        updateState {
+                            it.copy(
+                                alert = if (toggle == WatchlistToggle.ADD) {
+                                    CoinviewPillAlert.WatchlistAdded
+                                } else {
+                                    CoinviewPillAlert.None
+                                }
+                            )
+                        }
                     }
                     DataResource.Loading -> {
                         // n/a

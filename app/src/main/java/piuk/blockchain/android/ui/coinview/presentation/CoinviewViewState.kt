@@ -24,6 +24,7 @@ data class CoinviewViewState(
     val recurringBuys: CoinviewRecurringBuysState,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
+    val pillAlert: CoinviewPillAlertState,
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
 
@@ -193,6 +194,17 @@ sealed interface CoinviewAssetInfoState {
         val description: String?,
         val website: String?
     ) : CoinviewAssetInfoState
+}
+
+// Pill alerts
+sealed interface CoinviewPillAlertState {
+    val message: Int
+
+    data class Alert(override val message: Int) : CoinviewPillAlertState
+
+    object None : CoinviewPillAlertState {
+        override val message: Int get() = error("None error doesn't have message property")
+    }
 }
 
 // Snackbar errors

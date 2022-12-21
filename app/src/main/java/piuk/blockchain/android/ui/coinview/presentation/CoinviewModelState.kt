@@ -48,6 +48,9 @@ data class CoinviewModelState(
     // asset info
     val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
 
+    // alerts
+    val alert: CoinviewPillAlert = CoinviewPillAlert.None,
+
     // errors
     val error: CoinviewError = CoinviewError.None,
 
@@ -102,6 +105,11 @@ data class CoinviewModelState(
             } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
         }
     }
+}
+
+sealed interface CoinviewPillAlert {
+    object WatchlistAdded : CoinviewPillAlert
+    object None : CoinviewPillAlert
 }
 
 sealed interface CoinviewError {
