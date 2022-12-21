@@ -39,7 +39,7 @@ fun PillAlert(
                 horizontal = AppTheme.dimensions.standardSpacing,
                 vertical = AppTheme.dimensions.verySmallSpacing
             )
-            .clickable(true, onClick = {}) ,
+            .clickable(true, onClick = {}),
         verticalAlignment = Alignment.CenterVertically
     ) {
 

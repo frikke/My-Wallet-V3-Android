@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -19,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
@@ -47,6 +44,7 @@ import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -66,6 +64,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 fun AssetAccounts(
     analytics: Analytics = get(),
     data: DataResource<CoinviewAccountsState?>,
+    l1Network: Currency?,
     assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -83,6 +82,7 @@ fun AssetAccounts(
             AssetAccountsData(
                 analytics = analytics,
                 data = data,
+                l1Network = l1Network,
                 assetTicker = assetTicker,
                 onAccountClick = onAccountClick,
                 onLockedAccountClick = onLockedAccountClick
@@ -126,6 +126,7 @@ fun AssetAccountsError() {
 fun AssetAccountsData(
     analytics: Analytics = get(),
     assetTicker: String,
+    l1Network: Currency?,
     data: DataResource.Data<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -238,7 +239,7 @@ fun AssetAccountsData(
             }
 
             // l1 netwrok
-            it.networkInfo?.let { networkInfo ->
+            l1Network?.let { l1Network ->
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                 Row(
@@ -252,7 +253,7 @@ fun AssetAccountsData(
                 ) {
                     Image(
                         ImageResource.Remote(
-                            url = networkInfo.logo,
+                            url = l1Network.logo,
                             shape = CircleShape,
                             size = AppTheme.dimensions.mediumSpacing
                         )
@@ -262,7 +263,7 @@ fun AssetAccountsData(
 
                     Text(
                         modifier = Modifier.weight(1F),
-                        text = stringResource(R.string.coinview_asset_l1, it.assetName, networkInfo.name),
+                        text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
                         style = AppTheme.typography.paragraph2,
                         color = AppTheme.colors.muted,
                     )
@@ -290,10 +291,12 @@ private fun CoinviewAccount.toAccountType() = when {
 @Composable
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Loading,
+        analytics = previewAnalytics,
+        data = DataResource.Loading,
+        l1Network = null,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 
@@ -301,10 +304,12 @@ fun PreviewAssetAccounts_Loading() {
 @Composable
 fun PreviewAssetAccounts_Error() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Error(Exception()),
+        analytics = previewAnalytics,
+        data = DataResource.Error(Exception()),
+        l1Network = null,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 
@@ -312,8 +317,8 @@ fun PreviewAssetAccounts_Error() {
 @Composable
 fun PreviewAssetAccounts_Data() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Data(
+        analytics = previewAnalytics,
+        data = DataResource.Data(
             CoinviewAccountsState(
                 totalBalance = "$2,000.00",
                 accounts = listOf(
@@ -342,12 +347,13 @@ fun PreviewAssetAccounts_Data() {
                         logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                     )
                 ),
-                assetName = "Ethereum",
-                networkInfo = CoinviewAccountsState.CoinviewNetworkInfoState(logo = "", name = "USDC")
+                assetName = "Ethereum"
             )
         ),
+        l1Network = CryptoCurrency.BTC,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 

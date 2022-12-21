@@ -366,7 +366,7 @@ fun NavigationBarPreview2() {
                 main = ImageResource.Local(R.drawable.ic_close_circle_dark),
                 tag = ImageResource.Local(R.drawable.ic_close_circle)
             ),
-            onBackButtonClick =  {},
+            onBackButtonClick = {},
             dropDownIndicator = null,
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(

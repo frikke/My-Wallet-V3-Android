@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AccountGroup
@@ -11,6 +12,8 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -33,6 +36,7 @@ import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -60,7 +64,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Co
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import timber.log.Timber
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     private val walletModeService: WalletModeService,
@@ -132,19 +135,23 @@ class CoinviewViewModel(
         )
     }
 
-    private fun reduceAsset(state: CoinviewModelState): CoinviewAssetState = state.run {
+    private fun reduceAsset(
+        state: CoinviewModelState
+    ): DataResource<CoinviewAssetState> = state.run {
         if (asset == null) {
-            CoinviewAssetState.Error
+            DataResource.Error(Exception())
         } else {
-            CoinviewAssetState.Data(
-                asset = asset.currency,
-                l1Network = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
-                    asset.currency.l1chainTicker?.let {
-                        assetCatalogue.fromNetworkTicker(it)
+            DataResource.Data(
+                CoinviewAssetState(
+                    asset = asset.currency,
+                    l1Network = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                        asset.currency.l1chainTicker?.let {
+                            assetCatalogue.fromNetworkTicker(it)
+                        }
+                    } else {
+                        null
                     }
-                } else {
-                    null
-                }
+                )
             )
         }
     }
@@ -289,18 +296,6 @@ class CoinviewViewModel(
                                             }
                                         }
                                     }
-                                },
-                                networkInfo = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
-                                    asset.currency.l1chainTicker?.let {
-                                        assetCatalogue.fromNetworkTicker(it)
-                                    }?.let {
-                                        CoinviewAccountsState.CoinviewNetworkInfoState(
-                                            logo = it.logo,
-                                            name = it.name
-                                        )
-                                    }
-                                } else {
-                                    null
                                 }
                             )
                         }
@@ -661,7 +656,10 @@ class CoinviewViewModel(
 
     private fun reducePillAlert(state: CoinviewModelState): CoinviewPillAlertState = state.run {
         when (state.alert) {
-            CoinviewPillAlert.WatchlistAdded -> CoinviewPillAlertState.Alert(R.string.coinview_added_watchlist)
+            CoinviewPillAlert.WatchlistAdded -> CoinviewPillAlertState.Alert(
+                message = R.string.coinview_added_watchlist,
+                icon = Icons.Filled.Star.withTint(Color(0XFFFFCD53))
+            )
             CoinviewPillAlert.None -> CoinviewPillAlertState.None
         }.also {
             // reset to None

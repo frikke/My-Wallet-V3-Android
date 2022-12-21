@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
@@ -15,7 +16,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
-    val asset: CoinviewAssetState,
+    val asset: DataResource<CoinviewAssetState>,
     val assetPrice: CoinviewPriceState,
     val tradeable: CoinviewAssetTradeableState,
     val watchlist: DataResource<Boolean>,
@@ -29,13 +30,10 @@ data class CoinviewViewState(
 ) : ViewState
 
 // Asset
-sealed interface CoinviewAssetState {
-    object Error : CoinviewAssetState
-    data class Data(
-        val asset: AssetInfo,
-        val l1Network: Currency?
-    ) : CoinviewAssetState
-}
+data class CoinviewAssetState(
+    val asset: AssetInfo,
+    val l1Network: Currency?
+)
 
 // Price
 sealed interface CoinviewPriceState {
@@ -84,8 +82,7 @@ sealed interface CoinviewTotalBalanceState {
 data class CoinviewAccountsState(
     val assetName: String,
     val totalBalance: String,
-    val accounts: List<CoinviewAccountState>,
-    val networkInfo: CoinviewNetworkInfoState?
+    val accounts: List<CoinviewAccountState>
 ) {
     sealed interface CoinviewAccountState {
         // todo find a better way to identify an account for the viewmodel without sending the whole object
@@ -199,11 +196,19 @@ sealed interface CoinviewAssetInfoState {
 // Pill alerts
 sealed interface CoinviewPillAlertState {
     val message: Int
+    val icon: ImageResource
 
-    data class Alert(override val message: Int) : CoinviewPillAlertState
+    data class Alert(override val message: Int, override val icon: ImageResource) : CoinviewPillAlertState {
+        override fun equals(other: Any?): Boolean {
+            return (other as? Alert)?.message == message
+        }
+
+        override fun hashCode(): Int = message
+    }
 
     object None : CoinviewPillAlertState {
         override val message: Int get() = error("None error doesn't have message property")
+        override val icon: ImageResource get() = error("None error doesn't have icon property")
     }
 }
 
