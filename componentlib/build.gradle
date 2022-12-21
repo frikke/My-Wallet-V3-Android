@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation project(':componentlib-icons')
     implementation project(':string-resources')
     implementation project(':common:interface')
     implementation project(':analytics:domain')
