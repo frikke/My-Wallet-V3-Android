@@ -1477,7 +1477,7 @@
     <string name="select_a_wallet">Sélectionner un Wallet</string>
     <string name="select_a_bank">Sélectionner une banque</string>
     <string name="confirm_status_msg_insufficient_funds">Vous n\'avez pas suffisamment de fonds sur ce compte pour traiter cette transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">Votre solde d\'ETH est insuffisant pour traiter cette transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">Votre solde d\'%1$s est insuffisant pour traiter cette transaction.</string>
     <string name="confirm_status_msg_option_invalid">Veuillez vous assurer que vous avez accepté nos conditions.</string>
     <string name="confirm_status_memo_invalid">Veuillez ajouter un mémo.</string>
     <string name="confirm_status_msg_invoice_expired">Facture BitPay expirée</string>

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.bumptech.glide.Glide
 import piuk.blockchain.android.databinding.ItemWalletConnectCheckoutHeaderBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -20,14 +21,24 @@ class HeaderConfirmationDelegate : AdapterDelegate<TxConfirmationValue> {
         )
 
     override fun onBindViewHolder(items: List<TxConfirmationValue>, position: Int, holder: RecyclerView.ViewHolder) =
-        (holder as ItemWalletConnectHeaderViewHolder).bind(items[position] as TxConfirmationValue.WalletConnectHeader)
+        (holder as ItemWalletConnectHeaderViewHolder).bind(
+            items[position] as TxConfirmationValue.WalletConnectHeader,
+            isFirstItemInList = position == 0,
+            isLastItemInList = items.lastIndex == position
+        )
 }
 
 private class ItemWalletConnectHeaderViewHolder(private val binding: ItemWalletConnectCheckoutHeaderBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: TxConfirmationValue.WalletConnectHeader) {
+    fun bind(
+        item: TxConfirmationValue.WalletConnectHeader,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             Glide.with(context).load(item.dAppLogo).into(icon)
             name.text = item.dAppName
             url.text = item.dAppUrl

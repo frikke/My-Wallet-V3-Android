@@ -11,6 +11,7 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.presentation.getResolvedColor
@@ -39,7 +40,9 @@ class CompoundExpandableFeeConfirmationCheckoutDelegate(private val mapper: TxCo
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -55,8 +58,10 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(item: TxConfirmationValue, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 compoundItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 compoundItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String

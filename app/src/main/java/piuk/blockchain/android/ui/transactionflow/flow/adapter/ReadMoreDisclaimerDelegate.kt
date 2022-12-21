@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import piuk.blockchain.android.databinding.ItemCheckoutCtaInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
@@ -30,7 +31,9 @@ class ReadMoreDisclaimerDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as ReadMoreDisclaimerViewHolder).bind(
         items[position],
-        onTooltipClicked
+        onTooltipClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -39,15 +42,20 @@ private class ReadMoreDisclaimerViewHolder(
     val mapper: TxConfirmReadOnlyMapperCheckout
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: TxConfirmationValue, onTooltipClicked: (TxConfirmationValue) -> Unit) {
+    fun bind(
+        item: TxConfirmationValue,
+        onTooltipClicked: (TxConfirmationValue) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         mapper.map(item).let {
             with(binding) {
-                with(binding) {
-                    infoText.text = it[ConfirmationPropertyKey.LABEL] as String
-                    ctaButton.apply {
-                        text = it[ConfirmationPropertyKey.CTA] as String
-                        onClick = { onTooltipClicked(item) }
-                    }
+                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
+                infoText.text = it[ConfirmationPropertyKey.LABEL] as String
+                ctaButton.apply {
+                    text = it[ConfirmationPropertyKey.CTA] as String
+                    onClick = { onTooltipClicked(item) }
                 }
             }
         }

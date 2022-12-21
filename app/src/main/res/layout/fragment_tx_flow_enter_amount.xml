@@ -15,7 +15,8 @@
     <View
         android:id="@+id/amount_sheet_separator"
         style="@style/SeparatorWithoutMargins"
-        android:layout_marginTop="@dimen/standard_spacing"
+        android:background="@color/grey_100"
+        android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/frame_upper_slot" />
@@ -32,6 +33,7 @@
     <View
         android:id="@+id/on_hold_cell_separator"
         style="@style/SeparatorWithoutMargins"
+        android:background="@color/grey_100"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
