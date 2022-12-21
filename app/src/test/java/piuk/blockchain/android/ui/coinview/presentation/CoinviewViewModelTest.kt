@@ -19,6 +19,7 @@ import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -57,6 +58,7 @@ class CoinviewViewModelTest {
 
     private val walletModeService: WalletModeService = mockk()
     private val coincore: Coincore = mockk()
+    private val assetCatalogue: AssetCatalogue = mockk()
     private val currencyPrefs: CurrencyPrefs = mockk()
     private val labels: DefaultLabels = mockk()
     private val getAssetPriceUseCase: GetAssetPriceUseCase = mockk()
@@ -105,6 +107,7 @@ class CoinviewViewModelTest {
         viewModel = CoinviewViewModel(
             walletModeService = walletModeService,
             coincore = coincore,
+            assetCatalogue = assetCatalogue,
             currencyPrefs = currencyPrefs,
             labels = labels,
             getAssetPriceUseCase = getAssetPriceUseCase,
@@ -153,7 +156,7 @@ class CoinviewViewModelTest {
         viewModel.viewState.test {
             viewModel.viewCreated(coinviewArgs)
             awaitItem().run {
-                assertEquals(CoinviewAssetState.Error, asset)
+                assertEquals(DataResource.Error(Exception()), asset)
             }
         }
     }
@@ -164,7 +167,10 @@ class CoinviewViewModelTest {
             expectMostRecentItem()
             viewModel.viewCreated(coinviewArgs)
             awaitItem().run {
-                assertEquals(CoinviewAssetState.Data(cryptoAsset.currency), asset)
+                assertEquals(
+                    DataResource.Data(CoinviewAssetState(asset = cryptoAsset.currency, l1Network = null)),
+                    asset
+                )
             }
         }
     }
@@ -310,6 +316,7 @@ class CoinviewViewModelTest {
                 awaitItem().run {
                     val expected = DataResource.Data(
                         CoinviewAccountsState(
+                            assetName = networkTicker,
                             totalBalance = balanceFormatted,
                             accounts = listOf(
                                 CoinviewAccountsState.CoinviewAccountState.Available(
