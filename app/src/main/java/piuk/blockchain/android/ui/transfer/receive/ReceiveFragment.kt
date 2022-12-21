@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.transfer.receive
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class ReceiveFragment :
     MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, FragmentReceiveBinding>(),
@@ -98,14 +96,6 @@ class ReceiveFragment :
                         ::doOnAccountSelected
                     )
                 }
-
-            searchBoxLayout.apply {
-                updateResults(
-                    resultCount = assetsAdapter.itemCount.toString(),
-                    shouldShow = newState.input.isNotEmpty()
-                )
-                updateLayoutState()
-            }
         }
     }
 
@@ -129,9 +119,6 @@ class ReceiveFragment :
                     }
                 }
             }
-            searchBoxLayout.apply {
-                updateLayoutState()
-            }
         }
     }
 
@@ -147,6 +134,7 @@ class ReceiveFragment :
                 title = R.string.transfer_receive_crypto_title,
                 label = R.string.transfer_receive_crypto_label,
                 icon = R.drawable.ic_receive_blue_circle,
+                background = R.color.grey_000,
                 showSeparator = false
             )
 
@@ -155,16 +143,12 @@ class ReceiveFragment :
     }
 
     private fun setupSearchBox() {
-        binding.searchBoxLayout.setDetails(
-            hint = R.string.search_wallets_hint,
-            textWatcher = object : AfterTextChangedWatcher() {
-                override fun afterTextChanged(s: Editable?) {
-                    s?.let { editable ->
-                        model.process(ReceiveIntent.FilterAssets(editable.toString()))
-                    }
-                }
+        with(binding.searchBoxLayout) {
+            placeholder = getString(R.string.search_wallets_hint)
+            onValueChange = { term ->
+                model.process(ReceiveIntent.FilterAssets(term))
             }
-        )
+        }
     }
 
     private fun doOnAccountSelected(account: CryptoAccount) {

@@ -267,12 +267,6 @@ class QuickFillRowView @JvmOverloads constructor(
         private const val TWENTY_FIVE_PERCENT = 0.25f
         private const val FIFTY_PERCENT = 0.5f
         private const val SEVENTY_FIVE_PERCENT = 0.75f
-        private const val NEAREST_ONE = 1
-        private const val NEAREST_TEN = 10
-        private const val NEAREST_TWENTY_FIVE = 25
-        private const val NEAREST_HUNDRED = 100
-        private const val NEAREST_FIVE_HUNDRED = 500
-        private const val NEAREST_THOUSAND = 1000
     }
 }
 

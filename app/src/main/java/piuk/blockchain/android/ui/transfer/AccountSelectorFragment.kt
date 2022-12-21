@@ -79,7 +79,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         @StringRes label: Int,
         @DrawableRes icon: Int,
     ) {
-        introHeaderView.setDetails(title, label, icon)
+        introHeaderView.setDetails(title, label, icon, background = R.color.grey_000)
 
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected

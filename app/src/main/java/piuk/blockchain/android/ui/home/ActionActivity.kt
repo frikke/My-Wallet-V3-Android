@@ -13,6 +13,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -31,7 +32,8 @@ class ActionActivity :
     SlidingModalBottomDialog.Host,
     UpsellHost,
     SwapFragment.Host,
-    BuyPendingOrdersBottomSheet.Host {
+    BuyPendingOrdersBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -132,6 +134,10 @@ class ActionActivity :
 
     override fun navigateToBuy() {
         finishWithResult(ActivityResult.StartBuyIntro)
+    }
+
+    override fun startKycClicked() {
+        finishWithResult(ActivityResult.StartKyc)
     }
 
     override fun onSheetClosed() {

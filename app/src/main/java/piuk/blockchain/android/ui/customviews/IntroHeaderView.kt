@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -50,7 +51,7 @@ class IntroHeaderView @JvmOverloads constructor(
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int,
-        @DrawableRes background: Int = R.color.white,
+        @ColorRes background: Int = R.color.white,
         showSeparator: Boolean = true
     ) {
         with(binding) {

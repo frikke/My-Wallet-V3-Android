@@ -132,6 +132,7 @@
                         android:id="@+id/field_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bkgd_white_large_rounding"
                         android:hint="@string/send_enter_asset_address_or_domain_hint"
                         android:inputType="textNoSuggestions"
                         android:maxLines="1" />
