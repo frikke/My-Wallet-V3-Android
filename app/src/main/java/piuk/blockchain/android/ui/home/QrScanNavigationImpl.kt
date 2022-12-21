@@ -4,17 +4,30 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.ScanResult
+import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.fold
 import com.blockchain.outcome.getOrNull
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
+import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
+import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
+import com.google.android.material.snackbar.Snackbar
+import info.blockchain.balance.AssetCatalogue
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.awaitSingle
+import piuk.blockchain.android.R
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -24,7 +37,9 @@ class QrScanNavigationImpl(
     private val activity: BlockchainActivity,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val secureChannelService: SecureChannelService
+    private val secureChannelService: SecureChannelService,
+    private val assetService: DynamicAssetsService,
+    private val assetCatalogue: AssetCatalogue
 ) : QrScanNavigation {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Set<QrExpected>>
@@ -36,18 +51,42 @@ class QrScanNavigationImpl(
 
     override fun launchQrScan() {
         resultLauncher.launch(QrExpected.MAIN_ACTIVITY_QR)
+        activity.lifecycleScope.launch {
+            walletConnectServiceAPI.sessionEvents.distinctUntilChanged().asFlow()
+                .collect { sessionEvent ->
+                    processWC(sessionEvent)
+                }
+        }
     }
 
     override fun processQrResult(decodedData: String) {
         activity.lifecycleScope.launch {
             qrScanResultProcessor.processScan(decodedData).awaitOutcome()
                 .doOnFailure {
-                    // TODO: error handling
                     Timber.e(it)
+                    BlockchainSnackbar.make(
+                        activity.window.decorView.rootView,
+                        activity.getString(R.string.scan_failed),
+                        duration = Snackbar.LENGTH_SHORT
+                    )
                 }
                 .getOrNull()?.let { scanResult ->
                     processResult(scanResult)
                 }
+        }
+    }
+
+    override fun updateWalletConnectSession(wcIntent: WCSessionIntent) {
+        activity.lifecycleScope.launch {
+            when (wcIntent) {
+                is WCSessionIntent.ApproveWCSession ->
+                    walletConnectServiceAPI.acceptConnection(wcIntent.session).awaitOutcome()
+                is WCSessionIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(wcIntent.session)
+                is WCSessionIntent.RejectWCSession ->
+                    walletConnectServiceAPI.denyConnection(wcIntent.session).awaitOutcome()
+                is WCSessionIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(wcIntent.url)
+                    .awaitOutcome()
+            }
         }
     }
 
@@ -64,10 +103,10 @@ class QrScanNavigationImpl(
             )
         } catch (ex: Exception) {
             Timber.e(ex)
-//            BlockchainSnackbar.make(
-//                activity,
-//                activity.getString(R.string.scan_no_available_account, target.asset.displayTicker)
-//            )
+            BlockchainSnackbar.make(
+                activity.window.decorView.rootView,
+                activity.getString(R.string.scan_no_available_account, target.asset.displayTicker)
+            )
         }
     }
 
@@ -90,8 +129,12 @@ class QrScanNavigationImpl(
                 if (scanResult.targets.size > 1) {
                     disambiguateSendScan(scanResult.targets)
                         .doOnFailure {
-                            // TODO: handle error
                             Timber.e(it)
+                            BlockchainSnackbar.make(
+                                activity.window.decorView.rootView,
+                                activity.getString(R.string.scan_failed),
+                                duration = Snackbar.LENGTH_SHORT
+                            )
                         }
                         .getOrNull()?.let { cryptoTarget ->
                             launchTxFlowWithTarget(cryptoTarget)
@@ -101,10 +144,60 @@ class QrScanNavigationImpl(
                 }
             }
             is ScanResult.WalletConnectRequest -> {
-                // TODO: error handling AND-6837
-                walletConnectServiceAPI.attemptToConnect(scanResult.data).awaitOutcome()
+                walletConnectServiceAPI.attemptToConnect(scanResult.data)
+                    .awaitOutcome()
                     .doOnFailure { Timber.e(it) }
             }
         }
     }
+
+    private suspend fun processWC(sessionEvent: WalletConnectSessionEvent) {
+        when (sessionEvent) {
+            is WalletConnectSessionEvent.DidConnect -> {
+                activity.showBottomSheet(
+                    WCSessionUpdatedBottomSheet.newInstance(session = sessionEvent.session, approved = true)
+                )
+            }
+            is WalletConnectSessionEvent.DidDisconnect -> {
+                Timber.i("Session ${sessionEvent.session.url} Disconnected")
+            }
+            is WalletConnectSessionEvent.DidReject,
+            is WalletConnectSessionEvent.FailToConnect -> {
+                activity.showBottomSheet(
+                    WCSessionUpdatedBottomSheet.newInstance(session = sessionEvent.session, approved = false)
+                )
+            }
+            is WalletConnectSessionEvent.ReadyForApproval -> {
+                getNetworkInfoForWCSession(sessionEvent.session)
+            }
+        }
+    }
+
+    private suspend fun getNetworkInfoForWCSession(session: WalletConnectSession) =
+        assetService.allEvmNetworks().awaitOutcome()
+            .fold(
+                onFailure = {
+                    Timber.e(it)
+                    activity.showBottomSheet(
+                        WCApproveSessionBottomSheet.newInstance(session)
+                    )
+                },
+                onSuccess = { networks ->
+                    val network = networks.find { it.chainId == session.dAppInfo.chainId }
+                    network?.let {
+                        val networkInfo = NetworkInfo(
+                            networkTicker = network.networkTicker,
+                            name = network.networkName,
+                            chainId = network.chainId,
+                            logo = assetCatalogue.assetInfoFromNetworkTicker(network.networkTicker)?.logo
+                        )
+                        activity.showBottomSheet(
+                            WCApproveSessionBottomSheet.newInstance(
+                                session,
+                                networkInfo
+                            )
+                        )
+                    } ?: activity.showBottomSheet(WCApproveSessionBottomSheet.newInstance(session))
+                }
+            )
 }

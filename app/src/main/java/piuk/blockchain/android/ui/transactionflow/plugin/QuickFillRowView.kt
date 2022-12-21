@@ -44,6 +44,8 @@ class QuickFillRowView @JvmOverloads constructor(
         this.model = model
         this.customiser = customiser
         this.analytics = analytics
+
+        areButtonsTransparent = false
     }
 
     override fun update(state: TransactionState) {

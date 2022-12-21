@@ -40,6 +40,7 @@ dependencies {
     implementation project(':earn:domain')
     implementation project(':analytics:domain')
     implementation project(':fiatActions')
+    implementation project(':walletconnect')
 
     // android
     implementation Libraries.design

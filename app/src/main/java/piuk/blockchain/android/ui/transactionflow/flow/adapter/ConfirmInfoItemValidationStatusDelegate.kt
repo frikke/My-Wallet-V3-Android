@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.asAssetInfoOrThrow
 import piuk.blockchain.android.R
@@ -30,7 +32,9 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ViewHolder).bind(
-        items[position] as TxConfirmationValue.ErrorNotice
+        items[position] as TxConfirmationValue.ErrorNotice,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 
     class ViewHolder(
@@ -38,15 +42,24 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
         private val parentView: ViewGroup
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: TxConfirmationValue.ErrorNotice) {
+        fun bind(
+            item: TxConfirmationValue.ErrorNotice,
+            isFirstItemInList: Boolean,
+            isLastItemInList: Boolean
+        ) {
             if (parentView is RecyclerView) {
                 parentView.smoothScrollToPosition(parentView.adapter!!.itemCount - 1)
             }
-            binding.errorMsg.text = item.toText(context)
+
+            with(binding) {
+                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                errorMsg.text = item.toText(context)
+            }
         }
 
         // By the time we are on the confirmation screen most of these possible error should have been
         // filtered out. A few remain possible, because BE failures or BitPay invoices, thus:
+        @SuppressLint("StringFormatInvalid")
         private fun TxConfirmationValue.ErrorNotice.toText(ctx: Context) =
             when (this.status) {
                 ValidationState.CAN_EXECUTE -> throw IllegalStateException("Displaying OK in error status")

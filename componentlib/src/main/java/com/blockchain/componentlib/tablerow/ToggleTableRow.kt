@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.control.SuccessSwitch
@@ -78,8 +77,9 @@ fun ToggleTableRow(
 ) {
     ToggleTableRow(
         paddingValues = PaddingValues(
-            start = dimensionResource(R.dimen.standard_spacing),
-            end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
+            start = dimensionResource(R.dimen.small_spacing),
+            // Switch has a built-in padding and we need to consider it for the screen padding
+            end = dimensionResource(R.dimen.very_small_spacing),
             top = dimensionResource(R.dimen.medium_spacing),
             bottom = dimensionResource(R.dimen.medium_spacing),
         ),
@@ -96,8 +96,9 @@ fun ToggleTableRow(
 @Composable
 fun FlexibleToggleTableRow(
     paddingValues: PaddingValues = PaddingValues(
-        start = dimensionResource(R.dimen.standard_spacing),
-        end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
+        start = dimensionResource(R.dimen.small_spacing),
+        // Switch has a built-in padding and we need to consider it for the screen padding
+        end = dimensionResource(R.dimen.very_small_spacing),
         top = dimensionResource(R.dimen.medium_spacing),
         bottom = dimensionResource(R.dimen.medium_spacing),
     ),

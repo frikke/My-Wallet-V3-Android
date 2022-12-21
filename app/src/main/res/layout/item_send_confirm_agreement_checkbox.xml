@@ -12,7 +12,7 @@
         android:id="@+id/confirm_details_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginStart="@dimen/small_spacing"
         android:background="@color/white"
         android:padding="@dimen/very_small_spacing"
         android:button="@drawable/checkbox_selector_blue" />

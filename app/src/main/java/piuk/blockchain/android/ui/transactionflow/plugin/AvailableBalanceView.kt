@@ -114,13 +114,15 @@ fun TxFlowEnterAmountBalanceRow(
             .fillMaxWidth()
             .background(AppTheme.colors.light)
             .padding(
-                horizontal = dimensionResource(id = R.dimen.standard_spacing),
+                horizontal = dimensionResource(id = R.dimen.small_spacing),
                 vertical = dimensionResource(R.dimen.tiny_spacing)
             )
             .clickable(enabled = true, onClick = onClick)
     ) {
         SimpleText(
-            text = labelText, style = ComposeTypographies.Caption1, color = ComposeColors.Muted,
+            text = labelText,
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Muted,
             gravity = ComposeGravities.Start
         )
 

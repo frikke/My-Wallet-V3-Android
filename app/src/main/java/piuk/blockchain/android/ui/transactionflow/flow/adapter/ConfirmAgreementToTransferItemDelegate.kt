@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
 import com.blockchain.coincore.toFiat
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -46,7 +47,9 @@ class ConfirmAgreementToTransferItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as AgreementTextItemViewHolder).bind(
         items[position] as TxConfirmationValue.TxBooleanConfirmation<TransferData>,
-        model
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -58,9 +61,13 @@ private class AgreementTextItemViewHolder(
 
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<TransferData>,
-        model: TransactionModel
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
-        binding.apply {
+        with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             item.data?.let { data ->
                 val text = when (data) {
                     is TransferData.Interest -> interestText(

@@ -43,7 +43,10 @@ class BalanceAndFeeView @JvmOverloads constructor(
         this.customiser = customiser
         this.analytics = analytics
 
-        binding.useMax.gone()
+        with(binding.useMax) {
+            isTransparent = false
+            gone()
+        }
     }
 
     override fun update(state: TransactionState) {

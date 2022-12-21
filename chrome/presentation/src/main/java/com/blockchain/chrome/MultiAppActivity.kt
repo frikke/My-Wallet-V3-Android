@@ -39,9 +39,14 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATIO
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
+import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
+import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -61,6 +66,8 @@ class MultiAppActivity :
     QuestionnaireSheetHost,
     AuthNavigationHost,
     BankLinkingHost,
+    WCApproveSessionBottomSheet.Host,
+    SelectNetworkBottomSheet.Host,
     KoinScopeComponent {
 
     override val scope: Scope = payloadScope
@@ -403,7 +410,27 @@ class MultiAppActivity :
             )
         }
     }
-    // //////////////////////////////////
+
+    override fun onNetworkSelected(session: WalletConnectSession, networkInfo: NetworkInfo) {
+        showBottomSheet(
+            WCApproveSessionBottomSheet.newInstance(
+                session,
+                networkInfo
+            )
+        )
+    }
+
+    override fun onSelectNetworkClicked(session: WalletConnectSession) {
+        showBottomSheet(SelectNetworkBottomSheet.newInstance(session))
+    }
+
+    override fun onSessionApproved(session: WalletConnectSession) {
+        qrScanNavigation.updateWalletConnectSession(WCSessionIntent.ApproveWCSession(session))
+    }
+
+    override fun onSessionRejected(session: WalletConnectSession) {
+        qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
+    }
 
     override fun onSheetClosed() {
     }

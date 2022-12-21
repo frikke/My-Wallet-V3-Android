@@ -17,6 +17,7 @@ dependencies {
     implementation project(':flowhome:presentation')
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')
+    implementation project(':walletconnect')
 
     implementation project(':fiatActions')
     implementation Libraries.rxKotlin

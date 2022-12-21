@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -34,7 +35,9 @@ class ExpandableSimpleConfirmationCheckout(private val mapper: TxConfirmReadOnly
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ExpandableSimpleConfirmationCheckoutItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -55,8 +58,14 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(
+        item: TxConfirmationValue,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 expandableItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 expandableItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String

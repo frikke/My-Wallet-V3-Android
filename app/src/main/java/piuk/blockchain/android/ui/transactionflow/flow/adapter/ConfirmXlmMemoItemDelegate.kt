@@ -20,6 +20,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
@@ -50,7 +51,9 @@ class ConfirmXlmMemoItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as XlmMemoItemViewHolder).bind(
         items[position] as TxConfirmationValue.Memo,
-        model
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -68,9 +71,13 @@ private class XlmMemoItemViewHolder(
 
     fun bind(
         item: TxConfirmationValue.Memo,
-        model: TransactionModel
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
-        binding.apply {
+        with(binding) {
+            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+
             if (item.isRequired) showExchangeInfo()
 
             confirmDetailsMemoSpinner.onItemSelectedListener = null
