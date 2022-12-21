@@ -22,11 +22,12 @@ val Blue000 = Color(0XFFECF5FE)
 val Purple0000 = Color(0XFF5322E5)
 
 val Green900 = Color(0XFF003319)
+val Green800 = Color(0XFF0C8868)
 val Green700 = Color(0XFF00B083)
 val Green600 = Color(0XFF06D6A0)
 val Green400 = Color(0XFF17CE73)
 val Green100 = Color(0XFFD1F0DB)
-val Green000 = Color(0xFFE6FAEC)
+val Green000 = Color(0xFFEDFFFA)
 
 val Red900 = Color(0XFF790606)
 val Red700 = Color(0XFFA50D0D)

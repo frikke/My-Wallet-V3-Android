@@ -25,6 +25,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.componentlib.theme.Grey700
 
 @Composable
 fun SheetHeader(
@@ -109,7 +110,7 @@ private fun SheetHeaderTitle(
             Text(
                 text = byline,
                 style = AppTheme.typography.paragraph1,
-                color = if (isDarkMode) Dark200 else Grey600,
+                color = if (isDarkMode) Dark200 else Grey700,
                 textAlign = TextAlign.Center,
             )
         }

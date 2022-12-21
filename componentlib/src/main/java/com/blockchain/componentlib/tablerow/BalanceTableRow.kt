@@ -203,7 +203,7 @@ private fun TitleAndBodyTableRow(
                     modifier = Modifier
                         .wrapContentSize()
                         .align(CenterVertically),
-                    color = AppTheme.colors.body
+                    color = AppTheme.colors.muted
                 )
             }
             if (isInlineTags) {
@@ -218,7 +218,7 @@ private fun TitleAndBodyTableRow(
                 text = bodyEnd,
                 style = AppTheme.typography.paragraph1,
                 modifier = Modifier.wrapContentSize(),
-                color = AppTheme.colors.body
+                color = AppTheme.colors.muted
             )
         }
     }
