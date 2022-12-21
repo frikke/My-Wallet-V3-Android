@@ -51,7 +51,7 @@ data class GetAccountActionsUseCase(
                     else -> actions.minus {
                         it.action == AssetAction.InterestDeposit || it.action == AssetAction.StakingDeposit
                     }
-                }.sortedWith(assetActionsComparator)
+                }.minus { it.action == AssetAction.ViewActivity }.sortedWith(assetActionsComparator)
 
                 DataResource.Data(sortedActions)
             } catch (e: Exception) {

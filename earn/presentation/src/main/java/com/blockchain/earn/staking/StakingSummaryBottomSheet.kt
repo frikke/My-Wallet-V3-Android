@@ -109,7 +109,7 @@ class StakingSummaryBottomSheet :
         fun newInstance(cryptoTicker: String) = StakingSummaryBottomSheet().apply {
             arguments = Bundle().apply {
                 putString(ASSET_TICKER, cryptoTicker)
-                putBoolean(SHOW_ACTIVITY, showActivity)
+                putBoolean(SHOW_ACTIVITY, false)
             }
         }
     }
