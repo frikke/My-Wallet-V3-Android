@@ -115,7 +115,7 @@ fun Button(
                 disabledBackgroundColor = animateColorAsState(targetValue = disabledBackgroundColor).value,
                 disabledContentColor = Color.Unspecified,
             ),
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = contentPadding,
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
             content = {
                 buttonContent(
