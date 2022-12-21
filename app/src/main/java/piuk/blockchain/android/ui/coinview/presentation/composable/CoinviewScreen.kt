@@ -28,6 +28,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
@@ -154,8 +155,9 @@ fun CoinviewScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0XFFF1F2F7))
+            .background(color = AppTheme.colors.backgroundMuted)
     ) {
+
 
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(

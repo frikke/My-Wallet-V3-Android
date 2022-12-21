@@ -8,6 +8,8 @@ val END_TRADING = Color(0XFF7C33B9)
 val START_DEFI = Color(0XFF6D39BD)
 val END_DEFI = Color(0XFF2878D4)
 
+val BackgroundMuted = Color(0XFFF1F2F7)
+
 val GOOGLE_PAY_BUTTON_BORDER = Color(0x7FFFFFFF)
 val GOOGLE_PAY_BUTTON_DIVIDER = Color(0xFF3C4043)
 
@@ -86,6 +88,7 @@ val defLightColors = SemanticColors(
     medium = Grey100,
     light = Grey000,
     background = Color.White,
+    backgroundMuted = BackgroundMuted,
     primary = Blue600,
     primaryMuted = Blue400,
     success = Green600,
@@ -103,6 +106,7 @@ val defDarkColors = SemanticColors(
     medium = Dark600,
     light = Dark800,
     background = Dark900,
+    backgroundMuted = Dark900,
     primary = Blue400,
     primaryMuted = Blue400, // todo unknown atm
     success = Green400,
