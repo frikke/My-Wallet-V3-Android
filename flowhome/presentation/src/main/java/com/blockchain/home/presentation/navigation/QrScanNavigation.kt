@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.navigation
 
 import android.os.Parcelable
 import androidx.activity.result.ActivityResultLauncher
+import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
 import kotlinx.parcelize.Parcelize
 
@@ -34,8 +35,16 @@ sealed class QrExpected : Parcelable {
     }
 }
 
+sealed interface WCSessionIntent {
+    data class ApproveWCSession(val session: WalletConnectSession) : WCSessionIntent
+    data class RejectWCSession(val session: WalletConnectSession) : WCSessionIntent
+    data class StartWCSession(val url: String) : WCSessionIntent
+    data class GetNetworkInfoForWCSession(val session: WalletConnectSession) : WCSessionIntent
+}
+
 interface QrScanNavigation {
     fun registerForQrScan(onScan: (String) -> Unit = {}): ActivityResultLauncher<Set<QrExpected>>
     fun launchQrScan()
     fun processQrResult(decodedData: String)
+    fun updateWalletConnectSession(wcIntent: WCSessionIntent)
 }

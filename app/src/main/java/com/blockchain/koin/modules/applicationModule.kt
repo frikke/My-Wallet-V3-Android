@@ -286,7 +286,9 @@ val applicationModule = module {
                 activity = activity,
                 qrScanResultProcessor = payloadScope.get(),
                 walletConnectServiceAPI = get(),
-                secureChannelService = get()
+                secureChannelService = get(),
+                assetService = get(),
+                assetCatalogue = get()
             )
         }.bind(
             QrScanNavigation::class
