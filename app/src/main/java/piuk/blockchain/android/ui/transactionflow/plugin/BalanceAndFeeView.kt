@@ -128,12 +128,13 @@ class BalanceAndFeeView @JvmOverloads constructor(
             with(useMax) {
                 val amountIsZeroOrNoFees =
                     !isPositiveAmount || !hasFees // in those cases there is room for the Max button
-                visibleIf { amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState) }
                 text = customiser.enterAmountMaxButton(state)
-                setOnClickListener {
+                onClick = {
                     analytics.onMaxClicked(state)
                     model.process(TransactionIntent.UseMaxSpendable)
                 }
+                isTransparent = false
+                visibleIf { amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState) }
             }
         }
 }

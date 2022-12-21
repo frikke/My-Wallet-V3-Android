@@ -3,6 +3,9 @@ package com.blockchain.componentlib.button
 import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -12,6 +15,8 @@ class SmallMinimalButtonView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : BaseButtonView(context, attrs, defStyleAttr) {
 
+    var isTransparent by mutableStateOf(false)
+
     @Composable
     override fun Content() {
         AppTheme {
@@ -20,7 +25,8 @@ class SmallMinimalButtonView @JvmOverloads constructor(
                     onClick = onClick,
                     text = text,
                     state = buttonState,
-                    icon = icon
+                    icon = icon,
+                    isTransparent = isTransparent
                 )
             }
         }

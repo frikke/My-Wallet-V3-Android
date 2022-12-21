@@ -351,14 +351,14 @@ fun View.updateItemBackgroundForSuperApp(isFirstItemInList: Boolean, isLastItemI
     background = ContextCompat.getDrawable(
         context,
         when {
+            isFirstItemInList && isLastItemInList -> {
+                R.drawable.bkgd_white_large_rounding
+            }
             isFirstItemInList -> {
                 R.drawable.bkgd_white_rounded_top
             }
             isLastItemInList -> {
                 R.drawable.bkgd_white_rounded_bottom
-            }
-            isFirstItemInList && isLastItemInList -> {
-                R.drawable.bkgd_white_large_rounding
             }
             else -> {
                 R.drawable.bkgd_white_no_rounding
@@ -381,14 +381,14 @@ fun View.updateSelectableItemBackgroundForSuperApp(
         background = ContextCompat.getDrawable(
             context,
             when {
+                isFirstItemInList && isLastItemInList -> {
+                    R.drawable.bkgd_white_selected_large_rounding
+                }
                 isFirstItemInList -> {
                     R.drawable.bkgd_white_selected_rounded_top
                 }
                 isLastItemInList -> {
                     R.drawable.bkgd_white_selected_rounded_bottom
-                }
-                isFirstItemInList && isLastItemInList -> {
-                    R.drawable.bkgd_white_selected_large_rounding
                 }
                 else -> {
                     R.drawable.bkgd_white_selected_no_rounding
