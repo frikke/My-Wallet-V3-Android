@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -29,7 +30,10 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -40,6 +44,7 @@ import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -59,6 +64,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 fun AssetAccounts(
     analytics: Analytics = get(),
     data: DataResource<CoinviewAccountsState?>,
+    l1Network: Currency?,
     assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -76,6 +82,7 @@ fun AssetAccounts(
             AssetAccountsData(
                 analytics = analytics,
                 data = data,
+                l1Network = l1Network,
                 assetTicker = assetTicker,
                 onAccountClick = onAccountClick,
                 onLockedAccountClick = onLockedAccountClick
@@ -119,6 +126,7 @@ fun AssetAccountsError() {
 fun AssetAccountsData(
     analytics: Analytics = get(),
     assetTicker: String,
+    l1Network: Currency?,
     data: DataResource.Data<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -229,6 +237,44 @@ fun AssetAccountsData(
                     }
                 }
             }
+
+            // l1 netwrok
+            l1Network?.let { l1Network ->
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                        )
+                        .padding(AppTheme.dimensions.tinySpacing),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        ImageResource.Remote(
+                            url = l1Network.logo,
+                            shape = CircleShape,
+                            size = AppTheme.dimensions.mediumSpacing
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.muted,
+                    )
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Image(
+                        Icons.Filled.Info.copy(colorFilter = ColorFilter.tint(AppTheme.colors.dark))
+                    )
+                }
+            }
         }
     }
 }
@@ -245,10 +291,12 @@ private fun CoinviewAccount.toAccountType() = when {
 @Composable
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Loading,
+        analytics = previewAnalytics,
+        data = DataResource.Loading,
+        l1Network = null,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 
@@ -256,10 +304,12 @@ fun PreviewAssetAccounts_Loading() {
 @Composable
 fun PreviewAssetAccounts_Error() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Error(Exception()),
+        analytics = previewAnalytics,
+        data = DataResource.Error(Exception()),
+        l1Network = null,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 
@@ -267,8 +317,8 @@ fun PreviewAssetAccounts_Error() {
 @Composable
 fun PreviewAssetAccounts_Data() {
     AssetAccounts(
-        previewAnalytics,
-        DataResource.Data(
+        analytics = previewAnalytics,
+        data = DataResource.Data(
             CoinviewAccountsState(
                 totalBalance = "$2,000.00",
                 accounts = listOf(
@@ -296,11 +346,14 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                     )
-                )
+                ),
+                assetName = "Ethereum"
             )
         ),
+        l1Network = CryptoCurrency.BTC,
         assetTicker = "ETH",
-        {}, {}
+        onAccountClick = {},
+        onLockedAccountClick = {}
     )
 }
 

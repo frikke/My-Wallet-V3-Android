@@ -2917,6 +2917,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_recuring_buy_load_error_subtitle">Reload or exit and return to the page to view your recurring buys.</string>
     <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
     <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
+    <string name="coinview_asset_l1">This %1$s is on the %2$s network</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
     <string name="coinview_prices_missing">There was an issue getting token data</string>
     <string name="coinview_watchlist_toggle_fail">Failed to update the Watchlist, please try again</string>

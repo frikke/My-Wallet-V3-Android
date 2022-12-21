@@ -3,9 +3,12 @@ package piuk.blockchain.android.ui.coinview.presentation.composable
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +31,7 @@ import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.control.TabLayoutLive
 import com.blockchain.componentlib.system.LoadingChart
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -71,8 +74,23 @@ fun AssetPrice(
 
 @Composable
 fun AssetPriceInfoLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ShimmerLoadingTableRow(showIconLoader = false)
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = AppTheme.dimensions.smallSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ShimmerLoadingBox(
+            Modifier
+                .height(AppTheme.dimensions.largeSpacing)
+                .width(100.dp)
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        ShimmerLoadingBox(
+            Modifier
+                .height(AppTheme.dimensions.mediumSpacing)
+                .width(200.dp)
+        )
 
         LoadingChart()
     }

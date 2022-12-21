@@ -14,6 +14,7 @@ class SemanticColors(
     medium: Color,
     light: Color,
     background: Color,
+    backgroundMuted: Color,
     primary: Color,
     primaryMuted: Color,
     success: Color,
@@ -38,6 +39,8 @@ class SemanticColors(
         private set
     var background by mutableStateOf(background)
         private set
+    var backgroundMuted by mutableStateOf(backgroundMuted)
+        private set
     var primary by mutableStateOf(primary)
         private set
     var primaryMuted by mutableStateOf(primaryMuted)
@@ -60,6 +63,7 @@ class SemanticColors(
         medium: Color = this.medium,
         light: Color = this.light,
         background: Color = this.background,
+        backgroundMuted: Color = this.backgroundMuted,
         primary: Color = this.primary,
         success: Color = this.success,
         warning: Color = this.warning,
@@ -74,6 +78,7 @@ class SemanticColors(
         medium = medium,
         light = light,
         background = background,
+        backgroundMuted = backgroundMuted,
         primary = primary,
         primaryMuted = primaryMuted,
         success = success,
@@ -91,6 +96,7 @@ class SemanticColors(
         medium = colors.medium
         light = colors.light
         background = colors.background
+        backgroundMuted = colors.backgroundMuted
         primary = colors.primary
         success = colors.success
         warning = colors.warning

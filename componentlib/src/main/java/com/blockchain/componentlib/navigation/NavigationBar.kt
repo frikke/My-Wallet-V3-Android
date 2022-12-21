@@ -40,6 +40,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
@@ -78,11 +80,13 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 @Composable
 fun NavigationBar(
     title: String,
+    icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
     dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) = NavigationBar(
     title = title,
+    icon = icon,
     startNavigationBarButton = onBackButtonClick?.let { onClick ->
         NavigationBarButton.Icon(
             drawable = R.drawable.ic_nav_bar_back,
@@ -96,6 +100,7 @@ fun NavigationBar(
 @Composable
 fun NavigationBar(
     title: String,
+    icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
     endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
@@ -128,6 +133,18 @@ fun NavigationBar(
                     }
                 }
             }
+
+            if (icon !is StackedIcon.None) {
+                CustomStackedIcon(
+                    icon = icon,
+                    iconBackground = AppTheme.colors.background,
+                    borderColor = AppTheme.colors.background,
+                    size = 24.dp
+                )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            }
+
             Text(
                 modifier = Modifier.weight(1f),
                 text = title,
@@ -315,6 +332,10 @@ fun NavigationBarPreviewLongText() {
     AppTheme {
         NavigationBar(
             title = "Comunicarse con el soporte técnico longer longer longer",
+            icon = StackedIcon.SmallTag(
+                main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+                tag = ImageResource.Local(R.drawable.ic_close_circle)
+            ),
             onBackButtonClick = { },
             navigationBarButtons = emptyList()
         )
@@ -340,10 +361,14 @@ fun NavigationBarPreviewLongTextWithActions() {
 fun NavigationBarPreview2() {
     AppTheme {
         NavigationBar(
-            "Test",
-            {},
-            null,
-            listOf(
+            title = "Test",
+            icon = StackedIcon.SmallTag(
+                main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+                tag = ImageResource.Local(R.drawable.ic_close_circle)
+            ),
+            onBackButtonClick = {},
+            dropDownIndicator = null,
+            navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_bottom_nav_buy,
                     contentDescription = R.string.accessibility_back
@@ -362,16 +387,16 @@ fun NavigationBarPreview2() {
 fun NavigationBarPreviewDropDown() {
     AppTheme {
         NavigationBar(
-            "Test",
-            null,
-            NavigationBarButton.DropdownIndicator(
+            title = "Test",
+            onBackButtonClick = null,
+            dropDownIndicator = NavigationBarButton.DropdownIndicator(
                 dropDownClicked = {},
                 text = "Portfolio",
                 rightIcon = R.drawable.ic_bottom_nav_home,
                 isHighlighted = true,
                 contentDescription = "123",
             ),
-            listOf(
+            navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_bottom_nav_buy,
                     contentDescription = R.string.accessibility_back
@@ -390,8 +415,10 @@ fun NavigationBarPreviewDropDown() {
 fun NavigationBarPreview3() {
     AppTheme {
         NavigationBar(
-            "Test", {}, null,
-            listOf(
+            title = "Test",
+            onBackButtonClick = {},
+            dropDownIndicator = null,
+            navigationBarButtons = listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"
                 ) {}

@@ -1,31 +1,43 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.composable.ANIMATION_DURATION
+import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.alert.SnackbarAlert
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
@@ -38,6 +50,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewPillAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -106,6 +119,7 @@ fun Coinview(
             onWebsiteClick = {
                 viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
             },
+            pillAlert = state.pillAlert,
             snackbarAlert = state.snackbarError
         )
     }
@@ -117,7 +131,7 @@ fun CoinviewScreen(
 
     backOnClick: () -> Unit,
 
-    asset: CoinviewAssetState,
+    asset: DataResource<CoinviewAssetState>,
     onContactSupportClick: () -> Unit,
 
     price: CoinviewPriceState,
@@ -146,17 +160,26 @@ fun CoinviewScreen(
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
 
+    pillAlert: CoinviewPillAlertState,
+
     snackbarAlert: CoinviewSnackbarAlertState
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0XFFF1F2F7))
+            .background(color = AppTheme.colors.backgroundMuted)
     ) {
-
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
-                title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
+                title = (asset as? DataResource.Data)?.data?.asset?.networkTicker ?: "",
+                icon = (asset as? DataResource.Data)?.data?.let { assetState ->
+                    assetState.l1Network?.let { l1Network ->
+                        StackedIcon.SmallTag(
+                            main = ImageResource.Remote(assetState.asset.logo),
+                            tag = ImageResource.Remote(l1Network.logo),
+                        )
+                    } ?: StackedIcon.SingleIcon(ImageResource.Remote(assetState.asset.logo))
+                } ?: StackedIcon.None,
                 onBackButtonClick = backOnClick,
                 navigationBarButtons = listOfNotNull(
                     (watchlist as? DataResource.Data)?.data?.let { isInWatchlist ->
@@ -167,7 +190,7 @@ fun CoinviewScreen(
                                 Icons.Star
                             }.copy(contentDescription = stringResource(R.string.accessibility_filter)),
                             onIconClick = {
-                                (asset as? CoinviewAssetState.Data)?.asset?.networkTicker?.let {
+                                (asset as? DataResource.Data)?.data?.asset?.networkTicker?.let {
                                     analytics.logEvent(
                                         if (isInWatchlist) {
                                             CoinViewAnalytics.CoinRemovedFromWatchlist(
@@ -191,11 +214,14 @@ fun CoinviewScreen(
             )
 
             when (asset) {
-                CoinviewAssetState.Error -> {
+                DataResource.Loading -> {
+                    // n/a
+                }
+                is DataResource.Error -> {
                     UnknownAsset(onContactSupportClick = onContactSupportClick)
                 }
 
-                is CoinviewAssetState.Data -> {
+                is DataResource.Data -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Column(
                             modifier = Modifier
@@ -205,7 +231,7 @@ fun CoinviewScreen(
                         ) {
                             AssetPrice(
                                 data = price,
-                                assetTicker = asset.asset.networkTicker,
+                                assetTicker = asset.data.asset.networkTicker,
                                 onChartEntryHighlighted = onChartEntryHighlighted,
                                 resetPriceInformation = resetPriceInformation,
                                 onNewTimeSpanSelected = onNewTimeSpanSelected
@@ -221,22 +247,26 @@ fun CoinviewScreen(
                             )
 
                             AssetAccounts(
+                                analytics = analytics,
                                 data = accounts,
-                                assetTicker = asset.asset.networkTicker,
+                                l1Network = asset.data.l1Network,
+                                assetTicker = asset.data.asset.networkTicker,
                                 onAccountClick = onAccountClick,
                                 onLockedAccountClick = onLockedAccountClick
                             )
 
                             RecurringBuys(
+                                analytics = analytics,
                                 data = recurringBuys,
-                                assetTicker = asset.asset.networkTicker,
+                                assetTicker = asset.data.asset.networkTicker,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
                                 onRecurringBuyItemClick = onRecurringBuyItemClick
                             )
 
                             AssetInfo(
+                                analytics = analytics,
                                 data = assetInfo,
-                                assetTicker = asset.asset.networkTicker,
+                                assetTicker = asset.data.asset.networkTicker,
                                 onWebsiteClick = onWebsiteClick
                             )
                         }
@@ -250,6 +280,33 @@ fun CoinviewScreen(
                     }
                 }
             }
+        }
+
+        val pillAlertOffsetY by animateIntAsState(
+            targetValue = if (pillAlert is CoinviewPillAlertState.None) -300 else 0,
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION
+            )
+        )
+
+        var savedAlertForAnimation: CoinviewPillAlertState? by remember { mutableStateOf(null) }
+        if (pillAlert != CoinviewPillAlertState.None) {
+            savedAlertForAnimation = pillAlert
+        }
+        savedAlertForAnimation?.let {
+            PillAlert(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(AppTheme.dimensions.tinySpacing)
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = pillAlertOffsetY
+                        )
+                    },
+                message = stringResource(it.message),
+                icon = it.icon
+            )
         }
 
         if (snackbarAlert != CoinviewSnackbarAlertState.None) {
@@ -274,9 +331,11 @@ fun Empty() {
 @Composable
 fun PreviewCoinviewScreen() {
     CoinviewScreen(
+        analytics = previewAnalytics,
+
         backOnClick = {},
 
-        asset = CoinviewAssetState.Data(CryptoCurrency.ETHER),
+        asset = DataResource.Data(CoinviewAssetState(CryptoCurrency.ETHER, null)),
         onContactSupportClick = {},
 
         price = CoinviewPriceState.Loading,
@@ -305,6 +364,7 @@ fun PreviewCoinviewScreen() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
+        pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
 }
@@ -313,9 +373,11 @@ fun PreviewCoinviewScreen() {
 @Composable
 fun PreviewCoinviewScreen_Unknown() {
     CoinviewScreen(
+        analytics = previewAnalytics,
+
         backOnClick = {},
 
-        asset = CoinviewAssetState.Error,
+        asset = DataResource.Error(Exception()),
         onContactSupportClick = {},
 
         price = CoinviewPriceState.Loading,
@@ -344,6 +406,7 @@ fun PreviewCoinviewScreen_Unknown() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
+        pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
 }
