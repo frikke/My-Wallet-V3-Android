@@ -364,7 +364,6 @@ dependencies {
     implementation project(':veriff:presentation')
     implementation project(':blockchainApi')
     implementation project(':componentlib')
-    implementation project(':componentlib-icons')
     implementation project(':biometrics')
     implementation project(':walletconnect')
     implementation project(':commonarch')

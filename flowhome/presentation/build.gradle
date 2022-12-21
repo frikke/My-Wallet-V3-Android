@@ -34,7 +34,6 @@ dependencies {
     implementation project(':balance')
     implementation project(':core')
     implementation project(':componentlib')
-    implementation project(':componentlib-icons')
     implementation project(':chrome:common')
     implementation project(':wallet')
     implementation project(':store:core')

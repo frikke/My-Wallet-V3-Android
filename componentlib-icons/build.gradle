@@ -27,8 +27,6 @@ android {
 }
 
 dependencies {
-    implementation project(':componentlib')
-
     implementation Libraries.composeUi
     implementation Libraries.composePreview
 
