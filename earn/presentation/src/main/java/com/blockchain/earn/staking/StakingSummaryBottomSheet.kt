@@ -56,12 +56,6 @@ class StakingSummaryBottomSheet :
         )
     }
 
-    private val showActivity by lazy {
-        arguments?.getBoolean(SHOW_ACTIVITY) ?: throw IllegalStateException(
-            "StakingSummaryBottomSheet requires a ticker to start"
-        )
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
@@ -103,13 +97,11 @@ class StakingSummaryBottomSheet :
 
     companion object {
         private const val ASSET_TICKER = "ASSET_TICKER"
-        private const val SHOW_ACTIVITY = "SHOW_ACTIVITY"
         private const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 
         fun newInstance(cryptoTicker: String) = StakingSummaryBottomSheet().apply {
             arguments = Bundle().apply {
                 putString(ASSET_TICKER, cryptoTicker)
-                putBoolean(SHOW_ACTIVITY, showActivity)
             }
         }
     }
