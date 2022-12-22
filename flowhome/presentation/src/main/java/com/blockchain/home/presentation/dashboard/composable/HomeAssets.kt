@@ -204,7 +204,7 @@ private fun FundLocksData(
     Card(
         modifier = Modifier
             .padding(vertical = AppTheme.dimensions.tinySpacing)
-            .clickable (onClick = onClick),
+            .clickable(onClick = onClick),
         backgroundColor = AppTheme.colors.background,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp

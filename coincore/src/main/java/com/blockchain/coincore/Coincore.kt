@@ -339,8 +339,8 @@ class Coincore internal constructor(
                 Single.just(it)
             } ?: walletModeService.walletModeSingle
             ).flatMap {
-                activeWalletsInModeRx(it).firstOrError()
-            }
+            activeWalletsInModeRx(it).firstOrError()
+        }
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         ethLayerTwoFF.enabled.flatMap { isL2Enabled ->

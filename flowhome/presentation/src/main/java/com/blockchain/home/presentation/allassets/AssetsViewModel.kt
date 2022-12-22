@@ -22,7 +22,6 @@ import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.AssetFilter
@@ -46,7 +45,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -330,7 +328,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                        .containsAll(
+                    .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {
