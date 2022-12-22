@@ -76,8 +76,6 @@ class Coincore internal constructor(
         localCurrency: Currency
     ): Flow<DataResource<FundsLocks?>> {
         return walletModeService.walletMode.flatMapLatest { walletMode ->
-            println("-------- getWithdrawalLocks")
-
             when (walletMode) {
                 WalletMode.CUSTODIAL_ONLY -> bankService.getWithdrawalLocks(
                     freshnessStrategy = freshnessStrategy,
