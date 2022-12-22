@@ -117,7 +117,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+                            .background(Color.White, AppTheme.shapes.veryLarge),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(
@@ -159,6 +159,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             val layout =
                 d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
             BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
+
+            layout.setBackgroundResource(android.R.color.transparent)
         }
         return dialog
     }
