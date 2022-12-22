@@ -1,6 +1,8 @@
 package com.blockchain.chrome.navigation
 
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,14 +12,18 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
+import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
+import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
@@ -33,7 +39,13 @@ fun MultiAppNavHost(
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
 
-    ModalBottomSheetLayout(bottomSheetNavigator) {
+    ModalBottomSheetLayout(
+        bottomSheetNavigator,
+        sheetShape = AppTheme.shapes.large.copy(
+            bottomStart = CornerSize(0.dp),
+            bottomEnd = CornerSize(0.dp)
+        )
+    ) {
         NavHost(
             navController = navController,
             startDestination = ChromeDestination.Main.route
@@ -74,6 +86,15 @@ private fun NavGraphBuilder.chrome(
             },
             openActivity = {
                 navController.navigate(HomeDestination.Activity)
+            },
+            openActivityDetail = { txId: String, walletMode: WalletMode ->
+                navController.navigate(
+                    HomeDestination.ActivityDetail,
+                    listOf(
+                        NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
+                        NavArgument(key = ARG_WALLET_MODE, value = walletMode)
+                    )
+                )
             },
             openReferral = {
                 navController.navigate(HomeDestination.Referral)

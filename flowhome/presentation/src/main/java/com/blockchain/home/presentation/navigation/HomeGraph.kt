@@ -1,17 +1,22 @@
 package com.blockchain.home.presentation.navigation
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.get
 import com.blockchain.chrome.composable.MultiAppSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
+import com.blockchain.walletmode.WalletMode
+import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
@@ -30,6 +35,23 @@ fun NavGraphBuilder.homeGraph(
             Activity(
                 onBackPressed = onBackPressed
             )
+        }
+    }
+
+    bottomSheet(navigationEvent = HomeDestination.ActivityDetail) { backStackEntry ->
+        val txId = backStackEntry.arguments?.getString(ARG_ACTIVITY_TX_ID).orEmpty()
+        val walletMode = backStackEntry.arguments?.getString(ARG_WALLET_MODE)?.run {
+            WalletMode.values().firstOrNull { it.name == this }
+        }
+
+        walletMode?.let {
+            MultiAppSingleScreen(isBottomSheet = true, provider[BottomSheetNavigator::class].navigatorSheetState.progress) {
+                ActivityDetail(
+                    selectedTxId = txId,
+                    walletMode = walletMode,
+                    onCloseClick = onBackPressed
+                )
+            }
         }
     }
 

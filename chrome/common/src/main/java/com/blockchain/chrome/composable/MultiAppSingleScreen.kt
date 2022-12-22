@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.SwipeProgress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -46,8 +50,11 @@ import org.koin.androidx.compose.get
  * }
  * ```
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MultiAppSingleScreen(
+    isBottomSheet: Boolean = false,
+    progress: SwipeProgress<ModalBottomSheetValue>? = null,
     content: @Composable () -> Unit
 ) {
     val walletMode: State<WalletMode> = get<WalletModeService>(
@@ -58,6 +65,13 @@ fun MultiAppSingleScreen(
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
+    progress?.let {
+        println("-------- it.fraction ${it.fraction}")
+        println("-------- it.fraction ${it.from}")
+        println("-------- it.fraction ${it.to}")
+        println("-------- ")
+    }
+
     if (statusBarHeight > 0.dp && navBarHeight > 0.dp) {
         // this container has the following format
         // -> Space for the toolbar
@@ -65,13 +79,20 @@ fun MultiAppSingleScreen(
         // -> Space for the native android navigation
         ConstraintLayout(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = walletMode.value
-                            .backgroundColors()
-                            .asList()
-                    )
+                .fillMaxWidth()
+                .fillMaxHeight(if (isBottomSheet) 0.95F else 1F)
+                .then(
+                    if (!isBottomSheet) {
+                        Modifier.background(
+                            brush = Brush.horizontalGradient(
+                                colors = walletMode.value
+                                    .backgroundColors()
+                                    .asList()
+                            )
+                        )
+                    } else {
+                        Modifier.background(AppTheme.colors.backgroundMuted)
+                    }
                 )
         ) {
             val (statusBar, navBar, content) = createRefs()
@@ -105,7 +126,7 @@ fun MultiAppSingleScreen(
                         end.linkTo(parent.end)
                     }
                     .fillMaxWidth()
-                    .height(statusBarHeight)
+                    .height(if (isBottomSheet) 0.dp else statusBarHeight)
             )
 
             // nav bar

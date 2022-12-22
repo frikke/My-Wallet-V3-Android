@@ -29,6 +29,7 @@ import com.blockchain.data.map
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
@@ -44,15 +45,26 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeActivity(
-    openAllActivity: () -> Unit
+    openAllActivity: () -> Unit,
+    openActivityDetail: (String, WalletMode) -> Unit,
 ) {
     val walletMode by get<WalletModeService>(superAppModeService, scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialHomeActivity(openAllActivity = openAllActivity)
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyHomeActivity(openAllActivity = openAllActivity)
+            WalletMode.CUSTODIAL_ONLY -> CustodialHomeActivity(
+                openAllActivity = openAllActivity,
+                activityOnClick = {
+                    openActivityDetail(it, WalletMode.CUSTODIAL_ONLY)
+                }
+            )
+            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyHomeActivity(
+                openAllActivity = openAllActivity,
+                activityOnClick = {
+                    openActivityDetail(it, WalletMode.NON_CUSTODIAL_ONLY)
+                }
+            )
             else -> error("unsupported")
         }
     }
@@ -61,7 +73,8 @@ fun HomeActivity(
 @Composable
 fun CustodialHomeActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
-    openAllActivity: () -> Unit
+    openAllActivity: () -> Unit,
+    activityOnClick: (String) -> Unit
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -73,13 +86,15 @@ fun CustodialHomeActivity(
     HomeActivityScreen(
         activity = viewState.activity.map { it[TransactionGroup.Combined] ?: listOf() },
         onSeeAllCryptoAssetsClick = openAllActivity,
+        activityOnClick = activityOnClick
     )
 }
 
 @Composable
 fun PrivateKeyHomeActivity(
     viewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope),
-    openAllActivity: () -> Unit
+    openAllActivity: () -> Unit,
+    activityOnClick: (String) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -96,6 +111,7 @@ fun PrivateKeyHomeActivity(
         HomeActivityScreen(
             activity = state.activity.map { it[TransactionGroup.Combined] ?: listOf() },
             onSeeAllCryptoAssetsClick = openAllActivity,
+            activityOnClick = activityOnClick
         )
     }
 }
@@ -104,6 +120,7 @@ fun PrivateKeyHomeActivity(
 fun HomeActivityScreen(
     activity: DataResource<List<ActivityComponent>>,
     onSeeAllCryptoAssetsClick: () -> Unit,
+    activityOnClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -142,7 +159,11 @@ fun HomeActivityScreen(
                 if (activity.data.isNotEmpty()) {
                     ActivitySectionCard(
                         components = activity.data,
-                        onClick = {}
+                        onClick = {
+                            (it as? ClickAction.Stack)?.data?.let { data ->
+                                activityOnClick(data)
+                            }
+                        }
                     )
                 }
             }
@@ -156,5 +177,6 @@ fun PreviewHomeActivityScreen() {
     HomeActivityScreen(
         activity = DUMMY_DATA.map { it[it.keys.first()]!! },
         onSeeAllCryptoAssetsClick = {},
+        activityOnClick = {}
     )
 }

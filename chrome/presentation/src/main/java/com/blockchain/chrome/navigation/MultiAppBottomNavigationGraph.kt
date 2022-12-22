@@ -15,6 +15,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
+import com.blockchain.walletmode.WalletMode
 
 @Composable
 fun MultiAppBottomNavigationHost(
@@ -30,6 +31,7 @@ fun MultiAppBottomNavigationHost(
     refreshComplete: () -> Unit,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
+    openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit
@@ -49,6 +51,7 @@ fun MultiAppBottomNavigationHost(
                         qrScanNavigation = qrScanNavigation,
                         settingsNavigation = settingsNavigation,
                         openActivity = openActivity,
+                        openActivityDetail = openActivityDetail,
                         openReferral = openReferral,
                         openFiatActionDetail = openFiatActionDetail,
                         openMoreQuickActions = openMoreQuickActions
