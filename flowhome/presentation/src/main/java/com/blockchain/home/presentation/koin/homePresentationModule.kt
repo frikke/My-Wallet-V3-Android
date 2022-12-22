@@ -27,7 +27,8 @@ val homePresentationModule = module {
                 exchangeRates = get(),
                 filterService = get(),
                 assetCatalogue = get(),
-                walletModeService = get(superAppModeService)
+                walletModeService = get(superAppModeService),
+                coincore = get()
             )
         }
 

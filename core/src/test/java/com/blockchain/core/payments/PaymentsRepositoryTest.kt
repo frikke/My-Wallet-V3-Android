@@ -335,7 +335,7 @@ class PaymentsRepositoryTest {
         every { assetCatalogue.fromNetworkTicker(BUY_NETWORK_TICKER) } returns buyCurrency
 
         // ASSERT
-        subject.getWithdrawalLocks(localCurrency).test()
+        subject.getWithdrawalLocksLegacy(localCurrency).test()
             .assertValue(
                 FundsLocks(
                     Money.fromMinor(localCurrency, BigInteger("1000")),

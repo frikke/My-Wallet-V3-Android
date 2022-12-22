@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.dashboard.composable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,15 +29,19 @@ import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
@@ -67,6 +72,7 @@ fun HomeAssets(
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
+        viewModel.onIntent(AssetsIntent.LoadFundLocks)
         onDispose { }
     }
 
@@ -84,7 +90,11 @@ fun HomeAssets(
 
     HomeAssetsScreen(
         assets = viewState.assets,
+        fundsLocks = viewState.fundsLocks,
         onSeeAllCryptoAssetsClick = openAllAssets,
+        onFundsLocksClick = { fundsLocks ->
+            assetActionsNavigation.fundsLocksDetail(fundsLocks)
+        },
         onAssetClick = { asset ->
             assetActionsNavigation.coinview(asset)
         },
@@ -95,7 +105,9 @@ fun HomeAssets(
 @Composable
 fun HomeAssetsScreen(
     assets: DataResource<List<HomeAsset>>,
+    fundsLocks: DataResource<FundsLocks?>,
     onSeeAllCryptoAssetsClick: () -> Unit,
+    onFundsLocksClick: (FundsLocks) -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
@@ -104,7 +116,9 @@ fun HomeAssetsScreen(
         }
         is DataResource.Data -> HomeAssetsList(
             assets = assets.data,
+            fundsLocks = fundsLocks,
             onSeeAllCryptoAssetsClick = onSeeAllCryptoAssetsClick,
+            onFundsLocksClick = onFundsLocksClick,
             onAssetClick = onAssetClick,
             openFiatActionDetail = openFiatActionDetail
         )
@@ -127,7 +141,9 @@ private fun AssetsLoading() {
 @Composable
 private fun HomeAssetsList(
     assets: List<HomeAsset>,
+    fundsLocks: DataResource<FundsLocks?>,
     onSeeAllCryptoAssetsClick: () -> Unit,
+    onFundsLocksClick: (FundsLocks) -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
@@ -156,8 +172,15 @@ private fun HomeAssetsList(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        (fundsLocks as? DataResource.Data)?.data?.let { locks ->
+            FundLocksData(
+                total = locks.onHoldTotalAmount.takeIf { it.isPositive }
+                    ?: Money.zero(locks.onHoldTotalAmount.currency),
+                onClick = { onFundsLocksClick(locks) }
+            )
+        }
 
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         CryptoAssetsList(
             cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>(),
             onAssetClick = onAssetClick,
@@ -170,6 +193,44 @@ private fun HomeAssetsList(
                 assets = fiats,
                 openFiatActionDetail = openFiatActionDetail
             )
+    }
+}
+
+@Composable
+private fun FundLocksData(
+    total: Money,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .padding(vertical = AppTheme.dimensions.tinySpacing)
+            .clickable (onClick = onClick),
+        backgroundColor = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.funds_locked_warning_title),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.muted
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+            Image(Icons.Question.withTint(Grey400).withSize(14.dp))
+
+            Spacer(modifier = Modifier.weight(1F))
+
+            Text(
+                text = total.toStringWithSymbol(),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.muted
+            )
+        }
     }
 }
 
@@ -262,7 +323,14 @@ fun PreviewHomeAccounts() {
                     )
                 )
         ),
+        fundsLocks = DataResource.Data(
+            FundsLocks(
+                onHoldTotalAmount = Money.fromMajor(Dollars, 100.28.toBigDecimal()),
+                locks = listOf()
+            )
+        ),
         onSeeAllCryptoAssetsClick = {},
+        onFundsLocksClick = {},
         onAssetClick = {},
         openFiatActionDetail = {}
     )
@@ -273,7 +341,9 @@ fun PreviewHomeAccounts() {
 fun PreviewHomeAccounts_Loading() {
     HomeAssetsScreen(
         assets = DataResource.Loading,
+        fundsLocks = DataResource.Loading,
         onSeeAllCryptoAssetsClick = {},
+        onFundsLocksClick = {},
         onAssetClick = {},
         openFiatActionDetail = {}
     )

@@ -89,7 +89,7 @@ internal class AppRatingRepository(
     private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
+        bankService.getWithdrawalLocksLegacy(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
             return fundsLocks.onHoldTotalAmount.isPositive
         }
     }

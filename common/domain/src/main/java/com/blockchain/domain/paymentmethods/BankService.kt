@@ -22,7 +22,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface BankService {
 
-    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
+    @Deprecated("use flow getWithdrawalLocks")
+    fun getWithdrawalLocksLegacy(localCurrency: Currency): Single<FundsLocks>
+
+    fun getWithdrawalLocks(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false),
+        localCurrency: Currency
+    ): Flow<DataResource<FundsLocks>>
 
     @Deprecated("use flow getLinkedBank")
     fun getLinkedBankLegacy(id: String): Single<LinkedBank>

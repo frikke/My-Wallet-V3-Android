@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.allassets
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
@@ -21,6 +22,7 @@ import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.AssetFilter
@@ -40,9 +42,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -55,11 +59,13 @@ class AssetsViewModel(
     private val assetCatalogue: AssetCatalogue,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
-    private val filterService: FiltersService
+    private val filterService: FiltersService,
+    private val coincore: Coincore
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState(walletMode = WalletMode.CUSTODIAL_ONLY)
 ) {
     private var accountsJob: Job? = null
+    private var fundsLocksJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
@@ -86,7 +92,8 @@ class AssetsViewModel(
                 filters = filters,
                 showNoResults = state.accounts.map { modelAccounts ->
                     modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
-                }.dataOrElse(false)
+                }.dataOrElse(false),
+                fundsLocks = state.fundsLocks
             )
         }
     }
@@ -165,6 +172,10 @@ class AssetsViewModel(
                 loadAccounts()
             }
 
+            is AssetsIntent.LoadFundLocks -> {
+                loadFundsLocks()
+            }
+
             is AssetsIntent.LoadFilters -> {
                 updateState {
                     it.copy(
@@ -188,6 +199,18 @@ class AssetsViewModel(
                     it.copy(filters = intent.filters)
                 }
             }
+        }
+    }
+
+    private fun loadFundsLocks() {
+        fundsLocksJob?.cancel()
+        fundsLocksJob = viewModelScope.launch {
+            coincore.getWithdrawalLocks(localCurrency = currencyPrefs.selectedFiatCurrency)
+                .collectLatest { dataResource ->
+                    updateState {
+                        it.copy(fundsLocks = it.fundsLocks.updateDataWith(dataResource))
+                    }
+                }
         }
     }
 
@@ -307,7 +330,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                    .containsAll(
+                        .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {

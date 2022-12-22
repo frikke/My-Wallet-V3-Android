@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -23,6 +24,7 @@ interface AssetActionsNavigation {
 
     fun earnRewards()
     fun settings()
+    fun fundsLocksDetail(fundsLocks: FundsLocks)
     fun coinview(asset: AssetInfo)
     fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)

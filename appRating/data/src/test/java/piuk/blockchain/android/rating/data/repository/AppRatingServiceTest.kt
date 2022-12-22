@@ -142,7 +142,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocksLegacy(any()) } returns Single.just(fundsLocksNotOnHold)
             every { appRatingPrefs.promptDateMillis } returns 0L
 
             val result = appRatingService.shouldShowRating()
@@ -175,7 +175,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksOnHold)
+            every { bankService.getWithdrawalLocksLegacy(any()) } returns Single.just(fundsLocksOnHold)
 
             val result = appRatingService.shouldShowRating()
 
@@ -187,7 +187,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocksLegacy(any()) } returns Single.just(fundsLocksNotOnHold)
             // simulate prompt was show 20 seconds ago = less than a month
             every { appRatingPrefs.promptDateMillis } returns
                 Calendar.getInstance().apply { add(Calendar.SECOND, -20) }.timeInMillis

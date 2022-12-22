@@ -112,7 +112,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+        bankService.getWithdrawalLocksLegacy(currencyPrefs.selectedFiatCurrency)
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<AccountListViewItem>> =

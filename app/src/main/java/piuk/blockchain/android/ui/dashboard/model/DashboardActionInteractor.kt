@@ -803,7 +803,7 @@ class DashboardActionInteractor(
     }
 
     fun loadWithdrawalLocks(model: DashboardModel): Disposable =
-        coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
+        coincore.getWithdrawalLocksLegacy(currencyPrefs.selectedFiatCurrency).subscribeBy(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
             }, onComplete = {

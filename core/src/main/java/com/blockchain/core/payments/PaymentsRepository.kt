@@ -118,16 +118,15 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.rxSingle
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import kotlinx.coroutines.rx3.rxSingle
 
 class PaymentsRepository(
     private val paymentsService: PaymentsService,
@@ -166,8 +165,20 @@ class PaymentsRepository(
             .mapData { it.toPaymentDetails() }
     }
 
-    override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        withdrawLocksStore.stream(
+    override fun getWithdrawalLocksLegacy(
+        localCurrency: Currency
+    ): Single<FundsLocks> {
+        return getWithdrawalLocks(
+            freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false),
+            localCurrency = localCurrency
+        ).asSingle()
+    }
+
+    override fun getWithdrawalLocks(
+        freshnessStrategy: FreshnessStrategy,
+        localCurrency: Currency
+    ): Flow<DataResource<FundsLocks>> {
+        return withdrawLocksStore.stream(
             FreshnessStrategy.Cached(forceRefresh = true)
         )
             .mapData { locks ->
@@ -186,7 +197,7 @@ class PaymentsRepository(
                     }
                 )
             }
-            .asSingle()
+    }
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,

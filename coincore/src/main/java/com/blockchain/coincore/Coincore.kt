@@ -13,13 +13,13 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
@@ -35,11 +35,13 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
@@ -59,13 +61,32 @@ class Coincore internal constructor(
     private val walletModeService: WalletModeService,
     private val ethLayerTwoFF: FeatureFlag
 ) {
-    fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
+    @Deprecated("use flow getWithdrawalLocks")
+    fun getWithdrawalLocksLegacy(localCurrency: Currency): Maybe<FundsLocks> =
         walletModeService.walletModeSingle.flatMapMaybe {
             if (it.custodialEnabled) {
-                bankService.getWithdrawalLocks(localCurrency).toMaybe()
+                bankService.getWithdrawalLocksLegacy(localCurrency).toMaybe()
             } else
                 Maybe.empty()
         }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getWithdrawalLocks(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false),
+        localCurrency: Currency
+    ): Flow<DataResource<FundsLocks?>> {
+        return walletModeService.walletMode.flatMapLatest { walletMode ->
+            println("-------- getWithdrawalLocks")
+
+            when (walletMode) {
+                WalletMode.CUSTODIAL_ONLY -> bankService.getWithdrawalLocks(
+                    freshnessStrategy = freshnessStrategy,
+                    localCurrency = localCurrency
+                )
+                else -> flowOf(DataResource.Data(null))
+            }
+        }
+    }
 
     operator fun get(asset: Currency): Asset =
         assetLoader[asset]
@@ -318,8 +339,8 @@ class Coincore internal constructor(
                 Single.just(it)
             } ?: walletModeService.walletModeSingle
             ).flatMap {
-            activeWalletsInModeRx(it).firstOrError()
-        }
+                activeWalletsInModeRx(it).firstOrError()
+            }
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         ethLayerTwoFF.enabled.flatMap { isL2Enabled ->
