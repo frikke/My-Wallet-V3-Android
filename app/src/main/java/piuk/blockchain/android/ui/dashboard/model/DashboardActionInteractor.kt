@@ -52,6 +52,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asMaybe
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.utils.emptySubscribe
@@ -803,7 +804,7 @@ class DashboardActionInteractor(
     }
 
     fun loadWithdrawalLocks(model: DashboardModel): Disposable =
-        coincore.getWithdrawalLocksLegacy(currencyPrefs.selectedFiatCurrency).subscribeBy(
+        coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).asMaybe().subscribeBy(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
             }, onComplete = {

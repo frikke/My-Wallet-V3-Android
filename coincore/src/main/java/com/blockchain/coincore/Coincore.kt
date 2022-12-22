@@ -61,19 +61,10 @@ class Coincore internal constructor(
     private val walletModeService: WalletModeService,
     private val ethLayerTwoFF: FeatureFlag
 ) {
-    @Deprecated("use flow getWithdrawalLocks")
-    fun getWithdrawalLocksLegacy(localCurrency: Currency): Maybe<FundsLocks> =
-        walletModeService.walletModeSingle.flatMapMaybe {
-            if (it.custodialEnabled) {
-                bankService.getWithdrawalLocksLegacy(localCurrency).toMaybe()
-            } else
-                Maybe.empty()
-        }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getWithdrawalLocks(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false),
-        localCurrency: Currency
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Flow<DataResource<FundsLocks?>> {
         return walletModeService.walletMode.flatMapLatest { walletMode ->
             when (walletMode) {

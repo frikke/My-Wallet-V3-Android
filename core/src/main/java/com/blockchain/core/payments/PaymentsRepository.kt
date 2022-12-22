@@ -165,18 +165,9 @@ class PaymentsRepository(
             .mapData { it.toPaymentDetails() }
     }
 
-    override fun getWithdrawalLocksLegacy(
-        localCurrency: Currency
-    ): Single<FundsLocks> {
-        return getWithdrawalLocks(
-            freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false),
-            localCurrency = localCurrency
-        ).asSingle()
-    }
-
     override fun getWithdrawalLocks(
-        freshnessStrategy: FreshnessStrategy,
-        localCurrency: Currency
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<FundsLocks>> {
         return withdrawLocksStore.stream(
             FreshnessStrategy.Cached(forceRefresh = true)
