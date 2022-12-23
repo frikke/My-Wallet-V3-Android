@@ -2,8 +2,8 @@ package com.blockchain.home.presentation.navigation
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.get
-import com.blockchain.chrome.composable.MultiAppSingleScreen
+import com.blockchain.chrome.composable.ChromeBottomSheet
+import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
@@ -13,7 +13,6 @@ import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDeta
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.walletmode.WalletMode
-import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
@@ -22,7 +21,7 @@ fun NavGraphBuilder.homeGraph(
     onBackPressed: () -> Unit
 ) {
     composable(navigationEvent = HomeDestination.CryptoAssets) {
-        MultiAppSingleScreen {
+        ChromeSingleScreen {
             CryptoAssets(
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = onBackPressed
@@ -31,7 +30,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     composable(navigationEvent = HomeDestination.Activity) {
-        MultiAppSingleScreen {
+        ChromeSingleScreen {
             Activity(
                 onBackPressed = onBackPressed
             )
@@ -45,7 +44,7 @@ fun NavGraphBuilder.homeGraph(
         }
 
         walletMode?.let {
-            MultiAppSingleScreen(isBottomSheet = true, provider[BottomSheetNavigator::class].navigatorSheetState.progress) {
+            ChromeBottomSheet {
                 ActivityDetail(
                     selectedTxId = txId,
                     walletMode = walletMode,
@@ -56,7 +55,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     composable(navigationEvent = HomeDestination.Referral) {
-        MultiAppSingleScreen {
+        ChromeSingleScreen {
             ReferralCode(
                 onBackPressed = onBackPressed
             )
