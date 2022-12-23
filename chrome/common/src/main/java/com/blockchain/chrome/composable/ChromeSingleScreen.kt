@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -82,19 +83,17 @@ private fun ChromeSingleScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
                 .then(
-                    walletMode?.let {
-                        if (!isBottomSheet) {
-                            Modifier.background(
-                                brush = Brush.horizontalGradient(
-                                    colors = it
-                                        .backgroundColors()
-                                        .asList()
-                                )
+                    if (walletMode == null || isBottomSheet) {
+                        Modifier.background(AppTheme.colors.backgroundMuted)
+                    } else {
+                        Modifier.background(
+                            brush = Brush.horizontalGradient(
+                                colors = walletMode!!
+                                    .backgroundColors()
+                                    .asList()
                             )
-                        } else {
-                            Modifier.background(AppTheme.colors.backgroundMuted)
-                        }
-                    } ?: Modifier
+                        )
+                    }
                 )
         ) {
             val (statusBar, navBar, content) = createRefs()
