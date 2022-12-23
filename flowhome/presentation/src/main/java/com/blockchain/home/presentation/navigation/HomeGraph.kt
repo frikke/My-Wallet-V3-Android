@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.navigation
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
@@ -15,7 +14,7 @@ import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
