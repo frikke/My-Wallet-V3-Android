@@ -22,7 +22,7 @@ class SliderView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 Slider(
                     value = value,

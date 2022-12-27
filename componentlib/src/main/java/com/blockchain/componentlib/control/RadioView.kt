@@ -22,7 +22,7 @@ class RadioView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 Radio(
                     state = state,

@@ -32,6 +32,8 @@ class EarnDashboardActivity :
         ActivityInterestDashboardBinding.inflate(layoutInflater)
     }
 
+    override val applyModeBackground: Boolean = true
+
     private val compositeDisposable = CompositeDisposable()
 
     override val alwaysDisableScreenshots: Boolean = false
@@ -42,6 +44,11 @@ class EarnDashboardActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        updateToolbarBackground(
+            applyModeBackground = true,
+            mutedBackground = false
+        )
         updateToolbar(
             toolbarTitle = getString(R.string.earn_dashboard_title),
             backAction = { onSupportNavigateUp() }

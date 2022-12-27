@@ -91,6 +91,8 @@ class TransactionFlowActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
+    override val applyModeBackground: Boolean = true
+
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
     private val remoteLogger: RemoteLogger by inject()
@@ -130,6 +132,8 @@ class TransactionFlowActivity :
         setContentView(binding.root)
 
         setupBackPress()
+
+        updateToolbarBackground(applyModeBackground = true, mutedBackground = true)
 
         updateToolbar(
             menuItems = listOf(

@@ -22,7 +22,7 @@ class ChipView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 Chip(
                     text = text,

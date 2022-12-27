@@ -91,7 +91,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private var progressDialog: MaterialProgressDialog? = null
 
     protected open val applyModeBackground: Boolean = false
-    private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
+      val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,6 +174,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
         backAction?.let { action ->
             updateToolbarBackAction { action() }
         }
+    }
+
+    fun updateToolbarBackground(applyModeBackground: Boolean, mutedBackground: Boolean) {
+        toolbarBinding?.navigationToolbar?.applyModeBackground = applyModeBackground
+        toolbarBinding?.navigationToolbar?.mutedBackground = mutedBackground
     }
 
     fun updateToolbarTitle(title: String) {

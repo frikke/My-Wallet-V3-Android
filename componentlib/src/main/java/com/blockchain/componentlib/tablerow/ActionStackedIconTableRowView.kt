@@ -32,7 +32,7 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 ActionStackedIconTableRow(
                     primaryText = primaryText,

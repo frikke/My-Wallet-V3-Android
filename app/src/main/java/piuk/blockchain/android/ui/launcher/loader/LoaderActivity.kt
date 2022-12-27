@@ -57,6 +57,8 @@ class LoaderActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        updateToolbarBackground(applyModeBackground = false, mutedBackground = false)
+
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
         val loginMethod = (extras?.getSerializable(AppUtil.LOGIN_METHOD) as? LoginMethod)

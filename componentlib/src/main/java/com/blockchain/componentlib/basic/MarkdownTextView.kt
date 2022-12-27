@@ -23,7 +23,7 @@ class MarkdownTextView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 MarkdownText(
                     markdownText = markdownText,

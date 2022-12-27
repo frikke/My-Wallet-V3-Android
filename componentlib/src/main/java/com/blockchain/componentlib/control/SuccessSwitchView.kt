@@ -25,7 +25,7 @@ class SuccessSwitchView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SuccessSwitch(
                     modifier = Modifier

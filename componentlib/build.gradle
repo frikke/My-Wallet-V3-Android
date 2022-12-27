@@ -55,6 +55,7 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
     implementation Libraries.lifecycleRuntime
     implementation Libraries.composeMarkdown
     implementation Libraries.accompanistSwipeRefresh

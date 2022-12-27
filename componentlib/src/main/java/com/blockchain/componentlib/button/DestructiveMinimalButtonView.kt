@@ -14,7 +14,7 @@ class DestructiveMinimalButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DestructiveMinimalButton(
                     onClick = onClick,

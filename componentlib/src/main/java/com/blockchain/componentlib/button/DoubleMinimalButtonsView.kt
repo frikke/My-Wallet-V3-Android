@@ -14,7 +14,7 @@ class DoubleMinimalButtonsView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DoubleMinimalButtons(
                     startButtonText = primaryButtonText,

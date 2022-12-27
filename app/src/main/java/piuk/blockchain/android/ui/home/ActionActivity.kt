@@ -38,6 +38,8 @@ class ActionActivity :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
+    override val applyModeBackground: Boolean = true
+
     private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val binding: ActivityActionBinding by lazy {
@@ -58,6 +60,8 @@ class ActionActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        updateToolbarBackground(applyModeBackground = true, mutedBackground = true)
 
         updateToolbarBackAction {
             onBackPressedDispatcher.onBackPressed()

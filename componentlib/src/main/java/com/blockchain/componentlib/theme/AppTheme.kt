@@ -117,6 +117,7 @@ object FakeAppThemeProvider : AppThemeProvider {
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     themeProvider: AppThemeProvider = defValue(),
+    setSystemColors: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val imageLoader = runCatching {
@@ -166,11 +167,13 @@ fun AppTheme(
     else
         LocalLightColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
 
-    SystemColors(
-        statusColor = mTheme.colors.background,
-        navigationColor = navigationBackground,
-        isDarkTheme = darkTheme
-    )
+    if(setSystemColors) {
+        SystemColors(
+            statusColor = mTheme.colors.background,
+            navigationColor = navigationBackground,
+            isDarkTheme = darkTheme
+        )
+    }
 
     MaterialTheme(
         colors = Colors(

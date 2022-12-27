@@ -21,7 +21,7 @@ class BalanceView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 Balance(
                     price = price,

@@ -33,7 +33,7 @@ class SwitcherItemView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SwitcherItem(
                     text = text,

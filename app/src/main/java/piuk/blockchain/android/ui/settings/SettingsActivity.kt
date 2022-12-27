@@ -45,6 +45,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         ActivitySettingsBinding.inflate(layoutInflater)
     }
 
+    override val applyModeBackground: Boolean = true
+
     private var basicProfileInfo: BasicProfileInfo? = null
     private var tier: KycTier? = null
 
@@ -85,6 +87,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     }
 
     private fun setupToolbar() {
+        updateToolbarBackground(applyModeBackground = true, mutedBackground = false)
+
         updateToolbar(
             toolbarTitle = getString(R.string.toolbar_settings),
             backAction = { onBackPressedDispatcher.onBackPressed() }

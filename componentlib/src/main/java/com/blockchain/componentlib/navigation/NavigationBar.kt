@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
@@ -43,8 +45,18 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.END_DEFI
+import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.START_DEFI
+import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.koin.payloadScope
+import com.blockchain.koin.superAppModeService
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import org.koin.androidx.compose.get
 
 sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class Icon(
@@ -79,41 +91,116 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 
 @Composable
 fun NavigationBar(
+    mutedBg: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
     dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
-) = NavigationBar(
-    title = title,
-    icon = icon,
-    startNavigationBarButton = onBackButtonClick?.let { onClick ->
-        NavigationBarButton.Icon(
-            drawable = R.drawable.ic_nav_bar_back,
-            onIconClick = onClick,
-            contentDescription = R.string.accessibility_back
-        )
-    } ?: dropDownIndicator,
-    endNavigationBarButtons = navigationBarButtons
-)
+) {
+    NavigationBar(
+        mutedBg = mutedBg,
+        title = title,
+        icon = icon,
+        startNavigationBarButton = onBackButtonClick?.let { onClick ->
+            NavigationBarButton.Icon(
+                drawable = R.drawable.ic_nav_bar_back,
+                onIconClick = onClick,
+                contentDescription = R.string.accessibility_back
+            )
+        } ?: dropDownIndicator,
+        endNavigationBarButtons = navigationBarButtons
+    )
+}
 
 @Composable
 fun NavigationBar(
+    walletMode: WalletMode?,
+    mutedBg: Boolean,
+    title: String,
+    icon: StackedIcon = StackedIcon.None,
+    onBackButtonClick: (() -> Unit)? = null,
+    dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
+    navigationBarButtons: List<NavigationBarButton> = emptyList(),
+) {
+    NavigationBar(
+        walletMode = walletMode,
+        mutedBg = mutedBg,
+        title = title,
+        icon = icon,
+        startNavigationBarButton = onBackButtonClick?.let { onClick ->
+            NavigationBarButton.Icon(
+                drawable = R.drawable.ic_nav_bar_back,
+                onIconClick = onClick,
+                contentDescription = R.string.accessibility_back
+            )
+        } ?: dropDownIndicator,
+        endNavigationBarButtons = navigationBarButtons
+    )
+}
+
+@Composable
+fun NavigationBar(
+    mutedBg: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
     endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
 
+    val walletMode: WalletMode? by get<WalletModeService>(
+        superAppModeService,
+        payloadScope
+    ).walletMode.collectAsStateLifecycleAware(initial = null)
+
+    NavigationBar(
+        walletMode = walletMode,
+        mutedBg = mutedBg,
+        title = title,
+        icon = icon,
+        startNavigationBarButton = startNavigationBarButton,
+        endNavigationBarButtons = endNavigationBarButtons
+    )
+}
+
+@Composable
+fun NavigationBar(
+    walletMode: WalletMode?,
+    mutedBg: Boolean,
+    title: String,
+    icon: StackedIcon = StackedIcon.None,
+    startNavigationBarButton: NavigationBarButton? = null,
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth(1f)
             .defaultMinSize(minHeight = 52.dp)
-            .background(AppTheme.colors.background)
+            .then(
+                when (walletMode) {
+                    WalletMode.CUSTODIAL_ONLY -> Modifier.background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(START_TRADING, END_TRADING)
+                        )
+                    )
+                    WalletMode.NON_CUSTODIAL_ONLY -> Modifier.background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(START_DEFI, END_DEFI)
+
+                        )
+                    )
+                    else -> Modifier.background(AppTheme.colors.background)
+                }
+            )
     ) {
         Row(
             modifier = Modifier
+                .matchParentSize()
                 .align(Alignment.CenterStart)
+                .background(
+                    if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background,
+                    AppTheme.shapes.veryLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+                )
                 .padding(horizontal = dimensionResource(R.dimen.medium_spacing)),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -322,7 +409,31 @@ fun DropDownHighLightIndicator(modifier: Modifier) {
 @Composable
 fun NavigationBarPreview() {
     AppTheme {
-        NavigationBar(title = "Test", onBackButtonClick = null, navigationBarButtons = emptyList())
+        NavigationBar(
+            walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+            mutedBg = true,
+            title = "Test",
+            onBackButtonClick = null,
+            navigationBarButtons = emptyList()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavigationBarPreviewLongTextModeNull() {
+    AppTheme {
+        NavigationBar(
+            walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+            mutedBg = true,
+            title = "Comunicarse con el soporte técnico longer longer longer",
+            icon = StackedIcon.SmallTag(
+                main = ImageResource.Local(R.drawable.ic_close_circle_dark),
+                tag = ImageResource.Local(R.drawable.ic_close_circle)
+            ),
+            onBackButtonClick = { },
+            navigationBarButtons = emptyList()
+        )
     }
 }
 
@@ -331,6 +442,8 @@ fun NavigationBarPreview() {
 fun NavigationBarPreviewLongText() {
     AppTheme {
         NavigationBar(
+            walletMode = null,
+            mutedBg = false ,
             title = "Comunicarse con el soporte técnico longer longer longer",
             icon = StackedIcon.SmallTag(
                 main = ImageResource.Local(R.drawable.ic_close_circle_dark),
@@ -347,6 +460,8 @@ fun NavigationBarPreviewLongText() {
 fun NavigationBarPreviewLongTextWithActions() {
     AppTheme {
         NavigationBar(
+            walletMode = WalletMode.CUSTODIAL_ONLY,
+            mutedBg = true,
             title = "Comunicarse con el soporte técnico longer longer longer",
             onBackButtonClick = { },
             navigationBarButtons = listOf(
@@ -361,6 +476,8 @@ fun NavigationBarPreviewLongTextWithActions() {
 fun NavigationBarPreview2() {
     AppTheme {
         NavigationBar(
+            walletMode = WalletMode.CUSTODIAL_ONLY,
+            mutedBg = true,
             title = "Test",
             icon = StackedIcon.SmallTag(
                 main = ImageResource.Local(R.drawable.ic_close_circle_dark),
@@ -387,6 +504,8 @@ fun NavigationBarPreview2() {
 fun NavigationBarPreviewDropDown() {
     AppTheme {
         NavigationBar(
+            walletMode = WalletMode.CUSTODIAL_ONLY,
+            mutedBg = true,
             title = "Test",
             onBackButtonClick = null,
             dropDownIndicator = NavigationBarButton.DropdownIndicator(
@@ -415,6 +534,8 @@ fun NavigationBarPreviewDropDown() {
 fun NavigationBarPreview3() {
     AppTheme {
         NavigationBar(
+            walletMode = WalletMode.CUSTODIAL_ONLY,
+            mutedBg = true,
             title = "Test",
             onBackButtonClick = {},
             dropDownIndicator = null,

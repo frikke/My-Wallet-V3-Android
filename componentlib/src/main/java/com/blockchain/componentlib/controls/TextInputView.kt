@@ -32,7 +32,7 @@ class TextInputView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 TextInput(
                     value = value,
