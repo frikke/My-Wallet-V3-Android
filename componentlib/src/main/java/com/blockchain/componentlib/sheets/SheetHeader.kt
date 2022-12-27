@@ -24,7 +24,6 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey700
 
 @Composable

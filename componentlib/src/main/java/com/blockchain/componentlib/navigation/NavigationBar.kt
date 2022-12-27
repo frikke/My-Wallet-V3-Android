@@ -443,7 +443,7 @@ fun NavigationBarPreviewLongText() {
     AppTheme {
         NavigationBar(
             walletMode = null,
-            mutedBg = false ,
+            mutedBg = false,
             title = "Comunicarse con el soporte técnico longer longer longer",
             icon = StackedIcon.SmallTag(
                 main = ImageResource.Local(R.drawable.ic_close_circle_dark),

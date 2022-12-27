@@ -7,9 +7,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark900
 import com.blockchain.componentlib.theme.Green000
-import com.blockchain.componentlib.theme.Green100
 import com.blockchain.componentlib.theme.Green400
-import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Green800
 
 @Composable

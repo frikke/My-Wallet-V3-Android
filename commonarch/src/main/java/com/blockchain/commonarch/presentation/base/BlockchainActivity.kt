@@ -91,7 +91,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private var progressDialog: MaterialProgressDialog? = null
 
     protected open val applyModeBackground: Boolean = false
-      val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
+    private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {

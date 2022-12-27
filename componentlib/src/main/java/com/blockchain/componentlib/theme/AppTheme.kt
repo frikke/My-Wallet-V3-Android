@@ -167,7 +167,7 @@ fun AppTheme(
     else
         LocalLightColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
 
-    if(setSystemColors) {
+    if (setSystemColors) {
         SystemColors(
             statusColor = mTheme.colors.background,
             navigationColor = navigationBackground,

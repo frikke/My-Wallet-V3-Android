@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
@@ -47,7 +45,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
@@ -242,7 +239,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         state: ActionState,
         @DrawableRes icon: Int
     ): ImageResource {
-        return  ImageResource.LocalWithBackground(
+        return ImageResource.LocalWithBackground(
             id = icon,
             backgroundColor = Grey000,
             iconColor = Grey900,
