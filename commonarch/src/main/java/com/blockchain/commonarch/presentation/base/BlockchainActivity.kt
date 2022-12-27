@@ -90,6 +90,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     private var progressDialog: MaterialProgressDialog? = null
 
+    /**
+     * true to set statusbar to wallet mode colors
+     */
     protected open val applyModeBackground: Boolean = false
     private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
 
@@ -176,6 +179,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
         }
     }
 
+    /**
+     * @param applyModeBackground sets the rounded corners and colors
+     * @param mutedBackground false to keep white bg for screens that will remain white (settings..etc)
+     */
     fun updateToolbarBackground(applyModeBackground: Boolean, mutedBackground: Boolean) {
         toolbarBinding?.navigationToolbar?.applyModeBackground = applyModeBackground
         toolbarBinding?.navigationToolbar?.mutedBackground = mutedBackground
