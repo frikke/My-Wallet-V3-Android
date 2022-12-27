@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -19,7 +20,6 @@ import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class MainState(

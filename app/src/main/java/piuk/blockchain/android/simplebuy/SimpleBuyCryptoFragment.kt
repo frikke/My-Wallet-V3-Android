@@ -33,7 +33,9 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
+import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.CardFundSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -84,7 +86,6 @@ import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditTe
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.PAYMENT_METHOD_UNAVAILABLE
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.SELECT_PAYMENT
@@ -1299,7 +1300,7 @@ class SimpleBuyCryptoFragment :
             updatePaymentMethods(preselectedId)
         }
         if (requestCode == BankAuthActivity.LINK_BANK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val preselectedId = data?.extras?.getString(BankAuthActivity.LINKED_BANK_ID_KEY)
+            val preselectedId = data?.extras?.getString(LINKED_BANK_ID_KEY)
             updatePaymentMethods(preselectedId)
         }
         if (requestCode == SimpleBuyActivity.KYC_STARTED) {

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.EmailVerifiedLinkState
 import org.amshove.kluent.`should be`
 import org.junit.Before
 import org.junit.Test

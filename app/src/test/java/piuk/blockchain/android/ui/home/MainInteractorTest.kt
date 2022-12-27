@@ -14,6 +14,7 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.ScanResult
@@ -37,7 +38,6 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -60,10 +60,9 @@ import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
-@OptIn(ExperimentalCoroutinesApi::class) class MainInteractorTest {
+class MainInteractorTest {
 
     private lateinit var interactor: MainInteractor
     private val deepLinkProcessor: DeepLinkProcessor = mock()
@@ -148,7 +147,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
         val intent: Intent = mock()
 
         interactor.checkForDeepLinks(intent)
-        whenever(deepLinkProcessor.getLink(intent)).thenReturn(Single.just(mock()))
+        whenever(deepLinkProcessor.getLink(intent)).thenReturn(Maybe.just(mock()))
         verify(deepLinkProcessor).getLink(intent)
     }
 

@@ -1,6 +1,8 @@
 package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -22,8 +24,6 @@ import org.junit.Test
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 
 class CancelOrderUseCaseTest {
 

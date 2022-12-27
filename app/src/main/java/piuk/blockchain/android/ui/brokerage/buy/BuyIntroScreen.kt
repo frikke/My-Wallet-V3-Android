@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -87,57 +87,35 @@ fun BuyIntroScreen(
 
                 SmallVerticalSpacer()
 
-                LazyColumn(
-                    state = listState
-                ) {
-                    if (searchedText.isNotEmpty() && listItems.isEmpty()) {
-                        item {
-                            SimpleText(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(R.string.staking_dashboard_no_results),
-                                style = ComposeTypographies.Body1,
-                                color = ComposeColors.Body,
-                                gravity = ComposeGravities.Centre
-                            )
-                        }
-                    } else {
-                        itemsIndexed(
-                            items = listItems,
-                            itemContent = { index, item ->
-                                when (index) {
-                                    0 -> {
-                                        Card(
-                                            shape = RoundedCornerShape(
-                                                topStart = AppTheme.dimensions.smallSpacing,
-                                                topEnd = AppTheme.dimensions.smallSpacing
-                                            )
-                                        ) {
-                                            BuyItem(
-                                                buyItem = item,
-                                                onClick = { onListItemClicked(item) }
-                                            )
-                                        }
-                                    }
-                                    listItems.size - 1 -> {
-                                        Card(
-                                            shape = RoundedCornerShape(
-                                                bottomEnd = AppTheme.dimensions.smallSpacing,
-                                                bottomStart = AppTheme.dimensions.smallSpacing
-                                            )
-                                        ) {
-                                            BuyItem(
-                                                buyItem = item,
-                                                onClick = { onListItemClicked(item) }
-                                            )
-                                        }
-                                    }
-                                    else -> BuyItem(
-                                        buyItem = item,
-                                        onClick = { onListItemClicked(item) }
-                                    )
+                if (searchedText.isNotEmpty() && listItems.isEmpty()) {
+                    SimpleText(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.staking_dashboard_no_results),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Centre
+                    )
+                } else {
+                    Card(
+                        backgroundColor = AppTheme.colors.background,
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        elevation = 0.dp
+                    ) {
+                        LazyColumn(
+                            state = listState
+                        ) {
+                            items(
+                                listItems,
+                                key = {
+                                    it.asset.networkTicker
                                 }
+                            ) { item ->
+                                BuyItem(
+                                    buyItem = item,
+                                    onClick = { onListItemClicked(item) }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }

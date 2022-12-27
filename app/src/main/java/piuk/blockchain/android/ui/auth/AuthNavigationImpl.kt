@@ -4,8 +4,10 @@ import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
+import piuk.blockchain.android.ui.home.CredentialsWiper
 
-class AuthNavigationImpl(private val activity: BlockchainActivity?) : AuthNavigation {
+class AuthNavigationImpl(private val activity: BlockchainActivity?, private val credentialsWiper: CredentialsWiper) :
+    AuthNavigation {
     override fun launchAuth(bundle: Bundle) {
         activity?.showBottomSheet(
             AuthNewLoginSheet.newInstance(
@@ -17,5 +19,9 @@ class AuthNavigationImpl(private val activity: BlockchainActivity?) : AuthNaviga
                 originBrowser = bundle.getString(AuthNewLoginSheet.ORIGIN_BROWSER)
             )
         )
+    }
+
+    override fun logout() {
+        credentialsWiper.wipe()
     }
 }

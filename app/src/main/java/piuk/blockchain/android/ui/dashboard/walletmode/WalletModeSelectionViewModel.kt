@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.walletmode
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 
 class WalletModeSelectionViewModel(
@@ -171,8 +173,9 @@ class WalletModeSelectionViewModel(
         updateState {
             it.copy(enabledWalletMode = walletMode)
         }
-        walletModeService.updateEnabledWalletMode(walletMode)
-
+        viewModelScope.launch {
+            walletModeService.updateEnabledWalletMode(walletMode)
+        }
         navigate(WalletModeSelectionNavigationEvent.Close(walletMode = walletMode))
     }
 

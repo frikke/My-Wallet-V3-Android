@@ -36,9 +36,9 @@ open class WalletModeRepository(
             )
         }
 
-    override fun updateEnabledWalletMode(type: WalletMode) {
+    override suspend fun updateEnabledWalletMode(type: WalletMode) {
         walletModeStore.updateWalletMode(type).also {
-            _walletMode.tryEmit(type)
+            _walletMode.emit(type)
         }
     }
 

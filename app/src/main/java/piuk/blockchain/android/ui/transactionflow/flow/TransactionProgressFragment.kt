@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import java.util.Locale
@@ -40,7 +41,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus

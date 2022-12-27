@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.linkbank
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.extensions.exhaustive
 import java.io.Serializable

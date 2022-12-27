@@ -2,10 +2,10 @@ package com.blockchain.coincore
 
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.extensions.replace
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.TransactionError
