@@ -14,7 +14,7 @@ class PrimaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 PrimaryButton(
                     onClick = onClick,

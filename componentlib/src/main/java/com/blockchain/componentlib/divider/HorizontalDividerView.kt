@@ -17,7 +17,7 @@ class HorizontalDividerView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth()

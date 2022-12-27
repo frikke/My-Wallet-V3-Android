@@ -14,7 +14,7 @@ class AlertButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 AlertButton(
                     onClick = onClick,

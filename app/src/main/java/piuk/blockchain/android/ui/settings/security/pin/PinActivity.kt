@@ -341,6 +341,8 @@ class PinActivity :
     }
 
     private fun setToolbar() {
+        updateToolbarBackground(applyModeColors = false, mutedBackground = false)
+
         when (originScreen) {
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {
                 updateToolbar(

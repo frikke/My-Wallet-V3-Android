@@ -30,7 +30,7 @@ class LoadingChartView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 LoadingChart(
                     historicalRates = historicalRates,

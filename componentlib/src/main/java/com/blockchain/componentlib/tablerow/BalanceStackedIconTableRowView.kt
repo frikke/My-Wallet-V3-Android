@@ -28,7 +28,7 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 BalanceStackedIconTableRow(
                     titleStart = titleStart,

@@ -23,7 +23,7 @@ class TabLayoutLiveView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 TabLayoutLive(
                     items = items,

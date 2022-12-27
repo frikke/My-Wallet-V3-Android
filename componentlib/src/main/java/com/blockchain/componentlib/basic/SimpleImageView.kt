@@ -25,7 +25,7 @@ class SimpleImageView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 Image(
                     imageResource = image,

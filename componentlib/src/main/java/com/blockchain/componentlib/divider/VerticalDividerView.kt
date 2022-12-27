@@ -17,7 +17,7 @@ class VerticalDividerView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 VerticalDivider(
                     modifier = Modifier.fillMaxHeight()

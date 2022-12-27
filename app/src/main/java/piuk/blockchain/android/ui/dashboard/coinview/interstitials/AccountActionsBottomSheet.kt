@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
@@ -31,13 +29,23 @@ import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Lock
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.Plus
+import com.blockchain.componentlib.icons.Receive
+import com.blockchain.componentlib.icons.Send
+import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
@@ -106,7 +114,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+                            .background(Color.White, AppTheme.shapes.veryLarge),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(
@@ -148,6 +156,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             val layout =
                 d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
             BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
+
+            layout.setBackgroundResource(android.R.color.transparent)
         }
         return dialog
     }
@@ -193,7 +203,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             val stateActionData = getStateActionData(item.action.state)
             val noOp = {}
             DefaultTableRow(
-                startImageResource = getStartImagePerState(item.action.state, item.icon, item.asset.colour),
+                startImageResource = getStartImagePerState(item.action.state, item.icon),
                 primaryText = item.title,
                 secondaryText = item.description,
                 endImageResource = stateActionData.imageResource,
@@ -227,22 +237,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
     private fun getStartImagePerState(
         state: ActionState,
-        @DrawableRes icon: Int,
-        color: String
+        @DrawableRes icon: Int
     ): ImageResource {
-        return if (state != ActionState.Available) {
-            ImageResource.LocalWithBackground(
-                id = icon,
-                backgroundColor = Grey600,
-                iconColor = Grey600
-            )
-        } else {
-            ImageResource.LocalWithBackgroundAndExternalResources(
-                id = icon,
-                backgroundColour = color,
-                iconTintColour = color
-            )
-        }
+        return ImageResource.LocalWithBackground(
+            id = icon,
+            backgroundColor = Grey000,
+            iconColor = Grey900,
+            alpha = if (state == ActionState.Available) 1F else 0.5F
+        )
     }
 
     private fun getStateActionData(state: ActionState): ActionData =
@@ -250,18 +252,12 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             ActionState.Available -> ActionData(
                 state = state,
                 hasWarning = false,
-                imageResource = ImageResource.Local(
-                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
-                    contentDescription = null
-                )
+                imageResource = Icons.ChevronRight.withTint(Grey400)
             )
             else -> ActionData(
                 state = state,
                 hasWarning = false,
-                imageResource = ImageResource.Local(
-                    R.drawable.ic_lock,
-                    colorFilter = ColorFilter.tint(Grey300)
-                )
+                imageResource = Icons.Filled.Lock.withTint(Grey300)
             )
         }
 
@@ -286,7 +282,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 AssetActionItem(
                     account = account,
                     title = getString(R.string.common_send),
-                    icon = R.drawable.ic_tx_sent,
+                    icon = Icons.Send.id,
                     description = getString(
                         R.string.dashboard_asset_actions_send_dsc,
                         asset.displayTicker
@@ -307,7 +303,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.Receive ->
                 AssetActionItem(
                     title = getString(R.string.common_receive),
-                    icon = R.drawable.ic_tx_receive,
+                    icon = Icons.Receive.id,
                     description = getString(
                         R.string.dashboard_asset_actions_receive_dsc,
                         asset.displayTicker
@@ -327,7 +323,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.Swap -> AssetActionItem(
                 account = account,
                 title = getString(R.string.common_swap),
-                icon = R.drawable.ic_tx_swap,
+                icon = Icons.Swap.id,
                 description = getString(
                     R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker
                 ),
@@ -339,7 +335,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.ViewStatement -> getViewStatementActionItemForAccount(asset, stateAwareAction, selectedAccount)
             AssetAction.InterestDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
-                icon = R.drawable.ic_tx_deposit_arrow,
+                icon = Icons.Receive.id,
                 description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
@@ -354,7 +350,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             }
             AssetAction.InterestWithdraw -> AssetActionItem(
                 title = getString(R.string.common_withdraw),
-                icon = R.drawable.ic_tx_withdraw,
+                icon = Icons.Send.id,
                 description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
@@ -369,7 +365,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             }
             AssetAction.Sell -> AssetActionItem(
                 title = getString(R.string.common_sell),
-                icon = R.drawable.ic_tx_sell,
+                icon = Icons.Minus.id,
                 description = getString(R.string.convert_your_crypto_to_cash),
                 asset = asset,
                 action = stateAwareAction
@@ -379,7 +375,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             }
             AssetAction.Buy -> AssetActionItem(
                 title = getString(R.string.common_buy),
-                icon = R.drawable.ic_tx_buy,
+                icon = Icons.Plus.id,
                 description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
@@ -388,7 +384,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             }
             AssetAction.StakingDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
-                icon = R.drawable.ic_tx_deposit_arrow,
+                icon = Icons.Receive.id,
                 description = getString(R.string.dashboard_asset_actions_add_staking_dsc, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction

@@ -6,8 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class NavigationBarView @JvmOverloads constructor(
@@ -22,23 +20,44 @@ class NavigationBarView @JvmOverloads constructor(
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
+    var applyModeColors by mutableStateOf(true)
+    var mutedBackground by mutableStateOf(true)
+
     @Composable
     override fun Content() {
-        AppTheme {
-            AppSurface {
-                if (startNavigationButton != null) {
-                    NavigationBar(
-                        title = title,
-                        startNavigationBarButton = startNavigationButton,
-                        endNavigationBarButtons = endNavigationBarButtons
-                    )
-                } else {
-                    NavigationBar(
-                        title = title,
-                        onBackButtonClick = onBackButtonClick,
-                        navigationBarButtons = endNavigationBarButtons
-                    )
-                }
+        if (startNavigationButton != null) {
+            if (applyModeColors) {
+                NavigationBar(
+                    mutedBg = mutedBackground,
+                    title = title,
+                    startNavigationBarButton = startNavigationButton,
+                    endNavigationBarButtons = endNavigationBarButtons
+                )
+            } else {
+                NavigationBar(
+                    walletMode = null,
+                    mutedBg = mutedBackground,
+                    title = title,
+                    startNavigationBarButton = startNavigationButton,
+                    endNavigationBarButtons = endNavigationBarButtons
+                )
+            }
+        } else {
+            if (applyModeColors) {
+                NavigationBar(
+                    mutedBg = mutedBackground,
+                    title = title,
+                    onBackButtonClick = onBackButtonClick,
+                    navigationBarButtons = endNavigationBarButtons
+                )
+            } else {
+                NavigationBar(
+                    walletMode = null,
+                    mutedBg = mutedBackground,
+                    title = title,
+                    onBackButtonClick = onBackButtonClick,
+                    navigationBarButtons = endNavigationBarButtons
+                )
             }
         }
     }

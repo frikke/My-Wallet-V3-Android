@@ -24,7 +24,7 @@ class SheetHeaderBackAndActionView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SheetHeaderBackAndAction(
                     title = title,

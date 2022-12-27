@@ -33,7 +33,7 @@ class DropdownMenuSearchView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DropdownMenuSearch(
                     value = value,

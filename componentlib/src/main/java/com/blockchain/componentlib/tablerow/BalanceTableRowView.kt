@@ -30,7 +30,7 @@ class BalanceTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 BalanceTableRow(
                     titleStart = titleStart,

@@ -31,7 +31,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green600
+import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.data.DataResource
@@ -175,7 +175,7 @@ sealed interface ValueChange {
 
     data class Up(override val value: Double) : ValueChange {
         override val indicator: String = "↑"
-        override val color: Color = Green600
+        override val color: Color = Green700
     }
 
     data class Down(override val value: Double) : ValueChange {

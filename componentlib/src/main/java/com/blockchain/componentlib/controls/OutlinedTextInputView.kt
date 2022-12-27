@@ -33,7 +33,7 @@ class OutlinedTextInputView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 OutlinedTextInput(
                     value = value,

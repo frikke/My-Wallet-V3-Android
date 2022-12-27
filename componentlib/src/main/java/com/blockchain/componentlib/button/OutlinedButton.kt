@@ -65,7 +65,7 @@ fun OutlinedButton(
     defaultTextColor: Color? = null,
     @DrawableRes defaultLoadingIconResId: Int? = null,
     pressedBackgroundTimeShown: Long = 250L,
-    shape: Shape = AppTheme.shapes.small,
+    shape: Shape = AppTheme.shapes.extraLarge,
     state: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,

@@ -14,7 +14,7 @@ class DestructivePrimaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DestructivePrimaryButton(
                     onClick = onClick,

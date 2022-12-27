@@ -23,7 +23,7 @@ class TabLayoutLargeView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 TabLayoutLarge(
                     items = items,

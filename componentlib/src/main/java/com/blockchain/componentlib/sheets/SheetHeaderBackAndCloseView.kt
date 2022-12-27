@@ -25,7 +25,7 @@ class SheetHeaderBackAndCloseView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SheetHeaderBackAndClose(
                     title = title,
