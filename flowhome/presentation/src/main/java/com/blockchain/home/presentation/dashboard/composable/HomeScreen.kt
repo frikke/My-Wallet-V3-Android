@@ -19,6 +19,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
+import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -29,6 +30,7 @@ fun HomeScreen(
     settingsNavigation: SettingsNavigation,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
+    openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
@@ -78,7 +80,8 @@ fun HomeScreen(
 
         item {
             HomeActivity(
-                openAllActivity = openActivity
+                openAllActivity = openActivity,
+                openActivityDetail = openActivityDetail
             )
         }
 
