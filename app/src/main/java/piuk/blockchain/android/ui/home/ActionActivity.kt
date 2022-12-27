@@ -38,7 +38,7 @@ class ActionActivity :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
-    override val applyModeBackground: Boolean = true
+    override val applyModeStatusbarColors: Boolean = true
 
     private val assetCatalogue: AssetCatalogue by scopedInject()
 
@@ -61,7 +61,7 @@ class ActionActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(applyModeBackground = true, mutedBackground = true)
+        updateToolbarBackground(applyModeColors = true, mutedBackground = true)
 
         updateToolbarBackAction {
             onBackPressedDispatcher.onBackPressed()

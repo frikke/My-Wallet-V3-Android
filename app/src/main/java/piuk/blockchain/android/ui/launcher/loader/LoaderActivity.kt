@@ -57,7 +57,7 @@ class LoaderActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(applyModeBackground = false, mutedBackground = false)
+        updateToolbarBackground(applyModeColors = false, mutedBackground = false)
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false

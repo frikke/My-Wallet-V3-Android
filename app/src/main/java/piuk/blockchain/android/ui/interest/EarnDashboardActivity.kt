@@ -32,7 +32,7 @@ class EarnDashboardActivity :
         ActivityInterestDashboardBinding.inflate(layoutInflater)
     }
 
-    override val applyModeBackground: Boolean = true
+    override val applyModeStatusbarColors: Boolean = true
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -45,7 +45,7 @@ class EarnDashboardActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(applyModeBackground = true, mutedBackground = false)
+        updateToolbarBackground(applyModeColors = true, mutedBackground = false)
         updateToolbar(
             toolbarTitle = getString(R.string.earn_dashboard_title),
             backAction = { onSupportNavigateUp() }

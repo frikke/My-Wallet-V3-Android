@@ -91,7 +91,7 @@ class TransactionFlowActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    override val applyModeBackground: Boolean = true
+    override val applyModeStatusbarColors: Boolean = true
 
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
@@ -133,7 +133,7 @@ class TransactionFlowActivity :
 
         setupBackPress()
 
-        updateToolbarBackground(applyModeBackground = true, mutedBackground = true)
+        updateToolbarBackground(applyModeColors = true, mutedBackground = true)
 
         updateToolbar(
             menuItems = listOf(
