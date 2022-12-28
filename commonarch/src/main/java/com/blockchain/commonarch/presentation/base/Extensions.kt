@@ -13,9 +13,9 @@ fun Fragment.updateToolbar(
     (activity as? BlockchainActivity)?.updateToolbar(toolbarTitle, menuItems, backAction)
 }
 
-fun Fragment.updateToolbarBackground(applyModeColors: Boolean, mutedBackground: Boolean) {
+fun Fragment.updateToolbarBackground(ignoreWalletModeColor: Boolean = false, mutedBackground: Boolean = true) {
     (activity as? BlockchainActivity)?.updateToolbarBackground(
-        applyModeColors = applyModeColors,
+        ignoreWalletModeColor = ignoreWalletModeColor,
         mutedBackground = mutedBackground
     )
 }

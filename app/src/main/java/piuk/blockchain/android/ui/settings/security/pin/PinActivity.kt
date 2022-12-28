@@ -95,6 +95,8 @@ class PinActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
+    override val ignoreStatusbarColor: Boolean = true
+
     private val environmentConfig: EnvironmentConfig by inject()
     private val util: AppUtil by inject()
     private val secondPasswordDialog: SecondPasswordDialog by scopedInjectActivity()
@@ -341,7 +343,7 @@ class PinActivity :
     }
 
     private fun setToolbar() {
-        updateToolbarBackground(applyModeColors = false, mutedBackground = false)
+        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
 
         when (originScreen) {
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {

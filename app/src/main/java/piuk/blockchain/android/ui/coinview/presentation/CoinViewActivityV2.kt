@@ -67,8 +67,6 @@ class CoinViewActivityV2 :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
-    override val applyModeStatusbarColors: Boolean = true
-
     override val scope: Scope = payloadScope
     private val viewModel: CoinviewViewModel by viewModel()
 

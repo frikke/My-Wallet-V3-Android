@@ -14,6 +14,8 @@ import piuk.blockchain.android.ui.base.BaseMvpActivity
 
 class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), SSLVerifyView {
 
+    override val ignoreStatusbarColor: Boolean = true
+
     private val sslSSLVerifyPresenter: SSLVerifyPresenter by inject()
 
     private val allowRetry: Boolean by unsafeLazy {
@@ -33,6 +35,8 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
 
         onViewReady()
     }

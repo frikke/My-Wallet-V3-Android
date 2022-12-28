@@ -54,6 +54,7 @@ import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
@@ -91,7 +92,8 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 
 @Composable
 fun NavigationBar(
-    mutedBg: Boolean = true,
+    ignoreWalletModeColor: Boolean = false,
+    mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
@@ -99,7 +101,8 @@ fun NavigationBar(
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
     NavigationBar(
-        mutedBg = mutedBg,
+        ignoreWalletModeColor = ignoreWalletModeColor,
+        mutedBackground = mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = onBackButtonClick?.let { onClick ->
@@ -114,7 +117,7 @@ fun NavigationBar(
 }
 
 @Composable
-fun NavigationBar(
+private fun NavigationBar(
     walletMode: WalletMode?,
     mutedBg: Boolean,
     title: String,
@@ -141,21 +144,29 @@ fun NavigationBar(
 
 @Composable
 fun NavigationBar(
-    mutedBg: Boolean = true,
+    ignoreWalletModeColor: Boolean = false,
+    mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
     endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
 
-    val walletMode: WalletMode? by get<WalletModeService>(
-        superAppModeService,
-        payloadScope
-    ).walletMode.collectAsStateLifecycleAware(initial = null)
+    val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
+
+    val walletMode: WalletMode? by if (isLoggedIn && ignoreWalletModeColor.not()) {
+        get<WalletModeService>(
+            superAppModeService,
+            payloadScope
+        ).walletMode.collectAsStateLifecycleAware(initial = null)
+    } else {
+        remember { mutableStateOf(null) }
+    }
 
     NavigationBar(
         walletMode = walletMode,
-        mutedBg = mutedBg,
+        // force white on login screens (until future design changes), no session = no wallet mode
+        mutedBg = if (walletMode == null) false else mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,
@@ -164,7 +175,7 @@ fun NavigationBar(
 }
 
 @Composable
-fun NavigationBar(
+private fun NavigationBar(
     walletMode: WalletMode?,
     mutedBg: Boolean,
     title: String,
