@@ -69,7 +69,6 @@ class AssetsViewModel(
 
     override fun reduce(state: AssetsModelState): AssetsViewState {
         return with(state) {
-            println("Reducing Assetviewmodel $this")
             AssetsViewState(
                 balance = accounts.walletBalance(),
                 assets = state.accounts.map { modelAccounts ->

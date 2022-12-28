@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
@@ -107,6 +108,7 @@ class SellIntroFragment :
                 text = getString(R.string.search_empty)
                 gravity = ComposeGravities.Centre
                 style = ComposeTypographies.Body1
+                textColor = ComposeColors.Dark
             }
 
             sellEmpty.gone()
@@ -219,8 +221,10 @@ class SellIntroFragment :
                     sellSearchEmpty.visibleIf { isEmpty && hasEnteredSearchTerm }
                     accountsList.goneIf { isEmpty }
 
-                    if (isEmpty && !hasEnteredSearchTerm) {
-                        renderSellEmpty()
+                    if (!hasEnteredSearchTerm) {
+                        if (isEmpty)
+                            renderSellEmpty()
+                        else sellEmpty.gone()
                     }
                 }
             }

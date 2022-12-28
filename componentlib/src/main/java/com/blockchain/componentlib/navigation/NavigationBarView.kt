@@ -20,8 +20,8 @@ class NavigationBarView @JvmOverloads constructor(
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
-    var applyModeColors by mutableStateOf(true)
-    var mutedBackground by mutableStateOf(true)
+    var applyModeColors by mutableStateOf(false)
+    var mutedBackground by mutableStateOf(false)
 
     @Composable
     override fun Content() {

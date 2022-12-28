@@ -1,35 +1,19 @@
 package piuk.blockchain.android.ui.brokerage.sell
 
-import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.SingleAccountList
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.sell.domain.SellEligibility
-import com.blockchain.core.sell.domain.SellService
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.map
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.utils.asFlow
-import com.blockchain.utils.zipObservables
-import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Observable
-import kotlinx.coroutines.flow.Flow
+import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.asFlow
-import piuk.blockchain.android.ui.transfer.AccountsSorting
+import kotlinx.coroutines.flow.flatMapLatest
 
 class SellViewModel(
-    private val sellService: SellService,
-    private val coincore: Coincore,
-    private val accountsSorting: AccountsSorting,
-    private val localSettingsPrefs: LocalSettingsPrefs,
-    private val hideDustFlag: FeatureFlag
+    private val sellRepository: SellRepository,
+    private val walletModeService: WalletModeService,
 ) : MviViewModel<
     SellIntent,
     SellViewState,
@@ -54,10 +38,11 @@ class SellViewModel(
             }
         )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: SellModelState, intent: SellIntent) {
         when (intent) {
             is SellIntent.CheckSellEligibility -> {
-                sellService.loadSellAssets(FreshnessStrategy.Cached(false)).collectLatest { data ->
+                sellRepository.sellEligibility().collectLatest { data ->
                     if (data is DataResource.Data || modelState.sellEligibility !is DataResource.Data) {
                         updateState {
                             it.copy(
@@ -73,13 +58,25 @@ class SellViewModel(
                 }
             }
             is SellIntent.LoadSupportedAccounts -> {
-                viewModelScope.launch {
-                    loadSupportedWallets(
-                        intent = intent,
-                        shouldFilterDust = hideDustFlag.coEnabled() && localSettingsPrefs.hideSmallBalancesEnabled
-                    ).collectLatest { list ->
+                walletModeService.walletMode.flatMapLatest {
+                    sellRepository.sellSupportedAssets(
+                        availableAssets = intent.supportedAssets,
+                        walletMode = it
+                    )
+                }.collect { list ->
+                    if (
+                        list is DataResource.Data &&
+                        modelState.supportedAccountList is DataResource.Data &&
+                        shouldUpdateList(list, modelState.supportedAccountList)
+                    ) {
                         updateState {
-                            it.copy(supportedAccountList = DataResource.Data(list))
+                            it.copy(supportedAccountList = list)
+                        }
+                    } else if (
+                        modelState.supportedAccountList !is DataResource.Data
+                    ) {
+                        updateState {
+                            it.copy(supportedAccountList = list)
                         }
                     }
                 }
@@ -90,42 +87,21 @@ class SellViewModel(
         }
     }
 
-    private fun loadSupportedWallets(
-        intent: SellIntent.LoadSupportedAccounts,
-        shouldFilterDust: Boolean
-    ): Flow<List<CryptoAccount>> =
-        coincore.walletsWithActions(
-            actions = setOf(AssetAction.Sell),
-            sorter = accountsSorting.sorter(),
-            tickers = intent.supportedAssets.toSet()
-        ).toObservable().flatMap { accountList ->
-            accountList
-                .filterUnsupportedPairs(intent.supportedAssets).let {
-                    if (shouldFilterDust) {
-                        it.filterDustBalances()
-                    } else {
-                        Observable.just(it.filterIsInstance<CryptoAccount>())
-                    }
-                }
-        }.asFlow()
-
-    private fun SingleAccountList.filterDustBalances(): Observable<List<CryptoAccount>> =
-        map { account ->
-            account.balanceRx
-        }.zipObservables().map {
-            this.mapIndexedNotNull { index, singleAccount ->
-                if (!it[index].totalFiat.isDust()) {
-                    singleAccount
-                } else {
-                    null
-                }
-            }.filterIsInstance<CryptoAccount>()
+    private fun shouldUpdateList(
+        list: DataResource.Data<List<CryptoAccount>>,
+        supportedAccountList: DataResource.Data<List<CryptoAccount>>
+    ): Boolean {
+        val currentList = supportedAccountList.data
+        val newList = list.data
+        if (newList.size != currentList.size) {
+            return true
         }
-
-    private fun SingleAccountList.filterUnsupportedPairs(supportedAssets: List<AssetInfo>) =
-        this.filter { account ->
-            supportedAssets.contains(account.currency)
+        newList.forEach {
+            if (it !in currentList)
+                return true
         }
+        return newList.any { it !in currentList }
+    }
 
     private fun List<CryptoAccount>.filterList(searchTerm: String) =
         this.filter { account ->

@@ -348,7 +348,9 @@ abstract class CryptoNonCustodialAccount(
         val balance = balanceRx.firstOrError().onErrorReturn {
             AccountBalance.zero(currency)
         }
+
         val isActive = !isArchived
+
         return when (this) {
             AssetAction.ViewActivity -> Single.just(StateAwareAction(ActionState.Available, this))
             AssetAction.Receive -> Single.just(
