@@ -189,6 +189,12 @@ class CustodialStakingAccount(
             }.exhaustive
         }
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return stateAwareActions.map { set ->
+            set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+        }
+    }
+
     companion object {
         private val displayedStates = setOf(
             StakingState.COMPLETE,

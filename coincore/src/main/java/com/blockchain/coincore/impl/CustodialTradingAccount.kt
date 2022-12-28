@@ -162,6 +162,14 @@ class CustodialTradingAccount(
             }
         }
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return balanceRx.firstOrError().flatMap { balance ->
+            assetAction.eligibility(balance).map {
+                it.state
+            }
+        }
+    }
+
     private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> =
         when (this) {
             AssetAction.ViewActivity -> viewActivityEligibility()

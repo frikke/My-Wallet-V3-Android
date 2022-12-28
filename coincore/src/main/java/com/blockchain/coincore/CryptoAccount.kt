@@ -125,6 +125,8 @@ interface BlockchainAccount {
     fun requireSecondPassword(): Single<Boolean> = Single.just(false)
 
     val stateAwareActions: Single<Set<StateAwareAction>>
+
+    fun stateOfAction(assetAction: AssetAction): Single<ActionState>
 }
 
 interface SingleAccount : BlockchainAccount, TransactionTarget {
@@ -197,6 +199,14 @@ interface AccountGroup : BlockchainAccount {
                 StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
             )
         )
+
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return stateAwareActions.map { set ->
+            if (set.map { it.action }.contains(assetAction))
+                ActionState.Available
+            else ActionState.Unavailable
+        }
+    }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = throw IllegalStateException("ReceiveAddress is not supported")

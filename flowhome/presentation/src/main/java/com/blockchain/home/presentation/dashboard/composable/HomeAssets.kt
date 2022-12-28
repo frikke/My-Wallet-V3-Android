@@ -65,15 +65,11 @@ fun HomeAssets(
 
     val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
-        onDispose { }
-    }
-
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onIntent(AssetsIntent.LoadFilters)
+                viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

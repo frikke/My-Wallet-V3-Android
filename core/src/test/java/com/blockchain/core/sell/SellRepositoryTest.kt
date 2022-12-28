@@ -33,7 +33,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class) class SellRepositoryTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class SellRepositoryTest {
 
     private lateinit var subject: SellRepository
     private val userFeaturePermissionService: UserFeaturePermissionService = mockk()
@@ -156,8 +157,8 @@ import org.junit.Test
             every { isApprovedFor(KycTier.GOLD) } returns false
             every { isRejectedFor(KycTier.GOLD) } returns true
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(true))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
         subject.loadSellAssets().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
@@ -170,8 +171,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
         verify(exactly = 0) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 0) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
@@ -189,8 +188,8 @@ import org.junit.Test
             every { isApprovedFor(KycTier.GOLD) } returns true
             every { isRejectedFor(KycTier.GOLD) } returns false
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(false))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(false))
 
         subject.loadSellAssets().test {
             expectMostRecentItem().run {
@@ -204,8 +203,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
         verify(exactly = 0) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 0) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
@@ -223,8 +220,8 @@ import org.junit.Test
             every { isApprovedFor(KycTier.GOLD) } returns false
             every { isRejectedFor(KycTier.GOLD) } returns false
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(true))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
 
         subject.loadSellAssets().test {
             expectMostRecentItem().run {
@@ -238,8 +235,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
         verify(exactly = 0) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 0) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
@@ -256,8 +251,8 @@ import org.junit.Test
         val kycTiers: KycTiers = mockk {
             every { isApprovedFor(KycTier.GOLD) } returns true
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(true))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
         every { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) } returns flowOf(
             listOf(FiatCurrency.Dollars)
@@ -283,8 +278,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
         verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
@@ -301,8 +294,8 @@ import org.junit.Test
         val kycTiers: KycTiers = mockk {
             every { isApprovedFor(KycTier.GOLD) } returns true
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(true))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
         every { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) } returns flowOf(
             listOf(FiatCurrency.Dollars)
@@ -325,8 +318,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
         verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
@@ -343,8 +334,8 @@ import org.junit.Test
         val kycTiers: KycTiers = mockk {
             every { isApprovedFor(KycTier.GOLD) } returns true
         }
-        every { kycService.getTiers(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(FreshnessStrategy.Fresh) } returns flowOf(DataResource.Data(true))
+        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 
         val testException = IllegalArgumentException("my exception")
@@ -372,8 +363,6 @@ import org.junit.Test
                 Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
             )
         }
-        verify(exactly = 1) { kycService.getTiers(FreshnessStrategy.Fresh) }
-        verify(exactly = 1) { simpleBuyService.isEligible(FreshnessStrategy.Fresh) }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
         verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
         verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }

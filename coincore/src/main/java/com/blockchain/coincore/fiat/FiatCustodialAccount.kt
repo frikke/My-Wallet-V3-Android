@@ -123,6 +123,12 @@ import kotlinx.coroutines.flow.catch
                 }
             }
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return stateAwareActions.map { set ->
+            set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+        }
+    }
+
     override val isFunded: Boolean
         get() = hasFunds.get()
 

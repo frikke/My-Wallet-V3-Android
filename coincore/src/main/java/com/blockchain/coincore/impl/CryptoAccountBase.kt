@@ -179,6 +179,10 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return Single.just(ActionState.Unavailable)
+    }
+
     // No activity on exchange accounts, so just return the activity list
     // unmodified - they should both be empty anyway
     override fun reconcileSwaps(
@@ -273,6 +277,10 @@ abstract class CryptoNonCustodialAccount(
             actions.map { it.eligibility() }.zipSingles()
                 .map { it.toSet() }
         }
+
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return assetAction.eligibility().map { it.state }
+    }
 
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 

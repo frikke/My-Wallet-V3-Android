@@ -96,7 +96,8 @@ class SellViewModel(
     ): Flow<List<CryptoAccount>> =
         coincore.walletsWithActions(
             actions = setOf(AssetAction.Sell),
-            sorter = accountsSorting.sorter()
+            sorter = accountsSorting.sorter(),
+            tickers = intent.supportedAssets.toSet()
         ).toObservable().flatMap { accountList ->
             accountList
                 .filterUnsupportedPairs(intent.supportedAssets).let {
