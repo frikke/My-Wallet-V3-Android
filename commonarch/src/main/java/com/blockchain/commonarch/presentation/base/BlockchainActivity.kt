@@ -30,7 +30,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.instrumentation.InstrumentationScaffold
+import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.logging.RemoteLogger
