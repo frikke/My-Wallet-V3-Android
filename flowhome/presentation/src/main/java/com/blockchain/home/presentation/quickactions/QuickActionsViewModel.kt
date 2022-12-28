@@ -33,7 +33,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -136,14 +138,15 @@ class QuickActionsViewModel(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
-        val stateAwareActions = coincore.allFiats()
-            .map {
-                it.first { it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker }
-                    as FiatAccount
-            }.flatMap {
-                it.stateAwareActions
+        val stateAwareActions = coincore.allFiats().asFlow()
+            .mapNotNull {
+                it.firstOrNull { it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker }
+                    as? FiatAccount
             }
-            .asFlow()
+            .flatMapLatest {
+                it.stateAwareActions.asFlow()
+            }
+            .onEmpty { emit(emptySet()) }
 
         return combine(
             custodialBalance,

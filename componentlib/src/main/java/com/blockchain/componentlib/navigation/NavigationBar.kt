@@ -54,6 +54,7 @@ import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
@@ -148,14 +149,21 @@ fun NavigationBar(
     endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
 
-    val walletMode: WalletMode? by get<WalletModeService>(
-        superAppModeService,
-        payloadScope
-    ).walletMode.collectAsStateLifecycleAware(initial = null)
+    val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
+
+    val walletMode: WalletMode? by if (isLoggedIn) {
+        get<WalletModeService>(
+            superAppModeService,
+            payloadScope
+        ).walletMode.collectAsStateLifecycleAware(initial = null)
+    } else {
+        remember { mutableStateOf(null) }
+    }
 
     NavigationBar(
         walletMode = walletMode,
-        mutedBg = mutedBg,
+        // force white on login screens (until future design changes), no session = no wallet mode
+        mutedBg = if (walletMode == null) false else mutedBg,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,

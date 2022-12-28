@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:endColor="#FF2878D4"
-        android:startColor="#FF6D39BD" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="#FFF1F2F7" />
+        </shape>
+    </item>
+    <item android:height="@*android:dimen/status_bar_height">
+        <shape>
+            <gradient
+                android:endColor="#FF2878D4"
+                android:startColor="#FF6D39BD" />
+        </shape>
+    </item>
+</layer-list>
