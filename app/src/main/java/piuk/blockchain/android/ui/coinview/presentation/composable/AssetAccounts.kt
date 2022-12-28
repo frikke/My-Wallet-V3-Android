@@ -22,7 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
@@ -372,6 +374,9 @@ private val previewBlockchainAccount = object : BlockchainAccount {
         get() = error("preview")
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = error("preview")
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        error("preview")
+    }
 }
 
 val previewCvAccount: CoinviewAccount = CoinviewAccount.PrivateKey(

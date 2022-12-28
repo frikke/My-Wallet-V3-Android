@@ -68,8 +68,8 @@ class SellRepository(
 
     private fun loadSellEligibility(): Flow<DataResource<SellUserEligibility>> =
         combine(
-            kycService.getTiers(FreshnessStrategy.Fresh),
-            simpleBuyService.isEligible(FreshnessStrategy.Fresh)
+            kycService.getTiers(),
+            simpleBuyService.isEligible()
         ) { kycTiers, isEligibleForBuy ->
             combineDataResources(kycTiers, isEligibleForBuy) { kyc, eligible ->
                 when {
