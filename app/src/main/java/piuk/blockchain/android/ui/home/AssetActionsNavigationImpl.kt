@@ -7,6 +7,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
@@ -20,6 +21,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
 
 class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation, PricesNavigation {
@@ -127,6 +129,10 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun stakingSummary(currency: Currency) {
         activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker))
+    }
+
+    override fun fundsLocksDetail(fundsLocks: FundsLocks) {
+        activity?.let { LocksDetailsActivity.start(activity, fundsLocks) }
     }
 
     override fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String) {

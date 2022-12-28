@@ -22,6 +22,7 @@ import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.store.asSingle
 import com.blockchain.utils.zipObservables
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
@@ -112,7 +113,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).asSingle()
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<AccountListViewItem>> =

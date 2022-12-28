@@ -47,6 +47,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
+import com.blockchain.store.asMaybe
 import com.blockchain.store.asSingle
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
@@ -355,7 +356,7 @@ class TransactionInteractor(
     }
 
     fun loadWithdrawalLocks(model: TransactionModel, available: Money): Disposable =
-        coincore.getWithdrawalLocks(showLocksInFiat(available)).subscribeBy(
+        coincore.getWithdrawalLocks(showLocksInFiat(available)).asMaybe().subscribeBy(
             onSuccess = { locks ->
                 model.process(TransactionIntent.FundsLocksLoaded(locks))
             },

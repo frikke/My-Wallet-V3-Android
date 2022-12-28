@@ -317,7 +317,7 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `getWithdrawalLocks() should return FundsLocks`() {
+    fun `getWithdrawalLocks() should return FundsLocks`() = runTest {
         // ARRANGE
         val date = Date().toInstant().toString()
         val locks = CollateralLocks(
@@ -335,19 +335,25 @@ class PaymentsRepositoryTest {
         every { assetCatalogue.fromNetworkTicker(BUY_NETWORK_TICKER) } returns buyCurrency
 
         // ASSERT
-        subject.getWithdrawalLocks(localCurrency).test()
-            .assertValue(
-                FundsLocks(
-                    Money.fromMinor(localCurrency, BigInteger("1000")),
-                    listOf(
-                        FundsLock(
-                            Money.fromMinor(localCurrency, BigInteger("10")),
-                            date.toZonedDateTime(),
-                            Money.fromMinor(buyCurrency, BigInteger("1000")),
+        subject.getWithdrawalLocks(localCurrency).test {
+            expectMostRecentItem().run {
+                assertEquals(
+                    DataResource.Data(
+                        FundsLocks(
+                            Money.fromMinor(localCurrency, BigInteger("1000")),
+                            listOf(
+                                FundsLock(
+                                    Money.fromMinor(localCurrency, BigInteger("10")),
+                                    date.toZonedDateTime(),
+                                    Money.fromMinor(buyCurrency, BigInteger("1000")),
+                                )
+                            )
                         )
-                    )
+                    ),
+                    this
                 )
-            )
+            }
+        }
     }
 
     @Test

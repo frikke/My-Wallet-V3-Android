@@ -21,8 +21,10 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface BankService {
-
-    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
+    fun getWithdrawalLocks(
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+    ): Flow<DataResource<FundsLocks>>
 
     @Deprecated("use flow getLinkedBank")
     fun getLinkedBankLegacy(id: String): Single<LinkedBank>

@@ -2,6 +2,7 @@ package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.nabu.Feature
@@ -23,6 +24,7 @@ import java.math.BigDecimal
 import java.util.Calendar
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -142,7 +144,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns flowOf(DataResource.Data(fundsLocksNotOnHold))
             every { appRatingPrefs.promptDateMillis } returns 0L
 
             val result = appRatingService.shouldShowRating()
@@ -175,7 +177,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns flowOf(DataResource.Data(fundsLocksNotOnHold))
 
             val result = appRatingService.shouldShowRating()
 
@@ -187,7 +189,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns flowOf(DataResource.Data(fundsLocksNotOnHold))
             // simulate prompt was show 20 seconds ago = less than a month
             every { appRatingPrefs.promptDateMillis } returns
                 Calendar.getInstance().apply { add(Calendar.SECOND, -20) }.timeInMillis

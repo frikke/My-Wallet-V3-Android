@@ -9,6 +9,7 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asSingle
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
@@ -89,7 +90,7 @@ internal class AppRatingRepository(
     private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).asSingle().await().let { fundsLocks ->
             return fundsLocks.onHoldTotalAmount.isPositive
         }
     }
