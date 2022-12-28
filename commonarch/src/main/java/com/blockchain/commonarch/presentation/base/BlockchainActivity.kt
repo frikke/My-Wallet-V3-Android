@@ -30,10 +30,11 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
+import com.blockchain.instrumentation.InstrumentationScaffold
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -90,17 +91,16 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     private var progressDialog: MaterialProgressDialog? = null
 
-    /**
-     * true to set statusbar to wallet mode colors
-     */
-    protected open val applyModeStatusbarColors: Boolean = false
+    protected open val ignoreStatusbarColor: Boolean = false
+    private val authPrefs: AuthPrefs by inject()
     private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (applyModeStatusbarColors) {
+        val isLoggedIn = authPrefs.run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
+        if (isLoggedIn && ignoreStatusbarColor.not()) {
             lifecycleScope.launch {
                 val bg = walletMde.walletMode.map {
                     when (it) {
@@ -180,11 +180,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     /**
-     * @param applyModeColors sets the rounded corners and colors
      * @param mutedBackground false to keep white bg for screens that will remain white (settings..etc)
      */
-    fun updateToolbarBackground(applyModeColors: Boolean, mutedBackground: Boolean) {
-        toolbarBinding?.navigationToolbar?.applyModeColors = applyModeColors
+    fun updateToolbarBackground(ignoreWalletModeColor: Boolean = false, mutedBackground: Boolean = true) {
+        toolbarBinding?.navigationToolbar?.ignoreWalletModeColor = ignoreWalletModeColor
         toolbarBinding?.navigationToolbar?.mutedBackground = mutedBackground
     }
 

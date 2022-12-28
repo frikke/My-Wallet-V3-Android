@@ -60,8 +60,6 @@ class DashboardOnboardingActivity :
 
     override val alwaysDisableScreenshots: Boolean = false
 
-    override val applyModeStatusbarColors: Boolean = true
-
     override val model: DashboardOnboardingModel by scopedInject {
         parametersOf(intent.argInitialSteps())
     }

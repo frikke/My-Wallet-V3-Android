@@ -48,8 +48,6 @@ class KycNavHostActivity :
 
     private lateinit var backPressCallback: OnBackPressedCallback
 
-    override val applyModeStatusbarColors: Boolean = true
-
     private val binding: ActivityKycNavHostBinding by lazy {
         ActivityKycNavHostBinding.inflate(layoutInflater)
     }
@@ -79,8 +77,6 @@ class KycNavHostActivity :
         setContentView(binding.root)
 
         setupBackPress()
-
-        updateToolbarBackground(applyModeColors = true, mutedBackground = false)
 
         updateToolbar(
             backAction = { onBackPressedDispatcher.onBackPressed() }

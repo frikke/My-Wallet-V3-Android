@@ -92,7 +92,8 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 
 @Composable
 fun NavigationBar(
-    mutedBg: Boolean = true,
+    ignoreWalletModeColor: Boolean = false,
+    mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
@@ -100,7 +101,8 @@ fun NavigationBar(
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
     NavigationBar(
-        mutedBg = mutedBg,
+        ignoreWalletModeColor = ignoreWalletModeColor,
+        mutedBackground = mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = onBackButtonClick?.let { onClick ->
@@ -115,7 +117,7 @@ fun NavigationBar(
 }
 
 @Composable
-fun NavigationBar(
+private fun NavigationBar(
     walletMode: WalletMode?,
     mutedBg: Boolean,
     title: String,
@@ -142,7 +144,8 @@ fun NavigationBar(
 
 @Composable
 fun NavigationBar(
-    mutedBg: Boolean = true,
+    ignoreWalletModeColor: Boolean = false,
+    mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
@@ -151,7 +154,7 @@ fun NavigationBar(
 
     val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
 
-    val walletMode: WalletMode? by if (isLoggedIn) {
+    val walletMode: WalletMode? by if (isLoggedIn && ignoreWalletModeColor.not()) {
         get<WalletModeService>(
             superAppModeService,
             payloadScope
@@ -163,7 +166,7 @@ fun NavigationBar(
     NavigationBar(
         walletMode = walletMode,
         // force white on login screens (until future design changes), no session = no wallet mode
-        mutedBg = if (walletMode == null) false else mutedBg,
+        mutedBg = if (walletMode == null) false else mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,
@@ -172,7 +175,7 @@ fun NavigationBar(
 }
 
 @Composable
-fun NavigationBar(
+private fun NavigationBar(
     walletMode: WalletMode?,
     mutedBg: Boolean,
     title: String,

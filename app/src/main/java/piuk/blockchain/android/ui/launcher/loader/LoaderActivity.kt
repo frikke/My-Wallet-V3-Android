@@ -46,6 +46,8 @@ class LoaderActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
+    override val ignoreStatusbarColor: Boolean = true
+
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
     override val toolbarBinding: ToolbarGeneralBinding
@@ -57,7 +59,7 @@ class LoaderActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(applyModeColors = false, mutedBackground = false)
+        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false

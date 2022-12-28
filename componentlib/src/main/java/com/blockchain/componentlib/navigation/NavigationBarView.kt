@@ -22,7 +22,7 @@ class NavigationBarView @JvmOverloads constructor(
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
-    var applyModeColors by mutableStateOf(false)
+    var ignoreWalletModeColor by mutableStateOf(false)
     var mutedBackground by mutableStateOf(false)
 
     @Composable
@@ -30,39 +30,21 @@ class NavigationBarView @JvmOverloads constructor(
         AppTheme(setSystemColors = false) {
             AppSurface {
                 if (startNavigationButton != null) {
-                    if (applyModeColors) {
-                        NavigationBar(
-                            mutedBg = mutedBackground,
-                            title = title,
-                            startNavigationBarButton = startNavigationButton,
-                            endNavigationBarButtons = endNavigationBarButtons
-                        )
-                    } else {
-                        NavigationBar(
-                            walletMode = null,
-                            mutedBg = mutedBackground,
-                            title = title,
-                            startNavigationBarButton = startNavigationButton,
-                            endNavigationBarButtons = endNavigationBarButtons
-                        )
-                    }
+                    NavigationBar(
+                        ignoreWalletModeColor = ignoreWalletModeColor,
+                        mutedBackground = mutedBackground,
+                        title = title,
+                        startNavigationBarButton = startNavigationButton,
+                        endNavigationBarButtons = endNavigationBarButtons
+                    )
                 } else {
-                    if (applyModeColors) {
-                        NavigationBar(
-                            mutedBg = mutedBackground,
-                            title = title,
-                            onBackButtonClick = onBackButtonClick,
-                            navigationBarButtons = endNavigationBarButtons
-                        )
-                    } else {
-                        NavigationBar(
-                            walletMode = null,
-                            mutedBg = mutedBackground,
-                            title = title,
-                            onBackButtonClick = onBackButtonClick,
-                            navigationBarButtons = endNavigationBarButtons
-                        )
-                    }
+                    NavigationBar(
+                        ignoreWalletModeColor = ignoreWalletModeColor,
+                        mutedBackground = mutedBackground,
+                        title = title,
+                        onBackButtonClick = onBackButtonClick,
+                        navigationBarButtons = endNavigationBarButtons
+                    )
                 }
             }
         }

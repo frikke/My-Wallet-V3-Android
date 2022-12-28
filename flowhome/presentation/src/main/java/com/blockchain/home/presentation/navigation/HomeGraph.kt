@@ -53,8 +53,8 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
-    composable(navigationEvent = HomeDestination.Referral) {
-        ChromeSingleScreen {
+    bottomSheet(navigationEvent = HomeDestination.Referral) {
+        ChromeBottomSheet {
             ReferralCode(
                 onBackPressed = onBackPressed
             )
