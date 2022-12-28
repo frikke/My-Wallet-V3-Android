@@ -12,6 +12,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.openUrl
@@ -20,7 +21,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionArgs.Companion.ARGS_KEY
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.composables.OpenBankingPermissionScreen

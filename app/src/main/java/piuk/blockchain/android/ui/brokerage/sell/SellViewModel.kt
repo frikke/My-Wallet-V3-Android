@@ -7,17 +7,19 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellService
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.map
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.utils.asFlow
 import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -37,16 +39,6 @@ class SellViewModel(
     >(SellModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        viewModelScope.launch {
-            sellService.loadSellAssets().collectLatest { data ->
-                updateState {
-                    it.copy(
-                        sellEligibility = data,
-                        shouldShowLoading = true
-                    )
-                }
-            }
-        }
     }
 
     override fun reduce(state: SellModelState): SellViewState =
@@ -65,7 +57,20 @@ class SellViewModel(
     override suspend fun handleIntent(modelState: SellModelState, intent: SellIntent) {
         when (intent) {
             is SellIntent.CheckSellEligibility -> {
-                sellService.loadSellAssets().first()
+                sellService.loadSellAssets(FreshnessStrategy.Cached(false)).collectLatest { data ->
+                    if (data is DataResource.Data || modelState.sellEligibility !is DataResource.Data) {
+                        updateState {
+                            it.copy(
+                                sellEligibility = data,
+                            )
+                        }
+                    }
+                    if (data is DataResource.Data) {
+                        (data.data as? SellEligibility.Eligible)?.let { sellEligibility ->
+                            onIntent(SellIntent.LoadSupportedAccounts(sellEligibility.sellAssets))
+                        }
+                    }
+                }
             }
             is SellIntent.LoadSupportedAccounts -> {
                 viewModelScope.launch {
@@ -91,7 +96,8 @@ class SellViewModel(
     ): Flow<List<CryptoAccount>> =
         coincore.walletsWithActions(
             actions = setOf(AssetAction.Sell),
-            sorter = accountsSorting.sorter()
+            sorter = accountsSorting.sorter(),
+            tickers = intent.supportedAssets.toSet()
         ).toObservable().flatMap { accountList ->
             accountList
                 .filterUnsupportedPairs(intent.supportedAssets).let {

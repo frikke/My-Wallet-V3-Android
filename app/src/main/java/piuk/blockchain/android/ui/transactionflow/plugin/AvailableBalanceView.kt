@@ -89,7 +89,7 @@ open class TxFlowEnterAmountBalanceRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 TxFlowEnterAmountBalanceRow(
                     labelText = labelText,

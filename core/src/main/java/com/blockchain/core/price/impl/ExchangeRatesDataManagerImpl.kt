@@ -53,7 +53,7 @@ internal class ExchangeRatesDataManagerImpl(
         fiat: Currency
     ): Single<AssetPriceRecord> =
         rxSingleOutcome {
-            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Fresh).firstOutcome()
+            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Cached(false)).firstOutcome()
         }
 
     override fun exchangeRate(

@@ -25,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
@@ -42,7 +43,6 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import retrofit2.HttpException
 
 class DashboardOnboardingActivity :

@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
@@ -27,9 +26,13 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
@@ -68,9 +71,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting

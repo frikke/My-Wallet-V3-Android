@@ -21,6 +21,7 @@ interface AssetActionsNavigation {
         launchLinkCard: Boolean = false,
         launchNewPaymentMethodSelection: Boolean = false,
     )
+    fun buyWithPreselectedMethod(paymentMethodId: String?)
 
     fun earnRewards()
     fun settings()

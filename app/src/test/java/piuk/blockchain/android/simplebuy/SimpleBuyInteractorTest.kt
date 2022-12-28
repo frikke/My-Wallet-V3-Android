@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.analytics.Analytics
-import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.buy.domain.SimpleBuyService
@@ -18,6 +17,7 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity

@@ -60,7 +60,7 @@ class AssetsViewModel(
     private val filterService: FiltersService,
     private val coincore: Coincore
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    AssetsModelState(walletMode = WalletMode.CUSTODIAL_ONLY)
+    AssetsModelState(walletMode = WalletMode.CUSTODIAL_ONLY, userFiat = currencyPrefs.selectedFiatCurrency)
 ) {
     private var accountsJob: Job? = null
     private var fundsLocksJob: Job? = null
@@ -73,6 +73,7 @@ class AssetsViewModel(
 
     override fun reduce(state: AssetsModelState): AssetsViewState {
         return with(state) {
+            println("Reducing Assetviewmodel $this")
             AssetsViewState(
                 balance = accounts.walletBalance(),
                 assets = state.accounts.map { modelAccounts ->
@@ -166,7 +167,18 @@ class AssetsViewModel(
     override suspend fun handleIntent(modelState: AssetsModelState, intent: AssetsIntent) {
         when (intent) {
             is AssetsIntent.LoadAccounts -> {
-                updateState { it.copy(sectionSize = intent.sectionSize) }
+                val accounts =
+                    if (currencyPrefs.selectedFiatCurrency != modelState.userFiat)
+                        DataResource.Loading
+                    else
+                        modelState.accounts
+                updateState {
+                    it.copy(
+                        sectionSize = intent.sectionSize,
+                        accounts = accounts,
+                        userFiat = currencyPrefs.selectedFiatCurrency
+                    )
+                }
                 loadAccounts()
             }
 
@@ -388,7 +400,7 @@ class AssetsViewModel(
                     }
                 }.filterIsInstance<DataResource.Data<Money>>()
                     .map { it.data }
-                    .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
+                    .fold(Money.zero(modelState.userFiat)) { acc, t ->
                         acc.plus(t)
                     }.let {
                         DataResource.Data(it)
@@ -403,7 +415,7 @@ class AssetsViewModel(
             it.fiatBalance
         }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
-            .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
+            .fold(Money.zero(modelState.userFiat)) { acc, t ->
                 acc.plus(t)
             }
     }

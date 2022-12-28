@@ -17,6 +17,7 @@ interface UserIdentity {
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+
     @Deprecated("use UserFeaturePermissionService")
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
     fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
@@ -24,6 +25,7 @@ interface UserIdentity {
     fun isArgentinian(): Single<Boolean>
     fun isCowboysUser(): Single<Boolean>
     fun isSSO(): Single<Boolean>
+    fun userLinkedError(): Maybe<LinkedError>
 }
 
 sealed class Feature {
@@ -51,6 +53,7 @@ sealed class FeatureAccess {
         // Only used by Feature.Buy and Feature.Swap
         val transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited
     ) : FeatureAccess()
+
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
 
     fun isBlockedDueToEligibility(): Boolean =
@@ -65,6 +68,7 @@ sealed class BlockedReason : Serializable {
         object Tier1TradeLimitExceeded : InsufficientTier()
         data class Unknown(val message: String) : InsufficientTier()
     }
+
     sealed class Sanctions : BlockedReason() {
         abstract val message: String
 
@@ -72,6 +76,9 @@ sealed class BlockedReason : Serializable {
         data class RussiaEU8(override val message: String) : Sanctions()
         data class Unknown(override val message: String) : Sanctions()
     }
+
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
     class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String) : BlockedReason()
 }
+
+data class LinkedError(val linkError: String)

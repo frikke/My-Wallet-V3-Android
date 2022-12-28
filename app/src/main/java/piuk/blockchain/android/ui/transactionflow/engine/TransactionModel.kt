@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -29,6 +28,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer

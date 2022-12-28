@@ -37,11 +37,16 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
+import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
+import com.blockchain.domain.paymentmethods.model.FiatTransactionState
+import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.dashboard.EarnDashboardFragment
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.BANK_DEEP_LINK_DEPOSIT
@@ -124,9 +129,6 @@ import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
-import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.membership.MembershipActivity
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
@@ -151,7 +153,7 @@ class MainActivity :
     HomeNavigator,
     SlidingModalBottomDialog.Host,
     AuthNavigationHost,
-    AccountWalletLinkAlertSheet.Host,
+    AccountWalletLinkAlertSheetHost,
     SelectNetworkBottomSheet.Host,
     WCApproveSessionBottomSheet.Host,
     BuyDefiBottomSheet.Host,
@@ -512,7 +514,7 @@ class MainActivity :
                     startActivity(
                         SimpleBuyActivity.newIntent(
                             context = this,
-                            preselectedPaymentMethodId = data?.getStringExtra(BankAuthActivity.LINKED_BANK_ID_KEY)
+                            preselectedPaymentMethodId = data?.getStringExtra(LINKED_BANK_ID_KEY)
                         )
                     )
                 }

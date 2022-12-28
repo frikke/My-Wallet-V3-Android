@@ -1,6 +1,7 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.BlockchainLinkState
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

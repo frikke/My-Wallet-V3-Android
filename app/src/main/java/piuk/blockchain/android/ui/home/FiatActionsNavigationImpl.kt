@@ -8,6 +8,7 @@ import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
@@ -17,7 +18,6 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 

@@ -25,6 +25,7 @@ import com.blockchain.componentlib.utils.StringAnnotationClickEvent
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -46,7 +47,6 @@ import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState

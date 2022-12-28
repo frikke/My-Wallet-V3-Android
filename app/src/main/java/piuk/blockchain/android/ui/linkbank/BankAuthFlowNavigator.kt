@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.linkbank
 
-import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution

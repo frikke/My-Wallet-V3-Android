@@ -31,6 +31,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.buy.BuyIntroFragment
 import piuk.blockchain.android.ui.brokerage.sell.SellIntroFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
@@ -222,14 +223,14 @@ class BuySellFragment :
     }
 
     fun showBuyOrSell(view: BuySellViewType) {
-        childFragmentManager.beginTransaction()
-            .replace(
-                binding.buySellFragmentContainer.id,
-                when (view) {
-                    BuySellViewType.TYPE_BUY -> BuyIntroFragment.newInstance()
-                    BuySellViewType.TYPE_SELL -> SellIntroFragment.newInstance()
-                }
-            ).commitAllowingStateLoss()
+        childFragmentManager.showFragment(
+            fragment = when (view) {
+                BuySellViewType.TYPE_BUY -> BuyIntroFragment.newInstance()
+                BuySellViewType.TYPE_SELL -> SellIntroFragment.newInstance()
+            },
+            containerId = binding.buySellFragmentContainer.id,
+            reloadFragment = false
+        )
     }
 
     override fun onDestroyView() {

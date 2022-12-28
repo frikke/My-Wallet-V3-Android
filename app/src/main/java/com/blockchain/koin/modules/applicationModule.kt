@@ -7,19 +7,23 @@ import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.appinfo.AppInfo
 import com.blockchain.auth.LogoutTimer
-import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
+import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.utils.SSLVerifyUtil
+import com.blockchain.deeplinking.processor.DeeplinkService
+import com.blockchain.domain.buy.CancelOrderService
 import com.blockchain.domain.onboarding.OnBoardingStepsService
+import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
@@ -118,6 +122,7 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.android.simplebuy.ARSPaymentAccountMapper
+import piuk.blockchain.android.simplebuy.BankBuyNavigationImpl
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.CreateBuyOrderUseCase
@@ -156,6 +161,7 @@ import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.home.QrScanNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
+import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -269,6 +275,9 @@ val applicationModule = module {
             bind(SettingsNavigation::class)
         }
 
+        scoped { (activity: BlockchainActivity) -> WalletLinkAndOpenBankingNavImpl(activity = activity) }.apply {
+            bind(WalletLinkAndOpenBankingNavigation::class)
+        }
         scoped { (activity: BlockchainActivity) ->
             FiatActionsNavigationImpl(activity = activity)
         }.bind(FiatActionsNavigation::class)
@@ -278,7 +287,7 @@ val applicationModule = module {
         }.bind(TransactionFlowNavigation::class)
 
         scoped { (activity: BlockchainActivity) ->
-            AuthNavigationImpl(activity = activity)
+            AuthNavigationImpl(activity = activity, credentialsWiper = get())
         }.bind(AuthNavigation::class)
 
         scoped { (activity: BlockchainActivity) ->
@@ -453,7 +462,7 @@ val applicationModule = module {
                 openBankingDeepLinkParser = get(),
                 blockchainDeepLinkParser = get()
             )
-        }
+        }.bind(DeeplinkService::class)
 
         factory {
             OpenBankingDeepLinkParser()
@@ -573,7 +582,7 @@ val applicationModule = module {
                 bankLinkingPrefs = get(),
                 custodialWalletManager = get()
             )
-        }
+        }.bind(CancelOrderService::class)
 
         factory {
             GetDashboardOnboardingStepsUseCase(
@@ -686,6 +695,11 @@ val applicationModule = module {
                 serializer = get()
             )
         }
+        scoped {
+            BankBuyNavigationImpl(
+                interactor = get()
+            )
+        }.bind(BankBuyNavigation::class)
 
         factory {
             KycUpgradePromptManager(

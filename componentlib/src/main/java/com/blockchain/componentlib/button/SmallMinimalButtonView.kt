@@ -19,7 +19,7 @@ class SmallMinimalButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SmallMinimalButton(
                     onClick = onClick,

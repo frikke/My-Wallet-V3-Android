@@ -4,13 +4,19 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.deeplinking.processor.BlockchainLinkState
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.KycLinkState
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.deeplinking.processor.OpenBankingLinkType
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -37,14 +43,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.LinkState
-import piuk.blockchain.android.deeplink.OpenBankingLinkType
-import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import timber.log.Timber
 
@@ -186,6 +186,9 @@ class MainModel(
                             ) {
                                 dispatchDeepLink(linkState)
                             }
+                        },
+                        onComplete = {
+                            // do nothing
                         },
                         onError = {
                             Timber.e(it)
@@ -447,7 +450,7 @@ class MainModel(
                 MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
             )
             is KycLinkState.General -> {
-                val data = linkState.link.campaignData
+                val data = (linkState.link as KycLinkState.General).campaignData
                 if (data != null) {
                     registerForCampaign(data)
                 } else {

@@ -26,7 +26,7 @@ class DefaultCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DefaultCard(
                     title = title,

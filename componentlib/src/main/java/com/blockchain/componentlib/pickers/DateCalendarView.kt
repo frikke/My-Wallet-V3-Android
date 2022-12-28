@@ -23,7 +23,7 @@ class DateCalendarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DateCalendar(
                     minimumDate = minimumDate,

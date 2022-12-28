@@ -13,5 +13,17 @@ val multiAppModule = module {
                 walletModeBalanceService = get()
             )
         }
+
+        viewModel {
+            DeeplinkNavigationHandler(
+                userIdentity = get(),
+                deeplinkRedirector = get(),
+                deeplinkService = get(),
+                cancelOrderUseCase = get(),
+                bankService = get(),
+                bankBuyNavigation = get(),
+                bankLinkingPrefs = get(),
+            )
+        }
     }
 }

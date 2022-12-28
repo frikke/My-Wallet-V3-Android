@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import android.net.Uri
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -16,9 +15,15 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.LinkState
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
+import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.ScanResult
@@ -35,15 +40,16 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import kotlinx.coroutines.rx3.asObservable
+import kotlinx.coroutines.rx3.rxCompletable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
-import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyState
@@ -51,10 +57,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
-import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 class MainInteractor internal constructor(
@@ -82,7 +84,7 @@ class MainInteractor internal constructor(
     private val earnOnNavBarFlag: FeatureFlag
 ) {
 
-    fun checkForDeepLinks(intent: Intent): Single<LinkState> =
+    fun checkForDeepLinks(intent: Intent): Maybe<LinkState> =
         deepLinkProcessor.getLink(intent)
 
     fun checkForDeepLinks(scanResult: ScanResult.HttpUri): Single<LinkState> =
@@ -207,7 +209,7 @@ class MainInteractor internal constructor(
                 }
             }
         } else {
-            coincore.walletsWithActions(setOf(action)).map { accountsForAction ->
+            coincore.walletsWithActions(actions = setOf(action)).map { accountsForAction ->
                 accountsForAction.filter { account ->
                     account.currency.networkTicker == networkTicker
                 }
@@ -260,7 +262,9 @@ class MainInteractor internal constructor(
         walletModeService.walletMode.asObservable()
 
     fun updateWalletMode(mode: WalletMode): Completable =
-        Completable.fromAction { walletModeService.updateEnabledWalletMode(mode) }
+        Completable.fromAction {
+            rxCompletable { walletModeService.updateEnabledWalletMode(mode) }
+        }
 
     fun isEarnOnNavBarEnabled(): Single<Boolean> = earnOnNavBarFlag.enabled
 }

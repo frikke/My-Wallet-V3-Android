@@ -11,7 +11,7 @@ interface WalletModeService {
         get() = walletMode.asObservable().firstOrError()
 
     fun reset()
-    fun updateEnabledWalletMode(type: WalletMode)
+    suspend fun updateEnabledWalletMode(type: WalletMode)
     fun availableModes(): List<WalletMode>
 }
 

@@ -7,11 +7,18 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.StatusData
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.deeplinking.processor.BlockchainLinkState
+import com.blockchain.deeplinking.processor.KycLinkState
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.deeplinking.processor.OpenBankingLinkType
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -33,6 +40,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -42,10 +50,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.LinkState
-import piuk.blockchain.android.deeplink.OpenBankingLinkType
-import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainIntent
@@ -54,9 +58,6 @@ import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import retrofit2.HttpException
 import retrofit2.Response
 
@@ -140,7 +141,7 @@ class MainModelTest {
     fun checkForPendingLinksKyc_Resubmit() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.KycDeepLink(
                     link = KycLinkState.Resubmit
                 )
@@ -162,7 +163,7 @@ class MainModelTest {
     fun checkForPendingLinksKyc_Verified() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.KycDeepLink(
                     link = KycLinkState.EmailVerified
                 )
@@ -184,7 +185,7 @@ class MainModelTest {
     fun checkForPendingLinksKyc_General_nullData() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.KycDeepLink(
                     link = KycLinkState.General(
                         null
@@ -208,7 +209,7 @@ class MainModelTest {
     fun checkForPendingLinksOpenBanking_Linking_Complete() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.LINK_BANK, "")
             )
         )
@@ -238,7 +239,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.LINK_BANK, consentToken)
             )
         )
@@ -279,7 +280,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.LINK_BANK, consentToken)
             )
         )
@@ -321,7 +322,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.LINK_BANK, consentToken)
             )
         )
@@ -356,7 +357,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.LINK_BANK, consentToken)
             )
         )
@@ -388,7 +389,7 @@ class MainModelTest {
     fun checkForPendingLinksOpenBanking_Approval_Complete() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, "")
             )
         )
@@ -419,7 +420,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -468,7 +469,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -514,7 +515,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -560,7 +561,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -605,7 +606,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -647,7 +648,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -708,7 +709,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -742,7 +743,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -780,7 +781,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -816,7 +817,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -851,7 +852,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -891,7 +892,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -927,7 +928,7 @@ class MainModelTest {
         val consentToken = "1234"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
             )
         )
@@ -957,7 +958,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Swap)
             )
         )
@@ -977,7 +978,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.TwoFa)
             )
         )
@@ -997,7 +998,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.VerifyEmail)
             )
         )
@@ -1017,7 +1018,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.SetupFingerprint)
             )
         )
@@ -1037,7 +1038,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Interest)
             )
         )
@@ -1057,7 +1058,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Receive)
             )
         )
@@ -1077,7 +1078,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Send)
             )
         )
@@ -1097,7 +1098,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val ticker = "BTC"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Sell(ticker))
             )
         )
@@ -1122,7 +1123,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Activities)
             )
         )
@@ -1143,7 +1144,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val ticker = "BTC"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.Buy(ticker))
             )
         )
@@ -1168,7 +1169,7 @@ class MainModelTest {
         val mockIntent: Intent = mock()
         val ticker = "BTC"
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.SimpleBuy(ticker))
             )
         )
@@ -1193,7 +1194,7 @@ class MainModelTest {
         val campaignType = "interest"
 
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
+            Maybe.just(
                 LinkState.BlockchainLink(BlockchainLinkState.KycCampaign(campaignType))
             )
         )

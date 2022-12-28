@@ -236,7 +236,7 @@ val featureFlagsModule = module {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
-                "Enable SuperApp Redesign"
+                "Enable SuperApp"
             )
         )
     }.bind(FeatureFlag::class)

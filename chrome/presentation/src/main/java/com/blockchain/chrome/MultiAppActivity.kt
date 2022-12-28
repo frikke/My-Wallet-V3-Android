@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
+import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StakingAccount
@@ -21,6 +22,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -31,9 +33,11 @@ import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAc
 import com.blockchain.home.presentation.fiat.actions.FiatActionRequest
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
+import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
+import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.QrScanNavigation
@@ -54,6 +58,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
@@ -66,14 +71,20 @@ class MultiAppActivity :
     QuestionnaireSheetHost,
     AuthNavigationHost,
     BankLinkingHost,
+    AccountWalletLinkAlertSheetHost,
     WCApproveSessionBottomSheet.Host,
     SelectNetworkBottomSheet.Host,
     KoinScopeComponent {
 
     override val scope: Scope = payloadScope
+    private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
 
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)
+    }
+
+    private val walletLinkAndOpenBankingNavigation: WalletLinkAndOpenBankingNavigation = payloadScope.get {
+        parametersOf(this)
     }
 
     override val alwaysDisableScreenshots: Boolean
@@ -145,6 +156,54 @@ class MultiAppActivity :
         }
 
         handleFiatActionsNav()
+        if (savedInstanceState == null) {
+            lifecycleScope.launch {
+                deeplinkNavigationHandler.step.collect {
+                    navigate(it)
+                }
+            }
+
+            lifecycleScope.launch {
+                deeplinkNavigationHandler.checkDeeplinkDestination(intent)
+            }
+        }
+    }
+
+    private fun navigate(step: DeeplinkNavigationStep) {
+        when (step) {
+            is DeeplinkNavigationStep.AccountWalletLinkAlert ->
+                walletLinkAndOpenBankingNavigation.walletLinkError(
+                    step.walletIdHint
+                )
+
+            is DeeplinkNavigationStep.OpenBankingApprovalDepositComplete ->
+                walletLinkAndOpenBankingNavigation.depositComplete(
+                    step.amount, step.estimationTime
+                )
+            is DeeplinkNavigationStep.OpenBankingApprovalDepositInProgress ->
+                walletLinkAndOpenBankingNavigation.depositInProgress(
+                    step.orderValue
+                )
+            is DeeplinkNavigationStep.OpenBankingApprovalTimeout ->
+                walletLinkAndOpenBankingNavigation.openBankingTimeout(
+                    step.currency
+                )
+            DeeplinkNavigationStep.OpenBankingBuyApprovalError -> walletLinkAndOpenBankingNavigation.approvalError()
+            DeeplinkNavigationStep.OpenBankingError -> walletLinkAndOpenBankingNavigation.openBankingError()
+            is DeeplinkNavigationStep.OpenBankingErrorWithCurrency ->
+                walletLinkAndOpenBankingNavigation.openBankingError(
+                    step.currency
+                )
+            is DeeplinkNavigationStep.OpenBankingLinking -> walletLinkAndOpenBankingNavigation.launchOpenBankingLinking(
+                step.bankLinkingInfo
+            )
+            is DeeplinkNavigationStep.PaymentForCancelledOrder ->
+                walletLinkAndOpenBankingNavigation.paymentForCancelledOrder(
+                    step.currency
+                )
+            DeeplinkNavigationStep.SimpleBuyFromDeepLinkApproval ->
+                walletLinkAndOpenBankingNavigation.launchSimpleBuyFromLinkApproval()
+        }
     }
 
     private fun handleIntent(intent: Intent) {
@@ -367,6 +426,7 @@ class MultiAppActivity :
             )
         )
     }
+
     // //////////////////////////////////
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
@@ -380,6 +440,7 @@ class MultiAppActivity :
             )
         )
     }
+
     // //////////////////////////////////
     // link bank
     private val activityResultLinkBank = registerForActivityResult(
@@ -393,6 +454,7 @@ class MultiAppActivity :
             )
         }
     }
+
     // //////////////////////////////////
     // link bank with alias
     companion object {
@@ -430,6 +492,28 @@ class MultiAppActivity :
 
     override fun onSessionRejected(session: WalletConnectSession) {
         qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            HomeLaunch.BANK_DEEP_LINK_SIMPLE_BUY -> {
+                if (resultCode == RESULT_OK) {
+                    assetActionsNavigation.buyWithPreselectedMethod(
+                        paymentMethodId = data?.getStringExtra(LINKED_BANK_ID_KEY)
+                    )
+                }
+            }
+            HomeLaunch.BANK_DEEP_LINK_SETTINGS -> {
+                if (resultCode == RESULT_OK) {
+                    settingsNavigation.settings()
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun logout() {
+        authNavigation.logout()
     }
 
     override fun onSheetClosed() {

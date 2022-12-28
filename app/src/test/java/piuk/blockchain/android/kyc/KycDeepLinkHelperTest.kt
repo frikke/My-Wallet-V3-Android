@@ -1,6 +1,7 @@
 package piuk.blockchain.android.kyc
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.KycLinkState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
 import com.nhaarman.mockitokotlin2.any

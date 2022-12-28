@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyKycPendingBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 
 class SimpleBuyPendingKycFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyKycPendingBinding>(),

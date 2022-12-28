@@ -78,7 +78,6 @@ class SellIntroFragment :
 
     private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         host.onSellFinished()
-        viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = false))
     }
 
     private var _binding: SellIntroFragmentBinding? = null
@@ -206,8 +205,6 @@ class SellIntroFragment :
                     viewModel.onIntent(SellIntent.FilterAccounts(searchTerm))
                 }
             }
-
-            viewModel.onIntent(SellIntent.LoadSupportedAccounts(supportedAssets))
 
             with(accountsList) {
                 onAccountSelected = { account ->
@@ -364,7 +361,8 @@ class SellIntroFragment :
         )
     }
 
-    override fun onResumeFragment() {
+    override fun onResume() {
+        super.onResume()
         viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = false))
     }
 

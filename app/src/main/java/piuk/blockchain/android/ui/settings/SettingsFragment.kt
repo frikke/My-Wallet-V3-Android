@@ -36,6 +36,7 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -62,7 +63,6 @@ import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.referral.presentation.Origin
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents

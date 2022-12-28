@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,9 +13,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -22,6 +25,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletMode
@@ -32,12 +36,12 @@ import org.koin.androidx.compose.get
  * Use this to wrap any screen to give it the right superapp ui
  *
  * Each new module/feature should have its own extension that defines composable with destinations,
- * wrap any of those screen with [MultiAppSingleScreen]
+ * wrap any of those screen with [ChromeSingleScreen]
  *
  * ```
  * fun NavGraphBuilder.homeGraph() {
  *     composable(navigationEvent = HomeDestination.CryptoAssets) {
- *         MultiAppSingleScreen(
+ *         ChromeSingleScreen(
  *             content = {
  *                 CryptoAssets()
  *             }
@@ -46,32 +50,50 @@ import org.koin.androidx.compose.get
  * }
  * ```
  */
+
 @Composable
-fun MultiAppSingleScreen(
+private fun ChromeSingleScreen(
+    isBottomSheet: Boolean,
     content: @Composable () -> Unit
 ) {
-    val walletMode: State<WalletMode> = get<WalletModeService>(
-        superAppModeService,
-        payloadScope
-    ).walletMode.collectAsState(initial = WalletMode.CUSTODIAL_ONLY)
+    val walletMode: WalletMode? by if (!isBottomSheet) {
+        get<WalletModeService>(
+            superAppModeService,
+            payloadScope
+        ).walletMode.collectAsStateLifecycleAware(initial = null)
+    } else {
+        remember { mutableStateOf(null) }
+    }
 
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val statusBarHeight = if (!isBottomSheet) {
+        WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    } else {
+        0.dp
+    }
+
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    if (statusBarHeight > 0.dp && navBarHeight > 0.dp) {
+    if ((!isBottomSheet == statusBarHeight > 0.dp) && navBarHeight > 0.dp) {
         // this container has the following format
-        // -> Space for the toolbar
+        // -> Space for the status bar
         // -> main screen content
         // -> Space for the native android navigation
         ConstraintLayout(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = walletMode.value
-                            .backgroundColors()
-                            .asList()
-                    )
+                .fillMaxWidth()
+                .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
+                .then(
+                    if (walletMode == null || isBottomSheet) {
+                        Modifier.background(AppTheme.colors.backgroundMuted)
+                    } else {
+                        Modifier.background(
+                            brush = Brush.horizontalGradient(
+                                colors = walletMode!!
+                                    .backgroundColors()
+                                    .asList()
+                            )
+                        )
+                    }
                 )
         ) {
             val (statusBar, navBar, content) = createRefs()
@@ -121,4 +143,18 @@ fun MultiAppSingleScreen(
             )
         }
     }
+}
+
+@Composable
+fun ChromeSingleScreen(
+    content: @Composable () -> Unit
+) {
+    ChromeSingleScreen(isBottomSheet = false, content = content)
+}
+
+@Composable
+fun ChromeBottomSheet(
+    content: @Composable () -> Unit
+) {
+    ChromeSingleScreen(isBottomSheet = true, content = content)
 }

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.EmailVerifiedLinkState
 import piuk.blockchain.android.kyc.ignoreFragment
 
 class EmailVerificationDeepLinkHelper {
@@ -20,18 +21,4 @@ class EmailVerificationDeepLinkHelper {
     companion object {
         const val PIT_SIGNUP = "pit_signup"
     }
-}
-
-enum class EmailVerifiedLinkState {
-
-    /**
-     * A deep link into the app when the user has just verified their email due
-     * to trying to link their Wallet to the Pit.
-     */
-    FromPitLinking,
-
-    /**
-     * Not a valid email verified deep link URI
-     */
-    NoUri
 }

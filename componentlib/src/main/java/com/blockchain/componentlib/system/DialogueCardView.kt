@@ -25,7 +25,7 @@ class DialogueCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 DialogueCard(
                     icon = icon,

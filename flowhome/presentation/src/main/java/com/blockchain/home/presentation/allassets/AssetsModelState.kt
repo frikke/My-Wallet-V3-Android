@@ -7,6 +7,7 @@ import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.FiatCurrency
 
 data class AssetsModelState(
     val accounts: DataResource<List<ModelAccount>> = DataResource.Loading,
@@ -14,6 +15,7 @@ data class AssetsModelState(
     val walletMode: WalletMode,
     private val _accountsForMode: MutableMap<WalletMode, DataResource<List<ModelAccount>>> = mutableMapOf(),
     val sectionSize: SectionSize = SectionSize.All,
+    val userFiat: FiatCurrency,
     val filters: List<AssetFilter> = listOf()
 ) : ModelState {
     init {

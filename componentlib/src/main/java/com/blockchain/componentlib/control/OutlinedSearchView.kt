@@ -24,7 +24,7 @@ class OutlinedSearchView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 if (showCancelButton) {
                     CancelableOutlinedSearch(

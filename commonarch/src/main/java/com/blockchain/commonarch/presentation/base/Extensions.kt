@@ -13,6 +13,13 @@ fun Fragment.updateToolbar(
     (activity as? BlockchainActivity)?.updateToolbar(toolbarTitle, menuItems, backAction)
 }
 
+fun Fragment.updateToolbarBackground(applyModeColors: Boolean, mutedBackground: Boolean) {
+    (activity as? BlockchainActivity)?.updateToolbarBackground(
+        applyModeColors = applyModeColors,
+        mutedBackground = mutedBackground
+    )
+}
+
 fun Fragment.updateTitleToolbar(titleToolbar: String = "") {
     (activity as? BlockchainActivity)?.updateToolbarTitle(title = titleToolbar)
 }

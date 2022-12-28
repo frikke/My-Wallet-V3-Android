@@ -1,6 +1,8 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.deeplinking.processor.OpenBankingLinkType
 import kotlin.test.assertNull
 import org.junit.Assert
 import org.junit.Test

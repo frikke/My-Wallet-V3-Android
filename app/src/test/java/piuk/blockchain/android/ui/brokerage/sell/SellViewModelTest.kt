@@ -3,12 +3,9 @@ package piuk.blockchain.android.ui.brokerage.sell
 import app.cash.turbine.test
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellService
 import com.blockchain.data.DataResource
 import com.blockchain.featureflag.FeatureFlag
@@ -24,12 +21,10 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.Before
@@ -62,41 +57,6 @@ class SellViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-    }
-
-    @Test
-    fun `given user is eligible when sell eligibility is requested then the model is updated`() = runTest {
-        val dataResource = MutableSharedFlow<DataResource<SellEligibility>>()
-        every { sellService.loadSellAssets() }.returns(dataResource)
-
-        subject.viewState.test {
-            subject.viewCreated(ModelConfigArgs.NoArgs)
-
-            dataResource.emit(DataResource.Loading)
-            expectMostRecentItem().run {
-                showLoader shouldBe true
-            }
-
-            val data = DataResource.Data(SellEligibility.Eligible(listOf(mockk(), mockk(), mockk())))
-            dataResource.emit(data)
-
-            expectMostRecentItem().run {
-                showLoader shouldBe true
-                sellEligibility shouldBeEqualTo data
-            }
-        }
-
-        verify { sellService.loadSellAssets() }
-        coVerify(exactly = 0) { hideDustFF.coEnabled() }
-        verify(exactly = 0) { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify(exactly = 0) { accountSorting.sorter() }
-        verify(exactly = 0) {
-            coincore.walletsWithActions(
-                actions = setOf(AssetAction.Sell),
-                filter = AssetFilter.All,
-                sorter = accountSorting.sorter()
-            )
-        }
     }
 
     @Test
@@ -133,7 +93,8 @@ class SellViewModelTest {
         every {
             coincore.walletsWithActions(
                 actions = setOf(AssetAction.Sell),
-                sorter = accountSorting.sorter()
+                sorter = accountSorting.sorter(),
+                tickers = any()
             )
         }.returns(Single.just(accountsList))
 
@@ -153,12 +114,6 @@ class SellViewModelTest {
         coVerify(exactly = 1) { hideDustFF.coEnabled() }
         verify(exactly = 0) { localSettingsPrefs.hideSmallBalancesEnabled }
         verify(exactly = 1) { accountSorting.sorter() }
-        verify(exactly = 1) {
-            coincore.walletsWithActions(
-                actions = setOf(AssetAction.Sell),
-                sorter = accountSorting.sorter()
-            )
-        }
     }
 
     @Test
@@ -197,7 +152,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -217,12 +173,6 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 
     @Test
@@ -260,7 +210,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -280,12 +231,6 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 
     @Test
@@ -328,7 +273,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -348,12 +294,6 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 
     @Test
@@ -396,7 +336,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -416,12 +357,6 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 
     @Test
@@ -462,7 +397,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -483,12 +419,6 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 
     @Test
@@ -529,7 +459,8 @@ class SellViewModelTest {
             every {
                 coincore.walletsWithActions(
                     actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
+                    sorter = accountSorting.sorter(),
+                    tickers = any()
                 )
             }.returns(Single.just(accountsList))
 
@@ -550,11 +481,5 @@ class SellViewModelTest {
             coVerify(exactly = 1) { hideDustFF.coEnabled() }
             verify(exactly = 1) { localSettingsPrefs.hideSmallBalancesEnabled }
             verify(exactly = 1) { accountSorting.sorter() }
-            verify(exactly = 1) {
-                coincore.walletsWithActions(
-                    actions = setOf(AssetAction.Sell),
-                    sorter = accountSorting.sorter()
-                )
-            }
         }
 }

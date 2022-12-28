@@ -6,21 +6,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark900
-import com.blockchain.componentlib.theme.Green100
+import com.blockchain.componentlib.theme.Green000
 import com.blockchain.componentlib.theme.Green400
-import com.blockchain.componentlib.theme.Green600
+import com.blockchain.componentlib.theme.Green800
 
 @Composable
 fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)? = null) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Green100
+        Green000
     } else {
         Green400
     }
 
     val defaultTextColor = if (!isSystemInDarkTheme()) {
-        Green600
+        Green800
     } else {
         Dark900
     }

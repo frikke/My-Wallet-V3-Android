@@ -6,14 +6,16 @@ android {
 dependencies {
     implementation project(':chrome:common')
     implementation project(':common:interface')
+    implementation project(':common:network')
     implementation project(':commonarch')
     implementation project(':balance')
     implementation project(':deeplinking')
+    implementation project(':notifications')
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':analytics:domain')
     implementation project(':componentlib')
-
+    implementation Libraries.rxjava3Coroutines
     implementation project(':flowhome:presentation')
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')

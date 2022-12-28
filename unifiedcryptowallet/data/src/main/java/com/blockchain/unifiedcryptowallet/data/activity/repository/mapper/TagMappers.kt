@@ -4,9 +4,9 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 
 internal fun String.toTagStyle(): ActivityTagStyle {
     val default = "default"
-    val success = "green"
+    val success = "success"
     val info = "info"
-    val warning = "primary"
+    val warning = "warning"
     val error = "error"
 
     return when (this) {

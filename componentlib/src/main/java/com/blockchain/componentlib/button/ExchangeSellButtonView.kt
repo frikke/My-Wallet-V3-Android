@@ -14,7 +14,7 @@ class ExchangeSellButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 ExchangeSellButton(
                     onClick = onClick,

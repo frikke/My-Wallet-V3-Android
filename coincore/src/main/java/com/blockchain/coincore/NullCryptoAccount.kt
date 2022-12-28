@@ -39,6 +39,10 @@ class NullCryptoAccount(
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return Single.just(ActionState.Unavailable)
+    }
+
     override val isFunded: Boolean = false
 
     override val hasTransactions: Boolean = false
@@ -72,6 +76,9 @@ object NullFiatAccount : FiatAccount {
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return Single.just(ActionState.Unavailable)
+    }
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 

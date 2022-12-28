@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.data.FreshnessStrategy
@@ -14,6 +15,7 @@ import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.LinkedError
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -176,6 +178,20 @@ class NabuUserIdentity(
         userService.getUser().map { user ->
             user.isCowboysUser
         }
+
+    override fun userLinkedError(): Maybe<LinkedError> {
+        return userService.getUser().flatMapMaybe<LinkedError> {
+            Maybe.empty()
+        }.onErrorResumeNext {
+            if ((it as? NabuApiException)?.isUserWalletLinkError() == true) {
+                Maybe.just(
+                    LinkedError(
+                        it.getErrorDescription().split(NabuApiException.USER_WALLET_LINK_ERROR_PREFIX).last()
+                    )
+                )
+            } else Maybe.error(it)
+        }
+    }
 
     override fun isSSO(): Single<Boolean> =
         userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))

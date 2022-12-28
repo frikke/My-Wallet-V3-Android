@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,11 +19,14 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey400
 
 @Composable
 fun DefaultTableRow(
@@ -174,13 +176,10 @@ fun DefaultTableRow(
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end,
-        contentDescription = null
-    ),
+    endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
     backgroundColor: Color = AppTheme.colors.background,
     primaryTextColor: Color = AppTheme.colors.title,
-    secondaryTextColor: Color = AppTheme.colors.body
+    secondaryTextColor: Color = AppTheme.colors.muted
 ) {
     TableRow(
         modifier = modifier,
@@ -189,7 +188,6 @@ fun DefaultTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_spacing))
             )
         },
         content = {

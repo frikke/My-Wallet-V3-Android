@@ -25,6 +25,7 @@ import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -68,7 +70,6 @@ class QuickActionsViewModel(
 
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
-            //    is QuickActionsIntent.ActionClicked -> handleActionForMode(intent.action)
             is QuickActionsIntent.LoadActions -> when (intent.type) {
                 ActionType.Quick -> walletModeService.walletMode.onEach { wMode ->
                     updateState {
@@ -137,11 +138,8 @@ class QuickActionsViewModel(
                 }
 
         val stateAwareActions = coincore.allFiats()
-            .map {
-                it.first { it.currency.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker }
-                    as FiatAccount
-            }.flatMap {
-                it.stateAwareActions
+            .flatMap { list ->
+                list.firstOrNull()?.stateAwareActions ?: Single.just(emptySet())
             }
             .asFlow()
 
@@ -242,15 +240,23 @@ class QuickActionsViewModel(
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
-        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY)
+        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY).map { it.totalFiat.isPositive }
+        val more = loadMoreActions().onStart { emit(emptyList()) }.map { list -> list.any { it.enabled } }
 
         return combine(
             balanceFlow,
             buyEnabledFlow,
             sellEnabledFlow,
             swapEnabledFlow,
-            receiveEnabledFlow
-        ) { balance, buyEnabled, sellEnabled, swapEnabled, receiveEnabled ->
+            receiveEnabledFlow,
+            more
+        ) { config ->
+            val balanceIsPositive = config[0]
+            val buyEnabled = config[1]
+            val sellEnabled = config[2]
+            val swapEnabled = config[3]
+            val receiveEnabled = config[4]
+            val moreEnabled = config[5]
             listOf(
                 QuickActionItem(
                     title = R.string.common_buy,
@@ -259,12 +265,12 @@ class QuickActionsViewModel(
                 ),
                 QuickActionItem(
                     title = R.string.common_sell,
-                    enabled = sellEnabled && balance.total.isPositive,
+                    enabled = sellEnabled && balanceIsPositive,
                     action = QuickAction.TxAction(AssetAction.Sell),
                 ),
                 QuickActionItem(
                     title = R.string.common_swap,
-                    enabled = swapEnabled && balance.total.isPositive,
+                    enabled = swapEnabled && balanceIsPositive,
                     action = QuickAction.TxAction(AssetAction.Swap),
                 ),
                 QuickActionItem(
@@ -275,7 +281,7 @@ class QuickActionsViewModel(
                 QuickActionItem(
                     title = R.string.common_more,
                     action = QuickAction.More,
-                    enabled = true
+                    enabled = moreEnabled
                 )
             )
         }

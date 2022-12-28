@@ -102,6 +102,15 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         )
     }
 
+    override fun buyWithPreselectedMethod(paymentMethodId: String?) {
+        activity!!.startActivity(
+            SimpleBuyActivity.newIntent(
+                context = activity,
+                preselectedPaymentMethodId = paymentMethodId
+            )
+        )
+    }
+
     override fun earnRewards() {
         activity!!.startActivity(
             EarnDashboardActivity.newInstance(

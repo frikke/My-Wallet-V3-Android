@@ -24,7 +24,7 @@ class CallOutCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 CallOutCard(
                     title = title,

@@ -4,7 +4,6 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
@@ -84,16 +83,6 @@ class L1EvmNonCustodialAccount(
             .mapData { balance -> Money.fromMinor(currency, balance) }
             .asObservable()
     }
-
-    override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = super.stateAwareActions.map { actions ->
-            actions.filter {
-                listOf(
-                    AssetAction.Send, AssetAction.Receive,
-                    AssetAction.ViewActivity
-                ).contains(it.action)
-            }.toSet()
-        }
 
     override val activity: Single<ActivitySummaryList>
         get() {

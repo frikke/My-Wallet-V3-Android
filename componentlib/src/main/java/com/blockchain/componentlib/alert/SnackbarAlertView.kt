@@ -24,7 +24,7 @@ class SnackbarAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
+        AppTheme(setSystemColors = false) {
             AppSurface {
                 SnackbarAlert(
                     message = message,
