@@ -147,6 +147,7 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator
+import piuk.blockchain.android.ui.brokerage.sell.SellRepository
 import piuk.blockchain.android.ui.brokerage.sell.SellViewModel
 import piuk.blockchain.android.ui.createwallet.CreateWalletViewModel
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
@@ -701,6 +702,19 @@ val applicationModule = module {
             )
         }.bind(BankBuyNavigation::class)
 
+        scoped {
+            SellRepository(
+                userFeaturePermissionService = get(),
+                kycService = get(),
+                accountsSorting = get(sellOrder),
+                localSettingsPrefs = get(),
+                hideDustFlag = get(hideDustFeatureFlag),
+                simpleBuyService = get(),
+                coincore = get(),
+                custodialWalletManager = get(),
+                currencyPrefs = get()
+            )
+        }
         factory {
             KycUpgradePromptManager(
                 identity = get()
@@ -847,11 +861,8 @@ val applicationModule = module {
 
         viewModel {
             SellViewModel(
-                sellService = get(),
-                coincore = get(),
-                accountsSorting = get(sellOrder),
-                localSettingsPrefs = get(),
-                hideDustFlag = get(hideDustFeatureFlag)
+                sellRepository = get(),
+                walletModeService = get(),
             )
         }
     }

@@ -20,7 +20,15 @@ internal class AccountsDiffUtil(
         return oldItem.account.isTheSameWith(newItem.account)
     }
 
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = false
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+
+        if (oldAccounts[oldItemPosition] == newAccounts[newItemPosition]) return true
+        val oldItem = (oldAccounts[oldItemPosition] as? SelectableAccountItem)?.item ?: return false
+        val newItem = (newAccounts[newItemPosition] as? SelectableAccountItem)?.item ?: return false
+        return oldItem.account.isTheSameWith(newItem.account) &&
+            (oldAccounts[oldItemPosition] as? SelectableAccountItem)?.isSelected ==
+            (newAccounts[newItemPosition] as? SelectableAccountItem)?.isSelected
+    }
 }
 
 internal fun BlockchainAccount.isTheSameWith(other: BlockchainAccount): Boolean =

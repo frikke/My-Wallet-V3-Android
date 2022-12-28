@@ -13,13 +13,13 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.rx.printTime
 import com.blockchain.store.firstOutcome
@@ -36,11 +36,13 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
@@ -60,13 +62,21 @@ class Coincore internal constructor(
     private val walletModeService: WalletModeService,
     private val ethLayerTwoFF: FeatureFlag
 ) {
-    fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
-        walletModeService.walletModeSingle.flatMapMaybe {
-            if (it.custodialEnabled) {
-                bankService.getWithdrawalLocks(localCurrency).toMaybe()
-            } else
-                Maybe.empty()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getWithdrawalLocks(
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+    ): Flow<DataResource<FundsLocks?>> {
+        return walletModeService.walletMode.flatMapLatest { walletMode ->
+            when (walletMode) {
+                WalletMode.CUSTODIAL_ONLY -> bankService.getWithdrawalLocks(
+                    freshnessStrategy = freshnessStrategy,
+                    localCurrency = localCurrency
+                )
+                else -> flowOf(DataResource.Data(null))
+            }
         }
+    }
 
     operator fun get(asset: Currency): Asset =
         assetLoader[asset]

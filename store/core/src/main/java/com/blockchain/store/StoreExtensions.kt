@@ -2,6 +2,7 @@ package com.blockchain.store
 
 import com.blockchain.data.DataResource
 import com.blockchain.outcome.Outcome
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
+import kotlinx.coroutines.rx3.rxMaybe
 import kotlinx.coroutines.rx3.rxSingle
 
 suspend fun <T> Flow<DataResource<T>>.firstOutcome(): Outcome<Exception, T> =
@@ -34,6 +36,17 @@ fun <T : Any> Flow<DataResource<T>>.asSingle(
     dispatcher: CoroutineDispatcher = Schedulers.io().asCoroutineDispatcher()
 ): Single<T> = rxSingle(dispatcher) {
     val first = this@asSingle.filterNot { it is DataResource.Loading }.first()
+    when (first) {
+        is DataResource.Data -> first.data
+        is DataResource.Error -> throw first.error
+        is DataResource.Loading -> throw IllegalStateException("Should data or error")
+    }
+}
+
+fun <T : Any> Flow<DataResource<T?>>.asMaybe(
+    dispatcher: CoroutineDispatcher = Schedulers.io().asCoroutineDispatcher()
+): Maybe<T> = rxMaybe(dispatcher) {
+    val first = this@asMaybe.filterNot { it is DataResource.Loading }.first()
     when (first) {
         is DataResource.Data -> first.data
         is DataResource.Error -> throw first.error

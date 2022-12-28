@@ -1,4 +1,4 @@
-package com.blockchain.core.sell
+package piuk.blockchain.android.sell
 
 import app.cash.turbine.test
 import com.blockchain.core.buy.domain.SimpleBuyService
@@ -32,6 +32,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.ui.brokerage.sell.SellRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SellRepositoryTest {
@@ -58,6 +59,10 @@ class SellRepositoryTest {
         subject = SellRepository(
             userFeaturePermissionService = userFeaturePermissionService,
             kycService = kycService,
+            coincore = mockk(),
+            hideDustFlag = mockk(),
+            accountsSorting = mockk(),
+            localSettingsPrefs = mockk(),
             simpleBuyService = simpleBuyService,
             custodialWalletManager = custodialWalletManager,
             currencyPrefs = currencyPrefs
@@ -72,7 +77,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.InsufficientTier.Tier2Required)
@@ -99,7 +104,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.NotEligible("test"))))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.NotEligible("test"))
@@ -126,7 +131,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason"))))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.Sanctions.RussiaEU5("reason"))
@@ -159,7 +164,7 @@ class SellRepositoryTest {
         }
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.KycRejectedUser)
@@ -191,7 +196,7 @@ class SellRepositoryTest {
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(false))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.KycRejectedUser)
@@ -223,7 +228,7 @@ class SellRepositoryTest {
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.NonKycdUser)
@@ -264,7 +269,7 @@ class SellRepositoryTest {
         }
         every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.just(listOf(currencyPair))
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 assertTrue(this.data is SellEligibility.Eligible)
@@ -305,7 +310,7 @@ class SellRepositoryTest {
 
         every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.error(testException)
 
-        subject.loadSellAssets().test {
+        subject.sellEligibility().test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Error)
                 assertTrue(this.error is IllegalArgumentException)
@@ -324,47 +329,50 @@ class SellRepositoryTest {
     }
 
     @Test
-    fun `given sell checks when user state valid, gold & eligible supported fiats error then error is returned`() = runTest {
-        every {
-            userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
-            )
-        } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
+    fun `given sell checks when user state valid, gold & eligible supported fiats error then error is returned`() =
+        runTest {
+            every {
+                userFeaturePermissionService.getAccessForFeature(
+                    Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
+                )
+            } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
-        val kycTiers: KycTiers = mockk {
-            every { isApprovedFor(KycTier.GOLD) } returns true
-        }
-        every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
-        every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
-        every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
-
-        val testException = IllegalArgumentException("my exception")
-
-        every { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) } returns flow {
-            throw testException
-        }
-
-        val currencyPair: CurrencyPair = mockk {
-            every { source } returns TEST_ASSET
-            every { destination } returns FiatCurrency.Dollars
-        }
-        every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.just(listOf(currencyPair))
-
-        subject.loadSellAssets().test {
-            expectMostRecentItem().run {
-                assertTrue(this is DataResource.Error)
-                assertTrue(this.error is IllegalArgumentException)
-                assertEquals(this.error.message, "my exception")
+            val kycTiers: KycTiers = mockk {
+                every { isApprovedFor(KycTier.GOLD) } returns true
             }
-        }
+            every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
+            every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
+            every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 
-        verify(exactly = 1) {
-            userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
+            val testException = IllegalArgumentException("my exception")
+
+            every { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) } returns flow {
+                throw testException
+            }
+
+            val currencyPair: CurrencyPair = mockk {
+                every { source } returns TEST_ASSET
+                every { destination } returns FiatCurrency.Dollars
+            }
+            every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.just(
+                listOf(currencyPair)
             )
+
+            subject.sellEligibility().test {
+                expectMostRecentItem().run {
+                    assertTrue(this is DataResource.Error)
+                    assertTrue(this.error is IllegalArgumentException)
+                    assertEquals(this.error.message, "my exception")
+                }
+            }
+
+            verify(exactly = 1) {
+                userFeaturePermissionService.getAccessForFeature(
+                    Feature.Sell, FreshnessStrategy.Cached(forceRefresh = true)
+                )
+            }
+            verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
+            verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
+            verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
         }
-        verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
-        verify(exactly = 1) { currencyPrefs.selectedFiatCurrency }
-        verify(exactly = 1) { custodialWalletManager.getSupportedBuySellCryptoCurrencies() }
-    }
 }

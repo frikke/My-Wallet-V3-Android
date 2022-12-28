@@ -7,6 +7,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.domain.AssetFilter
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -16,7 +17,8 @@ data class AssetsViewState(
     val balance: WalletBalance,
     val assets: DataResource<List<HomeAsset>>,
     val filters: List<AssetFilter>,
-    val showNoResults: Boolean
+    val showNoResults: Boolean,
+    val fundsLocks: DataResource<FundsLocks?>,
 ) : ViewState
 
 sealed interface HomeAsset {

@@ -125,7 +125,6 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -166,8 +165,11 @@ class PaymentsRepository(
             .mapData { it.toPaymentDetails() }
     }
 
-    override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        withdrawLocksStore.stream(
+    override fun getWithdrawalLocks(
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<FundsLocks>> {
+        return withdrawLocksStore.stream(
             FreshnessStrategy.Cached(forceRefresh = true)
         )
             .mapData { locks ->
@@ -186,7 +188,7 @@ class PaymentsRepository(
                     }
                 )
             }
-            .asSingle()
+    }
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
