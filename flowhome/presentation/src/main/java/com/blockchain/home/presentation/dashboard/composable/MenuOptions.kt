@@ -72,7 +72,7 @@ fun MenuOptionsScreen(
     showBalance: Boolean
 ) {
     val targetValue = 120
-    val bottomNavOffsetY by animateIntAsState(
+    val balanceOffset by animateIntAsState(
         targetValue = if (showBalance) 0 else targetValue,
         animationSpec = tween(
             durationMillis = 200
@@ -116,11 +116,11 @@ fun MenuOptionsScreen(
                             modifier = Modifier
                                 .clipToBounds()
                                 .align(Alignment.Center)
-                                .alpha(targetValue - bottomNavOffsetY / targetValue.toFloat())
+                                .alpha(targetValue - balanceOffset / targetValue.toFloat())
                                 .offset {
                                     IntOffset(
                                         x = 0,
-                                        y = bottomNavOffsetY
+                                        y = balanceOffset
                                     )
                                 },
                             text = (walletBalance.balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",

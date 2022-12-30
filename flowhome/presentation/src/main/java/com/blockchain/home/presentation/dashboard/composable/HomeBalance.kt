@@ -84,7 +84,7 @@ fun TotalBalance(
     hide: Boolean,
     balance: DataResource<Money>
 ) {
-    val bottomNavOffsetY by animateIntAsState(
+    val balanceOffset by animateIntAsState(
         targetValue = if (hide) -120 else 0,
         animationSpec = tween(
             durationMillis = 200
@@ -113,7 +113,7 @@ fun TotalBalance(
                     .offset {
                         IntOffset(
                             x = 0,
-                            y = bottomNavOffsetY
+                            y = balanceOffset
                         )
                     },
                 text = balance.data.toStringWithSymbol(),
