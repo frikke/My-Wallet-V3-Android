@@ -17,13 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.blockchain.chrome.backgroundColors
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
@@ -53,14 +53,24 @@ import org.koin.androidx.compose.get
 
 @Composable
 private fun ChromeSingleScreen(
+    backgroundColor: ModeBackgroundColor = ModeBackgroundColor.Current,
     isBottomSheet: Boolean,
     content: @Composable () -> Unit
 ) {
     val walletMode: WalletMode? by if (!isBottomSheet) {
-        get<WalletModeService>(
-            superAppModeService,
-            payloadScope
-        ).walletMode.collectAsStateLifecycleAware(initial = null)
+        when(backgroundColor){
+            ModeBackgroundColor.Current -> {
+                get<WalletModeService>(
+                    superAppModeService,
+                    payloadScope
+                ).walletMode.collectAsStateLifecycleAware(initial = null)
+            }
+            is ModeBackgroundColor.Override -> {
+                remember { mutableStateOf(backgroundColor.walletMode) }
+            }
+            ModeBackgroundColor.None -> remember { mutableStateOf(null) }
+        }
+
     } else {
         remember { mutableStateOf(null) }
     }
@@ -147,9 +157,14 @@ private fun ChromeSingleScreen(
 
 @Composable
 fun ChromeSingleScreen(
+    backgroundColor: ModeBackgroundColor = ModeBackgroundColor.Current,
     content: @Composable () -> Unit
 ) {
-    ChromeSingleScreen(isBottomSheet = false, content = content)
+    ChromeSingleScreen(
+        backgroundColor = backgroundColor,
+        isBottomSheet = false,
+        content = content
+    )
 }
 
 @Composable

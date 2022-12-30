@@ -27,6 +27,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.R
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -43,6 +44,8 @@ fun IntroductionScreens(
     viewModel: IntroScreensViewModel = getViewModel(),
     launchApp: () -> Unit
 ) {
+    SystemColors(statusBarDarkContent = true)
+
     val pagerState = rememberPagerState()
     var buttonVisible by remember { mutableStateOf(false) }
 

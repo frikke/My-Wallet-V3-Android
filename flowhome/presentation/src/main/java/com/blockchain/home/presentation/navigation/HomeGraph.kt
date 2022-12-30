@@ -5,6 +5,7 @@ import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.home.introduction.composable.IntroductionScreen
 import com.blockchain.home.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
@@ -23,7 +24,7 @@ fun NavGraphBuilder.homeGraph(
     onBackPressed: () -> Unit
 ) {
     composable(navigationEvent = HomeDestination.Introduction) {
-        ChromeSingleScreen {
+        ChromeSingleScreen(backgroundColor = ModeBackgroundColor.None) {
             IntroductionScreens(launchApp = launchApp)
         }
     }

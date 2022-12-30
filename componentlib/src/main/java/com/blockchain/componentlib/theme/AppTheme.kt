@@ -236,6 +236,12 @@ fun SystemColors(statusColor: Color, navigationColor: Color, isDarkTheme: Boolea
     }
 }
 
+@Composable
+fun SystemColors(statusBarDarkContent: Boolean) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.statusBarDarkContentEnabled = statusBarDarkContent
+}
+
 /**
  * debugColors() is a utility function that visually exposes any composables that may implicitly use
  * MaterialTheme.colors, by showing the debugColor. This helps to enforce usage of AppTheme
