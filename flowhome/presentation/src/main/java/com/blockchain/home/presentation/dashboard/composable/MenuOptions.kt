@@ -62,6 +62,9 @@ fun MenuOptions(
     )
 }
 
+const val BALANCE_OFFSET_TARGET = 120
+const val BALANCE_OFFSET_ANIM_DURATION = 200
+
 @Composable
 fun MenuOptionsScreen(
     modifier: Modifier = Modifier,
@@ -71,11 +74,10 @@ fun MenuOptionsScreen(
     showBackground: Boolean,
     showBalance: Boolean
 ) {
-    val targetValue = 120
     val balanceOffset by animateIntAsState(
-        targetValue = if (showBalance) 0 else targetValue,
+        targetValue = if (showBalance) 0 else BALANCE_OFFSET_TARGET,
         animationSpec = tween(
-            durationMillis = 200
+            durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
     )
 
@@ -116,7 +118,7 @@ fun MenuOptionsScreen(
                             modifier = Modifier
                                 .clipToBounds()
                                 .align(Alignment.Center)
-                                .alpha(targetValue - balanceOffset / targetValue.toFloat())
+                                .alpha(BALANCE_OFFSET_TARGET - balanceOffset / BALANCE_OFFSET_TARGET.toFloat())
                                 .offset {
                                     IntOffset(
                                         x = 0,

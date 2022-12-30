@@ -85,9 +85,9 @@ fun TotalBalance(
     balance: DataResource<Money>
 ) {
     val balanceOffset by animateIntAsState(
-        targetValue = if (hide) -120 else 0,
+        targetValue = if (hide) -BALANCE_OFFSET_TARGET else 0,
         animationSpec = tween(
-            durationMillis = 200
+            durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
     )
 
