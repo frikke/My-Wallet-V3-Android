@@ -1,5 +1,8 @@
 package com.blockchain.home.introduction.composable
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,7 +86,11 @@ fun IntroductionScreens(
                 .padding(AppTheme.dimensions.smallSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (buttonVisible) {
+            AnimatedVisibility(
+                visible = buttonVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.educational_wallet_mode_cta),
