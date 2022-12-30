@@ -1,11 +1,14 @@
 package com.blockchain.home.presentation.dashboard.composable
 
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -14,7 +17,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -32,14 +38,16 @@ import org.koin.androidx.compose.getViewModel
 fun Balance(
     modifier: Modifier = Modifier,
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    scrollRange: Float
+    scrollRange: Float,
+    hideBalance: Boolean
 ) {
     val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     BalanceScreen(
         modifier = modifier,
         walletBalance = viewState.balance,
-        balanceAlpha = scrollRange
+        balanceAlpha = scrollRange,
+        hideBalance = hideBalance
     )
 }
 
@@ -47,7 +55,8 @@ fun Balance(
 fun BalanceScreen(
     modifier: Modifier = Modifier,
     walletBalance: WalletBalance,
-    balanceAlpha: Float
+    balanceAlpha: Float,
+    hideBalance: Boolean
 ) {
     Column(
         modifier = modifier
@@ -60,7 +69,8 @@ fun BalanceScreen(
     ) {
         TotalBalance(
             balance = walletBalance.balance,
-            alpha = balanceAlpha
+            alpha = balanceAlpha,
+            hide = hideBalance
         )
         BalanceDifference(
             balanceDifference = walletBalance.balanceDifference,
@@ -71,8 +81,16 @@ fun BalanceScreen(
 @Composable
 fun TotalBalance(
     alpha: Float,
+    hide: Boolean,
     balance: DataResource<Money>
 ) {
+    val bottomNavOffsetY by animateIntAsState(
+        targetValue = if (hide) -120 else 0,
+        animationSpec = tween(
+            durationMillis = 200
+        )
+    )
+
     when (balance) {
         DataResource.Loading -> {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -88,7 +106,16 @@ fun TotalBalance(
 
         is DataResource.Data -> {
             Text(
-                modifier = Modifier.alpha(alpha),
+                modifier = Modifier
+                    .clipToBounds()
+                    .alpha(alpha)
+                    .scale((alpha * 1.6F).coerceIn(0F, 1F))
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = bottomNavOffsetY
+                        )
+                    },
                 text = balance.data.toStringWithSymbol(),
                 style = AppTheme.typography.title1,
                 color = AppTheme.colors.title
@@ -128,7 +155,8 @@ fun PreviewBalanceScreen() {
                 ),
                 cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
             ),
-            balanceAlpha = 1F
+            balanceAlpha = 1F,
+            hideBalance = false
         )
     }
 }
@@ -142,6 +170,7 @@ fun PreviewBalanceScreenLoading() {
             cryptoBalanceDifference24h = DataResource.Loading,
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         ),
-        balanceAlpha = 1F
+        balanceAlpha = 1F,
+        hideBalance = false
     )
 }

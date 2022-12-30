@@ -1,6 +1,8 @@
 package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -17,7 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -51,7 +57,7 @@ fun MenuOptions(
         walletBalance = viewState.balance,
         openSettings = openSettings,
         launchQrScanner = launchQrScanner,
-        balanceVisible = showBackground,
+        showBackground = showBackground,
         showBalance = showBalance
     )
 }
@@ -62,9 +68,17 @@ fun MenuOptionsScreen(
     walletBalance: WalletBalance,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
-    balanceVisible: Boolean,
+    showBackground: Boolean,
     showBalance: Boolean
 ) {
+    val targetValue = 120
+    val bottomNavOffsetY by animateIntAsState(
+        targetValue = if (showBalance) 0 else targetValue,
+        animationSpec = tween(
+            durationMillis = 200
+        )
+    )
+
     Box(modifier = Modifier.fillMaxWidth()) {
         // to hide what is scrolled passed this view
         Box(
@@ -84,7 +98,7 @@ fun MenuOptionsScreen(
         ) {
             AnimatedVisibility(
                 modifier = Modifier.matchParentSize(),
-                visible = balanceVisible,
+                visible = showBackground,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -96,7 +110,25 @@ fun MenuOptionsScreen(
                         .clickable { },
                     shape = AppTheme.shapes.large,
                     elevation = 3.dp
-                ) { }
+                ) {
+                    Box(modifier = Modifier.matchParentSize()) {
+                        Text(
+                            modifier = Modifier
+                                .clipToBounds()
+                                .align(Alignment.Center)
+                                .alpha(targetValue - bottomNavOffsetY / targetValue.toFloat())
+                                .offset {
+                                    IntOffset(
+                                        x = 0,
+                                        y = bottomNavOffsetY
+                                    )
+                                },
+                            text = (walletBalance.balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",
+                            style = AppTheme.typography.title3,
+                            color = AppTheme.colors.title
+                        )
+                    }
+                }
             }
 
             Row(
@@ -120,14 +152,6 @@ fun MenuOptionsScreen(
                         .fillMaxWidth()
                 )
 
-                AnimatedVisibility(
-                    visible = showBalance,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    TotalBalanceSmall(balance = walletBalance.balance)
-                }
-
                 Spacer(
                     Modifier
                         .weight(1f)
@@ -147,17 +171,6 @@ fun MenuOptionsScreen(
     }
 }
 
-@Composable
-fun TotalBalanceSmall(
-    balance: DataResource<Money>
-) {
-    Text(
-        text = (balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",
-        style = AppTheme.typography.title3,
-        color = AppTheme.colors.title
-    )
-}
-
 @Preview(showBackground = true, backgroundColor = 0XFF1234F2)
 @Composable
 fun PreviewMenuOptionsScreen() {
@@ -170,7 +183,7 @@ fun PreviewMenuOptionsScreen() {
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         ),
         openSettings = {}, launchQrScanner = {},
-        balanceVisible = true,
+        showBackground = true,
         showBalance = true
     )
 }

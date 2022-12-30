@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -75,14 +73,15 @@ fun HomeScreen(
                 modifier = Modifier.onGloballyPositioned {
                     (it.positionInParent().y - menuOptionsHeight + balanceToMenuPaddingPx)
                         .coerceAtLeast(0F).let {
-                        if(balanceOffsetToMenuOption != it) balanceOffsetToMenuOption = it
-                    }
+                            if (balanceOffsetToMenuOption != it) balanceOffsetToMenuOption = it
+                        }
 
                     ((it.positionInParent().y / menuOptionsHeight.toFloat()) * 2).coerceIn(0F, 1F).let {
-                        if(balanceScrollRange != it) balanceScrollRange = it
+                        if (balanceScrollRange != it) balanceScrollRange = it
                     }
                 },
-                scrollRange = balanceScrollRange
+                scrollRange = balanceScrollRange,
+                hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F
             )
         }
 
