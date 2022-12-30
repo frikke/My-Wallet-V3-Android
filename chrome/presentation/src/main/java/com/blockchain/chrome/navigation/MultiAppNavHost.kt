@@ -22,14 +22,19 @@ import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
+import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import org.koin.androidx.compose.get
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppNavHost(
+    prefs: SuperAppMvpPrefs = get(),
+    walletModePrefs: WalletModePrefs = get(),
     assetActionsNavigation: AssetActionsNavigation,
     fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation,
@@ -48,7 +53,11 @@ fun MultiAppNavHost(
     ) {
         NavHost(
             navController = navController,
-            startDestination = ChromeDestination.Main.route
+            startDestination = if (true/*!prefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW*/) {
+                HomeDestination.Introduction
+            } else {
+                ChromeDestination.Main
+            }.route
         ) {
             // main chrome
             chrome(
@@ -61,6 +70,13 @@ fun MultiAppNavHost(
 
             // home screens
             homeGraph(
+                launchApp = {
+                    navController.navigate(ChromeDestination.Main) {
+                        popUpTo(HomeDestination.Introduction.route) {
+                            inclusive = true
+                        }
+                    }
+                },
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = navController::popBackStack
             )

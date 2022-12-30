@@ -10,6 +10,7 @@ const val ARG_WALLET_MODE = "walletMode"
 sealed class HomeDestination(
     override val route: String
 ) : ComposeNavigationDestination {
+    object Introduction : HomeDestination("Introduction")
     object CryptoAssets : HomeDestination("AllAssets")
     object Activity : HomeDestination("Activity")
 

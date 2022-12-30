@@ -21,6 +21,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.createGraph
@@ -173,12 +174,21 @@ fun NavGraphBuilder.composable(
     )
 }
 
-fun NavHostController.navigate(destination: ComposeNavigationDestination) {
-    navigate(destination = destination, args = listOf())
+fun NavHostController.navigate(
+    destination: ComposeNavigationDestination,
+    builder: (NavOptionsBuilder.() -> Unit)? = null
+) {
+    navigate(destination = destination, args = listOf(), builder = builder)
 }
 
-fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
-    navigate(destination.routeWithArgs(args))
+fun NavHostController.navigate(
+    destination: ComposeNavigationDestination,
+    args: List<NavArgument>,
+    builder: (NavOptionsBuilder.() -> Unit)? = null
+) {
+    builder?.let {
+        navigate(destination.routeWithArgs(args), it)
+    } ?: navigate(destination.routeWithArgs(args))
 }
 
 fun NavHostController.printBackStackToConsole() {
