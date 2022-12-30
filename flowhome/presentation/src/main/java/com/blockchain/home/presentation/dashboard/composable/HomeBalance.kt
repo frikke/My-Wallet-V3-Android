@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.dashboard.composable
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,14 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.BalanceDifferenceConfig
@@ -33,23 +30,27 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun Balance(
+    modifier: Modifier = Modifier,
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openSettings: () -> Unit,
-    launchQrScanner: () -> Unit
+    scrollRange: Float
 ) {
     val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    BalanceScreen(walletBalance = viewState.balance, openSettings = openSettings, launchQrScanner = launchQrScanner)
+    BalanceScreen(
+        modifier = modifier,
+        walletBalance = viewState.balance,
+        balanceAlpha = scrollRange
+    )
 }
 
 @Composable
 fun BalanceScreen(
+    modifier: Modifier = Modifier,
     walletBalance: WalletBalance,
-    openSettings: () -> Unit = {},
-    launchQrScanner: () -> Unit = {}
+    balanceAlpha: Float
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 vertical = AppTheme.dimensions.smallSpacing
@@ -57,34 +58,10 @@ fun BalanceScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = AppTheme.dimensions.smallSpacing,
-                )
-        ) {
-            Image(
-                imageResource = ImageResource.Local(R.drawable.ic_user_settings),
-                modifier = Modifier
-                    .clickable {
-                        openSettings()
-                    }
-            )
-            Spacer(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            )
-            Image(
-                imageResource = ImageResource.Local(R.drawable.ic_qr_scanner),
-                modifier = Modifier
-                    .clickable {
-                        launchQrScanner()
-                    }
-            )
-        }
-        TotalBalance(balance = walletBalance.balance)
+        TotalBalance(
+            balance = walletBalance.balance,
+            alpha = balanceAlpha
+        )
         BalanceDifference(
             balanceDifference = walletBalance.balanceDifference,
         )
@@ -92,7 +69,10 @@ fun BalanceScreen(
 }
 
 @Composable
-fun TotalBalance(balance: DataResource<Money>) {
+fun TotalBalance(
+    alpha: Float,
+    balance: DataResource<Money>
+) {
     when (balance) {
         DataResource.Loading -> {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -108,6 +88,7 @@ fun TotalBalance(balance: DataResource<Money>) {
 
         is DataResource.Data -> {
             Text(
+                modifier = Modifier.alpha(alpha),
                 text = balance.data.toStringWithSymbol(),
                 style = AppTheme.typography.title1,
                 color = AppTheme.colors.title
@@ -146,7 +127,8 @@ fun PreviewBalanceScreen() {
                     Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())
                 ),
                 cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
-            )
+            ),
+            balanceAlpha = 1F
         )
     }
 }
@@ -159,6 +141,7 @@ fun PreviewBalanceScreenLoading() {
             balance = DataResource.Loading,
             cryptoBalanceDifference24h = DataResource.Loading,
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
-        )
+        ),
+        balanceAlpha = 1F
     )
 }
