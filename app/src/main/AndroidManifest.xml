@@ -119,9 +119,6 @@
             android:clearTaskOnLaunch="true"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".ui.educational.walletmodes.EducationalWalletModeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.MainActivity"

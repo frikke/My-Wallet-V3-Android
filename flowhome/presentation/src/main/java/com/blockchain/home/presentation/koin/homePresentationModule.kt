@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.koin
 
+import com.blockchain.home.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -19,6 +20,10 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val homePresentationModule = module {
+    viewModel {
+        IntroScreensViewModel(educationalScreensPrefs = get())
+    }
+
     scope(payloadScopeQualifier) {
         viewModel {
             AssetsViewModel(
@@ -48,10 +53,10 @@ val homePresentationModule = module {
         }
 
         viewModel { (
-            homeVm: AssetsViewModel,
-            pkwActivityViewModel: PrivateKeyActivityViewModel,
-            custodialActivityViewModel: CustodialActivityViewModel
-        ) ->
+                        homeVm: AssetsViewModel,
+                        pkwActivityViewModel: PrivateKeyActivityViewModel,
+                        custodialActivityViewModel: CustodialActivityViewModel
+                    ) ->
             EmptyScreenViewModel(
                 homeAssetsViewModel = homeVm,
                 walletModeService = get(superAppModeService),

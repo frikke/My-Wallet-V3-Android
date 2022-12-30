@@ -21,8 +21,7 @@ val loaderModule = module {
                 payloadDataManager = get(),
                 prerequisites = get(),
                 appUtil = get(),
-                superAppFeatureFlag = get(superappFeatureFlag),
-                educationalScreensPrefs = get()
+                superAppFeatureFlag = get(superappFeatureFlag)
             )
         }
 

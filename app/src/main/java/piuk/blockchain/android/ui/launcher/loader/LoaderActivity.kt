@@ -24,7 +24,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
-import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
@@ -74,10 +73,6 @@ class LoaderActivity :
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
-            is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
-                data = loaderStep.data,
-                isUserInCowboysPromo = newState.isUserInCowboysPromo
-            )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             else -> {
                 // do nothing
@@ -183,17 +178,6 @@ class LoaderActivity :
                 intentData = mainData,
                 shouldLaunchUiTour = shouldLaunchUiTour,
                 shouldBeNewTask = true
-            )
-        )
-        finish()
-    }
-
-    private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
-        startActivity(
-            EducationalWalletModeActivity.newIntent(
-                context = this,
-                data = data,
-                redirectToCowbowsPromo = isUserInCowboysPromo
             )
         )
         finish()

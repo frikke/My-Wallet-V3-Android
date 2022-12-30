@@ -24,6 +24,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.home.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.R
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -31,10 +32,12 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun IntroductionScreens(
+    viewModel: IntroScreensViewModel = getViewModel(),
     launchApp: () -> Unit
 ) {
     val pagerState = rememberPagerState()
@@ -65,7 +68,10 @@ fun IntroductionScreens(
 
         Image(
             modifier = Modifier
-                .clickable { launchApp() }
+                .clickable {
+                    viewModel.markAsSeen()
+                    launchApp()
+                }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
             imageResource = ImageResource.Local(R.drawable.ic_close_circle)
@@ -81,7 +87,10 @@ fun IntroductionScreens(
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.educational_wallet_mode_cta),
-                    onClick = launchApp
+                    onClick = {
+                        viewModel.markAsSeen()
+                        launchApp()
+                    }
                 )
             }
 

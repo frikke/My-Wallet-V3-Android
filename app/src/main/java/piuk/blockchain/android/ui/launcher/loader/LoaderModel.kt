@@ -28,7 +28,6 @@ class LoaderModel(
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
     private val superAppFeatureFlag: FeatureFlag,
-    private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -41,9 +40,7 @@ class LoaderModel(
             is LoaderIntents.LaunchDashboard -> {
                 return superAppFeatureFlag.enabled.subscribeBy {
                     launchDashboard(
-                        loginMethod = previousState.loginMethod,
                         data = intent.data,
-                        superAppEnabled = it,
                         shouldLaunchUiTour = intent.shouldLaunchUiTour,
                         isUserInCowboysPromo = previousState.isUserInCowboysPromo
                     )
@@ -132,26 +129,12 @@ class LoaderModel(
     }
 
     private fun launchDashboard(
-        loginMethod: LoginMethod,
         data: String?,
-        superAppEnabled: Boolean,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
     ) {
         process(
             when {
-
-                // Wallet mode switch enabled
-                // + have not seen educational screen yet
-                // + did not come from signup (already logged in)
-                // -> show educational screen
-                educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
-                    superAppEnabled.not() &&
-                    loginMethod == LoginMethod.PIN -> {
-                    LoaderIntents.StartEducationalWalletModeActivity(
-                        data = data
-                    )
-                }
                 isUserInCowboysPromo -> {
                     LoaderIntents.StartMainActivity(data, false)
                 }

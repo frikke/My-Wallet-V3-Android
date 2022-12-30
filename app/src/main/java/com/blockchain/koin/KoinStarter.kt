@@ -70,7 +70,6 @@ import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
-import piuk.blockchain.android.ui.educational.walletmodes.educationalWalletModesPresentationModule
 import piuk.blockchain.android.ui.home.mainModule
 import piuk.blockchain.android.ui.interest.domain.interestDashboardDomainModule
 import piuk.blockchain.android.ui.interest.presentation.interestDashboardPresentationModule
@@ -173,7 +172,6 @@ object KoinStarter {
                     backupPhraseDataModule, backupPhrasePresentationModule,
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
-                    educationalWalletModesPresentationModule,
                     fraudDataModule,
                     tokenizerModule,
                     nftDataModule, nftPresentationModule,
