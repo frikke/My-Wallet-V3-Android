@@ -41,7 +41,8 @@ fun ModeSwitcher(
     modifier: Modifier = Modifier,
     modes: List<WalletMode>,
     selectedMode: WalletMode,
-    onModeClicked: (WalletMode) -> Unit
+    onModeClicked: (WalletMode) -> Unit,
+    onModeLongClicked: (WalletMode) -> Unit
 ) {
 
     val coroutineScopeAnimation = rememberCoroutineScope()
@@ -84,12 +85,17 @@ fun ModeSwitcher(
         modes.sortedBy { it.ordinal }.forEachIndexed { index, mode ->
             Column(
                 modifier = Modifier
-                    .clickableNoEffect {
-                        if (currentMode != mode) {
-                            coroutineScopeAnimation.coroutineContext.cancelChildren()
-                            onModeClicked(mode)
+                    .clickableNoEffect(
+                        onClick = {
+                            if (currentMode != mode) {
+                                coroutineScopeAnimation.coroutineContext.cancelChildren()
+                                onModeClicked(mode)
+                            }
+                        },
+                        onLongClick = {
+                            onModeLongClicked(mode)
                         }
-                    },
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -164,6 +170,7 @@ fun PreviewModeSwitcher() {
     ModeSwitcher(
         modes = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
         selectedMode = WalletMode.CUSTODIAL_ONLY,
-        onModeClicked = {}
+        onModeClicked = {},
+        onModeLongClicked = {}
     )
 }

@@ -30,30 +30,59 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.R
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun IntroductionScreens(
     viewModel: IntroScreensViewModel = getViewModel(),
-    isNewUser: Boolean = true,
-    launchApp: () -> Unit
+    walletStatusPrefs: WalletStatusPrefs = get(),
+    triggeredBy: WalletMode? = null,
+    launchApp: () -> Unit,
+    close: () -> Unit
 ) {
     SystemColors(statusBarDarkContent = true)
 
+    val setup = triggeredBy?.let {
+        IntroductionScreensSetup.ModesOnly(startMode = it)
+    } ?: IntroductionScreensSetup.All(isNewUser = walletStatusPrefs.isNewlyCreated)
+
+    IntroductionScreensData(
+        setup = setup,
+        markAsSeen = { viewModel.markAsSeen() },
+        launchApp = launchApp,
+        close = close
+    )
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun IntroductionScreensData(
+    setup: IntroductionScreensSetup,
+    markAsSeen: () -> Unit,
+    launchApp: () -> Unit,
+    close: () -> Unit
+) {
     val pagerState = rememberPagerState()
     var buttonVisible by remember { mutableStateOf(false) }
+
+    val introductionsScreens = remember {
+        introductionsScreens(introductionScreensSetup = setup)
+    }
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .onEach { pageIndex ->
-                if (pageIndex == introductionsScreens(isNewUser = isNewUser).lastIndex) {
+                if (pageIndex == introductionsScreens.lastIndex) {
                     buttonVisible = true
                 }
             }
@@ -69,17 +98,18 @@ fun IntroductionScreens(
 
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
-            count = introductionsScreens(isNewUser = isNewUser).size,
+            count = introductionsScreens.size,
             state = pagerState
         ) { pageIndex ->
-            IntroductionScreen(introductionsScreens(isNewUser = isNewUser)[pageIndex])
+            IntroductionScreen(introductionsScreens[pageIndex])
         }
 
         Image(
             modifier = Modifier
                 .clickable {
-                    viewModel.markAsSeen()
-                    launchApp()
+                    markAsSeen()
+                    if (setup is IntroductionScreensSetup.All) launchApp()
+                    else close()
                 }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
@@ -99,10 +129,11 @@ fun IntroductionScreens(
             ) {
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.educational_wallet_mode_cta),
+                    text = stringResource(R.string.done),
                     onClick = {
-                        viewModel.markAsSeen()
-                        launchApp()
+                        markAsSeen()
+                        if (setup is IntroductionScreensSetup.All) launchApp()
+                        else close()
                     }
                 )
             }
@@ -126,5 +157,5 @@ fun IntroductionScreens(
 @Preview(showBackground = true)
 @Composable
 fun PreviewIntroductionScreens() {
-    IntroductionScreens {}
+    IntroductionScreensData(IntroductionScreensSetup.All(true), {}, {}, {})
 }

@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Purple0000
 
 @Composable
 fun IntroductionScreen(content: IntroductionScreenContent) {
@@ -36,7 +35,7 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(content.isLogo){
+            if (content.isLogo) {
                 Surface(
                     elevation = 8.dp,
                     shape = AppTheme.shapes.veryLarge,
@@ -95,5 +94,5 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewEducationalWalletModeIntroScreen() {
-    IntroductionScreen(introductionsScreens(true).last())
+    IntroductionScreen(introductionsScreens(IntroductionScreensSetup.All(true)).last())
 }

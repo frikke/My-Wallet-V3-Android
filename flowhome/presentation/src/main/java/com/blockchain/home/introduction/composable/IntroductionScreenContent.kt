@@ -17,35 +17,54 @@ data class IntroductionScreenContent(
     val forWalletMode: WalletMode? = null
 )
 
-fun introductionsScreens(isNewUser: Boolean): List<IntroductionScreenContent> {
-    return listOfNotNull(
-        IntroductionScreenContent(
-            image = R.drawable.ic_blockchain,
-            isLogo = true,
-            title = R.string.educational_wallet_mode_intro_title,
-            description = R.string.educational_wallet_mode_intro_description,
-        ).takeIf { isNewUser },
-        IntroductionScreenContent(
-            image = R.drawable.ic_educational_wallet_menu,
-            isLogo = false,
-            title = R.string.educational_wallet_mode_menu_title,
-            description = R.string.educational_wallet_mode_menu_description,
-        ).takeIf { isNewUser.not() },
-        IntroductionScreenContent(
-            image = R.drawable.ic_educational_wallet_menu,
-            isLogo = false,
-            title = R.string.educational_wallet_mode_trading_title,
-            description = R.string.educational_wallet_mode_trading_description,
-            tag = Pair(R.string.educational_wallet_mode_trading_secure_tag, Blue600),
-            forWalletMode = WalletMode.CUSTODIAL_ONLY
-        ),
-        IntroductionScreenContent(
-            image = R.drawable.ic_educational_wallet_menu,
-            isLogo = false,
-            title = R.string.educational_wallet_mode_defi_title,
-            description = R.string.educational_wallet_mode_defi_description,
-            tag = Pair(R.string.educational_wallet_mode_defi_secure_tag, Purple0000),
-            forWalletMode = WalletMode.NON_CUSTODIAL_ONLY
-        )
-    )
+sealed interface IntroductionScreensSetup {
+    data class All(val isNewUser: Boolean) : IntroductionScreensSetup
+    data class ModesOnly(val startMode: WalletMode) : IntroductionScreensSetup
 }
+
+fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): List<IntroductionScreenContent> {
+    return when (introductionScreensSetup) {
+        is IntroductionScreensSetup.All -> {
+            listOfNotNull(
+                IntroductionScreenContent(
+                    image = R.drawable.ic_blockchain,
+                    isLogo = true,
+                    title = R.string.educational_wallet_mode_intro_title,
+                    description = R.string.educational_wallet_mode_intro_description,
+                ).takeIf { introductionScreensSetup.isNewUser },
+                IntroductionScreenContent(
+                    image = R.drawable.ic_educational_wallet_menu,
+                    isLogo = false,
+                    title = R.string.educational_wallet_mode_menu_title,
+                    description = R.string.educational_wallet_mode_menu_description,
+                ).takeIf { introductionScreensSetup.isNewUser.not() },
+            ) + walletModeContent
+        }
+        is IntroductionScreensSetup.ModesOnly -> {
+            walletModeContent.apply {
+                val startItem = first { it.forWalletMode == introductionScreensSetup.startMode }
+                remove(startItem)
+                add(0, startItem)
+            }
+        }
+    }
+}
+
+private val walletModeContent = mutableListOf(
+    IntroductionScreenContent(
+        image = R.drawable.ic_educational_wallet_menu,
+        isLogo = false,
+        title = R.string.educational_wallet_mode_trading_title,
+        description = R.string.educational_wallet_mode_trading_description,
+        tag = Pair(R.string.educational_wallet_mode_trading_secure_tag, Blue600),
+        forWalletMode = WalletMode.CUSTODIAL_ONLY
+    ),
+    IntroductionScreenContent(
+        image = R.drawable.ic_educational_wallet_menu,
+        isLogo = false,
+        title = R.string.educational_wallet_mode_defi_title,
+        description = R.string.educational_wallet_mode_defi_description,
+        tag = Pair(R.string.educational_wallet_mode_defi_secure_tag, Purple0000),
+        forWalletMode = WalletMode.NON_CUSTODIAL_ONLY
+    )
+)

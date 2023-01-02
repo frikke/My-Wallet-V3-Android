@@ -3309,7 +3309,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="educational_wallet_mode_trading_title">Buy, sell, and swap crypto</string>
     <string name="educational_wallet_mode_trading_description">Use a card or bank account to buy crypto. Earn rewards by putting your crypto to work.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Held by Blockchain.com</string>
-    <string name="educational_wallet_mode_cta">Get Started</string>
 
     <!-- NFT -->
     <string name="nft_coming_soon_title">Coming soon!</string>

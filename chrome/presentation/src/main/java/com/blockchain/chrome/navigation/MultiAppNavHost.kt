@@ -93,6 +93,12 @@ private fun NavGraphBuilder.chrome(
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
+            onModeLongClicked = { walletMode ->
+                navController.navigate(
+                    HomeDestination.Introduction,
+                    listOf(NavArgument(key = ARG_WALLET_MODE, value = walletMode))
+                )
+            },
             assetActionsNavigation = assetActionsNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
