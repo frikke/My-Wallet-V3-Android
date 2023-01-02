@@ -95,5 +95,5 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewEducationalWalletModeIntroScreen() {
-    IntroductionScreen(introductionsScreens.last())
+    IntroductionScreen(introductionsScreens(true).last())
 }

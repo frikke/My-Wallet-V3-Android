@@ -42,6 +42,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun IntroductionScreens(
     viewModel: IntroScreensViewModel = getViewModel(),
+    isNewUser: Boolean = true,
     launchApp: () -> Unit
 ) {
     SystemColors(statusBarDarkContent = true)
@@ -52,7 +53,9 @@ fun IntroductionScreens(
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .onEach { pageIndex ->
-                if (pageIndex == introductionsScreens.lastIndex) buttonVisible = true
+                if (pageIndex == introductionsScreens(isNewUser = isNewUser).lastIndex) {
+                    buttonVisible = true
+                }
             }
             .collect()
     }
@@ -66,10 +69,10 @@ fun IntroductionScreens(
 
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
-            count = introductionsScreens.size,
+            count = introductionsScreens(isNewUser = isNewUser).size,
             state = pagerState
         ) { pageIndex ->
-            IntroductionScreen(introductionsScreens[pageIndex])
+            IntroductionScreen(introductionsScreens(isNewUser = isNewUser)[pageIndex])
         }
 
         Image(
