@@ -58,7 +58,7 @@ private fun ChromeSingleScreen(
     content: @Composable () -> Unit
 ) {
     val walletMode: WalletMode? by if (!isBottomSheet) {
-        when(backgroundColor){
+        when (backgroundColor) {
             ModeBackgroundColor.Current -> {
                 get<WalletModeService>(
                     superAppModeService,
@@ -70,7 +70,6 @@ private fun ChromeSingleScreen(
             }
             ModeBackgroundColor.None -> remember { mutableStateOf(null) }
         }
-
     } else {
         remember { mutableStateOf(null) }
     }

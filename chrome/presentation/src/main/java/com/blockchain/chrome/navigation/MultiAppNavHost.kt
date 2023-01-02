@@ -53,7 +53,7 @@ fun MultiAppNavHost(
     ) {
         NavHost(
             navController = navController,
-            startDestination = if (true/*!prefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW*/) {
+            startDestination = if (!prefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW) {
                 HomeDestination.Introduction
             } else {
                 ChromeDestination.Main
