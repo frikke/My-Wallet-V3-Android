@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.educational.walletmodes.screens
+package com.blockchain.home.introduction.composable
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape

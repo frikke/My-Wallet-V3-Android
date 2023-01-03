@@ -1,7 +1,9 @@
 package com.blockchain.componentlib.utils
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.remember
@@ -17,6 +19,16 @@ fun Modifier.clickableNoEffect(onClick: () -> Unit) = composed {
         indication = null,
         interactionSource = remember { MutableInteractionSource() },
         onClick = onClick
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.clickableNoEffect(onClick: () -> Unit, onLongClick: () -> Unit) = composed {
+    combinedClickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() },
+        onClick = onClick,
+        onLongClick = onLongClick
     )
 }
 

@@ -28,15 +28,6 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.Main(data, shouldLaunchUiTour))
     }
 
-    data class StartEducationalWalletModeActivity(val data: String?) : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(
-                nextLoadingStep = LoadingStep.EducationalWalletMode(
-                    data = data
-                )
-            )
-    }
-
     data class DecryptAndSetupMetadata(val secondPassword: String) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState
     }

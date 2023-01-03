@@ -3299,17 +3299,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
 
     <!-- Educational - wallet modes-->
-    <string name="educational_wallet_mode_intro_title">Your Wallet just got better</string>
-    <string name="educational_wallet_mode_intro_description"> We’ve made some major improvements to the Blockchain.com app.</string>
-    <string name="educational_wallet_mode_menu_title">A new way to navigate</string>
-    <string name="educational_wallet_mode_menu_description">Easily move between Trading Account and DeFi Wallet.</string>
-    <string name="educational_wallet_mode_defi_title">Your new home for Private Key Wallet</string>
-    <string name="educational_wallet_mode_defi_description">Access your Private Key Wallets and engage with web3 and decentralized finance.</string>
-    <string name="educational_wallet_mode_defi_secure_tag">Secured by You</string>
-    <string name="educational_wallet_mode_trading_title">Your accounts</string>
-    <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
-    <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
-    <string name="educational_wallet_mode_cta">Get Started</string>
+    <string name="educational_wallet_mode_intro_title">Welcome to \nBlockchain.com</string>
+    <string name="educational_wallet_mode_intro_description">The only crypto app you’ll ever need.</string>
+    <string name="educational_wallet_mode_menu_title">Buy and secure your crypto (need new android phone screens)</string>
+    <string name="educational_wallet_mode_menu_description">Enjoy a trusted brokerage and a leading self-custody wallet—all in one app.</string>
+    <string name="educational_wallet_mode_defi_title">Discover the world of DeFi</string>
+    <string name="educational_wallet_mode_defi_description">Self-custody your crypto, use decentralized applications, and collect NFTs.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Held by You</string>
+    <string name="educational_wallet_mode_trading_title">Buy, sell, and swap crypto</string>
+    <string name="educational_wallet_mode_trading_description">Use a card or bank account to buy crypto. Earn rewards by putting your crypto to work.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Held by Blockchain.com</string>
 
     <!-- NFT -->
     <string name="nft_coming_soon_title">Coming soon!</string>

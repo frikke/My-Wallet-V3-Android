@@ -1,9 +1,9 @@
-package piuk.blockchain.android.ui.educational.walletmodes
+package com.blockchain.home.introduction
 
 import androidx.lifecycle.ViewModel
 import com.blockchain.preferences.SuperAppMvpPrefs
 
-class EducationalWalletModeViewModel(
+class IntroScreensViewModel(
     private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : ViewModel() {
     fun markAsSeen() {

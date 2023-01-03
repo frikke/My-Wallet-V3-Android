@@ -1,5 +1,8 @@
-package piuk.blockchain.android.ui.educational.walletmodes.screens
+package com.blockchain.home.introduction.composable
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,26 +27,64 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SystemColors
+import com.blockchain.home.introduction.IntroScreensViewModel
+import com.blockchain.home.presentation.R
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import piuk.blockchain.android.R
+import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun EducationalWalletModeScreen(
-    onClick: () -> Unit,
+fun IntroductionScreens(
+    viewModel: IntroScreensViewModel = getViewModel(),
+    walletStatusPrefs: WalletStatusPrefs = get(),
+    triggeredBy: WalletMode? = null,
+    launchApp: () -> Unit,
+    close: () -> Unit
+) {
+    SystemColors(statusBarDarkContent = true)
+
+    val setup = triggeredBy?.let {
+        IntroductionScreensSetup.ModesOnly(startMode = it)
+    } ?: IntroductionScreensSetup.All(isNewUser = walletStatusPrefs.isNewlyCreated)
+
+    IntroductionScreensData(
+        setup = setup,
+        markAsSeen = { viewModel.markAsSeen() },
+        launchApp = launchApp,
+        close = close
+    )
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun IntroductionScreensData(
+    setup: IntroductionScreensSetup,
+    markAsSeen: () -> Unit,
+    launchApp: () -> Unit,
+    close: () -> Unit
 ) {
     val pagerState = rememberPagerState()
     var buttonVisible by remember { mutableStateOf(false) }
 
+    val introductionsScreens = remember {
+        introductionsScreens(introductionScreensSetup = setup)
+    }
+
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .onEach { pageIndex ->
-                if (pageIndex == EducationalWalletModePages.values().lastIndex) buttonVisible = true
+                if (pageIndex == introductionsScreens.lastIndex) {
+                    buttonVisible = true
+                }
             }
             .collect()
     }
@@ -57,15 +98,19 @@ fun EducationalWalletModeScreen(
 
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
-            count = EducationalWalletModePages.values().size,
+            count = introductionsScreens.size,
             state = pagerState
         ) { pageIndex ->
-            EducationalWalletModePage(pageIndex)
+            IntroductionScreen(introductionsScreens[pageIndex])
         }
 
         Image(
             modifier = Modifier
-                .clickable { onClick() }
+                .clickable {
+                    markAsSeen()
+                    if (setup is IntroductionScreensSetup.All) launchApp()
+                    else close()
+                }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
             imageResource = ImageResource.Local(R.drawable.ic_close_circle)
@@ -77,11 +122,19 @@ fun EducationalWalletModeScreen(
                 .padding(AppTheme.dimensions.smallSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (buttonVisible) {
+            AnimatedVisibility(
+                visible = buttonVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.educational_wallet_mode_cta),
-                    onClick = onClick
+                    text = stringResource(R.string.done),
+                    onClick = {
+                        markAsSeen()
+                        if (setup is IntroductionScreensSetup.All) launchApp()
+                        else close()
+                    }
                 )
             }
 
@@ -97,17 +150,12 @@ fun EducationalWalletModeScreen(
     }
 }
 
-@Composable
-private fun EducationalWalletModePage(index: Int) {
-    EducationalWalletModePages.values()[index].Content()
-}
-
 // ///////////////
 // PREVIEWS
 // ///////////////
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewEducationalWalletModeScreen() {
-    EducationalWalletModeScreen {}
+fun PreviewIntroductionScreens() {
+    IntroductionScreensData(IntroductionScreensSetup.All(true), {}, {}, {})
 }

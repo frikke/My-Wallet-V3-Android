@@ -64,7 +64,8 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
-
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
     // rx
     implementation Libraries.rxKotlin
     implementation Libraries.rxjava3Coroutines

@@ -86,6 +86,7 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 @Composable
 fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
+    onModeLongClicked: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -124,6 +125,7 @@ fun MultiAppChrome(
                 onModeSelected = { walletMode ->
                     viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
                 },
+                onModeLongClicked = onModeLongClicked,
                 openCryptoAssets = openCryptoAssets,
                 openActivity = openActivity,
                 openActivityDetail = openActivityDetail,
@@ -153,6 +155,7 @@ fun MultiAppChromeScreen(
     shouldRevealBalance: Boolean,
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
+    onModeLongClicked: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -580,6 +583,7 @@ fun MultiAppChromeScreen(
                                 onModeSelected(walletMode)
                             }
                         },
+                        onModeLongClicked = onModeLongClicked
                     )
                 }
             }
