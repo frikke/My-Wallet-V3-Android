@@ -11,7 +11,7 @@ interface CardActivator {
     val unsupportedPartnerError: String
         get() = "Card partner not supported"
     val redirectUrl: String
-        get() = "https://google.com"
+        get() = "https://www.google.com"
 }
 
 sealed class CompleteCardActivation {

@@ -347,11 +347,7 @@ class LiveCustodialWalletManager(
             .asSingle()
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
-        simpleBuyService.getBuyOrders()
-            .mapData { buyOrders ->
-                buyOrders.first { it.id == orderId }
-            }
-            .asSingle()
+        nabuService.getBuyOrder(orderId).map { it.toDomainOrThrow() }
 
     override fun deleteBuyOrder(orderId: String): Completable =
         nabuService.deleteBuyOrder(orderId)
