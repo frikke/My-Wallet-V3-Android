@@ -9,42 +9,33 @@ import java.math.RoundingMode
 class PricesInterpolator(
     private val interpolator: Interpolator = LinearInterpolator(),
     private val pair: CurrencyPair,
-    list: List<PriceTier>
+    private val prices: List<PriceTier>
 ) {
-    private val prices: List<PriceTier> = list.toMutableList().apply {
-        this.add(
-            index = 0,
-            element = PriceTier(
-                Money.zero(pair.source),
-                Money.zero(pair.source)
-            )
-        )
-    }.toList()
 
     fun getRate(amount: Money): Money {
-        prices.forEachIndexed { index, priceTier ->
-            if (index == prices.size - 1) return priceTier.price
+        if (prices.isEmpty()) return Money.zero(pair.source)
+        if (amount <= prices.first().volume) return prices.first().price
+        if (amount >= prices.last().volume) return prices.last().price
 
-            val nextTier = prices[index + 1]
-            val thisVol = priceTier.volume
-            val nextVol = nextTier.volume
+        val priceTier = prices.find { priceTier ->
+            amount <= priceTier.volume
+        } ?: prices.last()
+        val priceIndex = prices.indexOf(priceTier)
 
-            if (thisVol < amount && amount <= nextVol) {
-                if (index == 0) {
-                    return nextTier.price
-                }
-                return Money.fromMajor(
-                    pair.destination,
-                    interpolator.interpolate(
-                        listOf(priceTier.volume.toBigDecimal(), nextTier.volume.toBigDecimal()),
-                        listOf(priceTier.price.toBigDecimal(), nextTier.price.toBigDecimal()),
-                        amount.toBigDecimal(),
-                        pair.destination.precisionDp
-                    )
-                )
-            }
-        }
-        return Money.zero(pair.destination)
+        val isInBetweenVolumes = priceTier.volume != amount
+        if (!isInBetweenVolumes) return priceTier.price
+
+        val prevTier = prices[priceIndex - 1]
+
+        return Money.fromMajor(
+            pair.destination,
+            interpolator.interpolate(
+                listOf(prevTier.volume.toBigDecimal(), priceTier.volume.toBigDecimal()),
+                listOf(prevTier.price.toBigDecimal(), priceTier.price.toBigDecimal()),
+                amount.toBigDecimal(),
+                pair.destination.precisionDp
+            )
+        )
     }
 }
 

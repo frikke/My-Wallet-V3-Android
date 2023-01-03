@@ -67,7 +67,7 @@ class TransferQuotesEngine(
 
             PricedQuote(
                 PricesInterpolator(
-                    list = quote.prices,
+                    prices = quote.prices,
                     pair = pair
                 ).getRate(amount),
                 quote,
