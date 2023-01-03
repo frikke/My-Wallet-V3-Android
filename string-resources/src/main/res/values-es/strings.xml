@@ -2857,7 +2857,7 @@
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Recompensas</string>
     <string name="staking_dashboard_search">Buscar monedas</string>
-    <string name="staking_dashboard_no_results">Sin resultados</string>
+    <string name="earning_dashboard_no_results">Sin resultados</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
     <string name="earn_dashboard_tab_earning">Ganar</string>

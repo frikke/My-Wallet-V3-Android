@@ -39,6 +39,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.control.Search
 import com.blockchain.componentlib.control.TabLayoutLarge
@@ -194,7 +195,10 @@ fun EarningAndDiscover(
                     filterBy = earningTabFilterBy,
                     earningAssetList = state.earning.toImmutableList(),
                     onItemClicked = onEarningItemClicked,
-                    earningTabQueryBy = earningTabQueryBy
+                    earningTabQueryBy = earningTabQueryBy,
+                    investNowClicked = {
+                        selectedTab = SelectedTab.Discover
+                    }
                 )
             }
             SelectedTab.Discover -> {
@@ -234,9 +238,10 @@ private fun DiscoverScreen(
             Column(modifier = Modifier.background(color = AppTheme.colors.background)) {
                 Box(
                     modifier = Modifier.padding(
-                        top = AppTheme.dimensions.smallSpacing,
+                        top = AppTheme.dimensions.verySmallSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing
+                        end = AppTheme.dimensions.smallSpacing,
+                        bottom = AppTheme.dimensions.verySmallSpacing
                     )
                 ) {
                     Search(
@@ -273,7 +278,16 @@ private fun DiscoverScreen(
             item {
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.staking_dashboard_no_results),
+                    text = stringResource(R.string.earning_dashboard_no_results),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre
+                )
+            }
+        } else if (searchedText.isEmpty() && discoverAssetList.isEmpty()) {
+            item {
+                SimpleText(
+                    text = stringResource(R.string.earning_dashboard_empty_filter),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre
@@ -425,7 +439,8 @@ private fun EarningScreen(
     filterBy: EarnDashboardListFilter,
     earningAssetList: List<EarnAsset>,
     onItemClicked: (EarnAsset) -> Unit,
-    earningTabQueryBy: String
+    earningTabQueryBy: String,
+    investNowClicked: () -> Unit
 ) {
     var searchedText by remember { mutableStateOf("") }
 
@@ -461,11 +476,31 @@ private fun EarningScreen(
 
         if (searchedText.isNotEmpty() && earningAssetList.isEmpty()) {
             SimpleText(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.staking_dashboard_no_results),
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.verySmallSpacing)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.earning_dashboard_no_results),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
+            )
+        } else if (searchedText.isEmpty() && earningAssetList.isEmpty()) {
+            SimpleText(
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.verySmallSpacing)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.earning_dashboard_empty_filter),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+
+            PrimaryButton(
+                modifier = Modifier
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.earning_dashboard_empty_filter_cta),
+                onClick = { investNowClicked() }
             )
         } else {
             LazyColumn {

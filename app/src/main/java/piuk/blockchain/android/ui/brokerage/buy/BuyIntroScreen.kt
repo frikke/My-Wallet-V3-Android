@@ -90,7 +90,7 @@ fun BuyIntroScreen(
                 if (searchedText.isNotEmpty() && listItems.isEmpty()) {
                     SimpleText(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.staking_dashboard_no_results),
+                        text = stringResource(R.string.assets_no_result),
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Centre

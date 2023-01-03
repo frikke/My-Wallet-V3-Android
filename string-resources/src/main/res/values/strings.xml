@@ -3489,7 +3489,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Passive</string>
     <string name="staking_dashboard_search">Search coins</string>
-    <string name="staking_dashboard_no_results">No results</string>
+    <string name="earning_dashboard_no_results">😞 No results</string>
+    <string name="earning_dashboard_empty_filter">You have not added any funds into these Rewards yet</string>
+    <string name="earning_dashboard_empty_filter_cta">Start earning</string>
+    <string name="discover_dashboard_empty_filter">We don\'t have any offering here at the moment - check back soon!</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
     <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>

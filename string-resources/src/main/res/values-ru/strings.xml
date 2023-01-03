@@ -2863,7 +2863,7 @@
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Вознаграждения</string>
     <string name="staking_dashboard_search">Поиск койнов</string>
-    <string name="staking_dashboard_no_results">Нет результатов</string>
+    <string name="earning_dashboard_no_results">Нет результатов</string>
     <string name="earn_rewards_label_passive">Пассивные вознаграждения</string>
     <string name="earn_rewards_label_staking">Вознаграждения за стейкинг</string>
     <string name="earn_dashboard_tab_earning">Заработок</string>

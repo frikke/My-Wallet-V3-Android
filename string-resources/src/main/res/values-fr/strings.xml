@@ -2859,7 +2859,7 @@
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Récompenses</string>
     <string name="staking_dashboard_search">Rechercher des jetons</string>
-    <string name="staking_dashboard_no_results">Aucun résultat</string>
+    <string name="earning_dashboard_no_results">Aucun résultat</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
     <string name="earn_dashboard_tab_earning">Gain</string>

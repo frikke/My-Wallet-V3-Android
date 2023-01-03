@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +27,7 @@ fun PrimaryButton(
     icon: ImageResource = ImageResource.None,
     minHeight: Dp = 48.dp,
 ) {
+
     Button(
         text = text,
         onClick = onClick,
@@ -38,15 +40,17 @@ fun PrimaryButton(
         disabledBackgroundLightColor = Blue400,
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
-        modifier = modifier.requiredHeightIn(min = minHeight),
+        modifier = modifier
+            .requiredHeightIn(min = minHeight),
         icon = icon,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             ButtonContent(
+                modifier = Modifier.padding(AppTheme.dimensions.verySmallSpacing),
                 state = state,
                 text = text,
                 textColor = textColor,
                 contentAlpha = textAlpha,
-                icon = icon,
+                icon = icon
             )
         },
     )

@@ -5,7 +5,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -25,6 +24,8 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.store.filterNotLoading
+import com.blockchain.store.flatMapData
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -32,6 +33,7 @@ import java.math.BigDecimal
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitSingle
@@ -140,11 +142,14 @@ class EarnDashboardViewModel(
         discoverTabQueryBy: String
     ): DashboardState =
         when {
+            // TODO(dserrano) add isLoading && earnData != null
             isLoading -> DashboardState.Loading
             error != EarnDashboardError.None -> DashboardState.ShowError(error)
             else -> earnData?.let { data ->
-                val hasStakingBalance = data.stakingBalances.values.any { it.totalBalance.isPositive }
-                val hasInterestBalance = data.interestBalances.values.any { it.totalBalance.isPositive }
+                val hasStakingBalance =
+                    data.stakingBalancesWithFiat.values.any { it.stakingCryptoBalances.totalBalance.isPositive }
+                val hasInterestBalance =
+                    data.interestBalancesWithFiat.values.any { it.interestCryptoBalances.totalBalance.isPositive }
 
                 if (data.interestFeatureAccess !is FeatureAccess.Granted && !hasInterestBalance &&
                     data.stakingFeatureAccess !is FeatureAccess.Granted && !hasStakingBalance
@@ -227,25 +232,31 @@ class EarnDashboardViewModel(
     ): DashboardState.OnlyDiscover {
         val discoverList = mutableListOf<EarnAsset>()
         data.stakingEligibility.map { (asset, eligibility) ->
-            val balance = data.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
+            //   data.stakingBalancesWithFiat[asset]?.let {
             discoverList.add(
                 asset.createStakingAsset(
-                    balance = balance,
+                    stakingBalancesWithFiat = StakingBalancesWithFiat(
+                        asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                    ),
                     stakingRate = data.stakingRates[asset],
                     eligibility = eligibility
                 )
             )
+            // }
         }
 
         data.interestEligibility.map { (asset, eligibility) ->
-            val balance = data.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
+            //   data.interestBalancesWithFiat[asset]?.let {
             discoverList.add(
                 asset.createPassiveAsset(
-                    balance = balance,
+                    interestBalancesWithFiat = InterestBalancesWithFiat(
+                        asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                    ),
                     passiveRate = data.interestRates[asset],
                     eligibility = eligibility
                 )
             )
+            //  }
         }
 
         return DashboardState.OnlyDiscover(
@@ -264,11 +275,31 @@ class EarnDashboardViewModel(
         val discoverList = mutableListOf<EarnAsset>()
 
         data.stakingEligibility.map { (asset, eligibility) ->
-            val balance = data.stakingBalances[asset]?.totalBalance ?: Money.zero(asset)
-            if (balance.isPositive) {
-                earningList.add(
+            if (data.stakingBalancesWithFiat.isNotEmpty()) {
+                data.stakingBalancesWithFiat[asset]?.let { balances ->
+                    val totalBalance = balances.stakingCryptoBalances.totalBalance
+                    if (totalBalance.isPositive) {
+                        earningList.add(
+                            asset.createStakingAsset(
+                                stakingBalancesWithFiat = balances,
+                                stakingRate = data.stakingRates[asset],
+                                eligibility = eligibility
+                            )
+                        )
+                    } else {
+                        discoverList.add(
+                            asset.createStakingAsset(
+                                stakingBalancesWithFiat = balances,
+                                stakingRate = data.stakingRates[asset],
+                                eligibility = eligibility
+                            )
+                        )
+                    }
+                } ?: discoverList.add(
                     asset.createStakingAsset(
-                        balance = balance,
+                        stakingBalancesWithFiat = StakingBalancesWithFiat(
+                            asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        ),
                         stakingRate = data.stakingRates[asset],
                         eligibility = eligibility
                     )
@@ -276,7 +307,9 @@ class EarnDashboardViewModel(
             } else {
                 discoverList.add(
                     asset.createStakingAsset(
-                        balance = balance,
+                        stakingBalancesWithFiat = StakingBalancesWithFiat(
+                            asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        ),
                         stakingRate = data.stakingRates[asset],
                         eligibility = eligibility
                     )
@@ -285,12 +318,33 @@ class EarnDashboardViewModel(
         }
 
         data.interestEligibility.map { (asset, eligibility) ->
-            val balance = data.interestBalances[asset]?.totalBalance ?: Money.zero(asset)
+            if (data.interestBalancesWithFiat.isNotEmpty()) {
+                data.interestBalancesWithFiat[asset]?.let { balances ->
+                    val totalBalance =
+                        balances.interestCryptoBalances.totalBalance
 
-            if (balance.isPositive) {
-                earningList.add(
+                    if (totalBalance.isPositive) {
+                        earningList.add(
+                            asset.createPassiveAsset(
+                                interestBalancesWithFiat = balances,
+                                passiveRate = data.interestRates[asset],
+                                eligibility = eligibility
+                            )
+                        )
+                    } else {
+                        discoverList.add(
+                            asset.createPassiveAsset(
+                                interestBalancesWithFiat = balances,
+                                passiveRate = data.interestRates[asset],
+                                eligibility = eligibility
+                            )
+                        )
+                    }
+                } ?: discoverList.add(
                     asset.createPassiveAsset(
-                        balance = balance,
+                        interestBalancesWithFiat = InterestBalancesWithFiat(
+                            asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        ),
                         passiveRate = data.interestRates[asset],
                         eligibility = eligibility
                     )
@@ -298,7 +352,9 @@ class EarnDashboardViewModel(
             } else {
                 discoverList.add(
                     asset.createPassiveAsset(
-                        balance = balance,
+                        interestBalancesWithFiat = InterestBalancesWithFiat(
+                            asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        ),
                         passiveRate = data.interestRates[asset],
                         eligibility = eligibility
                     )
@@ -312,29 +368,35 @@ class EarnDashboardViewModel(
         )
     }
 
-    private fun AssetInfo.createStakingAsset(balance: Money, stakingRate: Double?, eligibility: StakingEligibility) =
-        EarnAsset(
-            assetTicker = networkTicker,
-            assetName = name,
-            iconUrl = logo,
-            rate = stakingRate ?: 0.0,
-            eligibility = eligibility.toEarnEligibility(),
-            balanceCrypto = balance,
-            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-            type = EarnType.Staking
-        )
+    private fun AssetInfo.createStakingAsset(
+        stakingBalancesWithFiat: StakingBalancesWithFiat,
+        stakingRate: Double?,
+        eligibility: StakingEligibility
+    ) = EarnAsset(
+        assetTicker = networkTicker,
+        assetName = name,
+        iconUrl = logo,
+        rate = stakingRate ?: 0.0,
+        eligibility = eligibility.toEarnEligibility(),
+        balanceCrypto = stakingBalancesWithFiat.stakingCryptoBalances.totalBalance,
+        balanceFiat = stakingBalancesWithFiat.stakingTotalFiat,
+        type = EarnType.Staking
+    )
 
-    private fun AssetInfo.createPassiveAsset(balance: Money, passiveRate: Double?, eligibility: InterestEligibility) =
-        EarnAsset(
-            assetTicker = networkTicker,
-            assetName = name,
-            iconUrl = logo,
-            rate = passiveRate ?: 0.0,
-            eligibility = eligibility.toEarnEligibility(),
-            balanceCrypto = balance,
-            balanceFiat = balance.toUserFiat(exchangeRatesDataManager),
-            type = EarnType.Passive
-        )
+    private fun AssetInfo.createPassiveAsset(
+        interestBalancesWithFiat: InterestBalancesWithFiat,
+        passiveRate: Double?,
+        eligibility: InterestEligibility
+    ) = EarnAsset(
+        assetTicker = networkTicker,
+        assetName = name,
+        iconUrl = logo,
+        rate = passiveRate ?: 0.0,
+        eligibility = eligibility.toEarnEligibility(),
+        balanceCrypto = interestBalancesWithFiat.interestCryptoBalances.totalBalance,
+        balanceFiat = interestBalancesWithFiat.interestTotalFiat,
+        type = EarnType.Passive
+    )
 
     private fun List<EarnAsset>.sortListByFilterAndQuery(
         filter: EarnDashboardListFilter,
@@ -369,9 +431,7 @@ class EarnDashboardViewModel(
 
     private suspend fun collectEarnData(showLoading: Boolean) {
         val accessMap = try {
-            userIdentity.userAccessForFeatures(
-                listOf(Feature.DepositStaking, Feature.DepositInterest)
-            ).await()
+            userIdentity.userAccessForFeatures(listOf(Feature.DepositStaking, Feature.DepositInterest)).await()
         } catch (e: Exception) {
             mapOf(
                 Feature.DepositStaking to FeatureAccess.Blocked(BlockedReason.NotEligible("")),
@@ -379,11 +439,65 @@ class EarnDashboardViewModel(
             )
         }
 
+        val stakingBalanceWithFiatFlow =
+            stakingService.getBalanceForAllAssets().flatMapData { balancesMap ->
+                if (balancesMap.isEmpty()) {
+                    return@flatMapData flowOf(DataResource.Data(emptyMap()))
+                }
+                val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
+                    exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                        fromAsset = asset,
+                        freshnessStrategy = FreshnessStrategy.Cached(false)
+                    ).mapData { exchangeRate ->
+                        StakingBalancesWithFiat(
+                            asset,
+                            balances,
+                            exchangeRate.convert(balances.totalBalance)
+                        )
+                    }
+                }
+
+                combine(balancesWithFiatRates) { balancesResource ->
+                    combineDataResources(balancesResource.toList()) { balancesList ->
+                        balancesList.associateBy { balanceWithFiat ->
+                            balanceWithFiat.asset
+                        }
+                    }
+                }
+            }
+
+        val interestBalanceWithFiatFlow =
+            interestService.getBalancesFlow().flatMapData { balancesMap ->
+                if (balancesMap.isEmpty()) {
+                    return@flatMapData flowOf(DataResource.Data(emptyMap()))
+                }
+                val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
+                    exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                        fromAsset = asset,
+                        freshnessStrategy = FreshnessStrategy.Cached(false)
+                    ).mapData { exchangeRate ->
+                        InterestBalancesWithFiat(
+                            asset,
+                            balances,
+                            exchangeRate.convert(balances.totalBalance)
+                        )
+                    }
+                }
+
+                combine(balancesWithFiatRates) { balancesResource ->
+                    combineDataResources(balancesResource.toList()) { balancesList ->
+                        balancesList.associateBy { balanceWithFiat ->
+                            balanceWithFiat.asset
+                        }
+                    }
+                }
+            }
+
         combine(
-            stakingService.getBalanceForAllAssets(),
+            stakingBalanceWithFiatFlow,
             stakingService.getEligibilityForAssets(),
             stakingService.getRatesForAllAssets(),
-            interestService.getBalancesFlow(),
+            interestBalanceWithFiatFlow,
             interestService.getEligibilityForAssets(),
             interestService.getAllInterestRates(),
         ) { listOfData ->
@@ -392,10 +506,10 @@ class EarnDashboardViewModel(
                 listOfData.toList()
             ) { data ->
                 CombinedEarnData(
-                    stakingBalances = data[0] as Map<AssetInfo, StakingAccountBalance>,
+                    stakingBalancesWithFiat = data[0] as Map<AssetInfo, StakingBalancesWithFiat>,
                     stakingEligibility = data[1] as Map<AssetInfo, StakingEligibility>,
                     stakingRates = data[2] as Map<AssetInfo, Double>,
-                    interestBalances = data[3] as Map<AssetInfo, InterestAccountBalance>,
+                    interestBalancesWithFiat = data[3] as Map<AssetInfo, InterestBalancesWithFiat>,
                     interestEligibility = data[4] as Map<AssetInfo, InterestEligibility>,
                     interestRates = data[5] as Map<AssetInfo, Double>,
                     interestFeatureAccess = accessMap[Feature.DepositInterest]!!,
