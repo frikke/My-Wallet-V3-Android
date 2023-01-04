@@ -448,7 +448,7 @@ class EarnDashboardViewModel(
                 val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
                     exchangeRatesDataManager.exchangeRateToUserFiatFlow(
                         fromAsset = asset,
-                        freshnessStrategy = FreshnessStrategy.Cached(false)
+                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     ).mapData { exchangeRate ->
                         StakingBalancesWithFiat(
                             asset,
@@ -475,7 +475,7 @@ class EarnDashboardViewModel(
                 val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
                     exchangeRatesDataManager.exchangeRateToUserFiatFlow(
                         fromAsset = asset,
-                        freshnessStrategy = FreshnessStrategy.Cached(false)
+                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     ).mapData { exchangeRate ->
                         InterestBalancesWithFiat(
                             asset,
