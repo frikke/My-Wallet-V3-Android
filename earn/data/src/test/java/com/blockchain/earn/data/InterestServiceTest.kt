@@ -6,6 +6,7 @@ import com.blockchain.core.history.data.datasources.PaymentTransactionHistorySto
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -107,7 +108,7 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -119,7 +120,7 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -129,7 +130,7 @@ class InterestServiceTest {
 
         assertEquals(setOf(cryptoCurrency), result)
 
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 

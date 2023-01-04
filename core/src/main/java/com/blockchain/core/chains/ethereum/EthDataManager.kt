@@ -11,6 +11,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
@@ -141,11 +142,12 @@ class EthDataManager(
      */
     fun isLastTxPending(): Single<Boolean> =
         internalAccountAddress?.let {
-            ethLastTxCache.stream(FreshnessStrategy.Cached(false).withKey(it)).asSingle().map { tx ->
-                tx.state.toLocalState() == TransactionState.PENDING
-            }.onErrorReturn {
-                false
-            }
+            ethLastTxCache.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(it))
+                .asSingle().map { tx ->
+                    tx.state.toLocalState() == TransactionState.PENDING
+                }.onErrorReturn {
+                    false
+                }
         } ?: Single.just(false)
 
     /**

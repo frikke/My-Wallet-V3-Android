@@ -2,6 +2,7 @@ package com.blockchain.earn.domain.service
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.interest.InterestActivity
 import com.blockchain.earn.domain.models.interest.InterestEligibility
@@ -23,14 +24,14 @@ interface InterestService {
      * Returns a map composed of each [AssetInfo] with its [InterestAccountBalance]
      */
     fun getBalances(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Observable<Map<AssetInfo, InterestAccountBalance>>
 
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestAccountBalance]
      */
     fun getBalancesFlow(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<Map<AssetInfo, InterestAccountBalance>>>
 
     /**
@@ -38,7 +39,7 @@ interface InterestService {
      */
     fun getBalanceFor(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Observable<InterestAccountBalance>
 
     /**
@@ -46,14 +47,14 @@ interface InterestService {
      */
     fun getBalanceForFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<InterestAccountBalance>>
 
     /**
      * Returns a list of all [AssetInfo] that have an interest balance
      */
     fun getActiveAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<Set<AssetInfo>>
 
     /**
@@ -96,7 +97,7 @@ interface InterestService {
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
     fun getEligibilityForAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>>
 
     /**
@@ -109,7 +110,7 @@ interface InterestService {
      */
     fun getEligibilityForAssetFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<InterestEligibility>>
 
     /**
@@ -121,7 +122,7 @@ interface InterestService {
      * Returns a map composed of each [AssetInfo] with its [InterestLimits]
      */
     fun getLimitsForAssetsFlow(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<Map<AssetInfo, InterestLimits>>>
 
     /**
@@ -134,7 +135,7 @@ interface InterestService {
      */
     fun getLimitsForAssetFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<InterestLimits>>
 
     /**
@@ -147,11 +148,11 @@ interface InterestService {
      */
     fun getInterestRateFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Double>>
 
     fun getAllInterestRates(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     /**
@@ -170,7 +171,7 @@ interface InterestService {
      */
     fun getActivityFlow(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<List<InterestActivity>>>
 
     /**

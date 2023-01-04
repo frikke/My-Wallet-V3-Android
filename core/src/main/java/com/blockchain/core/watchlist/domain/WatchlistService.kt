@@ -3,17 +3,18 @@ package com.blockchain.core.watchlist.domain
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 
 interface WatchlistService {
     fun getWatchlist(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<List<Currency>>>
 
     fun isAssetInWatchlist(
         asset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<Boolean>>
 
     suspend fun addToWatchlist(

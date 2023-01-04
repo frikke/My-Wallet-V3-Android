@@ -5,6 +5,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.LocalSettingsPrefs
 import info.blockchain.balance.AssetCategory
@@ -63,7 +64,7 @@ class ShouldAssetShowUseCaseTest {
 
         coEvery { hideDustFF.coEnabled() }.returns(false)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
             flowOf(
                 DataResource.Data(false)
             )
@@ -77,7 +78,7 @@ class ShouldAssetShowUseCaseTest {
 
         coVerify { hideDustFF.coEnabled() }
         verify(exactly = 0) { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -89,7 +90,7 @@ class ShouldAssetShowUseCaseTest {
 
         coEvery { hideDustFF.coEnabled() }.returns(true)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
             flowOf(
                 DataResource.Data(false)
             )
@@ -102,7 +103,7 @@ class ShouldAssetShowUseCaseTest {
         }
 
         coVerify { hideDustFF.coEnabled() }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -114,7 +115,7 @@ class ShouldAssetShowUseCaseTest {
 
         coEvery { hideDustFF.coEnabled() }.returns(true)
         every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }.returns(
+        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
             flowOf(
                 DataResource.Data(true)
             )
@@ -127,7 +128,7 @@ class ShouldAssetShowUseCaseTest {
         }
 
         coVerify { hideDustFF.coEnabled() }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
         verify { accountBalance.totalFiat wasNot Called }
     }
 
@@ -146,7 +147,7 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = false)
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -162,7 +163,7 @@ class ShouldAssetShowUseCaseTest {
 
             coVerify { hideDustFF.coEnabled() }
             verify { localSettingsPrefs.hideSmallBalancesEnabled }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
@@ -182,7 +183,7 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = false)
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -197,7 +198,7 @@ class ShouldAssetShowUseCaseTest {
             }
 
             coVerify { hideDustFF.coEnabled() }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
@@ -214,7 +215,7 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(forceRefresh = false)
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -229,7 +230,7 @@ class ShouldAssetShowUseCaseTest {
             }
 
             coVerify { hideDustFF.coEnabled() }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(forceRefresh = false)) }
+            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
             verify { accountBalance.totalFiat }
         }
 }

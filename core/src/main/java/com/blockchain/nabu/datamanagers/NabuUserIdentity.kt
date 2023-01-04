@@ -4,6 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -194,7 +195,7 @@ class NabuUserIdentity(
     }
 
     override fun isSSO(): Single<Boolean> =
-        userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))
+        userService.getUserFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .asObservable()
             .firstOrError()
             .map { user ->

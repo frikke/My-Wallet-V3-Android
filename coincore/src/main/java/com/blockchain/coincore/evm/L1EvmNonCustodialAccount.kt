@@ -18,6 +18,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -78,7 +79,9 @@ class L1EvmNonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> {
         return l1BalanceStore
-            .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(l1Network.nodeUrl)))
+            .stream(
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh).withKey(L1BalanceStore.Key(l1Network.nodeUrl))
+            )
             .catch { DataResource.Data(BigInteger.ZERO) }
             .mapData { balance -> Money.fromMinor(currency, balance) }
             .asObservable()

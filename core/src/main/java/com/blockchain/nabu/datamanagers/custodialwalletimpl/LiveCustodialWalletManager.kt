@@ -13,6 +13,7 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -463,7 +464,7 @@ class LiveCustodialWalletManager(
                 eligibleOnly,
                 shouldFetchSddLimits
             ),
-            forceRefresh = false
+            refreshStrategy = RefreshStrategy.RefreshIfStale
         )
     ).mapData {
         it.filter { paymentMethod -> paymentMethod.visible }

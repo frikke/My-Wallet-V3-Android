@@ -6,6 +6,7 @@ import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.outcome.map
 import com.blockchain.store.mapData
@@ -68,7 +69,7 @@ class UniversalDynamicAssetRepository(
     override fun otherEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.otherEvmNetworks()
 
     override fun allNetworks(): Flow<DataResource<List<CoinNetwork>>> {
-        return coinNetworksStore.stream(FreshnessStrategy.Cached(false))
+        return coinNetworksStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .mapData { coinNetworks ->
                 coinNetworks.map { coinNetworkDto ->
                     CoinNetwork(

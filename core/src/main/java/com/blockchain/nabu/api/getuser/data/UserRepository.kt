@@ -1,6 +1,7 @@
 package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.store.asObservable
@@ -13,7 +14,7 @@ internal class UserRepository(
 ) : UserService {
     override fun getUser(): Single<NabuUser> =
         getUserStore
-            .stream(FreshnessStrategy.Cached(forceRefresh = false))
+            .stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .asObservable()
             .firstElement()
             .toSingle()

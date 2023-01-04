@@ -2,6 +2,7 @@ package com.blockchain.domain.paymentmethods
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.Flow
 interface CardService {
 
     fun getLinkedCards(
-        request: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        request: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
         vararg states: CardStatus
     ): Flow<DataResource<List<LinkedPaymentMethod.Card>>>
 
@@ -42,7 +43,7 @@ interface CardService {
 
     fun getCardDetails(
         cardId: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
     ): Flow<DataResource<PaymentMethod.Card>>
 
     suspend fun getCardDetailsCo(cardId: String): Outcome<Exception, PaymentMethod.Card>

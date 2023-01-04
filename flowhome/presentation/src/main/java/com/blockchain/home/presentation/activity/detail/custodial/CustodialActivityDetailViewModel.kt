@@ -16,6 +16,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.data.onErrorReturn
@@ -97,7 +98,7 @@ class CustodialActivityDetailViewModel(
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             custodialActivityService
-                .getActivity(id = activityTxId, FreshnessStrategy.Cached(forceRefresh = false))
+                .getActivity(id = activityTxId, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
                 .flatMapLatest { summaryDataResource ->
                     when (summaryDataResource) {
                         is DataResource.Data -> {

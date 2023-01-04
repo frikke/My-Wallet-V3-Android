@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
@@ -112,7 +113,7 @@ class NftCollectionViewModel(
                 freshnessStrategy = if (isFromPullToRefresh) {
                     FreshnessStrategy.Fresh
                 } else {
-                    FreshnessStrategy.Cached(forceRefresh = true)
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 },
                 address = address,
                 pageKey = pageKey

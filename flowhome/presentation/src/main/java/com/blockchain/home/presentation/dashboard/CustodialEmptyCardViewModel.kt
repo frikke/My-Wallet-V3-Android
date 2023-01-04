@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -85,7 +86,7 @@ class CustodialEmptyCardViewModel(
                 }
                 viewModelScope.launch {
                     userFeaturePermissionService.getAccessForFeature(
-                        Feature.Buy, FreshnessStrategy.Cached(true)
+                        Feature.Buy, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                     ).collect {
                         updateState { state ->
                             state.copy(

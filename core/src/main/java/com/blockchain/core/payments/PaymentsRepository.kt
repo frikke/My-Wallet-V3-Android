@@ -46,6 +46,7 @@ import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -170,7 +171,7 @@ class PaymentsRepository(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<FundsLocks>> {
         return withdrawLocksStore.stream(
-            FreshnessStrategy.Cached(forceRefresh = true)
+            FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
         )
             .mapData { locks ->
                 FundsLocks(

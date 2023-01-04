@@ -21,6 +21,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.StakingEligibility
 import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.service.InterestService
@@ -181,7 +182,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 emitAll(
                     stakingService.getAvailabilityForAsset(
                         currency,
-                        FreshnessStrategy.Cached(false)
+                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     ).filterNotLoading()
                         .mapData {
                             if (it) {

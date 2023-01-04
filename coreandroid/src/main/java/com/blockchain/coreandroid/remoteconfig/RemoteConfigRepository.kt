@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -47,7 +48,7 @@ class RemoteConfigRepository(
     }
 
     private suspend fun getValueFromCacheFlow(): Map<String, Int> {
-        return experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        return experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .filter { it !is DataResource.Loading }
             .map { dataResourceMap ->
                 when (dataResourceMap) {

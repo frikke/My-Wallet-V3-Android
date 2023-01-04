@@ -16,6 +16,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -73,7 +74,7 @@ import kotlinx.coroutines.flow.flowOf
         if (l1Network.networkTicker == currency.networkTicker) {
             // TODO AND-5913 Use result/either and coroutines
             l1BalanceStore.stream(
-                FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(EthUrls.ETH_NODES))
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh).withKey(L1BalanceStore.Key(EthUrls.ETH_NODES))
             ).catch {
                 emit(DataResource.Data(BigInteger.ZERO))
             }.mapData { balance ->

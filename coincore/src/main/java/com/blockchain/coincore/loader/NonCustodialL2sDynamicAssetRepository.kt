@@ -9,6 +9,7 @@ import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.getOrDefault
@@ -43,7 +44,7 @@ class NonCustodialL2sDynamicAssetRepository(
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
                     .asSingle()
                     .flatMap { evmNetworks ->
@@ -68,7 +69,7 @@ class NonCustodialL2sDynamicAssetRepository(
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
                     .asSingle()
                     .flatMap { evmNetworks ->
@@ -107,7 +108,7 @@ class NonCustodialL2sDynamicAssetRepository(
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
                     .asSingle()
                     .map { evmNetworks ->
@@ -126,7 +127,7 @@ class NonCustodialL2sDynamicAssetRepository(
         return coinNetworksFeatureFlag.value.enabled.flatMapMaybe { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
                     .asSingle()
                     .flatMapMaybe { evmNetworks ->
@@ -147,7 +148,7 @@ class NonCustodialL2sDynamicAssetRepository(
         return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
                     .asSingle()
                     .map { evmNetworks ->
@@ -167,7 +168,7 @@ class NonCustodialL2sDynamicAssetRepository(
             .flatMap { evmAssets ->
                 rxSingle {
                     l2Store.stream(
-                        FreshnessStrategy.Cached(false)
+                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                             .withKey(NonCustodialL2sDynamicAssetStore.Key(evmAssets.map { it.networkTicker }))
                     )
                         .firstOutcome()

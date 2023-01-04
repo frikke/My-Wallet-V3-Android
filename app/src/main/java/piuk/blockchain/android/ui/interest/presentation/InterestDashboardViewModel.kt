@@ -9,6 +9,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
@@ -73,7 +74,7 @@ class InterestDashboardViewModel(
      */
     private fun loadDashboard() {
         viewModelScope.launch {
-            kycService.getTiers(FreshnessStrategy.Cached(forceRefresh = true))
+            kycService.getTiers(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
                 .collectLatest { dataResourceKyc ->
                     when (dataResourceKyc) {
                         is DataResource.Loading -> updateState {

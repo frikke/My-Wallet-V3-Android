@@ -14,6 +14,7 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTx
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.domain.wallet.NetworkType
@@ -53,19 +54,20 @@ internal class NonCustodialRepository(
     private fun getAllSupportedCoins(): Single<Map<String, CoinType>> {
         return networkConfigsFF.enabled.flatMap { isEnabled ->
             if (isEnabled) {
-                coinTypeStore.stream(FreshnessStrategy.Cached(false)).asSingle().map { coinTypes ->
-                    coinTypes.map { coinTypeDto ->
-                        coinTypeDto.derivations.map { derivationDto ->
-                            CoinType(
-                                network = coinTypeDto.type,
-                                type = derivationDto.coinType,
-                                purpose = derivationDto.purpose
-                            )
+                coinTypeStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                    .asSingle().map { coinTypes ->
+                        coinTypes.map { coinTypeDto ->
+                            coinTypeDto.derivations.map { derivationDto ->
+                                CoinType(
+                                    network = coinTypeDto.type,
+                                    type = derivationDto.coinType,
+                                    purpose = derivationDto.purpose
+                                )
+                            }
                         }
+                            .flatten()
+                            .associateBy { it.network.name }
                     }
-                        .flatten()
-                        .associateBy { it.network.name }
-                }
             } else {
                 remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
                     jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)

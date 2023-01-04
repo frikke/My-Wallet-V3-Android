@@ -2,6 +2,7 @@ package com.blockchain.store.impl
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.store.Cache
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
@@ -13,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -35,7 +35,7 @@ class RealStore<K : Any, T : Any>(
         }.distinctUntilChanged()
 
     private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
-
+        val requestRefreshStrategy = request.refreshStrategy
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()
@@ -57,7 +57,16 @@ class RealStore<K : Any, T : Any>(
             // calls, in these cases we don't want to check for staleness and always emit.
             // This is done so even if the mediator considers a network response stale we don't skip that emission
             val isStale = isFirstEmission && isStale(cachedData)
-            val shouldFetch = isFirstEmission && (request.forceRefresh || isStale)
+            val isRequestForcingRefresh = when (requestRefreshStrategy) {
+                RefreshStrategy.ForceRefresh -> true
+                RefreshStrategy.RefreshIfStale -> false
+                is RefreshStrategy.RefreshIfOlderThan ->
+                    cachedData == null ||
+                        // The phone clock was changed
+                        System.currentTimeMillis() < cachedData.lastFetched ||
+                        System.currentTimeMillis() > cachedData.lastFetched + requestRefreshStrategy.toMillis()
+            }
+            val shouldFetch = isFirstEmission && (isRequestForcingRefresh || isStale)
             val shouldEmit = cachedData != null && !isStale
 
             if (shouldEmit) send(DataResource.Data(cachedData!!.data))

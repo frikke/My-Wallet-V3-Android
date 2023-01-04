@@ -12,6 +12,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -108,7 +109,7 @@ class WalletModeSelectionViewModel(
 
                 val nonCustodialBalance = walletModeBalanceService.getBalanceWithFailureState(
                     WalletMode.NON_CUSTODIAL_ONLY,
-                    FreshnessStrategy.Cached(forceRefresh = true)
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {
@@ -127,7 +128,7 @@ class WalletModeSelectionViewModel(
 
                 val custodialBalance = walletModeBalanceService.getBalanceWithFailureState(
                     WalletMode.CUSTODIAL_ONLY,
-                    FreshnessStrategy.Cached(forceRefresh = true)
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 ).map { response ->
                     when (response) {
                         is DataResource.Data -> updateState {

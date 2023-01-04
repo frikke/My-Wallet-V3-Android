@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.presentation.R
@@ -185,7 +186,7 @@ class QuickActionsViewModel(
         totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).zip(
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
-                FreshnessStrategy.Cached(false)
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
             ).filterNotLoading()
         ) { balance, sellEligible ->
 

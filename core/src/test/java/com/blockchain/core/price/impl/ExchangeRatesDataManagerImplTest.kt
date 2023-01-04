@@ -8,6 +8,7 @@ import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
 import com.blockchain.preferences.CurrencyPrefs
@@ -77,12 +78,12 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.ALL_TIME,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
-                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME, FreshnessStrategy.Cached(false)
+                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             awaitComplete()
         }
@@ -94,7 +95,7 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.YEAR,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         )
             .test {
                 awaitEvent()
@@ -103,7 +104,7 @@ class ExchangeRatesDataManagerImplTest {
                         OLD_ASSET,
                         SELECTED_FIAT,
                         HistoricalTimeSpan.YEAR,
-                        FreshnessStrategy.Cached(false)
+                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     )
                 awaitComplete()
             }
@@ -115,7 +116,7 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.MONTH,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         )
             .test {
                 awaitEvent()
@@ -124,7 +125,7 @@ class ExchangeRatesDataManagerImplTest {
                         OLD_ASSET,
                         SELECTED_FIAT,
                         HistoricalTimeSpan.MONTH,
-                        FreshnessStrategy.Cached(false)
+                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     )
                 awaitComplete()
             }
@@ -136,7 +137,7 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.WEEK,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -144,7 +145,7 @@ class ExchangeRatesDataManagerImplTest {
                     OLD_ASSET,
                     SELECTED_FIAT,
                     HistoricalTimeSpan.WEEK,
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             awaitComplete()
         }
@@ -156,7 +157,7 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.DAY,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -164,7 +165,7 @@ class ExchangeRatesDataManagerImplTest {
                     OLD_ASSET,
                     SELECTED_FIAT,
                     HistoricalTimeSpan.DAY,
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             awaitComplete()
         }
@@ -176,7 +177,7 @@ class ExchangeRatesDataManagerImplTest {
             asset = NEW_ASSET,
             span = HistoricalTimeSpan.WEEK,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(false)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -184,7 +185,7 @@ class ExchangeRatesDataManagerImplTest {
                     OLD_ASSET,
                     SELECTED_FIAT,
                     HistoricalTimeSpan.WEEK,
-                    FreshnessStrategy.Cached(false)
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             awaitComplete()
         }

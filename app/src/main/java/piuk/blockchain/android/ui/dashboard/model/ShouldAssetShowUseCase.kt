@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.store.getDataOrThrow
@@ -25,7 +26,7 @@ class ShouldAssetShowUseCase(
             emitAll(
                 watchlistService.isAssetInWatchlist(
                     asset = accountBalance.total.currency,
-                    freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 ).getDataOrThrow().map { isInWatchlist ->
                     if (isFFenabled && localSettingsPrefs.hideSmallBalancesEnabled) {
                         if (isInWatchlist) {

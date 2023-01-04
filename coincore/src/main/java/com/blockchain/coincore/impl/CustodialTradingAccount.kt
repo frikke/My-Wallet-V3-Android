@@ -22,6 +22,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -113,7 +114,7 @@ class CustodialTradingAccount(
     override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             tradingService.getBalanceFor(currency),
-            exchangeRates.exchangeRateToUserFiat(currency, FreshnessStrategy.Cached(false))
+            exchangeRates.exchangeRateToUserFiat(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
             AccountBalance(

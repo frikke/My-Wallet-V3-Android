@@ -2,6 +2,7 @@ package com.blockchain.core.price.historic
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
@@ -26,7 +27,7 @@ class HistoricRateFetcher internal constructor(
                     assetTicker = asset.networkTicker,
                     requestedTimestamp = timestampMs,
                 ),
-                false
+                RefreshStrategy.RefreshIfStale
             )
         ).mapData {
             ExchangeRate(

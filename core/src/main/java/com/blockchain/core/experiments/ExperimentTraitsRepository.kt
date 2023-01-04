@@ -4,6 +4,7 @@ import com.blockchain.analytics.TraitsService
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -17,7 +18,7 @@ class ExperimentTraitsRepository(
     override suspend fun traits(): Map<String, String> = getExperiments()
 
     private suspend fun getExperiments(): Map<String, String> {
-        return experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        return experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .filter { it !is DataResource.Loading }
             .map { dataResourceMap ->
                 when (dataResourceMap) {

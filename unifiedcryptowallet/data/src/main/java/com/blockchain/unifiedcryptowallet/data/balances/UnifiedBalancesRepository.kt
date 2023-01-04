@@ -7,6 +7,7 @@ import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.preferences.CurrencyPrefs
@@ -45,30 +46,31 @@ internal class UnifiedBalancesRepository(
             }
             subscribe(pubKeys)
             emitAll(
-                unifiedBalancesStore.stream(FreshnessStrategy.Cached(true)).mapData { response ->
-                    response.balances.filter {
-                        if (wallet == null) true
-                        else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
-                            it.account.name == wallet.label
-                    }.mapNotNull {
-                        if (it.price == null) return@mapNotNull null
-                        val cc = assetCatalogue.fromNetworkTicker(it.currency)
-                        NetworkBalance(
-                            currency = cc ?: return@mapNotNull null,
-                            balance = it.balance?.amount?.let { amount ->
-                                Money.fromMinor(cc, amount)
-                            } ?: return@mapNotNull null,
-                            unconfirmedBalance = it.pending?.amount?.let { amount ->
-                                Money.fromMinor(cc, amount)
-                            } ?: return@mapNotNull null,
-                            exchangeRate = ExchangeRate(
-                                from = cc,
-                                to = currencyPrefs.selectedFiatCurrency,
-                                rate = it.price
+                unifiedBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+                    .mapData { response ->
+                        response.balances.filter {
+                            if (wallet == null) true
+                            else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
+                                it.account.name == wallet.label
+                        }.mapNotNull {
+                            if (it.price == null) return@mapNotNull null
+                            val cc = assetCatalogue.fromNetworkTicker(it.currency)
+                            NetworkBalance(
+                                currency = cc ?: return@mapNotNull null,
+                                balance = it.balance?.amount?.let { amount ->
+                                    Money.fromMinor(cc, amount)
+                                } ?: return@mapNotNull null,
+                                unconfirmedBalance = it.pending?.amount?.let { amount ->
+                                    Money.fromMinor(cc, amount)
+                                } ?: return@mapNotNull null,
+                                exchangeRate = ExchangeRate(
+                                    from = cc,
+                                    to = currencyPrefs.selectedFiatCurrency,
+                                    rate = it.price
+                                )
                             )
-                        )
+                        }
                     }
-                }
             )
         }
     }
@@ -110,8 +112,9 @@ internal class UnifiedBalancesRepository(
                 }.sortedBy { it.pubKey }
             )
         }.sortedBy { it.currency }
-        return unifiedBalancesSubscribeStore.stream(FreshnessStrategy.Cached(false).withKey(subscriptions))
-            .firstOutcome()
+        return unifiedBalancesSubscribeStore.stream(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(subscriptions)
+        ).firstOutcome()
             .getOrThrow()
     }
 }

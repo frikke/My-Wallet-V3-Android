@@ -11,6 +11,7 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -219,7 +220,7 @@ class NabuUserIdentityTest {
 
     @Test
     fun `user is SSO`() {
-        whenever(userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))).thenReturn(
+        whenever(userService.getUserFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))).thenReturn(
             flowOf(getBlankNabuUser().copy(unifiedAccountWalletGuid = "unifiedAccountWalletGuid"))
         )
 
@@ -230,7 +231,7 @@ class NabuUserIdentityTest {
 
     @Test
     fun `user is not SSO`() {
-        whenever(userService.getUserFlow(FreshnessStrategy.Cached(forceRefresh = false))).thenReturn(
+        whenever(userService.getUserFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))).thenReturn(
             flowOf(getBlankNabuUser().copy(unifiedAccountWalletGuid = null))
         )
 

@@ -11,6 +11,7 @@ import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
@@ -53,7 +54,8 @@ internal class ExchangeRatesDataManagerImpl(
         fiat: Currency
     ): Single<AssetPriceRecord> =
         rxSingleOutcome {
-            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Cached(false)).firstOutcome()
+            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .firstOutcome()
         }
 
     override fun exchangeRate(
@@ -82,7 +84,7 @@ internal class ExchangeRatesDataManagerImpl(
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
-        return priceStore.getCurrentPriceForAsset(base, quote, FreshnessStrategy.Cached(forceRefresh = true))
+        return priceStore.getCurrentPriceForAsset(base, quote, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
             .asObservable().map {
                 ExchangeRate(
                     from = base,

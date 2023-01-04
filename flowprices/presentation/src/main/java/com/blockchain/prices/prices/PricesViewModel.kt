@@ -180,7 +180,7 @@ class PricesViewModel(
         //                exchangeRatesDataManager
         //                    .getPricesWith24hDelta(
         //                        assetInfo,
-        //                        FreshnessStrategy.Cached(forceRefresh = false)
+        //                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         //                    )
         //                    .filterNotLoading()
         //                    .map { priceDataResource ->

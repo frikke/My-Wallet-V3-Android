@@ -4,6 +4,7 @@ import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBu
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -19,7 +20,7 @@ interface TradeDataService {
 
     fun getRecurringBuysForAsset(
         asset: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<List<RecurringBuy>>>
 
     fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>

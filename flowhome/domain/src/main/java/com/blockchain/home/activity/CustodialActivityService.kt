@@ -3,15 +3,16 @@ package com.blockchain.home.activity
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import kotlinx.coroutines.flow.Flow
 
 interface CustodialActivityService {
     fun getAllActivity(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<List<ActivitySummaryItem>>>
 
     fun getActivity(
         id: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ActivitySummaryItem>>
 }

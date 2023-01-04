@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.common.model.StateIso
 import com.blockchain.nabu.api.getuser.data.GetUserStore
@@ -68,7 +69,7 @@ class KycProfileModel(
         isCowboysUser = args.isCowboysUser
 
         viewModelScope.launch {
-            userService.getUserFlow(refreshStrategy = FreshnessStrategy.Cached(false))
+            userService.getUserFlow(refreshStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
                 // TODO(aromano): remove mapping once UserService returns DataResources
                 .map { DataResource.Data(it) as DataResource<NabuUser> }
                 .catch { emit(DataResource.Error(it as Exception)) }

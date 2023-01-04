@@ -14,6 +14,7 @@ import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.Logger
 import com.blockchain.store.asObservable
@@ -91,7 +92,7 @@ interface Erc20DataManager {
     // todo(othman) remove and use Erc20Service instead - will eventually contain all erc20 operations
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
     fun getActiveAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<Set<AssetInfo>>
 
     fun getSupportedNetworks(): Single<Set<EvmNetwork>>
@@ -139,7 +140,8 @@ internal class Erc20DataManagerImpl(
                     evmNetwork.networkTicker == (asset.l1chainTicker ?: asset.networkTicker)
                 }?.let { evmNetwork ->
                     l1BalanceStore.stream(
-                        FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(evmNetwork.nodeUrl))
+                        FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                            .withKey(L1BalanceStore.Key(evmNetwork.nodeUrl))
                     ).mapData { balance ->
                         CryptoValue(l1Asset, balance)
                     }.asSingle()
@@ -159,7 +161,7 @@ internal class Erc20DataManagerImpl(
                         // the balances of the other tokens on that network if the native token balance is positive.
                         l1BalanceStore
                             .stream(
-                                FreshnessStrategy.Cached(forceRefresh = true)
+                                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                                     .withKey(L1BalanceStore.Key(evmNetwork.nodeUrl))
                             )
                             .mapData { balance -> Pair(evmNetwork, balance) }

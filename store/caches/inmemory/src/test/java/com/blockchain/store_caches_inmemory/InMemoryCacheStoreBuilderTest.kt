@@ -1,6 +1,7 @@
 package com.blockchain.store_caches_inmemory
 
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
@@ -34,7 +35,7 @@ class InMemoryCacheStoreBuilderTest {
                     override fun shouldFetch(cachedData: CachedData<Unit, Item>?): Boolean = false
                 }
             )
-            val result = store2.stream(FreshnessStrategy.Cached(false)).firstOutcome()
+            val result = store2.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).firstOutcome()
             assertTrue(result is Outcome.Success && result.value == cachedItem)
         }
 }

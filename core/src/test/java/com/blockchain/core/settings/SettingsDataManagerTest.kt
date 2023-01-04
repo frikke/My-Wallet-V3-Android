@@ -4,6 +4,7 @@ import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.RxTest
 import com.nhaarman.mockitokotlin2.mock
@@ -62,11 +63,11 @@ class SettingsDataManagerTest : RxTest() {
     @Test
     fun getSettings() {
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsStore.stream(FreshnessStrategy.Cached(false))).thenReturn(flowOf(DataResource.Data(mockSettings)))
+        whenever(settingsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.getSettings().test()
         // Assert
-        verify(settingsStore).stream(FreshnessStrategy.Cached(false))
+        verify(settingsStore).stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()

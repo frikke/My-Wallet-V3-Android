@@ -6,6 +6,7 @@ import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
@@ -213,7 +214,7 @@ internal class NabuDataManagerImpl(
 
     // TODO(aromano): move these to KycService once Othman's PR is merged and remove NabuDataManager dependency on UserService
     override fun submitVeriffVerification(): Completable =
-        userService.getUserFlow(FreshnessStrategy.Cached(false))
+        userService.getUserFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .asObservable()
             .firstOrError()
             .flatMapCompletable { user ->

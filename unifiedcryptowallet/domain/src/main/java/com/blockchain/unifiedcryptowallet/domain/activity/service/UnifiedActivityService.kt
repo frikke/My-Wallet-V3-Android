@@ -2,6 +2,7 @@ package com.blockchain.unifiedcryptowallet.domain.activity.service
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +20,7 @@ interface UnifiedActivityService {
         pubKey: String,
         locales: String,
         timeZone: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ActivityDetailGroups>>
 
     fun clearCache()

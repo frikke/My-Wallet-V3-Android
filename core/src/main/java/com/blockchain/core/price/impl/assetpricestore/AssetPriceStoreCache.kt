@@ -7,6 +7,7 @@ import com.blockchain.core.price.impl.getStartTimeForTimeSpan
 import com.blockchain.core.price.impl.suggestTimescaleInterval
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.toMillis
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
@@ -28,7 +29,7 @@ internal class AssetPriceStoreCache(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome { key ->
         supportedTickersStore
-            .stream(FreshnessStrategy.Cached(false))
+            .stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .flatMap { supportedTickers ->
                 when (key) {

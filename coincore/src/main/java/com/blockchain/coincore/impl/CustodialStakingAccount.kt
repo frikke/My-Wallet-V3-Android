@@ -19,6 +19,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.domain.models.staking.StakingActivity
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.earn.domain.service.StakingService
@@ -99,7 +100,7 @@ class CustodialStakingAccount(
         get() = Observable.combineLatest(
             stakingService.getBalanceForAsset(
                 currency = currency,
-                refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+                refreshStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
             ).asObservable(),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
@@ -115,7 +116,7 @@ class CustodialStakingAccount(
     override val activity: Single<ActivitySummaryList>
         get() = stakingService.getActivity(
             asset = currency,
-            refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+            refreshStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).asSingle()
             .onErrorReturn { emptyList() }
             .mapList { stakingActivity ->

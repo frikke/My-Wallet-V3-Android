@@ -1,6 +1,7 @@
 package com.blockchain.nabu.api.getuser.domain
 
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,6 @@ interface UserService {
     fun getUser(): Single<NabuUser>
 
     fun getUserFlow(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<NabuUser>
 }

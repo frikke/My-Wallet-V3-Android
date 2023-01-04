@@ -11,6 +11,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.safeLet
@@ -110,7 +111,7 @@ class SimpleBuyRepository(
         return buyOrdersStore.stream(
             request = KeyedFreshnessStrategy.Cached(
                 key = BuyOrdersStore.Key(pendingOnly = pendingOnly),
-                forceRefresh = true
+                refreshStrategy = RefreshStrategy.ForceRefresh
             )
         ).mapData {
             if (shouldFilterInvalid) {
@@ -135,7 +136,7 @@ class SimpleBuyRepository(
     }
 
     override fun swapOrders(): Flow<DataResource<List<CustodialOrder>>> {
-        return swapOrdersStore.stream(FreshnessStrategy.Cached(forceRefresh = true))
+        return swapOrdersStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
             .mapData { response ->
                 response.mapNotNull { orderResp ->
                     val currencyPair = CurrencyPair.fromRawPair(orderResp.pair, assetCatalogue)

@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.doOnData
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
@@ -131,7 +132,7 @@ class EarnViewModel(
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
                     fromAsset = asset,
-                    freshnessStrategy = FreshnessStrategy.Cached(false)
+                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 ).mapData { exchangeRate ->
                     EarnAsset(
                         currency = asset,
@@ -154,7 +155,7 @@ class EarnViewModel(
                 val prices = interest.keys.map { asset ->
                     exchangeRates.exchangeRateToUserFiatFlow(
                         fromAsset = asset,
-                        freshnessStrategy = FreshnessStrategy.Cached(false)
+                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                     ).mapData { exchangeRate ->
                         EarnAsset(
                             currency = asset,

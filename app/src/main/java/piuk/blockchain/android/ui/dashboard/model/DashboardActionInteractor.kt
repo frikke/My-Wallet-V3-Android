@@ -25,6 +25,7 @@ import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -245,21 +246,22 @@ class DashboardActionInteractor(
             walletModeBalanceCache.stream(
                 request = KeyedFreshnessStrategy.Cached(
                     key = WalletMode.NON_CUSTODIAL_ONLY,
-                    forceRefresh = false
+                    refreshStrategy = RefreshStrategy.RefreshIfStale
                 )
             ).asObservable().emptySubscribe(),
 
             walletModeBalanceCache.stream(
                 request = KeyedFreshnessStrategy.Cached(
                     key = WalletMode.CUSTODIAL_ONLY,
-                    forceRefresh = false
+                    refreshStrategy = RefreshStrategy.RefreshIfStale
                 )
             ).asObservable().emptySubscribe()
         )
     }
 
     private fun warmProductsCache(): Disposable {
-        return productsEligibilityStore.stream(FreshnessStrategy.Cached(true)).asSingle().emptySubscribe()
+        return productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+            .asSingle().emptySubscribe()
     }
 
     private fun loadBalances(

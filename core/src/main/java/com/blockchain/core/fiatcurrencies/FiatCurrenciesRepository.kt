@@ -3,6 +3,7 @@ package com.blockchain.core.fiatcurrencies
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.api.getuser.data.GetUserStore
@@ -33,8 +34,9 @@ internal class FiatCurrenciesRepository(
         get() = currencyPrefs.tradingCurrency
             ?: throw UninitializedPropertyAccessException("Should have been initialized at app startup")
 
-    override suspend fun getTradingCurrencies(fresh: Boolean): Outcome<Exception, TradingCurrencies> =
-        getUserStore.stream(FreshnessStrategy.Cached(forceRefresh = fresh)).firstOutcome()
+    override suspend fun getTradingCurrencies(fresh: Boolean): Outcome<Exception, TradingCurrencies> {
+        val refreshStrategy = if (fresh) RefreshStrategy.ForceRefresh else RefreshStrategy.RefreshIfStale
+        return getUserStore.stream(FreshnessStrategy.Cached(refreshStrategy)).firstOutcome()
             .map { user ->
                 TradingCurrencies(
                     selected = assetCatalogue.fiatFromNetworkTicker(user.currencies.preferredFiatTradingCurrency)
@@ -50,6 +52,7 @@ internal class FiatCurrenciesRepository(
                     currencyPrefs.tradingCurrency = it.selected
                 }
             }
+    }
 
     override fun getTradingCurrenciesFlow(): Flow<TradingCurrencies> {
         return userService.getUserFlow()

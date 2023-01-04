@@ -7,6 +7,7 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDe
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
@@ -16,7 +17,7 @@ import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
     fun getSubscriptions(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<Outcome<Exception, List<String>>>
 
     suspend fun getCoinTypeFor(currency: Currency): CoinType?

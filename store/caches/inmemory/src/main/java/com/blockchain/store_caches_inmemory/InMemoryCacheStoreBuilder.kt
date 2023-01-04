@@ -33,7 +33,7 @@ class InMemoryCacheStoreBuilder {
         override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(
             when (request) {
                 FreshnessStrategy.Fresh -> KeyedFreshnessStrategy.Fresh(Unit)
-                is FreshnessStrategy.Cached -> KeyedFreshnessStrategy.Cached(Unit, request.forceRefresh)
+                is FreshnessStrategy.Cached -> KeyedFreshnessStrategy.Cached(Unit, request.refreshStrategy)
             }
         )
 

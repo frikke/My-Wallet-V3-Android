@@ -5,6 +5,7 @@ import com.blockchain.coincore.total
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -24,7 +25,7 @@ class WalletModeBalanceRepository(
 ) : WalletModeBalanceService {
 
     override fun balanceFor(walletMode: WalletMode): Flow<DataResource<Money>> {
-        return getBalance(walletMode, FreshnessStrategy.Cached(forceRefresh = false))
+        return getBalance(walletMode, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
     }
 
     override fun totalBalance(): Flow<DataResource<Money>> {

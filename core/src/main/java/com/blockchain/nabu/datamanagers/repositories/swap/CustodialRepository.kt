@@ -1,6 +1,7 @@
 package com.blockchain.nabu.datamanagers.repositories.swap
 
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.TransferDirection
@@ -22,7 +23,7 @@ class CustodialRepository(
 ) {
 
     fun getSwapAvailablePairs(): Single<List<CurrencyPair>> =
-        pairsStore.stream(FreshnessStrategy.Cached(true))
+        pairsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
             .mapData { pairList ->
                 pairList.mapNotNull { pair ->
                     val parts = pair.split("-")
@@ -40,7 +41,7 @@ class CustodialRepository(
     ): Single<List<TradeTransactionItem>> =
 
         swapActivityStore.stream(
-            FreshnessStrategy.Cached(forceRefresh = true)
+            FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
         )
             .mapData { response ->
                 response.mapNotNull {

@@ -2,6 +2,7 @@ package com.blockchain.domain.paymentmethods
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
@@ -23,7 +24,7 @@ import kotlinx.coroutines.flow.Flow
 interface BankService {
     fun getWithdrawalLocks(
         localCurrency: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<FundsLocks>>
 
     @Deprecated("use flow getLinkedBank")
@@ -31,7 +32,7 @@ interface BankService {
 
     fun getLinkedBank(
         id: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
     ): Flow<DataResource<LinkedBank>>
 
     fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>>

@@ -15,6 +15,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.earn.domain.models.staking.StakingRates
@@ -83,7 +84,7 @@ class LoadAssetAccountsUseCase(
             accountsFlow,
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(
                 asset.currency,
-                freshnessStrategy = FreshnessStrategy.Cached(false)
+                freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
             ),
             interestFlow,
             stakingFlow

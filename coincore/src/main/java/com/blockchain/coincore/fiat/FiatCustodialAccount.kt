@@ -19,6 +19,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -96,7 +97,7 @@ import kotlinx.coroutines.flow.catch
 
     override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
         simpleBuyService.getFiatTransactions(
-            FreshnessStrategy.Cached(forceRefresh = false),
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale),
             fiatCurrency = currency,
             product = Product.BUY
         )

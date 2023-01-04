@@ -11,6 +11,7 @@ import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
@@ -57,7 +58,7 @@ class SellRepository(
     fun sellEligibility(): Flow<DataResource<SellEligibility>> =
         userFeaturePermissionService.getAccessForFeature(
             feature = Feature.Sell,
-            freshnessStrategy = FreshnessStrategy.Cached(true)
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
         ).flatMapData { data ->
             checkUserEligibilityStatus(data)
         }.onEach {

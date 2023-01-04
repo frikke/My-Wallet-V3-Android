@@ -3,6 +3,7 @@ package com.blockchain.coreandroid.remoteconfig
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.mockk.coEvery
@@ -45,7 +46,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-1" to 1)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val default = "WEEKLY"
         val result = remoteConfigRepository.deepMap(experimentJsonNoKey)
@@ -57,7 +58,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-1" to 1)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val error = NoSuchElementException()
         val result = remoteConfigRepository.deepMap(experimentJsonNoKeyNoDefault)
@@ -69,7 +70,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-1" to 1, "experiment-2" to 0)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val toReturn = mapOf(
             "title" to "Cowboys Promotion",
@@ -85,7 +86,7 @@ import org.junit.Test
             val mapReturned = mapOf("experiment-1" to 13)
             val flowResult = flowOf(DataResource.Data(mapReturned))
             coEvery {
-                experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+                experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             } returns flowResult
             val error = NoSuchElementException()
             val result = remoteConfigRepository.deepMap(experimentJsonKeys)
@@ -99,7 +100,7 @@ import org.junit.Test
 
             val flowResult = flowOf(DataResource.Data(mapReturned))
             coEvery {
-                experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+                experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             } returns flowResult
             val toReturn = mapOf(
                 "title" to "Cowboys promo",
@@ -114,7 +115,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-2" to 1)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJson)
         assert(result.toString() == "BIWEEKLY")
@@ -125,7 +126,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-2" to 56)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val default = "WEEKLY"
         val result = remoteConfigRepository.deepMap(experimentJson)
@@ -137,7 +138,7 @@ import org.junit.Test
         val mapReturned = mapOf("experiment-2" to 5)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val error = NoSuchElementException()
         val result = remoteConfigRepository.deepMap(experimentJsonNoDefault)
@@ -149,7 +150,7 @@ import org.junit.Test
         val flowResult = flowOf(DataResource.Error(Exception()))
 
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
 
         val default = "WEEKLY"
@@ -161,7 +162,7 @@ import org.junit.Test
     fun `GIVEN deepMap for key WHEN Data is error and default doesn't exist THEN returns throw error`() = runTest {
         val flowResult = flowOf(DataResource.Error(Exception()))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val error = NoSuchElementException()
         val result = remoteConfigRepository.deepMap(experimentJsonNoDefault)
@@ -173,7 +174,7 @@ import org.junit.Test
         val mapReturned = emptyMap<String, Int>()
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKey)
         val default = "WEEKLY"
@@ -185,7 +186,7 @@ import org.junit.Test
         val mapReturned = emptyMap<String, Int>()
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKeyMap)
         val mapDefault = mapOf("algo" to "something")
@@ -197,7 +198,7 @@ import org.junit.Test
         val mapReturned = emptyMap<String, Int>()
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
-            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKeyArray)
         val defaultArray = listOf("one", "two", "three")

@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.doOnData
 import com.blockchain.domain.eligibility.model.StakingEligibility
@@ -198,7 +199,7 @@ class EarnDashboardViewModel(
             } else {
                 custodialWalletManager.isCurrencyAvailableForTrading(
                     assetInfo = currency as AssetInfo,
-                    freshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 ).filterNotLoading()
                     .doOnData { availableToBuy ->
                         navigate(

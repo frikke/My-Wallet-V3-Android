@@ -14,6 +14,7 @@ import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
@@ -65,7 +66,7 @@ class Coincore internal constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getWithdrawalLocks(
         localCurrency: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<FundsLocks?>> {
         return walletModeService.walletMode.flatMapLatest { walletMode ->
             when (walletMode) {

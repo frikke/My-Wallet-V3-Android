@@ -9,6 +9,7 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -115,11 +116,12 @@ internal class InterestRepository(
     }
 
     override fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>> {
-        return interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(false)).mapData { response ->
-            response.networkTickers.mapNotNull { networkTicker ->
-                assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
+        return interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            .mapData { response ->
+                response.networkTickers.mapNotNull { networkTicker ->
+                    assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
+                }
             }
-        }
     }
 
     override fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean> {
