@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.account
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -36,9 +35,7 @@ class AccountInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val exchangeLinkingState: ExchangeLinking = mock()
-    private val blockchainCardRepository: BlockchainCardRepository = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
-    private val blockchainCardFF: FeatureFlag = mock()
     private val dustBalancesFF: FeatureFlag = mock()
 
     @Suppress("unused")
@@ -56,9 +53,7 @@ class AccountInteractorTest {
             currencyPrefs = currencyPrefs,
             fiatCurrenciesService = fiatCurrenciesService,
             exchangeLinkingState = exchangeLinkingState,
-            blockchainCardRepository = blockchainCardRepository,
             localSettingsPrefs = localSettingsPrefs,
-            blockchainCardFF = blockchainCardFF,
             dustBalancesFF = dustBalancesFF
         )
     }

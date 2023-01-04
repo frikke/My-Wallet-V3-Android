@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.ContactPreference
-import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -24,7 +22,6 @@ import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.blockchaincard.BlockchainCardActivity
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
@@ -186,21 +183,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToBlockchainCard(
-        cardProducts: List<BlockchainCardProduct>,
-        cards: List<BlockchainCard>,
-        defaultCard: BlockchainCard?
-    ) {
-        startActivity(
-            BlockchainCardActivity.newIntent(
-                context = this,
-                blockchainCardProducts = cardProducts,
-                blockchainCards = cards,
-                preselectedCard = defaultCard
-            )
-        )
-    }
-
     override fun goToReferralCode() {
         showBottomSheet(ReferralSheet.newInstance())
     }
@@ -257,12 +239,6 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToBlockchainCard(
-        cardProducts: List<BlockchainCardProduct>,
-        cards: List<BlockchainCard>,
-        defaultCard: BlockchainCard? = null
-    )
-
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
     fun goToReferralCode()
     fun goToGeneralSettings()

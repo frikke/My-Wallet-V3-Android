@@ -16,8 +16,6 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.blockchainCard.BlockchainCardApi
-import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
@@ -53,7 +51,6 @@ import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
-import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DataRemediationApiService
@@ -110,7 +107,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
-import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
@@ -413,24 +409,9 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(BlockchainCardApi::class.java)
-        BlockchainCardService(
-            api,
-            get()
-        )
-    }
-
-    factory {
         val api = get<Retrofit>(nabuApi).create(FraudApi::class.java)
         FraudRemoteService(api)
     }
-
-    factory {
-        object : WalletHelperUrl {
-            override val url: String
-                get() = getProperty("wallet-helper-url")
-        }
-    }.bind(WalletHelperUrl::class)
 
     factory {
         val api = get<Retrofit>(nabuApi).create(ReferralApi::class.java)

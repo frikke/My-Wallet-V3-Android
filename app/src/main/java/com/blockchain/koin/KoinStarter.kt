@@ -5,7 +5,6 @@ import com.blockchain.addressverification.koin.addressVerificationModule
 import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
-import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.chrome.multiAppModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.common.util.commonMpUtilsModule
@@ -161,7 +160,6 @@ object KoinStarter {
                     customerSupportModule,
                     storeCachesInMemoryModule,
                     storePersistersJsonSqlDelightModule,
-                    blockchainCardModule,
                     googlePayPresentationModule,
                     interestDashboardDomainModule, interestDashboardPresentationModule,
                     addressVerificationModule,

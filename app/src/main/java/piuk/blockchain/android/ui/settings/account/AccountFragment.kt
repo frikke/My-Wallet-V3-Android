@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
@@ -189,42 +188,9 @@ class AccountFragment :
             settingsChartDiv.visibleIf { !newState.featureFlagSet.dustBalancesFF }
         }
 
-        renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
         renderReferral(newState.referralInfo)
     }
-
-    private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
-        with(binding.settingsDebitCard) {
-            when (blockchainCardOrderState) {
-                is BlockchainCardOrderState.NotEligible -> {
-                    // Do nothing
-                }
-                is BlockchainCardOrderState.Eligible -> {
-                    visibility = VISIBLE
-                    secondaryText = null
-                    tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
-                    onClick = {
-                        navigator().goToBlockchainCard(
-                            cardProducts = blockchainCardOrderState.cardProducts,
-                            cards = emptyList()
-                        )
-                    }
-                }
-                is BlockchainCardOrderState.Ordered -> {
-                    visibility = VISIBLE
-                    secondaryText = null
-                    tags = null
-                    onClick = {
-                        navigator().goToBlockchainCard(
-                            cardProducts = blockchainCardOrderState.cardProducts,
-                            cards = blockchainCardOrderState.cards,
-                            defaultCard = blockchainCardOrderState.defaultCard
-                        )
-                    }
-                }
-            }
-        }
 
     private fun renderReferral(referralInfo: ReferralInfo) {
         with(binding) {
@@ -250,9 +216,6 @@ class AccountFragment :
             }
             AccountError.ACCOUNT_FIAT_UPDATE_FAIL -> {
                 showErrorSnackbar(R.string.account_fiat_update_error)
-            }
-            AccountError.BLOCKCHAIN_CARD_LOAD_FAIL -> {
-                showErrorSnackbar(R.string.account_load_bc_card_error)
             }
             AccountError.NONE -> {
                 // do nothing

@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.blockchaincard.R
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
@@ -27,6 +26,7 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
+import piuk.blockchain.android.R
 
 class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
 

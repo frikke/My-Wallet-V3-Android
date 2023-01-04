@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings
 
-import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
@@ -193,12 +192,10 @@ val redesignSettingsModule = module {
             AccountInteractor(
                 settingsDataManager = get(),
                 exchangeRates = get(),
-                blockchainCardRepository = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
                 localSettingsPrefs = get(),
                 fiatCurrenciesService = get(),
-                blockchainCardFF = get(blockchainCardFeatureFlag),
                 dustBalancesFF = get(hideDustFeatureFlag)
             )
         }

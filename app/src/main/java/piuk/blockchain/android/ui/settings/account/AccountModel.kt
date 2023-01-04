@@ -4,7 +4,6 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -39,19 +38,6 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_INFO_FAIL))
                     }
                 )
-            is AccountIntent.LoadBCDebitCardInformation -> {
-                rxSingleOutcome {
-                    interactor.getDebitCardState()
-                }.subscribeBy(
-                    onSuccess = {
-                        process(AccountIntent.UpdateBlockchainCardOrderState(it))
-                    },
-                    onError = {
-                        Timber.e(it)
-                        process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
-                    }
-                )
-            }
             is AccountIntent.LoadDisplayCurrencies -> interactor.getAvailableDisplayCurrencies()
                 .subscribeBy(
                     onSuccess = { list ->
@@ -141,15 +127,11 @@ class AccountModel(
                     .subscribeBy(
                         onSuccess = { set ->
                             process(AccountIntent.UpdateFeatureFlagSet(set))
-                            if (set.blockchainCardFF) {
-                                process(AccountIntent.LoadBCDebitCardInformation)
-                            }
                         },
                         onError = {
                             process(
                                 AccountIntent.UpdateFeatureFlagSet(
                                     FeatureFlagSet(
-                                        blockchainCardFF = false,
                                         dustBalancesFF = false
                                     )
                                 )
@@ -161,7 +143,6 @@ class AccountModel(
             is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateErrorState,
             is AccountIntent.ResetViewState,
-            is AccountIntent.UpdateViewToLaunch,
-            is AccountIntent.UpdateBlockchainCardOrderState -> null
+            is AccountIntent.UpdateViewToLaunch -> null
         }.exhaustive
 }

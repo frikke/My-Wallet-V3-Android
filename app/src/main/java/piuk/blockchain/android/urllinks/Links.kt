@@ -79,8 +79,6 @@ const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/ar
 
 const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"
 
-const val URL_JOIN_BLOCKCHAIN_CARD_WAITLIST = "https://www.blockchain.com/card"
-
 const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 
 const val EXCHANGE_DYNAMIC_LINK = "https://blockchainexchange.page.link/exchange"

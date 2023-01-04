@@ -9,7 +9,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.BlockchainCardWaitlistAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.ExchangeCampaignAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
@@ -282,13 +281,6 @@ val dashboardAnnouncementsModule = module {
             HideDustAnnouncement(
                 dismissRecorder = get(),
                 announcementQueries = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            BlockchainCardWaitlistAnnouncement(
-                announcementQueries = get(),
-                dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
     }

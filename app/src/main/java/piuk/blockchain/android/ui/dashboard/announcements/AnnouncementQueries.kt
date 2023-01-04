@@ -186,21 +186,11 @@ class AnnouncementQueries(
             }
         }
 
-    fun isBlockchainCardAvailable(): Single<Boolean> =
-        remoteConfigService.getRawJson(BLOCKCHAIN_CARD_ELIGIBLE_COUNTRIES).flatMap { json ->
-            val eligibleCountries = Json.decodeFromString<List<String>>(json)
-            getCountryCode().map { countryCode ->
-                eligibleCountries.contains(countryCode)
-            }
-        }
-
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val NEW_ASSET_TICKER = "new_asset_announcement_ticker"
 
         private const val RENAME_ASSET_TICKER = "rename_asset_announcement_ticker"
-
-        private const val BLOCKCHAIN_CARD_ELIGIBLE_COUNTRIES = "blockchain_card_eligible_countries"
     }
 }
 

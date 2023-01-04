@@ -17,10 +17,6 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadBCDebitCardInformation : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
     object ResetViewState : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
             viewToLaunch = ViewToLaunch.None
@@ -63,13 +59,6 @@ sealed class AccountIntent : MviIntent<AccountState> {
 
     class UpdateSelectedTradingCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
-    class UpdateBlockchainCardOrderState(private val blockchainCardOrderState: BlockchainCardOrderState) :
-        AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
-            blockchainCardOrderState = blockchainCardOrderState
-        )
     }
 
     object LoadFeatureFlags : AccountIntent() {
