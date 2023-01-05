@@ -72,7 +72,10 @@ fun SelectedFilter(text: String) {
             .background(
                 AppTheme.colors.primary
             )
-            .padding(horizontal = AppTheme.dimensions.tinySpacing, vertical = AppTheme.dimensions.smallestSpacing)
+            .padding(
+                horizontal = AppTheme.dimensions.tinySpacing,
+                vertical = AppTheme.dimensions.smallestSpacing
+            )
             .clickable(
                 onClick = {}
             ),
@@ -93,10 +96,11 @@ fun UnSelectedFilter(item: LabeledFilterState, selectedItem: MutableState<Labele
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(size = dimensionResource(R.dimen.small_spacing)))
-            .background(
-                AppTheme.colors.light
+            .background(Color.White)
+            .padding(
+                horizontal = AppTheme.dimensions.verySmallSpacing,
+                vertical = AppTheme.dimensions.smallestSpacing
             )
-            .padding(horizontal = AppTheme.dimensions.verySmallSpacing, vertical = AppTheme.dimensions.smallestSpacing)
             .clickable(
                 onClick = {
                     item.onSelected()

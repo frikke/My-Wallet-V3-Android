@@ -143,38 +143,55 @@ class EarnDashboardViewModel(
         discoverTabQueryBy: String
     ): DashboardState =
         when {
-            // TODO(dserrano) add isLoading && earnData != null
+            isLoading && earnData != null -> earnData.loadEarn(
+                earningTabFilterBy,
+                earningTabQueryBy,
+                discoverTabFilterBy,
+                discoverTabQueryBy
+            )
             isLoading -> DashboardState.Loading
             error != EarnDashboardError.None -> DashboardState.ShowError(error)
-            else -> earnData?.let { data ->
-                val hasStakingBalance =
-                    data.stakingBalancesWithFiat.values.any { it.stakingCryptoBalances.totalBalance.isPositive }
-                val hasInterestBalance =
-                    data.interestBalancesWithFiat.values.any { it.interestCryptoBalances.totalBalance.isPositive }
-
-                if (data.interestFeatureAccess !is FeatureAccess.Granted && !hasInterestBalance &&
-                    data.stakingFeatureAccess !is FeatureAccess.Granted && !hasStakingBalance
-                ) {
-                    return DashboardState.ShowKyc
-                }
-
-                return if (hasStakingBalance || hasInterestBalance) {
-                    splitEarningAndDiscoverData(
-                        data = data,
-                        earningTabFilterBy = earningTabFilterBy,
-                        earningTabQueryBy = earningTabQueryBy,
-                        discoverTabFilterBy = discoverTabFilterBy,
-                        discoverTabQueryBy = discoverTabQueryBy
-                    )
-                } else {
-                    buildDiscoverList(
-                        data = data,
-                        discoverTabFilterBy = discoverTabFilterBy,
-                        discoverTabQueryBy = discoverTabQueryBy
-                    )
-                }
-            } ?: DashboardState.Loading
+            else -> earnData?.loadEarn(
+                earningTabFilterBy,
+                earningTabQueryBy,
+                discoverTabFilterBy,
+                discoverTabQueryBy
+            ) ?: DashboardState.Loading
         }
+
+    private fun CombinedEarnData.loadEarn(
+        earningTabFilterBy: EarnDashboardListFilter,
+        earningTabQueryBy: String,
+        discoverTabFilterBy: EarnDashboardListFilter,
+        discoverTabQueryBy: String
+    ): DashboardState {
+        val hasStakingBalance =
+            stakingBalancesWithFiat.values.any { it.stakingCryptoBalances.totalBalance.isPositive }
+        val hasInterestBalance =
+            interestBalancesWithFiat.values.any { it.interestCryptoBalances.totalBalance.isPositive }
+
+        if (interestFeatureAccess !is FeatureAccess.Granted && !hasInterestBalance &&
+            stakingFeatureAccess !is FeatureAccess.Granted && !hasStakingBalance
+        ) {
+            return DashboardState.ShowKyc
+        }
+
+        return if (hasStakingBalance || hasInterestBalance) {
+            splitEarningAndDiscoverData(
+                data = this,
+                earningTabFilterBy = earningTabFilterBy,
+                earningTabQueryBy = earningTabQueryBy,
+                discoverTabFilterBy = discoverTabFilterBy,
+                discoverTabQueryBy = discoverTabQueryBy
+            )
+        } else {
+            buildDiscoverList(
+                data = this,
+                discoverTabFilterBy = discoverTabFilterBy,
+                discoverTabQueryBy = discoverTabQueryBy
+            )
+        }
+    }
 
     private suspend fun showAcquireOrSummaryForEarnType(earnType: EarnType, assetTicker: String) {
         assetCatalogue.fromNetworkTicker(assetTicker)?.let { currency ->
@@ -233,7 +250,6 @@ class EarnDashboardViewModel(
     ): DashboardState.OnlyDiscover {
         val discoverList = mutableListOf<EarnAsset>()
         data.stakingEligibility.map { (asset, eligibility) ->
-            //   data.stakingBalancesWithFiat[asset]?.let {
             discoverList.add(
                 asset.createStakingAsset(
                     stakingBalancesWithFiat = StakingBalancesWithFiat(
@@ -243,11 +259,9 @@ class EarnDashboardViewModel(
                     eligibility = eligibility
                 )
             )
-            // }
         }
 
         data.interestEligibility.map { (asset, eligibility) ->
-            //   data.interestBalancesWithFiat[asset]?.let {
             discoverList.add(
                 asset.createPassiveAsset(
                     interestBalancesWithFiat = InterestBalancesWithFiat(
@@ -257,7 +271,6 @@ class EarnDashboardViewModel(
                     eligibility = eligibility
                 )
             )
-            //  }
         }
 
         return DashboardState.OnlyDiscover(
