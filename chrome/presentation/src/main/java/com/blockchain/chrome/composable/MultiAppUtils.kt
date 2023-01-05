@@ -12,21 +12,21 @@ val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
 
 @StringRes
 fun WalletMode.titleSuperApp(): Int = when (this) {
-    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage_wallet_name_superapp
-    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name_superapp
+    WalletMode.CUSTODIAL -> R.string.brokerage_wallet_name_superapp
+    WalletMode.NON_CUSTODIAL -> R.string.defi_wallet_name_superapp
 }
 
 fun WalletMode.titleIcon(): ImageResource = when (this) {
-    WalletMode.CUSTODIAL_ONLY -> ImageResource.Local(R.drawable.ic_brokerage_logo)
-    WalletMode.NON_CUSTODIAL_ONLY -> ImageResource.None
+    WalletMode.CUSTODIAL -> ImageResource.Local(R.drawable.ic_brokerage_logo)
+    WalletMode.NON_CUSTODIAL -> ImageResource.None
 }
 
 fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when (this) {
-    WalletMode.CUSTODIAL_ONLY -> listOf(
+    WalletMode.CUSTODIAL -> listOf(
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
     )
-    WalletMode.NON_CUSTODIAL_ONLY -> listOf(
+    WalletMode.NON_CUSTODIAL -> listOf(
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
     )

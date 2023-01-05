@@ -30,7 +30,7 @@ class CustodialActivityViewModel(
     ActivityViewState,
     ActivityModelState<ActivitySummaryItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL_ONLY)) {
+    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 

@@ -33,7 +33,7 @@ class EmptyScreenViewModel(
     initialState = EmptyScreenModelState(
         hasActivity = DataResource.Loading,
         hasAssets = DataResource.Loading,
-        walletMode = WalletMode.CUSTODIAL_ONLY
+        walletMode = WalletMode.CUSTODIAL
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -60,8 +60,8 @@ class EmptyScreenViewModel(
                             )
                         }
                         when (it) {
-                            WalletMode.NON_CUSTODIAL_ONLY -> pkwActivityViewModel.viewState
-                            WalletMode.CUSTODIAL_ONLY -> custodialActivityViewModel.viewState
+                            WalletMode.NON_CUSTODIAL -> pkwActivityViewModel.viewState
+                            WalletMode.CUSTODIAL -> custodialActivityViewModel.viewState
                         }
                     }.collect { viewState ->
                         updateState { state ->

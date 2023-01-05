@@ -60,7 +60,7 @@ class AssetsViewModel(
     private val filterService: FiltersService,
     private val coincore: Coincore
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    AssetsModelState(walletMode = WalletMode.CUSTODIAL_ONLY, userFiat = currencyPrefs.selectedFiatCurrency)
+    AssetsModelState(walletMode = WalletMode.CUSTODIAL, userFiat = currencyPrefs.selectedFiatCurrency)
 ) {
     private var accountsJob: Job? = null
     private var fundsLocksJob: Job? = null

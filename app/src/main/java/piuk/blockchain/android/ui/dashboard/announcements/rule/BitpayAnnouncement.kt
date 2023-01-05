@@ -17,7 +17,7 @@ class BitpayAnnouncement(
 ) : AnnouncementRule(dismissRecorder) {
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.NON_CUSTODIAL)
 
     override val dismissKey = DISMISS_KEY
 

@@ -196,7 +196,7 @@ class LoadAssetAccountsUseCase(
 
         // create accounts based on wallet mode and account type
         return when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> {
+            WalletMode.CUSTODIAL -> {
                 sortedAccounts.map {
                     when (it.account) {
                         is TradingAccount -> {
@@ -237,7 +237,7 @@ class LoadAssetAccountsUseCase(
                 }.run { CoinviewAccounts.Custodial(this) }
             }
 
-            WalletMode.NON_CUSTODIAL_ONLY -> {
+            WalletMode.NON_CUSTODIAL -> {
                 sortedAccounts.map {
                     CoinviewAccount.PrivateKey(
                         account = it.account,

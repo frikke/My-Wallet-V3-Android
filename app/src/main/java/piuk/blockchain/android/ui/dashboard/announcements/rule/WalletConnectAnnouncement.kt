@@ -21,7 +21,7 @@ class WalletConnectAnnouncement(
     override fun shouldShow(): Single<Boolean> = Single.just(!dismissEntry.isDismissed)
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.NON_CUSTODIAL)
 
     override fun show(host: AnnouncementHost) {
         try {

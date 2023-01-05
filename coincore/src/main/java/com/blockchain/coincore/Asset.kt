@@ -30,8 +30,8 @@ enum class AssetFilter {
 
 fun WalletMode.defaultFilter(): AssetFilter =
     when (this) {
-        WalletMode.NON_CUSTODIAL_ONLY -> AssetFilter.NonCustodial
-        WalletMode.CUSTODIAL_ONLY -> AssetFilter.Custodial
+        WalletMode.NON_CUSTODIAL -> AssetFilter.NonCustodial
+        WalletMode.CUSTODIAL -> AssetFilter.Custodial
     }
 
 enum class ActionOrigin {

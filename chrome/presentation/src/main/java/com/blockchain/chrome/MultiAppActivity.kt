@@ -195,7 +195,7 @@ class MultiAppActivity :
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             lifecycleScope.launch {
-                walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
+                walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL)
             }
         }
     }

@@ -22,7 +22,7 @@ class WalletModeTraitsRepository : TraitsService {
 
 private fun WalletMode.toTraitsString(): String {
     return when (this) {
-        WalletMode.CUSTODIAL_ONLY -> "TRADING"
-        WalletMode.NON_CUSTODIAL_ONLY -> "PKW"
+        WalletMode.CUSTODIAL -> "TRADING"
+        WalletMode.NON_CUSTODIAL -> "PKW"
     }
 }

@@ -35,7 +35,7 @@ class MultiAppViewModel(
     MultiAppModelState(
         // todo handle defi mode only
         walletModes = walletModeService.availableModes(),
-        selectedWalletMode = WalletMode.CUSTODIAL_ONLY
+        selectedWalletMode = WalletMode.CUSTODIAL
     )
 ) {
 
@@ -105,7 +105,7 @@ class MultiAppViewModel(
 
         // defi balance to be used in checking defi onboarding state
         viewModelScope.launch {
-            walletModeBalanceService.balanceFor(WalletMode.NON_CUSTODIAL_ONLY)
+            walletModeBalanceService.balanceFor(WalletMode.NON_CUSTODIAL)
                 .filterNot { it is DataResource.Loading }
                 .first()
                 .run {
@@ -118,7 +118,7 @@ class MultiAppViewModel(
 
     private fun shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
         return when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> {
+            WalletMode.NON_CUSTODIAL -> {
                 payloadManager.isBackedUp.not() && walletStatusPrefs.isWalletBackUpSkipped.not()
             }
             else -> {
@@ -129,7 +129,7 @@ class MultiAppViewModel(
 
     private fun shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
         val isWalletEligibleForActivation = when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> {
+            WalletMode.NON_CUSTODIAL -> {
                 (modelState.defiBalance as? DataResource.Data)?.data?.isZero == true
             }
             else -> {

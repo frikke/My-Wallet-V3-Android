@@ -95,7 +95,7 @@ class FiatFundsDetailViewModel(
     private fun loadData() {
         loadDataJob?.cancel()
         loadDataJob = viewModelScope.launch {
-            homeAccountsService.accounts(WalletMode.CUSTODIAL_ONLY)
+            homeAccountsService.accounts(WalletMode.CUSTODIAL)
                 .filterIsInstance<DataResource<List<FiatAccount>>>()
                 .mapData { it.first { it.currency.networkTicker == fiatTicker } }
                 .onEach { dataResource ->

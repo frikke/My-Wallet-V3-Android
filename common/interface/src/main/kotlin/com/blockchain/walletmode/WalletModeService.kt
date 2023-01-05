@@ -16,14 +16,14 @@ interface WalletModeService {
 }
 
 enum class WalletMode {
-    CUSTODIAL_ONLY,
-    NON_CUSTODIAL_ONLY;
+    CUSTODIAL,
+    NON_CUSTODIAL;
 
     val custodialEnabled: Boolean
-        get() = this == CUSTODIAL_ONLY
+        get() = this == CUSTODIAL
 
     val nonCustodialEnabled: Boolean
-        get() = this == NON_CUSTODIAL_ONLY
+        get() = this == NON_CUSTODIAL
 }
 
 interface WalletModeStore {

@@ -89,8 +89,8 @@ class PricesViewModel(
     private fun initialSelectedFilter(latestPricesMode: String?, walletMode: WalletMode): PricesFilter {
         if (latestPricesMode == null) {
             return when (walletMode) {
-                WalletMode.CUSTODIAL_ONLY -> PricesFilter.Tradable
-                WalletMode.NON_CUSTODIAL_ONLY -> PricesFilter.All
+                WalletMode.CUSTODIAL -> PricesFilter.Tradable
+                WalletMode.NON_CUSTODIAL -> PricesFilter.All
                 else -> throw IllegalArgumentException("Price filtering is not supported for $walletMode")
             }
         }

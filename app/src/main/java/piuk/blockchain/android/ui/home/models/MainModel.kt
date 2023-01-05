@@ -92,7 +92,7 @@ class MainModel(
         earnOnNavBarEnabled: Boolean
     ): MainIntent {
         val tabs = when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY ->
+            WalletMode.CUSTODIAL ->
                 listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
@@ -103,7 +103,7 @@ class MainModel(
                     },
                     NavigationItem.Activity
                 )
-            WalletMode.NON_CUSTODIAL_ONLY -> {
+            WalletMode.NON_CUSTODIAL -> {
                 listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,

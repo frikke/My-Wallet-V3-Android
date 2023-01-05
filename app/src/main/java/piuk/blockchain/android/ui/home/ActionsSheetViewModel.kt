@@ -36,7 +36,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
         return with(state) {
             ActionsSheetViewState(
                 actions = actions,
-                bottomItem = walletMode.takeIf { it == WalletMode.NON_CUSTODIAL_ONLY }?.let {
+                bottomItem = walletMode.takeIf { it == WalletMode.NON_CUSTODIAL }?.let {
                     SheetAction(
                         title = R.string.common_buy,
                         subtitle = R.string.top_up_trading_account,
@@ -132,7 +132,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
             }
             is ActionsSheetIntent.LoadActions -> viewModelScope.launch {
                 val actions =
-                    if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    if (intent.walletMode == WalletMode.NON_CUSTODIAL) {
                         actionsForDefi()
                     } else actionsForBrokerage(
                         intent.isEarnEnabled
@@ -146,8 +146,8 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
 
     private fun handleActionForMode(walletMode: WalletMode, action: AssetAction) {
         when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> handleActionForNonCustodialMode(action)
-            WalletMode.CUSTODIAL_ONLY -> handleActionForCustodialMode(action)
+            WalletMode.NON_CUSTODIAL -> handleActionForNonCustodialMode(action)
+            WalletMode.CUSTODIAL -> handleActionForCustodialMode(action)
         }
     }
 

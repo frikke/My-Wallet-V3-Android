@@ -416,8 +416,8 @@ internal class DynamicAssetLoader(
 
     override fun activeAssets(walletMode: WalletMode): Flow<List<Asset>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> loadCustodialActiveAssets()
-            WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
+            WalletMode.CUSTODIAL -> loadCustodialActiveAssets()
+            WalletMode.NON_CUSTODIAL -> loadNonCustodialActiveAssets()
         }
     }
 

@@ -85,7 +85,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL))
             }
         }
         factory {
@@ -657,7 +657,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             identity = userIdentity,
             kycService = kycService,
             walletModeService = mock {
-                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL))
             }
         )
 

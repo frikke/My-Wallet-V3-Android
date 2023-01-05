@@ -17,7 +17,7 @@ class CloudBackupAnnouncement(
 
     override val dismissKey = DISMISS_KEY
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.NON_CUSTODIAL)
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed) {
             return Single.just(false)

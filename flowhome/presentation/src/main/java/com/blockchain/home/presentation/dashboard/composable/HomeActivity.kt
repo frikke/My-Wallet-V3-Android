@@ -52,16 +52,16 @@ fun HomeActivity(
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialHomeActivity(
+            WalletMode.CUSTODIAL -> CustodialHomeActivity(
                 openAllActivity = openAllActivity,
                 activityOnClick = {
-                    openActivityDetail(it, WalletMode.CUSTODIAL_ONLY)
+                    openActivityDetail(it, WalletMode.CUSTODIAL)
                 }
             )
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyHomeActivity(
+            WalletMode.NON_CUSTODIAL -> PrivateKeyHomeActivity(
                 openAllActivity = openAllActivity,
                 activityOnClick = {
-                    openActivityDetail(it, WalletMode.NON_CUSTODIAL_ONLY)
+                    openActivityDetail(it, WalletMode.NON_CUSTODIAL)
                 }
             )
             else -> error("unsupported")

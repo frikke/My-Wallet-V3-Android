@@ -22,11 +22,11 @@ class DefaultWalletModeStrategy(
                 try {
                     WalletMode.valueOf(walletModePrefs.legacyWalletMode)
                 } catch (e: Exception) {
-                    WalletMode.CUSTODIAL_ONLY
+                    WalletMode.CUSTODIAL
                 }
-            } else WalletMode.NON_CUSTODIAL_ONLY.also {
+            } else WalletMode.NON_CUSTODIAL.also {
                 walletModePrefs.userDefaultedToPKW = true
             }
-        } ?: WalletMode.CUSTODIAL_ONLY
+        } ?: WalletMode.CUSTODIAL
     }
 }

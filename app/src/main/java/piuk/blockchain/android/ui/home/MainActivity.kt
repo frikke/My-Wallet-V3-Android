@@ -804,8 +804,8 @@ class MainActivity :
     }
 
     private fun middleButtonBottomSheetLaunch(walletMode: WalletMode): BottomSheetDialogFragment = when (walletMode) {
-        WalletMode.CUSTODIAL_ONLY,
-        WalletMode.NON_CUSTODIAL_ONLY -> SuperAppActionsBottomSheet.newInstance(
+        WalletMode.CUSTODIAL,
+        WalletMode.NON_CUSTODIAL -> SuperAppActionsBottomSheet.newInstance(
             walletMode = walletMode,
             isEarnOnNavBarEnabled = isEarnOnNavBarEnabled
         )
@@ -1082,7 +1082,7 @@ class MainActivity :
 
     private fun showUiTourIfCustodial() {
         walletModeService.walletModeSingle.doOnSuccess {
-            if (it == WalletMode.CUSTODIAL_ONLY) {
+            if (it == WalletMode.CUSTODIAL) {
                 analytics.logEvent(UiTourAnalytics.Viewed)
                 binding.uiTour.apply {
                     host = this@MainActivity
@@ -1174,7 +1174,7 @@ class MainActivity :
 
     override fun goToTrading() {
         analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
-        model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
+        model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL))
         startBuy()
     }
 

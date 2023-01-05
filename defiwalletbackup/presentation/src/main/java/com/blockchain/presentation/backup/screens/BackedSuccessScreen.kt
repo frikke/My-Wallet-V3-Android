@@ -51,7 +51,7 @@ fun BackupSuccessScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
-            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )

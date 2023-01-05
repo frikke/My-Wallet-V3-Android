@@ -57,7 +57,7 @@ private val walletModeContent = mutableListOf(
         title = R.string.educational_wallet_mode_trading_title,
         description = R.string.educational_wallet_mode_trading_description,
         tag = Pair(R.string.educational_wallet_mode_trading_secure_tag, Blue600),
-        forWalletMode = WalletMode.CUSTODIAL_ONLY
+        forWalletMode = WalletMode.CUSTODIAL
     ),
     IntroductionScreenContent(
         image = R.drawable.ic_educational_wallet_menu,
@@ -65,6 +65,6 @@ private val walletModeContent = mutableListOf(
         title = R.string.educational_wallet_mode_defi_title,
         description = R.string.educational_wallet_mode_defi_description,
         tag = Pair(R.string.educational_wallet_mode_defi_secure_tag, Purple0000),
-        forWalletMode = WalletMode.NON_CUSTODIAL_ONLY
+        forWalletMode = WalletMode.NON_CUSTODIAL
     )
 )

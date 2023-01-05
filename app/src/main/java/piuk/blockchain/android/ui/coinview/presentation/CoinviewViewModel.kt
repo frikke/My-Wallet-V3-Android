@@ -143,7 +143,7 @@ class CoinviewViewModel(
             DataResource.Data(
                 CoinviewAssetState(
                     asset = asset.currency,
-                    l1Network = if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    l1Network = if (walletMode == WalletMode.NON_CUSTODIAL) {
                         asset.currency.l1chainTicker?.let {
                             assetCatalogue.fromNetworkTicker(it)
                         }
@@ -409,7 +409,7 @@ class CoinviewViewModel(
     private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
         when {
             // not supported for non custodial
-            isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+            isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL -> {
                 CoinviewRecurringBuysState.NotSupported
             }
 

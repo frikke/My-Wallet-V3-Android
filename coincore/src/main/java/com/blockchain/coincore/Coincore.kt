@@ -69,7 +69,7 @@ class Coincore internal constructor(
     ): Flow<DataResource<FundsLocks?>> {
         return walletModeService.walletMode.flatMapLatest { walletMode ->
             when (walletMode) {
-                WalletMode.CUSTODIAL_ONLY -> bankService.getWithdrawalLocks(
+                WalletMode.CUSTODIAL -> bankService.getWithdrawalLocks(
                     freshnessStrategy = freshnessStrategy,
                     localCurrency = localCurrency
                 )
@@ -110,8 +110,8 @@ class Coincore internal constructor(
 
     fun allWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
         when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
-            WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
+            WalletMode.NON_CUSTODIAL -> allNonCustodialWallets()
+            WalletMode.CUSTODIAL -> allCustodialWallets()
         }
 
     fun activeWalletsInModeRx(walletMode: WalletMode): Observable<AccountGroup> {
@@ -134,10 +134,10 @@ class Coincore internal constructor(
 
     private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
         when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(
+            WalletMode.NON_CUSTODIAL -> AllNonCustodialWalletsAccount(
                 accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
             )
-            WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(
+            WalletMode.CUSTODIAL -> AllCustodialWalletsAccount(
                 accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
             )
         }
@@ -258,7 +258,7 @@ class Coincore internal constructor(
     }
 
     fun allFiats(): Single<List<SingleAccount>> =
-        assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+        assetLoader.activeAssets(WalletMode.CUSTODIAL).asObservable().firstOrError()
             .flatMap {
                 val fiats = it.filterIsInstance<FiatAsset>()
                 if (fiats.isEmpty())

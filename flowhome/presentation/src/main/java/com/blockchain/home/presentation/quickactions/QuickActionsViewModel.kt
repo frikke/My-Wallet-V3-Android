@@ -79,7 +79,7 @@ class QuickActionsViewModel(
                             )
                         }
                     }.flatMapLatest { wMode ->
-                        if (wMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                        if (wMode == WalletMode.NON_CUSTODIAL) {
                             actionsForDefi()
                         } else {
                             actionsForBrokerage()
@@ -163,7 +163,7 @@ class QuickActionsViewModel(
         }
 
     private fun actionsForDefi(): Flow<List<QuickActionItem>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).zip(
+        totalWalletModeBalance(WalletMode.NON_CUSTODIAL).zip(
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
                 FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
@@ -221,7 +221,7 @@ class QuickActionsViewModel(
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
-        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY).map { it.totalFiat.isPositive }
+        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL).map { it.totalFiat.isPositive }
         val more = loadMoreActions().onStart { emit(emptyList()) }.map { list -> list.any { it.enabled } }
 
         return combine(

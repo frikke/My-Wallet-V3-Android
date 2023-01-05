@@ -116,7 +116,7 @@ fun VerifyPhraseScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
-            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
             onBackButtonClick = backOnClick
         )

@@ -96,8 +96,8 @@ abstract class BlockchainActivity : ToolBarActivity() {
     protected open val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.Current
 
     private fun WalletMode.statusbarBg() = when (this) {
-        WalletMode.CUSTODIAL_ONLY -> R.drawable.custodial_bg
-        WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.defi_bg
+        WalletMode.CUSTODIAL -> R.drawable.custodial_bg
+        WalletMode.NON_CUSTODIAL -> R.drawable.defi_bg
     }
     // //////////////////////////////////
 

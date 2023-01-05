@@ -90,14 +90,14 @@ fun WalletModesDialogContent(
             brokerageWalletBalance = portfolioBalanceState,
             showBalanceWarning = showBrokerageBalanceWarning,
             selectedWalletMode = selectedMode,
-            onClick = { onItemClicked(WalletMode.CUSTODIAL_ONLY) }
+            onClick = { onItemClicked(WalletMode.CUSTODIAL) }
         )
 
         DefiWalletModeSelection(
             defiWalletBalance = defiWalletBalance,
             showBalanceWarning = showDefiBalanceWarning,
             selectedWalletMode = selectedMode,
-            onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) }
+            onClick = { onItemClicked(WalletMode.NON_CUSTODIAL) }
         )
     }
 }
@@ -112,7 +112,7 @@ fun BrokerageWalletModeSelection(
     WalletModeSelection(
         balanceState = brokerageWalletBalance,
         showBalanceWarning = showBalanceWarning,
-        requestedWalletMode = WalletMode.CUSTODIAL_ONLY,
+        requestedWalletMode = WalletMode.CUSTODIAL,
         selectedWalletMode = selectedWalletMode,
         walletName = stringResource(id = R.string.brokerage_wallet_name),
         walletIcon = ImageResource.Local(R.drawable.ic_portfolio),
@@ -130,7 +130,7 @@ fun DefiWalletModeSelection(
     WalletModeSelection(
         balanceState = defiWalletBalance,
         showBalanceWarning = showBalanceWarning,
-        requestedWalletMode = WalletMode.NON_CUSTODIAL_ONLY,
+        requestedWalletMode = WalletMode.NON_CUSTODIAL,
         selectedWalletMode = selectedWalletMode,
         walletName = stringResource(id = R.string.defi_wallet_name),
         walletIcon = ImageResource.Local(R.drawable.ic_defi_wallet),
@@ -189,7 +189,7 @@ private fun WalletModePreview() {
                 showBrokerageBalanceWarning = false,
                 defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
                 showDefiBalanceWarning = true,
-                selectedMode = WalletMode.CUSTODIAL_ONLY,
+                selectedMode = WalletMode.CUSTODIAL,
                 onItemClicked = {}
             )
         }
@@ -209,7 +209,7 @@ private fun WalletModePreviewEnableWallet() {
                     Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger()), false
                 ),
                 showDefiBalanceWarning = false,
-                selectedMode = WalletMode.CUSTODIAL_ONLY,
+                selectedMode = WalletMode.CUSTODIAL,
                 onItemClicked = {}
             )
         }

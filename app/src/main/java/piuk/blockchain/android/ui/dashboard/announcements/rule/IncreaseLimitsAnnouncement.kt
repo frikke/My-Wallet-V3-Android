@@ -23,7 +23,7 @@ class IncreaseLimitsAnnouncement(
         get() = "increase_limits"
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed)

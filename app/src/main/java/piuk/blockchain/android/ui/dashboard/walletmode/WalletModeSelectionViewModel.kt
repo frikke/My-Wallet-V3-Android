@@ -60,17 +60,17 @@ class WalletModeSelectionViewModel(
                 } ?: BalanceState.Loading,
                 showBrokerageBalanceWarning = anyBrokerageBalanceFailed,
                 defiWalletBalance = defiBalance?.let {
-                    if (state.enabledWalletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    if (state.enabledWalletMode == WalletMode.NON_CUSTODIAL) {
                         BalanceState.Data(it)
                     } else if (walletModePrefs.userDefaultedToPKW && shouldBackupPhraseForMode(
-                            WalletMode.NON_CUSTODIAL_ONLY
+                            WalletMode.NON_CUSTODIAL
                         )
                     ) {
                         BalanceState.PhraseRecoveryRequired(
                             activationRequired = false,
                             balance = it
                         )
-                    } else if (shouldOnboardWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
+                    } else if (shouldOnboardWalletForMode(WalletMode.NON_CUSTODIAL)) {
                         BalanceState.PhraseRecoveryRequired(
                             activationRequired = true,
                             balance = it
@@ -108,7 +108,7 @@ class WalletModeSelectionViewModel(
                 }
 
                 val nonCustodialBalance = walletModeBalanceService.getBalanceWithFailureState(
-                    WalletMode.NON_CUSTODIAL_ONLY,
+                    WalletMode.NON_CUSTODIAL,
                     FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 ).map { response ->
                     when (response) {
@@ -127,7 +127,7 @@ class WalletModeSelectionViewModel(
                 }
 
                 val custodialBalance = walletModeBalanceService.getBalanceWithFailureState(
-                    WalletMode.CUSTODIAL_ONLY,
+                    WalletMode.CUSTODIAL,
                     FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 ).map { response ->
                     when (response) {
@@ -165,7 +165,7 @@ class WalletModeSelectionViewModel(
             }
 
             WalletModeSelectionIntent.DeFiOnboardingComplete -> {
-                updateActiveWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
+                updateActiveWalletMode(WalletMode.NON_CUSTODIAL)
             }
         }.exhaustive
     }
@@ -182,14 +182,14 @@ class WalletModeSelectionViewModel(
 
     private fun WalletModeSelectionModelState.shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
         return when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> isWalletBackedUp.not() && isWalletBackUpSkipped.not()
+            WalletMode.NON_CUSTODIAL -> isWalletBackedUp.not() && isWalletBackUpSkipped.not()
             else -> false
         }
     }
 
     private fun WalletModeSelectionModelState.shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
         val isWalletEligibleForActivation = when (walletMode) {
-            WalletMode.NON_CUSTODIAL_ONLY -> defiBalance?.isZero == true
+            WalletMode.NON_CUSTODIAL -> defiBalance?.isZero == true
             else -> false
         }
         return isWalletEligibleForActivation &&
@@ -243,14 +243,14 @@ sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {
 
 @StringRes
 fun WalletMode.title(): Int = when (this) {
-    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name
-    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage_wallet_name
+    WalletMode.NON_CUSTODIAL -> R.string.defi_wallet_name
+    WalletMode.CUSTODIAL -> R.string.brokerage_wallet_name
     else -> throw IllegalArgumentException("No title supported for mode")
 }
 
 @DrawableRes
 fun WalletMode.icon(): Int = when (this) {
-    WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.ic_defi_wallet
-    WalletMode.CUSTODIAL_ONLY -> R.drawable.ic_portfolio
+    WalletMode.NON_CUSTODIAL -> R.drawable.ic_defi_wallet
+    WalletMode.CUSTODIAL -> R.drawable.ic_portfolio
     else -> throw IllegalArgumentException("No icon supported for mode")
 }

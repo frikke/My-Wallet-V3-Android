@@ -67,8 +67,8 @@ fun Activity(
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialActivity(onBackPressed = onBackPressed)
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity(onBackPressed = onBackPressed)
+            WalletMode.CUSTODIAL -> CustodialActivity(onBackPressed = onBackPressed)
+            WalletMode.NON_CUSTODIAL -> PrivateKeyActivity(onBackPressed = onBackPressed)
             else -> error("unsupported")
         }
     }
@@ -298,7 +298,7 @@ private fun Calendar.format(): String {
 fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DUMMY_DATA,
-        walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+        walletMode = WalletMode.NON_CUSTODIAL,
         onSearchTermEntered = {},
         onBackPressed = {}
     )

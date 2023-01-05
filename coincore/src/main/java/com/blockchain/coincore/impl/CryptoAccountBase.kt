@@ -209,8 +209,8 @@ abstract class CryptoNonCustodialAccount(
     final override val baseActions: Single<Set<AssetAction>>
         get() = walletModeService.walletModeSingle.map {
             when (it) {
-                WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-                WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
+                WalletMode.CUSTODIAL -> defaultCustodialActions
+                WalletMode.NON_CUSTODIAL -> defaultNonCustodialActions
             }
         }
 

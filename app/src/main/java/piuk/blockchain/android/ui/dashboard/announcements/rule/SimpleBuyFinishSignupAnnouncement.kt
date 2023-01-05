@@ -40,7 +40,7 @@ class SimpleBuyFinishSignupAnnouncement(
     }
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     private fun createAnnouncementCard(host: AnnouncementHost) =
         StandardAnnouncementCard(
