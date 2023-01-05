@@ -115,7 +115,7 @@ class BillingAddressFragment :
                     cardTokenizerService.bindAddressDetails(
                         CardBillingAddress(
                             city = billingAddress.city,
-                            country = billingAddress.countryCode,
+                            countryCode = billingAddress.countryCode,
                             addressLine1 = billingAddress.addressLine1,
                             addressLine2 = billingAddress.addressLine2,
                             postalCode = billingAddress.postCode,

@@ -726,7 +726,7 @@ class SimpleBuyInteractor(
     private fun BillingAddress.toCardBillingAddress() =
         CardBillingAddress(
             city = city,
-            country = countryCode,
+            countryCode = countryCode,
             addressLine1 = addressLine1,
             addressLine2 = addressLine2,
             postalCode = postCode,

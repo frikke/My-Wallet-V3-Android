@@ -26,11 +26,13 @@ import com.braintreepayments.cardform.utils.CardType
 import com.verygoodsecurity.vgscollect.core.model.state.FieldState
 import com.verygoodsecurity.vgscollect.core.storage.OnFieldStateChangeListener
 import com.verygoodsecurity.vgscollect.view.InputFieldView
+import com.verygoodsecurity.vgscollect.view.card.validation.rules.PersonNameRule
 import com.verygoodsecurity.vgscollect.widget.VGSTextInputLayout
 import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.mapper.isEquals
 import piuk.blockchain.android.cards.views.CardNumberEditText
@@ -275,6 +277,14 @@ class AddNewCardFragment :
 
     private fun initVgsFields() {
         with(binding.vgsCardName) {
+            if (BuildConfig.DEBUG) {
+                // Needed to fully use the fakecardadquirer test functionalities on the backend
+                val rule = PersonNameRule.ValidationBuilder()
+                    .setRegex("^[a-zA-Z0-9 ,'._-]+\$")
+                    .build()
+
+                setRule(rule)
+            }
             addOnTextChangeListener(otherFieldsTextChangedListener)
             addVgsErrorListeners(binding.vgsCardNameInput, this, { getString(R.string.invalid_card_name) })
         }
