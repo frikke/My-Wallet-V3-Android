@@ -34,6 +34,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.data.DataResource
 import kotlin.math.absoluteValue
 
@@ -180,19 +181,20 @@ sealed interface ValueChange {
 
     data class Down(override val value: Double) : ValueChange {
         override val indicator: String = "↓"
-        override val color: Color = Grey700
+        override val color: Color = Pink700
     }
 
     data class None(override val value: Double) : ValueChange {
-        override val indicator: String = ""
+        override val indicator: String = "→"
         override val color: Color = Grey700
     }
 
     companion object {
         fun fromValue(value: Double): ValueChange {
             return when {
-                value >= 0 -> Up(value)
-                else -> Down(value.absoluteValue)
+                value > 0 -> Up(value)
+                value < 0 -> Down(value.absoluteValue)
+                else -> None(value)
             }
         }
     }

@@ -209,7 +209,13 @@ private fun TitleAndBodyTableRow(
             if (isInlineTags) {
                 TagsRow(
                     tags = tags,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(
+                        start = if (bodyStart != null) {
+                            AppTheme.dimensions.tinySpacing
+                        } else {
+                            AppTheme.dimensions.noSpacing
+                        }
+                    )
                 )
             }
         }

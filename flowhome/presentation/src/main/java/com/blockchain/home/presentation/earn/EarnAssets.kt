@@ -37,6 +37,8 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
@@ -133,17 +135,22 @@ private fun EarnedAssets(viewState: EarnViewState.Assets, onClick: (EarnAsset) -
         viewState.assets.forEachIndexed { index, asset ->
             BalanceTableRow(
                 titleStart = buildAnnotatedString {
-                    append(
-                        if (asset.type == EarnType.STAKING)
-                            stringResource(
-                                id = R.string.staking_asset, asset.currency.name
-                            ) else asset.currency.name
-                    )
+                    append(asset.currency.name)
                 },
                 onClick = {
                     onClick(asset)
                 },
                 startImageResource = ImageResource.Remote(asset.currency.logo),
+                tags = listOf(
+                    TagViewState(
+                        when (asset.type) {
+                            EarnType.INTEREST -> stringResource(id = R.string.earn_rewards_label_passive)
+                            EarnType.STAKING -> stringResource(id = R.string.earn_rewards_label_staking)
+                        },
+                        TagType.Default()
+                    )
+                ),
+                isInlineTags = true,
                 titleEnd = buildAnnotatedString { append(asset.balance.toStringWithSymbol()) },
                 bodyEnd = buildAnnotatedString {
                     append(
