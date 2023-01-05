@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
@@ -45,7 +46,7 @@ class LoaderActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
-    override val ignoreStatusbarColor: Boolean = true
+    override val statusbarColor = ModeBackgroundColor.None
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
@@ -58,7 +59,7 @@ class LoaderActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = false)
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false

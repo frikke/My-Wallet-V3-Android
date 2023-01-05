@@ -3058,20 +3058,20 @@ If you want to know more about our verification process visit our <annotation li
     <string name="app_rating_feedback_description">Let us know how we can improve the app.</string>
     <string name="app_rating_feedback_hint">Tell us more</string>
     <!-- Back up phrase-->
-    <string name="backup_phrase_title_secure_wallet">Secure Your Wallet</string>
+    <string name="backup_phrase_title_secure_wallet">Secure Your DeFi Wallet</string>
     <string name="backup_phrase_title_steps">Step %1$d of %2$d</string>
 
     <string name="backup_phrase_intro_title">Let’s Back Up Your Wallet</string>
     <string name="back_up_status_negative">Not Backed Up</string>
     <string name="back_up_status_positive">Backed Up</string>
-    <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
+    <string name="backup_phrase_intro_description">Your recovery phrase will allow you to access your wallet if you ever get locked out.</string>
     <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>
     <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>
     <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>
     <string name="back_up_now">Back Up Now</string>
 
-    <string name="skip_backup_title">Are you sure you want to continue?</string>
-    <string name="skip_backup_description">By skipping your DeFi Wallet backup, you risk losing access to your funds.</string>
+    <string name="skip_backup_title">Are you sure you want to skip your wallet backup?</string>
+    <string name="skip_backup_description">If you don’t create a backup, you risk losing access to your funds permanently.</string>
     <string name="skip_backup_cta_skip">Yes, skip backup</string>
     <string name="skip_backup_cta_backup">Back Up (Recommended)</string>
 
@@ -3099,18 +3099,14 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
-    <string name="defi_onboarding_intro_title">Introducing the %1$s</string>
-    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>
-    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>
-    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>
-    <string name="defi_onboarding_intro_property2_title">Multi-chain Support</string>
-    <string name="defi_onboarding_intro_property2_subtitle">Manage your portfolio across 7 chains</string>
-    <string name="defi_onboarding_intro_property3_title">Connect to Decentralized Finance</string>
-    <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
-    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>
-
-    <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>
-    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
+    <string name="defi_onboarding_intro_section1_title">Discover the world of DeFi</string>
+    <string name="defi_onboarding_intro_section1_description">Self-custody your crypto and use dapps.</string>
+    <string name="defi_onboarding_intro_section2_title">Your keys, your crypto</string>
+    <string name="defi_onboarding_intro_section2_description">Sleep better at night knowing only you can access your crypto.</string>
+    <string name="defi_onboarding_intro_section3_title">Multi-chain support</string>
+    <string name="defi_onboarding_intro_section3_description">Access your crypto across multiple blockchains, including Bitcoin, Ethereum, and Solana.</string>
+    <string name="defi_onboarding_intro_section4_title">Unlock the power of Web3</string>
+    <string name="defi_onboarding_intro_section4_description">Use dapps and collect NFTs—all from your DeFi Wallet.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 1\u0025 back in crypto.²</string>

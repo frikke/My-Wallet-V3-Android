@@ -5,7 +5,7 @@
             <solid android:color="#FFFFFFFF" />
         </shape>
     </item>
-    <item android:height="24dp"> <!--todo @*android:dimen/status_bar_height too big-->
+    <item android:height="@*android:dimen/status_bar_height">
         <shape>
             <gradient
                 android:endColor="#FF7C33B9"

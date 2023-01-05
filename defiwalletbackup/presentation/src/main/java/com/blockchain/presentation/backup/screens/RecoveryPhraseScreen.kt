@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
@@ -32,6 +34,7 @@ import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 @Composable
@@ -64,10 +67,13 @@ fun RecoveryPhraseScreen(
     backUpManualOnClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
             title = stringResource(R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = backOnClick
         )
@@ -84,7 +90,7 @@ fun RecoveryPhraseScreen(
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_title),
-                style = ComposeTypographies.Title2,
+                style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )

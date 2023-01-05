@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,11 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.componentlib.theme.Red600
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
@@ -49,12 +45,12 @@ fun MnemonicVerification(
             .border(
                 width = 1.dp,
                 color = when (mnemonicVerificationStatus) {
-                    UserMnemonicVerificationStatus.IDLE -> Grey100
-                    UserMnemonicVerificationStatus.INCORRECT -> Red600
+                    UserMnemonicVerificationStatus.IDLE -> Color.Transparent
+                    UserMnemonicVerificationStatus.INCORRECT -> AppTheme.colors.errorMuted
                 }.exhaustive,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
+                shape = AppTheme.shapes.large
             )
-            .background(color = Grey000, shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall)))
+            .background(color = AppTheme.colors.background, shape = AppTheme.shapes.large)
             .padding(dimensionResource(R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
@@ -97,10 +93,11 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
             .alpha(if (selectableWord.selected) 0F else 1F),
         border = BorderStroke(
             width = 1.dp,
-            color = Grey100,
+            color = if (index == null) AppTheme.colors.medium else Color.Transparent,
         ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmallest)),
-        backgroundColor = Color.White
+        shape = AppTheme.shapes.large,
+        backgroundColor = if (index == null) Color.White else AppTheme.colors.light,
+        elevation = 0.dp
     ) {
         Row(
             modifier = Modifier

@@ -10,7 +10,10 @@ val multiAppModule = module {
         viewModel {
             MultiAppViewModel(
                 walletModeService = get(superAppModeService),
-                walletModeBalanceService = get()
+                walletModeBalanceService = get(),
+                payloadManager = get(),
+                walletStatusPrefs = get(),
+                walletModePrefs = get()
             )
         }
 

@@ -9,12 +9,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.utils.copyToClipboard
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavHost
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
@@ -24,6 +26,8 @@ import org.koin.core.scope.Scope
 class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
 
     override val alwaysDisableScreenshots: Boolean = true
+
+    override val statusbarColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY)
 
     override val scope: Scope = payloadScope
     private val viewModel: BackupPhraseViewModel by viewModel()

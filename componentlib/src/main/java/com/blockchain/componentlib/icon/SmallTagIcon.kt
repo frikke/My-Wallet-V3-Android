@@ -35,13 +35,17 @@ fun SmallTagIcon(
             .size(mainIconSize + tagIconSize - overlap + borderSize)
     ) {
 
-        AsyncMediaItem(
+        Box(
             modifier = Modifier
                 .size(mainIconSize)
                 .background(color = iconBackground, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = icon.main
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncMediaItem(
+                imageResource = icon.main
+            )
+        }
 
         AsyncMediaItem(
             modifier = Modifier

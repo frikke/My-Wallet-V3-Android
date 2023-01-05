@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Red600
@@ -42,6 +44,7 @@ import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.utils.replaceInList
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 private const val STEP_INDEX = 2
@@ -107,10 +110,13 @@ fun VerifyPhraseScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
             title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
             onBackButtonClick = backOnClick
         )
@@ -127,7 +133,7 @@ fun VerifyPhraseScreen(
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.verify_phrase_title),
-                style = ComposeTypographies.Title2,
+                style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )

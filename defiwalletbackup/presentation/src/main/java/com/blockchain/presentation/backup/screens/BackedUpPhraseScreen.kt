@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,14 +23,17 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 @Composable
@@ -61,10 +65,16 @@ fun BackedUpPhraseScreen(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
+        NavigationBar(
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
+            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            onBackButtonClick = null
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
@@ -111,7 +121,7 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            MinimalButton(
+            TertiaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_backup_again),
                 onClick = nextOnClick

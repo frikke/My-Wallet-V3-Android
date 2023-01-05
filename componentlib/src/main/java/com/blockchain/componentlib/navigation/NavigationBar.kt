@@ -92,7 +92,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 
 @Composable
 fun NavigationBar(
-    ignoreWalletModeColor: Boolean = false,
+    modeColor: ModeBackgroundColor = ModeBackgroundColor.Current,
     mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
@@ -101,7 +101,7 @@ fun NavigationBar(
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
     NavigationBar(
-        ignoreWalletModeColor = ignoreWalletModeColor,
+        modeColor = modeColor,
         mutedBackground = mutedBackground,
         title = title,
         icon = icon,
@@ -144,7 +144,7 @@ private fun NavigationBar(
 
 @Composable
 fun NavigationBar(
-    ignoreWalletModeColor: Boolean = false,
+    modeColor: ModeBackgroundColor = ModeBackgroundColor.Current,
     mutedBackground: Boolean = true,
     title: String,
     icon: StackedIcon = StackedIcon.None,
@@ -152,15 +152,25 @@ fun NavigationBar(
     endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
 
-    val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
+    val walletMode: WalletMode? by when (modeColor) {
+        ModeBackgroundColor.Current -> {
+            val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
 
-    val walletMode: WalletMode? by if (isLoggedIn && ignoreWalletModeColor.not()) {
-        get<WalletModeService>(
-            superAppModeService,
-            payloadScope
-        ).walletMode.collectAsStateLifecycleAware(initial = null)
-    } else {
-        remember { mutableStateOf(null) }
+            if (isLoggedIn) {
+                get<WalletModeService>(
+                    superAppModeService,
+                    payloadScope
+                ).walletMode.collectAsStateLifecycleAware(initial = null)
+            } else {
+                remember { mutableStateOf(null) }
+            }
+        }
+        is ModeBackgroundColor.Override -> {
+            remember { mutableStateOf(modeColor.walletMode) }
+        }
+        ModeBackgroundColor.None -> {
+            remember { mutableStateOf(null) }
+        }
     }
 
     NavigationBar(

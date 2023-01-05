@@ -37,10 +37,6 @@ class DeFiOnboardingViewModel : MviViewModel<DeFiOnboardingIntent,
                 updateState { it.copy(phraseBackupRequired = false) }
             }
 
-            DeFiOnboardingIntent.BackupPhraseComplete -> {
-                navigate(DeFiOnboardingNavigationEvent.DefiOnboardingComplete)
-            }
-
             is DeFiOnboardingIntent.EndFlow -> {
                 updateState { it.copy(flowState = FlowState.Ended(intent.isSuccessful)) }
             }

@@ -13,10 +13,6 @@ class DeFiOnboardingNavigationRouter(
             DeFiOnboardingNavigationEvent.DeFiOnboardingIntro -> {
                 navController.navigate(DeFiOnboardingDestination.DeFiOnboardingIntro.route)
             }
-
-            DeFiOnboardingNavigationEvent.DefiOnboardingComplete -> {
-                navController.navigate(DeFiOnboardingDestination.DeFiOnboardingComplete.route)
-            }
         }.exhaustive
     }
 }

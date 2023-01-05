@@ -1,148 +1,131 @@
 package com.blockchain.presentation.onboarding.screens
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.basic.ComposeColors
-import com.blockchain.componentlib.basic.ComposeGravities
-import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue000
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.utils.circleAround
+import com.blockchain.componentlib.theme.White800
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 
-/**
- * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A16643
- */
+private data class DefiOnboardingSection(
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @DrawableRes val image: Int,
+    val imageFillWidth: Boolean,
+    val isTopSection: Boolean
+)
+
+private val sections = listOf(
+    DefiOnboardingSection(
+        title = R.string.defi_onboarding_intro_section1_title,
+        description = R.string.defi_onboarding_intro_section1_description,
+        image = R.drawable.defi_intro_phones,
+        imageFillWidth = false,
+        isTopSection = true
+    ),
+    DefiOnboardingSection(
+        title = R.string.defi_onboarding_intro_section2_title,
+        description = R.string.defi_onboarding_intro_section2_description,
+        image = R.drawable.defi_intro_wallets,
+        imageFillWidth = true,
+        isTopSection = false
+    ),
+    DefiOnboardingSection(
+        title = R.string.defi_onboarding_intro_section3_title,
+        description = R.string.defi_onboarding_intro_section3_description,
+        image = R.drawable.defi_intro_coins,
+        imageFillWidth = false,
+        isTopSection = false
+    ),
+    DefiOnboardingSection(
+        title = R.string.defi_onboarding_intro_section4_title,
+        description = R.string.defi_onboarding_intro_section4_description,
+        image = R.drawable.defi_intro_wallet_connect,
+        imageFillWidth = true,
+        isTopSection = false
+    )
+)
+
 @Composable
 fun DeFiOnboardingIntro(viewModel: DeFiOnboardingViewModel) {
     DeFiOnboardingIntroScreen(
-        closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = false)) },
-        enableDeFiOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) },
+        onContinueClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) }
     )
 }
 
 @Composable
 fun DeFiOnboardingIntroScreen(
-    closeOnClick: () -> Unit,
-    enableDeFiOnClick: () -> Unit
+    onContinueClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .background(AppTheme.colors.backgroundMuted),
     ) {
-        NavigationBar(
-            title = stringResource(R.string.defi_wallet_name),
-            endNavigationBarButtons = listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_close_circle,
-                    color = null,
-                    contentDescription = R.string.accessibility_close,
-                    onIconClick = closeOnClick
-                )
-            )
-        )
-
-        Box {
+        Box(modifier = Modifier.fillMaxWidth()) {
             Image(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(0.8f)
-                    .align(Alignment.BottomCenter),
-                imageResource = ImageResource.Local(R.drawable.ic_grid),
+                modifier = Modifier.fillMaxWidth(),
+                imageResource = ImageResource.Local(R.drawable.onboarding_sheet),
                 contentScale = ContentScale.FillWidth
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(AppTheme.dimensions.smallSpacing),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.epicSpacing))
 
-                Spacer(modifier = Modifier.weight(1F))
-
-                Image(imageResource = ImageResource.Local(R.drawable.ic_defi_onboarding))
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-                SimpleText(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(
-                        R.string.defi_onboarding_intro_title,
-                        stringResource(R.string.defi_wallet_name)
-                    ),
-                    style = ComposeTypographies.Title3,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Centre
-                )
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                SimpleText(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.defi_onboarding_intro_description),
-                    style = ComposeTypographies.Paragraph1,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Centre
-                )
-
-                Spacer(modifier = Modifier.weight(1F))
-
-                DeFiOnboardingProperties(
-                    properties = listOf(
-                        DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property1_title,
-                            subtitle = R.string.defi_onboarding_intro_property1_subtitle
-                        ),
-                        DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property2_title,
-                            subtitle = R.string.defi_onboarding_intro_property2_subtitle
-                        ),
-                        DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property3_title,
-                            subtitle = R.string.defi_onboarding_intro_property3_subtitle
-                        ),
-                    )
-                )
-
-                Spacer(modifier = Modifier.weight(2F))
+                sections.forEach { section ->
+                    DefiOnboardingSection(data = section)
+                }
 
                 PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.defi_onboarding_intro_cta),
-                    state = ButtonState.Enabled,
-                    onClick = enableDeFiOnClick
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.standardSpacing),
+                    text = stringResource(R.string.common_continue),
+                    onClick = onContinueClick
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.standardSpacing)
+                    .align(Alignment.TopEnd)
+                    .clickableNoEffect(onContinueClick)
+            ) {
+                Image(
+                    imageResource = Icons.Close.withBackground(
+                        backgroundColor = White800,
+                        iconSize = AppTheme.dimensions.standardSpacing,
+                        backgroundSize = AppTheme.dimensions.largeSpacing
+                    )
                 )
             }
         }
@@ -150,114 +133,45 @@ fun DeFiOnboardingIntroScreen(
 }
 
 @Composable
-fun DeFiOnboardingPropertyItem(
-    number: Int,
-    title: String,
-    subtitle: String
+private fun DefiOnboardingSection(
+    data: DefiOnboardingSection
 ) {
-    Row(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = Grey100,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-            )
-            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-            .padding(
-                horizontal = AppTheme.dimensions.smallSpacing,
-                vertical = dimensionResource(R.dimen.very_small_spacing)
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Column {
+        Text(
+            modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
+            text = stringResource(data.title),
+            style = if (data.isTopSection) AppTheme.typography.title1 else AppTheme.typography.title2,
+            color = if (data.isTopSection) AppTheme.colors.background else AppTheme.colors.title
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Text(
-            modifier = Modifier
-                .circleAround(color = Blue000),
-            style = AppTheme.typography.body2,
-            color = Blue600,
-            text = number.toString(),
+            modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
+            text = stringResource(data.description),
+            style = AppTheme.typography.body1,
+            color = if (data.isTopSection) AppTheme.colors.background else AppTheme.colors.title
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        Column {
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = title,
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            imageResource = ImageResource.Local(data.image),
+            contentScale = if (data.imageFillWidth) ContentScale.FillWidth else ContentScale.Fit
+        )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.composeSmallestSpacing))
-
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = subtitle,
-                style = ComposeTypographies.Caption1,
-                color = ComposeColors.Muted,
-                gravity = ComposeGravities.Start
-            )
-        }
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
     }
 }
-
-@Composable
-fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
-    Column {
-        properties.forEachIndexed { index, property ->
-            DeFiOnboardingPropertyItem(
-                number = index.inc(),
-                title = stringResource(property.title),
-                subtitle = stringResource(property.subtitle),
-            )
-
-            if (index != properties.lastIndex) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            }
-        }
-    }
-}
-
-data class DeFiProperty(@StringRes val title: Int, @StringRes val subtitle: Int)
 
 // ///////////////
 // PREVIEWS
 // ///////////////
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeFiOnboardingIntroScreen() {
-    DeFiOnboardingIntroScreen({}, {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeFiOnboardingPropertyItem() {
-    DeFiOnboardingPropertyItem(
-        number = 1,
-        title = "Self-Custody Your Assets",
-        subtitle = "DeFi wallets are on-chain"
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeFiOnboardingProperties() {
-    DeFiOnboardingProperties(
-        properties = listOf(
-            DeFiProperty(
-                title = R.string.defi_onboarding_intro_property1_title,
-                subtitle = R.string.defi_onboarding_intro_property1_subtitle
-            ),
-            DeFiProperty(
-                title = R.string.defi_onboarding_intro_property2_title,
-                subtitle = R.string.defi_onboarding_intro_property2_subtitle
-            ),
-            DeFiProperty(
-                title = R.string.defi_onboarding_intro_property3_title,
-                subtitle = R.string.defi_onboarding_intro_property3_subtitle
-            ),
-        )
-    )
+    DeFiOnboardingIntroScreen {}
 }

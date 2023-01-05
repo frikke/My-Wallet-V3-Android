@@ -1,7 +1,7 @@
 package com.blockchain.presentation.backup.screens
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,19 +24,16 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.control.NoPaddingRadio
 import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.R
@@ -44,6 +41,7 @@ import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 
 /**
  * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
@@ -78,10 +76,14 @@ fun BackupPhraseIntroScreen(
     var allAcknowledgementsChecked by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted)
     ) {
         NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = backOnClick
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
+            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            onBackButtonClick = backOnClick
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
@@ -97,11 +99,9 @@ fun BackupPhraseIntroScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            if (backupStatus == BackUpStatus.NO_BACKUP) {
-                BackupStatus(backupStatus)
-            }
+            BackupStatus(backupStatus)
 
-            Spacer(modifier = Modifier.weight(1F))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
             BackupPhraseIntroScreenDescription()
 
@@ -129,7 +129,7 @@ fun BackupPhraseIntroScreen(
             if (showSkipBackup) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-                MinimalButton(
+                TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.common_skip),
                     onClick = skipOnClick
@@ -146,14 +146,10 @@ fun BackupPhraseIntroScreenDescription() {
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(imageResource = ImageResource.Local(R.drawable.ic_padlock))
-
-        Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
-
         Text(
             text = stringResource(R.string.backup_phrase_intro_title),
             textAlign = TextAlign.Center,
-            style = AppTheme.typography.title2,
+            style = AppTheme.typography.title3,
             color = Grey900
         )
 
@@ -162,8 +158,8 @@ fun BackupPhraseIntroScreenDescription() {
         Text(
             text = stringResource(R.string.backup_phrase_intro_description),
             textAlign = TextAlign.Center,
-            style = AppTheme.typography.paragraph1,
-            color = Grey900
+            style = AppTheme.typography.body1,
+            color = AppTheme.colors.body
         )
     }
 }
@@ -181,9 +177,8 @@ fun BackupPhraseIntroAcknowledgmentItem(
                 isChecked = true
                 onAccepted()
             }
-            .border(
-                width = 1.dp,
-                color = Grey100,
+            .background(
+                color = AppTheme.colors.background,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
             )
             .padding(
@@ -195,7 +190,8 @@ fun BackupPhraseIntroAcknowledgmentItem(
         Text(
             modifier = Modifier.weight(1F),
             text = text,
-            style = AppTheme.typography.caption1
+            color = AppTheme.colors.title,
+            style = AppTheme.typography.paragraph2
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))

@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 
 val START_TRADING = Color(0XFFFF0095)
 val END_TRADING = Color(0XFF7C33B9)
-val START_DEFI = Color(0XFF6D39BD)
-val END_DEFI = Color(0XFF2878D4)
+val START_DEFI = Color(0XFF7137BB)
+val END_DEFI = Color(0XFF2960D0)
 
 val BackgroundMuted = Color(0XFFF1F2F7)
 
@@ -26,6 +26,7 @@ val Green800 = Color(0XFF0C8868)
 val Green700 = Color(0XFF00B083)
 val Green600 = Color(0XFF06D6A0)
 val Green400 = Color(0XFF17CE73)
+val Green300 = Color(0XFF69ECCA)
 val Green100 = Color(0XFFD1F0DB)
 val Green000 = Color(0xFFEDFFFA)
 
@@ -76,13 +77,14 @@ val Overlay600 = Dark600.copy(0.64f)
 val Overlay400 = Dark400.copy(0.4f)
 
 val White600 = Color.White.copy(0.6f)
+val White800 = Color.White.copy(0.8f)
 
 val UltraLight = Color(0XFFFAFBFF)
 val CowboysDark = Color(0XFF07080D)
 
 val defLightColors = SemanticColors(
     title = Grey900,
-    body = Grey800,
+    body = Grey700,
     overlay = Overlay600,
     muted = Grey700,
     dark = Grey300,
@@ -92,9 +94,11 @@ val defLightColors = SemanticColors(
     backgroundMuted = BackgroundMuted,
     primary = Blue600,
     primaryMuted = Blue400,
-    success = Green600,
+    success = Green700,
+    successMuted = Green300,
     warning = Orange600,
     error = Red600,
+    errorMuted = Red400,
     isLight = true
 )
 
@@ -111,8 +115,10 @@ val defDarkColors = SemanticColors(
     primary = Blue400,
     primaryMuted = Blue400, // todo unknown atm
     success = Green400,
+    successMuted = Green400, // todo unknown atm
     warning = Orange400,
     error = Red400,
+    errorMuted = Red400, // todo unknown atm
     isLight = false
 )
 

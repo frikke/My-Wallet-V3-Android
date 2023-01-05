@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.core.connectivity.ConnectionEvent
 import com.blockchain.utils.unsafeLazy
 import org.koin.android.ext.android.inject
@@ -14,7 +15,7 @@ import piuk.blockchain.android.ui.base.BaseMvpActivity
 
 class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), SSLVerifyView {
 
-    override val ignoreStatusbarColor: Boolean = true
+    override val statusbarColor = ModeBackgroundColor.None
 
     private val sslSSLVerifyPresenter: SSLVerifyPresenter by inject()
 
@@ -36,7 +37,7 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = false)
 
         onViewReady()
     }

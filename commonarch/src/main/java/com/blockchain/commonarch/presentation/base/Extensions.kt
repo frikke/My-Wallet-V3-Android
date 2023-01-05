@@ -3,6 +3,7 @@ package com.blockchain.commonarch.presentation.base
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.blockchain.commonarch.R
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 
 fun Fragment.updateToolbar(
@@ -13,9 +14,12 @@ fun Fragment.updateToolbar(
     (activity as? BlockchainActivity)?.updateToolbar(toolbarTitle, menuItems, backAction)
 }
 
-fun Fragment.updateToolbarBackground(ignoreWalletModeColor: Boolean = false, mutedBackground: Boolean = true) {
+fun Fragment.updateToolbarBackground(
+    modeColor: ModeBackgroundColor = ModeBackgroundColor.Current,
+    mutedBackground: Boolean = true
+) {
     (activity as? BlockchainActivity)?.updateToolbarBackground(
-        ignoreWalletModeColor = ignoreWalletModeColor,
+        modeColor = modeColor,
         mutedBackground = mutedBackground
     )
 }

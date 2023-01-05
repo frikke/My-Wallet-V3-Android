@@ -18,8 +18,10 @@ class SemanticColors(
     primary: Color,
     primaryMuted: Color,
     success: Color,
+    successMuted: Color,
     warning: Color,
     error: Color,
+    errorMuted: Color,
     isLight: Boolean
 ) {
 
@@ -47,9 +49,13 @@ class SemanticColors(
         private set
     var success by mutableStateOf(success)
         private set
+    var successMuted by mutableStateOf(successMuted)
+        private set
     var warning by mutableStateOf(warning)
         private set
     var error by mutableStateOf(error)
+        private set
+    var errorMuted by mutableStateOf(error)
         private set
     var isLight by mutableStateOf(isLight)
         private set
@@ -66,8 +72,10 @@ class SemanticColors(
         backgroundMuted: Color = this.backgroundMuted,
         primary: Color = this.primary,
         success: Color = this.success,
+        successMuted: Color = this.successMuted,
         warning: Color = this.warning,
         error: Color = this.error,
+        errorMuted: Color = this.errorMuted,
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -82,8 +90,10 @@ class SemanticColors(
         primary = primary,
         primaryMuted = primaryMuted,
         success = success,
+        successMuted = successMuted,
         warning = warning,
         error = error,
+        errorMuted = errorMuted,
         isLight = isLight
     )
 

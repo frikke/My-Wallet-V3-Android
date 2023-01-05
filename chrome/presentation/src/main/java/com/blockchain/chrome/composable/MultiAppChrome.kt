@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +54,7 @@ import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromeModeOptions
 import com.blockchain.chrome.MultiAppIntents
+import com.blockchain.chrome.MultiAppNavigationEvent
 import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.MultiAppViewState
 import com.blockchain.chrome.navigation.MultiAppBottomNavigationHost
@@ -62,6 +63,7 @@ import com.blockchain.chrome.toolbar.EnterAlwaysCollapsedState
 import com.blockchain.chrome.toolbar.ScrollState
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
@@ -73,6 +75,7 @@ import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
@@ -92,6 +95,7 @@ private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): Collap
 fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     onModeLongClicked: (WalletMode) -> Unit,
+    startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -110,44 +114,51 @@ fun MultiAppChrome(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: MultiAppViewState? by stateFlowLifecycleAware.collectAsState(null)
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            when (it) {
+                is MultiAppNavigationEvent.PhraseRecovery -> startDefiOnboarding(it.walletActivationRequired)
+            }
+        }
+    }
+
+    val viewState: MultiAppViewState by viewModel.viewState.collectAsStateLifecycleAware()
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    if (viewState != null && statusBarHeight > 0.dp && navBarHeight > 0.dp) {
-        viewState?.let { state ->
-            MultiAppChromeScreen(
-                statusBarHeight = statusBarHeight,
-                navBarHeight = navBarHeight,
-                modeSwitcherOptions = state.modeSwitcherOptions,
-                selectedMode = state.selectedMode,
-                backgroundColors = state.backgroundColors,
-                balance = state.totalBalance,
-                shouldRevealBalance = state.shouldRevealBalance,
-                bottomNavigationItems = state.bottomNavigationItems,
-                onModeSelected = { walletMode ->
-                    viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
-                },
-                onModeLongClicked = onModeLongClicked,
-                openCryptoAssets = openCryptoAssets,
-                openActivity = openActivity,
-                openActivityDetail = openActivityDetail,
-                openReferral = openReferral,
-                openFiatActionDetail = openFiatActionDetail,
-                openMoreQuickActions = openMoreQuickActions,
-                assetActionsNavigation = assetActionsNavigation,
-                settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation,
-                qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation,
-                onBalanceRevealed = {
-                    viewModel.onIntent(MultiAppIntents.BalanceRevealed)
-                }
-            )
-        }
+    if (statusBarHeight > 0.dp && navBarHeight > 0.dp) {
+        MultiAppChromeScreen(
+            statusBarHeight = statusBarHeight,
+            navBarHeight = navBarHeight,
+            modeSwitcherOptions = viewState.modeSwitcherOptions,
+            selectedMode = viewState.selectedMode,
+            backgroundColors = viewState.backgroundColors,
+            balance = viewState.totalBalance,
+            shouldRevealBalance = viewState.shouldRevealBalance,
+            bottomNavigationItems = viewState.bottomNavigationItems,
+            onModeSelected = { walletMode ->
+                viewModel.onIntent(MultiAppIntents.WalletModeChangeRequested(walletMode))
+            },
+            onModeLongClicked = onModeLongClicked,
+            openCryptoAssets = openCryptoAssets,
+            openActivity = openActivity,
+            openActivityDetail = openActivityDetail,
+            openReferral = openReferral,
+            openFiatActionDetail = openFiatActionDetail,
+            openMoreQuickActions = openMoreQuickActions,
+            assetActionsNavigation = assetActionsNavigation,
+            settingsNavigation = settingsNavigation,
+            pricesNavigation = pricesNavigation,
+            qrScanNavigation = qrScanNavigation,
+            supportNavigation = supportNavigation,
+            onBalanceRevealed = {
+                viewModel.onIntent(MultiAppIntents.BalanceRevealed)
+            }
+        )
     }
 }
 

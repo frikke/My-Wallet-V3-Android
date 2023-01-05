@@ -10,13 +10,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.onboarding.navigation.DeFiOnboardingNavHost
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
@@ -25,6 +26,8 @@ import org.koin.core.scope.Scope
 class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
 
     override val alwaysDisableScreenshots: Boolean = true
+
+    override val statusbarColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY)
 
     override val scope: Scope = payloadScope
     val viewModel: DeFiOnboardingViewModel by viewModel()
@@ -92,7 +95,7 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
     }
 
     private fun backupPhraseComplete() {
-        viewModel.onIntent(DeFiOnboardingIntent.BackupPhraseComplete)
+        finish(isSuccessful = true)
     }
 
     private fun finish(isSuccessful: Boolean) {

@@ -154,7 +154,12 @@ class BackupPhraseViewModel(
     }
 
     private fun loadBackupStatus() {
-        updateState { modelState.copy(hasBackup = backupPhraseService.isBackedUp()) }
+        updateState {
+            modelState.copy(
+                hasBackup = backupPhraseService.isBackedUp(),
+                allowSkipBackup = it.allowSkipBackup && backupPhraseService.isBackedUp().not()
+            )
+        }
     }
 
     /**

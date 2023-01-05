@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -24,13 +24,16 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 private const val STEP_INDEX = 1
@@ -65,10 +68,13 @@ fun ManualBackupScreen(
     nextOnClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY),
             title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
             onBackButtonClick = backOnClick
         )
@@ -85,7 +91,7 @@ fun ManualBackupScreen(
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_title),
-                style = ComposeTypographies.Title2,
+                style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
@@ -95,7 +101,7 @@ fun ManualBackupScreen(
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_description),
-                style = ComposeTypographies.Paragraph1,
+                style = ComposeTypographies.Body1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )

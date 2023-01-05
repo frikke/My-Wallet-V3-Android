@@ -4,24 +4,33 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.chrome.composable.bottomNavigationItems
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
+import com.blockchain.preferences.WalletModePrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
-    private val walletModeBalanceService: WalletModeBalanceService
+    private val walletModeBalanceService: WalletModeBalanceService,
+    private val payloadManager: PayloadDataManager,
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val walletModePrefs: WalletModePrefs
 ) : MviViewModel<
     MultiAppIntents,
     MultiAppViewState,
     MultiAppModelState,
-    NavigationEvent,
+    MultiAppNavigationEvent,
     ModelConfigArgs.NoArgs>(
     MultiAppModelState(
         // todo handle defi mode only
@@ -41,7 +50,7 @@ class MultiAppViewModel(
             }
         }
 
-        loadTotalBalance()
+        loadBalance()
     }
 
     override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
@@ -61,8 +70,16 @@ class MultiAppViewModel(
 
     override suspend fun handleIntent(modelState: MultiAppModelState, intent: MultiAppIntents) {
         when (intent) {
-            is MultiAppIntents.WalletModeChanged -> {
-                walletModeService.updateEnabledWalletMode(intent.walletMode)
+            is MultiAppIntents.WalletModeChangeRequested -> {
+                if (shouldBackupPhraseForMode(intent.walletMode)) {
+                    navigate(
+                        MultiAppNavigationEvent.PhraseRecovery(
+                            walletActivationRequired = shouldOnboardWalletForMode(intent.walletMode)
+                        )
+                    )
+                } else {
+                    walletModeService.updateEnabledWalletMode(intent.walletMode)
+                }
             }
 
             is MultiAppIntents.BalanceRevealed -> {
@@ -73,7 +90,8 @@ class MultiAppViewModel(
         }
     }
 
-    private fun loadTotalBalance() {
+    private fun loadBalance() {
+        // total balance to be shown on top
         viewModelScope.launch {
             walletModeBalanceService.totalBalance()
                 .distinctUntilChanged()
@@ -84,5 +102,42 @@ class MultiAppViewModel(
                     }
                 }
         }
+
+        // defi balance to be used in checking defi onboarding state
+        viewModelScope.launch {
+            walletModeBalanceService.balanceFor(WalletMode.NON_CUSTODIAL_ONLY)
+                .filterNot { it is DataResource.Loading }
+                .first()
+                .run {
+                    updateState {
+                        it.copy(defiBalance = it.defiBalance.updateDataWith(this))
+                    }
+                }
+        }
+    }
+
+    private fun shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
+        return when (walletMode) {
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                payloadManager.isBackedUp.not() && walletStatusPrefs.isWalletBackUpSkipped.not()
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
+    private fun shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
+        val isWalletEligibleForActivation = when (walletMode) {
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                (modelState.defiBalance as? DataResource.Data)?.data?.isZero == true
+            }
+            else -> {
+                false
+            }
+        }
+        return isWalletEligibleForActivation &&
+            shouldBackupPhraseForMode(walletMode) &&
+            !walletModePrefs.userDefaultedToPKW
     }
 }

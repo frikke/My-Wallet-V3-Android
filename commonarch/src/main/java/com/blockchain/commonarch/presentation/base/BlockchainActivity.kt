@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
@@ -28,6 +27,7 @@ import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.R
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
@@ -36,6 +36,7 @@ import com.blockchain.koin.superAppModeService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -91,31 +92,50 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     private var progressDialog: MaterialProgressDialog? = null
 
-    protected open val ignoreStatusbarColor: Boolean = false
+    // //////////////////////////////////
+    // statusbar color
+    protected open val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.Current
+
+    private fun WalletMode.statusbarBg() = when (this) {
+        WalletMode.CUSTODIAL_ONLY -> R.drawable.custodial_bg
+        WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.defi_bg
+        WalletMode.UNIVERSAL -> error("not supported")
+    }
+    // //////////////////////////////////
+
     private val authPrefs: AuthPrefs by inject()
-    private val walletMde = payloadScope.get<WalletModeService>(superAppModeService)
+    private val walletPrefs: WalletStatusPrefs by inject()
+    private val walletModeService = payloadScope.get<WalletModeService>(superAppModeService)
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val isLoggedIn = authPrefs.run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
-        if (isLoggedIn && ignoreStatusbarColor.not()) {
-            lifecycleScope.launch {
-                val bg = walletMde.walletMode.map {
-                    when (it) {
-                        WalletMode.CUSTODIAL_ONLY -> R.drawable.custodial_bg
-                        WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.defi_bg
-                        WalletMode.UNIVERSAL -> error("not supported")
-                    }
-                }.first()
+        lifecycleScope.launch {
+            val background: Int? = when (statusbarColor) {
+                ModeBackgroundColor.Current -> {
+                    val isLoggedIn = authPrefs.run { walletGuid.isNotEmpty() && pinId.isNotEmpty() } &&
+                        walletPrefs.isAppUnlocked
 
-                val window: Window = window
-                val background = ContextCompat.getDrawable(this@BlockchainActivity, bg)
+                    if (isLoggedIn) {
+                        walletModeService.walletMode.map { it.statusbarBg() }.first()
+                    } else {
+                        null
+                    }
+                }
+                is ModeBackgroundColor.Override -> {
+                    (statusbarColor as ModeBackgroundColor.Override).walletMode.statusbarBg()
+                }
+                ModeBackgroundColor.None -> {
+                    null
+                }
+            }
+
+            background?.let {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
                 window.statusBarColor = ContextCompat.getColor(this@BlockchainActivity, android.R.color.transparent)
-                window.setBackgroundDrawable(background)
+                window.setBackgroundDrawable(ContextCompat.getDrawable(this@BlockchainActivity, it))
             }
         }
 
@@ -182,8 +202,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
     /**
      * @param mutedBackground false to keep white bg for screens that will remain white (settings..etc)
      */
-    fun updateToolbarBackground(ignoreWalletModeColor: Boolean = false, mutedBackground: Boolean = true) {
-        toolbarBinding?.navigationToolbar?.ignoreWalletModeColor = ignoreWalletModeColor
+    fun updateToolbarBackground(
+        modeColor: ModeBackgroundColor = ModeBackgroundColor.Current,
+        mutedBackground: Boolean = true
+    ) {
+        toolbarBinding?.navigationToolbar?.modeColor = modeColor
         toolbarBinding?.navigationToolbar?.mutedBackground = mutedBackground
     }
 

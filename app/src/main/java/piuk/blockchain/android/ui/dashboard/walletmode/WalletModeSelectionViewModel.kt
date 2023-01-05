@@ -70,7 +70,7 @@ class WalletModeSelectionViewModel(
                             activationRequired = false,
                             balance = it
                         )
-                    } else if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
+                    } else if (shouldOnboardWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
                         BalanceState.PhraseRecoveryRequired(
                             activationRequired = true,
                             balance = it
@@ -153,10 +153,10 @@ class WalletModeSelectionViewModel(
             }
 
             is WalletModeSelectionIntent.ActivateWalletModeRequested -> {
-                if (modelState.shouldBackupPhraseForMode(intent.walletMode)) {
+                if (modelState.shouldBackupPhraseForMode(intent.walletMode)) { // /
                     navigate(
                         WalletModeSelectionNavigationEvent.PhraseRecovery(
-                            walletActivationRequired = modelState.shouldActivateWalletForMode(intent.walletMode)
+                            walletActivationRequired = modelState.shouldOnboardWalletForMode(intent.walletMode)
                         )
                     )
                 } else {
@@ -187,7 +187,7 @@ class WalletModeSelectionViewModel(
         }
     }
 
-    private fun WalletModeSelectionModelState.shouldActivateWalletForMode(walletMode: WalletMode): Boolean {
+    private fun WalletModeSelectionModelState.shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
         val isWalletEligibleForActivation = when (walletMode) {
             WalletMode.NON_CUSTODIAL_ONLY -> defiBalance?.isZero == true
             else -> false

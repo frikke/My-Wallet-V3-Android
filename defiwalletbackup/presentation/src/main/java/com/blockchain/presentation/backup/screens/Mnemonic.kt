@@ -1,7 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
 import android.view.MotionEvent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +35,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.presentation.R
@@ -55,7 +52,7 @@ fun HidableMnemonic(mnemonic: List<String>) {
     Mnemonic(mnemonic = mnemonic, hidable = true)
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
     var hidden by remember { mutableStateOf(hidable) }
@@ -68,12 +65,7 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     start.linkTo(parent.start)
                 }
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = Grey100,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
-                )
-                .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.tiny_spacing)))
+                .background(color = Color.White, shape = AppTheme.shapes.large)
                 .run {
                     if (hidable) {
                         pointerInteropFilter {
@@ -112,7 +104,12 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
                     }
-                    .background(Grey000)
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.background,
+                        shape = AppTheme.shapes.large
+                    )
+                    .background(color = Grey000, shape = AppTheme.shapes.large)
             )
 
             Image(

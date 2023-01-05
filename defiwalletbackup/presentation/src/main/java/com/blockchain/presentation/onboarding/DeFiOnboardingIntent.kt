@@ -6,7 +6,6 @@ sealed interface DeFiOnboardingIntent : Intent<DeFiOnboardingModelState> {
     // intro
     object EnableDeFiWallet : DeFiOnboardingIntent
     object PhraseBackupRequested : DeFiOnboardingIntent
-    object BackupPhraseComplete : DeFiOnboardingIntent
 
     // flow
     data class EndFlow(val isSuccessful: Boolean) : DeFiOnboardingIntent

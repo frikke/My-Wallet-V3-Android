@@ -28,6 +28,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
@@ -95,7 +96,7 @@ class PinActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
-    override val ignoreStatusbarColor: Boolean = true
+    override val statusbarColor = ModeBackgroundColor.None
 
     private val environmentConfig: EnvironmentConfig by inject()
     private val util: AppUtil by inject()
@@ -343,7 +344,7 @@ class PinActivity :
     }
 
     private fun setToolbar() {
-        updateToolbarBackground(ignoreWalletModeColor = true, mutedBackground = false)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = false)
 
         when (originScreen) {
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {

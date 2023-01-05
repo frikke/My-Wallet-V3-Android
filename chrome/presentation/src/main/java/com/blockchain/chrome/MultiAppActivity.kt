@@ -47,11 +47,15 @@ import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.superAppModeService
+import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -79,6 +83,7 @@ class MultiAppActivity :
 
     override val scope: Scope = payloadScope
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
+    private val walletModeService: WalletModeService by scopedInject(superAppModeService)
 
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)
@@ -90,6 +95,12 @@ class MultiAppActivity :
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private val defiBackupNavigation: DefiBackupNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
 
     private val pricesNavigation: PricesNavigation = payloadScope.get {
         parametersOf(
@@ -154,6 +165,7 @@ class MultiAppActivity :
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
+                startDefiOnboarding = { walletActivationRequired -> handleDefiOnboarding(walletActivationRequired) },
                 assetActionsNavigation = assetActionsNavigation,
                 fiatActionsNavigation = fiatActionsNavigation,
                 settingsNavigation = settingsNavigation,
@@ -177,6 +189,27 @@ class MultiAppActivity :
         }
     }
 
+    // //////////////////////////////////
+    // defi onboarding
+    private val activityResultDefiOnboarding = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            lifecycleScope.launch {
+                walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
+            }
+        }
+    }
+
+    private fun handleDefiOnboarding(walletActivationRequired: Boolean) {
+        defiBackupNavigation.startBackup(
+            launcher = activityResultDefiOnboarding,
+            walletActivationRequired = walletActivationRequired
+        )
+    }
+
+    // //////////////////////////////////
+    // deep link
     private fun navigate(step: DeeplinkNavigationStep) {
         when (step) {
             is DeeplinkNavigationStep.AccountWalletLinkAlert ->

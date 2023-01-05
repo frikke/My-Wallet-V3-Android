@@ -22,7 +22,7 @@ class NavigationBarView @JvmOverloads constructor(
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
-    var ignoreWalletModeColor by mutableStateOf(false)
+    var modeColor: ModeBackgroundColor by mutableStateOf(ModeBackgroundColor.Current)
     var mutedBackground by mutableStateOf(false)
 
     @Composable
@@ -31,7 +31,7 @@ class NavigationBarView @JvmOverloads constructor(
             AppSurface {
                 if (startNavigationButton != null) {
                     NavigationBar(
-                        ignoreWalletModeColor = ignoreWalletModeColor,
+                        modeColor = modeColor,
                         mutedBackground = mutedBackground,
                         title = title,
                         startNavigationBarButton = startNavigationButton,
@@ -39,7 +39,7 @@ class NavigationBarView @JvmOverloads constructor(
                     )
                 } else {
                     NavigationBar(
-                        ignoreWalletModeColor = ignoreWalletModeColor,
+                        modeColor = modeColor,
                         mutedBackground = mutedBackground,
                         title = title,
                         onBackButtonClick = onBackButtonClick,

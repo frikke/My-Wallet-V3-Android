@@ -13,9 +13,12 @@ dependencies {
     implementation project(':notifications')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':wallet')
+    implementation project(':blockchainApi')
     implementation project(':analytics:domain')
     implementation project(':componentlib')
     implementation Libraries.rxjava3Coroutines
+    implementation project(':defiwalletbackup:presentation')
     implementation project(':flowhome:presentation')
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')

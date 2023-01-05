@@ -68,6 +68,7 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
@@ -158,6 +159,7 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
+import piuk.blockchain.android.ui.home.DefiBackupNavigationImpl
 import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.home.QrScanNavigationImpl
@@ -268,6 +270,10 @@ val applicationModule = module {
         factory {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
+
+        scoped { (activity: BlockchainActivity) -> DefiBackupNavigationImpl(activity = activity) }.apply {
+            bind(DefiBackupNavigation::class)
+        }
 
         scoped { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
             bind(PricesNavigation::class)

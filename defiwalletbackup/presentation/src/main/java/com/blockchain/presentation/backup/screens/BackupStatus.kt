@@ -44,7 +44,7 @@ fun BackupStatus(backupStatus: BackUpStatus) {
 
         Text(
             text = stringResource(backupStatus.text),
-            style = AppTheme.typography.caption2,
+            style = AppTheme.typography.paragraph2,
             color = backupStatus.textColor,
         )
     }

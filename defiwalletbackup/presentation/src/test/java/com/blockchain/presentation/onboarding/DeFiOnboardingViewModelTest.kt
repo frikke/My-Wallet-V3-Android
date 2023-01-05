@@ -1,7 +1,6 @@
 package com.blockchain.presentation.onboarding
 
 import app.cash.turbine.test
-import com.blockchain.presentation.onboarding.navigation.DeFiOnboardingNavigationEvent
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 import com.blockchain.testutils.CoroutineTestRule
 import kotlin.test.assertEquals
@@ -43,17 +42,6 @@ class DeFiOnboardingViewModelTest {
 
                 val state = expectMostRecentItem()
                 assertEquals(false, state.shouldLaunchPhraseBackup)
-            }
-        }
-
-    @Test
-    fun `WHEN BackupPhraseComplete is called, THEN DefiOnboardingComplete should be called`() =
-        runTest {
-            viewModel.navigationEventFlow.test {
-                viewModel.onIntent(DeFiOnboardingIntent.BackupPhraseComplete)
-
-                val state = expectMostRecentItem()
-                assertEquals(DeFiOnboardingNavigationEvent.DefiOnboardingComplete, state)
             }
         }
 

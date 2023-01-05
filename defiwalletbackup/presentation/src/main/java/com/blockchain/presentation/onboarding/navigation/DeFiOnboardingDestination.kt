@@ -4,5 +4,4 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDe
 
 sealed class DeFiOnboardingDestination(override val route: String) : ComposeNavigationDestination {
     object DeFiOnboardingIntro : DeFiOnboardingDestination("DeFiOnboardingIntro")
-    object DeFiOnboardingComplete : DeFiOnboardingDestination("DeFiOnboardingComplete")
 }
