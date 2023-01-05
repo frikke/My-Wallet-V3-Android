@@ -1,7 +1,10 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -26,11 +29,11 @@ import com.blockchain.utils.toFormattedString
 import java.util.Currency
 import java.util.Locale
 
-@DrawableRes internal fun CustodialTradingActivitySummaryItem.iconDetail(): Int {
+internal fun CustodialTradingActivitySummaryItem.iconDetail(): ImageResource {
     return when (type) {
         OrderType.BUY,
-        OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy_dark
-        OrderType.SELL -> R.drawable.ic_activity_sell_dark
+        OrderType.RECURRING_BUY -> Icons.Filled.Plus
+        OrderType.SELL -> Icons.Filled.Minus
     }
 }
 

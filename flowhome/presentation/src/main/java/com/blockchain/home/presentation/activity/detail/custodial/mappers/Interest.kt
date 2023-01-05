@@ -1,7 +1,11 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.Plus
+import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.home.presentation.R
@@ -21,15 +25,15 @@ import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-@DrawableRes internal fun CustodialInterestActivitySummaryItem.iconDetail(): Int {
+internal fun CustodialInterestActivitySummaryItem.iconDetail(): ImageResource {
     return when (status) {
         InterestState.COMPLETE -> when (type) {
-            TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
-            TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards_dark
-            TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell_dark
-            else -> R.drawable.ic_activity_buy_dark
+            TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
+            TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
+            TransactionSummary.TransactionType.WITHDRAW -> Icons.Filled.Minus
+            else -> Icons.Filled.Plus
         }
-        else -> R.drawable.ic_activity_rewards_dark
+        else -> Icons.Filled.Rewards
     }
 }
 

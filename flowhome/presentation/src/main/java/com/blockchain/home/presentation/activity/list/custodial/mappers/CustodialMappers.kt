@@ -9,8 +9,9 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
@@ -72,7 +73,7 @@ fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
         // hack for now - when interacting with interest there are 2 activities with the same txid
         // but e.g. one is SEND the other is INTEREST DEPOSIT
         id = "$txId|${this::class}",
-        leadingImage = ActivityIconState.SingleIcon.Local(iconSummary()),
+        leadingImage = StackedIcon.SingleIcon(ImageResource.Local(iconSummary())),
         leading = leading(),
         trailing = trailing()
     )

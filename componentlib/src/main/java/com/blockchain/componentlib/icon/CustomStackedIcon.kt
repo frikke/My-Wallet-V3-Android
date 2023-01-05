@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -23,12 +22,12 @@ fun CustomStackedIcon(
     icon: StackedIcon,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background,
-    size: Dp = 18.dp,
+    size: Dp = AppTheme.dimensions.standardSpacing,
 ) {
     when (icon) {
         is StackedIcon.OverlappingPair -> OverlapIcon(
             icon = icon,
-            iconSize = size,
+            iconSize = size * 0.75f,
             iconBackground = iconBackground,
             borderColor = borderColor
         )

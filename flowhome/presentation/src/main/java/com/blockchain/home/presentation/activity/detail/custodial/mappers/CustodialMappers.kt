@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
@@ -9,9 +8,9 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
@@ -25,7 +24,7 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 internal const val MAX_ABBREVIATE_LENGTH = 15
 internal const val SIDE_ABBREVIATE_LENGTH = 4
 
-@DrawableRes internal fun ActivitySummaryItem.iconDetail() = when (this) {
+internal fun ActivitySummaryItem.iconDetail() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconDetail()
     is CustodialTransferActivitySummaryItem -> iconDetail()
     is CustodialInterestActivitySummaryItem -> iconDetail()
@@ -89,7 +88,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
 
 fun CustodialActivityDetail.toActivityDetail(): ActivityDetail {
     return ActivityDetail(
-        icon = ActivityIconState.SingleIcon.Local(activity.iconDetail()),
+        icon = StackedIcon.SingleIcon(activity.iconDetail()),
         title = activity.title(),
         subtitle = TextValue.StringValue(""), // todo
         detailItems = detailItems(),
