@@ -24,6 +24,7 @@ class MultiAppViewModel(
     NavigationEvent,
     ModelConfigArgs.NoArgs>(
     MultiAppModelState(
+        // todo handle defi mode only
         walletModes = walletModeService.availableModes(),
         selectedWalletMode = WalletMode.CUSTODIAL_ONLY
     )
@@ -45,7 +46,11 @@ class MultiAppViewModel(
 
     override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
         MultiAppViewState(
-            modeSwitcherOptions = state.walletModes,
+            modeSwitcherOptions = if (state.walletModes.size == 1) {
+                ChromeModeOptions.SingleSelection(state.walletModes.first())
+            } else {
+                ChromeModeOptions.MultiSelection(state.walletModes)
+            },
             selectedMode = state.selectedWalletMode,
             backgroundColors = state.selectedWalletMode.backgroundColors(),
             totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },

@@ -52,6 +52,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.ChromeModeOptions
 import com.blockchain.chrome.MultiAppIntents
 import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.MultiAppViewState
@@ -76,11 +77,14 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-private fun rememberToolbarState(): CollapsingToolbarState {
+private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
+    val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) 0 else 145
+
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
+        // todo (ignore comment below, doing this way is buggy, a static 145 for now)
         // initialize with minHeight:0 maxHeight:0
         // the size will be calculated at runtime after drawing to get the real view heights
-        EnterAlwaysCollapsedState(145, 145)
+        EnterAlwaysCollapsedState(topSectionHeight = 145, bottomSectionHeight = bottomSectionHeight)
     }
 }
 
@@ -151,7 +155,7 @@ fun MultiAppChrome(
 fun MultiAppChromeScreen(
     statusBarHeight: Dp,
     navBarHeight: Dp,
-    modeSwitcherOptions: List<WalletMode>,
+    modeSwitcherOptions: ChromeModeOptions,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
     balance: DataResource<String>,
@@ -176,7 +180,7 @@ fun MultiAppChromeScreen(
     //    var balanceSectionHeight = remember { headerSectionHeightPx }
     //    var tabsSectionHeight = remember { headerSectionHeightPx }
 
-    val toolbarState = rememberToolbarState()
+    val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
     /**
      * if the screen is currently trying pull to refresh
@@ -525,7 +529,7 @@ fun MultiAppChromeScreen(
                 .nestedScroll(nestedScrollConnection)
         ) {
 
-            // ///// header
+            // /// header
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -543,52 +547,62 @@ fun MultiAppChromeScreen(
                 )
 
                 // ///// mode tabs
-                Box(
-                    modifier = Modifier
-                        .height(54.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val revealPadding = remember { 40 }
+                when (modeSwitcherOptions) {
+                    is ChromeModeOptions.MultiSelection -> {
+                        Box(
+                            modifier = Modifier
+                                .height(54.dp)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val revealPadding = remember { 40 }
 
-                    TotalBalance(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                translationY = (balanceRevealAlpha - 1) * revealPadding
+                            TotalBalance(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .graphicsLayer {
+                                        translationY = (balanceRevealAlpha - 1) * revealPadding
+                                    }
+                                    .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
+                                balance = balance
+                            )
+
+                            if (
+                                balance is DataResource.Data && shouldRevealBalance && isBalanceRevealInProgress.not()
+                            ) {
+                                revealBalance()
                             }
-                            .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
-                        balance = balance
-                    )
 
-                    if (balance is DataResource.Data && shouldRevealBalance && isBalanceRevealInProgress.not()) {
-                        revealBalance()
+                            ModeSwitcher(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .graphicsLayer {
+                                        translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
+                                    }
+                                    .alpha(
+                                        if (isBalanceRevealInProgress) {
+                                            min(switcherRevealAlpha, switcherScrollAlpha)
+                                        } else {
+                                            switcherScrollAlpha
+                                        }
+                                    ),
+                                modes = modeSwitcherOptions.modes,
+                                selectedMode = selectedMode,
+                                onModeClicked = { walletMode ->
+                                    if (isBalanceRevealInProgress.not()) {
+                                        stopRefresh()
+                                        bottomNavigationVisible = false
+                                        onModeSelected(walletMode)
+                                    }
+                                },
+                                onModeLongClicked = onModeLongClicked
+                            )
+                        }
                     }
 
-                    ModeSwitcher(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
-                            }
-                            .alpha(
-                                if (isBalanceRevealInProgress) {
-                                    min(switcherRevealAlpha, switcherScrollAlpha)
-                                } else {
-                                    switcherScrollAlpha
-                                }
-                            ),
-                        modes = modeSwitcherOptions,
-                        selectedMode = selectedMode,
-                        onModeClicked = { walletMode ->
-                            if (isBalanceRevealInProgress.not()) {
-                                stopRefresh()
-                                bottomNavigationVisible = false
-                                onModeSelected(walletMode)
-                            }
-                        },
-                        onModeLongClicked = onModeLongClicked
-                    )
+                    is ChromeModeOptions.SingleSelection -> {
+                        // n/a
+                    }
                 }
             }
 

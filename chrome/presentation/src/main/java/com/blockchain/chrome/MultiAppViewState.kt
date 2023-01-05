@@ -7,7 +7,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 
 data class MultiAppViewState(
-    val modeSwitcherOptions: List<WalletMode>,
+    val modeSwitcherOptions: ChromeModeOptions,
     val selectedMode: WalletMode,
     val backgroundColors: ChromeBackgroundColors,
     val totalBalance: DataResource<String>,
