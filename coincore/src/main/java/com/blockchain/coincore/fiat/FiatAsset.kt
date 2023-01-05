@@ -39,7 +39,7 @@ class FiatAsset(
     private val tradingService: TradingService by scopedInject()
     private val labels: DefaultLabels by inject()
 
-    override fun defaultAccount(): Single<SingleAccount> = accountGroup(AssetFilter.All).map {
+    override fun defaultAccount(filter: AssetFilter): Single<SingleAccount> = accountGroup(filter).map {
         it.accounts[0]
     }.toSingle()
 

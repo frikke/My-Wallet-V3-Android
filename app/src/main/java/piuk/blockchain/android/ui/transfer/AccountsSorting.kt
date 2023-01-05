@@ -13,11 +13,13 @@ import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
@@ -60,8 +62,8 @@ class SwapSourceAccountsSorting(
 class SwapTargetAccountsSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val dashboardAccountsSorter: AccountsSorting,
-    private val coincore: Coincore,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val currencyPrefs: CurrencyPrefs,
     private val watchlistDataManager: WatchlistDataManager,
     private val momentLogger: MomentLogger
 ) : AccountsSorting {
@@ -80,12 +82,17 @@ class SwapTargetAccountsSorting(
                     Observable.fromIterable(list).flatMapSingle { account ->
                         Single.zip(
                             account.balanceRx.firstOrError(),
-                            coincore[account.currency].getPricesWith24hDeltaLegacy(),
-                            exchangeRatesDataManager.getCurrentAssetPrice(account.currency, FiatCurrency.Dollars)
-                        ) { accountBalance, pricesHistory, priceRecord ->
+                            exchangeRatesDataManager.getCurrentAssetPrice(
+                                asset = account.currency, fiat = currencyPrefs.selectedFiatCurrency
+                            )
+                        ) { accountBalance, priceRecord ->
                             AccountInfo(
                                 account = account,
-                                totalBalance = pricesHistory.currentRate.convert(accountBalance.total),
+                                totalBalance = ExchangeRate(
+                                    rate = priceRecord.rate,
+                                    from = account.currency,
+                                    to = currencyPrefs.selectedFiatCurrency
+                                ).convert(accountBalance.total),
                                 tradingVolume = priceRecord.tradingVolume24h ?: 0.0
                             )
                         }

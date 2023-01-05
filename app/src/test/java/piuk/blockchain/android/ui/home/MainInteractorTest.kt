@@ -327,7 +327,7 @@ class MainInteractorTest {
             }
         )
 
-        whenever(coincore.walletsWithActions(actions = setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+        whenever(coincore.walletsWithAction(action = AssetAction.Sell)).thenReturn(Single.just(accountList))
 
         val result = interactor.selectAccountForTxFlow("XLM", AssetAction.Sell).test()
         result.assertValue {
@@ -353,7 +353,7 @@ class MainInteractorTest {
         }
         val accountList = listOf(btcAccount, ethAccount)
 
-        whenever(coincore.walletsWithActions(actions = setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+        whenever(coincore.walletsWithAction(action = AssetAction.Sell)).thenReturn(Single.just(accountList))
 
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {
@@ -392,7 +392,7 @@ class MainInteractorTest {
             ethNonCustodialAccount
         )
 
-        whenever(coincore.walletsWithActions(actions = setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+        whenever(coincore.walletsWithAction(action = AssetAction.Sell)).thenReturn(Single.just(accountList))
 
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {
@@ -431,7 +431,7 @@ class MainInteractorTest {
             ethNonCustodialAccount
         )
 
-        whenever(coincore.walletsWithActions(actions = setOf(AssetAction.Sell))).thenReturn(Single.just(accountList))
+        whenever(coincore.walletsWithAction(action = AssetAction.Sell)).thenReturn(Single.just(accountList))
 
         val result = interactor.selectAccountForTxFlow("BTC", AssetAction.Sell).test()
         result.assertValue {

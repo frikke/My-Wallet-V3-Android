@@ -22,7 +22,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.rx.printTime
 import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
@@ -102,7 +101,7 @@ class Coincore internal constructor(
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
-    private fun allLoadedAssets() = assetLoader.loadedAssets
+    private fun allLoadedAssets() = availableCryptoAssets().map { cryptos -> cryptos.map { get(it) } }
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
@@ -144,17 +143,39 @@ class Coincore internal constructor(
         }
 
     private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<List<SingleAccount>> =
-        Maybe.concat(
-            allLoadedAssets().map {
-                it.accountGroup(filter).map { grp -> grp.accounts }
-                    .map { list ->
-                        list.filter { account ->
-                            (includeArchived || account !is CryptoAccount) || !account.isArchived
+        allLoadedAssets().flatMap { assets ->
+            Maybe.concat(
+                assets.map {
+                    it.accountGroup(filter).map { grp -> grp.accounts }
+                        .map { list ->
+                            list.filter { account ->
+                                (includeArchived || account !is CryptoAccount) || !account.isArchived
+                            }
                         }
-                    }
+                }
+            ).reduce { a, l -> a + l }
+                .toSingle()
+        }
+
+    private fun availableWalletsForAction(action: AssetAction, filter: AssetFilter): Single<List<SingleAccount>> {
+        return when (action) {
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.InterestWithdraw,
+            AssetAction.Send -> activeWallets().map {
+                it.accounts
             }
-        ).reduce { a, l -> a + l }
-            .toSingle()
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement,
+            AssetAction.Buy,
+            AssetAction.FiatWithdraw,
+            AssetAction.Receive,
+            AssetAction.FiatDeposit,
+            AssetAction.Sign,
+            AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit -> walletsWithFilter(filter = filter)
+        }
+    }
 
     private fun allCustodialWallets(): Single<AccountGroup> =
         walletsWithFilter(filter = AssetFilter.Custodial).map { list ->
@@ -166,9 +187,9 @@ class Coincore internal constructor(
             AllNonCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
-    fun walletsWithActions(
+    fun walletsWithAction(
         tickers: Set<Currency> = emptySet(),
-        actions: Set<AssetAction>,
+        action: AssetAction,
         filter: AssetFilter? = null,
         sorter: AccountsSorter = { Single.just(it) },
     ): Single<SingleAccountList> {
@@ -177,26 +198,27 @@ class Coincore internal constructor(
         else Single.just(filter)
 
         return f.flatMap { assetFilter ->
-            walletsWithFilter(
-                filter = assetFilter
+            availableWalletsForAction(
+                filter = assetFilter,
+                action = action
             ).map { accounts ->
                 accounts.filter { account ->
                     account.currency.networkTicker in tickers.map { it.networkTicker } ||
                         tickers.isEmpty()
                 }
             }
-        }
-            .flattenAsObservable { it }
+        }.flattenAsObservable { it }
             .flatMapSingle { account ->
-                account.hasAllActionsAvailable(actions).map {
+                account.hasActionAvailable(action).map {
                     mapOf(account to it)
                 }
             }.reduce { t1, t2 -> t1 + t2 }
             .map { map -> map.filter { it.value } }.map {
                 it.keys
-            }.flatMapSingle {
+            }
+            .flatMapSingle {
                 sorter(it.toList())
-            }.switchIfEmpty(Single.just(emptyList())).printTime("ACTIONS!!!")
+            }.switchIfEmpty(Single.just(emptyList()))
     }
 
     fun getTransactionTargets(
@@ -354,14 +376,8 @@ class Coincore internal constructor(
     }
 }
 
-private fun SingleAccount.hasAllActionsAvailable(actions: Set<AssetAction>): Single<Boolean> {
-    return Single.just(actions).flattenAsObservable { it }.flatMapSingle {
-        stateOfAction(it)
-    }.map {
-        listOf(it == ActionState.Available)
-    }.reduce { t1, t2 -> t1 + t2 }.map { list ->
-        list.all { it }
-    }.switchIfEmpty(Single.just(false))
+private fun SingleAccount.hasActionAvailable(action: AssetAction): Single<Boolean> {
+    return stateOfAction(action).map { it == ActionState.Available }
 }
 
 internal class NetworkAccountsRepository(

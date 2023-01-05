@@ -10,6 +10,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.doOnData
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -115,12 +116,17 @@ internal class InterestRepository(
             .asObservable().firstOrError()
     }
 
+    private var interestAvailableAssets: List<AssetInfo> = emptyList()
     override fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>> {
-        return interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+        return if (interestAvailableAssets.isNotEmpty()) {
+            flowOf(DataResource.Data(interestAvailableAssets))
+        } else interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .mapData { response ->
                 response.networkTickers.mapNotNull { networkTicker ->
                     assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
                 }
+            }.doOnData {
+                interestAvailableAssets = it
             }
     }
 

@@ -155,31 +155,27 @@ class CustodialTradingAccount(
         }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = balanceRx.firstOrError().flatMap { balance ->
-            baseActions.flatMap { actions ->
-                actions.map { it.eligibility(balance) }.zipSingles()
-                    .map { it.toSet() }
-            }
+        get() = baseActions.flatMap { actions ->
+            actions.map { it.eligibility() }.zipSingles()
+                .map { it.toSet() }
         }
 
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
-        return balanceRx.firstOrError().flatMap { balance ->
-            assetAction.eligibility(balance).map {
-                it.state
-            }
+        return assetAction.eligibility().map {
+            it.state
         }
     }
 
-    private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> =
+    private fun AssetAction.eligibility(): Single<StateAwareAction> =
         when (this) {
             AssetAction.ViewActivity -> viewActivityEligibility()
             AssetAction.Receive -> receiveEligibility()
-            AssetAction.Send -> sendEligibility(balance)
-            AssetAction.InterestDeposit -> interestDepositEligibility(balance)
-            AssetAction.Swap -> swapEligibility(balance)
-            AssetAction.Sell -> sellEligibility(balance)
+            AssetAction.Send -> balanceRx.firstOrError().flatMap { sendEligibility(it) }
+            AssetAction.InterestDeposit -> balanceRx.firstOrError().flatMap { interestDepositEligibility(it) }
+            AssetAction.Swap -> balanceRx.firstOrError().flatMap { swapEligibility(it) }
+            AssetAction.Sell -> balanceRx.firstOrError().flatMap { sellEligibility(it) }
             AssetAction.Buy -> buyEligibility()
-            AssetAction.StakingDeposit -> stakingDepositEligibility(balance)
+            AssetAction.StakingDeposit -> balanceRx.firstOrError().flatMap { stakingDepositEligibility(it) }
             AssetAction.ViewStatement,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,

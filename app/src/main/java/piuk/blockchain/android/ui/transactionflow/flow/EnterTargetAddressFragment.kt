@@ -112,7 +112,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
         with(binding) {
 
-            listLoadingProgress.visibleIf { newState.isLoading }
+            listLoadingProgress.visibleIf { newState.isLoading && newState.availableTargets.isEmpty() }
 
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)

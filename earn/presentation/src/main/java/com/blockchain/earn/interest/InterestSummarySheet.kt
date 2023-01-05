@@ -91,7 +91,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                 image = ImageResource.Remote((account as CryptoAccount).currency.logo)
             }
 
-            disposables += coincore.walletsWithActions(actions = setOf(AssetAction.InterestDeposit)).map { accounts ->
+            disposables += coincore.walletsWithAction(action = AssetAction.InterestDeposit).map { accounts ->
                 accounts.filter { account -> account is CryptoAccount && account.currency == asset }
             }
                 .onErrorReturn { emptyList() }

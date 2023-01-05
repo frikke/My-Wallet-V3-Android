@@ -33,7 +33,6 @@ import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppMvpFeatureFlag
 import com.blockchain.koin.superappFeatureFlag
-import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -128,15 +127,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(unifiedBalancesFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_unified_balances_ff",
-                "Enable Balances from unified balances endpoint"
             )
         )
     }.bind(FeatureFlag::class)

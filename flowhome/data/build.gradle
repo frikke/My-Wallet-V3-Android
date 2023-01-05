@@ -22,6 +22,7 @@ dependencies {
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':flowhome:domain')
     implementation project(':store:core')
+    implementation project(':core')
     implementation project(':store:caches:inmemory')
 
     // coroutines

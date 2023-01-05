@@ -1,6 +1,7 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
@@ -35,12 +36,15 @@ class ActiveAccountListTest {
         whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadEmptyAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadEmptyAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.isEmpty() }
 
-        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -50,12 +54,15 @@ class ActiveAccountListTest {
         whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadFourAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadFourAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 4 }
 
-        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -66,38 +73,55 @@ class ActiveAccountListTest {
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadTwoAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadTwoAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 2 }
 
-        subject.fetchAccountList(::loadThreeAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadThreeAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 2 }
 
-        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
     @Test
-    fun reloadIfInterestStateChanged() {
+    fun reloadIfInterestIsEnabled() {
 
         whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
-            .thenReturn(Single.just(false))
             .thenReturn(Single.just(true))
 
-        subject.fetchAccountList(::loadTwoAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadTwoAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 2 }
 
-        subject.fetchAccountList(::loadThreeAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadThreeAccountList(it)
+        }
             .test()
             .assertComplete()
-            .assertValue { it.size == 3 }
+            .assertValue {
+                it.size == 3
+            }
 
-        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -108,19 +132,26 @@ class ActiveAccountListTest {
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadTwoAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadTwoAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 2 }
 
         subject.setForceRefresh()
 
-        subject.fetchAccountList(::loadThreeAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadThreeAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -132,24 +163,36 @@ class ActiveAccountListTest {
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadTwoAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadTwoAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 2 }
 
         subject.setForceRefresh()
 
-        subject.fetchAccountList(::loadThreeAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadThreeAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        subject.fetchAccountList(::loadFourAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadFourAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        verify(interestService, times(3)).isAssetAvailableForInterest(TEST_ASSET)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -160,20 +203,27 @@ class ActiveAccountListTest {
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadFourAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadFourAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 4 }
 
         subject.setForceRefresh()
 
-        subject.fetchAccountList(::loadThreeAccountList)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadThreeAccountList(it)
+        }
             .test()
             .assertComplete()
             .assertValue { it.size == 3 }
             .assertValue { !it.contains(mockAccountD) }
 
-        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -183,11 +233,14 @@ class ActiveAccountListTest {
         whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
-        subject.fetchAccountList(::loadAccountListFailed)
+        subject.fetchAccountList(
+            assetFilter = AssetFilter.Custodial
+        ) {
+            loadAccountListFailed(it)
+        }
             .test()
             .assertError(Throwable::class.java)
 
-        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
         verifyNoMoreInteractions(interestService)
     }
 
@@ -196,17 +249,17 @@ class ActiveAccountListTest {
     private val mockAccountC: CryptoAccount = mock()
     private val mockAccountD: CryptoAccount = mock()
 
-    private fun loadEmptyAccountList(): Single<SingleAccountList> =
+    private fun loadEmptyAccountList(filter: AssetFilter): Single<SingleAccountList> =
         Single.just(listOf())
 
-    private fun loadOneAccountList(): Single<SingleAccountList> =
+    private fun loadOneAccountList(filter: AssetFilter): Single<SingleAccountList> =
         Single.just(
             listOf(
                 mockAccountA
             )
         )
 
-    private fun loadTwoAccountList(): Single<SingleAccountList> =
+    private fun loadTwoAccountList(filter: AssetFilter): Single<SingleAccountList> =
         Single.just(
             listOf(
                 mockAccountA,
@@ -214,7 +267,7 @@ class ActiveAccountListTest {
             )
         )
 
-    private fun loadThreeAccountList(): Single<SingleAccountList> =
+    private fun loadThreeAccountList(filter: AssetFilter): Single<SingleAccountList> =
         Single.just(
             listOf(
                 mockAccountA,
@@ -223,7 +276,7 @@ class ActiveAccountListTest {
             )
         )
 
-    private fun loadFourAccountList(): Single<SingleAccountList> =
+    private fun loadFourAccountList(filter: AssetFilter): Single<SingleAccountList> =
         Single.just(
             listOf(
                 mockAccountA,
@@ -233,6 +286,6 @@ class ActiveAccountListTest {
             )
         )
 
-    private fun loadAccountListFailed(): Single<SingleAccountList> =
+    private fun loadAccountListFailed(filter: AssetFilter): Single<SingleAccountList> =
         Single.error(Throwable("Something went wrong"))
 }

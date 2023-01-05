@@ -129,7 +129,7 @@ val dashboardModule = module {
             SwapTargetAccountsSorting(
                 assetListOrderingFF = get(assetOrderingFeatureFlag),
                 dashboardAccountsSorter = get(defaultOrder),
-                coincore = get(),
+                currencyPrefs = get(),
                 exchangeRatesDataManager = get(),
                 watchlistDataManager = get(),
                 momentLogger = get()

@@ -83,7 +83,6 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val unifiedBalancesFeatureFlag: FeatureFlag,
     private val stakingService: StakingService,
     private val coinNetworksEnabledFlag: FeatureFlag,
     private val kycService: KycService,
@@ -254,11 +253,7 @@ internal class DynamicAssetLoader(
 
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
         return flow {
-            val unifiedBalancesServiceEnabled = unifiedBalancesFeatureFlag.coEnabled()
-            if (unifiedBalancesServiceEnabled)
-                emitAll(loadNonCustodialAssetsUsingUnifiedBalances())
-            else
-                emitAll(loadNonCustodialLegacyAssets())
+            emitAll(loadNonCustodialAssetsUsingUnifiedBalances())
         }
     }
 
@@ -415,11 +410,7 @@ internal class DynamicAssetLoader(
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
             layerTwoFeatureFlag = layerTwoFeatureFlag,
-            coinNetworksFeatureFlag = coinNetworksEnabledFlag,
             evmNetworks = assetCatalogue.allEvmNetworks(),
-            kycService = kycService,
-            tradingService = tradingService,
-            walletModeService = walletModeService,
         )
     }
 

@@ -24,7 +24,6 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
@@ -138,7 +137,6 @@ val coincoreModule = module {
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stakingService = get(),
-                unifiedBalancesFeatureFlag = get(unifiedBalancesFlag),
                 coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
                 kycService = get(),
                 walletModeService = get()

@@ -17,7 +17,7 @@ interface StakingService {
 
     fun getAvailabilityForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Boolean>>
 
     fun getActiveAssets(
