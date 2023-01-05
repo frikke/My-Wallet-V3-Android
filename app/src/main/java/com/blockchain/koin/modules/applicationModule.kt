@@ -31,6 +31,7 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
@@ -161,6 +162,7 @@ import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.home.QrScanNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
+import piuk.blockchain.android.ui.home.SupportNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
@@ -303,6 +305,10 @@ val applicationModule = module {
         }.bind(
             QrScanNavigation::class
         )
+
+        scoped { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
+            bind(SupportNavigation::class)
+        }
 
         scoped {
             CredentialsWiper(

@@ -21,7 +21,10 @@ import com.blockchain.home.presentation.R
 
 @Preview
 @Composable
-fun HelpAndSupport() {
+fun HelpAndSupport(
+    openSupportChat: () -> Unit,
+    openSupportCenter: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,12 +44,12 @@ fun HelpAndSupport() {
             Column {
                 DefaultTableRow(
                     primaryText = stringResource(R.string.chat_with_support),
-                    onClick = {}
+                    onClick = openSupportChat
                 )
                 Divider()
                 DefaultTableRow(
                     primaryText = stringResource(R.string.view_support_center),
-                    onClick = {}
+                    onClick = openSupportCenter
                 )
             }
         }

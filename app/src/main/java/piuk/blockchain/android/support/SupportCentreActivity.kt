@@ -49,6 +49,10 @@ class SupportCentreActivity :
         intent.getStringExtra(SUBJECT).orEmpty()
     }
 
+    private val launchChat: Boolean by lazy {
+        intent.getBooleanExtra(LAUNCH_CHAT, false)
+    }
+
     override fun initBinding(): ActivitySupportCentreBinding =
         ActivitySupportCentreBinding.inflate(layoutInflater)
 
@@ -73,7 +77,11 @@ class SupportCentreActivity :
                                     .build()
                                 Intercom.client().updateUser(userAttributes)
                                 // start intercom right away but leave the old functionality behind it
-                                Intercom.client().displayMessenger()
+                                if (launchChat) {
+                                    Intercom.client().displayMessageComposer()
+                                } else {
+                                    Intercom.client().displayMessenger()
+                                }
                             } else {
                                 setChatVisitorInfo()
                             }
@@ -255,10 +263,12 @@ class SupportCentreActivity :
         private const val URL_BLOCKCHAIN_SUPPORT_PORTAL = "https://support.blockchain.com/"
         private const val URL_CONTACT_SUPPORT = "https://support.blockchain.com/hc/requests/new"
         private const val MAX_SETUP_RETRIES = 3
+        private const val LAUNCH_CHAT = "LAUNCH_CHAT"
 
-        fun newIntent(context: Context, subject: String = ""): Intent =
+        fun newIntent(context: Context, subject: String = "", launchChat: Boolean = false): Intent =
             Intent(context, SupportCentreActivity::class.java).apply {
                 putExtra(SUBJECT, subject)
+                putExtra(LAUNCH_CHAT, launchChat)
             }
     }
 }

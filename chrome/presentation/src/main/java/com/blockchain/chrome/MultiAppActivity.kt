@@ -43,6 +43,7 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATIO
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
@@ -120,6 +121,12 @@ class MultiAppActivity :
         )
     }
 
+    private val supportNavigation: SupportNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val transactionFlowNavigation: TransactionFlowNavigation = payloadScope.get {
         parametersOf(
             this
@@ -151,7 +158,8 @@ class MultiAppActivity :
                 fiatActionsNavigation = fiatActionsNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
-                qrScanNavigation = qrScanNavigation
+                qrScanNavigation = qrScanNavigation,
+                supportNavigation = supportNavigation
             )
         }
 

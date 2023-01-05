@@ -23,6 +23,7 @@ import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
@@ -35,6 +36,7 @@ fun HomeScreen(
     assetActionsNavigation: AssetActionsNavigation,
     qrScanNavigation: QrScanNavigation,
     settingsNavigation: SettingsNavigation,
+    supportNavigation: SupportNavigation,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
@@ -126,7 +128,10 @@ fun HomeScreen(
         }
 
         item {
-            HelpAndSupport()
+            HelpAndSupport(
+                openSupportChat = { supportNavigation.launchSupportChat() },
+                openSupportCenter = { supportNavigation.launchSupportCenter() }
+            )
         }
 
         item {

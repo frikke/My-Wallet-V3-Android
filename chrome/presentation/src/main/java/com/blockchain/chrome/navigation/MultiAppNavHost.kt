@@ -21,6 +21,7 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
@@ -39,7 +40,8 @@ fun MultiAppNavHost(
     fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
-    qrScanNavigation: QrScanNavigation
+    qrScanNavigation: QrScanNavigation,
+    supportNavigation: SupportNavigation
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -65,7 +67,8 @@ fun MultiAppNavHost(
                 assetActionsNavigation = assetActionsNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
-                qrScanNavigation = qrScanNavigation
+                qrScanNavigation = qrScanNavigation,
+                supportNavigation = supportNavigation
             )
 
             // home screens
@@ -89,7 +92,8 @@ private fun NavGraphBuilder.chrome(
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
-    qrScanNavigation: QrScanNavigation
+    qrScanNavigation: QrScanNavigation,
+    supportNavigation: SupportNavigation
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
@@ -103,6 +107,7 @@ private fun NavGraphBuilder.chrome(
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
+            supportNavigation = supportNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
             },
