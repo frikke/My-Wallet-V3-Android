@@ -49,7 +49,6 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
 import com.blockchain.walletmode.WalletMode
@@ -63,7 +62,7 @@ import org.koin.androidx.compose.getViewModel
 fun Activity(
     onBackPressed: () -> Unit
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService, payloadScope).walletMode
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {

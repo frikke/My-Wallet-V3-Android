@@ -12,7 +12,7 @@ class WalletModeTraitsRepository : TraitsService {
         return if (walletModeService != null) {
             val walletMode = walletModeService.walletModeSingle.await()
             mapOf(
-                "is_superapp_mvp" to (walletMode != WalletMode.UNIVERSAL).toString(),
+                "is_superapp_mvp" to true.toString(),
                 "app_mode" to walletMode.toTraitsString(),
             )
         } else
@@ -22,7 +22,6 @@ class WalletModeTraitsRepository : TraitsService {
 
 private fun WalletMode.toTraitsString(): String {
     return when (this) {
-        WalletMode.UNIVERSAL -> "UNIVERSAL"
         WalletMode.CUSTODIAL_ONLY -> "TRADING"
         WalletMode.NON_CUSTODIAL_ONLY -> "PKW"
     }

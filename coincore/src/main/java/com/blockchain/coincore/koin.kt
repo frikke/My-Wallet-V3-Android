@@ -24,7 +24,6 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.superAppModeService
 import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
@@ -96,7 +95,7 @@ val coincoreModule = module {
                 currencyPrefs = get(),
                 remoteLogger = get(),
                 bankService = get(),
-                walletModeService = get(superAppModeService),
+                walletModeService = get(),
                 ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
             )
         }

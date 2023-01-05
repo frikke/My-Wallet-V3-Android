@@ -115,7 +115,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
             }
         }
         factory {

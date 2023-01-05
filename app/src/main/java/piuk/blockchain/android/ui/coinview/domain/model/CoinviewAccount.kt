@@ -8,10 +8,6 @@ import info.blockchain.balance.Money
 sealed interface CoinviewAccounts {
     val accounts: List<CoinviewAccount>
 
-    data class Universal(
-        override val accounts: List<CoinviewAccount.Universal>
-    ) : CoinviewAccounts
-
     data class Custodial(
         override val accounts: List<CoinviewAccount.Custodial>
     ) : CoinviewAccounts
@@ -30,20 +26,6 @@ sealed interface CoinviewAccount {
 
     val isClickable: Boolean
         get() = cryptoBalance is DataResource.Data && fiatBalance is DataResource.Data
-
-    /**
-     * Universal mode
-     * Should support all types of accounts: custodial, non custodial, interest
-     */
-    data class Universal(
-        override val filter: AssetFilter,
-        override val isEnabled: Boolean,
-        override val account: BlockchainAccount,
-        override val cryptoBalance: DataResource<Money>,
-        override val fiatBalance: DataResource<Money>,
-        val interestRate: Double,
-        val stakingRate: Double
-    ) : CoinviewAccount
 
     /**
      * Brokerage mode
@@ -94,21 +76,17 @@ sealed interface CoinviewAccount {
 }
 
 fun CoinviewAccount.isTradingAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Trading ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Trading)
+    return this is CoinviewAccount.Custodial.Trading
 }
 
 fun CoinviewAccount.isInterestAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Interest ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Interest)
+    return this is CoinviewAccount.Custodial.Interest
 }
 
 fun CoinviewAccount.isStakingAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Staking ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Staking)
+    return this is CoinviewAccount.Custodial.Staking
 }
 
 fun CoinviewAccount.isPrivateKeyAccount(): Boolean {
-    return this is CoinviewAccount.PrivateKey ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.NonCustodial)
+    return this is CoinviewAccount.PrivateKey
 }

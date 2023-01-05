@@ -95,7 +95,7 @@ class AnnouncementList(
                 .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
                 .map { buildAnnouncementList(it.order) }
                 .flattenAsObservable { it }
-                .filter { walletMode in it.associatedWalletModes || walletMode == WalletMode.UNIVERSAL }
+                .filter { walletMode in it.associatedWalletModes }
                 .concatMap { a ->
                     Observable.defer {
                         a.shouldShow()

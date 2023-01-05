@@ -38,7 +38,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         identity = identity,
         kycService = kycService,
         walletModeService = mock {
-            on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
+            on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
         }
     )
 

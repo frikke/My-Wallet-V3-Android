@@ -31,8 +31,7 @@ internal class SwapTrendingPairsProvider(
                     .filterNot { it is InterestAccount }
                     .filter {
                         when (walletMode) {
-                            WalletMode.CUSTODIAL_ONLY,
-                            WalletMode.UNIVERSAL -> it is TradingAccount
+                            WalletMode.CUSTODIAL_ONLY -> it is TradingAccount
                             WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
                         }
                     }.filter { account ->

@@ -126,7 +126,10 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
 
     override suspend fun handleIntent(modelState: ActionsSheetModelState, intent: ActionsSheetIntent) {
         when (intent) {
-            is ActionsSheetIntent.ActionClicked -> handleActionForMode(modelState.walletMode, intent.action)
+            is ActionsSheetIntent.ActionClicked -> {
+                check(modelState.walletMode != null)
+                handleActionForMode(modelState.walletMode, intent.action)
+            }
             is ActionsSheetIntent.LoadActions -> viewModelScope.launch {
                 val actions =
                     if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
@@ -145,7 +148,6 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
         when (walletMode) {
             WalletMode.NON_CUSTODIAL_ONLY -> handleActionForNonCustodialMode(action)
             WalletMode.CUSTODIAL_ONLY -> handleActionForCustodialMode(action)
-            WalletMode.UNIVERSAL -> throw IllegalStateException("Invalid wallet mode")
         }
     }
 
@@ -215,7 +217,7 @@ data class ActionSheetArgs(
 ) : ModelConfigArgs.ParcelableArgs
 
 data class ActionsSheetModelState(
-    val walletMode: WalletMode = WalletMode.UNIVERSAL,
+    val walletMode: WalletMode? = null,
     val actions: List<SheetAction> = emptyList()
 ) : ModelState
 

@@ -427,23 +427,6 @@ internal class DynamicAssetLoader(
         return when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> loadCustodialActiveAssets()
             WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
-            WalletMode.UNIVERSAL -> allActive()
-        }
-    }
-
-    private fun allActive(): Flow<List<Asset>> {
-        val nonCustodialFlow = loadNonCustodialActiveAssets()
-        val custodialFlow = loadCustodialActiveAssets()
-
-        return combine(nonCustodialFlow, custodialFlow) { nonCustodial, custodial ->
-            // remove any asset from custodial list that already exists in non custodial
-            val uniqueCustodial = custodial.filter {
-                it.currency.networkTicker !in nonCustodial.map { asset -> asset.currency.networkTicker }
-            }
-
-            // merge all
-            (nonCustodial.map { it.currency } + uniqueCustodial.map { it.currency })
-                .map { this[it] }
         }
     }
 

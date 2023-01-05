@@ -17,7 +17,7 @@ class AnnouncementListTest {
     private val orderAdapter: AnnouncementConfigAdapter = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val walletModeService: WalletModeService = mock {
-        on { walletModeSingle }.thenReturn(Single.just(WalletMode.UNIVERSAL))
+        on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
     }
 
     private fun createAnnouncementList(

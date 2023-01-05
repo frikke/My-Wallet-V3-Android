@@ -32,7 +32,6 @@ fun WalletMode.defaultFilter(): AssetFilter =
     when (this) {
         WalletMode.NON_CUSTODIAL_ONLY -> AssetFilter.NonCustodial
         WalletMode.CUSTODIAL_ONLY -> AssetFilter.Custodial
-        WalletMode.UNIVERSAL -> AssetFilter.All
     }
 
 enum class ActionOrigin {

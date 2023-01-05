@@ -32,7 +32,6 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -99,13 +98,12 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private fun WalletMode.statusbarBg() = when (this) {
         WalletMode.CUSTODIAL_ONLY -> R.drawable.custodial_bg
         WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.defi_bg
-        WalletMode.UNIVERSAL -> error("not supported")
     }
     // //////////////////////////////////
 
     private val authPrefs: AuthPrefs by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
-    private val walletModeService = payloadScope.get<WalletModeService>(superAppModeService)
+    private val walletModeService = payloadScope.get<WalletModeService>()
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {

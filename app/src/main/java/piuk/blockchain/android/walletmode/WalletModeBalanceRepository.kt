@@ -11,8 +11,10 @@ import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import info.blockchain.balance.Money
+import info.blockchain.balance.total
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -29,10 +31,13 @@ class WalletModeBalanceRepository(
     }
 
     override fun totalBalance(): Flow<DataResource<Money>> {
-        return coincore.activeWalletsInMode(WalletMode.UNIVERSAL).flatMapLatest {
-            it.balance
+        val balances = WalletMode.values().map {
+            coincore.activeWalletsInMode(it).flatMapLatest { it.balance }.map { it.total }
+        }
+        return combine(balances) {
+            it.toList().total()
         }.map {
-            DataResource.Data(it.total)
+            DataResource.Data(it)
         }.catch {
             flowOf(DataResource.Error(it as Exception))
         }

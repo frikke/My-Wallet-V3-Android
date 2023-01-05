@@ -119,7 +119,6 @@ class AccountSelectSheet(
     private fun WalletMode.selectAccountsTitle(): Int = when (this) {
         WalletMode.NON_CUSTODIAL_ONLY -> R.string.select_account_sheet_title_defi
         WalletMode.CUSTODIAL_ONLY -> R.string.select_account_sheet_title_brokerage
-        WalletMode.UNIVERSAL -> R.string.select_account_sheet_title
     }
 
     companion object {

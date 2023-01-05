@@ -113,7 +113,6 @@ class Coincore internal constructor(
         when (walletMode) {
             WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
             WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
-            WalletMode.UNIVERSAL -> allWallets()
         }
 
     fun activeWalletsInModeRx(walletMode: WalletMode): Observable<AccountGroup> {
@@ -136,11 +135,6 @@ class Coincore internal constructor(
 
     private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
         when (walletMode) {
-            WalletMode.UNIVERSAL -> AllWalletsAccount(
-                accounts,
-                defaultLabels,
-                currencyPrefs.selectedFiatCurrency
-            )
             WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(
                 accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
             )

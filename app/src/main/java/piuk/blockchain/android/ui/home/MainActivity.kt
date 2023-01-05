@@ -800,7 +800,7 @@ class MainActivity :
         }
 
         renderTabs(newState.tabs, newState.currentTab)
-        renderMode(newState.walletMode)
+        newState.walletMode?.let { renderMode(newState.walletMode) }
     }
 
     private fun middleButtonBottomSheetLaunch(walletMode: WalletMode): BottomSheetDialogFragment = when (walletMode) {
@@ -809,12 +809,9 @@ class MainActivity :
             walletMode = walletMode,
             isEarnOnNavBarEnabled = isEarnOnNavBarEnabled
         )
-        WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance(isEarnOnNavBarEnabled)
     }
 
     private fun renderMode(walletMode: WalletMode) {
-        if (walletMode == WalletMode.UNIVERSAL)
-            return
         val updatedDropdownIndicator =
             (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
                 text = getString(walletMode.title()),

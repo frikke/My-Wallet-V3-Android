@@ -235,7 +235,7 @@ data class DashboardState(
      * - When in Defi mode:
      *      - Display all L1 non-custodial coins regardless of balance
      *      - Honour the Dust hiding setting (balance <$0.01)
-     * - When in Brokerage or Universal:
+     * - When in Brokerage:
      *      - For other assets - show accounts with balances
      *      - Honour the Dust hiding setting (balance <$0.01)
      */

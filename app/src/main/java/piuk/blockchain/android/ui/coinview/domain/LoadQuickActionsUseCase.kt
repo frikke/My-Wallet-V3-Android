@@ -32,22 +32,13 @@ class LoadQuickActionsUseCase(
         totalBalance: CoinviewAssetTotalBalance
     ): Flow<DataResource<CoinviewQuickActions>> {
         return when (accounts) {
-            is CoinviewAccounts.Universal,
             is CoinviewAccounts.Custodial -> {
                 // center: SWAP
                 // bottom start: SELL
                 // bottom end: BUY
 
                 // get target account
-                val custodialAccount = when (accounts) {
-                    is CoinviewAccounts.Universal -> {
-                        accounts.accounts.firstOrNull { it.filter == AssetFilter.Trading }
-                    }
-                    is CoinviewAccounts.Custodial -> {
-                        accounts.accounts.firstOrNull()
-                    }
-                    else -> error("")
-                }?.account
+                val custodialAccount = accounts.accounts.firstOrNull()?.account
 
                 // return None when no account is found
                 if (custodialAccount == null) {
@@ -68,11 +59,7 @@ class LoadQuickActionsUseCase(
                             isAvailableForTradingData,
                             isSupportedForSwapData ->
 
-                            val assetFilters = when (accounts) {
-                                is CoinviewAccounts.Universal -> listOf(AssetFilter.Trading, AssetFilter.NonCustodial)
-                                is CoinviewAccounts.Custodial -> listOf(AssetFilter.Trading)
-                                is CoinviewAccounts.Defi -> error("Defi unreachable here")
-                            }
+                            val assetFilters = listOf(AssetFilter.Trading)
 
                             val hasPositiveFilterBalance = assetFilters.any {
                                 totalBalance.totalCryptoBalance[it]?.isPositive ?: false

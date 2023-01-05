@@ -21,9 +21,6 @@ class SwapAccountSelectSheetFeeDecorator(
     override fun view(context: Context): Maybe<View> =
         // in trading mode - no need to show the fee decorator
         when {
-            account is TradingAccount && walletMode == WalletMode.UNIVERSAL -> Maybe.just(
-                tradingAccountBadgesView(context)
-            )
             account is TradingAccount && walletMode == WalletMode.NON_CUSTODIAL_ONLY -> Maybe.just(
                 tradingOnPkwModeBadgesView(context)
             )

@@ -37,7 +37,6 @@ import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
@@ -48,7 +47,7 @@ fun HomeActivity(
     openAllActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService, scope = payloadScope).walletMode
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {

@@ -72,37 +72,37 @@ class QuickActionsViewModel(
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
             is QuickActionsIntent.LoadActions -> when (intent.type) {
-                ActionType.Quick -> walletModeService.walletMode.onEach { wMode ->
-                    updateState {
-                        it.copy(
-                            walletMode = wMode,
-                            quickActions = modelState.actionsForMode(wMode)
-                        )
-                    }
-                }.flatMapLatest { wMode ->
-                    if (wMode == WalletMode.NON_CUSTODIAL_ONLY)
-                        actionsForDefi() else
-                        actionsForBrokerage()
-                }.collectLatest { actions ->
-                    updateState {
-                        it.copy(
-                            quickActions = actions
-                        )
+                ActionType.Quick -> {
+                    walletModeService.walletMode.onEach { wMode ->
+                        updateState {
+                            it.copy(
+                                quickActions = modelState.actionsForMode(wMode)
+                            )
+                        }
+                    }.flatMapLatest { wMode ->
+                        if (wMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                            actionsForDefi()
+                        } else {
+                            actionsForBrokerage()
+                        }.map { wMode to it }
+                    }.collectLatest { (walletMode, actions) ->
+                        updateState {
+                            it.copy(
+                                quickActions = actions
+                            )
+                        }
+                        modelState.cacheActions(actions, walletMode)
                     }
                 }
-                ActionType.More -> walletModeService.walletMode.onEach { wMode ->
-                    updateState {
-                        it.copy(
-                            walletMode = wMode
-                        )
-                    }
-                }.flatMapLatest {
-                    loadMoreActions()
-                }.collectLatest { actions ->
-                    updateState {
-                        it.copy(
-                            moreActions = actions
-                        )
+                ActionType.More -> {
+                    walletModeService.walletMode.flatMapLatest {
+                        loadMoreActions()
+                    }.collectLatest { actions ->
+                        updateState {
+                            it.copy(
+                                moreActions = actions
+                            )
+                        }
                     }
                 }
             }
@@ -362,17 +362,16 @@ class QuickActionsViewModel(
 }
 
 data class QuickActionsModelState(
-    val walletMode: WalletMode = WalletMode.UNIVERSAL,
     val quickActions: List<QuickActionItem> = emptyList(),
     val moreActions: List<MoreActionItem> = emptyList(),
     private val _actionsForMode: MutableMap<WalletMode, List<QuickActionItem>> = mutableMapOf()
 ) : ModelState {
-    init {
-        _actionsForMode[walletMode] = quickActions
-    }
-
     fun actionsForMode(walletMode: WalletMode): List<QuickActionItem> =
         _actionsForMode[walletMode] ?: emptyList()
+
+    fun cacheActions(actions: List<QuickActionItem>, walletMode: WalletMode) {
+        _actionsForMode[walletMode] = actions
+    }
 }
 
 data class QuickActionItem(

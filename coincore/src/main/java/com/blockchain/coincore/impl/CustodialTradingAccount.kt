@@ -70,7 +70,6 @@ class CustodialTradingAccount(
             when (it) {
                 WalletMode.NON_CUSTODIAL_ONLY -> emptySet()
                 WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-                WalletMode.UNIVERSAL -> defaultActions
             }
         }
 

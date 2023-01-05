@@ -53,7 +53,6 @@ import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -158,8 +157,7 @@ fun NavigationBar(
 
             if (isLoggedIn) {
                 get<WalletModeService>(
-                    superAppModeService,
-                    payloadScope
+                    scope = payloadScope
                 ).walletMode.collectAsStateLifecycleAware(initial = null)
             } else {
                 remember { mutableStateOf(null) }

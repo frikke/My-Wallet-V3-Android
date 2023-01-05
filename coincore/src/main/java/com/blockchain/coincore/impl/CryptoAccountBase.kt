@@ -134,7 +134,6 @@ abstract class CryptoAccountBase : CryptoAccount {
         internal val defaultCustodialActions = defaultNonCustodialActions + setOf(
             AssetAction.Buy, AssetAction.InterestWithdraw
         )
-        internal val defaultActions = (defaultNonCustodialActions + defaultCustodialActions).toSet()
     }
 }
 
@@ -216,7 +215,6 @@ abstract class CryptoNonCustodialAccount(
             when (it) {
                 WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
                 WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
-                WalletMode.UNIVERSAL -> defaultActions
             }
         }
 

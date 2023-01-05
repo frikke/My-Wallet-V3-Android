@@ -92,7 +92,6 @@ class MainModel(
         earnOnNavBarEnabled: Boolean
     ): MainIntent {
         val tabs = when (walletMode) {
-            WalletMode.UNIVERSAL,
             WalletMode.CUSTODIAL_ONLY ->
                 listOf(
                     NavigationItem.Home,

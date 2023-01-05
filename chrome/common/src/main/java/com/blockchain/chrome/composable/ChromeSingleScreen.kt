@@ -27,7 +27,6 @@ import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
@@ -60,10 +59,8 @@ private fun ChromeSingleScreen(
     val walletMode: WalletMode? by if (!isBottomSheet) {
         when (backgroundColor) {
             ModeBackgroundColor.Current -> {
-                get<WalletModeService>(
-                    superAppModeService,
-                    payloadScope
-                ).walletMode.collectAsStateLifecycleAware(initial = null)
+                get<WalletModeService>(scope = payloadScope)
+                    .walletMode.collectAsStateLifecycleAware(initial = null)
             }
             is ModeBackgroundColor.Override -> {
                 remember { mutableStateOf(backgroundColor.walletMode) }

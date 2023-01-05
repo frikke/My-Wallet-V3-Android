@@ -9,7 +9,6 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.icons.Icons
@@ -269,8 +268,6 @@ class CoinviewViewModel(
                                     when (cvAccount.isEnabled) {
                                         true -> {
                                             when (cvAccount) {
-                                                is CoinviewAccount.Universal ->
-                                                    makeAvailableUniversalAccount(cvAccount, account, asset)
                                                 is CoinviewAccount.Custodial.Trading ->
                                                     makeAvailableTradingAccount(cvAccount, asset)
                                                 is CoinviewAccount.Custodial.Interest ->
@@ -283,8 +280,6 @@ class CoinviewViewModel(
                                         }
                                         false -> {
                                             when (cvAccount) {
-                                                is CoinviewAccount.Universal ->
-                                                    makeUnavailableUniversalAccount(cvAccount, account, asset)
                                                 is CoinviewAccount.Custodial.Trading ->
                                                     makeUnavailableTradingAccount(cvAccount, asset)
                                                 is CoinviewAccount.Custodial.Interest ->
@@ -352,61 +347,6 @@ class CoinviewViewModel(
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
     )
 
-    private fun makeUnavailableUniversalAccount(
-        cvAccount: CoinviewAccount.Universal,
-        account: CryptoAccount,
-        asset: CryptoAsset
-    ) = Unavailable(
-        cvAccount = cvAccount,
-        title = when (cvAccount.filter) {
-            AssetFilter.Trading -> labels.getDefaultTradingWalletLabel()
-            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
-            AssetFilter.NonCustodial -> account.label
-            else -> error(
-                "Filer ${cvAccount.filter} not supported for account label"
-            )
-        },
-        subtitle = when (cvAccount.filter) {
-            AssetFilter.Trading -> {
-                TextValue.IntResValue(
-                    R.string.coinview_c_unavailable_desc,
-                    listOf(asset.currency.name)
-                )
-            }
-            AssetFilter.Interest -> {
-                TextValue.IntResValue(
-                    R.string.coinview_interest_no_balance,
-                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                )
-            }
-            AssetFilter.Staking -> {
-                TextValue.IntResValue(
-                    R.string.coinview_interest_no_balance,
-                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
-                )
-            }
-            AssetFilter.NonCustodial -> {
-                TextValue.IntResValue(R.string.coinview_nc_desc)
-            }
-            else -> error("${cvAccount.filter} Not a supported filter")
-        },
-        logo = LogoSource.Resource(
-            when (cvAccount.filter) {
-                AssetFilter.Trading -> {
-                    R.drawable.ic_custodial_account_indicator
-                }
-                AssetFilter.Interest -> {
-                    R.drawable.ic_interest_account_indicator
-                }
-                AssetFilter.NonCustodial -> {
-                    R.drawable.ic_non_custodial_account_indicator
-                }
-                else -> error("${cvAccount.filter} Not a supported filter")
-            }
-        )
-    )
-
     private fun makeAvailablePrivateKeyAccount(
         cvAccount: CoinviewAccount,
         account: CryptoAccount,
@@ -463,71 +403,6 @@ class CoinviewViewModel(
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
-        assetColor = asset.currency.colour
-    )
-
-    private fun makeAvailableUniversalAccount(
-        cvAccount: CoinviewAccount.Universal,
-        account: CryptoAccount,
-        asset: CryptoAsset
-    ) = Available(
-        cvAccount = cvAccount,
-        title = when (cvAccount.filter) {
-            AssetFilter.Trading -> labels.getDefaultTradingWalletLabel()
-            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
-            AssetFilter.NonCustodial -> account.label
-            else -> error(
-                "Filter ${cvAccount.filter} not supported for account label"
-            )
-        },
-        subtitle = when (cvAccount.filter) {
-            AssetFilter.Trading -> {
-                TextValue.IntResValue(R.string.coinview_c_available_desc)
-            }
-            AssetFilter.Interest -> {
-                TextValue.IntResValue(
-                    R.string.coinview_interest_with_balance,
-                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                )
-            }
-            AssetFilter.Staking -> {
-                TextValue.IntResValue(
-                    R.string.coinview_interest_with_balance,
-                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
-                )
-            }
-            AssetFilter.NonCustodial -> {
-                if (account is MultiChainAccount) {
-                    TextValue.IntResValue(
-                        R.string.coinview_multi_nc_desc,
-                        listOf(account.l1Network.networkName)
-                    )
-                } else {
-                    TextValue.IntResValue(R.string.coinview_nc_desc)
-                }
-            }
-            else -> error("${cvAccount.filter} Not a supported filter")
-        },
-        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Resource(
-            when (cvAccount.filter) {
-                AssetFilter.Trading -> {
-                    R.drawable.ic_custodial_account_indicator
-                }
-                AssetFilter.Interest -> {
-                    R.drawable.ic_interest_account_indicator
-                }
-                AssetFilter.Staking -> {
-                    R.drawable.ic_staking_account_indicator
-                }
-                AssetFilter.NonCustodial -> {
-                    R.drawable.ic_non_custodial_account_indicator
-                }
-                else -> error("${cvAccount.filter} Not a supported filter")
-            }
-        ),
         assetColor = asset.currency.colour
     )
 
@@ -1213,13 +1088,6 @@ class CoinviewViewModel(
     private fun CoinviewAccount.interestRate(): Double {
         val noInterestRate = 0.0
         return when (this) {
-            is CoinviewAccount.Universal -> {
-                if (filter == AssetFilter.Interest) {
-                    interestRate
-                } else {
-                    noInterestRate
-                }
-            }
             is CoinviewAccount.Custodial.Interest -> {
                 interestRate
             }
@@ -1232,13 +1100,6 @@ class CoinviewViewModel(
     private fun CoinviewAccount.stakingRate(): Double {
         val noStakingRate = 0.0
         return when (this) {
-            is CoinviewAccount.Universal -> {
-                if (filter == AssetFilter.Staking) {
-                    stakingRate
-                } else {
-                    noStakingRate
-                }
-            }
             is CoinviewAccount.Custodial.Staking -> {
                 stakingRate
             }

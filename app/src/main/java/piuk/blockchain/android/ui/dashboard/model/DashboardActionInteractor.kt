@@ -202,7 +202,6 @@ class DashboardActionInteractor(
     ): DashboardAsset {
         return when (this) {
             is CryptoAsset -> when (walletMode) {
-                WalletMode.UNIVERSAL,
                 WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(
                     this.currency,
                     totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
@@ -211,7 +210,6 @@ class DashboardActionInteractor(
                 WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(this.currency)
             }
             is FiatAsset -> when (walletMode) {
-                WalletMode.UNIVERSAL,
                 WalletMode.CUSTODIAL_ONLY -> BrokerageFiatAsset(
                     currency = this.currency,
                     fiatAccount = this.custodialAccount,
