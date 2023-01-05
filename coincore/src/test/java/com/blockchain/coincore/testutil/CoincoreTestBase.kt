@@ -3,9 +3,7 @@ package com.blockchain.coincore.testutil
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Store
@@ -16,7 +14,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.mockk.mockk
-import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -84,12 +81,6 @@ open class CoincoreTestBase {
                 factory {
                     unifiedBalancesService
                 }.bind(UnifiedBalancesService::class)
-
-                factory(unifiedBalancesFlag) {
-                    mock<FeatureFlag> {
-                        on { enabled }.thenReturn(Single.just(true))
-                    }
-                }.bind(FeatureFlag::class)
 
                 factory {
                     balancesStore

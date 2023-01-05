@@ -12,13 +12,10 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -27,7 +24,6 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 
 internal class Erc20Asset(
     override val currency: AssetInfo,
@@ -38,49 +34,35 @@ internal class Erc20Asset(
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val coinNetworksFeatureFlag: FeatureFlag,
     private val evmNetworks: Single<List<EvmNetwork>>,
-    private val tradingService: TradingService,
-    private val kycService: KycService,
-    private val walletModeService: WalletModeService
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Singles.zip(
-            layerTwoFeatureFlag.enabled,
-            coinNetworksFeatureFlag.enabled
-        )
-            .flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
-                when {
-                    isL2Enabled && isCoinNetworksEnabled -> {
-                        // Find the correct network from the new coin networks endpoint
-                        evmNetworks.map { networks ->
-                            loadNonCustodialAccount(networks)
-                        }
+        layerTwoFeatureFlag.enabled.flatMap { isL2Enabled ->
+            when {
+                isL2Enabled -> {
+                    // Find the correct network from the new coin networks endpoint
+                    evmNetworks.map { networks ->
+                        loadNonCustodialAccount(networks)
                     }
-                    isL2Enabled -> {
-                        // Get the network from the remote config
-                        erc20DataManager.getSupportedNetworks().map { networks ->
-                            loadNonCustodialAccount(networks.toList())
-                        }
-                    }
-                    else -> {
-                        Single.fromCallable {
-                            // Only load ERC20 accounts on the Ethereum network when the FF is disabled
-                            if (
-                                currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
-                                CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
-                            ) {
-                                listOf(getNonCustodialAccount(EthDataManager.ethChain))
-                            } else {
-                                emptyList()
-                            }
+                }
+                else -> {
+                    Single.fromCallable {
+                        // Only load ERC20 accounts on the Ethereum network when the FF is disabled
+                        if (
+                            currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
+                            CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
+                        ) {
+                            listOf(getNonCustodialAccount(EthDataManager.ethChain))
+                        } else {
+                            emptyList()
                         }
                     }
                 }
             }
+        }
 
     private fun loadNonCustodialAccount(supportedNetworks: List<EvmNetwork>): SingleAccountList {
         return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {

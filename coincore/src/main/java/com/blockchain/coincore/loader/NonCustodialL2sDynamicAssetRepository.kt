@@ -104,8 +104,12 @@ class NonCustodialL2sDynamicAssetRepository(
             }
         }
 
+    private var evmNetworksCache = listOf<EvmNetwork>()
+
     fun allEvmNetworks(): Single<List<EvmNetwork>> {
-        return coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
+        return if (evmNetworksCache.isNotEmpty()) {
+            Single.just(evmNetworksCache)
+        } else coinNetworksFeatureFlag.value.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 coinNetworksStore.stream(
                     FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
@@ -120,6 +124,8 @@ class NonCustodialL2sDynamicAssetRepository(
                     it.plus(EthDataManager.ethChain)
                 }
             }
+        }.doOnSuccess {
+            evmNetworksCache = it
         }
     }
 

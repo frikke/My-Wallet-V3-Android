@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.quickactions
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
@@ -16,17 +17,14 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
+import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
-import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -47,6 +45,7 @@ class QuickActionsViewModel(
     private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val coincore: Coincore,
+    private val quickActionsService: QuickActionsService,
     private val fiatActions: FiatActionsUseCase
 ) : MviViewModel<
     QuickActionsIntent,
@@ -90,19 +89,21 @@ class QuickActionsViewModel(
                         )
                     }
                 }
-                ActionType.More -> walletModeService.walletMode.onEach { wMode ->
-                    updateState {
-                        it.copy(
-                            walletMode = wMode
-                        )
-                    }
-                }.flatMapLatest {
-                    loadMoreActions()
-                }.collectLatest { actions ->
-                    updateState {
-                        it.copy(
-                            moreActions = actions
-                        )
+                ActionType.More -> viewModelScope.launch {
+                    walletModeService.walletMode.onEach { wMode ->
+                        updateState {
+                            it.copy(
+                                walletMode = wMode
+                            )
+                        }
+                    }.flatMapLatest {
+                        loadMoreActions()
+                    }.collectLatest { actions ->
+                        updateState {
+                            it.copy(
+                                moreActions = actions
+                            )
+                        }
                     }
                 }
             }
@@ -113,74 +114,53 @@ class QuickActionsViewModel(
     }
 
     private fun loadMoreActions(): Flow<List<MoreActionItem>> {
-        val custodialBalance = totalWalletModeBalance(WalletMode.CUSTODIAL_ONLY)
-        val hasFiatBalance =
-            coincore.activeWallets(WalletMode.CUSTODIAL_ONLY).map { it.accounts.filterIsInstance<FiatAccount>() }
-                .flatMapObservable {
-                    if (it.isEmpty()) {
-                        Observable.just(false)
-                    } else
-                        it[0].balanceRx.map { balance ->
-                            balance.total.isPositive
-                        }
-                }.asFlow()
-
-        val depositFiatFeature =
-            userFeaturePermissionService.isEligibleFor(Feature.DepositFiat).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
+        return quickActionsService.moreActions().map { assetAwareActions ->
+            assetAwareActions.map {
+                when (it.action) {
+                    AssetAction.Send -> MoreActionItem(
+                        icon = R.drawable.ic_more_send,
+                        title = R.string.common_send,
+                        subtitle = R.string.transfer_to_other_wallets,
+                        action = QuickAction.TxAction(AssetAction.Send),
+                        enabled = it.state == ActionState.Available
+                    )
+                    AssetAction.FiatDeposit -> MoreActionItem(
+                        icon = R.drawable.ic_more_deposit,
+                        title = R.string.common_deposit,
+                        subtitle = R.string.add_cash_from_your_bank_or_card,
+                        action = QuickAction.TxAction(AssetAction.FiatDeposit),
+                        enabled = it.state == ActionState.Available
+                    )
+                    AssetAction.FiatWithdraw -> MoreActionItem(
+                        icon = R.drawable.ic_more_withdraw,
+                        title = R.string.common_withdraw,
+                        subtitle = R.string.cash_out_bank,
+                        action = QuickAction.TxAction(AssetAction.FiatWithdraw),
+                        enabled = it.state == ActionState.Available
+                    )
+                    AssetAction.ViewActivity,
+                    AssetAction.ViewStatement,
+                    AssetAction.Swap,
+                    AssetAction.Sell,
+                    AssetAction.Buy,
+                    AssetAction.Receive,
+                    AssetAction.InterestDeposit,
+                    AssetAction.InterestWithdraw,
+                    AssetAction.Sign,
+                    AssetAction.StakingDeposit -> throw IllegalStateException(
+                        "Action not supported for more menu"
+                    )
                 }
-        val withdrawFiatFeature =
-            userFeaturePermissionService.isEligibleFor(Feature.WithdrawFiat).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-
-        val stateAwareActions = coincore.allFiats()
-            .flatMap { list ->
-                list.firstOrNull()?.stateAwareActions ?: Single.just(emptySet())
             }
-            .asFlow()
-
-        return combine(
-            custodialBalance,
-            depositFiatFeature,
-            withdrawFiatFeature,
-            hasFiatBalance,
-            stateAwareActions
-        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
-            listOf(
-                MoreActionItem(
-                    icon = R.drawable.ic_more_send,
-                    title = R.string.common_send,
-                    subtitle = R.string.transfer_to_other_wallets,
-                    action = QuickAction.TxAction(AssetAction.Send),
-                    enabled = balance.total.isPositive
-                ),
-                MoreActionItem(
-                    icon = R.drawable.ic_more_deposit,
-                    title = R.string.common_deposit,
-                    subtitle = R.string.add_cash_from_your_bank_or_card,
-                    action = QuickAction.TxAction(AssetAction.FiatDeposit),
-                    enabled = depositEnabled && hasAnyFiatBalance && actions.hasAvailableAction(AssetAction.FiatDeposit)
-                ),
-                MoreActionItem(
-                    icon = R.drawable.ic_more_withdraw,
-                    title = R.string.common_withdraw,
-                    subtitle = R.string.cash_out_bank,
-                    action = QuickAction.TxAction(AssetAction.FiatWithdraw),
-                    enabled = withdrawEnabled && actions.hasAvailableAction(AssetAction.FiatWithdraw)
-                ),
-            )
         }
     }
 
     private fun totalWalletModeBalance(walletMode: WalletMode) =
         coincore.activeWallets(walletMode).flatMapObservable {
             it.balanceRx
-        }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
+        }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
+            AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
+        }
 
     private fun actionsForDefi(): Flow<List<QuickActionItem>> =
         totalWalletModeBalance(WalletMode.NON_CUSTODIAL_ONLY).zip(
@@ -390,7 +370,6 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    // class ActionClicked(val action: QuickAction) : QuickActionsIntent()
     class LoadActions(val type: ActionType) : QuickActionsIntent
 
     data class FiatAction(

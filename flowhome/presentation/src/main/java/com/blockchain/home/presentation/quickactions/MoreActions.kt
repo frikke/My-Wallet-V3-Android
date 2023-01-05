@@ -47,49 +47,52 @@ fun MoreActions(
         viewModel.onIntent(QuickActionsIntent.LoadActions(ActionType.More))
         onDispose { }
     }
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SheetHeader(
-            title = stringResource(id = R.string.common_more),
-            onClosePress = dismiss,
-            startImageResource = ImageResource.None,
-            shouldShowDivider = false
-        )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-        viewState?.moreActions?.forEachIndexed { index, item ->
-            DefaultTableRow(
-                modifier = Modifier.alpha(if (item.enabled) 1F else 0.5F),
-                primaryText = stringResource(id = item.title),
-                secondaryText = stringResource(id = item.subtitle),
-                startImageResource = ImageResource.Local(item.icon),
-                endImageResource = if (item.enabled) {
-                    ImageResource.Local(R.drawable.ic_chevron_end)
-                } else {
-                    ImageResource.None
-                },
-                onClick = {
-                    if (item.enabled) {
-                        when (item.action.assetAction) {
-                            AssetAction.Send -> assetActionsNavigation.navigate(item.action.assetAction)
-                            AssetAction.FiatDeposit -> {
-                                viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
-                            }
-                            AssetAction.FiatWithdraw -> {
-                                viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
-                            }
-                            else -> {
-                                // n/a
+    viewState?.moreActions?.let { items ->
+        Column(modifier = Modifier.fillMaxWidth()) {
+            SheetHeader(
+                title = stringResource(id = R.string.common_more),
+                onClosePress = dismiss,
+                startImageResource = ImageResource.None,
+                shouldShowDivider = false
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            items.forEach { item ->
+                DefaultTableRow(
+                    modifier = Modifier.alpha(if (item.enabled) 1F else 0.5F),
+                    primaryText = stringResource(id = item.title),
+                    secondaryText = stringResource(id = item.subtitle),
+                    startImageResource = ImageResource.Local(item.icon),
+                    endImageResource = if (item.enabled) {
+                        ImageResource.Local(R.drawable.ic_chevron_end)
+                    } else {
+                        ImageResource.None
+                    },
+                    onClick = {
+                        if (item.enabled) {
+                            when (item.action.assetAction) {
+                                AssetAction.Send -> assetActionsNavigation.navigate(item.action.assetAction)
+                                AssetAction.FiatDeposit -> {
+                                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
+                                }
+                                AssetAction.FiatWithdraw -> {
+                                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
+                                }
+                                else -> {
+                                    // n/a
+                                }
                             }
                         }
                     }
-                }
-            )
-            if (viewState?.moreActions?.lastIndex != index) {
-                Divider(color = Color(0XFFF1F2F7))
-            }
-        }
-        Spacer(modifier = Modifier.size(navBarHeight))
-    }
+                )
 
-    // todo othman withdraw error
+                if (viewState?.moreActions?.last() != item) {
+                    Divider(color = Color(0XFFF1F2F7))
+                }
+            }
+            Spacer(modifier = Modifier.size(navBarHeight))
+        }
+    }
 }

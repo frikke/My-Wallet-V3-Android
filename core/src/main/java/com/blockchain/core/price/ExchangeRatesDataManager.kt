@@ -70,7 +70,6 @@ interface ExchangeRatesDataManager : ExchangeRates {
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ExchangeRate>>
 
-    @Deprecated("use exchangeRateToUserFiatFlow")
     fun exchangeRateToUserFiat(
         fromAsset: Currency,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)

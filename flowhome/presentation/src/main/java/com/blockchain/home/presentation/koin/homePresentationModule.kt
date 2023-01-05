@@ -102,6 +102,7 @@ val homePresentationModule = module {
                 walletModeService = get(superAppModeService),
                 userFeaturePermissionService = get(),
                 coincore = get(),
+                quickActionsService = get(),
                 currencyPrefs = get(),
                 fiatActions = get()
             )

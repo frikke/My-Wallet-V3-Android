@@ -71,8 +71,8 @@ class SellRepository(
         availableAssets: List<AssetInfo>,
         walletMode: WalletMode
     ): Flow<DataResource<List<CryptoAccount>>> {
-        return coincore.walletsWithActions(
-            actions = setOf(AssetAction.Sell),
+        return coincore.walletsWithAction(
+            action = AssetAction.Sell,
             sorter = accountsSorting.sorter(),
             tickers = availableAssets.toSet()
         ).map { accountList ->

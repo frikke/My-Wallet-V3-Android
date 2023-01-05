@@ -134,9 +134,11 @@ class SwapTargetAccountSortingTest {
         subject = SwapTargetAccountsSorting(
             assetListOrderingFF = assetListOrderingFF,
             dashboardAccountsSorter = defaultAccountsSorting,
-            coincore = coincore,
             exchangeRatesDataManager = exchangeRatesDataManager,
             watchlistDataManager = watchlistDataManager,
+            currencyPrefs = mock {
+                on { selectedFiatCurrency }.thenReturn(FiatCurrency.Dollars)
+            },
             momentLogger = momentLogger
         )
 
@@ -537,6 +539,7 @@ class SwapTargetAccountSortingTest {
     private fun setTradingVolume(asset: CryptoCurrency, volume: Double) {
         val priceRecord: AssetPriceRecord = mock {
             on { tradingVolume24h }.thenReturn(volume)
+            on { rate }.thenReturn(BigDecimal.ONE)
         }
         whenever(exchangeRatesDataManager.getCurrentAssetPrice(asset, FiatCurrency.Dollars))
             .thenReturn(

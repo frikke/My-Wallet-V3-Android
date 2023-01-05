@@ -6,6 +6,7 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
@@ -21,6 +22,7 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -190,18 +192,43 @@ class TransactionInteractor(
         }
     }
 
-    private fun swapTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> =
-        Single.zip(
-            coincore.getTransactionTargets(sourceAccount, AssetAction.Swap),
-            custodialRepository.getSwapAvailablePairs()
-        ) { accountList, pairs ->
-            accountList.filterIsInstance(CryptoAccount::class.java)
-                .filter { account ->
-                    pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
+    private fun swapTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
+        return custodialRepository.getSwapAvailablePairs().flatMap { pairs ->
+            val targetCurrencies =
+                pairs.filter { it.source.networkTicker == sourceAccount.currency.networkTicker }.map { it.destination }
+            val assets = targetCurrencies.map { coincore[it] }
+            Single.just(assets).flattenAsObservable { it }.flatMapSingle { asset ->
+                asset.accountGroup(AssetFilter.All).map { it.accounts }.switchIfEmpty(Single.just(emptyList()))
+            }.reduce { t1, t2 ->
+                t1 + t2
+            }.switchIfEmpty(Single.just(emptyList()))
+                .map {
+                    it.filterIsInstance<CryptoAccount>()
+                        .filterNot { account ->
+                            account is InterestAccount ||
+                                account is ExchangeAccount ||
+                                account is StakingAccount
+                        }
+                        .filterNot { account -> account.currency.networkTicker == sourceAccount.currency.networkTicker }
+                        .filter { cryptoAccount ->
+                            sourceAccount.isTargetAvailableForSwap(
+                                target = cryptoAccount
+                            )
+                        }
                 }
         }.flatMap { list ->
             swapTargetAccountsSorting.sorter().invoke(list)
         }
+    }
+
+    /**
+     * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
+     * In any other case, swap is only allowed to same Type accounts
+     */
+    private fun SingleAccount.isTargetAvailableForSwap(
+        target: CryptoAccount
+    ): Boolean =
+        if (this is CustodialTradingAccount) target is CustodialTradingAccount else true
 
     fun getAvailableSourceAccounts(
         action: AssetAction,
@@ -222,8 +249,8 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(
-                    actions = setOf(action),
+                coincore.walletsWithAction(
+                    action = action,
                     filter = AssetFilter.All,
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
@@ -238,8 +265,8 @@ class TransactionInteractor(
             AssetAction.StakingDeposit -> {
                 require(targetAccount is StakingAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(
-                    actions = setOf(action),
+                coincore.walletsWithAction(
+                    action = action,
                     filter = AssetFilter.All,
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
@@ -278,8 +305,8 @@ class TransactionInteractor(
             }
         }.firstOrError()
 
-    private fun getAvailableSwapAccounts() = coincore.walletsWithActions(
-        actions = setOf(AssetAction.Swap),
+    private fun getAvailableSwapAccounts() = coincore.walletsWithAction(
+        action = AssetAction.Swap,
         sorter = swapSourceAccountsSorting.sorter()
     ).zipWith(
         custodialRepository.getSwapAvailablePairs()
@@ -293,7 +320,7 @@ class TransactionInteractor(
 
     private fun sellSourceAccounts(): Single<List<SingleAccount>> {
         return supportedCryptoCurrencies().zipWith(
-            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = defaultAccountsSorting.sorter())
+            coincore.walletsWithAction(action = AssetAction.Sell, sorter = defaultAccountsSorting.sorter())
         ).map { (assets, accounts) ->
             accounts.filterIsInstance<CryptoAccount>().filter { account ->
                 account.currency.networkTicker in assets.map { it.networkTicker }

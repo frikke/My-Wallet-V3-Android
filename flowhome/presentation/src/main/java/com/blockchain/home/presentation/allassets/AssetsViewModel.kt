@@ -468,22 +468,6 @@ private fun DataResource<List<ModelAccount>>.withBalancedAccounts(
     )
 }
 
-private fun DataResource<List<ModelAccount>>.withBalancedAccount(
-    account: SingleAccount,
-    balance: DataResource<AccountBalance>
-): DataResource<List<ModelAccount>> {
-    return this.map { accounts ->
-        val oldAccount = accounts.first { it.singleAccount == account }
-        accounts.replace(
-            old = oldAccount,
-            new = oldAccount.copy(
-                balance = balance.map { it.total },
-                fiatBalance = balance.map { it.totalFiat }
-            )
-        )
-    }
-}
-
 private fun DataResource<List<ModelAccount>>.withUsdRate(
     account: SingleAccount,
     usdRate: DataResource<ExchangeRate>

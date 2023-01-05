@@ -209,7 +209,7 @@ class MainInteractor internal constructor(
                 }
             }
         } else {
-            coincore.walletsWithActions(actions = setOf(action)).map { accountsForAction ->
+            coincore.walletsWithAction(action = action).map { accountsForAction ->
                 accountsForAction.filter { account ->
                     account.currency.networkTicker == networkTicker
                 }

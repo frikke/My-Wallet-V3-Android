@@ -8,7 +8,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
@@ -33,7 +32,6 @@ internal class UnifiedBalancesRepository(
     private val unifiedBalancesSubscribeStore: UnifiedBalancesSubscribeStore,
     private val unifiedBalancesStore: UnifiedBalancesStore,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteLogger: RemoteLogger,
     private val currencyPrefs: CurrencyPrefs,
 ) : UnifiedBalancesService {
     /**
@@ -113,8 +111,10 @@ internal class UnifiedBalancesRepository(
             )
         }.sortedBy { it.currency }
         return unifiedBalancesSubscribeStore.stream(
-            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(subscriptions)
-        ).firstOutcome()
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                .withKey(subscriptions)
+        )
+            .firstOutcome()
             .getOrThrow()
     }
 }

@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import timber.log.Timber
@@ -77,27 +78,38 @@ class ReceiveModel(
             )
 
     private fun getAvailableAccounts(startForTicker: String?): Disposable =
-        walletModeService.walletModeSingle.flatMap { coincore.allWalletsInMode(it) }.flatMap { accountGroup ->
-            accountGroup.accounts.filterByActionAndState(
-                AssetAction.Receive,
-                listOf(ActionState.Available, ActionState.LockedForTier)
-            )
-        }.map { accountsList ->
-            accountsList.sortedWith(
-                compareBy<SingleAccount> { it.currency.displayTicker }.thenBy { it.isDefault }.thenBy { it.label }
-            )
-        }.subscribeBy(
-            onSuccess = { accounts ->
-                process(ReceiveIntent.UpdateAccounts(accounts))
+        walletModeService.walletModeSingle.flatMap { coincore.allWalletsInMode(it) }
+            .flatMap { accountGroup ->
+                accountGroup.accounts.filterByActionAndState(
+                    AssetAction.Receive,
+                    listOf(
+                        ActionState.Available,
+                        ActionState.LockedForTier
+                    )
+                )
+                    .zipWith(coincore.activeWallets())
+            }.map { (accountsList, active) ->
+                accountsList.sortedWith(
+                    compareBy<SingleAccount> {
+                        it.currency.networkTicker !in
+                            active.accounts.map { acc -> acc.currency.networkTicker }
+                    }.thenByDescending { it.currency.index }
+                        .thenBy { it.currency.displayTicker }
+                        .thenBy { !it.isDefault }
+                        .thenBy { it.label }
+                )
+            }.subscribeBy(
+                onSuccess = { accounts ->
+                    process(ReceiveIntent.UpdateAccounts(accounts))
 
-                startForTicker?.let { ticker ->
-                    process(ReceiveIntent.GetStartingAccountForAsset(ticker, accounts))
+                    startForTicker?.let { ticker ->
+                        process(ReceiveIntent.GetStartingAccountForAsset(ticker, accounts))
+                    }
+                },
+                onError = {
+                    Timber.e(it)
                 }
-            },
-            onError = {
-                Timber.e(it)
-            }
-        )
+            )
 
     private fun loadAccountsForAsset(assetInfo: AssetInfo): Single<List<CryptoAccount>> {
         return getReceiveAccountsForAssetUseCase(assetInfo).map {

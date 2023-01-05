@@ -78,11 +78,13 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         ActiveAccountList(currency, interestService)
     }
 
-    protected val accounts: Single<SingleAccountList>
-        get() = activeAccounts.fetchAccountList(::loadAccounts)
-            .flatMap {
-                updateLabelsIfNeeded(it).toSingle { it }
-            }
+    protected fun accounts(filter: AssetFilter): Single<SingleAccountList> {
+        return activeAccounts.fetchAccountList(assetFilter = filter, loader = { f ->
+            loadAccounts(f)
+        }).doOnSuccess {
+            updateLabelsIfNeeded(it)
+        }
+    }
 
     private fun updateLabelsIfNeeded(list: SingleAccountList): Completable =
         Completable.concat(
@@ -103,20 +105,45 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
         )
 
-    private fun loadAccounts(): Single<SingleAccountList> {
-        return Single.zip(
-            loadNonCustodialAccounts(
+    private fun loadAccounts(filter: AssetFilter): Single<SingleAccountList> {
+        return when (filter) {
+            AssetFilter.All -> Single.zip(
+                loadNonCustodialAccounts(
+                    labels
+                ),
+                loadCustodialAccounts(),
+                loadInterestAccounts(),
+                loadStakingAccounts().asSingle()
+            ) { nonCustodial, trading, interest, staking ->
+                nonCustodial + trading + interest + staking
+            }.doOnError {
+                val errorMsg = "Error loading accounts for ${currency.networkTicker}"
+                Timber.e("$errorMsg: $it")
+                remoteLogger.logException(it, errorMsg)
+            }
+            AssetFilter.NonCustodial -> loadNonCustodialAccounts(
                 labels
-            ),
-            loadCustodialAccounts(),
-            loadInterestAccounts(),
-            loadStakingAccounts().asSingle()
-        ) { nonCustodial, trading, interest, staking ->
-            nonCustodial + trading + interest + staking
-        }.doOnError {
-            val errorMsg = "Error loading accounts for ${currency.networkTicker}"
-            Timber.e("$errorMsg: $it")
-            remoteLogger.logException(it, errorMsg)
+            )
+            AssetFilter.Custodial,
+            AssetFilter.Trading -> {
+                if (currency.isCustodial)
+                    Single.zip(
+                        loadCustodialAccounts(),
+                        loadInterestAccounts(),
+                        loadStakingAccounts().asSingle()
+                    ) { trading, interest, staking ->
+                        trading + interest + staking
+                    }.doOnError {
+                        val errorMsg = "Error loading accounts for ${currency.networkTicker}"
+                        Timber.e("$errorMsg: $it")
+                        remoteLogger.logException(it, errorMsg)
+                    }
+                else Single.just(emptyList())
+            }
+            AssetFilter.Interest -> if (currency.isCustodial) loadInterestAccounts() else Single.just(emptyList())
+            AssetFilter.Staking -> if (currency.isCustodial) loadStakingAccounts().asSingle() else Single.just(
+                emptyList()
+            )
         }
     }
 
@@ -226,15 +253,14 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
 
     final override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
-        accounts.flatMapMaybe {
+        accounts(filter).flatMapMaybe {
             Maybe.fromCallable {
                 it.makeAccountGroup(currency, labels, filter)
             }
         }
 
-    final override fun defaultAccount(): Single<SingleAccount> {
-        return accounts.map {
-            // todo(othman): remove when it.first { a -> a.isDefault } crash is fixed
+    final override fun defaultAccount(filter: AssetFilter): Single<SingleAccount> {
+        return accounts(filter).map {
             remoteLogger.logEvent("defaultAccount, accounts: ${it.size}, hasDefault: ${it.any { it.isDefault }}")
             it.forEach {
                 remoteLogger.logEvent("defaultAccount, account: ${it.label}")
@@ -294,7 +320,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private fun getInterestTargets(): Maybe<SingleAccountList> =
         interestService.getEligibilityForAsset(currency).flatMapMaybe { eligibility ->
             if (eligibility == InterestEligibility.Eligible) {
-                accounts.flatMapMaybe {
+                accounts(AssetFilter.Interest).flatMapMaybe {
                     Maybe.just(it.filterIsInstance<CustodialInterestAccount>())
                 }
             } else {
@@ -305,7 +331,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private fun getStakingTargets(): Maybe<SingleAccountList> =
         stakingService.getEligibilityForAsset(currency).asSingle().flatMapMaybe { eligibility ->
             if (eligibility == StakingEligibility.Eligible) {
-                accounts.flatMapMaybe {
+                accounts(AssetFilter.Staking).flatMapMaybe {
                     Maybe.just(it.filterIsInstance<CustodialStakingAccount>())
                 }
             } else {
@@ -377,7 +403,7 @@ internal class ActiveAccountList(
     private val asset: AssetInfo,
     private val interestService: InterestService
 ) {
-    private val activeList = mutableSetOf<CryptoAccount>()
+    private val activeList = mutableMapOf<AssetFilter, Set<CryptoAccount>>()
 
     private var interestEnabled = false
     private val forceRefreshOnNext = AtomicBoolean(true)
@@ -387,18 +413,23 @@ internal class ActiveAccountList(
     }
 
     fun fetchAccountList(
-        loader: () -> Single<SingleAccountList>,
+        assetFilter: AssetFilter,
+        loader: (AssetFilter) -> Single<SingleAccountList>,
     ): Single<SingleAccountList> =
-        shouldRefresh().flatMap { refresh ->
-            if (refresh || activeList.isEmpty()) {
-                loader().map { updateWith(it) }
+        shouldRefresh(assetFilter).flatMap { refresh ->
+            if (refresh) {
+                loader(assetFilter).map { updateWith(assetFilter, it) }
             } else {
-                Single.just(activeList.toList())
+                Single.just(activeList[assetFilter]?.toList() ?: emptyList())
             }
         }
 
-    private fun shouldRefresh() =
-        Singles.zip(
+    private fun shouldRefresh(filter: AssetFilter): Single<Boolean> {
+        return if (activeList[filter] == null || forceRefreshOnNext.get()) {
+            Single.just(true).doOnSuccess {
+                forceRefreshOnNext.set(false)
+            }
+        } else Singles.zip(
             Single.just(interestEnabled),
             interestService.isAssetAvailableForInterest(asset),
             Single.just(forceRefreshOnNext.getAndSet(false))
@@ -406,18 +437,19 @@ internal class ActiveAccountList(
             interestEnabled = isEnabled
             wasEnabled != isEnabled || force
         }.onErrorReturn { false }
+    }
 
     @Synchronized
     private fun updateWith(
+        assetFilter: AssetFilter,
         accounts: List<SingleAccount>,
     ): List<CryptoAccount> {
         val newActives = mutableSetOf<CryptoAccount>()
         accounts.filterIsInstance<CryptoAccount>()
             .forEach { a -> newActives.add(a) }
-        activeList.clear()
-        activeList.addAll(newActives)
+        activeList[assetFilter] = newActives
 
-        return activeList.toList()
+        return activeList[assetFilter]!!.toList()
     }
 }
 
