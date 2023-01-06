@@ -156,7 +156,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     fun `confirmations are refreshed`() {
         // Arrange
         val balance = CryptoValue.fromMajor(ASSET, 10.1.toBigDecimal())
-        whenever(sourceAccount.balanceRx).thenReturn(
+        whenever(sourceAccount.balanceRx()).thenReturn(
             Observable.just(
                 AccountBalance(
                     total = balance,
@@ -170,7 +170,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
 
         val refreshTrigger = object : TxEngine.RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable =
-                Completable.fromAction { sourceAccount.balanceRx }
+                Completable.fromAction { sourceAccount.balanceRx() }
         }
 
         // Act
@@ -184,7 +184,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         subject.refreshConfirmations(false)
 
         // Assert
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
 
         noMoreInteractions()
     }

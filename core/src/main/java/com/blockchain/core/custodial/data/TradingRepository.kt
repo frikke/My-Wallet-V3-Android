@@ -49,6 +49,10 @@ internal class TradingRepository(
         return getBalancesFlow(refreshStrategy)
             .map { it.keys }
     }
+
+    override fun markAsStale() {
+        tradingStore.markAsStale()
+    }
 }
 
 private fun TradingBalanceResponseDto.toTradingAccountBalance(currency: Currency) =

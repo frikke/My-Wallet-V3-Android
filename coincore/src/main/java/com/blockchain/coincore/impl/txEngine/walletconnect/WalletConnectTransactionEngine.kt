@@ -38,6 +38,8 @@ class WalletConnectTransactionEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
 
+    override fun ensureSourceBalanceFreshness() {}
+
     private val ethSignMessageTarget: EthereumSendTransactionTarget
         get() = txTarget as EthereumSendTransactionTarget
 
@@ -67,7 +69,7 @@ class WalletConnectTransactionEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        sourceAccount.balanceRx.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
+        sourceAccount.balanceRx().firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
             pendingTx.copy(
                 availableBalance = balance.withdrawable - fees,
                 feeForFullAvailable = fees,
@@ -148,7 +150,7 @@ class WalletConnectTransactionEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx().map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, fee ->
             if (fee + pendingTx.amount > balance) {

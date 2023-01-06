@@ -2,6 +2,7 @@ package com.blockchain.coincore.testutil
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.selfcustody.BalancesResponse
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.RemoteLogger
@@ -20,6 +21,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.bind
+import org.koin.dsl.factory
 import org.koin.dsl.module
 
 private fun injectMocks(module: Module) {
@@ -44,6 +46,8 @@ open class CoincoreTestBase {
     protected val currencyPrefs: CurrencyPrefs = mock {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
+
+    private val tradingService: TradingService = mock()
 
     private val mockedRemoteLogger: RemoteLogger = mock()
     private val balancesStore: Store<BalancesResponse> = mock()
@@ -85,6 +89,10 @@ open class CoincoreTestBase {
                 factory {
                     balancesStore
                 }.bind(Store::class)
+
+                factory {
+                    tradingService
+                }.bind(TradingService::class)
             }
         )
     }

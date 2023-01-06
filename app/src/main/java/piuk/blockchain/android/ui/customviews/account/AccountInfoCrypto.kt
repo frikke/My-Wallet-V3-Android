@@ -116,7 +116,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
             assetTitle.text = item.title
             assetSubtitle.text = item.subTitle
 
-            compositeDisposable += account.balanceRx.firstOrError().map { it.total }
+            compositeDisposable += account.balanceRx().firstOrError().map { it.total }
                 .doOnSuccess {
                     accountBalance = it
                 }.startWithValueIfCondition(

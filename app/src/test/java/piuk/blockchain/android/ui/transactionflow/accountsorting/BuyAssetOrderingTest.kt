@@ -309,7 +309,7 @@ class BuyAssetOrderingTest {
             )
         }
         val accountGroup: AccountGroup = mock {
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     mockBalance
                 )

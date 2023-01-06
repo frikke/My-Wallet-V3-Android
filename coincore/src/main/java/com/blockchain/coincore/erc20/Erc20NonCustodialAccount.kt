@@ -14,6 +14,7 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
@@ -56,14 +57,16 @@ class Erc20NonCustodialAccount(
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = super.balanceRx.onErrorResumeNext {
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return super.balanceRx(freshnessStrategy).onErrorResumeNext {
             if (it is UnifiedBalanceNotFoundException)
                 Observable.just(AccountBalance.zero(currency))
             else Observable.error(it)
         }.doOnNext {
             hasFunds.set(it.total.isPositive)
         }
+    }
+
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 

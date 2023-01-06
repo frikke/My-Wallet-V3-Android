@@ -10,6 +10,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -40,8 +41,8 @@ class LinkedBankAccount(
     fun getWithdrawalFeeAndMinLimit(): Single<FiatWithdrawalFeeAndLimit> =
         custodialWalletManager.fetchFiatWithdrawFeeAndMinLimit(currency, Product.BUY, paymentMethodType = type)
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Money.zero(currency).let { zero ->
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Money.zero(currency).let { zero ->
             Observable.just(
                 AccountBalance(
                     total = zero,

@@ -144,7 +144,7 @@ class EthOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             absoluteFees()
         ) { balance, feeLevels ->
             val total = balance.total as CryptoValue
@@ -245,7 +245,7 @@ class EthOnChainTxEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx().map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: Money.zero(sourceAsset)

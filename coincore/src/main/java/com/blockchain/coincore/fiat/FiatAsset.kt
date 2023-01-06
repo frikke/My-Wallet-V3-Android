@@ -17,7 +17,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -35,7 +34,6 @@ class FiatAsset(
     private val exchangeRates: ExchangeRatesDataManager by inject()
     private val bankService: BankService by scopedInject()
     private val simpBuyService: SimpleBuyService by scopedInject()
-    private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val tradingService: TradingService by scopedInject()
     private val labels: DefaultLabels by inject()
 
@@ -65,7 +63,6 @@ class FiatAsset(
             currency = currency,
             tradingService = tradingService,
             exchangeRates = exchangeRates,
-            custodialWalletManager = custodialWalletManager,
             bankService = bankService,
             simpleBuyService = simpBuyService
         )

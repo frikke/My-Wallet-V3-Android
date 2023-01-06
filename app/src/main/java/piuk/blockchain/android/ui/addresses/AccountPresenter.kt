@@ -118,7 +118,7 @@ class AccountPresenter internal constructor(
     }
 
     internal fun checkBalanceForTransfer(account: CryptoNonCustodialAccount) {
-        compositeDisposable += account.balanceRx.firstOrError().map { it.withdrawable }
+        compositeDisposable += account.balanceRx().firstOrError().map { it.withdrawable }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 if (it.isPositive) {

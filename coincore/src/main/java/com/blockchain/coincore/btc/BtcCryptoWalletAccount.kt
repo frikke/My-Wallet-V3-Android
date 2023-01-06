@@ -17,6 +17,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -67,8 +68,8 @@ import io.reactivex.rxjava3.core.Single
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = if (internalAccount is ImportedAddress) {
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        if (internalAccount is ImportedAddress) {
             Observable.combineLatest(
                 getOnChainBalance(),
                 exchangeRates.exchangeRateToUserFiat(currency)
@@ -82,7 +83,7 @@ import io.reactivex.rxjava3.core.Single
                 )
             }
         } else {
-            super.balanceRx
+            super.balanceRx(freshnessStrategy)
         }
 
     override val receiveAddress: Single<ReceiveAddress>
@@ -197,7 +198,7 @@ import io.reactivex.rxjava3.core.Single
         val isArchived = this.isArchived
 
         return updateArchivedState(!isArchived)
-            .then { balanceRx.firstOrError().onErrorComplete().ignoreElement() }
+            .then { balanceRx().firstOrError().onErrorComplete().ignoreElement() }
             .doOnComplete { forceRefresh() }
     }
 

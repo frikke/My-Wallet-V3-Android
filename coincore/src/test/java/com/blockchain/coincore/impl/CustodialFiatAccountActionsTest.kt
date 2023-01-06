@@ -8,7 +8,8 @@ import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.ExchangeRate
@@ -22,7 +23,6 @@ import org.junit.Test
 
 class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
-    private val custodialManager: CustodialWalletManager = mock()
     private val tradingService: TradingService = mock()
     private val simpleBuyService: SimpleBuyService = mock()
     private val bankService: BankService = mock()
@@ -108,7 +108,6 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
             currency = TEST_FIAT_ASSET,
             isDefault = false,
             exchangeRates = exchangeRates,
-            custodialWalletManager = custodialManager,
             tradingService = tradingService,
             simpleBuyService = simpleBuyService,
             bankService = bankService
@@ -134,7 +133,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
             hasTransactions = true
         )
 
-        whenever(tradingService.getBalanceFor(FiatCurrency.Dollars))
+        whenever(tradingService.getBalanceFor(eq(FiatCurrency.Dollars), any()))
             .thenReturn(Observable.just(balance))
     }
 

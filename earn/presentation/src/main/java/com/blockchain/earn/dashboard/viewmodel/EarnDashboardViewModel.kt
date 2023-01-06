@@ -198,11 +198,11 @@ class EarnDashboardViewModel(
             val tradingAccount = coincore[currency].accountGroup(AssetFilter.Trading).awaitSingle().accounts.first()
             val pkwAccountsBalance =
                 coincore[currency].accountGroup(AssetFilter.NonCustodial).awaitSingleOrNull()?.accounts?.map {
-                    it.balance.firstOrNull()
+                    it.balance().firstOrNull()
                 }?.toList()?.sumOf { it?.total?.toBigDecimal() ?: BigDecimal.ZERO } ?: Money.zero(currency)
                     .toBigDecimal()
 
-            if (tradingAccount.balance.firstOrNull()?.total?.isPositive == true ||
+            if (tradingAccount.balance().firstOrNull()?.total?.isPositive == true ||
                 pkwAccountsBalance > BigDecimal.ZERO
             ) {
                 when (earnType) {

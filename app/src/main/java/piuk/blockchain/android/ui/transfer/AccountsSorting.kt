@@ -81,7 +81,7 @@ class SwapTargetAccountsSorting(
                 val sortedList = Single.zip(
                     Observable.fromIterable(list).flatMapSingle { account ->
                         Single.zip(
-                            account.balanceRx.firstOrError(),
+                            account.balanceRx().firstOrError(),
                             exchangeRatesDataManager.getCurrentAssetPrice(
                                 asset = account.currency, fiat = currencyPrefs.selectedFiatCurrency
                             )
@@ -116,9 +116,16 @@ class SwapTargetAccountsSorting(
 
                     val sortedFinalAccounts = sortedAccountsInWatchlist.toSet() + sortedAvailableAccounts.toSet()
 
-                    return@zip sortedFinalAccounts.map {
-                        it.account
-                    }
+                    return@zip sortedFinalAccounts.groupBy { it.account.currency.networkTicker }
+                        .mapValues { entry ->
+                            entry.value.sortedWith(
+                                compareByDescending<AccountInfo> { it.account is NonCustodialAccount }
+                                    .thenByDescending { it.totalBalance }
+                            )
+                        }
+                        .values.flatten().map {
+                            it.account
+                        }
                 }.onErrorReturn { list }
 
                 return@flatMap sortedList.doFinally {
@@ -149,7 +156,7 @@ class SellAccountsSorting(
                 momentLogger.startEvent(MomentEvent.SELL_LIST_FF_ON)
                 val sortedList = Observable.fromIterable(accountList).flatMapSingle { account ->
                     coincore[account.currency].getPricesWith24hDeltaLegacy().flatMap { prices ->
-                        account.balanceRx.firstOrError().map { balance ->
+                        account.balanceRx().firstOrError().map { balance ->
                             Pair(account, prices.currentRate.convert(balance.total))
                         }
                     }
@@ -210,7 +217,7 @@ class DefaultAccountsSorting(
                 momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
                 val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
                     Single.zip(
-                        account.balanceRx.firstOrError(),
+                        account.balanceRx().firstOrError(),
                         coincore[account.currency].getPricesWith24hDeltaLegacy(),
                     ) { balance, prices ->
                         AccountData(
@@ -289,7 +296,7 @@ class BuyListAccountSorting(
             Observable.fromIterable(assets).flatMapMaybe { asset ->
                 Maybe.zip(
                     coincore[asset].accountGroup(AssetFilter.All).flatMap {
-                        it.balanceRx.firstOrError().toMaybe()
+                        it.balanceRx().firstOrError().toMaybe()
                     }.onErrorReturn { AccountBalance.zero(asset) },
                     asset.getAssetPriceInformation(),
                     // trading volumes are only returned in USD, so request them in that fiat here

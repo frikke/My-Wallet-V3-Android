@@ -20,4 +20,6 @@ interface TradingService {
     fun getActiveAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<Set<Currency>>
+
+    fun markAsStale()
 }

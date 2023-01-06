@@ -337,6 +337,10 @@ internal class InterestRepository(
         )
     }
 
+    override fun markBalancesAsStale() {
+        interestBalancesStore.markAsStale()
+    }
+
     companion object {
         const val INTEREST_PRODUCT_NAME = "savings"
     }

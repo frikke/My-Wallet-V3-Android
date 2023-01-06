@@ -11,7 +11,6 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -125,7 +124,6 @@ class SellIntroFragment :
     override fun onStateUpdated(state: SellViewState) {
         when (state.sellEligibility) {
             is DataResource.Data -> {
-                hideLoading()
 
                 when (val eligibilityData = state.sellEligibility.data) {
                     is SellEligibility.Eligible -> {
@@ -153,7 +151,6 @@ class SellIntroFragment :
                 }
             }
             is DataResource.Error -> {
-                hideLoading()
 
                 renderSellError()
                 logErrorAnalytics(
@@ -173,9 +170,7 @@ class SellIntroFragment :
                     action = ClientErrorAnalytics.ACTION_SELL
                 )
             }
-            DataResource.Loading -> if (state.showLoader) {
-                showLoading()
-            }
+            DataResource.Loading -> {}
         }
 
         state.supportedAccountList.doOnData { supportedAccounts ->
@@ -216,7 +211,6 @@ class SellIntroFragment :
                     }
                 }
                 onListLoaded = { isEmpty ->
-                    hideLoading()
 
                     sellSearchEmpty.visibleIf { isEmpty && hasEnteredSearchTerm }
                     accountsList.goneIf { isEmpty }
@@ -373,14 +367,6 @@ class SellIntroFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun showLoading() {
-        (requireActivity() as? BlockchainActivity)?.showLoading()
-    }
-
-    private fun hideLoading() {
-        (requireActivity() as? BlockchainActivity)?.hideLoading()
     }
 
     companion object {

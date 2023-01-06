@@ -180,4 +180,6 @@ interface InterestService {
      * todo: coroutines
      */
     fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable
+
+    fun markBalancesAsStale()
 }

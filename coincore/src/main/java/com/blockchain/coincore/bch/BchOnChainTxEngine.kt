@@ -102,7 +102,7 @@ class BchOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Singles.zip(
-            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx().firstOrError().map { it.total as CryptoValue },
             getUnspentApiResponse(bchSource.xpubAddress),
             getDynamicFeePerKb()
         ) { balance, coins, feePerKb ->
@@ -115,7 +115,7 @@ class BchOnChainTxEngine(
     }
 
     private fun getUnspentApiResponse(address: String): Single<List<Utxo>> {
-        return sourceAccount.balanceRx.firstOrError().flatMap {
+        return sourceAccount.balanceRx().firstOrError().flatMap {
             if (it.total.isPositive) {
                 sendDataManager.getUnspentBchOutputs(address)
                     // If we get here, we should have balance and valid UTXOs. IF we don't, then, um... we'd best fail hard

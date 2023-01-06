@@ -66,6 +66,8 @@ class FiatDepositTxEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
 
+    override fun ensureSourceBalanceFreshness() {}
+
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
 

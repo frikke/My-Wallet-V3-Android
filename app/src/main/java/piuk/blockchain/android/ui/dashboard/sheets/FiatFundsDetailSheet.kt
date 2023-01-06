@@ -68,7 +68,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 fundsUserFiatBalance.gone()
             }
             disposables += Singles.zip(
-                account.balanceRx.firstOrError().map { it.total }.flatMap { balance ->
+                account.balanceRx().firstOrError().map { it.total }.flatMap { balance ->
                     exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map {
                         it.convert(balance) to balance
                     }

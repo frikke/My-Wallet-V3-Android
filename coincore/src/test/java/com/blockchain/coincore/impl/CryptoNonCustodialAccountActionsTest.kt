@@ -16,6 +16,7 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.userFiatToUserFiat
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -54,7 +55,11 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     private val custodialManager: CustodialWalletManager = mock()
 
     private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
-        override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
+
+        override fun balances(
+            wallet: NetworkWallet?,
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<List<NetworkBalance>>> {
             return flowOf(
                 DataResource.Data(
                     listOf(
@@ -69,7 +74,10 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
             )
         }
 
-        override fun balanceForWallet(wallet: NetworkWallet): Flow<DataResource<NetworkBalance>> {
+        override fun balanceForWallet(
+            wallet: NetworkWallet,
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<NetworkBalance>> {
             val isFounded = (wallet as NonCustodialTestAccount).isFunded
             val balance = if (isFounded) 1.toBigDecimal() else 0.toBigDecimal()
             return flowOf(

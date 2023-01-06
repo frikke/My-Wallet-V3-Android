@@ -40,6 +40,10 @@ class StakingDepositTradingEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(stakingBalanceStore, tradingStore)
 
+    override fun ensureSourceBalanceFreshness() {
+        stakingBalanceStore.markAsStale()
+    }
+
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
         check(txTarget is StakingAccount)
@@ -48,7 +52,7 @@ class StakingDepositTradingEngine(
     }
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map { it.total }
+        get() = sourceAccount.balanceRx().firstOrError().map { it.total }
 
     override fun doInitialiseTx(): Single<PendingTx> {
         return Single.zip(

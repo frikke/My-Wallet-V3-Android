@@ -30,7 +30,7 @@ class WalletModeBalanceRepository(
 
     override fun totalBalance(): Flow<DataResource<Money>> {
         return coincore.activeWalletsInMode(WalletMode.UNIVERSAL).flatMapLatest {
-            it.balance
+            it.balance()
         }.map {
             DataResource.Data(it.total)
         }.catch {

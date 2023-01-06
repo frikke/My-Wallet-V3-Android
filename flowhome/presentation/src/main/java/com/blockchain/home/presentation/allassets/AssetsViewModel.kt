@@ -259,7 +259,7 @@ class AssetsViewModel(
                     .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
-                            account.balance.distinctUntilChanged()
+                            account.balance().distinctUntilChanged()
                                 .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
                                     emit(account to DataResource.Error(t as Exception))

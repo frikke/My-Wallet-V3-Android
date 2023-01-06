@@ -104,7 +104,7 @@ class XlmOnChainTxEngine(
         require(amount.currency == CryptoCurrency.XLM)
 
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             absoluteFee()
         ) { balance, fees ->
             pendingTx.copy(
@@ -139,7 +139,7 @@ class XlmOnChainTxEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Singles.zip(
-            sourceAccount.balanceRx.firstOrError().map { it.withdrawable },
+            sourceAccount.balanceRx().firstOrError().map { it.withdrawable },
             absoluteFee()
         ) { balance: Money, fee: Money ->
             if (fee + pendingTx.amount > balance) {

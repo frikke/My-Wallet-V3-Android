@@ -105,7 +105,7 @@ class FiatFundsDetailViewModel(
                 }
                 .flatMapData { fiatAccount ->
                     combine(
-                        fiatAccount.balance.map { it.total },
+                        fiatAccount.balance().map { it.total },
                         flowOf(fiatAccount.stateAwareActions.await())
                     ) { balance, actions ->
                         DataResource.Data(

@@ -25,12 +25,12 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
@@ -48,10 +48,9 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 
-class TxProcessorFactoryTest {
+class TxProcessorFactoryTest : CoincoreTestBase() {
 
     private val bitPayManager: BitPayDataManager = mock()
-    private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
     private val interestService: InterestService = mock()
@@ -72,6 +71,7 @@ class TxProcessorFactoryTest {
 
     @Before
     fun setup() {
+        initMocks()
         subject = TxProcessorFactory(
             bitPayManager = bitPayManager,
             exchangeRates = exchangeRates,

@@ -7,6 +7,8 @@ import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -56,10 +58,10 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        subject.balanceRx
+        subject.balanceRx()
             .test()
             .assertComplete()
             .assertValue {
@@ -86,10 +88,10 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 0.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        subject.balanceRx
+        subject.balanceRx()
             .test()
             .assertComplete()
             .assertValue {
@@ -122,10 +124,10 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        val testSubscriber = subject.balanceRx
+        val testSubscriber = subject.balanceRx()
             .subscribeOn(scheduler)
             .test()
             .assertNoValues()

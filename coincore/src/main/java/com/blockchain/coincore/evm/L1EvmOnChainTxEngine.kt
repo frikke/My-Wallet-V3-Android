@@ -144,7 +144,7 @@ class L1EvmOnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             absoluteFees()
         ) { balance, feesForLevels ->
             val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)
@@ -203,7 +203,7 @@ class L1EvmOnChainTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx().firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(
@@ -216,7 +216,7 @@ class L1EvmOnChainTxEngine(
 
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balanceRx.map { it.total }.firstOrError(),
+            sourceAccount.balanceRx().map { it.total }.firstOrError(),
             absoluteFees()
         ) { balance, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)

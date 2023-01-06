@@ -163,7 +163,7 @@ class LoadAssetAccountsUseCase(
             }
             .map { account ->
                 combine(
-                    account.balance.map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
+                    account.balance().map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
                         emit(DataResource.Error(it as Exception))
                     },
                     flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }.catch {

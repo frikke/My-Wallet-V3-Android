@@ -26,7 +26,7 @@ class PendingBalanceAccountDecorator(
     private val account: BlockchainAccount
 ) : CellDecorator {
     override fun view(context: Context): Maybe<View> {
-        return account.balanceRx.firstOrError().map { it.pending }.flatMapMaybe {
+        return account.balanceRx().firstOrError().map { it.pending }.flatMapMaybe {
             if (it.isZero)
                 Maybe.empty()
             else Maybe.just(composePendingBalanceView(context, it))

@@ -1,6 +1,7 @@
 package com.blockchain.coincore
 
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
@@ -31,8 +32,9 @@ class NullCryptoAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return Observable.error(NotImplementedError())
+    }
 
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
@@ -68,8 +70,9 @@ object NullFiatAccount : FiatAccount {
 
     override val label: String = ""
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return Observable.error(NotImplementedError())
+    }
 
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
@@ -79,6 +82,7 @@ object NullFiatAccount : FiatAccount {
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
         return Single.just(ActionState.Unavailable)
     }
+
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 

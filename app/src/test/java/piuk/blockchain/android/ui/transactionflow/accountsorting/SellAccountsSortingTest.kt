@@ -11,6 +11,7 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -122,11 +123,13 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.ETHER) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.ETHER), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
-                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(
+                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)
+                            ),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -149,11 +152,13 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.BTC) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.BTC), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
-                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(
+                                CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)
+                            ),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -239,11 +244,13 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.ETHER) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.ETHER), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
-                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(
+                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)
+                            ),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -266,11 +273,13 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.ETHER) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.ETHER), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
-                            dashboardDisplay = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(
+                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)
+                            ),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -293,11 +302,13 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.BTC) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.BTC), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
-                            dashboardDisplay = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
+                            dashboardDisplay = Money.fromMinor(
+                                CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)
+                            ),
                             withdrawable = mock(),
                             pending = mock(),
                             hasTransactions = true
@@ -320,7 +331,7 @@ class SellAccountsSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(CryptoCurrency.BTC) }.thenReturn(
+                on { getBalanceFor(eq(CryptoCurrency.BTC), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_LOW_BALANCE)),

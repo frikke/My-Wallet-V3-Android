@@ -2,6 +2,7 @@ package com.blockchain.bitpay
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.bitpay.analytics.BitPayEvent
 import com.blockchain.bitpay.models.BitPayTransaction
 import com.blockchain.bitpay.models.BitPaymentRequest
@@ -20,7 +21,9 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.CryptoCurrency
@@ -65,6 +68,8 @@ class BitpayTxEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
 
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
+
     override fun assertInputsValid() {
         // Only support non-custodial BTC & BCH bitpay at this time
         val supportedCryptoCurrencies = listOf(CryptoCurrency.BTC, CryptoCurrency.BCH)
@@ -73,6 +78,10 @@ class BitpayTxEngine(
         check(txTarget is BitPayInvoiceTarget)
         require(assetEngine is BitPayClientEngine)
         assetEngine.assertInputsValid()
+    }
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
     }
 
     private val executionClient: BitPayClientEngine by unsafeLazy {

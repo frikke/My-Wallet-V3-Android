@@ -49,6 +49,8 @@ class WalletConnectSignEngine(
         assetEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
     }
 
+    override fun ensureSourceBalanceFreshness() {}
+
     override fun doInitialiseTx(): Single<PendingTx> =
         assetEngine.doInitialiseTx()
             .map { tx ->

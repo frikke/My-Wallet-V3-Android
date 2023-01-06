@@ -177,7 +177,7 @@ class AnnouncementQueries(
                     group.accounts
                         .filterIsInstance<CryptoAccount>()
                         .map { account ->
-                            account.balanceRx.onErrorReturn { AccountBalance.zero(account.currency) }
+                            account.balanceRx().onErrorReturn { AccountBalance.zero(account.currency) }
                         }.zipObservables()
                         .map { balances ->
                             balances.any { it.totalFiat.isDust() }

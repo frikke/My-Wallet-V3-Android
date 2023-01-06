@@ -119,7 +119,7 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         // Arrange
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = Money.fromMinor(CryptoCurrency.ETHER, 9654784874001545.toBigInteger()),
@@ -252,7 +252,7 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         }
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         withdrawable = Money.fromMinor(
@@ -314,7 +314,7 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
         }
         val sourceAccount = mock<EthCryptoWalletAccount> {
             on { currency }.thenReturn(CryptoCurrency.ETHER)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         withdrawable = Money.fromMinor(

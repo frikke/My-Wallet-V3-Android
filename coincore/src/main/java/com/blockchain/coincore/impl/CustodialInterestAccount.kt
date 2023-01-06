@@ -17,6 +17,7 @@ import com.blockchain.coincore.toActionState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.earn.domain.models.interest.InterestActivity
 import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.earn.domain.service.InterestService
@@ -84,9 +85,12 @@ class CustodialInterestAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialInterestAccount && other.currency == currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            interestService.getBalanceFor(currency),
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.combineLatest(
+            interestService.getBalanceFor(
+                asset = currency,
+                refreshStrategy = freshnessStrategy
+            ),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance(
@@ -153,7 +157,7 @@ class CustodialInterestAccount(
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            balanceRx.firstOrError(),
+            balanceRx().firstOrError(),
             identity.userAccessForFeature(Feature.DepositInterest)
         ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {

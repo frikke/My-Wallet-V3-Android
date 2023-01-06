@@ -130,7 +130,7 @@ class LoaderInteractor(
             .then {
                 coincore.activeWalletsInModeRx(WalletMode.UNIVERSAL)
                     .firstOrError()
-                    .flatMap { it.balanceRx.firstOrError() }
+                    .flatMap { it.balanceRx().firstOrError() }
                     .onErrorComplete()
                     .ignoreElement()
             }

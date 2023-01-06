@@ -315,7 +315,7 @@ class DashboardActionInteractor(
             .toSingle()
             .logGroupLoadError(currency, walletMode.defaultFilter())
             .flatMapObservable { group ->
-                group.balanceRx.debounce(500, TimeUnit.MILLISECONDS)
+                group.balanceRx().debounce(500, TimeUnit.MILLISECONDS)
                     .distinctUntilChanged()
                     .logBalanceLoadError(currency, walletMode.defaultFilter())
                     .flatMap { balance ->

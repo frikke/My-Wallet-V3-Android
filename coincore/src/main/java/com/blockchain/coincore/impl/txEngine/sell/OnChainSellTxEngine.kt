@@ -1,6 +1,7 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FiatAccount
@@ -14,9 +15,11 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
@@ -37,12 +40,17 @@ class OnChainSellTxEngine(
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(tradingStore)
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
+    }
 
     override val direction: TransferDirection
         get() = TransferDirection.FROM_USERKEY
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map {
+        get() = sourceAccount.balanceRx().firstOrError().map {
             it.total
         }
 
