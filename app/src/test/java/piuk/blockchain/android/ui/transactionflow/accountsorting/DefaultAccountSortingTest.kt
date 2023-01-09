@@ -93,7 +93,7 @@ class DefaultAccountSortingTest {
 
     @Test
     fun `given wallet mode !custodial only and prefs exist then ordering follows prefs ordering`() {
-        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.UNIVERSAL))
+        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.NON_CUSTODIAL))
         whenever(dashboardPrefs.dashboardAssetOrder).thenReturn(listOf("XLM", "BTC", "ETH"))
         whenever(assetCatalogue.assetInfoFromNetworkTicker("XLM")).thenReturn(xlmMock)
         whenever(assetCatalogue.assetInfoFromNetworkTicker("BTC")).thenReturn(btcMock)
@@ -130,7 +130,7 @@ class DefaultAccountSortingTest {
 
     @Test
     fun `given wallet mode !custodial only and prefs don't exist then ordering is alphabetical`() {
-        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.UNIVERSAL))
+        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.NON_CUSTODIAL))
 
         whenever(dashboardPrefs.dashboardAssetOrder).thenReturn(emptyList())
         whenever(assetCatalogue.supportedCryptoAssets).thenReturn(listOf(xlmMock, btcMock, ethMock))
@@ -164,7 +164,7 @@ class DefaultAccountSortingTest {
 
     @Test
     fun `given wallet mode custodial only then ordering follows balances`() {
-        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.CUSTODIAL_ONLY))
+        whenever(walletModeService.walletModeSingle).thenReturn(Single.just(WalletMode.CUSTODIAL))
         val xlmAccount = setAccountForAssetWithBalance(xlmMock, ONE_XLM)
         val ethAccount = setAccountForAssetWithBalance(ethMock, 2 * ONE_ETH)
         val btcAccount = setAccountForAssetWithBalance(btcMock, 5 * ONE_BTC)

@@ -13,7 +13,6 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalArgumentException
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
@@ -76,18 +75,12 @@ class PricesViewModel(
             }
             walletModeService.walletMode.collectLatest {
                 updateState { state ->
-                    if (it != WalletMode.UNIVERSAL) {
-                        state.copy(
-                            filters = listOf(
-                                PricesFilter.All, PricesFilter.Tradable
-                            ),
-                            filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
-                        )
-                    } else {
-                        state.copy(
-                            filters = emptyList()
-                        )
-                    }
+                    state.copy(
+                        filters = listOf(
+                            PricesFilter.All, PricesFilter.Tradable
+                        ),
+                        filterBy = initialSelectedFilter(pricesPrefs.latestPricesMode, it)
+                    )
                 }
             }
         }
@@ -96,8 +89,8 @@ class PricesViewModel(
     private fun initialSelectedFilter(latestPricesMode: String?, walletMode: WalletMode): PricesFilter {
         if (latestPricesMode == null) {
             return when (walletMode) {
-                WalletMode.CUSTODIAL_ONLY -> PricesFilter.Tradable
-                WalletMode.NON_CUSTODIAL_ONLY -> PricesFilter.All
+                WalletMode.CUSTODIAL -> PricesFilter.Tradable
+                WalletMode.NON_CUSTODIAL -> PricesFilter.All
                 else -> throw IllegalArgumentException("Price filtering is not supported for $walletMode")
             }
         }

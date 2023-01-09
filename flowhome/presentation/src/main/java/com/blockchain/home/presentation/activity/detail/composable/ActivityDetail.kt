@@ -38,7 +38,6 @@ import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyAct
 import com.blockchain.koin.payloadScope
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.walletmode.WalletMode
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -49,7 +48,7 @@ fun ActivityDetail(
     onCloseClick: () -> Unit
 ) {
     when (walletMode) {
-        WalletMode.CUSTODIAL_ONLY -> CustodialActivityDetail(
+        WalletMode.CUSTODIAL -> CustodialActivityDetail(
             viewModel = getViewModel(
                 scope = payloadScope,
                 key = selectedTxId,
@@ -57,7 +56,7 @@ fun ActivityDetail(
             ),
             onCloseClick = onCloseClick
         )
-        WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivityDetail(
+        WalletMode.NON_CUSTODIAL -> PrivateKeyActivityDetail(
             viewModel = getViewModel(
                 scope = payloadScope,
                 key = selectedTxId,

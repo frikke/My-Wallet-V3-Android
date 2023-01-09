@@ -47,7 +47,6 @@ import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.superAppModeService
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -83,7 +82,7 @@ class MultiAppActivity :
 
     override val scope: Scope = payloadScope
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
-    private val walletModeService: WalletModeService by scopedInject(superAppModeService)
+    private val walletModeService: WalletModeService by scopedInject()
 
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)
@@ -196,7 +195,7 @@ class MultiAppActivity :
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             lifecycleScope.launch {
-                walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
+                walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL)
             }
         }
     }

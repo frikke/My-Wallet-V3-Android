@@ -5,7 +5,6 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
-import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import com.blockchain.walletmode.WalletModeStore
@@ -20,7 +19,6 @@ import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
-import piuk.blockchain.android.walletmode.SuperAppWalletModeRepository
 import piuk.blockchain.android.walletmode.WalletModeBalanceRepository
 import piuk.blockchain.android.walletmode.WalletModePrefStore
 import piuk.blockchain.android.walletmode.WalletModeRepository
@@ -99,13 +97,6 @@ val mainModule = module {
                 currencyPrefs = get()
             )
         }
-
-        scoped(superAppModeService) {
-            SuperAppWalletModeRepository(
-                walletModeStore = get(),
-                defaultWalletModeStrategy = get()
-            )
-        }.bind(WalletModeService::class)
 
         scoped {
             WalletModeRepository(

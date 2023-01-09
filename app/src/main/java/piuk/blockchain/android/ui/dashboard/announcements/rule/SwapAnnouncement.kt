@@ -28,7 +28,7 @@ class SwapAnnouncement(
         get() = "swap_v2"
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     override fun shouldShow(): Single<Boolean> =
         queries.isTier1Or2Verified().flatMap {

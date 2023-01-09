@@ -196,29 +196,7 @@ class LoadAssetAccountsUseCase(
 
         // create accounts based on wallet mode and account type
         return when (walletMode) {
-            WalletMode.UNIVERSAL -> {
-                sortedAccounts.map {
-                    CoinviewAccount.Universal(
-                        filter = when (it.account) {
-                            is TradingAccount -> AssetFilter.Trading
-                            is InterestAccount -> AssetFilter.Interest
-                            is StakingAccount -> AssetFilter.Staking
-                            is NonCustodialAccount -> AssetFilter.NonCustodial
-                            else -> error("account type not supported")
-                        },
-                        account = it.account,
-                        cryptoBalance = it.balance,
-                        fiatBalance = it.balance.map {
-                            exchangeRate.convert(it)
-                        },
-                        interestRate = interestRate,
-                        isEnabled = it.isAvailable,
-                        stakingRate = stakingRate
-                    )
-                }.run { CoinviewAccounts.Universal(this) }
-            }
-
-            WalletMode.CUSTODIAL_ONLY -> {
+            WalletMode.CUSTODIAL -> {
                 sortedAccounts.map {
                     when (it.account) {
                         is TradingAccount -> {
@@ -259,7 +237,7 @@ class LoadAssetAccountsUseCase(
                 }.run { CoinviewAccounts.Custodial(this) }
             }
 
-            WalletMode.NON_CUSTODIAL_ONLY -> {
+            WalletMode.NON_CUSTODIAL -> {
                 sortedAccounts.map {
                     CoinviewAccount.PrivateKey(
                         account = it.account,

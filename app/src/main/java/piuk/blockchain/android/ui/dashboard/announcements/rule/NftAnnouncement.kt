@@ -26,7 +26,7 @@ class NftAnnouncement(
     }
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.NON_CUSTODIAL)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

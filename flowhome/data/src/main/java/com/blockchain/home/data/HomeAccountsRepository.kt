@@ -22,8 +22,8 @@ class HomeAccountsRepository(
 ) : HomeAccountsService {
     override fun accounts(walletMode: WalletMode): Flow<DataResource<List<SingleAccount>>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> activeCustodialWallets()
-            WalletMode.NON_CUSTODIAL_ONLY -> activeNonCustodialWallets()
+            WalletMode.CUSTODIAL -> activeCustodialWallets()
+            WalletMode.NON_CUSTODIAL -> activeNonCustodialWallets()
             else -> throw IllegalStateException("Wallet mode is not supported")
         }
     }
@@ -42,7 +42,7 @@ class HomeAccountsRepository(
         }
     }
 
-    private fun activeCustodialWallets() = coincore.activeWalletsInMode(WalletMode.CUSTODIAL_ONLY).map { it.accounts }
+    private fun activeCustodialWallets() = coincore.activeWalletsInMode(WalletMode.CUSTODIAL).map { it.accounts }
         .map {
             DataResource.Data(it) as DataResource<List<SingleAccount>>
         }.onStart {

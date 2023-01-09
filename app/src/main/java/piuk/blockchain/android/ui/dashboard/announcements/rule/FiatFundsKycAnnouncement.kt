@@ -22,7 +22,7 @@ class FiatFundsKycAnnouncement(
 
     override val dismissKey = DISMISS_KEY
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed) {
             return Single.just(false)

@@ -68,9 +68,8 @@ class CustodialTradingAccount(
     override val baseActions: Single<Set<AssetAction>>
         get() = walletModeService.walletModeSingle.map {
             when (it) {
-                WalletMode.NON_CUSTODIAL_ONLY -> emptySet()
-                WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
-                WalletMode.UNIVERSAL -> defaultActions
+                WalletMode.NON_CUSTODIAL -> emptySet()
+                WalletMode.CUSTODIAL -> defaultCustodialActions
             }
         }
 

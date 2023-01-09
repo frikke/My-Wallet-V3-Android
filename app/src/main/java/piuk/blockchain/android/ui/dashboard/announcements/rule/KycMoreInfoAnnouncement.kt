@@ -30,7 +30,7 @@ internal class KycMoreInfoAnnouncement(
     }
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     private fun didNotStartGoldLevelKyc(): Single<Boolean> =
         kycService.getTiersLegacy().map {

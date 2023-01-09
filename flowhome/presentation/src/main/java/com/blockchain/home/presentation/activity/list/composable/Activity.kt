@@ -49,7 +49,6 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toMonthAndYear
 import com.blockchain.walletmode.WalletMode
@@ -63,13 +62,13 @@ import org.koin.androidx.compose.getViewModel
 fun Activity(
     onBackPressed: () -> Unit
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService, payloadScope).walletMode
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialActivity(onBackPressed = onBackPressed)
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyActivity(onBackPressed = onBackPressed)
+            WalletMode.CUSTODIAL -> CustodialActivity(onBackPressed = onBackPressed)
+            WalletMode.NON_CUSTODIAL -> PrivateKeyActivity(onBackPressed = onBackPressed)
             else -> error("unsupported")
         }
     }
@@ -299,7 +298,7 @@ private fun Calendar.format(): String {
 fun PreviewActivityScreen() {
     ActivityScreen(
         activity = DUMMY_DATA,
-        walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+        walletMode = WalletMode.NON_CUSTODIAL,
         onSearchTermEntered = {},
         onBackPressed = {}
     )

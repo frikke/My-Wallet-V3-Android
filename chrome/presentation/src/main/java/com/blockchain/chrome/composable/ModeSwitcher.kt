@@ -168,8 +168,8 @@ fun ModeSwitcher(
 @Composable
 fun PreviewModeSwitcher() {
     ModeSwitcher(
-        modes = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
-        selectedMode = WalletMode.CUSTODIAL_ONLY,
+        modes = listOf(WalletMode.CUSTODIAL, WalletMode.NON_CUSTODIAL),
+        selectedMode = WalletMode.CUSTODIAL,
         onModeClicked = {},
         onModeLongClicked = {}
     )

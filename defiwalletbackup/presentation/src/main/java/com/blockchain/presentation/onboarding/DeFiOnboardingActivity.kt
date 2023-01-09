@@ -27,7 +27,7 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
 
     override val alwaysDisableScreenshots: Boolean = true
 
-    override val statusbarColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL_ONLY)
+    override val statusbarColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL)
 
     override val scope: Scope = payloadScope
     val viewModel: DeFiOnboardingViewModel by viewModel()

@@ -37,7 +37,6 @@ import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
@@ -48,21 +47,21 @@ fun HomeActivity(
     openAllActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 ) {
-    val walletMode by get<WalletModeService>(superAppModeService, scope = payloadScope).walletMode
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode
         .collectAsStateLifecycleAware(null)
 
     walletMode?.let {
         when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> CustodialHomeActivity(
+            WalletMode.CUSTODIAL -> CustodialHomeActivity(
                 openAllActivity = openAllActivity,
                 activityOnClick = {
-                    openActivityDetail(it, WalletMode.CUSTODIAL_ONLY)
+                    openActivityDetail(it, WalletMode.CUSTODIAL)
                 }
             )
-            WalletMode.NON_CUSTODIAL_ONLY -> PrivateKeyHomeActivity(
+            WalletMode.NON_CUSTODIAL -> PrivateKeyHomeActivity(
                 openAllActivity = openAllActivity,
                 activityOnClick = {
-                    openActivityDetail(it, WalletMode.NON_CUSTODIAL_ONLY)
+                    openActivityDetail(it, WalletMode.NON_CUSTODIAL)
                 }
             )
             else -> error("unsupported")

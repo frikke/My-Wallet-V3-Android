@@ -22,7 +22,7 @@ class GooglePayAnnouncement(
 
     override val name = "google_pay_available"
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     override fun shouldShow(): Single<Boolean> =
         if (dismissEntry.isDismissed) {

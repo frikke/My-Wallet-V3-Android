@@ -22,6 +22,7 @@ import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.then
+import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
@@ -128,9 +129,11 @@ class LoaderInteractor(
                 checkForCowboysUser()
             }
             .then {
-                coincore.activeWalletsInModeRx(WalletMode.UNIVERSAL)
-                    .firstOrError()
-                    .flatMap { it.balanceRx().firstOrError() }
+                WalletMode.values().map {
+                    coincore.activeWalletsInModeRx(it)
+                        .firstOrError()
+                        .flatMap { it.balanceRx().firstOrError() }
+                }.zipSingles()
                     .onErrorComplete()
                     .ignoreElement()
             }

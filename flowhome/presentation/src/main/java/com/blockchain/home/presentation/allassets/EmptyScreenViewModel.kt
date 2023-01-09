@@ -14,7 +14,6 @@ import com.blockchain.home.presentation.activity.list.custodial.CustodialActivit
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import java.lang.IllegalStateException
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
@@ -34,7 +33,7 @@ class EmptyScreenViewModel(
     initialState = EmptyScreenModelState(
         hasActivity = DataResource.Loading,
         hasAssets = DataResource.Loading,
-        walletMode = WalletMode.CUSTODIAL_ONLY
+        walletMode = WalletMode.CUSTODIAL
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -61,9 +60,8 @@ class EmptyScreenViewModel(
                             )
                         }
                         when (it) {
-                            WalletMode.NON_CUSTODIAL_ONLY -> pkwActivityViewModel.viewState
-                            WalletMode.CUSTODIAL_ONLY -> custodialActivityViewModel.viewState
-                            WalletMode.UNIVERSAL -> throw IllegalStateException("Wallet mode not supported")
+                            WalletMode.NON_CUSTODIAL -> pkwActivityViewModel.viewState
+                            WalletMode.CUSTODIAL -> custodialActivityViewModel.viewState
                         }
                     }.collect { viewState ->
                         updateState { state ->

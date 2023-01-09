@@ -208,7 +208,7 @@ class DefaultAccountsSorting(
 
     override fun sorter(): AccountsSorter = { list ->
         walletModeService.walletModeSingle.flatMap {
-            if (it != WalletMode.CUSTODIAL_ONLY) {
+            if (it != WalletMode.CUSTODIAL) {
                 momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
                 universalOrdering(list).doFinally {
                     momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)

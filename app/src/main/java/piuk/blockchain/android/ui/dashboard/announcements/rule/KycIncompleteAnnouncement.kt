@@ -27,7 +27,7 @@ internal class KycIncompleteAnnouncement(
         return kycService.isInProgress()
     }
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

@@ -42,11 +42,11 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
 
     /**
      * Load recurring buys / show upsell when no data (if eligible)
-     * Not supported by [WalletMode.NON_CUSTODIAL_ONLY]
+     * Not supported by [WalletMode.NON_CUSTODIAL]
      */
     object LoadRecurringBuysData : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
+            return modelState.walletMode != WalletMode.NON_CUSTODIAL
         }
     }
 

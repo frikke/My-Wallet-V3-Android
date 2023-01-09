@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.api.services.DetailedAssetInformation
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -66,10 +65,6 @@ data class CoinviewModelState(
     /**
      * Returns the first account that is:
      *
-     * * Universal trading or defi
-     *
-     * *OR*
-     *
      * * Cutodial trading (i.e. interest is not actionable)
      *
      * *OR*
@@ -90,8 +85,6 @@ data class CoinviewModelState(
 
         return with((assetDetail.data as CoinviewAssetDetail.Tradeable).accounts) {
             accounts.firstOrNull { account ->
-                val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
-                    (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
                 val isTradingAccount = account is CoinviewAccount.Custodial.Trading
                 val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
 
@@ -101,7 +94,7 @@ data class CoinviewModelState(
                     true
                 }
 
-                (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && isValidBalance
+                (isTradingAccount || isPrivateKeyAccount) && isValidBalance
             } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
         }
     }

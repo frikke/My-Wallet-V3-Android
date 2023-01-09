@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.coinview.domain
 
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.minus
@@ -65,23 +64,6 @@ data class GetAccountActionsUseCase(
      */
     fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> {
         return when (account) {
-            is CoinviewAccount.Universal -> {
-                when (account.filter) {
-                    AssetFilter.Trading -> {
-                        Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
-                    }
-                    AssetFilter.Interest -> {
-                        Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
-                    }
-                    AssetFilter.NonCustodial -> {
-                        Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
-                    }
-                    AssetFilter.Staking -> {
-                        Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
-                    }
-                    else -> error("account type not supported")
-                }
-            }
             is CoinviewAccount.Custodial.Interest -> {
                 Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
             }

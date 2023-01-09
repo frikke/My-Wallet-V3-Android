@@ -104,11 +104,11 @@ class WalletModeSelectionBottomSheet :
 
             is WalletModeSelectionNavigationEvent.Close -> {
                 when (navigationEvent.walletMode) {
-                    WalletMode.CUSTODIAL_ONLY -> {
+                    WalletMode.CUSTODIAL -> {
                         logEvent(WalletModeAnalyticsEvents.SwitchedToTrading)
                     }
 
-                    WalletMode.NON_CUSTODIAL_ONLY -> {
+                    WalletMode.NON_CUSTODIAL -> {
                         logEvent(WalletModeAnalyticsEvents.SwitchedToDefi)
                     }
 

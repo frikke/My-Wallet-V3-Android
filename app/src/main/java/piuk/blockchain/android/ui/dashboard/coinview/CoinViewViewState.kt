@@ -81,7 +81,7 @@ sealed interface AssetDetailsItem {
     ) : AssetDetailsItem
 
     /**
-     * used when wallet mode is Universal or Custodial
+     * used when wallet mode is Custodial
      */
     data class BrokerageDetailsInfo(
         val assetFilter: AssetFilter,

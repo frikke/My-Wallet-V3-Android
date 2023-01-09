@@ -202,23 +202,21 @@ class DashboardActionInteractor(
     ): DashboardAsset {
         return when (this) {
             is CryptoAsset -> when (walletMode) {
-                WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(
+                WalletMode.CUSTODIAL -> BrokerageCryptoAsset(
                     this.currency,
                     totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
                     assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
                 )
-                WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(this.currency)
+                WalletMode.NON_CUSTODIAL -> DefiAsset(this.currency)
             }
             is FiatAsset -> when (walletMode) {
-                WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> BrokerageFiatAsset(
+                WalletMode.CUSTODIAL -> BrokerageFiatAsset(
                     currency = this.currency,
                     fiatAccount = this.custodialAccount,
                     totalDisplayBalanceFFEnabled = totalDisplayBalanceFFEnabled,
                     assetDisplayBalanceFFEnabled = assetDisplayBalanceFFEnabled,
                 )
-                WalletMode.NON_CUSTODIAL_ONLY -> throw IllegalStateException(
+                WalletMode.NON_CUSTODIAL -> throw IllegalStateException(
                     "fiats are not supported in Non custodial mode"
                 )
             }
@@ -245,14 +243,14 @@ class DashboardActionInteractor(
         return listOf(
             walletModeBalanceCache.stream(
                 request = KeyedFreshnessStrategy.Cached(
-                    key = WalletMode.NON_CUSTODIAL_ONLY,
+                    key = WalletMode.NON_CUSTODIAL,
                     refreshStrategy = RefreshStrategy.RefreshIfStale
                 )
             ).asObservable().emptySubscribe(),
 
             walletModeBalanceCache.stream(
                 request = KeyedFreshnessStrategy.Cached(
-                    key = WalletMode.CUSTODIAL_ONLY,
+                    key = WalletMode.CUSTODIAL,
                     refreshStrategy = RefreshStrategy.RefreshIfStale
                 )
             ).asObservable().emptySubscribe()

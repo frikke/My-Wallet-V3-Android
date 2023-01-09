@@ -91,7 +91,7 @@ class EarnViewModel(
                     walletModeService.walletMode.onEach {
                         fetchEarningsJob?.cancel()
                     }.collectLatest {
-                        if (it == WalletMode.CUSTODIAL_ONLY) {
+                        if (it == WalletMode.CUSTODIAL) {
                             loadEarnings()
                         } else {
                             updateState { state ->

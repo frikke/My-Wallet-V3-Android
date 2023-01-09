@@ -15,7 +15,7 @@ class CustodialActivityStore(
     storeId = "CustodialActivityStore",
     fetcher = Fetcher.ofSingle(
         mapper = {
-            coincore.allWalletsInMode(WalletMode.CUSTODIAL_ONLY)
+            coincore.allWalletsInMode(WalletMode.CUSTODIAL)
                 .flatMap { accountGroup ->
                     accountGroup.activity
                 }

@@ -92,7 +92,7 @@ class MainModelTest {
             interactor = interactor,
         )
 
-        whenever(interactor.getEnabledWalletMode()).thenReturn(Observable.just(WalletMode.UNIVERSAL))
+        whenever(interactor.getEnabledWalletMode()).thenReturn(Observable.just(WalletMode.CUSTODIAL))
     }
 
     @Test

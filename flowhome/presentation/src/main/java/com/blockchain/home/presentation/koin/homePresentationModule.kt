@@ -14,7 +14,6 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewMode
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.superAppModeService
 import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -32,7 +31,7 @@ val homePresentationModule = module {
                 exchangeRates = get(),
                 filterService = get(),
                 assetCatalogue = get(),
-                walletModeService = get(superAppModeService),
+                walletModeService = get(),
                 coincore = get()
             )
         }
@@ -59,7 +58,7 @@ val homePresentationModule = module {
         ) ->
             EmptyScreenViewModel(
                 homeAssetsViewModel = homeVm,
-                walletModeService = get(superAppModeService),
+                walletModeService = get(),
                 pkwActivityViewModel = pkwActivityViewModel,
                 custodialActivityViewModel = custodialActivityViewModel
             )
@@ -99,7 +98,7 @@ val homePresentationModule = module {
 
         viewModel {
             QuickActionsViewModel(
-                walletModeService = get(superAppModeService),
+                walletModeService = get(),
                 userFeaturePermissionService = get(),
                 coincore = get(),
                 quickActionsService = get(),
@@ -110,7 +109,7 @@ val homePresentationModule = module {
 
         viewModel {
             EarnViewModel(
-                walletModeService = get(superAppModeService),
+                walletModeService = get(),
                 stakingService = get(),
                 exchangeRates = get(),
                 coincore = get(),

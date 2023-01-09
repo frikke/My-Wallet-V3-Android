@@ -102,7 +102,7 @@ class CoinviewViewModelTest {
 
     @Before
     fun setUp() {
-        every { walletModeService.walletMode } returns flowOf(WalletMode.CUSTODIAL_ONLY)
+        every { walletModeService.walletMode } returns flowOf(WalletMode.CUSTODIAL)
 
         viewModel = CoinviewViewModel(
             walletModeService = walletModeService,

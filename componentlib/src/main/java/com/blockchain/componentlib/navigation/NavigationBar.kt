@@ -53,7 +53,6 @@ import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.superAppModeService
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -158,8 +157,7 @@ fun NavigationBar(
 
             if (isLoggedIn) {
                 get<WalletModeService>(
-                    superAppModeService,
-                    payloadScope
+                    scope = payloadScope
                 ).walletMode.collectAsStateLifecycleAware(initial = null)
             } else {
                 remember { mutableStateOf(null) }
@@ -199,12 +197,12 @@ private fun NavigationBar(
             .defaultMinSize(minHeight = 52.dp)
             .then(
                 when (walletMode) {
-                    WalletMode.CUSTODIAL_ONLY -> Modifier.background(
+                    WalletMode.CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(START_TRADING, END_TRADING)
                         )
                     )
-                    WalletMode.NON_CUSTODIAL_ONLY -> Modifier.background(
+                    WalletMode.NON_CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(START_DEFI, END_DEFI)
 
@@ -430,7 +428,7 @@ fun DropDownHighLightIndicator(modifier: Modifier) {
 fun NavigationBarPreview() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+            walletMode = WalletMode.NON_CUSTODIAL,
             mutedBg = true,
             title = "Test",
             onBackButtonClick = null,
@@ -444,7 +442,7 @@ fun NavigationBarPreview() {
 fun NavigationBarPreviewLongTextModeNull() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.NON_CUSTODIAL_ONLY,
+            walletMode = WalletMode.NON_CUSTODIAL,
             mutedBg = true,
             title = "Comunicarse con el soporte técnico longer longer longer",
             icon = StackedIcon.SmallTag(
@@ -480,7 +478,7 @@ fun NavigationBarPreviewLongText() {
 fun NavigationBarPreviewLongTextWithActions() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.CUSTODIAL_ONLY,
+            walletMode = WalletMode.CUSTODIAL,
             mutedBg = true,
             title = "Comunicarse con el soporte técnico longer longer longer",
             onBackButtonClick = { },
@@ -496,7 +494,7 @@ fun NavigationBarPreviewLongTextWithActions() {
 fun NavigationBarPreview2() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.CUSTODIAL_ONLY,
+            walletMode = WalletMode.CUSTODIAL,
             mutedBg = true,
             title = "Test",
             icon = StackedIcon.SmallTag(
@@ -524,7 +522,7 @@ fun NavigationBarPreview2() {
 fun NavigationBarPreviewDropDown() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.CUSTODIAL_ONLY,
+            walletMode = WalletMode.CUSTODIAL,
             mutedBg = true,
             title = "Test",
             onBackButtonClick = null,
@@ -554,7 +552,7 @@ fun NavigationBarPreviewDropDown() {
 fun NavigationBarPreview3() {
     AppTheme {
         NavigationBar(
-            walletMode = WalletMode.CUSTODIAL_ONLY,
+            walletMode = WalletMode.CUSTODIAL,
             mutedBg = true,
             title = "Test",
             onBackButtonClick = {},

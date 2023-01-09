@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
@@ -12,7 +11,6 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.Currency
@@ -71,31 +69,6 @@ class ReceiveFragment :
         newState.showReceiveForAccount?.let {
             model.process(ReceiveIntent.ResetReceiveForAccount)
             doOnAccountSelected(it)
-        }
-    }
-
-    private fun renderUniversalMode(newState: ReceiveState) {
-        with(binding) {
-            assetList.visible()
-            supperAppAccountList.gone()
-            assetList.apply {
-                layoutManager = LinearLayoutManager(activity)
-                this.adapter = assetsAdapter
-                addItemDecoration(BlockchainListDividerDecor(requireContext()))
-            }
-
-            assetsAdapter.items = newState.assets.filter { asset -> asset.assetInfo.filteredBy(newState.input) }
-                .sortedWith(
-                    compareByDescending<ReceiveItem> { it.priceWithDelta?.marketCap }
-                        .thenBy { it.assetInfo.name }
-                )
-                .map { receiveItem ->
-                    ExpandableCryptoItem(
-                        assetInfo = receiveItem.assetInfo,
-                        newState.loadAccountsForAsset,
-                        ::doOnAccountSelected
-                    )
-                }
         }
     }
 
