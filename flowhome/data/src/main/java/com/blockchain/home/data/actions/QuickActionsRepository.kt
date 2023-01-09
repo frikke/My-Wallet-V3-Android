@@ -40,7 +40,7 @@ class QuickActionsRepository(
 
     override fun moreActions(): Flow<List<StateAwareAction>> {
         val custodialBalance = coincore.activeWallets(WalletMode.CUSTODIAL).flatMapObservable {
-            it.balanceRx
+            it.balanceRx()
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
 
         val hasFiatBalance =
@@ -49,7 +49,7 @@ class QuickActionsRepository(
                     if (it.isEmpty()) {
                         Observable.just(false)
                     } else
-                        it[0].balanceRx.map { balance ->
+                        it[0].balanceRx().map { balance ->
                             balance.total.isPositive
                         }
                 }.asFlow()

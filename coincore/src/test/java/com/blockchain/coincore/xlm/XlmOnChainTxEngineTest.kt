@@ -302,7 +302,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(xlmFeesFetcher).operationFee(FeeType.Regular)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -489,7 +489,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,

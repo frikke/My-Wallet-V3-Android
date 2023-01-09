@@ -1,7 +1,9 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Minus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -20,8 +22,8 @@ import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
 
-@DrawableRes internal fun TradeActivitySummaryItem.sellIconDetail(): Int {
-    return R.drawable.ic_activity_sell_dark
+internal fun TradeActivitySummaryItem.sellIconDetail(): ImageResource {
+    return Icons.Filled.Minus
 }
 
 internal fun TradeActivitySummaryItem.sellTitle(): TextValue = TextValue.IntResValue(

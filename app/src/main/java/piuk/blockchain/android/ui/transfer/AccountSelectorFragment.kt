@@ -134,7 +134,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         hideDustFF.enabled.flatMap { enabled ->
             if (enabled && localSettingsPrefs.hideSmallBalancesEnabled) {
                 list.map { account ->
-                    account.balanceRx
+                    account.balanceRx()
                 }.zipObservables().map {
                     list.mapIndexedNotNull { index, singleAccount ->
                         if (!it[index].totalFiat.isDust()) {

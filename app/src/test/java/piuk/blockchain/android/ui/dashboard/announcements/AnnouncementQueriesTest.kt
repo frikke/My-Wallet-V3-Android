@@ -502,10 +502,10 @@ class AnnouncementQueriesTest {
         }
         val accountsList: SingleAccountList = listOf(
             mock<CryptoAccount> {
-                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
             },
             mock<CryptoAccount> {
-                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
             }
         )
         val accountGroup: AccountGroup = mock {
@@ -543,10 +543,10 @@ class AnnouncementQueriesTest {
         }
         val accountsList: SingleAccountList = listOf(
             mock<CryptoAccount> {
-                on { balanceRx }.thenReturn(Observable.just(dustBalance))
+                on { balanceRx() }.thenReturn(Observable.just(dustBalance))
             },
             mock<CryptoAccount> {
-                on { balanceRx }.thenReturn(Observable.just(noDustBalance))
+                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
             }
         )
         val accountGroup: AccountGroup = mock {

@@ -19,6 +19,10 @@ abstract class InterestBaseEngine(
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
 
+    override fun ensureSourceBalanceFreshness() {
+        interestService.markBalancesAsStale()
+    }
+
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),

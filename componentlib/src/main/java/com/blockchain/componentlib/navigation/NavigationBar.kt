@@ -245,7 +245,6 @@ private fun NavigationBar(
                     icon = icon,
                     iconBackground = AppTheme.colors.background,
                     borderColor = AppTheme.colors.background,
-                    size = 24.dp
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

@@ -16,6 +16,7 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -519,7 +520,7 @@ class SwapTargetAccountSortingTest {
             },
             custodialWalletManager = mock(),
             tradingService = mock {
-                on { getBalanceFor(mock) }.thenReturn(
+                on { getBalanceFor(eq(mock), any()) }.thenReturn(
                     Observable.just(
                         TradingAccountBalance(
                             total = Money.fromMinor(mock, BigInteger.valueOf(balance)),

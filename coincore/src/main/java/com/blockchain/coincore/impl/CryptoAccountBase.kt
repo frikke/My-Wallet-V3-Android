@@ -23,6 +23,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -150,8 +151,8 @@ abstract class CryptoAccountBase : CryptoAccount {
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoExchangeAccount && other.currency == currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.just(AccountBalance.zero(currency))
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.just(AccountBalance.zero(currency))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
@@ -218,7 +219,7 @@ abstract class CryptoNonCustodialAccount(
      * We only add this method to make it portable with NetworkWallet.
      */
     override val networkBalance: Flow<DataResource<NetworkBalance>>
-        get() = balance.map {
+        get() = balance().map {
             DataResource.Data(
                 NetworkBalance(
                     currency = currency,
@@ -229,9 +230,10 @@ abstract class CryptoNonCustodialAccount(
             )
         }
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = unifiedBalancesService.balanceForWallet(
-            this@CryptoNonCustodialAccount
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return unifiedBalancesService.balanceForWallet(
+            this@CryptoNonCustodialAccount,
+            freshnessStrategy
         ).asObservable().map {
             AccountBalance(
                 total = it.balance,
@@ -241,6 +243,7 @@ abstract class CryptoNonCustodialAccount(
                 dashboardDisplay = it.balance,
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
+    }
 
     /**
      * Remove after unified balances are fully integrated and stable
@@ -262,7 +265,7 @@ abstract class CryptoNonCustodialAccount(
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 
     override val sourceState: Single<TxSourceState>
-        get() = balanceRx.firstOrError().map {
+        get() = balanceRx().firstOrError().map {
             if (it.withdrawable.isZero) {
                 TxSourceState.NO_FUNDS
             } else {
@@ -322,7 +325,7 @@ abstract class CryptoNonCustodialAccount(
         other is CryptoNonCustodialAccount && other.currency == currency
 
     private fun AssetAction.eligibility(): Single<StateAwareAction> {
-        val balance = balanceRx.firstOrError().onErrorReturn {
+        val balance = balanceRx().firstOrError().onErrorReturn {
             AccountBalance.zero(currency)
         }
 

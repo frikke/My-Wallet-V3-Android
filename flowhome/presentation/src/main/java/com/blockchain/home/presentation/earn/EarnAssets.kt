@@ -32,6 +32,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -57,12 +58,19 @@ fun EarnAssets(
     viewModel: EarnViewModel = getViewModel(scope = payloadScope)
 ) {
     val viewState: EarnViewState by viewModel.viewState.collectAsStateLifecycleAware()
-
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(EarnIntent.LoadEarnAccounts)
-        onDispose { }
-    }
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(EarnIntent.LoadEarnAccounts)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)

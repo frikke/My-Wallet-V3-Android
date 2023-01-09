@@ -294,7 +294,7 @@ class TransactionInteractor(
 
     private fun filterDustBalances(accountList: List<CryptoAccount>) =
         accountList.map { account ->
-            account.balanceRx
+            account.balanceRx()
         }.zipObservables().map {
             accountList.mapIndexedNotNull { index, singleAccount ->
                 if (!it[index].totalFiat.isDust()) {

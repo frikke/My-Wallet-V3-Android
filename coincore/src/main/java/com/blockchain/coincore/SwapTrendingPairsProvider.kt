@@ -71,7 +71,7 @@ internal class SwapTrendingPairsProvider(
                 TrendingPair(
                     sourceAccount = source,
                     destinationAccount = target,
-                    enabled = source.balanceRx.firstOrError().map {
+                    enabled = source.balanceRx().firstOrError().map {
 
                         it.total.isPositive
                     }

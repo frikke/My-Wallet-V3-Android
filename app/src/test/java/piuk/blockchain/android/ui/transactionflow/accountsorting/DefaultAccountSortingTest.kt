@@ -200,7 +200,7 @@ class DefaultAccountSortingTest {
             )
         }
         val singleAccount: CryptoAccount = mock {
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     mockBalance
                 )

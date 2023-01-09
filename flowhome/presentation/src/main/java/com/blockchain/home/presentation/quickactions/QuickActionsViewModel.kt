@@ -157,7 +157,7 @@ class QuickActionsViewModel(
 
     private fun totalWalletModeBalance(walletMode: WalletMode) =
         coincore.activeWallets(walletMode).flatMapObservable {
-            it.balanceRx
+            it.balanceRx()
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
             AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
         }

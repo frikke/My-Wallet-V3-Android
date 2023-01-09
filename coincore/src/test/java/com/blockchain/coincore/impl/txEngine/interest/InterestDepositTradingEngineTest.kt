@@ -151,7 +151,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -180,7 +180,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
 
         verify(interestService).getLimitsForAsset(ASSET)
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
 
         noMoreInteractions(sourceAccount, txTarget)
 
@@ -200,7 +200,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

@@ -46,7 +46,7 @@ class InterestDepositTradingEngine(
     }
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map { it.total }
+        get() = sourceAccount.balanceRx().firstOrError().map { it.total }
 
     override fun doInitialiseTx(): Single<PendingTx> {
         return Single.zip(

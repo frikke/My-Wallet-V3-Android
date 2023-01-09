@@ -32,8 +32,12 @@ class TradingToTradingSwapTxEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(tradingStore)
 
+    override fun ensureSourceBalanceFreshness() {
+        tradingStore.markAsStale()
+    }
+
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map {
+        get() = sourceAccount.balanceRx().firstOrError().map {
             it.total
         }
 

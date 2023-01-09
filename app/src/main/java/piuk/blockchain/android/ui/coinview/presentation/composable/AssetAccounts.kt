@@ -45,6 +45,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -362,8 +363,11 @@ fun PreviewAssetAccounts_Data() {
 private val previewBlockchainAccount = object : BlockchainAccount {
     override val label: String
         get() = error("preview")
-    override val balanceRx: Observable<AccountBalance>
-        get() = error("preview")
+
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        error("preview")
+    }
+
     override val activity: Single<ActivitySummaryList>
         get() = error("preview")
     override val isFunded: Boolean
@@ -374,6 +378,7 @@ private val previewBlockchainAccount = object : BlockchainAccount {
         get() = error("preview")
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = error("preview")
+
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
         error("preview")
     }

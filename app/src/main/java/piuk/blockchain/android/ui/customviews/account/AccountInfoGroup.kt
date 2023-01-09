@@ -55,7 +55,7 @@ class AccountInfoGroup @JvmOverloads constructor(
             walletBalanceFiat.invisible()
             walletCurrency.gone()
 
-            disposables += account.balanceRx.firstOrError()
+            disposables += account.balanceRx().firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {

@@ -21,7 +21,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -41,16 +40,18 @@ import kotlinx.coroutines.flow.catch
     override val currency: FiatCurrency,
     override val isDefault: Boolean = false,
     private val tradingService: TradingService,
-    private val custodialWalletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val simpleBuyService: SimpleBuyService,
     private val exchangeRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            tradingService.getBalanceFor(currency),
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.combineLatest(
+            tradingService.getBalanceFor(
+                currency,
+                freshnessStrategy
+            ),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance(
@@ -109,7 +110,7 @@ import kotlinx.coroutines.flow.catch
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = bankService.canTransactWithBankMethods(currency)
-            .zipWith(balanceRx.firstOrError().map { it.withdrawable.isPositive })
+            .zipWith(balanceRx().firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {
                     setOfNotNull(

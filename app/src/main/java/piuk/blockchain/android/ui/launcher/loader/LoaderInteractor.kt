@@ -132,7 +132,7 @@ class LoaderInteractor(
                 WalletMode.values().map {
                     coincore.activeWalletsInModeRx(it)
                         .firstOrError()
-                        .flatMap { it.balanceRx.firstOrError() }
+                        .flatMap { it.balanceRx().firstOrError() }
                 }.zipSingles()
                     .onErrorComplete()
                     .ignoreElement()

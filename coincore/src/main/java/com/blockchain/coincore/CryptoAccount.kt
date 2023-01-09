@@ -3,6 +3,8 @@ package com.blockchain.coincore
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.google.common.graph.ElementOrder.sorted
@@ -13,6 +15,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
 
@@ -109,10 +112,19 @@ interface BlockchainAccount {
 
     val label: String
 
-    val balanceRx: Observable<AccountBalance>
+    fun balanceRx(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ): Observable<AccountBalance>
 
-    val balance: Flow<AccountBalance>
-        get() = balanceRx.asFlow()
+    fun balance(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ): Flow<AccountBalance> {
+        return balanceRx(freshnessStrategy).asFlow()
+    }
 
     val activity: Single<ActivitySummaryList>
 
@@ -236,12 +248,12 @@ interface AccountGroup : BlockchainAccount {
 interface SameCurrencyAccountGroup : AccountGroup {
     val currency: Currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = if (accounts.isEmpty())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return if (accounts.isEmpty())
             Observable.just(AccountBalance.zero(currency))
         else
             Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
-                account.balanceRx.map { balance ->
+                account.balanceRx(freshnessStrategy).map { balance ->
                     mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
                 }.onErrorResumeNext {
                     Observable.just(mapOf(account to DataResource.Error(it as Exception)))
@@ -260,6 +272,7 @@ interface SameCurrencyAccountGroup : AccountGroup {
                         }
                 }
             }
+    }
 }
 
 interface MultipleCurrenciesAccountGroup : AccountGroup {
@@ -267,12 +280,12 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
      * @return the list of accounts and their balances
      * balance will be null if failed to load
      */
-    override val balanceRx: Observable<AccountBalance>
-        get() = if (accounts.isEmpty())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return if (accounts.isEmpty())
             Observable.just(AccountBalance.zero(baseCurrency))
         else
             Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
-                account.balanceRx.map { balance ->
+                account.balanceRx(freshnessStrategy).map { balance ->
                     mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
                 }.onErrorResumeNext {
                     Observable.just(mapOf(account to DataResource.Error(it as Exception)))
@@ -298,6 +311,7 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
                         }
                 }
             }
+    }
 
     /**
      * Balance is calculated in the selected fiat currency

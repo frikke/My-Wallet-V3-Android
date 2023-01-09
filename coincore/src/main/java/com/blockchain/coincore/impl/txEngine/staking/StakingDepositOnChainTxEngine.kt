@@ -1,6 +1,7 @@
 package com.blockchain.coincore.impl.txEngine.staking
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
@@ -17,7 +18,9 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -34,6 +37,8 @@ class StakingDepositOnChainTxEngine(
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(stakingBalanceStore)
+
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -56,6 +61,10 @@ class StakingDepositOnChainTxEngine(
     ) {
         super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
         onChainEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
+    }
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =

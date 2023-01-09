@@ -32,7 +32,7 @@ class WalletModeBalanceRepository(
 
     override fun totalBalance(): Flow<DataResource<Money>> {
         val balances = WalletMode.values().map {
-            coincore.activeWalletsInMode(it).flatMapLatest { it.balance }.map { it.total }
+            coincore.activeWalletsInMode(it).flatMapLatest { it.balance() }.map { it.total }
         }
         return combine(balances) {
             it.toList().total()

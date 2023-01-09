@@ -37,14 +37,19 @@ internal class UnifiedBalancesRepository(
     /**
      * Specify those to get the balance of a specific Wallet.
      */
-    override fun balances(wallet: NetworkWallet?): Flow<DataResource<List<NetworkBalance>>> {
+    override fun balances(
+        wallet: NetworkWallet?,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
             val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
                 it.publicKey()
             }
             subscribe(pubKeys)
             emitAll(
-                unifiedBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+                unifiedBalancesStore.stream(
+                    freshnessStrategy
+                )
                     .mapData { response ->
                         response.balances.filter {
                             if (wallet == null) true
@@ -74,9 +79,10 @@ internal class UnifiedBalancesRepository(
     }
 
     override fun balanceForWallet(
-        wallet: NetworkWallet
+        wallet: NetworkWallet,
+        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<NetworkBalance>> {
-        return balances(wallet).flatMapData {
+        return balances(wallet, freshnessStrategy).flatMapData {
             it.firstOrNull()?.let { balance ->
                 flowOf(DataResource.Data(balance))
             } ?: flowOf(

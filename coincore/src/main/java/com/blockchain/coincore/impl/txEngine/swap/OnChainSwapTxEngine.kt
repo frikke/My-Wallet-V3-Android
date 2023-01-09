@@ -1,6 +1,7 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -13,10 +14,12 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.Money
@@ -36,8 +39,14 @@ class OnChainSwapTxEngine(
     quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore
 ) {
 
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
+
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
+    }
 
     override val direction: TransferDirection by unsafeLazy {
         when (txTarget) {
@@ -48,7 +57,7 @@ class OnChainSwapTxEngine(
     }
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map {
+        get() = sourceAccount.balanceRx().firstOrError().map {
             it.total
         }
 

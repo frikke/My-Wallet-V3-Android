@@ -1,9 +1,11 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import android.annotation.SuppressLint
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
@@ -32,8 +34,8 @@ import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
 
-@DrawableRes internal fun RecurringBuyActivitySummaryItem.iconDetail(): Int {
-    return R.drawable.ic_activity_buy_dark
+internal fun RecurringBuyActivitySummaryItem.iconDetail(): ImageResource {
+    return Icons.Filled.Plus
 }
 
 internal fun RecurringBuyActivitySummaryItem.title(): TextValue = TextValue.IntResValue(

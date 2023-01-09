@@ -152,7 +152,7 @@ class AccountPresenterTest {
         }
         val importedAccount: BtcCryptoWalletAccount = mock {
             on { updateLabel(UPDATED_BTC_LABEL) }.thenReturn(Completable.complete())
-            on { balanceRx }.thenReturn(Observable.just(cryptoValue))
+            on { balanceRx() }.thenReturn(Observable.just(cryptoValue))
         }
 
         // Act
@@ -187,7 +187,7 @@ class AccountPresenterTest {
         val balance: AccountBalance = mock {
             on { withdrawable }.thenReturn(CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger()))
         }
-        whenever(sendingAccount.balanceRx).thenReturn(Observable.just(balance))
+        whenever(sendingAccount.balanceRx()).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)
@@ -204,7 +204,7 @@ class AccountPresenterTest {
         val balance: AccountBalance = mock {
             on { withdrawable }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
         }
-        whenever(sendingAccount.balanceRx).thenReturn(Observable.just(balance))
+        whenever(sendingAccount.balanceRx()).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)

@@ -232,7 +232,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
@@ -294,7 +294,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
@@ -375,7 +375,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions, times(2)).priorityFee
@@ -543,7 +543,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<Erc20NonCustodialAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

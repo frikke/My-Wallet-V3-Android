@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -743,7 +744,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             pending = pendingBalance,
             hasTransactions = true
         )
-        whenever(tradingService.getBalanceFor(TEST_ASSET))
+        whenever(tradingService.getBalanceFor(any(), any()))
             .thenReturn(Observable.just(balance))
 
         whenever(custodialManager.getSupportedFundsFiats())

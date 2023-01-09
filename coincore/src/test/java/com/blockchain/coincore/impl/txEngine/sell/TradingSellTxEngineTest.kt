@@ -279,7 +279,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
         verify(quotesEngine).getPricedQuote()
@@ -333,7 +333,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
         verify(quotesEngine).updateAmount(inputAmount)
@@ -507,7 +507,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<CustodialTradingAccount> {
             on { currency }.thenReturn(SRC_ASSET)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,

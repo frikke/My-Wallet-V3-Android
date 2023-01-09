@@ -110,9 +110,12 @@ class CustodialTradingAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialTradingAccount && other.currency == currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            tradingService.getBalanceFor(currency),
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.combineLatest(
+            tradingService.getBalanceFor(
+                asset = currency,
+                refreshStrategy = freshnessStrategy
+            ),
             exchangeRates.exchangeRateToUserFiat(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
@@ -146,7 +149,7 @@ class CustodialTradingAccount(
         false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
-        get() = balanceRx.firstOrError().map { balance ->
+        get() = balanceRx().firstOrError().map { balance ->
             when {
                 balance.total <= Money.zero(currency) -> TxSourceState.NO_FUNDS
                 balance.withdrawable <= Money.zero(currency) -> TxSourceState.FUNDS_LOCKED
@@ -170,12 +173,12 @@ class CustodialTradingAccount(
         when (this) {
             AssetAction.ViewActivity -> viewActivityEligibility()
             AssetAction.Receive -> receiveEligibility()
-            AssetAction.Send -> balanceRx.firstOrError().flatMap { sendEligibility(it) }
-            AssetAction.InterestDeposit -> balanceRx.firstOrError().flatMap { interestDepositEligibility(it) }
-            AssetAction.Swap -> balanceRx.firstOrError().flatMap { swapEligibility(it) }
-            AssetAction.Sell -> balanceRx.firstOrError().flatMap { sellEligibility(it) }
+            AssetAction.Send -> balanceRx().firstOrError().flatMap { sendEligibility(it) }
+            AssetAction.InterestDeposit -> balanceRx().firstOrError().flatMap { interestDepositEligibility(it) }
+            AssetAction.Swap -> balanceRx().firstOrError().flatMap { swapEligibility(it) }
+            AssetAction.Sell -> balanceRx().firstOrError().flatMap { sellEligibility(it) }
             AssetAction.Buy -> buyEligibility()
-            AssetAction.StakingDeposit -> balanceRx.firstOrError().flatMap { stakingDepositEligibility(it) }
+            AssetAction.StakingDeposit -> balanceRx().firstOrError().flatMap { stakingDepositEligibility(it) }
             AssetAction.ViewStatement,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,

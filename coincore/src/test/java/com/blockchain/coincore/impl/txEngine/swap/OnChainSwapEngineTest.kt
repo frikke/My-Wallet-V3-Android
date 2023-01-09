@@ -572,7 +572,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(SRC_ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(SRC_ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

@@ -14,9 +14,11 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -33,8 +35,14 @@ class FiatWithdrawalTxEngine(
     private val userIdentity: UserIdentity
 ) : TxEngine() {
 
+    private val tradingService: TradingService by scopedInject()
+
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
+
+    override fun ensureSourceBalanceFreshness() {
+        tradingService.markAsStale()
+    }
 
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
@@ -53,7 +61,7 @@ class FiatWithdrawalTxEngine(
         val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
         val zeroFiat = Money.zero((sourceAccount as FiatAccount).currency)
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
                 outputCurrency = zeroFiat.currency,

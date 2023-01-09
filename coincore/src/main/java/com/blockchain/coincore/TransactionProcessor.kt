@@ -215,7 +215,10 @@ abstract class TxEngine : KoinComponent {
         this._txTarget = txTarget
         this._exchangeRates = exchangeRates
         this._refresh = refreshTrigger
+        ensureSourceBalanceFreshness()
     }
+
+    abstract fun ensureSourceBalanceFreshness()
 
     @CallSuper
     open fun restart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {

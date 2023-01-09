@@ -69,7 +69,7 @@ class VgsCardTokenizerRepository(
             "city" to billingAddress.city,
             "state" to (billingAddress.state ?: ""),
             "postCode" to billingAddress.postalCode,
-            "country" to billingAddress.country
+            "countryCode" to billingAddress.countryCode
         )
         vgsForm.setCustomData(billingData)
     }

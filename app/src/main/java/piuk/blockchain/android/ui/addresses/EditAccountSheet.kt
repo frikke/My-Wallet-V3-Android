@@ -74,7 +74,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             setOnClickListener { }
 
             if (!account.isInternalAccount) {
-                account.balanceRx.firstOrError().map { it.withdrawable }
+                account.balanceRx().firstOrError().map { it.withdrawable }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {

@@ -1,7 +1,10 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Minus
+import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -22,10 +25,10 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-@DrawableRes internal fun FiatActivitySummaryItem.iconDetail(): Int {
+internal fun FiatActivitySummaryItem.iconDetail(): ImageResource {
     return when (type) {
-        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
-        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
+        TransactionType.DEPOSIT -> Icons.Filled.Plus
+        TransactionType.WITHDRAWAL -> Icons.Filled.Minus
     }
 }
 

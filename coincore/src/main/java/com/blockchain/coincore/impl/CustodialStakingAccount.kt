@@ -96,11 +96,11 @@ class CustodialStakingAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialStakingAccount && other.currency == currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.combineLatest(
             stakingService.getBalanceForAsset(
                 currency = currency,
-                refreshStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                refreshStrategy = freshnessStrategy
             ).asObservable(),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->

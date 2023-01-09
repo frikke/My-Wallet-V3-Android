@@ -160,7 +160,7 @@ class SellRepository(
 
     private fun SingleAccountList.filterDustBalances(): Single<List<CryptoAccount>> =
         map { account ->
-            account.balanceRx.firstOrError()
+            account.balanceRx().firstOrError()
         }.zipSingles().map {
             this.mapIndexedNotNull { index, singleAccount ->
                 if (!it[index].totalFiat.isDust()) {
