@@ -379,7 +379,16 @@ enum class TransactionType {
 enum class TransactionState {
     COMPLETED,
     PENDING,
-    FAILED
+    MANUAL_REVIEW,
+    FAILED;
+
+    val isFinalised: Boolean
+        get() = when (this) {
+            COMPLETED,
+            FAILED -> true
+            PENDING,
+            MANUAL_REVIEW -> false
+        }
 }
 
 enum class CustodialOrderState {

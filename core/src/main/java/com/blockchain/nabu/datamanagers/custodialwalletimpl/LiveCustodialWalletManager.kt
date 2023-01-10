@@ -656,9 +656,9 @@ fun String.toTransactionState(): TransactionState? =
         TransactionResponse.FAILED,
         -> TransactionState.FAILED
         TransactionResponse.PENDING,
-        TransactionResponse.CLEARED,
+        TransactionResponse.CLEARED -> TransactionState.PENDING
         TransactionResponse.FRAUD_REVIEW,
-        TransactionResponse.MANUAL_REVIEW -> TransactionState.PENDING
+        TransactionResponse.MANUAL_REVIEW -> TransactionState.MANUAL_REVIEW
         else -> null
     }
 

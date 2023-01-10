@@ -55,11 +55,11 @@ private class FiatActivityItemViewHolder(
         onAccountClicked: (FiatCurrency, String, ActivityType) -> Unit
     ) {
         with(binding) {
-            when {
-                tx.state.isPending() -> renderPending()
-                tx.state.hasFailed() -> renderFailed()
-                tx.state.hasCompleted() -> renderComplete(tx)
-                else -> throw IllegalArgumentException("TransactionState not valid")
+            when (tx.state) {
+                TransactionState.MANUAL_REVIEW,
+                TransactionState.PENDING -> renderPending()
+                TransactionState.FAILED -> renderFailed()
+                TransactionState.COMPLETED -> renderComplete(tx)
             }
 
             txType.setTxLabel(tx.currency, tx.type)
@@ -113,15 +113,6 @@ private class FiatActivityItemViewHolder(
         assetBalanceFiat.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
         icon.setTransactionHasFailed()
     }
-
-    private fun TransactionState.isPending() =
-        this == TransactionState.PENDING
-
-    private fun TransactionState.hasFailed() =
-        this == TransactionState.FAILED
-
-    private fun TransactionState.hasCompleted() =
-        this == TransactionState.COMPLETED
 }
 
 private fun AppCompatTextView.setTxLabel(currency: FiatCurrency, type: TransactionType) {

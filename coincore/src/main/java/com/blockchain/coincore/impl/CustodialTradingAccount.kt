@@ -441,6 +441,7 @@ class CustodialTradingAccount(
             OrderState.FAILED,
             CustodialOrderState.FINISHED,
             TransactionState.COMPLETED,
+            TransactionState.MANUAL_REVIEW,
             TransactionState.PENDING,
             CustodialOrderState.PENDING_DEPOSIT,
             CustodialOrderState.PENDING_EXECUTION,

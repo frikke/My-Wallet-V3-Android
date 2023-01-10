@@ -228,6 +228,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
 private fun CustodialTransferActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
         TransactionState.COMPLETED -> R.string.activity_details_completed
+        TransactionState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
         TransactionState.PENDING -> R.string.activity_details_label_confirming
         TransactionState.FAILED -> R.string.activity_details_label_failed
     }
@@ -235,6 +236,7 @@ private fun CustodialTransferActivitySummaryItem.statusValue(): TextValue = Text
 
 private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     TransactionState.COMPLETED -> ActivityTagStyle.Success
+    TransactionState.MANUAL_REVIEW,
     TransactionState.PENDING -> ActivityTagStyle.Info
     TransactionState.FAILED -> ActivityTagStyle.Error
 }

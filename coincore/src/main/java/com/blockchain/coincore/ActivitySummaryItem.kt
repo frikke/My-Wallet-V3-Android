@@ -41,7 +41,7 @@ class FiatActivitySummaryItem(
     val paymentMethodId: String?,
 ) : ActivitySummaryItem() {
     override val stateIsFinalised: Boolean
-        get() = state != TransactionState.PENDING
+        get() = state.isFinalised
 
     override fun toString(): String = "currency = $currency " +
         "transactionType  = $type " +
@@ -205,7 +205,7 @@ data class CustodialTransferActivitySummaryItem(
         state == TransactionState.COMPLETED
     }
     override val stateIsFinalised: Boolean
-        get() = state != TransactionState.PENDING
+        get() = state.isFinalised
 }
 
 abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {

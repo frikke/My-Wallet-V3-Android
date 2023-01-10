@@ -97,6 +97,11 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
                 setBackgroundResource(R.drawable.bkgd_green_100_rounded)
                 setTextColor(ContextCompat.getColor(context, R.color.green_600))
             }
+            TransactionState.MANUAL_REVIEW -> {
+                text = getString(R.string.activity_details_label_manual_review)
+                setBackgroundResource(R.drawable.bkgd_status_unconfirmed)
+                setTextColor(ContextCompat.getColor(context, R.color.grey_800))
+            }
             TransactionState.PENDING -> {
                 text = getString(R.string.activity_details_label_pending)
                 setBackgroundResource(R.drawable.bkgd_status_unconfirmed)
@@ -106,9 +111,6 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
                 text = getString(R.string.activity_details_label_failed)
                 setBackgroundResource(R.drawable.bkgd_red_100_rounded)
                 setTextColor(ContextCompat.getColor(context, R.color.red_600))
-            }
-            else -> {
-                gone()
             }
         }
     }

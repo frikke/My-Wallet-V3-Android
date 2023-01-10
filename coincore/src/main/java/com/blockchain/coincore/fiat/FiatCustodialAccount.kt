@@ -22,7 +22,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.store.asSingle
 import com.blockchain.store.mapData
@@ -91,7 +90,7 @@ import kotlinx.coroutines.flow.catch
         simpleBuyService.getFiatTransactions(fiatCurrency = currency, product = Product.BUY)
             .asSingle()
             .map {
-                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
+                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && !tx.state.isFinalised }
             }.map {
                 it.isEmpty()
             }
@@ -103,7 +102,7 @@ import kotlinx.coroutines.flow.catch
             product = Product.BUY
         )
             .mapData {
-                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
+                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && !tx.state.isFinalised }
             }
             .mapData { it.isEmpty() }
             .catch { emit(DataResource.Error(Exception("failed getFiatTransactions"))) }

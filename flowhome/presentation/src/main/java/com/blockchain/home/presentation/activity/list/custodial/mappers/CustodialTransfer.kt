@@ -33,6 +33,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingTitle(): ActivityStackV
 internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColor = when (state) {
         TransactionState.COMPLETED,
+        TransactionState.MANUAL_REVIEW -> ActivityTextColor.Muted
         TransactionState.PENDING -> ActivityTextColor.Muted
         TransactionState.FAILED -> ActivityTextColor.Error
     }
@@ -40,6 +41,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivitySta
     return ActivityStackView.Text(
         value = when (state) {
             TransactionState.COMPLETED,
+            TransactionState.MANUAL_REVIEW,
             TransactionState.PENDING -> TextValue.StringValue(date.toFormattedDate())
             TransactionState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
         },
@@ -56,6 +58,7 @@ internal fun CustodialTransferActivitySummaryItem.trailingTitle(): ActivityStack
     val color: ActivityTextColor = when (state) {
         TransactionState.COMPLETED -> ActivityTextColor.Title
         TransactionState.PENDING,
+        TransactionState.MANUAL_REVIEW,
         TransactionState.FAILED -> ActivityTextColor.Muted
     }
 
