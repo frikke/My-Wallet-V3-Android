@@ -2,6 +2,7 @@ package com.blockchain.chrome.navigation
 
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -38,6 +39,10 @@ fun MultiAppBottomNavigationHost(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
+
+    val openSettings = remember { { settingsNavigation.settings() } }
+    val launchQrScanner = remember { { qrScanNavigation.launchQrScan() } }
+
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
             val listState = rememberLazyListState()
@@ -50,9 +55,9 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         openCryptoAssets = openCryptoAssets,
                         assetActionsNavigation = assetActionsNavigation,
-                        qrScanNavigation = qrScanNavigation,
-                        settingsNavigation = settingsNavigation,
                         supportNavigation = supportNavigation,
+                        openSettings = openSettings,
+                        launchQrScanner = launchQrScanner,
                         openActivity = openActivity,
                         openActivityDetail = openActivityDetail,
                         openReferral = openReferral,
@@ -75,6 +80,8 @@ fun MultiAppBottomNavigationHost(
                     Prices(
                         listState = listState,
                         pricesNavigation = pricesNavigation,
+                        openSettings = openSettings,
+                        launchQrScanner = launchQrScanner,
                     )
                 },
                 listState = listState,

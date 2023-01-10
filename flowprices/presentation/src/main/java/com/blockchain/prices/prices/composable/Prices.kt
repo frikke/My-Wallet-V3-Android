@@ -1,5 +1,7 @@
 package com.blockchain.prices.prices.composable
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -10,16 +12,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.chrome.MenuOptionsScreen
+import com.blockchain.componentlib.chrome.isScrollable
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -46,7 +50,9 @@ import org.koin.androidx.compose.getViewModel
 fun Prices(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
     listState: LazyListState,
-    pricesNavigation: PricesNavigation
+    pricesNavigation: PricesNavigation,
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit
 ) {
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -55,21 +61,29 @@ fun Prices(
         onDispose { }
     }
 
-    PricesScreen(
-        filters = viewState.availableFilters,
-        selectedFilter = viewState.selectedFilter,
-        data = viewState.data,
-        listState = listState,
-        onSearchTermEntered = { term ->
-            viewModel.onIntent(PricesIntents.FilterSearch(term = term))
-        },
-        onFilterSelected = { filter ->
-            viewModel.onIntent(PricesIntents.Filter(filter = filter))
-        },
-        onAssetClick = { asset ->
-            pricesNavigation.coinview(asset)
-        }
-    )
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        MenuOptionsScreen(
+            openSettings = openSettings,
+            launchQrScanner = launchQrScanner
+        )
+
+        PricesScreen(
+            filters = viewState.availableFilters,
+            selectedFilter = viewState.selectedFilter,
+            data = viewState.data,
+            listState = listState,
+            onSearchTermEntered = { term ->
+                viewModel.onIntent(PricesIntents.FilterSearch(term = term))
+            },
+            onFilterSelected = { filter ->
+                viewModel.onIntent(PricesIntents.Filter(filter = filter))
+            },
+            onAssetClick = { asset ->
+                pricesNavigation.coinview(asset)
+            }
+        )
+    }
 }
 
 @Composable
@@ -80,7 +94,7 @@ fun PricesScreen(
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
-    onAssetClick: (AssetInfo) -> Unit
+    onAssetClick: (AssetInfo) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -133,38 +147,59 @@ fun ColumnScope.PricesScreenData(
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-    Card(
-        backgroundColor = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-        elevation = 0.dp
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(
-                items = cryptoPrices,
-                itemContent = { index, cryptoAsset ->
-                    BalanceChangeTableRow(
-                        name = cryptoAsset.name,
-                        subtitle = cryptoAsset.ticker,
-                        networkTag = cryptoAsset.network,
-                        value = cryptoAsset.currentPrice,
-                        valueChange = cryptoAsset.delta,
-                        contentStart = {
-                            CustomStackedIcon(
-                                icon = StackedIcon.SingleIcon(
-                                    icon = ImageResource.Remote(cryptoAsset.logo)
-                                )
+        itemsIndexed(
+            items = cryptoPrices,
+            itemContent = { index, cryptoAsset ->
+                BalanceChangeTableRow(
+                    name = cryptoAsset.name,
+                    subtitle = cryptoAsset.ticker,
+                    networkTag = cryptoAsset.network,
+                    value = cryptoAsset.currentPrice,
+                    valueChange = cryptoAsset.delta,
+                    contentStart = {
+                        CustomStackedIcon(
+                            icon = StackedIcon.SingleIcon(
+                                icon = ImageResource.Remote(cryptoAsset.logo)
                             )
-                        },
-                        onClick = { onAssetClick(cryptoAsset.asset) }
-                    )
-                    if (index < cryptoPrices.lastIndex) {
-                        Divider(color = Color(0XFFF1F2F7))
-                    }
+                        )
+                    },
+                    onClick = { onAssetClick(cryptoAsset.asset) }
+                )
+                if (index < cryptoPrices.lastIndex) {
+                    Divider(color = Color(0XFFF1F2F7))
                 }
-            )
+            }
+        )
+
+        /*
+            If the list is scrollable we need to add a spacer to the bottom to ensure the last item is not obscured by
+            the bottom nav FAB.
+            In order to keep the rounded corners at the bottom we add a box with a rounded corner shape first and
+            finally a spacer with the same background color as the outer layout
+        */
+        if (listState.isScrollable) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(AppTheme.dimensions.mediumSpacing)
+                        .clip(
+                            RoundedCornerShape(
+                                bottomEnd = AppTheme.dimensions.mediumSpacing,
+                                bottomStart = AppTheme.dimensions.mediumSpacing
+                            )
+                        )
+                        .background(AppTheme.colors.background)
+                )
+
+                Spacer(modifier = Modifier.size(90.dp).background(Color(0XFFF1F2F7)))
+            }
         }
     }
 }

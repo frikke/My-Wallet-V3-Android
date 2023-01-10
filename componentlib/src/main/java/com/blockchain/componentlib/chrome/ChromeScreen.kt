@@ -72,3 +72,6 @@ fun extractStatesInfo(
         isSwipeInProgress = swipeRefreshState?.isSwipeInProgress ?: false
     )
 }
+
+val LazyListState.isScrollable: Boolean
+    get() = layoutInfo.visibleItemsInfo.size < layoutInfo.totalItemsCount

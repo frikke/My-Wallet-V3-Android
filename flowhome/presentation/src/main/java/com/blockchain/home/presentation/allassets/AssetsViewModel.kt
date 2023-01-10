@@ -30,6 +30,7 @@ import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.balance.WalletBalance
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue

@@ -18,11 +18,14 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
+import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.data.DataResource
+import com.blockchain.home.presentation.allassets.AssetsViewModel
+import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
@@ -34,9 +37,9 @@ import org.koin.androidx.compose.getViewModel
 fun HomeScreen(
     listState: LazyListState,
     assetActionsNavigation: AssetActionsNavigation,
-    qrScanNavigation: QrScanNavigation,
-    settingsNavigation: SettingsNavigation,
     supportNavigation: SupportNavigation,
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit,
     openCryptoAssets: () -> Unit,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
@@ -59,12 +62,18 @@ fun HomeScreen(
             ),
     ) {
         stickyHeader {
-            MenuOptions(
+
+            val viewState: AssetsViewState by getViewModel<AssetsViewModel>(scope = payloadScope)
+                .viewState
+                .collectAsStateLifecycleAware()
+
+            MenuOptionsScreen(
                 modifier = Modifier.onGloballyPositioned {
                     menuOptionsHeight = it.size.height
                 },
-                openSettings = { settingsNavigation.settings() },
-                launchQrScanner = { qrScanNavigation.launchQrScan() },
+                walletBalance = (viewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",
+                openSettings = openSettings,
+                launchQrScanner = launchQrScanner,
                 showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
                 showBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F
             )

@@ -30,6 +30,7 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':chrome:common')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
     implementation project(':core')
     implementation project(':coincore')
     implementation project(':store:core')

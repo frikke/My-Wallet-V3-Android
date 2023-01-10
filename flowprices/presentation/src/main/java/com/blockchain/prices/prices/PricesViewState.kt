@@ -10,7 +10,7 @@ import info.blockchain.balance.AssetInfo
 data class PricesViewState(
     val selectedFilter: PricesFilter,
     val availableFilters: List<PricesFilter>,
-    val data: DataResource<List<PriceItemViewState>>,
+    val data: DataResource<List<PriceItemViewState>>
 ) : ViewState
 
 data class PriceItemViewState(
