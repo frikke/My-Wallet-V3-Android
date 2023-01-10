@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-    android:id="@+id/toggle_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/toggle_parent"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/tiny_spacing">
 
     <com.blockchain.componentlib.tablerow.ToggleTableRowView
         android:id="@+id/toggle_row"

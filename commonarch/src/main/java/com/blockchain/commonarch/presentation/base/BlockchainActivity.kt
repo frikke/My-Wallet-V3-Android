@@ -109,6 +109,22 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setStatusBarForMode()
+
+        lockScreenOrientation()
+
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentResumed(fragmentManager: FragmentManager, fragment: Fragment) {
+                    super.onFragmentResumed(fragmentManager, fragment)
+                    remoteLogger.logView(fragment::class.java.name)
+                }
+            },
+            true
+        )
+    }
+
+    private fun setStatusBarForMode() {
         lifecycleScope.launch {
             val background: Int? = when (statusbarColor) {
                 ModeBackgroundColor.Current -> {
@@ -130,24 +146,13 @@ abstract class BlockchainActivity : ToolBarActivity() {
             }
 
             background?.let {
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-
-                window.statusBarColor = ContextCompat.getColor(this@BlockchainActivity, android.R.color.transparent)
-                window.setBackgroundDrawable(ContextCompat.getDrawable(this@BlockchainActivity, it))
+                with(window) {
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    statusBarColor = ContextCompat.getColor(this@BlockchainActivity, android.R.color.transparent)
+                    setBackgroundDrawable(ContextCompat.getDrawable(this@BlockchainActivity, it))
+                }
             }
         }
-
-        lockScreenOrientation()
-
-        supportFragmentManager.registerFragmentLifecycleCallbacks(
-            object : FragmentManager.FragmentLifecycleCallbacks() {
-                override fun onFragmentResumed(fragmentManager: FragmentManager, fragment: Fragment) {
-                    super.onFragmentResumed(fragmentManager, fragment)
-                    remoteLogger.logView(fragment::class.java.name)
-                }
-            },
-            true
-        )
     }
 
     override fun setContentView(view: View?) {
@@ -195,6 +200,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
         backAction?.let { action ->
             updateToolbarBackAction { action() }
         }
+        setStatusBarForMode()
     }
 
     /**
@@ -204,24 +210,31 @@ abstract class BlockchainActivity : ToolBarActivity() {
         modeColor: ModeBackgroundColor = ModeBackgroundColor.Current,
         mutedBackground: Boolean = true
     ) {
-        toolbarBinding?.navigationToolbar?.modeColor = modeColor
-        toolbarBinding?.navigationToolbar?.mutedBackground = mutedBackground
+        toolbarBinding?.navigationToolbar?.apply {
+            this.modeColor = modeColor
+            this.mutedBackground = mutedBackground
+        }
+        setStatusBarForMode()
     }
 
     fun updateToolbarTitle(title: String) {
         toolbarBinding?.navigationToolbar?.title = title
+        setStatusBarForMode()
     }
 
     fun updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
         toolbarBinding?.navigationToolbar?.endNavigationBarButtons = menuItems
+        setStatusBarForMode()
     }
 
     fun updateToolbarBackAction(backAction: (() -> Unit)?) {
         toolbarBinding?.navigationToolbar?.onBackButtonClick = backAction
+        setStatusBarForMode()
     }
 
     fun updateToolbarStartItem(startItem: NavigationBarButton) {
         toolbarBinding?.navigationToolbar?.startNavigationButton = startItem
+        setStatusBarForMode()
     }
 
     @CallSuper

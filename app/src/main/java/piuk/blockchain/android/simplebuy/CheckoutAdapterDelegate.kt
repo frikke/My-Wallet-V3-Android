@@ -245,9 +245,7 @@ class ToggleCheckoutItemDelegate(private val onToggleChanged: (Boolean) -> Unit)
         holder: RecyclerView.ViewHolder,
     ) = (holder as ToggleCheckoutItemItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ToggleCheckoutItem,
-        onToggleChanged,
-        isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        onToggleChanged
     )
 }
 
@@ -257,12 +255,13 @@ private class ToggleCheckoutItemItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ToggleCheckoutItem,
-        onToggleChanged: (Boolean) -> Unit,
-        isFirstItemInList: Boolean,
-        isLastItemInList: Boolean
+        onToggleChanged: (Boolean) -> Unit
     ) {
         with(binding) {
-            toggleParent.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            toggleParent.updateItemBackgroundForSuperApp(
+                isFirstItemInList = true,
+                isLastItemInList = true
+            )
             toggleRow.apply {
                 primaryText = item.title
                 secondaryText = item.subtitle
@@ -270,6 +269,7 @@ private class ToggleCheckoutItemItemViewHolder(
                     isChecked = newCheckedState
                     onToggleChanged(newCheckedState)
                 }
+                this.rootView.background = ContextCompat.getDrawable(context, R.drawable.bkgd_white_large_rounding)
             }
         }
     }

@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 
-@Config(sdk = [24], application = BlockchainTestApplication::class)
+@Config(sdk = [26], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class DeepLinkProcessorTest {
 

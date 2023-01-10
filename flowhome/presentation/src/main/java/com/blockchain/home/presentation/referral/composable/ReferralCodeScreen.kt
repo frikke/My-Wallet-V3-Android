@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +43,6 @@ import com.blockchain.componentlib.icons.ArrowLeft
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
@@ -121,7 +121,7 @@ fun ReferralScreenData(
         onDispose { }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(AppTheme.colors.light)) {
         val backgroundUrl = referralInfo.promotionInfo?.backgroundUrl
 
         if (!backgroundUrl.isNullOrEmpty()) {
@@ -135,7 +135,11 @@ fun ReferralScreenData(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .scrollable(enabled = false, orientation = Orientation.Vertical, state = rememberScrollState()),
+                .scrollable(
+                    enabled = false,
+                    orientation = Orientation.Vertical,
+                    state = rememberScrollState()
+                ),
             horizontalAlignment = Alignment.Start
         ) {
 
@@ -144,7 +148,7 @@ fun ReferralScreenData(
                     .padding(AppTheme.dimensions.standardSpacing)
                     .clickable(true, onClick = onBackPressed)
             ) {
-                Image(Icons.ArrowLeft.withTint(AppTheme.colors.primary))
+                Image(Icons.ArrowLeft)
             }
 
             Column(
@@ -341,7 +345,7 @@ fun SingleReferralCriteria(
             modifier = Modifier
                 .size(AppTheme.dimensions.standardSpacing)
                 .clip(CircleShape)
-                .background(Blue000),
+                .background(Color.White),
             style = ComposeTypographies.Body2,
             color = ComposeColors.Primary,
             markdownText = (index + 1).toString(),
@@ -365,7 +369,7 @@ fun ReferralCriteriaSeparator() {
         modifier = Modifier
             .padding(horizontal = 34.dp) // padding: 24 + (text width: 24 / 2) - (this view width / 2) -> 24 + 12 - 2
             .size(height = AppTheme.dimensions.tinySpacing, width = AppTheme.dimensions.smallestSpacing)
-            .background(Blue000)
+            .background(Color.White)
     )
 }
 

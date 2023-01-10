@@ -185,14 +185,18 @@ class SimpleBuyCryptoFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        activity.updateToolbar(
-            toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
-            backAction = {
-                analytics.logEvent(BuyAmountScreenBackClickedEvent)
-                activity.onBackPressedDispatcher.onBackPressed()
-            }
-        )
+        with(activity) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+            updateToolbar(
+                toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
+                backAction = {
+                    analytics.logEvent(BuyAmountScreenBackClickedEvent)
+                    activity.onBackPressedDispatcher.onBackPressed()
+                }
+            )
+            updateToolbarBackground(mutedBackground = true)
+        }
+
         analytics.logEvent(BuyAmountScreenViewedEvent)
         model.process(SimpleBuyIntent.InitializeFeatureFlags)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))

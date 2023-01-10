@@ -65,8 +65,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         @DimenRes val size: Int = R.dimen.standard_spacing,
         @StringRes val contentDescription: Int,
         val onIconClick: () -> Unit,
-    ) :
-        NavigationBarButton(onIconClick)
+    ) : NavigationBarButton(onIconClick)
 
     data class IconResource(
         val image: ImageResource,

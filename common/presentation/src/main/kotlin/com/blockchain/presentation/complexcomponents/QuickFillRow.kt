@@ -2,6 +2,7 @@ package com.blockchain.presentation.complexcomponents
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -64,22 +65,25 @@ fun QuickFillRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensionResource(id = R.dimen.standard_spacing))
+            .padding(horizontal = dimensionResource(id = R.dimen.standard_spacing)),
+        horizontalArrangement = Arrangement.Center
     ) {
-        LazyRow(modifier = Modifier.weight(1f)) {
-            items(
-                items = quickFillButtonData.quickFillButtons,
-                itemContent = { item ->
-                    SmallMinimalButton(
-                        text = item.displayValue,
-                        onClick = {
-                            onQuickFillItemClick(item)
-                        },
-                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing)),
-                        isTransparent = areButtonsTransparent
-                    )
-                }
-            )
+        if (quickFillButtonData.quickFillButtons.isNotEmpty()) {
+            LazyRow(modifier = Modifier.weight(1f)) {
+                items(
+                    items = quickFillButtonData.quickFillButtons,
+                    itemContent = { item ->
+                        SmallMinimalButton(
+                            text = item.displayValue,
+                            onClick = {
+                                onQuickFillItemClick(item)
+                            },
+                            modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing)),
+                            isTransparent = areButtonsTransparent
+                        )
+                    }
+                )
+            }
         }
         if (quickFillButtonData.maxAmount.isPositive) {
             SmallMinimalButton(
