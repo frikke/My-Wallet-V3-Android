@@ -36,8 +36,8 @@ class NullCryptoAccount(
         return Observable.error(NotImplementedError())
     }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        Observable.just(emptyList())
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
@@ -74,8 +74,9 @@ object NullFiatAccount : FiatAccount {
         return Observable.error(NotImplementedError())
     }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return Observable.just(emptyList())
+    }
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
@@ -85,8 +86,6 @@ object NullFiatAccount : FiatAccount {
 
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
-
-    override fun canWithdrawFundsLegacy(): Single<Boolean> = Single.just(false)
 
     override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
 }

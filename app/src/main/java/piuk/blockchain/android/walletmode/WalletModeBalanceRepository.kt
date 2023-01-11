@@ -5,19 +5,14 @@ import com.blockchain.coincore.total
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import info.blockchain.balance.Money
-import info.blockchain.balance.total
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.asFlow
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeBalanceRepository(
@@ -26,21 +21,18 @@ class WalletModeBalanceRepository(
     private val currencyPrefs: CurrencyPrefs,
 ) : WalletModeBalanceService {
 
-    override fun balanceFor(walletMode: WalletMode): Flow<DataResource<Money>> {
-        return getBalance(walletMode, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+    override fun balanceFor(walletMode: WalletMode, freshnessStrategy: FreshnessStrategy): Flow<DataResource<Money>> {
+        return getBalance(walletMode, freshnessStrategy)
     }
 
-    override fun totalBalance(): Flow<DataResource<Money>> {
-        val balances = WalletMode.values().map {
-            coincore.activeWalletsInMode(it).flatMapLatest { it.balance() }.map { it.total }
-        }
-        return combine(balances) {
-            it.toList().total()
+    override fun totalBalance(freshnessStrategy: FreshnessStrategy): Flow<DataResource<Money>> {
+        return coincore.allActiveWallets(freshnessStrategy).flatMap {
+            it.balanceRx(freshnessStrategy)
         }.map {
-            DataResource.Data(it)
-        }.catch {
-            flowOf(DataResource.Error(it as Exception))
-        }
+            DataResource.Data(it.total) as DataResource<Money>
+        }.onErrorResumeNext {
+            Observable.just(DataResource.Error(it as Exception))
+        }.asFlow()
     }
 
     override fun getBalanceWithFailureState(

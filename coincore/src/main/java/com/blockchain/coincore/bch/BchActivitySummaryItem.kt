@@ -18,7 +18,7 @@ import io.reactivex.rxjava3.core.Observable
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {
 
-    override val asset = CryptoCurrency.BCH
+    override val currency = CryptoCurrency.BCH
     override val transactionType: TransactionSummary.TransactionType = transactionSummary.transactionType
     override val timeStampMs: Long = transactionSummary.time * 1000
 

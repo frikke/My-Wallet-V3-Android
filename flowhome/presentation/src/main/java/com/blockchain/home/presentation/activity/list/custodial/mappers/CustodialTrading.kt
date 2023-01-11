@@ -34,14 +34,14 @@ internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackVi
 }
 
 internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColor = when (status) {
+    val color: ActivityTextColor = when (state) {
         OrderState.CANCELED -> ActivityTextColor.Warning
         OrderState.FAILED -> ActivityTextColor.Error
         else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
-        value = when (status) {
+        value = when (state) {
             OrderState.FINISHED -> TextValue.StringValue(Date(timeStampMs).toFormattedDate())
             OrderState.UNINITIALISED -> TextValue.IntResValue(R.string.activity_state_uninitialised)
             OrderState.INITIALISED -> TextValue.IntResValue(R.string.activity_state_initialised)
@@ -56,14 +56,14 @@ internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStac
     )
 }
 
-private fun CustodialTradingActivitySummaryItem.trailingStrikethrough() = when (status) {
+private fun CustodialTradingActivitySummaryItem.trailingStrikethrough() = when (state) {
     OrderState.CANCELED,
     OrderState.FAILED -> true
     else -> false
 }
 
 internal fun CustodialTradingActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColor = when (status) {
+    val color: ActivityTextColor = when (state) {
         OrderState.FINISHED -> ActivityTextColor.Title
         else -> ActivityTextColor.Muted
     }

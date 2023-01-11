@@ -63,8 +63,9 @@ class LinkedBankAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return Observable.just(emptyList())
+    }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())
@@ -78,8 +79,6 @@ class LinkedBankAccount(
 
     override val hasTransactions: Boolean
         get() = false
-
-    override fun canWithdrawFundsLegacy(): Single<Boolean> = Single.just(false)
 
     override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
 

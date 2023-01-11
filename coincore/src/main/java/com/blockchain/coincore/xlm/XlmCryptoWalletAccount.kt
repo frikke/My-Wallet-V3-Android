@@ -1,6 +1,5 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -20,7 +19,6 @@ import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.Money.Companion.max
@@ -78,20 +76,6 @@ internal class XlmCryptoWalletAccount(
 
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
-
-    override val activity: Single<ActivitySummaryList>
-        get() = xlmManager.getTransactionList()
-            .onErrorResumeNext { Single.just(emptyList()) }
-            .mapList {
-                XlmActivitySummaryItem(
-                    it,
-                    exchangeRates,
-                    account = this,
-                    payloadManager
-                )
-            }.flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }.doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())

@@ -7,6 +7,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.nabu.Feature
@@ -16,6 +18,7 @@ import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -39,13 +42,23 @@ class QuickActionsRepository(
     )
 
     override fun moreActions(): Flow<List<StateAwareAction>> {
-        val custodialBalance = coincore.activeWallets(WalletMode.CUSTODIAL).flatMapObservable {
-            it.balanceRx()
-        }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
+        val custodialBalance =
+            coincore.activeWalletsInModeRx(
+                walletMode = WalletMode.CUSTODIAL,
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            ).flatMap {
+                it.balanceRx()
+            }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
 
         val hasFiatBalance =
-            coincore.activeWallets(WalletMode.CUSTODIAL).map { it.accounts.filterIsInstance<FiatAccount>() }
-                .flatMapObservable {
+            coincore.activeWalletsInModeRx(
+                WalletMode.CUSTODIAL,
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+                .map { it.accounts.filterIsInstance<FiatAccount>() }
+                .flatMap {
                     if (it.isEmpty()) {
                         Observable.just(false)
                     } else
@@ -55,14 +68,21 @@ class QuickActionsRepository(
                 }.asFlow()
 
         val depositFiatFeature =
-            userFeaturePermissionService.isEligibleFor(Feature.DepositFiat).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.DepositFiat,
+                FreshnessStrategy.Cached(
+                    RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+                )
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
         val withdrawFiatFeature =
-            userFeaturePermissionService.isEligibleFor(Feature.WithdrawFiat).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.WithdrawFiat, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")

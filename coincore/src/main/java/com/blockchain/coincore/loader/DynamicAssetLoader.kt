@@ -22,17 +22,16 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
-import com.blockchain.utils.filterList
 import com.blockchain.utils.filterListItemIsInstance
 import com.blockchain.utils.mapList
 import com.blockchain.utils.zipSingles
@@ -50,13 +49,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
 import timber.log.Timber
@@ -251,20 +248,21 @@ internal class DynamicAssetLoader(
      * - All interest with balance.
      * */
 
-    private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
+    private fun loadNonCustodialActiveAssets(freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
         return flow {
-            emitAll(loadNonCustodialAssetsUsingUnifiedBalances())
+            emitAll(loadNonCustodialAssetsUsingUnifiedBalances(freshnessStrategy))
         }
     }
 
-    private fun loadNonCustodialAssetsUsingUnifiedBalances(): Flow<List<Asset>> {
-        val selfCustodialAssetsFlow = unifiedBalancesService.value.balances().mapData { balances ->
-            balances.map {
-                get(it.currency)
-            }
-        }.onErrorReturn {
-            emptyList()
-        }.filterIsInstance<DataResource.Data<List<Asset>>>()
+    private fun loadNonCustodialAssetsUsingUnifiedBalances(freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
+        val selfCustodialAssetsFlow =
+            unifiedBalancesService.value.balances(freshnessStrategy = freshnessStrategy).mapData { balances ->
+                balances.map {
+                    get(it.currency)
+                }
+            }.onErrorReturn {
+                emptyList()
+            }.filterIsInstance<DataResource.Data<List<Asset>>>()
 
         val enabledL1AssetsFlow = flow {
             val evmAssets = enabledEvmL1Assets.await()
@@ -281,82 +279,21 @@ internal class DynamicAssetLoader(
         }
     }
 
-    private fun loadNonCustodialLegacyAssets(): Flow<List<Asset>> {
-        val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
-            .filterList { it.isErc20() }
-            .mapList { loadErc20Asset(it) }
-            .catch { emit(emptyList()) }
-
-        val selfCustodialAssetsFlow = loadSelfCustodialAssets()
-            .filterList {
-                it.currency.networkTicker !in nonCustodialAssets.toList().map { asset -> asset.currency.networkTicker }
-            }
-            .catch { emit(emptyList()) }
-
-        val enabledL1AssetsFlow = flow {
-            val evmAssets = enabledEvmL1Assets.await()
-            emit(nonCustodialAssets.plus(evmAssets.toSet()))
-        }
-
-        return combine(
-            activePKWErc20sFlow,
-            selfCustodialAssetsFlow,
-            enabledL1AssetsFlow
-        ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
-            activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
-        }
-    }
-
-    /**
-     * Remove this once unified balances ff gets removed
-     */
-    @OptIn(FlowPreview::class)
-    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return selfCustodyService.getSubscriptions()
-            .flatMapConcat { result ->
-                when (result) {
-                    is Outcome.Success ->
-                        flow {
-                            emit(
-                                result.value.mapNotNull {
-                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        if (asset.isDelegatedNonCustodial) {
-                                            loadSelfCustodialAsset(asset)
-                                        } else {
-                                            null
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                    is Outcome.Failure -> {
-                        // getSubscriptions might fail because the wallet has never called auth before
-                        flow {
-                            emit(emptyList())
-                        }
-                    }
-                    else -> {
-                        throw IllegalStateException("Could not load subscriptions")
-                    }
-                }
-            }
-    }
-
-    private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
-        val activeTradingFlow = tradingService.getActiveAssets()
+    private fun loadCustodialActiveAssets(freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
+        val activeTradingFlow = tradingService.getActiveAssets(freshnessStrategy)
             .filterListItemIsInstance<AssetInfo>()
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
-        val activeInterestFlow = interestService.getActiveAssets()
+        val activeInterestFlow = interestService.getActiveAssets(freshnessStrategy)
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
-        val activeStakingFlow = stakingService.getActiveAssets()
+        val activeStakingFlow = stakingService.getActiveAssets(freshnessStrategy)
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
-        val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
+        val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats(freshnessStrategy = freshnessStrategy)
             .mapList { FiatAsset(currency = it) }
             .catch { emit(emptyList()) }
 
@@ -414,10 +351,29 @@ internal class DynamicAssetLoader(
         )
     }
 
-    override fun activeAssets(walletMode: WalletMode): Flow<List<Asset>> {
+    override fun activeAssets(walletMode: WalletMode, freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL -> loadCustodialActiveAssets()
-            WalletMode.NON_CUSTODIAL -> loadNonCustodialActiveAssets()
+            WalletMode.CUSTODIAL -> loadCustodialActiveAssets(freshnessStrategy)
+            WalletMode.NON_CUSTODIAL -> loadNonCustodialActiveAssets(freshnessStrategy)
+        }
+    }
+
+    override fun activeAssets(freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
+        return allActive(freshnessStrategy)
+    }
+
+    private fun allActive(freshnessStrategy: FreshnessStrategy): Flow<List<Asset>> {
+        val nonCustodialFlow = loadNonCustodialActiveAssets(freshnessStrategy)
+        val custodialFlow = loadCustodialActiveAssets(freshnessStrategy)
+
+        return combine(nonCustodialFlow, custodialFlow) { nonCustodial, custodial ->
+            // remove any asset from custodial list that already exists in non custodial
+            val uniqueCustodial = custodial.filter {
+                it.currency.networkTicker !in nonCustodial.map { asset -> asset.currency.networkTicker }
+            }
+            // merge all
+            (nonCustodial.map { it.currency } + uniqueCustodial.map { it.currency })
+                .map { this[it] }
         }
     }
 

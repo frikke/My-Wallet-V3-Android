@@ -6,6 +6,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
+import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -13,6 +14,7 @@ import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 
@@ -23,7 +25,7 @@ class CustodialRepository(
 ) {
 
     fun getSwapAvailablePairs(): Single<List<CurrencyPair>> =
-        pairsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+        pairsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .mapData { pairList ->
                 pairList.mapNotNull { pair ->
                     val parts = pair.split("-")
@@ -37,11 +39,12 @@ class CustodialRepository(
 
     fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
-    ): Single<List<TradeTransactionItem>> =
+        directions: Set<TransferDirection>,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<List<TradeTransactionItem>> =
 
         swapActivityStore.stream(
-            FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+            freshnessStrategy
         )
             .mapData { response ->
                 response.mapNotNull {
@@ -78,7 +81,7 @@ class CustodialRepository(
                         it.sendingValue.currency == cryptoCurrency &&
                         directions.contains(it.direction)
                 }
-            }.asSingle()
+            }.asObservable()
 
     companion object {
         const val LONG_CACHE = 60000L

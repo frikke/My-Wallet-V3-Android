@@ -1,6 +1,5 @@
 package com.blockchain.coincore.evm
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -86,29 +85,6 @@ class L1EvmNonCustodialAccount(
             .mapData { balance -> Money.fromMinor(currency, balance) }
             .asObservable()
     }
-
-    override val activity: Single<ActivitySummaryList>
-        get() {
-            return Single.zip(
-                erc20DataManager.getErc20History(currency, l1Network),
-                erc20DataManager.latestBlockNumber(l1Chain = l1Network.networkTicker)
-            ) { transactions, latestBlockNumber ->
-                transactions.map { transaction ->
-                    L1EvmActivitySummaryItem(
-                        asset = currency,
-                        event = transaction,
-                        accountHash = address,
-                        exchangeRates = exchangeRates,
-                        lastBlockNumber = latestBlockNumber,
-                        account = this
-                    )
-                }
-            }.flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }.doOnSuccess {
-                setHasTransactions(it.isNotEmpty())
-            }
-        }
 
     override val sourceState: Single<TxSourceState>
         get() = super.sourceState.flatMap { state ->

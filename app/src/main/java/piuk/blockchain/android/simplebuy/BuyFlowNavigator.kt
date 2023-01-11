@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -86,7 +87,7 @@ class BuyFlowNavigator(
 
         return Singles.zip(
             allowedBuyFiatCurrencies(cryptoCurrency),
-            userIdentity.userAccessForFeature(Feature.Buy)
+            userIdentity.userAccessForFeature(Feature.Buy, FreshnessStrategy.Fresh)
         ).flatMap { (allowedBuyFiatCurrencies, eligibility) ->
             val canBuyWithSelectedTradingCurrency =
                 allowedBuyFiatCurrencies.contains(fiatCurrenciesService.selectedTradingCurrency)

@@ -42,7 +42,7 @@ dependencies {
     implementation project(':analytics:domain')
     implementation project(':fiatActions')
     implementation project(':walletconnect')
-
+    implementation Libraries.composelifecycle
     // android
     implementation Libraries.design
 

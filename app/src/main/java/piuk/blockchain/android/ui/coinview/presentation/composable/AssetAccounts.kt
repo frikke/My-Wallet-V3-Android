@@ -368,8 +368,10 @@ private val previewBlockchainAccount = object : BlockchainAccount {
         error("preview")
     }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = error("preview")
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        error("preview")
+    }
+
     override val isFunded: Boolean
         get() = error("preview")
     override val hasTransactions: Boolean

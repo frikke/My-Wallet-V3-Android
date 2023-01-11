@@ -37,7 +37,7 @@ class InterestWithdrawOnChainTxEngine(
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore)
+        get() = listOf(interestBalanceStore, paymentTransactionHistoryStore)
 
     private val availableBalance: Single<Money>
         get() = sourceAccount.balanceRx().firstOrError().map { it.withdrawable }

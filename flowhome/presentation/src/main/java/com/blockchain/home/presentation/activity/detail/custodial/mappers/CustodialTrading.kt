@@ -217,7 +217,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
 )
 
 private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
-    when (status) {
+    when (state) {
         OrderState.FINISHED -> R.string.activity_details_label_complete
         OrderState.UNINITIALISED,
         OrderState.INITIALISED,
@@ -226,7 +226,7 @@ private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextV
         OrderState.PENDING_CONFIRMATION -> when (type) {
             OrderType.BUY,
             OrderType.RECURRING_BUY -> {
-                if (status == OrderState.AWAITING_FUNDS) R.string.activity_details_label_pending
+                if (state == OrderState.AWAITING_FUNDS) R.string.activity_details_label_pending
                 else R.string.activity_details_label_pending_execution
             }
             OrderType.SELL -> R.string.activity_details_label_pending
@@ -237,7 +237,7 @@ private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextV
     }
 )
 
-private fun CustodialTradingActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
+private fun CustodialTradingActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     OrderState.FINISHED -> ActivityTagStyle.Success
     OrderState.UNINITIALISED,
     OrderState.INITIALISED,

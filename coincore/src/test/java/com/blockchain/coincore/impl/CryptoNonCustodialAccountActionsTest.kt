@@ -1,7 +1,6 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.ActionState
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -30,6 +29,8 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
@@ -404,7 +405,6 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
             label = "Test Account",
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,
-            activity = Single.just(emptyList()),
             receiveAddress = mock(),
             isDefault = true,
             addressResolver = mock(),
@@ -423,19 +423,23 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         isAssetSupportedForSwap: Boolean = true,
     ) {
         whenever(custodialManager.selectedFiatcurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(custodialManager.getSupportedFundsFiats(FiatCurrency.Dollars)).thenReturn(
+        whenever(custodialManager.getSupportedFundsFiats(eq(FiatCurrency.Dollars), any())).thenReturn(
             flowOf(supportedFiatFunds)
         )
-        whenever(userIdentity.isEligibleFor(Feature.Interest(TEST_ASSET))).thenReturn(Single.just(eligibleForInterest))
-        whenever(userIdentity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(userAccessForSwap))
-        whenever(userIdentity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(userAccessForSell))
-        whenever(userIdentity.userAccessForFeature(Feature.DepositInterest)).thenReturn(
+        whenever(userIdentity.isEligibleFor(eq(Feature.Interest(TEST_ASSET)), any())).thenReturn(
+            Single.just(eligibleForInterest)
+        )
+        whenever(userIdentity.userAccessForFeature(eq(Feature.Swap), any())).thenReturn(Single.just(userAccessForSwap))
+        whenever(userIdentity.userAccessForFeature(eq(Feature.Sell), any())).thenReturn(Single.just(userAccessForSell))
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositInterest), any())).thenReturn(
             Single.just(userAccessForInterestDeposit)
         )
-        whenever(userIdentity.userAccessForFeature(Feature.DepositCrypto)).thenReturn(
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositCrypto), any())).thenReturn(
             Single.just(userAccessForCryptoDeposit)
         )
-        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+        whenever(
+            userIdentity.userAccessForFeature(eq(Feature.DepositStaking), any())
+        ).thenReturn(
             Single.just(userAccessForStakingDeposit)
         )
         whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(
@@ -446,7 +450,6 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
 private class NonCustodialTestAccount(
     override val label: String,
-    override val activity: Single<ActivitySummaryList>,
     override val receiveAddress: Single<ReceiveAddress>,
     override val isDefault: Boolean,
     override val exchangeRates: ExchangeRatesDataManager,

@@ -13,6 +13,7 @@ import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.transactions.CustodialTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -27,12 +28,13 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 
-enum class OrderState {
+enum class OrderState : CustodialTransactionState {
     UNKNOWN,
     UNINITIALISED,
     INITIALISED,
@@ -90,10 +92,11 @@ interface CustodialWalletManager {
     ): Completable
 
     fun getCustodialCryptoTransactions(
+        freshnessStrategy: FreshnessStrategy,
         asset: AssetInfo,
         product: Product,
         type: String? = null
-    ): Single<List<CryptoTransaction>>
+    ): Observable<List<CryptoTransaction>>
 
     fun getBankAccountDetails(
         currency: FiatCurrency
@@ -129,7 +132,7 @@ interface CustodialWalletManager {
 
     fun getAllOutstandingOrders(): Single<List<BuySellOrder>>
 
-    fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList>
+    fun getAllOrdersFor(freshnessStrategy: FreshnessStrategy, asset: AssetInfo): Observable<BuyOrderList>
 
     fun getBuyOrder(orderId: String): Single<BuySellOrder>
 
@@ -155,7 +158,10 @@ interface CustodialWalletManager {
     ): Single<BuySellOrder>
 
     fun getSupportedFundsFiats(
-        fiatCurrency: FiatCurrency = selectedFiatcurrency
+        fiatCurrency: FiatCurrency = selectedFiatcurrency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.ForceRefresh
+        )
     ): Flow<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
@@ -191,8 +197,9 @@ interface CustodialWalletManager {
 
     fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
-    ): Single<List<TradeTransactionItem>>
+        directions: Set<TransferDirection>,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<List<TradeTransactionItem>>
 
     fun updateOrder(
         id: String,
@@ -376,7 +383,7 @@ enum class TransactionType {
     WITHDRAWAL
 }
 
-enum class TransactionState {
+enum class TransactionState : CustodialTransactionState {
     COMPLETED,
     PENDING,
     MANUAL_REVIEW,
@@ -391,7 +398,7 @@ enum class TransactionState {
         }
 }
 
-enum class CustodialOrderState {
+enum class CustodialOrderState : CustodialTransactionState {
     CREATED,
     PENDING_CONFIRMATION,
     PENDING_LEDGER,

@@ -1,6 +1,8 @@
 package com.blockchain.nabu
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
@@ -8,10 +10,20 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
+import java.util.concurrent.TimeUnit
 
 interface UserIdentity {
+    val defFreshness
+        get() = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+
     @Deprecated("use UserFeaturePermissionService")
-    fun isEligibleFor(feature: Feature): Single<Boolean>
+    fun isEligibleFor(
+        feature: Feature,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<Boolean>
+
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
@@ -19,8 +31,16 @@ interface UserIdentity {
     fun getUserState(): Maybe<String>
 
     @Deprecated("use UserFeaturePermissionService")
-    fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
-    fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
+    fun userAccessForFeature(
+        feature: Feature,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<FeatureAccess>
+
+    fun userAccessForFeatures(
+        features: List<Feature>,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<Map<Feature, FeatureAccess>>
+
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun isArgentinian(): Single<Boolean>
     fun isCowboysUser(): Single<Boolean>

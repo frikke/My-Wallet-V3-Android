@@ -57,19 +57,19 @@ private class CustodialRecurringBuyActivityViewHolder(
             when {
                 tx.transactionState.isPending() || tx.transactionState.isFinished() -> {
                     icon.setImageResource(R.drawable.ic_tx_recurring_buy)
-                    icon.setAssetIconColoursWithTint(tx.asset)
+                    icon.setAssetIconColoursWithTint(tx.currency)
                 }
                 else -> icon.setTransactionHasFailed()
             }
 
-            txType.text = context.resources.getString(R.string.tx_title_bought, tx.asset.displayTicker)
+            txType.text = context.resources.getString(R.string.tx_title_bought, tx.currency.displayTicker)
             statusDate.setTxStatus(tx)
             setTextColours(tx.transactionState)
 
             tx.setFiatAndCryptoText()
 
             root.setOnClickListener {
-                onAccountClicked(tx.asset, tx.txId, ActivityType.RECURRING_BUY)
+                onAccountClicked(tx.currency, tx.txId, ActivityType.RECURRING_BUY)
             }
         }
     }

@@ -26,7 +26,7 @@ import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
 internal fun CustodialInterestActivitySummaryItem.iconDetail(): ImageResource {
-    return when (status) {
+    return when (state) {
         InterestState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
             TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
@@ -161,7 +161,7 @@ internal fun CustodialInterestActivitySummaryItem.detailItems(
 )
 
 private fun CustodialInterestActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
-    when (status) {
+    when (state) {
         InterestState.COMPLETE,
         InterestState.REFUNDED,
         InterestState.UNKNOWN,
@@ -174,7 +174,7 @@ private fun CustodialInterestActivitySummaryItem.statusValue(): TextValue = Text
     }
 )
 
-private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
+private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     InterestState.REFUNDED,
     InterestState.COMPLETE,
     InterestState.UNKNOWN,

@@ -25,6 +25,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -67,6 +68,8 @@ class QuickActionsViewModel(
             )
         }
     }
+
+    private val defFreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
 
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
@@ -156,7 +159,11 @@ class QuickActionsViewModel(
     }
 
     private fun totalWalletModeBalance(walletMode: WalletMode) =
-        coincore.activeWallets(walletMode).flatMapObservable {
+        coincore.activeWalletsInModeRx(
+            walletMode = walletMode,
+            freshnessStrategy =
+            defFreshnessStrategy
+        ).flatMap {
             it.balanceRx()
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
             AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
@@ -166,7 +173,7 @@ class QuickActionsViewModel(
         totalWalletModeBalance(WalletMode.NON_CUSTODIAL).zip(
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
-                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                defFreshnessStrategy
             ).filterNotLoading()
         ) { balance, sellEligible ->
 
@@ -198,25 +205,37 @@ class QuickActionsViewModel(
 
     private fun actionsForBrokerage(): Flow<List<QuickActionItem>> {
         val buyEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(Feature.Buy).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.Buy,
+                defFreshnessStrategy
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
         val sellEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(Feature.DepositFiat).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.DepositFiat,
+                defFreshnessStrategy
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
         val swapEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(Feature.Swap).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.Swap,
+                defFreshnessStrategy
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
         val receiveEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(Feature.DepositCrypto).filterNot { it is DataResource.Loading }
+            userFeaturePermissionService.isEligibleFor(
+                Feature.DepositCrypto,
+                defFreshnessStrategy
+            ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")

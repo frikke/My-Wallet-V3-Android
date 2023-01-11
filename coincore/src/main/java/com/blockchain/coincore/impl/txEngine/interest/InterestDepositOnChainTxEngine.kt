@@ -33,7 +33,7 @@ class InterestDepositOnChainTxEngine(
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore)
+        get() = listOf(interestBalanceStore, paymentTransactionHistoryStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)

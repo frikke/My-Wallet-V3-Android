@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Observable
 
 class TestNonCustodialSummaryItem(
     override val exchangeRates: ExchangeRatesDataManager = mock(),
-    override val asset: AssetInfo = CryptoCurrency.BTC,
+    override val currency: AssetInfo = CryptoCurrency.BTC,
     override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED,
     override val timeStampMs: Long = 0,
     override val value: Money = Money.zero(CryptoCurrency.BTC),

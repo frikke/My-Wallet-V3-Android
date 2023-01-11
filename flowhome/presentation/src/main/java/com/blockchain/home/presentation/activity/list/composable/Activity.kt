@@ -251,7 +251,7 @@ fun ActivityGroups(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         val name = when (group) {
-                            TransactionGroup.Group.Pending -> "Pending" // todo str res
+                            TransactionGroup.Group.Pending -> stringResource(id = R.string.common_pending)
                             is TransactionGroup.Group.Date -> group.date.format()
                             TransactionGroup.Combined -> error("not allowed")
                         }

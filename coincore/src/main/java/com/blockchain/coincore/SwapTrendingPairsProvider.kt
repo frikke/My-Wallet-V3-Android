@@ -1,5 +1,7 @@
 package com.blockchain.coincore
 
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
@@ -26,21 +28,23 @@ internal class SwapTrendingPairsProvider(
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> {
         return walletModeService.walletModeSingle.flatMapObservable { walletMode ->
-            coincore.activeWalletsInModeRx(walletMode).map { it.accounts }.map {
-                it.filterIsInstance<CryptoAccount>()
-                    .filterNot { it is InterestAccount }
-                    .filter {
-                        when (walletMode) {
-                            WalletMode.CUSTODIAL -> it is TradingAccount
-                            WalletMode.NON_CUSTODIAL -> it is NonCustodialAccount
+            coincore.activeWalletsInModeRx(walletMode, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .map { it.accounts }.map {
+                    it.filterIsInstance<CryptoAccount>()
+                        .filterNot { account -> account is InterestAccount }
+                        .filter { account ->
+                            account
+                            when (walletMode) {
+                                WalletMode.CUSTODIAL -> account is TradingAccount
+                                WalletMode.NON_CUSTODIAL -> account is NonCustodialAccount
+                            }
+                        }.filter { account ->
+                            if (account is NonCustodialAccount)
+                                account.isDefault
+                            else
+                                true
                         }
-                    }.filter { account ->
-                        if (account is NonCustodialAccount)
-                            account.isDefault
-                        else
-                            true
-                    }
-            }
+                }
         }.map { activeAccounts ->
             val assetList = makeRequiredAssetSet()
             activeAccounts.filter { account ->

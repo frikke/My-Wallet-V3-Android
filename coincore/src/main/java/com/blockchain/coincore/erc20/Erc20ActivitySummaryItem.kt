@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 
 /*internal*/ class Erc20ActivitySummaryItem(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     private val event: Erc20HistoryEvent,
     private val accountHash: String,
     private val erc20DataManager: Erc20DataManager,
@@ -39,7 +39,7 @@ import java.math.BigInteger
     override val value: CryptoValue = event.value
 
     override val description: String?
-        get() = erc20DataManager.getErc20TxNote(asset = asset, txHash = txId)
+        get() = erc20DataManager.getErc20TxNote(asset = currency, txHash = txId)
 
     override val fee: Observable<Money>
         get() = event.fee.toObservable()
@@ -55,7 +55,7 @@ import java.math.BigInteger
     override val confirmations: Int = (lastBlockNumber - event.blockNumber).toInt()
 
     override fun updateDescription(description: String): Completable =
-        erc20DataManager.putErc20TxNote(asset = asset, txHash = txId, note = description)
+        erc20DataManager.putErc20TxNote(asset = currency, txHash = txId, note = description)
 
     companion object {
         private const val TX_HISTORY_MULTIPLIER = 1000

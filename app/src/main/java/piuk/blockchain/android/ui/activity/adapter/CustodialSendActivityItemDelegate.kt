@@ -57,7 +57,7 @@ private class CustodialTradeActivityItemViewHolder(
         with(binding) {
             if (tx.isConfirmed) {
                 icon.setTransactionDirection(tx)
-                icon.setAssetIconColoursWithTint(tx.asset)
+                icon.setAssetIconColoursWithTint(tx.currency)
             } else {
                 icon.setTransactionIsConfirming()
             }
@@ -73,7 +73,7 @@ private class CustodialTradeActivityItemViewHolder(
 
             binding.root.setOnClickListener {
                 onAccountClicked(
-                    tx.asset, tx.txId, ActivityType.CUSTODIAL_TRANSFER
+                    tx.currency, tx.txId, ActivityType.CUSTODIAL_TRANSFER
                 )
             }
         }
@@ -82,10 +82,10 @@ private class CustodialTradeActivityItemViewHolder(
     private fun TextView.setDirectionText(tx: CustodialTransferActivitySummaryItem) =
         when (tx.type) {
             TransactionType.DEPOSIT -> text = context.getString(
-                R.string.tx_title_received, tx.asset.displayTicker
+                R.string.tx_title_received, tx.currency.displayTicker
             )
             TransactionType.WITHDRAWAL -> text = context.getString(
-                R.string.tx_title_sent, tx.asset.displayTicker
+                R.string.tx_title_sent, tx.currency.displayTicker
             )
         }
 

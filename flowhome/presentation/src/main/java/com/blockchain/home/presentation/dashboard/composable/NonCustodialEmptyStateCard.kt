@@ -27,7 +27,6 @@ import com.blockchain.home.presentation.R
 fun NonCustodialEmptyStateCard(
     onReceiveClicked: () -> Unit,
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxWidth()

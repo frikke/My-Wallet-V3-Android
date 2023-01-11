@@ -5,6 +5,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.map
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +44,9 @@ class SellViewModel(
     override suspend fun handleIntent(modelState: SellModelState, intent: SellIntent) {
         when (intent) {
             is SellIntent.CheckSellEligibility -> {
-                sellRepository.sellEligibility().collectLatest { data ->
+                sellRepository.sellEligibility(
+                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                ).collectLatest { data ->
                     if (data is DataResource.Data || modelState.sellEligibility !is DataResource.Data) {
                         updateState {
                             it.copy(

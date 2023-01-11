@@ -58,26 +58,6 @@ class ReferralRepositoryTest {
     }
 
     @Test
-    fun `should fetch available referral info legacy`() = runBlocking {
-        whenever(referralStore.stream(any()))
-            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(referralResponse))))
-
-        val expectedData = ReferralInfo.Data(
-            rewardTitle = referralResponse.rewardTitle,
-            rewardSubtitle = referralResponse.rewardSubtitle,
-            criteria = referralResponse.criteria,
-            code = referralResponse.code,
-            campaignId = "UK rewards",
-            announcementInfo = null,
-            promotionInfo = null
-        )
-
-        val result = referralRepository.fetchReferralDataLegacy()
-
-        assertEquals(Outcome.Success(expectedData), result)
-    }
-
-    @Test
     fun `should fetch available referral info`() = runBlocking {
         whenever(referralStore.stream(any()))
             .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(referralResponse))))
@@ -100,16 +80,6 @@ class ReferralRepositoryTest {
     }
 
     @Test
-    fun `should fetch referral info not available legacy`() = runBlocking {
-        whenever(referralStore.stream(any()))
-            .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(null))))
-
-        val result = referralRepository.fetchReferralDataLegacy()
-
-        assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
-    }
-
-    @Test
     fun `should fetch referral info not available`() = runBlocking {
         whenever(referralStore.stream(any()))
             .doReturn(flowOf(DataResource.Data(ReferralResponseWrapper(null))))
@@ -119,20 +89,6 @@ class ReferralRepositoryTest {
                 assertEquals(DataResource.Data(ReferralInfo.NotAvailable), this)
             }
         }
-    }
-
-    @Test
-    fun `should fetch referral info other errors legacy`() = runBlocking {
-        val apiError: NabuApiException = mock {
-            on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
-        }
-
-        whenever(referralStore.stream(any()))
-            .doReturn(flowOf(DataResource.Error(apiError)))
-
-        val result = referralRepository.fetchReferralDataLegacy()
-
-        assertEquals(Outcome.Failure(apiError), result)
     }
 
     @Test

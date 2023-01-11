@@ -25,20 +25,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
-import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -59,6 +59,7 @@ import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
@@ -68,7 +69,7 @@ fun HomeAssets(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: AssetsViewState by viewModel.viewState.collectAsStateWithLifecycle()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -120,17 +121,6 @@ fun HomeAssetsScreen(
         )
         is DataResource.Error -> { /*DO NOTHING*/
         }
-    }
-}
-
-@Composable
-private fun AssetsLoading() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        ShimmerLoadingCard()
     }
 }
 

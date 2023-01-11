@@ -84,7 +84,7 @@ internal class ExchangeRatesDataManagerImpl(
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
-        return priceStore.getCurrentPriceForAsset(base, quote, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+        return priceStore.getCurrentPriceForAsset(base, quote, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .asObservable().map {
                 ExchangeRate(
                     from = base,

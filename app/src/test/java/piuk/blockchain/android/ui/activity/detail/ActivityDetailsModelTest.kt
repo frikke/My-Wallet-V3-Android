@@ -39,7 +39,7 @@ class ActivityDetailsModelTest {
 
     private data class NonCustodialTestClass(
         override val exchangeRates: ExchangeRatesDataManager = mock(),
-        override val asset: AssetInfo = mock(),
+        override val currency: AssetInfo = mock(),
         override val txId: String = "123",
         override val timeStampMs: Long = 1L,
         override val value: CryptoValue = mock(),
@@ -54,12 +54,12 @@ class ActivityDetailsModelTest {
 
     private val custodialItem = CustodialTradingActivitySummaryItem(
         exchangeRates = mock(),
-        asset = mock(),
+        currency = mock(),
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
         fundedFiat = mock(),
-        status = OrderState.FINISHED,
+        state = OrderState.FINISHED,
         fee = mock(),
         account = mock(),
         paymentMethodId = "123",
@@ -75,11 +75,11 @@ class ActivityDetailsModelTest {
 
     private val custodialInterestItem = CustodialInterestActivitySummaryItem(
         exchangeRates = mock(),
-        asset = mock(),
+        currency = mock(),
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
-        status = InterestState.COMPLETE,
+        state = InterestState.COMPLETE,
         account = NullCryptoAccount(),
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
@@ -90,11 +90,11 @@ class ActivityDetailsModelTest {
 
     private val custodialStakingItem = CustodialStakingActivitySummaryItem(
         exchangeRates = mock(),
-        asset = mock(),
+        currency = mock(),
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
-        status = StakingState.COMPLETE,
+        state = StakingState.COMPLETE,
         account = NullCryptoAccount(),
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
@@ -184,7 +184,7 @@ class ActivityDetailsModelTest {
                 isPending = item.isPending,
                 isFeeTransaction = item.isFeeTransaction,
                 confirmations = item.confirmations,
-                totalConfirmations = item.asset.requiredConfirmations
+                totalConfirmations = item.currency.requiredConfirmations
             )
         )
     }

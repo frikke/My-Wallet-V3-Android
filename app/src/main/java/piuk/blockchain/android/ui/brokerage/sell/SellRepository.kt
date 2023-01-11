@@ -11,7 +11,6 @@ import com.blockchain.core.sell.domain.SellEligibility
 import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
@@ -55,12 +54,12 @@ class SellRepository(
     private var sellAvailableAccounts: Map<WalletMode, DataResource<List<CryptoAccount>>> =
         WalletMode.values().associateWith { DataResource.Loading }
 
-    fun sellEligibility(): Flow<DataResource<SellEligibility>> =
+    fun sellEligibility(freshnessStrategy: FreshnessStrategy): Flow<DataResource<SellEligibility>> =
         userFeaturePermissionService.getAccessForFeature(
             feature = Feature.Sell,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+            freshnessStrategy = freshnessStrategy
         ).flatMapData { data ->
-            checkUserEligibilityStatus(data)
+            checkUserEligibilityStatus(data, freshnessStrategy)
         }.onEach {
             sellEligibilityCache = it
         }.onStart {
@@ -92,7 +91,10 @@ class SellRepository(
             }
     }
 
-    private fun checkUserEligibilityStatus(access: FeatureAccess?): Flow<DataResource<SellEligibility>> =
+    private fun checkUserEligibilityStatus(
+        access: FeatureAccess?,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<SellEligibility>> =
         when (val reason = (access as? FeatureAccess.Blocked)?.reason) {
             is BlockedReason.InsufficientTier,
             is BlockedReason.NotEligible,
@@ -100,7 +102,7 @@ class SellRepository(
             is BlockedReason.TooManyInFlightTransactions,
             is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
             null -> {
-                loadSellEligibility().flatMapData { data ->
+                loadSellEligibility(freshnessStrategy).flatMapData { data ->
                     when (data) {
                         SellUserEligibility.KycRejectedUser,
                         SellUserEligibility.NonKycdUser -> flowOf(
@@ -116,10 +118,10 @@ class SellRepository(
             }
         }
 
-    private fun loadSellEligibility(): Flow<DataResource<SellUserEligibility>> =
+    private fun loadSellEligibility(freshnessStrategy: FreshnessStrategy): Flow<DataResource<SellUserEligibility>> =
         combine(
-            kycService.getTiers(),
-            simpleBuyService.isEligible()
+            kycService.getTiers(freshnessStrategy),
+            simpleBuyService.isEligible(freshnessStrategy)
         ) { kycTiers, isEligibleForBuy ->
             combineDataResources(kycTiers, isEligibleForBuy) { kyc, eligible ->
                 when {

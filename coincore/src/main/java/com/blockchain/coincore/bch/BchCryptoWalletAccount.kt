@@ -1,6 +1,5 @@
 package com.blockchain.coincore.bch
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
@@ -9,8 +8,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.transactionFetchCount
-import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -22,7 +19,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import com.blockchain.utils.mapList
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
@@ -93,23 +89,6 @@ import org.bitcoinj.core.LegacyAddress
 
     override val pubKeyDescriptor
         get() = BCH_PUBKEY_DESCRIPTOR
-
-    override val activity: Single<ActivitySummaryList>
-        get() = bchManager.getAddressTransactions(
-            xpubAddress,
-            transactionFetchCount,
-            transactionFetchOffset
-        ).onErrorReturn { emptyList() }
-            .mapList {
-                BchActivitySummaryItem(
-                    it,
-                    exchangeRates,
-                    account = this,
-                    payloadDataManager = payloadDataManager
-                )
-            }.flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }.doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         BchOnChainTxEngine(

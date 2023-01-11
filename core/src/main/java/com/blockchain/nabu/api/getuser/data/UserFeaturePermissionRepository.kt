@@ -51,7 +51,7 @@ internal class UserFeaturePermissionRepository(
             Feature.DepositInterest,
             Feature.DepositStaking,
             Feature.WithdrawFiat -> {
-                getAccessForFeature(feature).mapData { it is FeatureAccess.Granted }
+                getAccessForFeature(feature, freshnessStrategy).mapData { it is FeatureAccess.Granted }
             }
         }
     }
@@ -63,8 +63,8 @@ internal class UserFeaturePermissionRepository(
         return when (feature) {
             Feature.Buy -> {
                 combine(
-                    eligibilityService.getProductEligibility(EligibleProduct.BUY),
-                    simpleBuyService.getEligibility()
+                    eligibilityService.getProductEligibility(EligibleProduct.BUY, freshnessStrategy),
+                    simpleBuyService.getEligibility(freshnessStrategy)
                 ) { buyEligibility, simpleBuyEligibility ->
                     combineDataResources(
                         buyEligibility,
@@ -92,37 +92,55 @@ internal class UserFeaturePermissionRepository(
             }
 
             Feature.Swap -> {
-                eligibilityService.getProductEligibility(EligibleProduct.SWAP)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.SWAP,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.Sell -> {
-                eligibilityService.getProductEligibility(EligibleProduct.SELL)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.SELL,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.DepositFiat -> {
-                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.DEPOSIT_FIAT,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.DepositCrypto -> {
-                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.DEPOSIT_CRYPTO,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.DepositInterest -> {
-                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.DEPOSIT_INTEREST,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.DepositStaking -> {
-                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_STAKING)
+                eligibilityService.getProductEligibility(
+                    EligibleProduct.DEPOSIT_STAKING,
+                    freshnessStrategy
+                )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
             Feature.WithdrawFiat -> {
-                eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT)
+                eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT, freshnessStrategy)
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 

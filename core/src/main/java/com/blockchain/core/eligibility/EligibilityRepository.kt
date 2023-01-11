@@ -41,9 +41,10 @@ class EligibilityRepository(
             .map { states -> states.map(StateResponse::toDomain) }
 
     override suspend fun getProductEligibilityLegacy(
-        product: EligibleProduct
+        product: EligibleProduct,
+        freshnessStrategy: FreshnessStrategy,
     ): Outcome<Exception, ProductEligibility> =
-        getProductEligibility(product).firstOutcome()
+        getProductEligibility(product, freshnessStrategy).firstOutcome()
 
     override fun getProductEligibility(
         product: EligibleProduct,

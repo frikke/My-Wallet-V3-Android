@@ -15,7 +15,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 
@@ -24,9 +23,6 @@ class ReferralRepository(
     private val referralApi: ReferralApiService,
     private val currencyPrefs: CurrencyPrefs,
 ) : ReferralService {
-
-    override suspend fun fetchReferralDataLegacy(): Outcome<Throwable, ReferralInfo> =
-        fetchReferralData(FreshnessStrategy.Fresh).firstOutcome()
 
     override fun fetchReferralData(
         freshnessStrategy: FreshnessStrategy

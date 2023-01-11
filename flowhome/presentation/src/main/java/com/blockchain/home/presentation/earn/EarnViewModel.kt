@@ -29,6 +29,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.lang.IllegalStateException
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -157,7 +158,10 @@ class EarnViewModel(
         }
 
         val interest =
-            interestService.getBalancesFlow().mapData {
+            interestService.getBalancesFlow(
+                refreshStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            ).mapData {
                 it.filterValues { asset -> asset.totalBalance.isPositive }
             }.doOnData {
                 updateInterestAssetsIfNeeded(it.keys)

@@ -11,57 +11,63 @@ import com.blockchain.earn.domain.models.staking.StakingRates
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface StakingService {
 
+    val defFreshness
+        get() = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(10, TimeUnit.MINUTES)
+        )
+
     fun getAvailabilityForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Boolean>>
 
     fun getActiveAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<Set<AssetInfo>>
 
     fun getBalanceForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Map<AssetInfo, StakingAccountBalance>>>
 
     fun getBalanceForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<StakingAccountBalance>>
 
     fun getRatesForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<StakingRates>>
 
     fun getRatesForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     fun getEligibilityForAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Map<AssetInfo, StakingEligibility>>>
 
     fun getEligibilityForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<StakingEligibility>>
 
     fun getStakingEligibility(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<StakingEligibility>>
 
     fun getActivity(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<List<StakingActivity>>>
 
     fun getLimitsForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Map<AssetInfo, StakingLimits>>>
 
     suspend fun getAccountAddress(currency: Currency): DataResource<String>
@@ -70,6 +76,6 @@ interface StakingService {
 
     fun getLimitsForAsset(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<StakingLimits>>
 }

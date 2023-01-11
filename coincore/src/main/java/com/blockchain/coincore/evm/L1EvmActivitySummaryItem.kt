@@ -14,7 +14,7 @@ import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 
 class L1EvmActivitySummaryItem(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     private val event: Erc20HistoryEvent,
     private val accountHash: String,
     override val exchangeRates: ExchangeRatesDataManager,

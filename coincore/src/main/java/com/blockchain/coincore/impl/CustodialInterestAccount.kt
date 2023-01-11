@@ -28,7 +28,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.utils.mapList
+import com.blockchain.store.asObservable
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
@@ -102,26 +102,32 @@ class CustodialInterestAccount(
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = interestService.getActivity(currency)
-            .onErrorReturn { emptyList() }
-            .mapList { interestActivity ->
-                interestActivityToSummary(asset = currency, interestActivity = interestActivity)
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return interestService.getActivityFlow(currency, freshnessStrategy)
+            .asObservable()
+            .onErrorResumeNext { Observable.just(emptyList()) }
+            .map { interestActivity ->
+                interestActivity.map {
+                    interestActivityToSummary(asset = currency, interestActivity = it)
+                }.filter {
+                    it is CustodialInterestActivitySummaryItem &&
+                        displayedStates.contains(it.state)
+                }
             }
-            .filterActivityStates()
-            .doOnSuccess {
+            .doOnNext {
                 setHasTransactions(it.isNotEmpty())
             }
+    }
 
     private fun interestActivityToSummary(asset: AssetInfo, interestActivity: InterestActivity): ActivitySummaryItem =
         CustodialInterestActivitySummaryItem(
             exchangeRates = exchangeRates,
-            asset = asset,
+            currency = asset,
             txId = interestActivity.id,
             timeStampMs = interestActivity.insertedAt.time,
             value = interestActivity.value,
             account = this,
-            status = interestActivity.state,
+            state = interestActivity.state,
             type = interestActivity.type,
             confirmations = interestActivity.extraAttributes?.confirmations ?: 0,
             accountRef = interestActivity.extraAttributes?.address
@@ -131,14 +137,6 @@ class CustodialInterestAccount(
             recipientAddress = interestActivity.extraAttributes?.address ?: "",
             fiatValue = interestActivity.fiatValue
         )
-
-    private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
-        return flattenAsObservable { list ->
-            list.filter {
-                it is CustodialInterestActivitySummaryItem && displayedStates.contains(it.status)
-            }
-        }.toList()
-    }
 
     // No swaps on interest accounts, so just return the activity list unmodified
     override fun reconcileSwaps(
@@ -158,7 +156,7 @@ class CustodialInterestAccount(
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
             balanceRx().firstOrError(),
-            identity.userAccessForFeature(Feature.DepositInterest)
+            identity.userAccessForFeature(Feature.DepositInterest, defFreshness)
         ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {
                 KycTier.BRONZE,

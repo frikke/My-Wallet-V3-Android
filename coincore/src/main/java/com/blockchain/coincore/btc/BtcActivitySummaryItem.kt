@@ -19,7 +19,7 @@ import io.reactivex.rxjava3.core.Observable
     override val account: CryptoAccount
 ) : NonCustodialActivitySummaryItem() {
 
-    override val asset = CryptoCurrency.BTC
+    override val currency = CryptoCurrency.BTC
 
     override val transactionType: TransactionSummary.TransactionType
         get() = transactionSummary.transactionType

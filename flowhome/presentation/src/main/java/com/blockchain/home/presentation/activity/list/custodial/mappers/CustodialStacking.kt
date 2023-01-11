@@ -11,7 +11,7 @@ import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
 @DrawableRes internal fun CustodialStakingActivitySummaryItem.iconSummary(): Int {
-    return when (status) {
+    return when (state) {
         StakingState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
             TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards
@@ -38,7 +38,7 @@ internal fun CustodialStakingActivitySummaryItem.leadingTitle(): ActivityStackVi
 }
 
 internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStackView {
-    val color: ActivityTextColor = when (status) {
+    val color: ActivityTextColor = when (state) {
         StakingState.REJECTED,
         StakingState.REFUNDED -> ActivityTextColor.Warning
         StakingState.FAILED -> ActivityTextColor.Error
@@ -46,7 +46,7 @@ internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStac
     }
 
     return ActivityStackView.Text(
-        value = when (status) {
+        value = when (state) {
             StakingState.COMPLETE -> TextValue.StringValue(date.toFormattedDate())
             StakingState.PENDING,
             StakingState.PROCESSING,
@@ -61,7 +61,7 @@ internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStac
     )
 }
 
-private fun CustodialStakingActivitySummaryItem.trailingStrikethrough() = when (status) {
+private fun CustodialStakingActivitySummaryItem.trailingStrikethrough() = when (state) {
     StakingState.REFUNDED,
     StakingState.REJECTED,
     StakingState.FAILED -> true
@@ -69,7 +69,7 @@ private fun CustodialStakingActivitySummaryItem.trailingStrikethrough() = when (
 }
 
 internal fun CustodialStakingActivitySummaryItem.trailingTitle(): ActivityStackView {
-    val color: ActivityTextColor = when (status) {
+    val color: ActivityTextColor = when (state) {
         StakingState.COMPLETE -> ActivityTextColor.Title
         else -> ActivityTextColor.Muted
     }

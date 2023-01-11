@@ -1,7 +1,6 @@
 package com.blockchain.coincore.erc20
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -15,7 +14,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
@@ -34,7 +32,6 @@ class Erc20NonCustodialAccount(
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
 ) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
@@ -73,33 +70,6 @@ class Erc20NonCustodialAccount(
     override suspend fun publicKey(): List<PublicKey> {
         throw IllegalAccessException("Public key of an erc20 cannot be accessed use the L1")
     }
-
-    override val activity: Single<ActivitySummaryList>
-        get() {
-            val feedTransactions = erc20DataManager.getErc20History(currency, l1Network)
-
-            return Single.zip(
-                feedTransactions,
-                erc20DataManager.latestBlockNumber(l1Chain = currency.l1chainTicker)
-            ) { transactions, latestBlockNumber ->
-                transactions.map { transaction ->
-                    Erc20ActivitySummaryItem(
-                        currency,
-                        event = transaction,
-                        accountHash = address,
-                        erc20DataManager = erc20DataManager,
-                        exchangeRates = exchangeRates,
-                        lastBlockNumber = latestBlockNumber,
-                        account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
-                    )
-                }
-            }.flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }.doOnSuccess {
-                setHasTransactions(it.isNotEmpty())
-            }
-        }
 
     override val sourceState: Single<TxSourceState>
         get() = super.sourceState.flatMap { state ->

@@ -1,6 +1,5 @@
 package com.blockchain.coincore.selfcustody
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -22,7 +21,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
@@ -65,25 +63,6 @@ class DynamicNonCustodialAccount(
     override val isArchived: Boolean = false
 
     override val isDefault: Boolean = true
-
-    override val activity: Single<ActivitySummaryList> = rxSingleOutcome {
-        val accountAddress = getReceiveAddress()
-        nonCustodialService.getTransactionHistory(
-            currency = currency.networkTicker,
-            contractAddress = currency.l2identifier
-        )
-            .map { history ->
-                history.map { item ->
-                    DynamicActivitySummaryItem(
-                        asset = currency,
-                        event = item,
-                        accountAddress = accountAddress.address,
-                        exchangeRates = exchangeRates,
-                        account = this@DynamicNonCustodialAccount
-                    )
-                }
-            }
-    }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         DynamicOnChanTxEngine(

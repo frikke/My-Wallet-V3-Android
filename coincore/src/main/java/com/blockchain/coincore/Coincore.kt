@@ -26,7 +26,6 @@ import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
-import com.blockchain.utils.toFlowDataResource
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -36,6 +35,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -114,8 +114,13 @@ class Coincore internal constructor(
             WalletMode.CUSTODIAL -> allCustodialWallets()
         }
 
-    fun activeWalletsInModeRx(walletMode: WalletMode): Observable<AccountGroup> {
-        val activeAssets = activeAssets(walletMode).asObservable()
+    fun activeWalletsInModeRx(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.ForceRefresh
+        )
+    ): Observable<AccountGroup> {
+        val activeAssets = activeAssets(walletMode, freshnessStrategy).asObservable()
         return activeAssets.flatMap { assets ->
             if (assets.isEmpty()) Observable.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
             else
@@ -128,8 +133,13 @@ class Coincore internal constructor(
         }
     }
 
-    fun activeWalletsInMode(walletMode: WalletMode): Flow<AccountGroup> {
-        return activeWalletsInModeRx(walletMode).asFlow()
+    fun activeWalletsInMode(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.ForceRefresh
+        )
+    ): Flow<AccountGroup> {
+        return activeWalletsInModeRx(walletMode, freshnessStrategy).asFlow()
     }
 
     private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
@@ -162,7 +172,11 @@ class Coincore internal constructor(
             AssetAction.Swap,
             AssetAction.Sell,
             AssetAction.InterestWithdraw,
-            AssetAction.Send -> activeWallets().map {
+            AssetAction.Send -> activeWalletsInMode().map {
+                it.accounts
+            }
+            AssetAction.StakingDeposit,
+            AssetAction.InterestDeposit -> allActiveWallets().firstOrError().map {
                 it.accounts
             }
             AssetAction.ViewActivity,
@@ -171,9 +185,7 @@ class Coincore internal constructor(
             AssetAction.FiatWithdraw,
             AssetAction.Receive,
             AssetAction.FiatDeposit,
-            AssetAction.Sign,
-            AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> walletsWithFilter(filter = filter)
+            AssetAction.Sign -> walletsWithFilter(filter = filter)
         }
     }
 
@@ -339,41 +351,62 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeAssets(walletMode: WalletMode? = null): Flow<List<Asset>> {
+    fun activeAssets(
+        walletMode: WalletMode? = null,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+    ): Flow<List<Asset>> {
         return flow {
             val wMode = walletMode ?: walletModeService.walletMode.first()
-            emitAll(assetLoader.activeAssets(wMode))
+            emitAll(assetLoader.activeAssets(wMode, freshnessStrategy))
         }
     }
 
-    fun activeWallets(walletMode: WalletMode? = null): Single<AccountGroup> =
-        (
-            walletMode?.let {
-                Single.just(it)
-            } ?: walletModeService.walletModeSingle
-            ).flatMap {
-            activeWalletsInModeRx(it).firstOrError()
-        }
-
-    fun availableCryptoAssets(): Single<List<AssetInfo>> =
-        ethLayerTwoFF.enabled.flatMap { isL2Enabled ->
-            if (isL2Enabled) {
-                Single.just(assetCatalogue.supportedCryptoAssets)
+    fun allActiveWallets(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ): Observable<AccountGroup> {
+        val activeAssets = assetLoader.activeAssets(freshnessStrategy = freshnessStrategy).asObservable()
+        return activeAssets.flatMap { assets ->
+            if (assets.isEmpty()) {
+                Observable.just(
+                    AllWalletsAccount(
+                        emptyList(), defaultLabels,
+                        currencyPrefs.selectedFiatCurrency
+                    )
+                )
             } else {
-                assetCatalogue.otherEvmAssets().map { supportedEvmAssets ->
-                    assetCatalogue.supportedCryptoAssets.minus(supportedEvmAssets.toSet())
-                }
+                Single.just(assets).flattenAsObservable { it }.flatMapMaybe { asset ->
+                    asset.accountGroup().map { grp -> grp.accounts }
+                }.reduce { a, l -> a + l }.switchIfEmpty(
+                    Single.just(emptyList())
+                )
+                    .map { accounts ->
+                        AllWalletsAccount(
+                            accounts,
+                            defaultLabels,
+                            currencyPrefs.selectedFiatCurrency
+                        )
+                    }.toObservable()
             }
         }
-
-    fun availableCryptoAssetsFlow(): Flow<DataResource<List<AssetInfo>>> = availableCryptoAssets().toFlowDataResource()
-
-    private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
-        if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true
-        if (this is NonCustodialAccount && other is NonCustodialAccount) return true
-        if (this is InterestAccount && other is InterestAccount) return true
-        return false
     }
+
+    fun activeWalletsInMode(
+        walletMode: WalletMode? = null,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ): Single<AccountGroup> = (
+        walletMode?.let {
+            Single.just(it)
+        } ?: walletModeService.walletModeSingle
+        ).flatMap {
+        activeWalletsInModeRx(it, freshnessStrategy).firstOrError()
+    }
+
+    fun availableCryptoAssets(): Single<List<AssetInfo>> =
+        Single.just(assetCatalogue.supportedCryptoAssets)
 }
 
 private fun SingleAccount.hasActionAvailable(action: AssetAction): Single<Boolean> {

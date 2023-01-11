@@ -55,12 +55,12 @@ private class CustodialTradingActivityItemViewHolder(
     ) {
         disposables.clear()
         with(binding) {
-            icon.setIcon(tx.status, tx.type)
+            icon.setIcon(tx.state, tx.type)
             when {
-                tx.status.isPending().not() -> {
-                    icon.setAssetIconColoursWithTint(tx.asset)
+                tx.state.isPending().not() -> {
+                    icon.setAssetIconColoursWithTint(tx.currency)
                 }
-                tx.status.hasFailed() -> icon.setTransactionHasFailed()
+                tx.state.hasFailed() -> icon.setTransactionHasFailed()
 
                 else -> {
                     icon.background = null
@@ -68,16 +68,16 @@ private class CustodialTradingActivityItemViewHolder(
                 }
             }
 
-            txType.setTxLabel(tx.asset, tx.type)
+            txType.setTxLabel(tx.currency, tx.type)
 
             statusDate.setTxStatus(tx)
-            setTextColours(tx.status)
+            setTextColours(tx.state)
 
             assetBalanceFiat.text = tx.fundedFiat.toStringWithSymbol()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 
             txRoot.setOnClickListener {
-                onAccountClicked(tx.asset, tx.txId, ActivityType.CUSTODIAL_TRADING)
+                onAccountClicked(tx.currency, tx.txId, ActivityType.CUSTODIAL_TRADING)
             }
         }
     }
@@ -121,7 +121,7 @@ private fun TextView.setTxLabel(asset: AssetInfo, type: OrderType) {
 }
 
 private fun TextView.setTxStatus(tx: CustodialTradingActivitySummaryItem) {
-    text = when (tx.status) {
+    text = when (tx.state) {
         OrderState.FINISHED -> Date(tx.timeStampMs).toFormattedDate()
         OrderState.UNINITIALISED -> context.getString(R.string.activity_state_uninitialised)
         OrderState.INITIALISED -> context.getString(R.string.activity_state_initialised)

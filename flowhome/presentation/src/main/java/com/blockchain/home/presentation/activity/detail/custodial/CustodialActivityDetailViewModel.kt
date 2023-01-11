@@ -38,19 +38,18 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellin
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.store.filterNotLoading
 import com.blockchain.store.mapData
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 
@@ -93,13 +92,15 @@ class CustodialActivityDetailViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadActivityDetail() {
         activityDetailJob?.cancel()
         activityDetailJob = viewModelScope.launch {
             custodialActivityService
-                .getActivity(id = activityTxId, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
-                .flatMapLatest { summaryDataResource ->
+                .getActivity(
+                    id = activityTxId
+                )
+                .filterNotLoading()
+                .flatMapConcat { summaryDataResource ->
                     when (summaryDataResource) {
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
@@ -124,12 +125,11 @@ class CustodialActivityDetailViewModel(
                         DataResource.Loading -> flowOf(DataResource.Loading)
                     }
                 }
-                .onEach { dataResource ->
+                .collect { dataResource ->
                     updateState {
                         it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
                     }
                 }
-                .collect()
         }
     }
 
@@ -246,7 +246,10 @@ class CustodialActivityDetailViewModel(
     }
 
     private fun FiatActivitySummaryItem.fiatDetail(): Flow<DataResource<CustodialActivityDetail>> {
-        return paymentMethodService.getPaymentMethodDetailsForId(paymentMethodId.orEmpty())
+        return paymentMethodService.getPaymentMethodDetailsForId(
+            paymentId = paymentMethodId.orEmpty(),
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        )
             .mapData { paymentMethodDetails ->
                 buildActivityDetail(paymentMethodDetails)
             }

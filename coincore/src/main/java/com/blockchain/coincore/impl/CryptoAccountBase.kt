@@ -24,6 +24,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -46,6 +47,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -59,7 +61,7 @@ internal const val transactionFetchOffset = 0
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
     protected abstract val baseActions: Single<Set<AssetAction>>
-
+    protected val defFreshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
     final override var hasTransactions: Boolean = true
         private set
 
@@ -79,14 +81,16 @@ abstract class CryptoAccountBase : CryptoAccount {
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
         activityList: List<ActivitySummaryItem>,
-    ): Single<ActivitySummaryList> = custodialWalletManager.getCustodialActivityForAsset(asset, directions)
-        .map { swapItems ->
-            swapItems.map {
-                custodialItemToSummary(it)
-            }
-        }.map { custodialItemsActivity ->
-            reconcileSwaps(custodialItemsActivity, activityList)
-        }.onErrorReturn { activityList }
+        freshnessStrategy: FreshnessStrategy,
+    ): Observable<ActivitySummaryList> =
+        custodialWalletManager.getCustodialActivityForAsset(asset, directions, freshnessStrategy)
+            .map { swapItems ->
+                swapItems.map {
+                    custodialItemToSummary(it)
+                }
+            }.map { custodialItemsActivity ->
+                reconcileSwaps(custodialItemsActivity, activityList)
+            }.onErrorReturn { activityList }
 
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this
@@ -107,7 +111,7 @@ abstract class CryptoAccountBase : CryptoAccount {
                 withdrawalNetworkFee = withdrawalNetworkFee,
                 currencyPair = item.currencyPair,
                 fiatValue = userFiat,
-                fiatCurrency = userFiat.currency.asFiatCurrencyOrThrow(),
+                currency = userFiat.currency.asFiatCurrencyOrThrow(),
                 price = item.price
             )
         }
@@ -170,8 +174,9 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val isDefault: Boolean = false
     override val isFunded: Boolean = false
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return Observable.just(emptyList())
+    }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())
@@ -194,6 +199,10 @@ abstract class CryptoNonCustodialAccount(
     NetworkWallet,
     NonCustodialAccount,
     KoinComponent {
+
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return Observable.just(emptyList())
+    }
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -297,7 +306,7 @@ abstract class CryptoNonCustodialAccount(
             if (hit?.transactionType == TransactionSummary.TransactionType.SENT) {
                 activityList.remove(hit)
                 val updatedSwap = custodialItem.copy(
-                    depositNetworkFee = hit.fee.first(Money.zero(hit.asset))
+                    depositNetworkFee = hit.fee.first(Money.zero(hit.currency))
                 )
                 activityList.add(updatedSwap)
             }
@@ -372,7 +381,9 @@ abstract class CryptoNonCustodialAccount(
     }
 
     private fun sellActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
-        val sellEligibility = identity.userAccessForFeature(Feature.Sell)
+        val sellEligibility = identity.userAccessForFeature(
+            Feature.Sell, defFreshness
+        )
         val fiatAccounts = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
             .onErrorReturn { emptyList() }
         return sellEligibility.zipWith(fiatAccounts) { sellEligible, fiatAccountsSupported ->
@@ -389,9 +400,9 @@ abstract class CryptoNonCustodialAccount(
     }
 
     private fun interestDepositActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
-        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
-        val currencyInterestEligibility = identity.isEligibleFor(Feature.Interest(currency))
-        val interestDepositEligibility = identity.userAccessForFeature(Feature.DepositInterest)
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto, defFreshness)
+        val currencyInterestEligibility = identity.isEligibleFor(Feature.Interest(currency), defFreshness)
+        val interestDepositEligibility = identity.userAccessForFeature(Feature.DepositInterest, defFreshness)
         return Single.zip(
             depositCryptoEligibility,
             currencyInterestEligibility,
@@ -411,8 +422,8 @@ abstract class CryptoNonCustodialAccount(
     }
 
     private fun stakingDepositEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
-        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
-        val stakingDepositEligibility = identity.userAccessForFeature(Feature.DepositStaking)
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto, defFreshness)
+        val stakingDepositEligibility = identity.userAccessForFeature(Feature.DepositStaking, defFreshness)
 
         return Single.zip(
             depositCryptoEligibility,
@@ -431,7 +442,7 @@ abstract class CryptoNonCustodialAccount(
     }
 
     private fun swapActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
-        val swapEligibility = identity.userAccessForFeature(Feature.Swap)
+        val swapEligibility = identity.userAccessForFeature(Feature.Swap, defFreshness)
         val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwapLegacy(currency)
         return swapEligibility.zipWith(assetAvailableForSwap) { swapEligible, assetEligibleForSwap ->
             StateAwareAction(

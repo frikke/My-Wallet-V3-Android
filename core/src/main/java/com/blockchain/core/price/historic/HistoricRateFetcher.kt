@@ -4,7 +4,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.store.mapData
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -15,7 +15,7 @@ class HistoricRateFetcher internal constructor(
     private val historicRateStore: HistoricRateStore,
 ) {
     fun fetch(
-        asset: AssetInfo,
+        asset: Currency,
         selectedFiat: FiatCurrency,
         timestampMs: Long,
         value: Money

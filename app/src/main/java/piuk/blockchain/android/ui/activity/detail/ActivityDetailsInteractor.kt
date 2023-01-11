@@ -68,7 +68,7 @@ class ActivityDetailsInteractor(
             HistoricCryptoPrice(
                 summaryItem.price,
                 if (currentTransactionType == OrderType.BUY) {
-                    summaryItem.asset.displayTicker
+                    summaryItem.currency.displayTicker
                 } else {
                     summaryItem.fundedFiat.currencyCode
                 }
@@ -78,7 +78,7 @@ class ActivityDetailsInteractor(
             else
                 SellPurchaseAmount(summaryItem.fundedFiat),
             if (summaryItem.type == OrderType.BUY)
-                BuyCryptoWallet(summaryItem.asset)
+                BuyCryptoWallet(summaryItem.currency)
             else
                 SellCryptoWallet(summaryItem.fundedFiat.currency),
             BuyFee(summaryItem.fee)
@@ -179,7 +179,7 @@ class ActivityDetailsInteractor(
             TransactionSummary.TransactionType.DEPOSIT -> {
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.currency
                     )
                 )
             }
@@ -190,7 +190,7 @@ class ActivityDetailsInteractor(
                 list.add(From(stringUtils.getString(R.string.common_company_name)))
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.currency
                     )
                 )
             }
@@ -199,7 +199,7 @@ class ActivityDetailsInteractor(
             }
         }
         return if (summaryItem.type == TransactionSummary.TransactionType.WITHDRAW) {
-            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.asset))
+            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.currency))
         } else {
             Single.just(list.toList())
         }
@@ -216,7 +216,7 @@ class ActivityDetailsInteractor(
             TransactionSummary.TransactionType.DEPOSIT -> {
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.currency
                     )
                 )
             }
@@ -227,7 +227,7 @@ class ActivityDetailsInteractor(
                 list.add(From(stringUtils.getString(R.string.common_company_name)))
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.currency
                     )
                 )
             }
@@ -236,7 +236,7 @@ class ActivityDetailsInteractor(
             }
         }
         return if (summaryItem.type == TransactionSummary.TransactionType.WITHDRAW) {
-            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.asset))
+            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.currency))
         } else {
             Single.just(list.toList())
         }
@@ -501,7 +501,7 @@ class ActivityDetailsInteractor(
 
     fun loadFeeItems(
         item: NonCustodialActivitySummaryItem
-    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+    ) = historicRateFetcher.fetch(item.currency, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
         .asSingle()
         .flatMap { fiatValue ->
             getTransactionsMapForFeeItems(item, fiatValue)
@@ -534,7 +534,7 @@ class ActivityDetailsInteractor(
 
     fun loadReceivedItems(
         item: NonCustodialActivitySummaryItem
-    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+    ) = historicRateFetcher.fetch(item.currency, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
         .asSingle()
         .flatMap { fiatValue ->
             getTransactionsMapForReceivedItems(item, fiatValue)
@@ -567,7 +567,7 @@ class ActivityDetailsInteractor(
     fun loadTransferItems(
         item: NonCustodialActivitySummaryItem
     ): Single<List<ActivityDetailsType>> =
-        historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+        historicRateFetcher.fetch(item.currency, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
             .asSingle()
             .flatMap { fiatValue ->
                 getTransactionsMapForTransferItems(item, fiatValue)
@@ -610,7 +610,7 @@ class ActivityDetailsInteractor(
         item: NonCustodialActivitySummaryItem,
         value: Money?,
         selectedFiatCurrency: FiatCurrency
-    ) = historicRateFetcher.fetch(item.asset, selectedFiatCurrency, item.timeStampMs, item.value)
+    ) = historicRateFetcher.fetch(item.currency, selectedFiatCurrency, item.timeStampMs, item.value)
         .asSingle()
         .flatMap { fiatValue ->
             getTransactionsMapForConfirmedSentItems(value, fiatValue, item)

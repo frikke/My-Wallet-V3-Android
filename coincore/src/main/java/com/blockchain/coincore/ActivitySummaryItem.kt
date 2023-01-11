@@ -2,6 +2,7 @@ package com.blockchain.coincore
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.transactions.CustodialTransactionState
 import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -15,6 +16,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -25,21 +27,25 @@ import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 import kotlin.math.sign
 
-abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
-    abstract val asset: AssetInfo
+interface CryptoActivitySummaryItem : ActivitySummaryItem {
+    val currency: Currency
+}
+
+interface CustodialTransaction : CryptoActivitySummaryItem {
+    val state: CustodialTransactionState
 }
 
 class FiatActivitySummaryItem(
-    val currency: FiatCurrency,
+    override val currency: FiatCurrency,
     override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: FiatAccount,
     val type: TransactionType,
-    val state: TransactionState,
+    override val state: TransactionState,
     val paymentMethodId: String?,
-) : ActivitySummaryItem() {
+) : CustodialTransaction {
     override val stateIsFinalised: Boolean
         get() = state.isFinalised
 
@@ -50,13 +56,13 @@ class FiatActivitySummaryItem(
         "txId (hash)  = $txId "
 }
 
-abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
-    protected abstract val exchangeRates: ExchangeRatesDataManager
+interface ActivitySummaryItem : Comparable<ActivitySummaryItem> {
+    val exchangeRates: ExchangeRatesDataManager
 
-    abstract val txId: String
-    abstract val timeStampMs: Long
-    abstract val stateIsFinalised: Boolean
-    abstract val value: Money
+    val txId: String
+    val timeStampMs: Long
+    val stateIsFinalised: Boolean
+    val value: Money
 
     fun fiatValue(selectedFiat: FiatCurrency): Money =
         value.toFiat(selectedFiat, exchangeRates)
@@ -64,11 +70,11 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
     val date: Calendar
         get() = Calendar.getInstance().apply { timeInMillis = timeStampMs }
 
-    final override operator fun compareTo(
+    override operator fun compareTo(
         other: ActivitySummaryItem,
     ) = (other.timeStampMs - timeStampMs).sign
 
-    abstract val account: SingleAccount
+    val account: SingleAccount
 }
 
 data class TradeActivitySummaryItem(
@@ -80,15 +86,15 @@ data class TradeActivitySummaryItem(
     val sendingAccount: SingleAccount,
     val sendingAddress: String?,
     val receivingAddress: String?,
-    val state: CustodialOrderState,
+    override val state: CustodialOrderState,
     val direction: TransferDirection,
     val receivingValue: Money,
     val depositNetworkFee: Single<Money>,
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
     val fiatValue: Money,
-    val fiatCurrency: FiatCurrency,
-) : ActivitySummaryItem() {
+    override val currency: FiatCurrency,
+) : CustodialTransaction {
     override val account: SingleAccount
         get() = sendingAccount
 
@@ -101,7 +107,7 @@ data class TradeActivitySummaryItem(
 
 data class RecurringBuyActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
@@ -114,80 +120,82 @@ data class RecurringBuyActivitySummaryItem(
     val paymentMethodType: PaymentMethodType,
     val type: OrderType,
     val recurringBuyId: String?,
-) : CryptoActivitySummaryItem() {
+) : CustodialTransaction {
+    override val state: CustodialTransactionState
+        get() = transactionState
     override val stateIsFinalised: Boolean
         get() = transactionState > OrderState.PENDING_EXECUTION
 }
 
 data class CustodialInterestActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
-    val status: InterestState,
+    override val state: InterestState,
     val type: TransactionSummary.TransactionType,
     val confirmations: Int,
     val accountRef: String,
     val recipientAddress: String,
     val fiatValue: Money?
-) : CryptoActivitySummaryItem() {
+) : CustodialTransaction {
     fun isPending(): Boolean =
-        status == InterestState.PENDING ||
-            status == InterestState.PROCESSING ||
-            status == InterestState.MANUAL_REVIEW
+        state == InterestState.PENDING ||
+            state == InterestState.PROCESSING ||
+            state == InterestState.MANUAL_REVIEW
 
     override val stateIsFinalised: Boolean
-        get() = status > InterestState.MANUAL_REVIEW
+        get() = state > InterestState.MANUAL_REVIEW
 }
 
 data class CustodialStakingActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
-    val status: StakingState,
+    override val state: StakingState,
     val type: TransactionSummary.TransactionType,
     val confirmations: Int,
     val accountRef: String,
     val recipientAddress: String,
     val fiatValue: Money?
-) : CryptoActivitySummaryItem() {
+) : CustodialTransaction {
     fun isPending(): Boolean =
-        status == StakingState.PENDING ||
-            status == StakingState.PROCESSING ||
-            status == StakingState.MANUAL_REVIEW
+        state == StakingState.PENDING ||
+            state == StakingState.PROCESSING ||
+            state == StakingState.MANUAL_REVIEW
 
     override val stateIsFinalised: Boolean
-        get() = status > StakingState.MANUAL_REVIEW
+        get() = state > StakingState.MANUAL_REVIEW
 }
 
 data class CustodialTradingActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
     val price: Money?,
     val fundedFiat: Money,
-    val status: OrderState,
+    override val state: OrderState,
     val type: OrderType,
     val fee: Money,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val depositPaymentId: String,
     val recurringBuyId: String? = null,
-) : CryptoActivitySummaryItem() {
+) : CustodialTransaction {
     override val stateIsFinalised: Boolean
-        get() = status > OrderState.PENDING_EXECUTION
+        get() = state > OrderState.PENDING_EXECUTION
 }
 
 data class CustodialTransferActivitySummaryItem(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
@@ -196,11 +204,11 @@ data class CustodialTransferActivitySummaryItem(
     val fee: Money,
     val recipientAddress: String,
     val txHash: String,
-    val state: TransactionState,
+    override val state: TransactionState,
     val fiatValue: FiatValue,
     val type: TransactionType,
     val paymentMethodId: String?,
-) : CryptoActivitySummaryItem() {
+) : CustodialTransaction {
     val isConfirmed: Boolean by lazy {
         state == TransactionState.COMPLETED
     }
@@ -208,7 +216,7 @@ data class CustodialTransferActivitySummaryItem(
         get() = state.isFinalised
 }
 
-abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
+abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem {
 
     abstract val transactionType: TransactionSummary.TransactionType
     abstract val fee: Observable<Money>
@@ -226,7 +234,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
     open val isPending: Boolean = false
     open var note: String? = null
 
-    override fun toString(): String = "cryptoCurrency = $asset" +
+    override fun toString(): String = "cryptoCurrency = $currency" +
         "transactionType  = $transactionType " +
         "timeStamp  = $timeStampMs " +
         "total  = ${value.toStringWithSymbol()} " +
@@ -243,7 +251,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         if (other == null || javaClass != other.javaClass) return false
         val that = other as NonCustodialActivitySummaryItem?
 
-        return this.asset == that?.asset &&
+        return this.currency == that?.currency &&
             this.transactionType == that.transactionType &&
             this.timeStampMs == that.timeStampMs &&
             this.value == that.value &&
@@ -259,7 +267,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
 
     override fun hashCode(): Int {
         var result = 17
-        result = 31 * result + asset.hashCode()
+        result = 31 * result + currency.hashCode()
         result = 31 * result + transactionType.hashCode()
         result = 31 * result + timeStampMs.hashCode()
         result = 31 * result + value.hashCode()
@@ -277,7 +285,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         Completable.error(IllegalStateException("Update description not supported"))
 
     val isConfirmed: Boolean by unsafeLazy {
-        confirmations >= ((asset as? AssetInfo)?.requiredConfirmations ?: return@unsafeLazy false)
+        confirmations >= ((currency as? AssetInfo)?.requiredConfirmations ?: return@unsafeLazy false)
     }
 
     override val stateIsFinalised: Boolean

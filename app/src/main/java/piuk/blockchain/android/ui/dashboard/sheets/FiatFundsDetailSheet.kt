@@ -19,6 +19,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.store.asObservable
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -125,7 +126,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
     private fun handleWithdrawalChecks() {
-        disposables += account.canWithdrawFundsLegacy()
+        disposables += account.canWithdrawFunds().asObservable().firstOrError()
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 binding.fundsSheetProgress.visible()

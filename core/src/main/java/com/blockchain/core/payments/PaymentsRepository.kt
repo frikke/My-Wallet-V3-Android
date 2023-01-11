@@ -42,6 +42,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -133,6 +134,7 @@ class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsStore: PaymentMethodsStore,
     private val paymentMethodsService: PaymentMethodsService,
+    private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val cardDetailsStore: CardDetailsStore,
     private val linkedCardsStore: LinkedCardsStore,
     private val linkedBankStore: LinkedBankStore,
@@ -197,11 +199,15 @@ class PaymentsRepository(
         onlyEligible: Boolean,
     ): Single<List<PaymentMethodTypeWithEligibility>> =
         Single.zip(
-            paymentMethodsService.getAvailablePaymentMethodsTypes(
-                currency = fiatCurrency.networkTicker,
-                tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
-                eligibleOnly = onlyEligible
-            ),
+            paymentMethodsEligibilityStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
+                    PaymentMethodsEligibilityStore.Key(
+                        currencyTicker = fiatCurrency.networkTicker,
+                        shouldFetchSddLimits = fetchSddLimits,
+                        eligibleOnly = onlyEligible
+                    )
+                )
+            ).asSingle(),
             googlePayEnabled,
             rxSingle {
                 googlePayManager.checkIfGooglePayIsAvailable(GooglePayRequestBuilder.buildForPaymentStatus())

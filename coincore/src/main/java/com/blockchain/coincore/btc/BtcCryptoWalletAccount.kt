@@ -1,7 +1,6 @@
 package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
@@ -11,21 +10,17 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.transactionFetchCount
-import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import com.blockchain.utils.mapList
 import com.blockchain.utils.then
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -49,7 +44,6 @@ import io.reactivex.rxjava3.core.Single
     private val internalAccount: JsonSerializableAccount,
     val isHDAccount: Boolean,
     private val walletPreferences: WalletStatusPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
@@ -133,27 +127,6 @@ import io.reactivex.rxjava3.core.Single
 
     override val pubKeyDescriptor
         get() = BTC_PUBKEY_DESCRIPTOR
-
-    override val activity: Single<ActivitySummaryList>
-        get() = payloadDataManager.getAccountTransactions(
-            xpubs,
-            transactionFetchCount,
-            transactionFetchOffset
-        ).onErrorReturn { emptyList() }
-            .mapList {
-                BtcActivitySummaryItem(
-                    it,
-                    payloadDataManager,
-                    exchangeRates,
-                    this
-                )
-            }
-            .flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }
-            .doOnSuccess {
-                setHasTransactions(it.isNotEmpty())
-            }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         BtcOnChainTxEngine(
@@ -296,7 +269,6 @@ import io.reactivex.rxjava3.core.Single
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
             walletPreferences: WalletStatusPrefs,
-            custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
@@ -308,7 +280,6 @@ import io.reactivex.rxjava3.core.Single
             internalAccount = jsonAccount,
             isHDAccount = true,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
             addressResolver = addressResolver
         )
@@ -320,7 +291,6 @@ import io.reactivex.rxjava3.core.Single
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
             walletPreferences: WalletStatusPrefs,
-            custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
@@ -332,7 +302,6 @@ import io.reactivex.rxjava3.core.Single
             internalAccount = importedAccount,
             isHDAccount = false,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
             addressResolver = addressResolver
         )

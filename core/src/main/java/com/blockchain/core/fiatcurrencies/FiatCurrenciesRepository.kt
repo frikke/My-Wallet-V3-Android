@@ -54,8 +54,8 @@ internal class FiatCurrenciesRepository(
             }
     }
 
-    override fun getTradingCurrenciesFlow(): Flow<TradingCurrencies> {
-        return userService.getUserFlow()
+    override fun getTradingCurrenciesFlow(freshnessStrategy: FreshnessStrategy): Flow<TradingCurrencies> {
+        return userService.getUserFlow(freshnessStrategy)
             .map { user ->
                 TradingCurrencies(
                     selected = assetCatalogue.fiatFromNetworkTicker(user.currencies.preferredFiatTradingCurrency)

@@ -1,6 +1,5 @@
 package com.blockchain.coincore.eth
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -103,29 +102,6 @@ import kotlinx.coroutines.flow.flowOf
         require(newLabel.isNotEmpty())
         return ethDataManager.updateAccountLabel(newLabel)
     }
-
-    override val activity: Single<ActivitySummaryList>
-        get() = ethDataManager.getLatestBlockNumber()
-            .flatMap { latestBlock ->
-                ethDataManager.getEthTransactions()
-                    .map { list ->
-                        list.map { transaction ->
-                            val isEr20FeeTransaction = isErc20FeeTransaction(transaction.to)
-                            EthActivitySummaryItem(
-                                ethDataManager,
-                                transaction,
-                                isEr20FeeTransaction,
-                                latestBlock.number.toLong(),
-                                exchangeRates,
-                                account = this
-                            )
-                        }
-                    }
-                    .flatMap {
-                        appendTradeActivity(custodialWalletManager, currency, it)
-                    }
-            }
-            .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     fun isErc20FeeTransaction(to: String): Boolean =
         assetCatalogue.supportedL2Assets(currency).firstOrNull { erc20 ->

@@ -45,7 +45,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = toAccount,
             erc20DataManager = erc20DataManager,
@@ -73,7 +73,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -101,7 +101,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -133,7 +133,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -176,7 +176,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,

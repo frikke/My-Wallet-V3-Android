@@ -117,6 +117,7 @@ object Versions {
     const val composeRx = "1.2.0"
     const val composeNavigation = "2.5.1"
     const val composeFlowLayout = "0.25.0"
+    const val composeLifecycle = "2.6.0-alpha03"
     const val composePoolingContainer = "1.0.0"
 
     // Accompanist
@@ -335,6 +336,7 @@ object Libraries {
     const val composeUiPoolingContainer = "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
+    const val composelifecycle = "androidx.lifecycle:lifecycle-runtime-compose:${Versions.composeLifecycle}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
     const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"

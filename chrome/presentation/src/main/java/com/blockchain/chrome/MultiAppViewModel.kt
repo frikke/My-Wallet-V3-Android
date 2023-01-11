@@ -6,6 +6,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.WalletModePrefs
@@ -13,6 +15,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -93,7 +96,10 @@ class MultiAppViewModel(
     private fun loadBalance() {
         // total balance to be shown on top
         viewModelScope.launch {
-            walletModeBalanceService.totalBalance()
+            walletModeBalanceService.totalBalance(
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
                 .distinctUntilChanged()
                 .debounce(1000)
                 .collectLatest { totalBalanceDataResource ->
@@ -105,7 +111,11 @@ class MultiAppViewModel(
 
         // defi balance to be used in checking defi onboarding state
         viewModelScope.launch {
-            walletModeBalanceService.balanceFor(WalletMode.NON_CUSTODIAL)
+            walletModeBalanceService.balanceFor(
+                walletMode = WalletMode.CUSTODIAL,
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
                 .filterNot { it is DataResource.Loading }
                 .first()
                 .run {

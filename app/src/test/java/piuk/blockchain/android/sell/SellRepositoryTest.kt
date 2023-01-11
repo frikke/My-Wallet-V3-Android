@@ -78,7 +78,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.InsufficientTier.Tier2Required)
@@ -105,7 +105,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.NotEligible("test"))))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.NotEligible("test"))
@@ -132,7 +132,7 @@ class SellRepositoryTest {
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason"))))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.NotEligible(BlockedReason.Sanctions.RussiaEU5("reason"))
@@ -165,7 +165,7 @@ class SellRepositoryTest {
         }
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.KycRejectedUser)
@@ -197,7 +197,7 @@ class SellRepositoryTest {
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(false))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.KycRejectedUser)
@@ -229,7 +229,7 @@ class SellRepositoryTest {
         every { kycService.getTiers(any()) } returns flowOf(DataResource.Data(kycTiers))
         every { simpleBuyService.isEligible(any()) } returns flowOf(DataResource.Data(true))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 this.data shouldBeEqualTo SellEligibility.KycBlocked(SellUserEligibility.NonKycdUser)
@@ -270,7 +270,7 @@ class SellRepositoryTest {
         }
         every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.just(listOf(currencyPair))
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Data<SellEligibility>)
                 assertTrue(this.data is SellEligibility.Eligible)
@@ -311,7 +311,7 @@ class SellRepositoryTest {
 
         every { custodialWalletManager.getSupportedBuySellCryptoCurrencies() } returns Single.error(testException)
 
-        subject.sellEligibility().test {
+        subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
             expectMostRecentItem().run {
                 assertTrue(this is DataResource.Error)
                 assertTrue(this.error is IllegalArgumentException)
@@ -359,7 +359,7 @@ class SellRepositoryTest {
                 listOf(currencyPair)
             )
 
-            subject.sellEligibility().test {
+            subject.sellEligibility(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).test {
                 expectMostRecentItem().run {
                     assertTrue(this is DataResource.Error)
                     assertTrue(this.error is IllegalArgumentException)

@@ -26,6 +26,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
@@ -108,7 +109,11 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -120,7 +125,11 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -130,9 +139,11 @@ class InterestServiceTest {
 
         assertEquals(setOf(cryptoCurrency), result)
 
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
-
-    // todo (othman) more unit tests
 }

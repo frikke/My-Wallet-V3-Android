@@ -1,5 +1,6 @@
 package com.blockchain.domain.fiatcurrencies
 
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.FiatCurrency
@@ -13,7 +14,7 @@ interface FiatCurrenciesService {
     @Deprecated("use getTradingCurrenciesFlow")
     suspend fun getTradingCurrencies(fresh: Boolean = false): Outcome<Exception, TradingCurrencies>
 
-    fun getTradingCurrenciesFlow(): Flow<TradingCurrencies>
+    fun getTradingCurrenciesFlow(freshnessStrategy: FreshnessStrategy): Flow<TradingCurrencies>
 
     suspend fun setSelectedTradingCurrency(currency: FiatCurrency): Outcome<Exception, Unit>
 }

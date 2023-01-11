@@ -11,34 +11,44 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.FiatTransaction
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.FiatCurrency
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface SimpleBuyService {
+
+    val defFreshness
+        get() = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+
     fun getEligibility(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<SimpleBuyEligibility>>
 
     fun isEligible(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Boolean>>
 
     fun getPairs(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<List<SimpleBuyPair>>>
 
     fun getSupportedBuySellCryptoCurrencies(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<List<CurrencyPair>>>
 
     fun getBuyOrders(
+        freshnessStrategy: FreshnessStrategy = defFreshness,
         pendingOnly: Boolean = false,
         shouldFilterInvalid: Boolean = false
     ): Flow<DataResource<BuyOrderList>>
 
-    fun swapOrders(): Flow<DataResource<List<CustodialOrder>>>
+    fun swapOrders(
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Flow<DataResource<List<CustodialOrder>>>
 
     fun getFiatTransactions(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
+        freshnessStrategy: FreshnessStrategy = defFreshness,
         fiatCurrency: FiatCurrency,
         product: Product,
         type: String? = null

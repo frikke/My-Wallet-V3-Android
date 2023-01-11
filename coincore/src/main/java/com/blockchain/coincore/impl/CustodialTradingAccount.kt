@@ -37,7 +37,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.toRecurringBuyFailureReason
-import com.blockchain.utils.mapList
 import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -50,6 +49,7 @@ import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
@@ -128,19 +128,22 @@ class CustodialTradingAccount(
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getAllOrdersFor(currency)
-            .mapList { orderToSummary(it) }
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return custodialWalletManager.getAllOrdersFor(freshnessStrategy, currency)
+            .map { list -> list.map { orderToSummary(it) } }
             .flatMap { buySellList ->
-                appendTradeActivity(custodialWalletManager, currency, buySellList)
+                appendTradeActivity(custodialWalletManager, currency, buySellList, freshnessStrategy)
             }
             .flatMap {
-                appendTransferActivity(custodialWalletManager, currency, it)
-            }.filterActivityStates()
-            .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
+                appendTransferActivity(freshnessStrategy, custodialWalletManager, currency, it)
+            }.map {
+                it.filterActivityStates()
+            }
+            .doOnNext { setHasTransactions(it.isNotEmpty()) }
             .onErrorReturn {
                 emptyList()
             }
+    }
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -188,7 +191,7 @@ class CustodialTradingAccount(
 
     private fun buyEligibility(): Single<StateAwareAction> {
         val supportedPairs = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
-        val buyEligibility = identity.userAccessForFeature(Feature.Buy)
+        val buyEligibility = identity.userAccessForFeature(Feature.Buy, defFreshness)
 
         return supportedPairs.onErrorReturn { emptyList() }.zipWith(buyEligibility) { pairs, buyEligible ->
             StateAwareAction(
@@ -203,10 +206,15 @@ class CustodialTradingAccount(
     }
 
     private fun sellEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        val accountsFiat = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
+        val accountsFiat = rxSingle {
+            custodialWalletManager.getSupportedFundsFiats(
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            ).first()
+        }
             .onErrorReturn { emptyList() }
 
-        val sellEligibility = identity.userAccessForFeature(Feature.Sell)
+        val sellEligibility = identity.userAccessForFeature(Feature.Sell, defFreshness)
 
         val isAvailableForTrading = custodialWalletManager.isCurrencyAvailableForTradingLegacy(assetInfo = currency)
 
@@ -214,13 +222,13 @@ class CustodialTradingAccount(
             sellEligibility,
             accountsFiat,
             isAvailableForTrading
-        ) { sellEligible, fiatAccounts, isAvailableForTrading ->
+        ) { sellEligible, fiatAccounts, isTradable ->
             StateAwareAction(
                 state = when {
                     sellEligible is FeatureAccess.Blocked -> sellEligible.toActionState()
                     fiatAccounts.isEmpty() -> ActionState.LockedForTier
                     balance.total.isPositive.not() -> ActionState.LockedForBalance
-                    isAvailableForTrading.not() -> ActionState.LockedDueToAvailability
+                    isTradable.not() -> ActionState.LockedDueToAvailability
                     else -> ActionState.Available
                 },
                 action = AssetAction.Sell
@@ -230,7 +238,7 @@ class CustodialTradingAccount(
 
     private fun swapEligibility(balance: AccountBalance): Single<StateAwareAction> {
         val assetAvailable = custodialWalletManager.isAssetSupportedForSwapLegacy(assetInfo = currency)
-        val swapEligibility = identity.userAccessForFeature(Feature.Swap)
+        val swapEligibility = identity.userAccessForFeature(Feature.Swap, defFreshness)
         return swapEligibility.zipWith(assetAvailable) { swapEligible, isAssetAvailable ->
             StateAwareAction(
                 when {
@@ -246,8 +254,8 @@ class CustodialTradingAccount(
     }
 
     private fun interestDepositEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        val depositInterestEligibility = identity.userAccessForFeature(Feature.DepositInterest)
-        val currencyInterestEligibility = identity.isEligibleFor(Feature.Interest(currency))
+        val depositInterestEligibility = identity.userAccessForFeature(Feature.DepositInterest, defFreshness)
+        val currencyInterestEligibility = identity.isEligibleFor(Feature.Interest(currency), defFreshness)
 
         return depositInterestEligibility.zipWith(
             currencyInterestEligibility
@@ -265,7 +273,7 @@ class CustodialTradingAccount(
     }
 
     private fun stakingDepositEligibility(balance: AccountBalance): Single<StateAwareAction> =
-        identity.userAccessForFeature(Feature.DepositStaking).map { access ->
+        identity.userAccessForFeature(Feature.DepositStaking, defFreshness).map { access ->
             StateAwareAction(
                 when {
                     access is FeatureAccess.Blocked -> access.toActionState()
@@ -287,7 +295,7 @@ class CustodialTradingAccount(
     }
 
     private fun receiveEligibility(): Single<StateAwareAction> {
-        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto, defFreshness)
         return depositCryptoEligibility.map { access ->
             StateAwareAction(
                 if (access is FeatureAccess.Blocked) access.toActionState()
@@ -313,10 +321,11 @@ class CustodialTradingAccount(
     override val hasStaticAddress: Boolean = false
 
     private fun appendTransferActivity(
+        freshnessStrategy: FreshnessStrategy,
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
         summaryList: List<ActivitySummaryItem>,
-    ) = custodialWalletManager.getCustodialCryptoTransactions(asset, Product.BUY)
+    ) = custodialWalletManager.getCustodialCryptoTransactions(freshnessStrategy, asset, Product.BUY)
         .map { txs ->
             txs.map {
                 it.toSummaryItem()
@@ -325,7 +334,7 @@ class CustodialTradingAccount(
 
     private fun CryptoTransaction.toSummaryItem() =
         CustodialTransferActivitySummaryItem(
-            asset = this@CustodialTradingAccount.currency,
+            currency = this@CustodialTradingAccount.currency,
             exchangeRates = exchangeRates,
             txId = id,
             timeStampMs = date.time,
@@ -345,7 +354,7 @@ class CustodialTradingAccount(
             OrderType.RECURRING_BUY -> {
                 RecurringBuyActivitySummaryItem(
                     exchangeRates = exchangeRates,
-                    asset = order.target.currency.asAssetInfoOrThrow(),
+                    currency = order.target.currency.asAssetInfoOrThrow(),
                     value = order.target,
                     fundedFiat = order.source,
                     txId = order.id,
@@ -363,13 +372,13 @@ class CustodialTradingAccount(
             OrderType.BUY -> {
                 CustodialTradingActivitySummaryItem(
                     exchangeRates = exchangeRates,
-                    asset = order.target.currency.asAssetInfoOrThrow(),
+                    currency = order.target.currency.asAssetInfoOrThrow(),
                     value = order.target,
                     fundedFiat = order.source,
                     price = order.price,
                     txId = order.id,
                     timeStampMs = order.created.time,
-                    status = order.state,
+                    state = order.state,
                     fee = (order.fee ?: Money.zero(order.source.currency)),
                     account = this,
                     type = order.type,
@@ -399,31 +408,29 @@ class CustodialTradingAccount(
                         order.source.currency, order.target.currency
                     ),
                     fiatValue = order.target,
-                    fiatCurrency = order.target.currency.asFiatCurrencyOrThrow()
+                    currency = order.target.currency.asFiatCurrencyOrThrow()
                 )
             }
         }
 
     // Stop gap filter, until we finalise which item we wish to display to the user.
     // TODO: This can be done via the API when it's settled
-    private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
-        return flattenAsObservable { list ->
-            list.filter {
-                (
-                    it is CustodialTradingActivitySummaryItem && displayedStates.contains(
-                        it.status
-                    )
-                    ) or (
-                    it is CustodialTransferActivitySummaryItem && displayedStates.contains(
-                        it.state
-                    )
-                    ) or (
-                    it is TradeActivitySummaryItem && displayedStates.contains(
-                        it.state
-                    )
-                    ) or (it is RecurringBuyActivitySummaryItem)
-            }
-        }.toList()
+    private fun ActivitySummaryList.filterActivityStates(): ActivitySummaryList {
+        return this.filter {
+            (
+                it is CustodialTradingActivitySummaryItem && displayedStates.contains(
+                    it.state
+                )
+                ) or (
+                it is CustodialTransferActivitySummaryItem && displayedStates.contains(
+                    it.state
+                )
+                ) or (
+                it is TradeActivitySummaryItem && displayedStates.contains(
+                    it.state
+                )
+                ) or (it is RecurringBuyActivitySummaryItem)
+        }
     }
 
     // No need to reconcile sends and swaps in custodial accounts, the BE deals with this

@@ -193,7 +193,7 @@ class TransactionHelperTest {
     fun filterNonChangeAddressesMultipleInputBch() {
         // Arrange
         val item = TestNonCustodialSummaryItem(
-            asset = CryptoCurrency.BCH,
+            currency = CryptoCurrency.BCH,
             transactionType = TransactionSummary.TransactionType.SENT,
             inputsMap = mapOf(
                 "key0" to cryptoValBch_1,
@@ -219,7 +219,7 @@ class TransactionHelperTest {
     fun filterNonChangeAddressesSingleInputSingleOutputBch() {
         // Arrange
         val item = TestNonCustodialSummaryItem(
-            asset = CryptoCurrency.BCH,
+            currency = CryptoCurrency.BCH,
             transactionType = TransactionSummary.TransactionType.SENT,
             inputsMap = mapOf(
                 "key" to cryptoValBch_1
@@ -302,7 +302,7 @@ class TransactionHelperTest {
 
 class TestNonCustodialSummaryItem(
     override val exchangeRates: ExchangeRatesDataManager = mock(),
-    override val asset: AssetInfo = CryptoCurrency.BTC,
+    override val currency: AssetInfo = CryptoCurrency.BTC,
     override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED,
     override val timeStampMs: Long = 0,
     override val value: CryptoValue = CryptoValue.zero(CryptoCurrency.BTC),

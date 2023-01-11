@@ -6,7 +6,6 @@ import com.blockchain.home.data.FiltersStorage
 import com.blockchain.home.data.HomeAccountsRepository
 import com.blockchain.home.data.actions.QuickActionsRepository
 import com.blockchain.home.data.activity.CustodialActivityRepository
-import com.blockchain.home.data.activity.dataresource.CustodialActivityStore
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.koin.payloadScopeQualifier
@@ -22,12 +21,8 @@ val homeDataModule = module {
             )
         }.bind(HomeAccountsService::class)
 
-        scoped {
-            CustodialActivityStore(coincore = get())
-        }
-
-        factory<CustodialActivityService> {
-            CustodialActivityRepository(custodialActivityStore = get())
+        scoped<CustodialActivityService> {
+            CustodialActivityRepository(coincore = get())
         }
 
         scoped {

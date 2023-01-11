@@ -22,6 +22,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -729,9 +731,9 @@ class CustodialTradingAccountActionsTest : KoinTest {
         whenever(custodialManager.isCurrencyAvailableForTradingLegacy(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
-        whenever(userIdentity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
+        whenever(userIdentity.isEligibleFor(eq(interestFeature), any())).thenReturn(Single.just(interest))
 
-        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositStaking), any())).thenReturn(
             Single.just(
                 if (stakingEnabled) FeatureAccess.Granted() else FeatureAccess.Blocked(BlockedReason.NotEligible(""))
             )
@@ -747,7 +749,12 @@ class CustodialTradingAccountActionsTest : KoinTest {
         whenever(tradingService.getBalanceFor(any(), any()))
             .thenReturn(Observable.just(balance))
 
-        whenever(custodialManager.getSupportedFundsFiats())
+        whenever(
+            custodialManager.getSupportedFundsFiats(
+                fiatCurrency = anyOrNull(),
+                freshnessStrategy = any()
+            )
+        )
             .thenReturn(flowOf(supportedFiat))
 
         whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET))
@@ -783,7 +790,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         val updatedAccess = block(access)
         features.forEach {
-            whenever(userIdentity.userAccessForFeature(it))
+            whenever(userIdentity.userAccessForFeature(eq(it), any()))
                 .thenReturn(Single.just(updatedAccess[it]!!))
         }
     }

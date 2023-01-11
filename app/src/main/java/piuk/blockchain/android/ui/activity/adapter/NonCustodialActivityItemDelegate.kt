@@ -12,7 +12,7 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -27,7 +27,7 @@ import piuk.blockchain.android.util.setAssetIconColoursWithTint
 class NonCustodialActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
     private val historicRateFetcher: HistoricRateFetcher,
-    private val onItemClicked: (AssetInfo, String, ActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (Currency, String, ActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -60,27 +60,27 @@ private class NonCustodialActivityItemViewHolder(
         tx: NonCustodialActivitySummaryItem,
         selectedFiatCurrency: FiatCurrency,
         historicRateFetcher: HistoricRateFetcher,
-        onAccountClicked: (AssetInfo, String, ActivityType) -> Unit
+        onAccountClicked: (Currency, String, ActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
             if (tx.isConfirmed) {
                 icon.setTransactionTypeIcon(tx.transactionType, tx.isFeeTransaction)
-                icon.setAssetIconColoursWithTint(tx.asset)
+                icon.setAssetIconColoursWithTint(tx.currency)
             } else {
                 icon.setIsConfirming()
             }
 
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
 
-            txType.setTxLabel(tx.asset, tx.transactionType, tx.isFeeTransaction)
+            txType.setTxLabel(tx.currency, tx.transactionType, tx.isFeeTransaction)
 
             setTextColours(tx.isConfirmed)
 
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
-            txRoot.setOnClickListener { onAccountClicked(tx.asset, tx.txId, ActivityType.NON_CUSTODIAL) }
+            txRoot.setOnClickListener { onAccountClicked(tx.currency, tx.txId, ActivityType.NON_CUSTODIAL) }
         }
     }
 
@@ -135,7 +135,7 @@ private fun ImageView.setIsConfirming() =
     }
 
 private fun TextView.setTxLabel(
-    asset: AssetInfo,
+    asset: Currency,
     transactionType: TransactionSummary.TransactionType,
     isFeeTransaction: Boolean
 ) {

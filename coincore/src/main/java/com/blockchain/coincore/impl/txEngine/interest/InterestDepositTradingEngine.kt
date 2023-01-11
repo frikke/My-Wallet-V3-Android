@@ -36,7 +36,7 @@ class InterestDepositTradingEngine(
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore, tradingStore)
+        get() = listOf(interestBalanceStore, tradingStore, paymentTransactionHistoryStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)

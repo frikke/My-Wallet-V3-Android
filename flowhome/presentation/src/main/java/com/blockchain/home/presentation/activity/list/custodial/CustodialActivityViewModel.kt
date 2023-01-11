@@ -1,8 +1,8 @@
 package com.blockchain.home.presentation.activity.list.custodial
 
-import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CryptoActivitySummaryItem
+import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.filter
@@ -19,6 +19,8 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivi
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -26,15 +28,16 @@ import kotlinx.coroutines.launch
 class CustodialActivityViewModel(
     private val custodialActivityService: CustodialActivityService
 ) : MviViewModel<
-    ActivityIntent<ActivitySummaryItem>,
+    ActivityIntent<CustodialTransaction>,
     ActivityViewState,
-    ActivityModelState<ActivitySummaryItem>,
+    ActivityModelState<CustodialTransaction>,
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ActivityModelState<ActivitySummaryItem>): ActivityViewState = state.run {
+    override fun reduce(state: ActivityModelState<CustodialTransaction>): ActivityViewState = state.run {
+
         ActivityViewState(
             activity = state.activityItems
                 .filter { activityItem ->
@@ -89,13 +92,12 @@ class CustodialActivityViewModel(
     }
 
     override suspend fun handleIntent(
-        modelState: ActivityModelState<ActivitySummaryItem>,
-        intent: ActivityIntent<ActivitySummaryItem>
+        modelState: ActivityModelState<CustodialTransaction>,
+        intent: ActivityIntent<CustodialTransaction>
     ) {
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-
                 loadData()
             }
 
@@ -108,7 +110,7 @@ class CustodialActivityViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             custodialActivityService.getAllActivity()
                 .onEach { dataResource ->
                     updateState {
@@ -127,7 +129,7 @@ private fun ActivitySummaryItem.matches(filterTerm: String): Boolean {
 
         value.toStringWithSymbol().contains(filterTerm, ignoreCase = true) ||
 
-        (this as? CryptoActivitySummaryItem)?.asset?.let { asset ->
+        (this as? CryptoActivitySummaryItem)?.currency?.let { asset ->
             asset.networkTicker.contains(filterTerm, ignoreCase = true) ||
                 asset.name.contains(filterTerm, ignoreCase = true)
         } ?: false

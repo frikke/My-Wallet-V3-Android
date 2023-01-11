@@ -12,6 +12,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
@@ -19,6 +20,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityStore
 import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
@@ -37,9 +39,12 @@ class OnChainSellTxEngine(
 ) : SellTxEngineBase(
     walletManager, limitsDataManager, userIdentity, quotesEngine
 ) {
+    private val swapActivityStore: CustodialSwapActivityStore by scopedInject()
+    private val transactionsStore: TransactionsStore by scopedInject()
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(tradingStore)
+        get() = listOf(tradingStore, swapActivityStore, transactionsStore)
+
     private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override fun ensureSourceBalanceFreshness() {

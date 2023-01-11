@@ -11,7 +11,6 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectIndexed
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
     private val fetcher: Fetcher<K, T>,

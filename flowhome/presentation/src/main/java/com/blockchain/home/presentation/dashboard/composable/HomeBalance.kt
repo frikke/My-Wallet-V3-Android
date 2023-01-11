@@ -21,11 +21,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
@@ -36,6 +37,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun Balance(
     modifier: Modifier = Modifier,
@@ -43,7 +45,7 @@ fun Balance(
     scrollRange: Float,
     hideBalance: Boolean
 ) {
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: AssetsViewState by viewModel.viewState.collectAsStateWithLifecycle()
 
     BalanceScreen(
         modifier = modifier,

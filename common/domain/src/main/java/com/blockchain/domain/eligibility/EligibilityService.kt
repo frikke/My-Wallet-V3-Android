@@ -10,6 +10,7 @@ import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.outcome.Outcome
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface EligibilityService {
@@ -21,11 +22,16 @@ interface EligibilityService {
     ): Outcome<Exception, List<Region.State>>
 
     @Deprecated("use flow getProductEligibility")
-    suspend fun getProductEligibilityLegacy(product: EligibleProduct): Outcome<Exception, ProductEligibility>
+    suspend fun getProductEligibilityLegacy(
+        product: EligibleProduct,
+        freshnessStrategy: FreshnessStrategy
+    ): Outcome<Exception, ProductEligibility>
 
     fun getProductEligibility(
         product: EligibleProduct,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<ProductEligibility>>
 
     suspend fun getMajorProductsNotEligibleReasons(): Outcome<Exception, List<ProductNotEligibleReason>>

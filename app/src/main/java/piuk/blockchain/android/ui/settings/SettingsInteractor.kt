@@ -15,14 +15,13 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asObservable
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -53,11 +52,8 @@ class SettingsInteractor internal constructor(
     }
 
     private fun getReferralData(): Single<ReferralInfo> {
-        return rxSingle {
-            referralService.fetchReferralDataLegacy()
-                .getOrDefault(ReferralInfo.NotAvailable)
-        }
-            .onErrorResumeWith { ReferralInfo.NotAvailable }
+        return referralService.fetchReferralData().asObservable().firstOrError()
+            .onErrorResumeWith { Single.just(ReferralInfo.NotAvailable) }
     }
 
     fun unpairWallet(): Completable = Completable.fromAction {

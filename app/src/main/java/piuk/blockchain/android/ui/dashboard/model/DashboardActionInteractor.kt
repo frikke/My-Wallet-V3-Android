@@ -46,7 +46,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
@@ -925,10 +924,7 @@ class DashboardActionInteractor(
         }
 
     private fun getReferralData(): Single<ReferralInfo> =
-        rxSingle(Schedulers.io().asCoroutineDispatcher()) {
-            referralService.fetchReferralDataLegacy()
-                .getOrDefault(ReferralInfo.NotAvailable)
-        }.onErrorResumeWith { ReferralInfo.NotAvailable }
+        Single.just(ReferralInfo.NotAvailable)
 
     private fun getQuestionnaireIfNeeded(
         shouldSkipQuestionnaire: Boolean,

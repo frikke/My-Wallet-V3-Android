@@ -26,7 +26,7 @@ import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
 internal fun CustodialStakingActivitySummaryItem.iconDetail(): ImageResource {
-    return when (status) {
+    return when (state) {
         StakingState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
             TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
@@ -161,7 +161,7 @@ internal fun CustodialStakingActivitySummaryItem.detailItems(
 )
 
 private fun CustodialStakingActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
-    when (status) {
+    when (state) {
         StakingState.COMPLETE,
         StakingState.REFUNDED,
         StakingState.UNKNOWN,
@@ -174,7 +174,7 @@ private fun CustodialStakingActivitySummaryItem.statusValue(): TextValue = TextV
     }
 )
 
-private fun CustodialStakingActivitySummaryItem.statusStyle(): ActivityTagStyle = when (status) {
+private fun CustodialStakingActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     StakingState.REFUNDED,
     StakingState.COMPLETE,
     StakingState.UNKNOWN,

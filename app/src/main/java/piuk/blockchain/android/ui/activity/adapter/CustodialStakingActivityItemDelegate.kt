@@ -67,10 +67,10 @@ private class CustodialStakingActivityItemViewHolder(
         with(binding) {
             icon.setIcon(tx.isPending(), tx.type)
             when {
-                tx.status.isPending().not() -> {
-                    icon.setAssetIconColoursWithTint(tx.asset)
+                tx.state.isPending().not() -> {
+                    icon.setAssetIconColoursWithTint(tx.currency)
                 }
-                tx.status.hasFailed() -> icon.setTransactionHasFailed()
+                tx.state.hasFailed() -> icon.setTransactionHasFailed()
                 else -> {
                     icon.background = null
                     icon.setColorFilter(Color.TRANSPARENT)
@@ -80,12 +80,12 @@ private class CustodialStakingActivityItemViewHolder(
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
-            txType.setTxLabel(tx.asset, tx.type)
+            txType.setTxLabel(tx.currency, tx.type)
             statusDate.setTxStatus(tx)
-            setTextColours(tx.status)
+            setTextColours(tx.state)
 
             txRoot.setOnClickListener {
-                onAccountClicked(tx.asset, tx.txId, ActivityType.CUSTODIAL_STAKING)
+                onAccountClicked(tx.currency, tx.txId, ActivityType.CUSTODIAL_STAKING)
             }
         }
     }
@@ -157,7 +157,7 @@ private fun TextView.setTxLabel(
 }
 
 private fun TextView.setTxStatus(tx: CustodialStakingActivitySummaryItem) {
-    text = when (tx.status) {
+    text = when (tx.state) {
         StakingState.COMPLETE -> Date(tx.timeStampMs).toFormattedDate()
         StakingState.FAILED -> context.getString(R.string.activity_state_failed)
         StakingState.CLEARED -> context.getString(R.string.activity_state_cleared)

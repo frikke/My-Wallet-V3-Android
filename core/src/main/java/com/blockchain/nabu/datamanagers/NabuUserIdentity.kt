@@ -38,7 +38,7 @@ class NabuUserIdentity(
     private val eligibilityService: EligibilityService,
     private val bindFeatureFlag: FeatureFlag
 ) : UserIdentity {
-    override fun isEligibleFor(feature: Feature): Single<Boolean> {
+    override fun isEligibleFor(feature: Feature, freshnessStrategy: FreshnessStrategy): Single<Boolean> {
         return when (feature) {
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isInitialisedFor(feature.tier).not()
@@ -53,7 +53,7 @@ class NabuUserIdentity(
             Feature.DepositFiat,
             Feature.DepositInterest,
             Feature.DepositStaking,
-            Feature.WithdrawFiat -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
+            Feature.WithdrawFiat -> userAccessForFeature(feature, freshnessStrategy).map { it is FeatureAccess.Granted }
         }
     }
 
@@ -102,20 +102,27 @@ class NabuUserIdentity(
             }
         }
 
-    override fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>> =
+    override fun userAccessForFeatures(
+        features: List<Feature>,
+        freshnessStrategy: FreshnessStrategy
+    ): Single<Map<Feature, FeatureAccess>> =
         features.map { feature ->
-            userAccessForFeature(feature).map { access ->
+            userAccessForFeature(feature, freshnessStrategy).map { access ->
                 Pair(feature, access)
             }
         }.zipSingles()
             .map { mapOf(*it.toTypedArray()) }
 
-    override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
+    override fun userAccessForFeature(feature: Feature, freshnessStrategy: FreshnessStrategy): Single<FeatureAccess> {
         return when (feature) {
             Feature.Buy ->
                 Single.zip(
-                    rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY) },
-                    simpleBuyService.getEligibility().asSingle()
+                    rxSingleOutcome {
+                        eligibilityService.getProductEligibilityLegacy(
+                            EligibleProduct.BUY, freshnessStrategy
+                        )
+                    },
+                    simpleBuyService.getEligibility(freshnessStrategy).asSingle()
                 ) { buyEligibility, sbEligibility ->
                     val buyFeatureAccess = buyEligibility.toFeatureAccess()
 
@@ -131,25 +138,53 @@ class NabuUserIdentity(
                     }
                 }
             Feature.Swap ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.SWAP, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Sell ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.SELL, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.DEPOSIT_FIAT, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositCrypto ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.DEPOSIT_CRYPTO, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositInterest ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.DEPOSIT_INTEREST, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.WithdrawFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.WITHDRAW_FIAT, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositStaking ->
-                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_STAKING) }
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.DEPOSIT_STAKING, freshnessStrategy
+                    )
+                }
                     .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,

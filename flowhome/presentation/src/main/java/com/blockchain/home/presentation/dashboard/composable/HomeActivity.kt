@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -77,11 +78,19 @@ fun CustodialHomeActivity(
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
-        onDispose { }
-    }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     HomeActivityScreen(
         activity = viewState.activity.map { it[TransactionGroup.Combined] ?: listOf() },
         onSeeAllCryptoAssetsClick = openAllActivity,
@@ -121,6 +130,7 @@ fun HomeActivityScreen(
     onSeeAllCryptoAssetsClick: () -> Unit,
     activityOnClick: (String) -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()

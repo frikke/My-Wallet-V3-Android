@@ -30,7 +30,6 @@ import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
-import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.walletmode.WalletMode
@@ -48,7 +47,6 @@ import java.util.Calendar
 import java.util.Locale
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxCompletable
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -167,24 +165,7 @@ class MainInteractor internal constructor(
             deepLinkPersistence.popDataFromSharedPrefs()
         }
 
-    fun checkReferral(): Single<ReferralState> = rxSingle {
-        val areMembershipsEnabled = membershipFlag.coEnabled()
-        referralRepository.fetchReferralDataLegacy().fold(
-            onSuccess = { info ->
-                ReferralState(
-                    referralInfo = info,
-                    hasReferralBeenClicked = referralPrefs.hasReferralIconBeenClicked,
-                    areMembershipsEnabled = areMembershipsEnabled
-                )
-            },
-            onFailure = {
-                ReferralState(
-                    referralInfo = ReferralInfo.NotAvailable,
-                    hasReferralBeenClicked = false
-                )
-            }
-        )
-    }
+    fun checkReferral(): Single<ReferralState> = Single.just(ReferralState(ReferralInfo.NotAvailable))
 
     fun storeReferralClicked() {
         referralPrefs.hasReferralIconBeenClicked = true

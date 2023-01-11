@@ -47,6 +47,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -149,6 +150,7 @@ class PaymentsRepositoryTest {
 
     private val paymentsService: PaymentsService = mockk()
     private val paymentMethodsStore: PaymentMethodsStore = mockk()
+    private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
     private val cardDetailsStore: CardDetailsStore = mockk(relaxed = true)
@@ -175,6 +177,7 @@ class PaymentsRepositoryTest {
         subject = PaymentsRepository(
             paymentsService = paymentsService,
             paymentMethodsStore = paymentMethodsStore,
+            paymentMethodsEligibilityStore = paymentMethodsEligibilityStore,
             paymentMethodsService = paymentMethodsService,
             cardDetailsStore = cardDetailsStore,
             linkedCardsStore = linkedCardsStore,

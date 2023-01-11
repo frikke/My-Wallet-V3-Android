@@ -19,7 +19,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.domain.models.staking.StakingActivity
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.earn.domain.service.StakingService
@@ -31,8 +30,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.asObservable
-import com.blockchain.store.asSingle
-import com.blockchain.utils.mapList
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
@@ -113,29 +110,32 @@ class CustodialStakingAccount(
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = stakingService.getActivity(
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        stakingService.getActivity(
             asset = currency,
-            refreshStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-        ).asSingle()
-            .onErrorReturn { emptyList() }
-            .mapList { stakingActivity ->
-                stakingActivityToSummary(asset = currency, stakingActivity = stakingActivity)
+            refreshStrategy = freshnessStrategy
+        ).asObservable()
+            .onErrorResumeNext { Observable.just(emptyList()) }
+            .map { stakingActivity ->
+                stakingActivity.map {
+                    stakingActivityToSummary(asset = currency, stakingActivity = it)
+                }.filter {
+                    it is CustodialStakingActivitySummaryItem && displayedStates.contains(it.state)
+                }
             }
-            .filterActivityStates()
-            .doOnSuccess {
+            .doOnNext {
                 setHasTransactions(it.isNotEmpty())
             }
 
     private fun stakingActivityToSummary(asset: AssetInfo, stakingActivity: StakingActivity): ActivitySummaryItem =
         CustodialStakingActivitySummaryItem(
             exchangeRates = exchangeRates,
-            asset = asset,
+            currency = asset,
             txId = stakingActivity.id,
             timeStampMs = stakingActivity.insertedAt.time,
             value = stakingActivity.value,
             account = this,
-            status = stakingActivity.state,
+            state = stakingActivity.state,
             type = stakingActivity.type,
             confirmations = stakingActivity.extraAttributes?.confirmations ?: 0,
             accountRef = stakingActivity.extraAttributes?.address
@@ -145,14 +145,6 @@ class CustodialStakingAccount(
             recipientAddress = stakingActivity.extraAttributes?.address ?: "",
             fiatValue = stakingActivity.fiatValue
         )
-
-    private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
-        return flattenAsObservable { list ->
-            list.filter {
-                it is CustodialStakingActivitySummaryItem && displayedStates.contains(it.status)
-            }
-        }.toList()
-    }
 
     // No swaps on staking accounts, so just return the activity list unmodified
     override fun reconcileSwaps(
@@ -171,7 +163,7 @@ class CustodialStakingAccount(
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            identity.userAccessForFeature(Feature.DepositStaking)
+            identity.userAccessForFeature(Feature.DepositStaking, defFreshness)
         ) { tier, depositInterestEligibility ->
             return@zip when (tier) {
                 KycTier.BRONZE,

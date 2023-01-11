@@ -1,7 +1,7 @@
 package com.blockchain.koin
 
 import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
-import com.blockchain.core.TransactionsCache
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.access.PinRepositoryImpl
 import com.blockchain.core.asset.data.AssetRepository
@@ -13,7 +13,6 @@ import com.blockchain.core.buy.data.SimpleBuyRepository
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
-import com.blockchain.core.buy.data.dataresources.TransactionsStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoin.PaymentService
@@ -247,12 +246,6 @@ val coreModule = module {
                 swapOrdersStore = get(),
                 transactionsStore = get(),
                 assetCatalogue = get()
-            )
-        }
-
-        scoped {
-            TransactionsCache(
-                nabuService = get(),
             )
         }
 
@@ -522,6 +515,7 @@ val coreModule = module {
                 linkedBankStore = get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),
+                paymentMethodsEligibilityStore = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
                 withdrawLocksStore = get(),

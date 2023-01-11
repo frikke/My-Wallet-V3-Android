@@ -7,7 +7,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
-import com.google.common.graph.ElementOrder.sorted
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -110,23 +109,24 @@ fun List<AccountBalance>.total(currency: Currency): AccountBalance = fold(Accoun
 
 interface BlockchainAccount {
 
+    private val defFreshness
+        get() = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+
     val label: String
 
     fun balanceRx(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
-            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-        )
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<AccountBalance>
 
     fun balance(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
-            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-        )
-    ): Flow<AccountBalance> {
-        return balanceRx(freshnessStrategy).asFlow()
-    }
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Flow<AccountBalance> = balanceRx(freshnessStrategy).asFlow()
 
-    val activity: Single<ActivitySummaryList>
+    fun activity(
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Observable<ActivitySummaryList>
 
     val isFunded: Boolean
 
@@ -188,8 +188,6 @@ interface CryptoAccount : SingleAccount {
 }
 
 interface FiatAccount : SingleAccount {
-    @Deprecated("use suspend canWithdrawFunds")
-    fun canWithdrawFundsLegacy(): Single<Boolean>
 
     fun canWithdrawFunds(): Flow<DataResource<Boolean>>
 
@@ -199,8 +197,8 @@ interface FiatAccount : SingleAccount {
 interface AccountGroup : BlockchainAccount {
     val accounts: SingleAccountList
 
-    override val activity: Single<ActivitySummaryList>
-        get() = allActivities()
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        allActivities(freshnessStrategy)
 
     fun includes(account: BlockchainAccount): Boolean =
         accounts.contains(account)
@@ -232,14 +230,18 @@ interface AccountGroup : BlockchainAccount {
     override val hasTransactions: Boolean
         get() = true
 
-    private fun allActivities(): Single<ActivitySummaryList> {
+    private fun allActivities(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return Single.just(accounts).flattenAsObservable { it }
-            .flatMapSingle { account ->
-                account.activity
-                    .onErrorResumeNext { Single.just(emptyList()) }
+            .flatMap { account ->
+                account.activity(freshnessStrategy)
+                    .onErrorResumeNext { Observable.just(emptyList()) }.map {
+                        mapOf(account to it)
+                    }
+            }.scan { a, v ->
+                a + v
             }
-            .reduce { a, l -> a + l }
-            .defaultIfEmpty(emptyList())
+            .filter { it.keys.containsAll(accounts) }
+            .map { it.values.flatten() }
             .map { it.distinct() }
             .map { it.sorted() }
     }
@@ -251,27 +253,26 @@ interface SameCurrencyAccountGroup : AccountGroup {
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return if (accounts.isEmpty())
             Observable.just(AccountBalance.zero(currency))
-        else
-            Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
-                account.balanceRx(freshnessStrategy).map { balance ->
-                    mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
-                }.onErrorResumeNext {
-                    Observable.just(mapOf(account to DataResource.Error(it as Exception)))
-                }
-            }.scan { a, v ->
-                a + v
-            }.map { map ->
-                if (map.values.all { it is DataResource.Error } && map.size == accounts.size) {
-                    throw map.values.filterIsInstance<DataResource.Error>().first().error
-                } else {
-                    map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
-                        .fold(AccountBalance.zero(currency)) { acc, accountBalance ->
-                            AccountBalance.totalOf(
-                                acc, accountBalance
-                            )
-                        }
-                }
+        else Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
+            account.balanceRx(freshnessStrategy).map { balance ->
+                mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
+            }.onErrorResumeNext {
+                Observable.just(mapOf(account to DataResource.Error(it as Exception)))
             }
+        }.scan { a, v ->
+            a + v
+        }.map { map ->
+            if (map.values.all { it is DataResource.Error } && map.size == accounts.size) {
+                throw map.values.filterIsInstance<DataResource.Error>().first().error
+            } else {
+                map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
+                    .fold(AccountBalance.zero(currency)) { acc, accountBalance ->
+                        AccountBalance.totalOf(
+                            acc, accountBalance
+                        )
+                    }
+            }
+        }
     }
 }
 

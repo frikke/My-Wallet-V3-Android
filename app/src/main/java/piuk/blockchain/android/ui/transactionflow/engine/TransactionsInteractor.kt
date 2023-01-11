@@ -252,13 +252,13 @@ class TransactionInteractor(
                 coincore.walletsWithAction(
                     action = action,
                     filter = AssetFilter.All,
+                    tickers = setOf(targetAccount.currency),
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
-                            acc.currency == targetAccount.currency &&
-                            acc != targetAccount &&
-                            acc.isFunded
+                            acc !is InterestAccount &&
+                            acc != targetAccount
                     }
                 }
             }
@@ -268,6 +268,7 @@ class TransactionInteractor(
                 coincore.walletsWithAction(
                     action = action,
                     filter = AssetFilter.All,
+                    tickers = setOf(targetAccount.currency),
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->

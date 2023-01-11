@@ -15,6 +15,7 @@ import com.blockchain.testutils.EUR
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
@@ -28,7 +29,7 @@ import org.junit.Test
 class BuyFlowNavigatorTest {
 
     private val userIdentity: UserIdentity = mock {
-        on { userAccessForFeature(Feature.Buy) }.thenReturn(Single.just(FeatureAccess.Granted()))
+        on { userAccessForFeature(eq(Feature.Buy), any()) }.thenReturn(Single.just(FeatureAccess.Granted()))
     }
     private val kycService: KycService = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock {
@@ -60,7 +61,7 @@ class BuyFlowNavigatorTest {
         val eligibility = FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)
         mockCurrencyIsSupported()
         whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
-        whenever(userIdentity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(eligibility))
+        whenever(userIdentity.userAccessForFeature(eq(Feature.Buy), any())).thenReturn(Single.just(eligibility))
 
         val test = subject.navigateTo(
             startedFromKycResume = false,

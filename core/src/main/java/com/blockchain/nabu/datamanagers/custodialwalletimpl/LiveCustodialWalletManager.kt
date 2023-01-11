@@ -2,8 +2,8 @@ package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.buy.data.toBuySellOrder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
@@ -12,8 +12,7 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -64,6 +63,7 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
@@ -77,6 +77,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
 import java.math.BigInteger
@@ -88,7 +89,7 @@ class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val simpleBuyService: SimpleBuyService,
-    private val transactionsCache: TransactionsCache,
+    private val transactionsCache: TransactionsStore,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val currencyPrefs: CurrencyPrefs,
@@ -208,19 +209,20 @@ class LiveCustodialWalletManager(
         }
     }
 
-    // todo(othman) refactor with TransactionsStore
     override fun getCustodialCryptoTransactions(
+        freshnessStrategy: FreshnessStrategy,
         asset: AssetInfo,
         product: Product,
         type: String?,
-    ): Single<List<CryptoTransaction>> =
-
-        transactionsCache.transactions(
-            TransactionsRequest(
-                product = product.toRequestString(),
-                type = type
+    ): Observable<List<CryptoTransaction>> =
+        transactionsCache.stream(
+            freshnessStrategy.withKey(
+                TransactionsRequest(
+                    product = product.toRequestString(),
+                    type = type
+                )
             )
-        ).map { response ->
+        ).asObservable().map { response ->
             response.items.filter {
                 assetCatalogue.fromNetworkTicker(
                     it.amount.symbol
@@ -337,15 +339,15 @@ class LiveCustodialWalletManager(
             }
             .asSingle()
 
-    override fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList> =
-        simpleBuyService.getBuyOrders(shouldFilterInvalid = true)
+    override fun getAllOrdersFor(freshnessStrategy: FreshnessStrategy, asset: AssetInfo): Observable<BuyOrderList> =
+        simpleBuyService.getBuyOrders(freshnessStrategy = freshnessStrategy, shouldFilterInvalid = true)
             .mapData { buyOrders ->
                 buyOrders.filter { order ->
                     (order.target.currency.networkTicker == asset.networkTicker) ||
                         (order.source.currency.networkTicker == asset.networkTicker)
                 }
             }
-            .asSingle()
+            .asObservable()
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
         nabuService.getBuyOrder(orderId).map { it.toDomainOrThrow() }
@@ -429,9 +431,12 @@ class LiveCustodialWalletManager(
             outputCurrency = assetCatalogue.fromNetworkTicker(outputCurrency)!!
         )
 
-    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Flow<List<FiatCurrency>> {
-        val paymentMethodsFlow = paymentMethods(fiatCurrency, true)
-        val fiatCurrenciesFlow = fiatCurrenciesService.getTradingCurrenciesFlow()
+    override fun getSupportedFundsFiats(
+        fiatCurrency: FiatCurrency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<FiatCurrency>> {
+        val paymentMethodsFlow = paymentMethods(fiatCurrency, freshnessStrategy, true)
+        val fiatCurrenciesFlow = fiatCurrenciesService.getTradingCurrenciesFlow(freshnessStrategy)
 
         return combine(paymentMethodsFlow, fiatCurrenciesFlow) { paymentMethods, fiatCurrencies ->
             paymentMethods.filter { method ->
@@ -455,20 +460,21 @@ class LiveCustodialWalletManager(
      */
     private fun paymentMethods(
         currency: Currency,
+        freshnessStrategy: FreshnessStrategy,
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false,
     ) = paymentMethodsEligibilityStore.stream(
-        KeyedFreshnessStrategy.Cached(
-            key = PaymentMethodsEligibilityStore.Key(
+        freshnessStrategy.withKey(
+            PaymentMethodsEligibilityStore.Key(
                 currency.networkTicker,
                 eligibleOnly,
                 shouldFetchSddLimits
-            ),
-            refreshStrategy = RefreshStrategy.RefreshIfStale
+            )
         )
-    ).mapData {
-        it.filter { paymentMethod -> paymentMethod.visible }
-    }.getDataOrThrow()
+    )
+        .mapData {
+            it.filter { paymentMethod -> paymentMethod.visible }
+        }.getDataOrThrow()
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
         nabuService.fetchExchangeSendToAddressForCrypto(asset.networkTicker)
@@ -554,8 +560,9 @@ class LiveCustodialWalletManager(
     override fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
         directions: Set<TransferDirection>,
-    ): Single<List<TradeTransactionItem>> =
-        custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions)
+        freshnessStrategy: FreshnessStrategy,
+    ): Observable<List<TradeTransactionItem>> =
+        custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions, freshnessStrategy)
 
     override fun updateOrder(id: String, success: Boolean): Completable =
         nabuService.updateOrder(

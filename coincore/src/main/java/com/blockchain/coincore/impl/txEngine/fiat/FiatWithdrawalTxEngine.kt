@@ -14,6 +14,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
@@ -37,8 +38,10 @@ class FiatWithdrawalTxEngine(
 
     private val tradingService: TradingService by scopedInject()
 
+    private val transactionsStore: TransactionsStore by scopedInject()
+
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
+        get() = listOf(transactionsStore)
 
     override fun ensureSourceBalanceFreshness() {
         tradingService.markAsStale()

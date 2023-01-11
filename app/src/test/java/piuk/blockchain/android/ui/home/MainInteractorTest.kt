@@ -15,12 +15,10 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.serializers.BigDecimalSerializer
@@ -38,7 +36,6 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
@@ -58,7 +55,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainInteractor
-import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
@@ -292,22 +288,6 @@ class MainInteractorTest {
 
         // Assert
         verify(cancelOrderUseCase).invoke(orderId)
-    }
-
-    @Test
-    fun fetchReferralData() {
-        runBlocking {
-            val referralMock = mock<ReferralInfo.Data>()
-            whenever(referralRepository.fetchReferralDataLegacy()).thenReturn(Outcome.Success(referralMock))
-            whenever(referralPrefs.hasReferralIconBeenClicked).thenReturn(true)
-            whenever(membershipsFF.coEnabled()).thenReturn(false)
-
-            interactor.checkReferral()
-                .test()
-                .await()
-                .assertComplete()
-                .assertValue(ReferralState(referralMock, true, areMembershipsEnabled = false))
-        }
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
@@ -32,6 +33,7 @@ import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -63,8 +65,9 @@ class FiatDepositTxEngine(
     private val plaidFeatureFlag: FeatureFlag,
 ) : TxEngine() {
 
+    private val transactionsStore: TransactionsStore by scopedInject()
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
+        get() = listOf(transactionsStore)
 
     override fun ensureSourceBalanceFreshness() {}
 

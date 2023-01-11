@@ -1,17 +1,16 @@
 package com.blockchain.core.buy.data
 
+import com.blockchain.core.TransactionsRequest
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
-import com.blockchain.core.buy.data.dataresources.TransactionsStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyEligibility
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.safeLet
@@ -107,12 +106,13 @@ class SimpleBuyRepository(
         }
     }
 
-    override fun getBuyOrders(pendingOnly: Boolean, shouldFilterInvalid: Boolean): Flow<DataResource<BuyOrderList>> {
+    override fun getBuyOrders(
+        freshnessStrategy: FreshnessStrategy,
+        pendingOnly: Boolean,
+        shouldFilterInvalid: Boolean
+    ): Flow<DataResource<BuyOrderList>> {
         return buyOrdersStore.stream(
-            request = KeyedFreshnessStrategy.Cached(
-                key = BuyOrdersStore.Key(pendingOnly = pendingOnly),
-                refreshStrategy = RefreshStrategy.ForceRefresh
-            )
+            request = freshnessStrategy.withKey(BuyOrdersStore.Key(pendingOnly = pendingOnly))
         ).mapData {
             if (shouldFilterInvalid) {
                 it.filterNot { order ->
@@ -135,8 +135,8 @@ class SimpleBuyRepository(
         }
     }
 
-    override fun swapOrders(): Flow<DataResource<List<CustodialOrder>>> {
-        return swapOrdersStore.stream(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+    override fun swapOrders(freshnessStrategy: FreshnessStrategy): Flow<DataResource<List<CustodialOrder>>> {
+        return swapOrdersStore.stream(freshnessStrategy)
             .mapData { response ->
                 response.mapNotNull { orderResp ->
                     val currencyPair = CurrencyPair.fromRawPair(orderResp.pair, assetCatalogue)
@@ -167,7 +167,10 @@ class SimpleBuyRepository(
     ): Flow<DataResource<List<FiatTransaction>>> {
         return transactionsStore.stream(
             freshnessStrategy.withKey(
-                TransactionsStore.Key(product = product, type = type)
+                TransactionsRequest(
+                    product = product.toRequestString(),
+                    type = type
+                )
             )
         ).mapData { response ->
             response.items.filter {
@@ -333,4 +336,12 @@ private fun String.toTransactionType(): TransactionType? =
         TransactionResponse.CHARGE -> TransactionType.DEPOSIT
         TransactionResponse.WITHDRAWAL -> TransactionType.WITHDRAWAL
         else -> null
+    }
+
+private fun Product.toRequestString(): String =
+    when (this) {
+        Product.TRADE -> "SWAP"
+        Product.BUY,
+        Product.SELL -> "SIMPLEBUY"
+        else -> this.toString()
     }

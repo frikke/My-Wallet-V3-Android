@@ -2,7 +2,6 @@ package com.blockchain.coincore.fiat
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
-import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -19,11 +18,12 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.store.asSingle
+import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -33,6 +33,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onEach
 
 /*internal*/ class FiatCustodialAccount internal constructor(
     override val label: String,
@@ -65,12 +66,15 @@ import kotlinx.coroutines.flow.catch
     override var hasTransactions: Boolean = false
         private set
 
-    override val activity: Single<ActivitySummaryList>
-        get() = simpleBuyService.getFiatTransactions(fiatCurrency = currency, product = Product.BUY)
-            .asSingle()
-            .doOnSuccess {
-                setHasTransactions(it.isEmpty().not())
-            }.map {
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        simpleBuyService.getFiatTransactions(
+            freshnessStrategy = freshnessStrategy,
+            fiatCurrency = currency,
+            product = Product.BUY
+        )
+            .onEach {
+                setHasTransactions(it.dataOrElse(emptyList()).isEmpty().not())
+            }.mapData {
                 it.map { fiatTransaction ->
                     FiatActivitySummaryItem(
                         currency = currency,
@@ -84,25 +88,15 @@ import kotlinx.coroutines.flow.catch
                         paymentMethodId = fiatTransaction.paymentId
                     )
                 }
-            }
-
-    override fun canWithdrawFundsLegacy(): Single<Boolean> =
-        simpleBuyService.getFiatTransactions(fiatCurrency = currency, product = Product.BUY)
-            .asSingle()
-            .map {
-                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && !tx.state.isFinalised }
-            }.map {
-                it.isEmpty()
-            }
+            }.asObservable()
 
     override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
         simpleBuyService.getFiatTransactions(
-            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale),
             fiatCurrency = currency,
             product = Product.BUY
         )
             .mapData {
-                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && !tx.state.isFinalised }
+                it.filter { tx -> tx.type == TransactionType.WITHDRAWAL && tx.state == TransactionState.PENDING }
             }
             .mapData { it.isEmpty() }
             .catch { emit(DataResource.Error(Exception("failed getFiatTransactions"))) }
@@ -150,18 +144,6 @@ class FiatAccountGroup(
 ) : SameCurrencyAccountGroup {
     override val currency: Currency
         get() = accounts[0].currency
-
-    // All the activities for all the accounts
-    override val activity: Single<ActivitySummaryList>
-        get() = if (accounts.isEmpty()) {
-            Single.just(emptyList())
-        } else {
-            Single.zip(
-                accounts.map { it.activity }
-            ) { t: Array<Any> ->
-                t.filterIsInstance<List<ActivitySummaryItem>>().flatten()
-            }
-        }
 
     // The intersection of the actions for each account
     override val stateAwareActions: Single<Set<StateAwareAction>>

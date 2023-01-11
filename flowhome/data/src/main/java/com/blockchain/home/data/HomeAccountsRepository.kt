@@ -4,12 +4,12 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalStateException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -20,16 +20,19 @@ class HomeAccountsRepository(
     private val coincore: Coincore,
     private val unifiedBalancesService: UnifiedBalancesService,
 ) : HomeAccountsService {
-    override fun accounts(walletMode: WalletMode): Flow<DataResource<List<SingleAccount>>> {
+    override fun accounts(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<SingleAccount>>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL -> activeCustodialWallets()
-            WalletMode.NON_CUSTODIAL -> activeNonCustodialWallets()
-            else -> throw IllegalStateException("Wallet mode is not supported")
+            WalletMode.CUSTODIAL -> activeCustodialWallets(freshnessStrategy)
+            WalletMode.NON_CUSTODIAL -> activeNonCustodialWallets(freshnessStrategy)
         }
     }
 
-    private fun activeNonCustodialWallets(): Flow<DataResource<List<SingleAccount>>> {
-        val activeAssets = unifiedBalancesService.balances().mapData {
+    private fun activeNonCustodialWallets(freshnessStrategy: FreshnessStrategy):
+        Flow<DataResource<List<SingleAccount>>> {
+        val activeAssets = unifiedBalancesService.balances(freshnessStrategy = freshnessStrategy).mapData {
             it.map { balance ->
                 coincore[balance.currency]
             }.toSet()
@@ -42,12 +45,13 @@ class HomeAccountsRepository(
         }
     }
 
-    private fun activeCustodialWallets() = coincore.activeWalletsInMode(WalletMode.CUSTODIAL).map { it.accounts }
-        .map {
-            DataResource.Data(it) as DataResource<List<SingleAccount>>
-        }.onStart {
-            emit(DataResource.Loading)
-        }.catch {
-            emit(DataResource.Error(it as Exception))
-        }
+    private fun activeCustodialWallets(freshnessStrategy: FreshnessStrategy) =
+        coincore.activeWalletsInMode(WalletMode.CUSTODIAL, freshnessStrategy).map { it.accounts }
+            .map {
+                DataResource.Data(it) as DataResource<List<SingleAccount>>
+            }.onStart {
+                emit(DataResource.Loading)
+            }.catch {
+                emit(DataResource.Error(it as Exception))
+            }
 }

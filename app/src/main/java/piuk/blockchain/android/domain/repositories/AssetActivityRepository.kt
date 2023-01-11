@@ -44,10 +44,10 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
                         account.includes(item.account)
                     }
                     is CustodialInterestAccount -> {
-                        account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
+                        account.currency == (item as? CustodialInterestActivitySummaryItem)?.currency
                     }
                     is CustodialStakingAccount -> {
-                        account.currency == (item as? CustodialStakingActivitySummaryItem)?.asset
+                        account.currency == (item as? CustodialStakingActivitySummaryItem)?.currency
                     }
                     else -> {
                         account == item.account
@@ -124,7 +124,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
 
     fun findCachedItem(asset: AssetInfo, txHash: String): ActivitySummaryItem? =
         transactionCache.filterIsInstance<CryptoActivitySummaryItem>().find {
-            it.asset == asset && it.txId == txHash
+            it.currency == asset && it.txId == txHash
         }
 
     fun findCachedItemById(txHash: String): ActivitySummaryItem? =
@@ -145,16 +145,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
     }
 
     override fun getFromNetwork(param: BlockchainAccount): Maybe<ActivitySummaryList> =
-        param.activity
-            .doOnSuccess { activityList ->
-                if (activityList.isNotEmpty()) {
-                    transactionCache.clear()
-                    transactionCache.addAll(activityList)
-                }
-                lastUpdatedTimestamp = System.currentTimeMillis()
-            }.map { list ->
-                list
-            }.toMaybe()
+        Maybe.empty()
 
     override fun getFromCache(param: BlockchainAccount): Maybe<ActivitySummaryList> {
         return when (param) {

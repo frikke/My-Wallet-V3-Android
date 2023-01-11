@@ -1,5 +1,6 @@
 package com.blockchain.earn.domain.models.interest
 
+import com.blockchain.domain.transactions.CustodialTransactionState
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -15,7 +16,7 @@ data class InterestActivity(
     val extraAttributes: InterestActivityAttributes?
 )
 
-enum class InterestState {
+enum class InterestState : CustodialTransactionState {
     PROCESSING,
     PENDING,
     MANUAL_REVIEW,

@@ -87,7 +87,7 @@ class ReceiveModel(
                         ActionState.LockedForTier
                     )
                 )
-                    .zipWith(coincore.activeWallets())
+                    .zipWith(coincore.activeWalletsInMode())
             }.map { (accountsList, active) ->
                 accountsList.sortedWith(
                     compareBy<SingleAccount> {

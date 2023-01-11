@@ -54,7 +54,7 @@ class LoadNonCustodialHeaderDataIntent(
             isPending = !summaryItem.isConfirmed,
             isFeeTransaction = summaryItem.isFeeTransaction,
             confirmations = summaryItem.confirmations,
-            totalConfirmations = summaryItem.asset.requiredConfirmations
+            totalConfirmations = (summaryItem.currency as AssetInfo).requiredConfirmations
         )
     }
 }
@@ -67,11 +67,11 @@ class LoadCustodialTradingHeaderDataIntent(
             transactionType = if (summaryItem.type == OrderType.BUY) TransactionSummary.TransactionType.BUY else
                 TransactionSummary.TransactionType.SELL,
             amount = summaryItem.value,
-            isPending = summaryItem.status == OrderState.AWAITING_FUNDS,
-            isPendingExecution = summaryItem.status == OrderState.PENDING_EXECUTION,
+            isPending = summaryItem.state == OrderState.AWAITING_FUNDS,
+            isPendingExecution = summaryItem.state == OrderState.PENDING_EXECUTION,
             isFeeTransaction = false,
             confirmations = 0,
-            totalConfirmations = if (summaryItem.status.isFinished()) 0 else null
+            totalConfirmations = if (summaryItem.state.isFinished()) 0 else null
         )
     }
 }
@@ -128,7 +128,7 @@ class LoadCustodialInterestHeaderDataIntent(
     override fun reduce(oldState: ActivityDetailState): ActivityDetailState {
         return oldState.copy(
             transactionType = summaryItem.type,
-            interestState = summaryItem.status,
+            interestState = summaryItem.state,
             amount = summaryItem.value,
             isPending = summaryItem.isPending(),
             isFeeTransaction = false,
@@ -144,7 +144,7 @@ class LoadCustodialStakingHeaderDataIntent(
     override fun reduce(oldState: ActivityDetailState): ActivityDetailState {
         return oldState.copy(
             transactionType = summaryItem.type,
-            stakingState = summaryItem.status,
+            stakingState = summaryItem.state,
             amount = summaryItem.value,
             isPending = summaryItem.isPending(),
             isFeeTransaction = false,

@@ -85,7 +85,6 @@ internal class Erc20Asset(
             labels.getDefaultNonCustodialWalletLabel(),
             exchangeRates,
             walletPreferences,
-            custodialManager,
             addressResolver,
             evmNetwork
         )

@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.core.Observable
 import java.util.Date
 
 class DynamicActivitySummaryItem(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     private val event: NonCustodialTxHistoryItem,
     private val accountAddress: String,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -37,29 +37,29 @@ class DynamicActivitySummaryItem(
         event.timestamp?.let { timestamp -> timestamp * 1000 } ?: Date().time
     }
 
-    override val value: CryptoValue = CryptoValue.fromMinor(asset, event.value)
+    override val value: CryptoValue = CryptoValue.fromMinor(currency, event.value)
 
     override val supportsDescription: Boolean = false
 
     override val description: String = ""
 
     override val fee: Observable<Money>
-        get() = Observable.just(Money.fromMinor(asset, event.fee.toBigInteger()))
+        get() = Observable.just(Money.fromMinor(currency, event.fee.toBigInteger()))
 
     override val txId: String = event.txId
 
     override val inputsMap: Map<String, CryptoValue> =
-        mapOf(event.from to CryptoValue.fromMinor(asset, event.value))
+        mapOf(event.from to CryptoValue.fromMinor(currency, event.value))
 
     override val outputsMap: Map<String, CryptoValue> =
-        mapOf(event.to to CryptoValue.fromMinor(asset, event.value))
+        mapOf(event.to to CryptoValue.fromMinor(currency, event.value))
 
     // TODO(dtverdota): Use the status instead of number of confirmations with the new API where possible
     override val confirmations: Int = when (event.status) {
         Status.PENDING -> 0
-        Status.CONFIRMING -> asset.requiredConfirmations - 1
+        Status.CONFIRMING -> currency.requiredConfirmations - 1
         Status.COMPLETED,
-        Status.FAILED -> asset.requiredConfirmations
+        Status.FAILED -> currency.requiredConfirmations
     }
 
     override fun updateDescription(description: String): Completable = Completable.complete()

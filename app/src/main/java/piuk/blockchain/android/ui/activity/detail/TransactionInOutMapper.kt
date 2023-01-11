@@ -28,7 +28,7 @@ class TransactionInOutMapper(
     fun transformInputAndOutputs(
         item: NonCustodialActivitySummaryItem
     ): Single<TransactionInOutDetails> =
-        when (item.asset) {
+        when (item.currency) {
             CryptoCurrency.BTC -> handleBtcToAndFrom(item)
             CryptoCurrency.BCH -> handleBchToAndFrom(item)
             CryptoCurrency.XLM -> handleXlmToAndFrom(item)
@@ -69,9 +69,9 @@ class TransactionInOutMapper(
         val toAddress = activitySummaryItem.outputsMap.keys.first()
 
         return Singles.zip(
-            coincore.findAccountByAddress(activitySummaryItem.asset, fromAddress)
+            coincore.findAccountByAddress(activitySummaryItem.currency as AssetInfo, fromAddress)
                 .defaultIfEmpty(NullCryptoAccount(fromAddress)),
-            coincore.findAccountByAddress(activitySummaryItem.asset, toAddress)
+            coincore.findAccountByAddress(activitySummaryItem.currency as AssetInfo, toAddress)
                 .defaultIfEmpty(NullCryptoAccount(toAddress))
         ) { fromAccount, toAccount ->
             TransactionInOutDetails(

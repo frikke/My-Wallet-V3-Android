@@ -81,6 +81,7 @@ internal class InterestRepository(
     }
 
     override fun getBalances(refreshStrategy: FreshnessStrategy): Observable<Map<AssetInfo, InterestAccountBalance>> {
+
         return getBalancesFlow(refreshStrategy)
             .asObservable()
             .onErrorReturn { emptyMap() }
@@ -90,6 +91,7 @@ internal class InterestRepository(
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy
     ): Observable<InterestAccountBalance> {
+
         return getBalancesFlow(refreshStrategy)
             .asObservable()
             .onErrorReturn { emptyMap() }
@@ -100,11 +102,13 @@ internal class InterestRepository(
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<InterestAccountBalance>> {
+
         return getBalancesFlow(refreshStrategy)
             .mapData { it.getOrDefault(asset, zeroBalance(asset)) }
     }
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> {
+
         return getBalancesFlow(refreshStrategy)
             .getDataOrThrow()
             .map { it.keys }
@@ -112,6 +116,7 @@ internal class InterestRepository(
 
     // availability
     override fun getAvailableAssetsForInterest(): Single<List<AssetInfo>> {
+
         return getAvailableAssetsForInterestFlow()
             .asObservable().firstOrError()
     }

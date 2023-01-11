@@ -167,7 +167,6 @@ internal class BtcAsset(
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialManager,
             refreshTrigger = this,
             addressResolver = addressResolver
         )
@@ -180,7 +179,6 @@ internal class BtcAsset(
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialManager,
             refreshTrigger = this,
             addressResolver = addressResolver
         )
