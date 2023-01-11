@@ -19,10 +19,16 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.common.model.CountryIso
+import com.blockchain.domain.common.model.StateIso
+import com.blockchain.kycproviders.prove.presentation.ProvePrefillFragment
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -36,6 +42,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragmentDirections
@@ -44,6 +51,7 @@ class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
     KycProgressListener,
     EmailEntryHost,
+    ProvePrefillFragment.Host,
     KycNavHostView {
 
     private lateinit var backPressCallback: OnBackPressedCallback
@@ -61,6 +69,7 @@ class KycNavHostActivity :
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
     private val fraudService: FraudService by inject()
+    private val kycService: KycService by scopedInject()
 
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
@@ -154,14 +163,21 @@ class KycNavHostActivity :
         compositeDisposable +=
             Singles.zip(
                 userIdentity.getUserCountry().defaultIfEmpty(""),
-                userIdentity.getUserState().defaultIfEmpty("")
+                userIdentity.getUserState().defaultIfEmpty(""),
+                rxSingleOutcome { kycService.shouldLaunchProve() }
             )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = { (country, state) ->
-                        navigate(
-                            KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
-                        )
+                    onSuccess = { (country, state, shouldLaunchProve) ->
+                        if (shouldLaunchProve) {
+                            navigate(
+                                KycEmailVerificationFragmentDirections.actionProve(country, state)
+                            )
+                        } else {
+                            navigate(
+                                KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
+                            )
+                        }
                     },
                     onError = {
                         BlockchainSnackbar.make(
@@ -206,6 +222,29 @@ class KycNavHostActivity :
             setResult(RESULT_CANCELED)
             finish()
         }
+    }
+
+    override fun launchContactSupport() {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+        startActivity(SupportCentreActivity.newIntent(this))
+    }
+
+    override fun navigateToProfileInfo(countryIso: CountryIso, stateIso: StateIso?) {
+        navController.navigate(
+            KycNavXmlDirections.actionStartProfile(
+                countryIso,
+                stateIso.orEmpty(),
+                stateIso.orEmpty()
+            )
+        )
+    }
+
+    override fun navigateToTierStatus(kycState: KycState, isSddVerified: Boolean) {
+        navController.navigate(KycNavXmlDirections.actionStartTierCurrentState(kycState, isSddVerified))
+    }
+
+    override fun navigateToVeriff(countryIso: CountryIso) {
+        navController.navigate(KycNavXmlDirections.actionStartVeriff(countryIso))
     }
 
     private fun verifyBackPressCallback(destination: NavDestination) {

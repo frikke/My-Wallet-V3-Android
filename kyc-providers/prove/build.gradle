@@ -1,0 +1,44 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'kotlin-parcelize'
+
+android {
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java'
+            }
+
+        }
+        test {
+            java {
+                srcDirs 'src/test'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':commonarch')
+    implementation project(':componentlib')
+    implementation project(':common:network')
+    implementation project(':common:interface')
+    implementation project(':common:domain')
+    implementation project(':common-mp:utils:domain')
+    implementation project(':blockchainApi')
+    implementation project(':addressVerification')
+    implementation project(':store:core')
+    implementation project(':instrumentation:data')
+    implementation project(':instrumentation:presentation')
+    implementation project(':string-resources')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.kotlinJson
+    implementation Libraries.materialDatePicker
+
+    // TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
+}

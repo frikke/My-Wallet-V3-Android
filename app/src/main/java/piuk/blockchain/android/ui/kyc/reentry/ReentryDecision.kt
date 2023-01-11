@@ -48,6 +48,9 @@ class ReentryDecisionKycNavigator(
                 KycNavXmlDirections.actionStartEmailVerification(true)
             }
             ReentryPoint.CountrySelection -> KycNavXmlDirections.actionStartCountrySelection()
+            ReentryPoint.Prove -> KycNavXmlDirections.actionStartProve(
+                user.requireCountryCode(), user.address?.stateIso ?: ""
+            )
             ReentryPoint.Profile -> KycNavXmlDirections.actionStartProfile(
                 user.requireCountryCode(), user.address?.stateIso ?: "", user.address?.stateIso ?: ""
             )

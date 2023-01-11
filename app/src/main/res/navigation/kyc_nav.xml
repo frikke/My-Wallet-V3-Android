@@ -52,6 +52,22 @@
             app:argType="string" />
     </fragment>
     <fragment
+        android:id="@+id/prove"
+        android:name="com.blockchain.kycproviders.prove.presentation.ProvePrefillFragment"
+        android:label="Prove">
+        <action
+            android:id="@+id/action_prove_to_tierCurrentState"
+            app:destination="@id/tierCurrentState"
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="countryIso"
+            app:argType="string" />
+        <argument
+            android:name="stateIso"
+            app:argType="string" />
+    </fragment>
+    <fragment
         android:id="@+id/kycInvalidCountryFragment"
         android:name="piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryFragment"
         android:label="KycInvalidCountryFragment"
@@ -178,6 +194,11 @@
                 app:destination="@id/kycProfileFragment"
                 app:popUpTo="@id/kyc_nav.xml"
                 app:popUpToInclusive="true" />
+            <action
+                android:id="@+id/action_prove"
+                app:destination="@id/prove"
+                app:popUpTo="@id/kyc_nav.xml"
+                app:popUpToInclusive="true" />
         </fragment>
         <argument
             android:name="mustBeValidated"
@@ -214,6 +235,11 @@
     <action
         android:id="@+id/action_startProfile"
         app:destination="@id/kycProfileFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_startProve"
+        app:destination="@id/prove"
         app:popUpTo="@id/kyc_nav.xml"
         app:popUpToInclusive="true" />
     <action

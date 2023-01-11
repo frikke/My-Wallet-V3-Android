@@ -1,5 +1,6 @@
 package com.blockchain.nabu.api.getuser.domain
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -11,7 +12,12 @@ interface UserService {
     @Deprecated("use flow")
     fun getUser(): Single<NabuUser>
 
+    @Deprecated("prefer non throwable Flow")
     fun getUserFlow(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<NabuUser>
+
+    fun getUserResourceFlow(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+    ): Flow<DataResource<NabuUser>>
 }

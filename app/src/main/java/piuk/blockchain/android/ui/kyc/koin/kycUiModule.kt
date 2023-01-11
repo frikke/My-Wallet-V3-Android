@@ -33,6 +33,7 @@ val kycUiModule = module {
             TiersReentryDecision(
                 custodialWalletManager = get(),
                 dataRemediationService = get(),
+                kycService = get(),
             )
         }.bind(ReentryDecision::class)
 

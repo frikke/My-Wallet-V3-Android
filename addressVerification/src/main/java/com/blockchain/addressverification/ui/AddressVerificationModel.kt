@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 sealed class AddressVerificationError {
-    object InvalidState : AddressVerificationError()
     data class Unknown(val message: String?) : AddressVerificationError()
 }
 
@@ -33,6 +32,7 @@ sealed class AddressVerificationSavingError {
 
 sealed class Navigation : NavigationEvent {
     data class FinishSuccessfully(val address: AddressDetails) : Navigation()
+    object LaunchSupport : Navigation()
     object Back : Navigation()
 }
 
@@ -102,6 +102,7 @@ class AddressVerificationModel(
         showManualOverride = allowManualOverride && state.showManualOverride,
         results = state.results,
         loadingAddressDetails = state.loadingAddressDetails,
+        showInvalidStateErrorDialog = state.showInvalidStateErrorDialog,
         mainLineInput = state.mainLineInput,
         isMainLineInputEnabled = allowManualOverride,
         secondLineInput = state.secondLineInput,
@@ -111,9 +112,7 @@ class AddressVerificationModel(
         showPostcodeError = state.showPostcodeError,
         postCodeInput = state.postCodeInput,
         countryInput = state.countryInput,
-        saveButtonState = if (state.isSaveLoading) {
-            ButtonState.Loading
-        } else if (
+        saveButtonState = if (
             state.mainLineInput.isNotBlank() &&
             state.cityInput.isNotBlank() &&
             !(state.isShowingStateInput && state.stateInput.isBlank()) &&
@@ -136,6 +135,9 @@ class AddressVerificationModel(
     ) {
         when (intent) {
             AddressVerificationIntent.ErrorHandled -> updateState { it.copy(error = null) }
+            AddressVerificationIntent.InvalidStateErrorHandled ->
+                updateState { it.copy(showInvalidStateErrorDialog = false) }
+            AddressVerificationIntent.LaunchSupportClicked -> navigate(Navigation.LaunchSupport)
             is AddressVerificationIntent.SearchInputChanged -> {
                 // If just the selection changes we just want to update the state and do nothing else
                 if (modelState.searchInput.text == intent.newInput.text) {
@@ -188,16 +190,10 @@ class AddressVerificationModel(
             is AddressVerificationIntent.ErrorWhileSaving -> {
                 when (intent.error) {
                     AddressVerificationSavingError.InvalidPostCode -> updateState {
-                        it.copy(
-                            showPostcodeError = true,
-                            isSaveLoading = false
-                        )
+                        it.copy(showPostcodeError = true)
                     }
                     is AddressVerificationSavingError.Unknown -> updateState {
-                        it.copy(
-                            isSaveLoading = false,
-                            error = AddressVerificationError.Unknown(intent.error.message)
-                        )
+                        it.copy(error = AddressVerificationError.Unknown(intent.error.message))
                     }
                 }
             }
@@ -221,14 +217,7 @@ class AddressVerificationModel(
                 updateState { it.copy(postCodeInput = intent.newInput, showPostcodeError = false) }
             }
             AddressVerificationIntent.SaveClicked -> {
-                updateState {
-                    it.copy(
-                        showPostcodeError = false,
-                        // We show a loading as the host will handle any address validations and submissions
-                        // We're canceling the loading if we get any errors back via Intent.ErrorWhileSaving
-                        isSaveLoading = true,
-                    )
-                }
+                updateState { it.copy(showPostcodeError = false) }
 
                 val addressDetails = AddressDetails(
                     firstLine = modelState.mainLineInput,
@@ -280,7 +269,7 @@ class AddressVerificationModel(
                         updateState {
                             it.copy(
                                 loadingAddressDetails = null,
-                                error = AddressVerificationError.InvalidState,
+                                showInvalidStateErrorDialog = true,
                             )
                         }
                         return@doOnSuccess

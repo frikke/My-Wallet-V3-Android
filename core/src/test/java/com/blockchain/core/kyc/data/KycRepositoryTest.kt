@@ -1,5 +1,6 @@
 package com.blockchain.core.kyc.data
 
+import com.blockchain.api.kyc.KycApiService
 import com.blockchain.api.kyc.model.KycLimitsDto
 import com.blockchain.api.kyc.model.KycTierDto
 import com.blockchain.api.kyc.model.KycTiersDto
@@ -12,6 +13,7 @@ import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.data.DataResource
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
 import com.blockchain.nabu.api.getuser.domain.UserService
 import info.blockchain.balance.AssetCatalogue
@@ -29,11 +31,15 @@ class KycRepositoryTest {
     private val kycTiersStore = mockk<KycTiersStore>()
     private val userService = mockk<UserService>()
     private val assetCatalogue = mockk<AssetCatalogue>()
+    private val kycApiService = mockk<KycApiService>()
+    private val proveFeatureFlag = mockk<FeatureFlag>()
 
     private val kycService: KycService = KycRepository(
         kycTiersStore = kycTiersStore,
         userService = userService,
-        assetCatalogue = assetCatalogue
+        assetCatalogue = assetCatalogue,
+        kycApiService = kycApiService,
+        proveFeatureFlag = proveFeatureFlag,
     )
 
     private val tiersResponse = KycTiersDto(

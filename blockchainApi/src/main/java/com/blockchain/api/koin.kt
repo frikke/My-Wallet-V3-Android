@@ -30,6 +30,8 @@ import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.kyc.KycApiInterface
 import com.blockchain.api.kyc.KycApiService
+import com.blockchain.api.kyc.ProveApi
+import com.blockchain.api.kyc.ProveApiService
 import com.blockchain.api.mercuryexperiments.MercuryExperimentsApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nfts.api.NftApi
@@ -335,6 +337,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(KycApiInterface::class.java)
         KycApiService(
             kycApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ProveApi::class.java)
+        ProveApiService(
+            api = api
         )
     }
 

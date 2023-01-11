@@ -3499,6 +3499,39 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
     <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
 
+    <!-- Prove.com -->
+    <string name="prove_phone_number">Phone number</string>
+    <string name="prove_resend_sms">Resend SMS</string>
+    <string name="prove_resend_sms_in_seconds">Resend SMS in %02d:%02d</string>
+    <string name="prove_waiting_prefill_data_loading">Verifying your information</string>
+    <string name="prove_waiting_prefill_submission_loading">Verifying your account</string>
+    <string name="prove_intro_title">Let’s gather your information</string>
+    <string name="prove_intro_subtitle">Tap continue to begin the process.</string>
+    <string name="prove_intro_cta_info">By selecting “Continue”, you agree to the Blockchain.com Privacy Policy</string>
+    <string name="prove_mobile_auth_dob_entry_title">Enter your information</string>
+    <string name="prove_mobile_auth_dob_entry_subtitle">Please add your date of birth.</string>
+    <string name="prove_mobile_auth_dob_entry_placeholder">MM/DD/YYYY</string>
+    <string name="prove_mobile_auth_dob_entry_min_age">You must be 18 years or older.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_title">Enter your information</string>
+    <string name="prove_instant_link_phone_and_dob_entry_subtitle">Please add your phone number and date of birth.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_us_phone_only">Verification only supports US(+1) phone numbers.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_phone_placeholder">Enter your phone number</string>
+    <string name="prove_instant_link_phone_and_dob_entry_cta_info">We’ll send you a link to verify your identity.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_verification_timeout">Verification session expired</string>
+    <string name="prove_waiting_instant_link_validation_title">Verification processing</string>
+    <string name="prove_waiting_instant_link_validation_subtitle">We’ve sent a link to you via SMS. Follow it to continue with verification.</string>
+    <string name="prove_view_prefill_data_title">Confirm your information</string>
+    <string name="prove_view_prefill_data_first_name_placeholder">Enter your first name</string>
+    <string name="prove_view_prefill_data_last_name_placeholder">Enter your last name</string>
+    <string name="prove_view_prefill_data_address_label">Address</string>
+    <string name="prove_view_prefill_data_address_placeholder_enter">Enter your current address</string>
+    <string name="prove_view_prefill_data_address_placeholder_select">Select your current address</string>
+    <string name="prove_view_prefill_data_address_manual_or">or&#160;</string>
+    <string name="prove_view_prefill_data_address_manual_enter_manually">enter manually -></string>
+    <string name="prove_view_prefill_data_cannot_be_modifier">This information cannot be modified</string>
+    <string name="prove_leave_warning">Are you sure you want to leave?</string>
+    <string name="prove_leave_button">Leave</string>
+
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>
 

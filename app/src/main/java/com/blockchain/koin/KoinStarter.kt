@@ -30,6 +30,7 @@ import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
+import com.blockchain.kycproviders.prove.proveModule
 import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
@@ -174,7 +175,8 @@ object KoinStarter {
                     tokenizerModule,
                     nftDataModule, nftPresentationModule,
                     multiAppModule,
-                    earnDataModule, earnPresentationModule
+                    earnDataModule, earnPresentationModule,
+                    proveModule,
                 )
             )
         }

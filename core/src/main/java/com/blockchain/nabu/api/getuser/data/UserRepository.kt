@@ -1,5 +1,6 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.api.getuser.domain.UserService
@@ -22,4 +23,7 @@ internal class UserRepository(
     override fun getUserFlow(refreshStrategy: FreshnessStrategy): Flow<NabuUser> =
         getUserStore.stream(refreshStrategy)
             .getDataOrThrow()
+
+    override fun getUserResourceFlow(refreshStrategy: FreshnessStrategy): Flow<DataResource<NabuUser>> =
+        getUserStore.stream(refreshStrategy)
 }

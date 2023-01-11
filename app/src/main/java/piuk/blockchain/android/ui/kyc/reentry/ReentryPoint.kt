@@ -6,6 +6,7 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 sealed class ReentryPoint(val entryPoint: String) {
     object EmailEntry : ReentryPoint("Email Entry")
     object CountrySelection : ReentryPoint("Country Selection")
+    object Prove : ReentryPoint("Prove")
     object Profile : ReentryPoint("Profile Entry")
     object Address : ReentryPoint("Address Entry")
     data class Questionnaire(val questionnaire: com.blockchain.domain.dataremediation.model.Questionnaire) :

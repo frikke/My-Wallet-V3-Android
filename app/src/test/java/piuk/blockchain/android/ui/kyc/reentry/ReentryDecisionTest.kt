@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -32,6 +33,9 @@ class ReentryDecisionTest {
     private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
     }
+    private val kycService: KycService = mockk {
+        coEvery { shouldLaunchProve() } returns Outcome.Success(false)
+    }
 
     @Test
     fun `if email is unverified - go to email entry`() {
@@ -51,6 +55,25 @@ class ReentryDecisionTest {
                 emailVerified = true
             )
         ) `should be` ReentryPoint.CountrySelection
+    }
+
+    @Test
+    fun `if email is verified and country set, check if should launch prove`() {
+        coEvery { kycService.shouldLaunchProve() } returns Outcome.Success(true)
+        whereNext(
+            createdNabuUser(selected = 1).copy(
+                email = "abc@def.com",
+                emailVerified = true,
+                address = Address(
+                    line1 = "",
+                    line2 = "",
+                    city = "",
+                    stateIso = "",
+                    postCode = "",
+                    countryCode = "DE"
+                )
+            )
+        ) `should be` ReentryPoint.Prove
     }
 
     @Test
@@ -250,6 +273,7 @@ class ReentryDecisionTest {
         TiersReentryDecision(
             custodialWalletManager,
             dataRemediationService,
+            kycService,
         ).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(

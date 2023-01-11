@@ -1,5 +1,7 @@
 package com.blockchain.addressverification.ui
 
+import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,18 +9,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -26,9 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import com.blockchain.addressverification.R
 import com.blockchain.addressverification.domain.model.AutocompleteAddress
 import com.blockchain.addressverification.domain.model.AutocompleteAddressType
+import com.blockchain.commonarch.presentation.mvi_v2.compose.bindViewModel
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -45,27 +57,111 @@ import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.system.DialogueButton
+import com.blockchain.componentlib.system.DialogueCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.utils.BackHandlerCallback
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.blockchain.componentlib.utils.rememberFlow
+import com.blockchain.koin.payloadScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import org.koin.androidx.compose.getViewModel
+
+abstract class AddressVerificationHost {
+    // Used by the host to communicate back into AddressVerification that the address was not valid for some reason
+    // This will reenable the button that was previously in a loading state and show the error
+    open val errorWhileSaving: Flow<AddressVerificationSavingError> = MutableSharedFlow()
+
+    abstract fun launchContactSupport()
+    abstract fun addressVerifiedSuccessfully(address: AddressDetails)
+}
 
 @Composable
 fun AddressVerificationScreen(
-    viewState: StateFlow<AddressVerificationState>,
+    args: Args,
+    host: AddressVerificationHost,
+) {
+    val context = LocalContext.current
+
+    val viewModel: AddressVerificationModel = getViewModel(scope = payloadScope)
+    val state by viewModel.viewState.collectAsStateLifecycleAware()
+    val onIntent = viewModel::onIntent
+
+    val backCallback = BackHandlerCallback {
+        onIntent(AddressVerificationIntent.BackClicked)
+    }
+
+    bindViewModel(viewModel, args) { navigation ->
+        when (navigation) {
+            Navigation.Back -> {
+                backCallback.remove()
+                (context as FragmentActivity).onBackPressedDispatcher.onBackPressed()
+            }
+            is Navigation.FinishSuccessfully -> host.addressVerifiedSuccessfully(navigation.address)
+            Navigation.LaunchSupport -> host.launchContactSupport()
+        }
+    }
+
+    val errorWhileSavingFlow = rememberFlow(host.errorWhileSaving)
+    LaunchedEffect(Unit) {
+        errorWhileSavingFlow.collect {
+            onIntent(AddressVerificationIntent.ErrorWhileSaving(it))
+        }
+    }
+
+    Content(state, onIntent)
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun Content(
+    state: AddressVerificationState,
     onIntent: (AddressVerificationIntent) -> Unit,
 ) {
-    val state by viewState.collectAsStateLifecycleAware()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(scaffoldState = scaffoldState) { padding ->
+        LaunchedEffect(state.error) {
+            val error = state.error
+            if (error != null) {
+                keyboardController?.hide()
+                scaffoldState.snackbarHostState.showSnackbar(
+                    message = error.errorMessage(context),
+                    duration = SnackbarDuration.Long,
+                )
+                onIntent(AddressVerificationIntent.ErrorHandled)
+            }
+        }
 
-    Column(
-        modifier = Modifier
-            .padding(AppTheme.dimensions.standardSpacing)
-            .fillMaxWidth()
-    ) {
-        when (state.step) {
-            AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
-            AddressVerificationStep.DETAILS -> DetailsStep(state, onIntent)
+        if (state.showInvalidStateErrorDialog) {
+            DialogueCard(
+                title = stringResource(R.string.address_verification_invalid_state_title),
+                body = stringResource(R.string.address_verification_invalid_state_message),
+                firstButton = DialogueButton(stringResource(R.string.contact_support)) {
+                    onIntent(AddressVerificationIntent.InvalidStateErrorHandled)
+                    onIntent(AddressVerificationIntent.LaunchSupportClicked)
+                },
+                secondButton = DialogueButton(stringResource(R.string.common_cancel)) {
+                    onIntent(AddressVerificationIntent.InvalidStateErrorHandled)
+                },
+                onDismissRequest = { onIntent(AddressVerificationIntent.InvalidStateErrorHandled) }
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(padding)
+                .padding(AppTheme.dimensions.standardSpacing)
+        ) {
+            when (state.step) {
+                AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
+                AddressVerificationStep.DETAILS -> DetailsStep(state, onIntent)
+            }
         }
     }
 }
@@ -359,6 +455,10 @@ fun AutoCompleteItem(
     }
 }
 
+private fun AddressVerificationError.errorMessage(context: Context): String = when (this) {
+    is AddressVerificationError.Unknown -> message ?: context.getString(R.string.common_error)
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewSearchScreen() {
@@ -409,6 +509,7 @@ fun PreviewSearchScreen() {
         results = suggestions,
         isSearchLoading = true,
         loadingAddressDetails = suggestions[2],
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "",
         isMainLineInputEnabled = true,
@@ -422,8 +523,8 @@ fun PreviewSearchScreen() {
         saveButtonState = ButtonState.Disabled,
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
         onIntent = {}
     )
 }
@@ -439,6 +540,7 @@ fun PreviewSearchScreenEmptyState() {
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "",
         isMainLineInputEnabled = true,
@@ -452,8 +554,8 @@ fun PreviewSearchScreenEmptyState() {
         saveButtonState = ButtonState.Disabled,
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
         onIntent = {}
     )
 }
@@ -469,6 +571,7 @@ fun PreviewDetailsScreen() {
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "1330 River",
         isMainLineInputEnabled = true,
@@ -482,8 +585,8 @@ fun PreviewDetailsScreen() {
         saveButtonState = ButtonState.Enabled,
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
         onIntent = {}
     )
 }

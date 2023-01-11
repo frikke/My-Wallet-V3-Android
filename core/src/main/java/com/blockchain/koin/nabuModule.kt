@@ -167,7 +167,9 @@ val nabuModule = module {
             KycRepository(
                 kycTiersStore = get(),
                 userService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                kycApiService = get(),
+                proveFeatureFlag = get(proveFeatureFlag),
             )
         }
 

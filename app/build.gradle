@@ -383,6 +383,7 @@ dependencies {
     implementation project(':store:caches:inmemory')
     implementation project(':store:persisters:persistedjsonsqldelight')
     implementation project(':addressVerification')
+    implementation project(':kyc-providers:prove')
     implementation project(':instrumentation:data')
     implementation project(':instrumentation:presentation')
 

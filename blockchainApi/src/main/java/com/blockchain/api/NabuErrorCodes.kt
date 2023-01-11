@@ -133,6 +133,9 @@ enum class NabuErrorCodes(val code: Int) {
     InvalidDestinationAmount(157),
     InvalidPostcode(158),
 
+    ProvePossessionFailed(300), // TODO(aromano): PROVE code
+    ProveVerificationFailed(301), // TODO(aromano): PROVE code
+
     InsufficientCardFunds(10000),
     CardBankDeclined(10001),
     CardDuplicate(10002),

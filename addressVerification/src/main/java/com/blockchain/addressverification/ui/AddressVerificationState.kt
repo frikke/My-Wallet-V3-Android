@@ -20,6 +20,7 @@ data class AddressVerificationModelState(
     val showManualOverride: Boolean = false,
     val results: List<AutocompleteAddress> = emptyList(),
     val loadingAddressDetails: AutocompleteAddress? = null,
+    val showInvalidStateErrorDialog: Boolean = false,
 
     // Details
     val mainLineInput: String = "",
@@ -34,9 +35,7 @@ data class AddressVerificationModelState(
     val postCodeInput: String = "",
 
     val countryInput: String = "",
-
-    val isSaveLoading: Boolean = false,
-) : ViewState, ModelState
+) : ModelState
 
 data class AddressVerificationState(
     // Common
@@ -50,6 +49,7 @@ data class AddressVerificationState(
     val showManualOverride: Boolean,
     val results: List<AutocompleteAddress>,
     val loadingAddressDetails: AutocompleteAddress?,
+    val showInvalidStateErrorDialog: Boolean,
 
     // Details
     val mainLineInput: String,
@@ -67,7 +67,7 @@ data class AddressVerificationState(
     val countryInput: String,
 
     val saveButtonState: ButtonState,
-) : ViewState, ModelState
+) : ViewState
 
 enum class AddressVerificationStep {
     SEARCH,

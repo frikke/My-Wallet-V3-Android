@@ -25,6 +25,7 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sardineFeatureFlag
@@ -136,6 +137,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_bind",
                 "Enable BIND For LatAm Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(proveFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_provedotcom",
+                "Prove.com"
             )
         )
     }.bind(FeatureFlag::class)

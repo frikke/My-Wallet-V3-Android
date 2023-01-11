@@ -16,8 +16,6 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
-import com.blockchain.utils.awaitOutcome
-import com.blockchain.utils.rxSingleOutcome
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
@@ -45,20 +43,16 @@ class AddressVerificationRepository(
         stateIso: StateIso?,
         containerId: String?
     ): Outcome<Exception, List<AutocompleteAddress>> =
-        rxSingleOutcome {
-            api.getAutocompleteAddresses(
-                searchQuery = searchQuery,
-                countryIso = countryIso,
-                stateIso = stateIso,
-                containerId = containerId
-            ).map {
-                it.toDomain()
-            }
-        }.awaitOutcome()
+        api.getAutocompleteAddresses(
+            searchQuery = searchQuery,
+            countryIso = countryIso,
+            stateIso = stateIso,
+            containerId = containerId
+        ).map {
+            it.toDomain()
+        }
 
     override suspend fun getCompleteAddress(id: String): Outcome<Exception, CompleteAddress> =
-        rxSingleOutcome {
-            api.getCompleteAddress(id = id)
-                .map { it.toDomain() }
-        }.awaitOutcome()
+        api.getCompleteAddress(id = id)
+            .map { it.toDomain() }
 }

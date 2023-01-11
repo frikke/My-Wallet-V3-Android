@@ -5,6 +5,7 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
@@ -19,6 +20,8 @@ interface KycService {
     fun getHighestApprovedTierLevelLegacy(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Single<KycTier>
+
+    suspend fun shouldLaunchProve(): Outcome<Exception, Boolean>
 
     fun isPendingFor(
         tierLevel: KycTier,
