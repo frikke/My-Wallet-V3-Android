@@ -38,6 +38,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.LaunchOrigin
@@ -46,6 +47,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.ArrowLeft
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -143,6 +146,13 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             image = ImageResource.Local(R.drawable.ic_information_large)
             onClick = {
                 showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = false))
+            }
+            visible()
+        }
+        binding.backIcon.apply {
+            image = Icons.ArrowLeft.withTint(Color.White)
+            onClick = {
+                finish()
             }
             visible()
         }

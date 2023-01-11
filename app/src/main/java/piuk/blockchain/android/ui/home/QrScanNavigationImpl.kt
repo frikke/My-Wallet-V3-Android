@@ -24,6 +24,7 @@ import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomShe
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.awaitSingle
@@ -44,23 +45,31 @@ class QrScanNavigationImpl(
 
     private lateinit var resultLauncher: ActivityResultLauncher<Set<QrExpected>>
 
+    private var walletConnectEventsTask: Job? = null
+    private var qrResultProcessorTask: Job? = null
+    private var wcSessionProcessorTask: Job? = null
+
     override fun registerForQrScan(onScan: (String) -> Unit): ActivityResultLauncher<Set<QrExpected>> {
         resultLauncher = activity.registerForActivityResult(QrScanActivityContract(), onScan)
         return resultLauncher
     }
 
     override fun launchQrScan() {
-        resultLauncher.launch(QrExpected.MAIN_ACTIVITY_QR)
-        activity.lifecycleScope.launch {
-            walletConnectServiceAPI.sessionEvents.distinctUntilChanged().asFlow()
-                .collect { sessionEvent ->
-                    processWC(sessionEvent)
-                }
+        if (walletConnectEventsTask == null) {
+            // Only launch it once
+            walletConnectEventsTask = activity.lifecycleScope.launch {
+                walletConnectServiceAPI.sessionEvents.distinctUntilChanged().asFlow()
+                    .collect { sessionEvent ->
+                        processWC(sessionEvent)
+                    }
+            }
         }
+        resultLauncher.launch(QrExpected.MAIN_ACTIVITY_QR)
     }
 
     override fun processQrResult(decodedData: String) {
-        activity.lifecycleScope.launch {
+        qrResultProcessorTask?.cancel()
+        qrResultProcessorTask = activity.lifecycleScope.launch {
             qrScanResultProcessor.processScan(decodedData).awaitOutcome()
                 .doOnFailure {
                     Timber.e(it)
@@ -77,7 +86,8 @@ class QrScanNavigationImpl(
     }
 
     override fun updateWalletConnectSession(wcIntent: WCSessionIntent) {
-        activity.lifecycleScope.launch {
+        wcSessionProcessorTask?.cancel()
+        wcSessionProcessorTask = activity.lifecycleScope.launch {
             when (wcIntent) {
                 is WCSessionIntent.ApproveWCSession ->
                     walletConnectServiceAPI.acceptConnection(wcIntent.session).awaitOutcome()
