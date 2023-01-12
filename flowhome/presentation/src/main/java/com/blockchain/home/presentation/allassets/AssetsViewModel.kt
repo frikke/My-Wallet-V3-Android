@@ -402,6 +402,7 @@ class AssetsViewModel(
                     }
                 }.filterIsInstance<DataResource.Data<Money>>()
                     .map { it.data }
+                    .filter { it.isPositive }
                     .fold(Money.zero(modelState.userFiat)) { acc, t ->
                         acc.plus(t)
                     }.let {
@@ -417,6 +418,7 @@ class AssetsViewModel(
             it.fiatBalance
         }.filterIsInstance<DataResource.Data<Money>>()
             .map { it.data }
+            .filter { it.isPositive }
             .fold(Money.zero(modelState.userFiat)) { acc, t ->
                 acc.plus(t)
             }
