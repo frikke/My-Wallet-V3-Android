@@ -21,7 +21,7 @@ fun ChromeScreen(
     updateScrollInfo: (ListStateInfo) -> Unit,
     isPullToRefreshEnabled: Boolean,
     listState: LazyListState,
-    content: @Composable () -> Unit,
+    content: @Composable (shouldTriggerRefresh: Boolean) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
 ) {
@@ -37,6 +37,7 @@ fun ChromeScreen(
     updateScrollInfo(
         extractStatesInfo(listState, swipeRefreshState)
     )
+
     SwipeRefreshWithoutOverscroll(
         state = swipeRefreshState,
         swipeEnabled = isPullToRefreshEnabled,
@@ -51,7 +52,7 @@ fun ChromeScreen(
         },
     ) {
         Column(modifier = modifier) {
-            content()
+            content(isRefreshing)
         }
     }
 }

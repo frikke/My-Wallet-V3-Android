@@ -13,6 +13,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
 import com.blockchain.data.dataOrElse
@@ -21,6 +22,7 @@ import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
+import com.blockchain.data.toPtrFreshnessStrategy
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
@@ -181,7 +183,7 @@ class AssetsViewModel(
                         userFiat = currencyPrefs.selectedFiatCurrency
                     )
                 }
-                loadAccounts()
+                loadAccounts(intent.forceRefresh)
             }
 
             is AssetsIntent.LoadFundLocks -> {
@@ -227,7 +229,7 @@ class AssetsViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccounts() {
+    private fun loadAccounts(forceRefresh: Boolean) {
         accountsJob?.cancel()
         accountsJob = CoroutineScope(Dispatchers.IO).launch {
             walletModeService.walletMode.onEach { walletMode ->
@@ -240,7 +242,10 @@ class AssetsViewModel(
                     }
                 }
             }.flatMapLatest {
-                homeAccountsService.accounts(it)
+                homeAccountsService.accounts(
+                    walletMode = it,
+                    freshnessStrategy = forceRefresh.toPtrFreshnessStrategy()
+                )
                     .doOnError {
                         /**
                          * TODO Handle error for fetching accounts for wallet mode
@@ -262,7 +267,9 @@ class AssetsViewModel(
                     .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
-                            account.balance().distinctUntilChanged()
+                            account.balance(
+                                freshnessStrategy = forceRefresh.toPtrFreshnessStrategy()
+                            ).distinctUntilChanged()
                                 .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
                                     emit(account to DataResource.Error(t as Exception))
@@ -282,8 +289,13 @@ class AssetsViewModel(
                         }
 
                         val usdRate = accounts.data.map { account ->
-                            exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
-                                .map { it to account }
+                            exchangeRates.exchangeRate(
+                                fromAsset = account.currency,
+                                toAsset = FiatCurrency.Dollars,
+                                freshnessStrategy = forceRefresh.toPtrFreshnessStrategy(
+                                    cacheStrategy = RefreshStrategy.RefreshIfStale
+                                )
+                            ).map { it to account }
                         }.merge().onEach { (usdExchangeRate, account) ->
                             updateState { state ->
                                 state.copy(
@@ -296,8 +308,12 @@ class AssetsViewModel(
                         }
 
                         val exchangeRates = accounts.data.map { account ->
-                            exchangeRates.getPricesWith24hDelta(fromAsset = account.currency)
-                                .map { it to account }
+                            exchangeRates.getPricesWith24hDelta(
+                                fromAsset = account.currency,
+                                freshnessStrategy = forceRefresh.toPtrFreshnessStrategy(
+                                    cacheStrategy = RefreshStrategy.RefreshIfStale
+                                )
+                            ).map { it to account }
                         }.merge().onEach { (price, account) ->
                             updateState { state ->
                                 state.copy(
@@ -342,7 +358,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                    .containsAll(
+                        .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {

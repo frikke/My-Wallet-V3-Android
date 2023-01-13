@@ -6,7 +6,10 @@ import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.SectionSize
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
-    data class LoadAccounts(val sectionSize: SectionSize) : AssetsIntent
+    data class LoadAccounts(
+        val sectionSize: SectionSize,
+        val forceRefresh: Boolean = false
+    ) : AssetsIntent
 
     object LoadFundLocks : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {

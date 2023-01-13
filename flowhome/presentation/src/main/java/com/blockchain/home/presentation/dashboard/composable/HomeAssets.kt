@@ -64,6 +64,7 @@ import org.koin.androidx.compose.getViewModel
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
+    forceRefresh: Boolean,
     openAllAssets: () -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
@@ -83,6 +84,15 @@ fun HomeAssets(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(AssetsIntent.LoadAccounts(sectionSize = SectionSize.Limited(), forceRefresh = true))
+            viewModel.onIntent(AssetsIntent.LoadFundLocks)
+        }
+
+        onDispose { }
     }
 
     HomeAssetsScreen(

@@ -36,6 +36,17 @@ sealed class RefreshStrategy {
     }
 }
 
+fun Boolean.toPtrFreshnessStrategy(
+    cacheStrategy: RefreshStrategy = RefreshStrategy.RefreshIfOlderThan(amount = 5, unit = TimeUnit.MINUTES),
+    refreshStrategy: RefreshStrategy = RefreshStrategy.RefreshIfOlderThan(amount = 2, unit = TimeUnit.MINUTES)
+): FreshnessStrategy {
+    return if (this) {
+        FreshnessStrategy.Cached(refreshStrategy)
+    } else {
+        FreshnessStrategy.Cached(cacheStrategy)
+    }
+}
+
 /**
  * Keyed version of [FreshnessStrategy]
  * See [FreshnessStrategy]  for more detailed documentation.

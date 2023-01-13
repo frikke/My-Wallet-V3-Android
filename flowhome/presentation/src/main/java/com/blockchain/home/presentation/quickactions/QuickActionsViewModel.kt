@@ -13,9 +13,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
+import com.blockchain.data.toPtrFreshnessStrategy
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
@@ -25,7 +24,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -56,6 +54,9 @@ class QuickActionsViewModel(
     ModelConfigArgs.NoArgs>(
     QuickActionsModelState()
 ) {
+
+    private var quickActionsJob: Job? = null
+    private var moreActionsJob: Job? = null
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -69,35 +70,37 @@ class QuickActionsViewModel(
         }
     }
 
-    private val defFreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
-
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
             is QuickActionsIntent.LoadActions -> when (intent.type) {
                 ActionType.Quick -> {
-                    walletModeService.walletMode.onEach { wMode ->
-                        updateState {
-                            it.copy(
-                                quickActions = modelState.actionsForMode(wMode)
-                            )
+                    quickActionsJob?.cancel()
+                    quickActionsJob = viewModelScope.launch {
+                        walletModeService.walletMode.onEach { wMode ->
+                            updateState {
+                                it.copy(
+                                    quickActions = modelState.actionsForMode(wMode)
+                                )
+                            }
+                        }.flatMapLatest { wMode ->
+                            if (wMode == WalletMode.NON_CUSTODIAL) {
+                                actionsForDefi(intent.forceRefresh)
+                            } else {
+                                actionsForBrokerage(intent.forceRefresh)
+                            }.map { wMode to it }
+                        }.collectLatest { (walletMode, actions) ->
+                            updateState {
+                                it.copy(
+                                    quickActions = actions
+                                )
+                            }
+                            modelState.cacheActions(actions, walletMode)
                         }
-                    }.flatMapLatest { wMode ->
-                        if (wMode == WalletMode.NON_CUSTODIAL) {
-                            actionsForDefi()
-                        } else {
-                            actionsForBrokerage()
-                        }.map { wMode to it }
-                    }.collectLatest { (walletMode, actions) ->
-                        updateState {
-                            it.copy(
-                                quickActions = actions
-                            )
-                        }
-                        modelState.cacheActions(actions, walletMode)
                     }
                 }
                 ActionType.More -> {
-                    viewModelScope.launch {
+                    moreActionsJob?.cancel()
+                    moreActionsJob = viewModelScope.launch {
                         walletModeService.walletMode.flatMapLatest {
                             loadMoreActions()
                         }.collectLatest { actions ->
@@ -158,56 +161,56 @@ class QuickActionsViewModel(
         }
     }
 
-    private fun totalWalletModeBalance(walletMode: WalletMode) =
+    private fun totalWalletModeBalance(walletMode: WalletMode, forceRefresh: Boolean) =
         coincore.activeWalletsInModeRx(
             walletMode = walletMode,
-            freshnessStrategy =
-            defFreshnessStrategy
+            freshnessStrategy = forceRefresh.toPtrFreshnessStrategy()
         ).flatMap {
             it.balanceRx()
         }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
             AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
         }
 
-    private fun actionsForDefi(): Flow<List<QuickActionItem>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL).zip(
-            userFeaturePermissionService.isEligibleFor(
-                Feature.Sell,
-                defFreshnessStrategy
-            ).filterNotLoading()
-        ) { balance, sellEligible ->
+    private fun actionsForDefi(forceRefresh: Boolean): Flow<List<QuickActionItem>> =
+        totalWalletModeBalance(WalletMode.NON_CUSTODIAL, forceRefresh)
+            .zip(
+                userFeaturePermissionService.isEligibleFor(
+                    Feature.Sell,
+                    forceRefresh.toPtrFreshnessStrategy()
+                ).filterNotLoading()
+            ) { balance, sellEligible ->
 
-            listOf(
-                QuickActionItem(
-                    title = R.string.common_swap,
-                    action = QuickAction.TxAction(AssetAction.Swap),
-                    enabled = balance.total.isPositive
-                ),
-                QuickActionItem(
-                    title = R.string.common_receive,
-                    enabled = true,
-                    action = QuickAction.TxAction(AssetAction.Receive),
-                ),
-                QuickActionItem(
-                    title = R.string.common_send,
-                    enabled = balance.total.isPositive,
-                    action = QuickAction.TxAction(AssetAction.Send),
-                ),
-                QuickActionItem(
-                    title = R.string.common_sell,
-                    enabled = balance.total.isPositive &&
-                        (sellEligible as? DataResource.Data)?.data ?: false,
-                    action = QuickAction.TxAction(AssetAction.Sell),
+                listOf(
+                    QuickActionItem(
+                        title = R.string.common_swap,
+                        action = QuickAction.TxAction(AssetAction.Swap),
+                        enabled = balance.total.isPositive
+                    ),
+                    QuickActionItem(
+                        title = R.string.common_receive,
+                        enabled = true,
+                        action = QuickAction.TxAction(AssetAction.Receive),
+                    ),
+                    QuickActionItem(
+                        title = R.string.common_send,
+                        enabled = balance.total.isPositive,
+                        action = QuickAction.TxAction(AssetAction.Send),
+                    ),
+                    QuickActionItem(
+                        title = R.string.common_sell,
+                        enabled = balance.total.isPositive &&
+                            (sellEligible as? DataResource.Data)?.data ?: false,
+                        action = QuickAction.TxAction(AssetAction.Sell),
+                    )
+
                 )
+            }
 
-            )
-        }
-
-    private fun actionsForBrokerage(): Flow<List<QuickActionItem>> {
+    private fun actionsForBrokerage(forceRefresh: Boolean): Flow<List<QuickActionItem>> {
         val buyEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Buy,
-                defFreshnessStrategy
+                forceRefresh.toPtrFreshnessStrategy()
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -216,7 +219,7 @@ class QuickActionsViewModel(
         val sellEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.DepositFiat,
-                defFreshnessStrategy
+                forceRefresh.toPtrFreshnessStrategy()
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -225,7 +228,7 @@ class QuickActionsViewModel(
         val swapEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Swap,
-                defFreshnessStrategy
+                forceRefresh.toPtrFreshnessStrategy()
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -234,13 +237,13 @@ class QuickActionsViewModel(
         val receiveEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.DepositCrypto,
-                defFreshnessStrategy
+                forceRefresh.toPtrFreshnessStrategy()
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
-        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL).map { it.totalFiat.isPositive }
+        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL, forceRefresh).map { it.totalFiat.isPositive }
         val more = loadMoreActions().onStart { emit(emptyList()) }.map { list -> list.any { it.enabled } }
 
         return combine(
@@ -388,7 +391,10 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    class LoadActions(val type: ActionType) : QuickActionsIntent
+    class LoadActions(
+        val type: ActionType,
+        val forceRefresh: Boolean = false
+    ) : QuickActionsIntent
 
     data class FiatAction(
         val action: AssetAction,

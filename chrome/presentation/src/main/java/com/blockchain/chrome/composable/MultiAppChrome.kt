@@ -679,6 +679,7 @@ fun MultiAppChromeScreen(
                         verifyAndCollapseHeaderForNewScreen()
                     }
                 },
+                selectedNavigationItem = selectedNavigationItem,
                 refreshStarted = {
                     isRefreshing = true
                 },
