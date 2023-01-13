@@ -63,8 +63,8 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
@@ -349,7 +349,7 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    CoinViewActivityV2.newIntent(
+                    CoinViewActivity.newIntent(
                         context = requireContext(),
                         asset = navigationAction.asset,
                         originScreen = LaunchOrigin.HOME.name,

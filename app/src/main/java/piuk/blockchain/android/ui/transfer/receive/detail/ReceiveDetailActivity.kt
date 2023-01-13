@@ -61,7 +61,7 @@ class ReceiveDetailActivity :
 
         account?.let {
             model.process(InitWithAccount(it))
-            binding.receiveAccountDetails.updateItem(AccountListViewItem.Crypto(it))
+            binding.receiveAccountDetails.updateItem(AccountListViewItem(it))
         } ?: finish()
 
         with(binding) {

@@ -1,6 +1,5 @@
 package com.blockchain.home.data.actions
 
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
@@ -13,14 +12,12 @@ import com.blockchain.data.onErrorReturn
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
@@ -31,7 +28,6 @@ import kotlinx.coroutines.rx3.asFlow
 
 class QuickActionsRepository(
     private val coincore: Coincore,
-    private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService
 ) : QuickActionsService {
 
@@ -42,14 +38,17 @@ class QuickActionsRepository(
     )
 
     override fun moreActions(): Flow<List<StateAwareAction>> {
-        val custodialBalance =
+        val hasCustodialBalance =
             coincore.activeWalletsInModeRx(
                 walletMode = WalletMode.CUSTODIAL,
                 freshnessStrategy =
                 FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
             ).flatMap {
                 it.balanceRx()
-            }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }
+            }.map {
+                it.total.isPositive
+            }.onErrorReturn { false }
+                .asFlow()
 
         val hasFiatBalance =
             coincore.activeWalletsInModeRx(
@@ -65,7 +64,7 @@ class QuickActionsRepository(
                         it[0].balanceRx().map { balance ->
                             balance.total.isPositive
                         }
-                }.asFlow()
+                }.onErrorReturn { false }.asFlow()
 
         val depositFiatFeature =
             userFeaturePermissionService.isEligibleFor(
@@ -81,7 +80,8 @@ class QuickActionsRepository(
 
         val withdrawFiatFeature =
             userFeaturePermissionService.isEligibleFor(
-                Feature.WithdrawFiat, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+                Feature.WithdrawFiat,
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -94,16 +94,16 @@ class QuickActionsRepository(
             }.asFlow()
 
         return combine(
-            custodialBalance,
+            hasCustodialBalance,
             depositFiatFeature,
             withdrawFiatFeature,
             hasFiatBalance,
             stateAwareActions
-        ) { balance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
+        ) { hasBalance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
             listOf(
                 StateAwareAction(
                     action = AssetAction.Send,
-                    state = if (balance.total.isPositive) ActionState.Available else ActionState.Unavailable
+                    state = if (hasBalance) ActionState.Available else ActionState.Unavailable
                 ),
                 StateAwareAction(
                     action = AssetAction.FiatDeposit,

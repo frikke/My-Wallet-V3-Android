@@ -17,7 +17,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -137,7 +137,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String) {
         activity!!.startActivity(
-            CoinViewActivityV2.newIntent(
+            CoinViewActivity.newIntent(
                 context = activity,
                 asset = asset,
                 recurringBuyId = recurringBuyId,
@@ -154,7 +154,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         asset: AssetInfo
     ) {
         activity!!.startActivity(
-            CoinViewActivityV2.newIntent(
+            CoinViewActivity.newIntent(
                 context = activity,
                 asset = asset,
                 originScreen = LaunchOrigin.HOME.name,

@@ -1007,13 +1007,11 @@
     <string name="payment_methods_bank_transfer">Если вы предпочитаете сначала внести средства прямо со своего банковского счета, следуйте инструкциям на следующей странице. Как только ваш депозит поступит на ваш счет Blockchain.com, вы можете вернуться сюда, чтобы купить криптовалюту.</string>
     <string name="payment_methods_make_deposit">Внести средства -&gt;</string>
     <string name="alias_tooltip">Банковский псевдоним позволяет вам идентифицировать свой банковский счет намного проще, чем с 22 цифрами CBU.</string>
-    <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">Мой %1s Кошелек</string>
     <string name="default_label_all_wallets">Все кошельки</string>
     <string name="default_label_rewards_wallet">Счет Rewards</string>
     <string name="exchange_default_account_label_1">Счет Exchange</string>
     <string name="approximately_symbol">~ %1$s</string>
-    <string name="custodial_wallet_default_label_1">Trading Account</string>
     <string name="custodial_wallet_default_label_2">%s торговый счет</string>
     <string name="select_account_sheet_title">Выберите Wallet</string>
     <string name="select_account_sheet_empty">У вас нет подходящих кошельков для выполнения этого действия.</string>

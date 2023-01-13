@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.quickactions
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
@@ -165,23 +164,23 @@ class QuickActionsViewModel(
             defFreshnessStrategy
         ).flatMap {
             it.balanceRx()
-        }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
-            AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
-        }
+        }.asFlow()
 
     private fun actionsForDefi(): Flow<List<QuickActionItem>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL).zip(
+        totalWalletModeBalance(WalletMode.NON_CUSTODIAL).map { it.total.isPositive }.catch {
+            emit(false)
+        }.zip(
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
                 defFreshnessStrategy
             ).filterNotLoading()
-        ) { balance, sellEligible ->
+        ) { hasBalance, sellEligible ->
 
             listOf(
                 QuickActionItem(
                     title = R.string.common_swap,
                     action = QuickAction.TxAction(AssetAction.Swap),
-                    enabled = balance.total.isPositive
+                    enabled = hasBalance
                 ),
                 QuickActionItem(
                     title = R.string.common_receive,
@@ -190,16 +189,15 @@ class QuickActionsViewModel(
                 ),
                 QuickActionItem(
                     title = R.string.common_send,
-                    enabled = balance.total.isPositive,
+                    enabled = hasBalance,
                     action = QuickAction.TxAction(AssetAction.Send),
                 ),
                 QuickActionItem(
                     title = R.string.common_sell,
-                    enabled = balance.total.isPositive &&
+                    enabled = hasBalance &&
                         (sellEligible as? DataResource.Data)?.data ?: false,
                     action = QuickAction.TxAction(AssetAction.Sell),
                 )
-
             )
         }
 

@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
@@ -177,7 +176,7 @@ class AnnouncementQueries(
                     group.accounts
                         .filterIsInstance<CryptoAccount>()
                         .map { account ->
-                            account.balanceRx().onErrorReturn { AccountBalance.zero(account.currency) }
+                            account.balanceRx()
                         }.zipObservables()
                         .map { balances ->
                             balances.any { it.totalFiat.isDust() }

@@ -82,7 +82,7 @@ class ReceiveFragment :
                         .map { accounts -> accounts.filter { it.currency.filteredBy(newState.input) } }
                         .map {
                             it.map { account ->
-                                AccountListViewItem.create(account)
+                                AccountListViewItem(account)
                             }
                         },
                 )

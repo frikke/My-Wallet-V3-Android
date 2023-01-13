@@ -4,7 +4,6 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountsSorter
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -14,10 +13,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -60,12 +55,9 @@ class SwapSourceAccountsSorting(
 }
 
 class SwapTargetAccountsSorting(
-    private val assetListOrderingFF: FeatureFlag,
-    private val dashboardAccountsSorter: AccountsSorting,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val watchlistDataManager: WatchlistDataManager,
-    private val momentLogger: MomentLogger
 ) : AccountsSorting {
 
     private data class AccountInfo(
@@ -75,131 +67,92 @@ class SwapTargetAccountsSorting(
     )
 
     override fun sorter(): AccountsSorter = { list ->
-        assetListOrderingFF.enabled.flatMap { enabled ->
-            if (enabled) {
-                momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
-                val sortedList = Single.zip(
-                    Observable.fromIterable(list).flatMapSingle { account ->
-                        Single.zip(
-                            account.balanceRx().firstOrError(),
-                            exchangeRatesDataManager.getCurrentAssetPrice(
-                                asset = account.currency, fiat = currencyPrefs.selectedFiatCurrency
-                            )
-                        ) { accountBalance, priceRecord ->
-                            AccountInfo(
-                                account = account,
-                                totalBalance = ExchangeRate(
-                                    rate = priceRecord.rate,
-                                    from = account.currency,
-                                    to = currencyPrefs.selectedFiatCurrency
-                                ).convert(accountBalance.total),
-                                tradingVolume = priceRecord.tradingVolume24h ?: 0.0
-                            )
-                        }
-                    }.toList(),
-                    watchlistDataManager.getWatchlist(),
-                ) { accountInfoItems, watchlist ->
-                    val sortedAccountsInWatchlist = watchlist.assetMap.keys
-                        .mapNotNull { currency ->
-                            accountInfoItems.find { it.account.currency == currency }
-                        }.sortedWith(
-                            compareByDescending<AccountInfo> {
-                                it.totalBalance
-                            }.thenByDescending { it.tradingVolume }
-                        )
-
-                    val sortedAvailableAccounts = accountInfoItems.sortedWith(
-                        compareByDescending<AccountInfo> {
-                            it.totalBalance
-                        }.thenByDescending { it.tradingVolume }
+        val sortedList = Single.zip(
+            Observable.fromIterable(list).flatMapSingle { account ->
+                Single.zip(
+                    account.balanceRx().firstOrError(),
+                    exchangeRatesDataManager.getCurrentAssetPrice(
+                        asset = account.currency, fiat = currencyPrefs.selectedFiatCurrency
                     )
-
-                    val sortedFinalAccounts = sortedAccountsInWatchlist.toSet() + sortedAvailableAccounts.toSet()
-
-                    return@zip sortedFinalAccounts.groupBy { it.account.currency.networkTicker }
-                        .mapValues { entry ->
-                            entry.value.sortedWith(
-                                compareByDescending<AccountInfo> { it.account is NonCustodialAccount }
-                                    .thenByDescending { it.totalBalance }
-                            )
-                        }
-                        .values.flatten().map {
-                            it.account
-                        }
-                }.onErrorReturn { list }
-
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
+                ) { accountBalance, priceRecord ->
+                    AccountInfo(
+                        account = account,
+                        totalBalance = ExchangeRate(
+                            rate = priceRecord.rate,
+                            from = account.currency,
+                            to = currencyPrefs.selectedFiatCurrency
+                        ).convert(accountBalance.total),
+                        tradingVolume = priceRecord.tradingVolume24h ?: 0.0
+                    )
                 }
-            } else {
-                momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
-                val sortedList = dashboardAccountsSorter.sorter().invoke(list)
-                    .onErrorReturn { list }
+            }.toList(),
+            watchlistDataManager.getWatchlist(),
+        ) { accountInfoItems, watchlist ->
+            val sortedAccountsInWatchlist = watchlist.assetMap.keys
+                .mapNotNull { currency ->
+                    accountInfoItems.find { it.account.currency == currency }
+                }.sortedWith(
+                    compareByDescending<AccountInfo> {
+                        it.totalBalance
+                    }.thenByDescending { it.tradingVolume }
+                )
 
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
+            val sortedAvailableAccounts = accountInfoItems.sortedWith(
+                compareByDescending<AccountInfo> {
+                    it.totalBalance
+                }.thenByDescending { it.tradingVolume }
+            )
+
+            val sortedFinalAccounts = sortedAccountsInWatchlist.toSet() + sortedAvailableAccounts.toSet()
+
+            return@zip sortedFinalAccounts.groupBy { it.account.currency.networkTicker }
+                .mapValues { entry ->
+                    entry.value.sortedWith(
+                        compareByDescending<AccountInfo> { it.account is NonCustodialAccount }
+                            .thenByDescending { it.totalBalance }
+                            .thenByDescending { it.account.currency.index }
+                    )
                 }
-            }
-        }
+                .values.flatten().map {
+                    it.account
+                }
+        }.onErrorReturn { list }
+        sortedList
     }
 }
 
 class SellAccountsSorting(
-    private val assetListOrderingFF: FeatureFlag,
-    private val dashboardAccountsSorter: AccountsSorting,
     private val coincore: Coincore,
-    private val momentLogger: MomentLogger
 ) : AccountsSorting {
     override fun sorter(): AccountsSorter = { accountList ->
-        assetListOrderingFF.enabled.flatMap { enabled ->
-            if (enabled) {
-                momentLogger.startEvent(MomentEvent.SELL_LIST_FF_ON)
-                val sortedList = Observable.fromIterable(accountList).flatMapSingle { account ->
-                    coincore[account.currency].getPricesWith24hDeltaLegacy().flatMap { prices ->
-                        account.balanceRx().firstOrError().map { balance ->
-                            Pair(account, prices.currentRate.convert(balance.total))
-                        }
-                    }
-                }.toList()
-                    .flatMap { list ->
-                        val groupedList = list.groupBy { (account, _) ->
-                            account.currency.networkTicker
-                        }
 
-                        val sortedGroups = groupedList.values.map { group ->
-                            group.sortedByDescending { (_, balance) ->
-                                balance
-                            }
-                        }.sortedByDescending { sortedGroup ->
-                            sortedGroup.first().second
-                        }.flatten().map { (account, _) ->
-                            account
-                        }
-
-                        Single.just(sortedGroups)
-                    }.onErrorReturn { accountList }
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SELL_LIST_FF_ON)
-                }
-            } else {
-                momentLogger.startEvent(MomentEvent.SELL_LIST_FF_OFF)
-                val sortedList = dashboardAccountsSorter.sorter().invoke(accountList)
-                    .onErrorReturn { accountList }
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SELL_LIST_FF_OFF)
+        val sortedList = Observable.fromIterable(accountList).flatMapSingle { account ->
+            coincore[account.currency].getPricesWith24hDeltaLegacy().flatMap { prices ->
+                account.balanceRx().firstOrError().map { balance ->
+                    Pair(account, prices.currentRate.convert(balance.total))
                 }
             }
-        }
+        }.toList()
+            .flatMap { list ->
+                val groupedList = list.groupBy { (account, _) ->
+                    account.currency.networkTicker
+                }
+                val sortedGroups = groupedList.values.map { group ->
+                    group.sortedByDescending { (_, balance) ->
+                        balance
+                    }
+                }.sortedByDescending { sortedGroup ->
+                    sortedGroup.first().second
+                }.flatten().map { (account, _) ->
+                    account
+                }
+                Single.just(sortedGroups)
+            }.onErrorReturn { accountList }
+        sortedList
     }
 }
 
-class DefaultAccountsSorting(
-    private val dashboardPrefs: DashboardPrefs,
-    private val assetCatalogue: AssetCatalogue,
-    private val walletModeService: WalletModeService,
-    private val coincore: Coincore,
-    private val momentLogger: MomentLogger
-) : AccountsSorting {
+class DefaultAccountsSorting(private val currencyPrefs: CurrencyPrefs) : AccountsSorting {
 
     private data class AccountData(
         val totalBalance: Money,
@@ -207,65 +160,44 @@ class DefaultAccountsSorting(
     )
 
     override fun sorter(): AccountsSorter = { list ->
-        walletModeService.walletModeSingle.flatMap {
-            if (it != WalletMode.CUSTODIAL) {
-                momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
-                universalOrdering(list).doFinally {
-                    momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
-                }
-            } else {
-                momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
-                val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
-                    Single.zip(
-                        account.balanceRx().firstOrError(),
-                        coincore[account.currency].getPricesWith24hDeltaLegacy(),
-                    ) { balance, prices ->
-                        AccountData(
-                            totalBalance = prices.currentRate.convert(balance.total),
-                            account = account
-                        )
-                    }
-                }.toList()
-                    .map { accountList ->
-                        accountList.sortedByDescending { it.totalBalance }
-                            .map { accountData ->
-                                accountData.account
-                            }
-                    }
-                sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
-                }
-            }
-        }
-    }
-
-    private fun universalOrdering(list: List<SingleAccount>) =
-        Single.fromCallable { getOrdering() }
-            .map { orderedAssets ->
-                val sortedList = list.sortedWith(
-                    compareBy(
-                        {
-                            (it as? CryptoAccount)?.let { cryptoAccount ->
-                                orderedAssets.indexOf(cryptoAccount.currency)
-                            } ?: 0
-                        },
-                        { it !is NonCustodialAccount },
-                        { !it.isDefault }
-                    )
+        Observable.fromIterable(list).flatMapSingle { account ->
+            account.balanceRx().firstOrError().onErrorReturn {
+                AccountBalance.zero(
+                    currencyPrefs.selectedFiatCurrency,
+                    ExchangeRate.zeroRateExchangeRate(currencyPrefs.selectedFiatCurrency)
                 )
-                sortedList
+            }.map { balance ->
+                AccountData(
+                    totalBalance = balance.totalFiat,
+                    account = account
+                )
             }
-
-    private fun getOrdering(): List<AssetInfo> =
-        dashboardPrefs.dashboardAssetOrder
-            .takeIf { it.isNotEmpty() }?.let {
-                it.mapNotNull { ticker -> assetCatalogue.assetInfoFromNetworkTicker(ticker) }
-            } ?: assetCatalogue.supportedCryptoAssets.sortedBy { it.displayTicker }
+        }.toList()
+            .map { accountList ->
+                accountList.sortedWith(
+                    compareByDescending<AccountData> { it.totalBalance }
+                        .thenByDescending { it.account.currency.index }
+                        .thenByDescending { it.account.currency.displayTicker }
+                )
+                    .groupBy { it.account.currency.networkTicker }
+                    .mapValues { entry ->
+                        entry.value.sortedWith(
+                            compareByDescending<AccountData> { it.account is NonCustodialAccount }
+                                .thenByDescending { it.totalBalance }
+                        )
+                    }.values.flatten().map {
+                        it.account
+                    }
+            }.onErrorResumeNext {
+                Single.just(list)
+            }
+    }
 }
 
 class BuyListAccountSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val coincore: Coincore,
+    private val currencyPrefs: CurrencyPrefs,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val watchlistDataManager: WatchlistDataManager,
     private val momentLogger: MomentLogger
@@ -297,7 +229,15 @@ class BuyListAccountSorting(
                 Maybe.zip(
                     coincore[asset].accountGroup(AssetFilter.All).flatMap {
                         it.balanceRx().firstOrError().toMaybe()
-                    }.onErrorReturn { AccountBalance.zero(asset) },
+                    }.onErrorReturn {
+                        AccountBalance.zero(
+                            asset,
+                            ExchangeRate.zeroRateExchangeRate(
+                                from = asset,
+                                to = currencyPrefs.selectedFiatCurrency
+                            )
+                        )
+                    },
                     asset.getAssetPriceInformation(),
                     // trading volumes are only returned in USD, so request them in that fiat here
                     exchangeRatesDataManager.getCurrentAssetPrice(asset, FiatCurrency.Dollars)

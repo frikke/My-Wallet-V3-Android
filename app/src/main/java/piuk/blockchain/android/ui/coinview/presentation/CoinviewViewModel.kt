@@ -339,7 +339,7 @@ class CoinviewViewModel(
         asset: CryptoAsset
     ) = Unavailable(
         cvAccount = cvAccount,
-        title = labels.getDefaultTradingWalletLabel(),
+        title = asset.currency.name,
         subtitle = TextValue.IntResValue(
             R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
@@ -398,8 +398,8 @@ class CoinviewViewModel(
         asset: CryptoAsset
     ) = Available(
         cvAccount = cvAccount,
-        title = labels.getDefaultTradingWalletLabel(),
-        subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
+        title = asset.currency.name,
+        subtitle = null,
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),

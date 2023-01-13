@@ -36,7 +36,6 @@ class MultiAppViewModel(
     MultiAppNavigationEvent,
     ModelConfigArgs.NoArgs>(
     MultiAppModelState(
-        // todo handle defi mode only
         walletModes = walletModeService.availableModes(),
         selectedWalletMode = WalletMode.CUSTODIAL
     )

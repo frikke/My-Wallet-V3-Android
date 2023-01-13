@@ -126,7 +126,9 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             } else {
                 Single.just(list)
             }.map {
-                it.map(AccountListViewItem.Companion::create)
+                it.map { account ->
+                    AccountListViewItem(account)
+                }
             }
         }
 

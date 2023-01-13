@@ -11,6 +11,7 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -119,7 +120,7 @@ class AddressesActivity :
         createNewAccount()
     }
 
-    override fun onAccountClicked(account: CryptoAccount) {
+    override fun onAccountClicked(account: SingleAccount) {
         Timber.d("Click ${account.label}")
         showBottomSheet(AccountEditSheet.newInstance(account))
     }

@@ -95,7 +95,6 @@ val coincoreModule = module {
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),
-                ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
             )
         }
         scoped {
@@ -138,8 +137,7 @@ val coincoreModule = module {
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stakingService = get(),
                 coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
-                kycService = get(),
-                walletModeService = get()
+                currencyPrefs = get()
             )
         }.bind(AssetLoader::class)
 

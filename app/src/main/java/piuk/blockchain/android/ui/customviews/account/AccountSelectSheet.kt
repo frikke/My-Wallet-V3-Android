@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import com.blockchain.analytics.events.transactionsShown
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
@@ -45,7 +46,7 @@ class AccountSelectSheet(
     private var accountList: Single<List<AccountListViewItem>> =
         walletModeService.walletModeSingle.flatMap { coincore.activeWalletsInModeRx(it).firstOrError() }
             .map { listOf(it) + activityRepo.accountsWithActivity() }
-            .map { it.map(AccountListViewItem.Companion::create) }
+            .map { it.filterIsInstance<SingleAccount>().map { account -> AccountListViewItem(account = account) } }
 
     private var _sheetTitle: Int = 0
 
@@ -131,7 +132,9 @@ class AccountSelectSheet(
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
                 this.accountList = accountList.map { accounts ->
-                    accounts.map(AccountListViewItem.Companion::create)
+                    accounts.filterIsInstance<SingleAccount>().map {
+                        AccountListViewItem(it)
+                    }
                 }
                 this._sheetTitle = sheetTitle
             }
@@ -144,7 +147,11 @@ class AccountSelectSheet(
             statusDecorator: StatusDecorator,
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
-                this.accountList = accountList.map { list -> list.map(AccountListViewItem.Companion::create) }
+                this.accountList = accountList.map { list ->
+                    list.filterIsInstance<SingleAccount>().map {
+                        AccountListViewItem(it)
+                    }
+                }
                 this._sheetTitle = sheetTitle
                 this.sheetSubtitle = sheetSubtitle
                 this.statusDecorator = statusDecorator

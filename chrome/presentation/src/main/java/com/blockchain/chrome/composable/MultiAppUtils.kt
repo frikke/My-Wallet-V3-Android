@@ -13,7 +13,7 @@ val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
 @StringRes
 fun WalletMode.titleSuperApp(): Int = when (this) {
     WalletMode.CUSTODIAL -> R.string.brokerage_wallet_name_superapp
-    WalletMode.NON_CUSTODIAL -> R.string.defi_wallet_name_superapp
+    WalletMode.NON_CUSTODIAL -> R.string.defi_wallet_name
 }
 
 fun WalletMode.titleIcon(): ImageResource = when (this) {

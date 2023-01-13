@@ -132,7 +132,7 @@ class WalletApi(
         val pipedAddresses = activeAddressList?.joinToString("|") ?: ""
         return sessionIdService.sessionId().flatMapCompletable { sessionId ->
             explorerInstance.syncWalletCall(
-                method = "secure-update",
+                method = "update",
                 guid = guid,
                 sessionId = sessionId.withBearerPrefix(),
                 sharedKey = sharedKey,

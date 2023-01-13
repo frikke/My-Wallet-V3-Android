@@ -330,23 +330,6 @@ class DashboardActionInteractor(
                             shouldShow = show
                         )
                     }
-                    .onErrorReturn {
-                        BalanceUpdateModel(
-                            currency = currency,
-                            balance = AccountBalance.zero(currency),
-                            shouldShow = true,
-                            hasError = true
-                        )
-                    }
-            }.onErrorResumeNext {
-                Observable.just(
-                    BalanceUpdateModel(
-                        currency = currency,
-                        balance = AccountBalance.zero(currency),
-                        shouldShow = true,
-                        hasError = true
-                    )
-                )
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, cryptos: List<AssetInfo>): Disposable {

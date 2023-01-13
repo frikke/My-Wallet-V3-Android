@@ -10,6 +10,7 @@ import androidx.annotation.UiThread
 import com.blockchain.analytics.events.WalletAnalytics
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -359,7 +360,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
         private const val PARAM_ACCOUNT = "PARAM_ACCOUNT"
 
-        fun newInstance(account: CryptoAccount): AccountEditSheet =
+        fun newInstance(account: SingleAccount): AccountEditSheet =
             AccountEditSheet().apply {
                 arguments = Bundle().apply {
                     putAccount(PARAM_ACCOUNT, account)

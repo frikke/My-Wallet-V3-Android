@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -30,14 +29,14 @@ class BuyDefiBottomSheet : ComposeModalBottomDialog() {
         BottomSheetOneButton(
             title = getString(R.string.buy_crypto),
             showTitleInHeader = true,
-            subtitle = getString(R.string.defi_buy_not_supported),
+            subtitle = "",
             shouldShowHeaderDivider = false,
             onCloseClick = { dismiss() },
             subtitleAlign = TextAlign.Start,
             headerImageResource = null,
             button = BottomSheetButton(
                 type = ButtonType.PRIMARY,
-                text = stringResource(R.string.go_to_trading),
+                text = "",
                 onClick = {
                     host.goToTrading()
                     dismiss()

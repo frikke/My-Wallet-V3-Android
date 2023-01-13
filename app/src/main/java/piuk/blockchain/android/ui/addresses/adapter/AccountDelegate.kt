@@ -61,7 +61,7 @@ class AccountDelegate(
                     accountDetailsArchived.gone()
                     accountDetails.visible()
                     accountDetails.updateItem(
-                        AccountListViewItem.Crypto(item.account),
+                        AccountListViewItem(item.account),
                         { listener.onAccountClicked(it) },
                         DefaultAccountCellDecorator(item.account)
                     )

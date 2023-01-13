@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.addresses.adapter
 
-import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import kotlin.properties.Delegates
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
@@ -24,7 +24,7 @@ class AccountAdapter(
     interface Listener {
         fun onCreateNewClicked()
         fun onImportAddressClicked()
-        fun onAccountClicked(account: CryptoAccount)
+        fun onAccountClicked(account: SingleAccount)
     }
 
     init {

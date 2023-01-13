@@ -86,26 +86,27 @@ data class AccountBalance internal constructor(
                 exchangeRate = rate
             )
 
-        fun zero(assetInfo: Currency) =
+        fun zero(currency: Currency, exchangeRate: ExchangeRate) =
             AccountBalance(
-                total = Money.zero(assetInfo),
-                withdrawable = Money.zero(assetInfo),
-                pending = Money.zero(assetInfo),
-                dashboardDisplay = Money.zero(assetInfo),
-                exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
+                total = Money.zero(currency),
+                withdrawable = Money.zero(currency),
+                pending = Money.zero(currency),
+                dashboardDisplay = Money.zero(currency),
+                exchangeRate = exchangeRate
             )
     }
 }
 
-fun List<AccountBalance>.total(currency: Currency): AccountBalance = fold(AccountBalance.zero(currency)) { a, v ->
-    AccountBalance(
-        total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
-        withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
-        pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
-        dashboardDisplay = a.exchangeRate.convert(a.dashboardDisplay) + v.exchangeRate.convert(v.dashboardDisplay),
-        exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
-    )
-}
+fun List<AccountBalance>.total(currency: Currency): AccountBalance =
+    fold(AccountBalance.zero(currency, ExchangeRate.identityExchangeRate(currency))) { a, v ->
+        AccountBalance(
+            total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+            withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+            pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+            dashboardDisplay = a.exchangeRate.convert(a.dashboardDisplay) + v.exchangeRate.convert(v.dashboardDisplay),
+            exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+        )
+    }
 
 interface BlockchainAccount {
 
@@ -231,7 +232,9 @@ interface AccountGroup : BlockchainAccount {
         get() = true
 
     private fun allActivities(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
-        return Single.just(accounts).flattenAsObservable { it }
+        return if (accounts.isEmpty())
+            Observable.just(emptyList())
+        else Single.just(accounts).flattenAsObservable { it }
             .flatMap { account ->
                 account.activity(freshnessStrategy)
                     .onErrorResumeNext { Observable.just(emptyList()) }.map {
@@ -252,7 +255,7 @@ interface SameCurrencyAccountGroup : AccountGroup {
 
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return if (accounts.isEmpty())
-            Observable.just(AccountBalance.zero(currency))
+            Observable.just(AccountBalance.zero(currency, ExchangeRate.identityExchangeRate(currency)))
         else Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
             account.balanceRx(freshnessStrategy).map { balance ->
                 mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
@@ -266,7 +269,12 @@ interface SameCurrencyAccountGroup : AccountGroup {
                 throw map.values.filterIsInstance<DataResource.Error>().first().error
             } else {
                 map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
-                    .fold(AccountBalance.zero(currency)) { acc, accountBalance ->
+                    .fold(
+                        AccountBalance.zero(
+                            currency,
+                            ExchangeRate.identityExchangeRate(currency)
+                        )
+                    ) { acc, accountBalance ->
                         AccountBalance.totalOf(
                             acc, accountBalance
                         )
@@ -283,7 +291,7 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
      */
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return if (accounts.isEmpty())
-            Observable.just(AccountBalance.zero(baseCurrency))
+            Observable.just(AccountBalance.zero(baseCurrency, ExchangeRate.identityExchangeRate(baseCurrency)))
         else
             Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
                 account.balanceRx(freshnessStrategy).map { balance ->
@@ -298,7 +306,13 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
                     throw map.values.filterIsInstance<DataResource.Error>().first().error
                 } else {
                     map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
-                        .fold(AccountBalance.zero(baseCurrency)) { a, v ->
+                        .filter { it.total.isPositive }
+                        .fold(
+                            AccountBalance.zero(
+                                currency = baseCurrency,
+                                exchangeRate = ExchangeRate.identityExchangeRate(baseCurrency)
+                            )
+                        ) { a, v ->
                             AccountBalance(
                                 total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
                                 withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(

@@ -906,8 +906,7 @@ val applicationModule = module {
 
     factory {
         ResourceDefaultLabels(
-            resources = get(),
-            assetResources = get()
+            resources = get()
         )
     }.bind(DefaultLabels::class)
 

@@ -8,6 +8,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatAccountGroup
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
@@ -55,6 +56,7 @@ class AccountIcon(
             is FiatAccount -> null
             is InterestAccount -> R.drawable.ic_interest_account_indicator
             is TradingAccount -> R.drawable.ic_custodial_account_indicator
+            is StakingAccount -> R.drawable.ic_staking_account_indicator
             is CryptoExchangeAccount -> R.drawable.ic_exchange_indicator
             else -> null
         }

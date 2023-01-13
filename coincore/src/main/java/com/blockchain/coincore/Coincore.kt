@@ -18,7 +18,6 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.wallet.CoinNetwork
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
@@ -59,8 +58,7 @@ class Coincore internal constructor(
     private val defaultLabels: DefaultLabels,
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
-    private val walletModeService: WalletModeService,
-    private val ethLayerTwoFF: FeatureFlag
+    private val walletModeService: WalletModeService
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getWithdrawalLocks(
@@ -371,7 +369,8 @@ class Coincore internal constructor(
             if (assets.isEmpty()) {
                 Observable.just(
                     AllWalletsAccount(
-                        emptyList(), defaultLabels,
+                        emptyList(),
+                        defaultLabels,
                         currencyPrefs.selectedFiatCurrency
                     )
                 )

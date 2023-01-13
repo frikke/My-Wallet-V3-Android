@@ -14,11 +14,13 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -30,6 +32,7 @@ class Erc20NonCustodialAccount(
     internal val address: String,
     private val fees: FeeDataManager,
     override val label: String,
+    private val currencyPrefs: CurrencyPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val addressResolver: AddressResolver,
@@ -57,7 +60,15 @@ class Erc20NonCustodialAccount(
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return super.balanceRx(freshnessStrategy).onErrorResumeNext {
             if (it is UnifiedBalanceNotFoundException)
-                Observable.just(AccountBalance.zero(currency))
+                Observable.just(
+                    AccountBalance.zero(
+                        currency = currency,
+                        exchangeRate = ExchangeRate.zeroRateExchangeRate(
+                            from = currency,
+                            to = currencyPrefs.selectedFiatCurrency
+                        )
+                    )
+                )
             else Observable.error(it)
         }.doOnNext {
             hasFunds.set(it.total.isPositive)
