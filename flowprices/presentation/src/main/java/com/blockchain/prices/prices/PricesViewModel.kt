@@ -27,6 +27,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -48,6 +49,8 @@ class PricesViewModel(
     ModelConfigArgs.NoArgs>(
     PricesModelState()
 ) {
+
+    private var pricesJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -143,7 +146,8 @@ class PricesViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        pricesJob?.cancel()
+        pricesJob = viewModelScope.launch {
             val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
                 .mapListData { it.source.networkTicker }
 

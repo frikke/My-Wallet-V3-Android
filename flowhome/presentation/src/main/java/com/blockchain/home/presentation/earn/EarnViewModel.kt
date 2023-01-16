@@ -30,6 +30,7 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.merge
@@ -54,6 +55,8 @@ class EarnViewModel(
             interestRates = emptyMap()
         )
     ) {
+    private var accountsJob: Job? = null
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: EarnModelState): EarnViewState {
@@ -86,7 +89,8 @@ class EarnViewModel(
     override suspend fun handleIntent(modelState: EarnModelState, intent: EarnIntent) {
         when (intent) {
             is EarnIntent.LoadEarnAccounts -> {
-                viewModelScope.launch {
+                accountsJob?.cancel()
+                accountsJob = viewModelScope.launch {
                     walletModeService.walletMode.collectLatest {
                         if (it == WalletMode.CUSTODIAL) {
                             loadEarnings(forceRefresh = intent.forceRefresh)
