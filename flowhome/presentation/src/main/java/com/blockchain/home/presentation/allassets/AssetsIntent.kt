@@ -4,7 +4,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.presentation.pulltorefresh.canRefresh
+import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
     data class LoadAccounts(
@@ -32,7 +32,7 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
 
     object RefreshRequested : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
-            return canRefresh(modelState.lastFreshDataTime)
+            return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }
     }
 }

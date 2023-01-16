@@ -21,8 +21,7 @@ import com.blockchain.data.doOnData
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.minus
-import com.blockchain.presentation.pulltorefresh.canRefresh
-import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
+import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.utils.CurrentTimeProvider
@@ -136,7 +135,7 @@ class EarnViewModel(
 
     private suspend fun loadEarnings(forceRefresh: Boolean) {
         val staking = stakingService.getBalanceForAllAssets(
-            refreshStrategy = ptrFreshnessStrategy(
+            refreshStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                 shouldGetFresh = forceRefresh,
                 cacheStrategy = stakingService.defFreshness.refreshStrategy
             )
@@ -148,7 +147,7 @@ class EarnViewModel(
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
                     fromAsset = asset,
-                    freshnessStrategy = ptrFreshnessStrategy(
+                    freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                         shouldGetFresh = forceRefresh,
                         cacheStrategy = exchangeRates.defFreshness.refreshStrategy
                     )
@@ -298,7 +297,7 @@ sealed interface EarnIntent : Intent<EarnModelState> {
 
     object RefreshRequested : EarnIntent {
         override fun isValidFor(modelState: EarnModelState): Boolean {
-            return canRefresh(modelState.lastFreshDataTime)
+            return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }
     }
 }

@@ -33,7 +33,7 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance
-import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
+import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -232,7 +232,7 @@ class AssetsViewModel(
         fundsLocksJob = viewModelScope.launch {
             coincore.getWithdrawalLocks(
                 localCurrency = currencyPrefs.selectedFiatCurrency,
-                freshnessStrategy = ptrFreshnessStrategy(
+                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                     shouldGetFresh = forceRefresh,
                     cacheStrategy = RefreshStrategy.RefreshIfStale
                 )
@@ -261,7 +261,7 @@ class AssetsViewModel(
             }.flatMapLatest {
                 homeAccountsService.accounts(
                     walletMode = it,
-                    freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                    freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
                 )
                     .doOnError {
                         /**
@@ -285,7 +285,7 @@ class AssetsViewModel(
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
                             account.balance(
-                                freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
                             ).distinctUntilChanged()
                                 .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
@@ -309,7 +309,7 @@ class AssetsViewModel(
                             exchangeRates.exchangeRate(
                                 fromAsset = account.currency,
                                 toAsset = FiatCurrency.Dollars,
-                                freshnessStrategy = ptrFreshnessStrategy(
+                                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                                     shouldGetFresh = forceRefresh,
                                     cacheStrategy = RefreshStrategy.RefreshIfStale
                                 )
@@ -328,7 +328,7 @@ class AssetsViewModel(
                         val exchangeRates = accounts.data.map { account ->
                             exchangeRates.getPricesWith24hDelta(
                                 fromAsset = account.currency,
-                                freshnessStrategy = ptrFreshnessStrategy(
+                                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                                     shouldGetFresh = forceRefresh,
                                     cacheStrategy = RefreshStrategy.RefreshIfStale
                                 )

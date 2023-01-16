@@ -21,8 +21,7 @@ import com.blockchain.home.presentation.R
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.presentation.pulltorefresh.canRefresh
-import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
+import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 import com.blockchain.store.filterNotLoading
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
@@ -174,7 +173,7 @@ class QuickActionsViewModel(
     private fun totalWalletModeBalance(walletMode: WalletMode, forceRefresh: Boolean) =
         coincore.activeWalletsInModeRx(
             walletMode = walletMode,
-            freshnessStrategy = ptrFreshnessStrategy(
+            freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
                 shouldGetFresh = forceRefresh,
                 cacheStrategy = RefreshStrategy.ForceRefresh
             )
@@ -198,7 +197,7 @@ class QuickActionsViewModel(
             .zip(
                 userFeaturePermissionService.isEligibleFor(
                     Feature.Sell,
-                    ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                    PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
                 ).filterNotLoading()
             ) { balance, sellEligible ->
                 println("--------- balance ${balance.total.toStringWithSymbol()}")
@@ -233,7 +232,7 @@ class QuickActionsViewModel(
         val buyEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 feature = Feature.Buy,
-                freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -242,7 +241,7 @@ class QuickActionsViewModel(
         val sellEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 feature = Feature.DepositFiat,
-                freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -251,7 +250,7 @@ class QuickActionsViewModel(
         val swapEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 feature = Feature.Swap,
-                freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -260,7 +259,7 @@ class QuickActionsViewModel(
         val receiveEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 feature = Feature.DepositCrypto,
-                freshnessStrategy = ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
+                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(shouldGetFresh = forceRefresh)
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -426,7 +425,7 @@ sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
 
     object RefreshRequested : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
-            return canRefresh(modelState.lastFreshDataTime)
+            return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }
     }
 }
