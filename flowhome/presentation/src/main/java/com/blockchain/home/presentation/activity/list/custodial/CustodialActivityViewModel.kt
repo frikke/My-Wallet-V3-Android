@@ -20,12 +20,13 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
-import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class CustodialActivityViewModel(
     private val custodialActivityService: CustodialActivityService
@@ -35,6 +36,8 @@ class CustodialActivityViewModel(
     ActivityModelState<CustodialTransaction>,
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
+
+    private var activityJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -109,7 +112,7 @@ class CustodialActivityViewModel(
                 }
             }
 
-            is ActivityIntent.RefreshRequested -> {
+            is ActivityIntent.Refresh -> {
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
@@ -120,7 +123,8 @@ class CustodialActivityViewModel(
     }
 
     private fun loadData(forceRefresh: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        activityJob?.cancel()
+        activityJob = CoroutineScope(Dispatchers.IO).launch {
             custodialActivityService.getAllActivity(
                 PullToRefreshUtils.freshnessStrategy(
                     shouldGetFresh = forceRefresh,

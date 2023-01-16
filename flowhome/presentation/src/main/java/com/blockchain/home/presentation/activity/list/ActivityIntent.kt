@@ -18,7 +18,7 @@ sealed interface ActivityIntent<ACTIVITY_MODEL> : Intent<ActivityModelState<ACTI
         }
     }
 
-    class RefreshRequested<ACTIVITY_MODEL> : ActivityIntent<ACTIVITY_MODEL> {
+    class Refresh<ACTIVITY_MODEL> : ActivityIntent<ACTIVITY_MODEL> {
         override fun isValidFor(modelState: ActivityModelState<ACTIVITY_MODEL>): Boolean {
             return modelState.walletMode == WalletMode.CUSTODIAL &&
                 PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)

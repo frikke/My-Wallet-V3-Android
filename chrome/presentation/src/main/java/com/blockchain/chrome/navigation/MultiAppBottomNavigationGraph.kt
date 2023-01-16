@@ -83,7 +83,7 @@ fun MultiAppBottomNavigationHost(
                     Prices(
                         listState = listState,
                         shouldTriggerRefresh = shouldTriggerRefresh &&
-                            selectedNavigationItem == ChromeBottomNavigationItem.Home,
+                            selectedNavigationItem == ChromeBottomNavigationItem.Prices,
                         pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,

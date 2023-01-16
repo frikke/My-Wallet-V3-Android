@@ -97,7 +97,7 @@ fun CustodialHomeActivity(
 
     DisposableEffect(forceRefresh) {
         if (forceRefresh) {
-            viewModel.onIntent(ActivityIntent.RefreshRequested())
+            viewModel.onIntent(ActivityIntent.Refresh())
         }
         onDispose { }
     }
