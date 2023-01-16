@@ -18,6 +18,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
+import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
@@ -131,7 +132,11 @@ class PricesViewModel(
                 }
             }
 
-            PricesIntents.RefreshRequested -> {
+            PricesIntents.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
                 onIntent(PricesIntents.LoadData(forceRefresh = true))
             }
         }

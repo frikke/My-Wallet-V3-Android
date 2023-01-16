@@ -88,7 +88,7 @@ fun HomeAssets(
 
     DisposableEffect(forceRefresh) {
         if (forceRefresh) {
-            viewModel.onIntent(AssetsIntent.RefreshRequested)
+            viewModel.onIntent(AssetsIntent.Refresh)
         }
         onDispose { }
     }

@@ -47,7 +47,6 @@ import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import kotlinx.coroutines.flow.collectLatest
@@ -76,7 +75,7 @@ fun EarnAssets(
 
     DisposableEffect(forceRefresh) {
         if (forceRefresh) {
-            viewModel.onIntent(EarnIntent.RefreshRequested)
+            viewModel.onIntent(EarnIntent.Refresh)
         }
         onDispose { }
     }

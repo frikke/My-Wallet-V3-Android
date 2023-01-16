@@ -30,7 +30,7 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
 
     data class UpdateFilters(val filters: List<AssetFilter>) : AssetsIntent
 
-    object RefreshRequested : AssetsIntent {
+    object Refresh : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
             return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }

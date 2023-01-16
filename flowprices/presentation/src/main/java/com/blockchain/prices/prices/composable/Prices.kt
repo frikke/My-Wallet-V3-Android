@@ -64,7 +64,7 @@ fun Prices(
 
     DisposableEffect(shouldTriggerRefresh) {
         if (shouldTriggerRefresh) {
-            viewModel.onIntent(PricesIntents.RefreshRequested)
+            viewModel.onIntent(PricesIntents.Refresh)
         }
         onDispose { }
     }

@@ -40,7 +40,7 @@ class ReferralViewModel(
         when (intent) {
             is ReferralIntent.LoadData -> loadData(intent.forceRefresh)
             ReferralIntent.CodeCopied -> handleCodeCopied()
-            ReferralIntent.RefreshRequested -> {
+            ReferralIntent.Refresh -> {
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
@@ -54,7 +54,7 @@ class ReferralViewModel(
         referralJob?.cancel()
         referralJob = viewModelScope.launch {
             referralService.fetchReferralData(
-                freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(forceRefresh, referralService.defFreshness.refreshStrategy)
+                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(forceRefresh, referralService.defFreshness.refreshStrategy)
             )
                 .onEach { dataResource ->
                     updateState {

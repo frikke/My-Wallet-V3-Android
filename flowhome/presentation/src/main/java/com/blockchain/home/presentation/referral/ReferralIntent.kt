@@ -10,7 +10,7 @@ sealed interface ReferralIntent : Intent<ReferralModelState> {
 
     object CodeCopied : ReferralIntent
 
-    object RefreshRequested : ReferralIntent {
+    object Refresh : ReferralIntent {
         override fun isValidFor(modelState: ReferralModelState): Boolean {
             return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }

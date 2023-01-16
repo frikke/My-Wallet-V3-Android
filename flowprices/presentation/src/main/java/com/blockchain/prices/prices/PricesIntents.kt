@@ -23,7 +23,7 @@ sealed interface PricesIntents : Intent<PricesModelState> {
         }
     }
 
-    object RefreshRequested : PricesIntents {
+    object Refresh : PricesIntents {
         override fun isValidFor(modelState: PricesModelState): Boolean {
             return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }

@@ -12,9 +12,9 @@ object PullToRefreshUtils{
         return CurrentTimeProvider.currentTimeMillis() - lastFreshTime > PULL_TO_REFRESH_THRESHOLD
     }
 
-    fun ptrFreshnessStrategy(
+    fun freshnessStrategy(
         shouldGetFresh: Boolean,
-        cacheStrategy: RefreshStrategy = RefreshStrategy.RefreshIfOlderThan(amount = 5, unit = TimeUnit.MINUTES),
+        cacheStrategy: RefreshStrategy = RefreshStrategy.RefreshIfOlderThan(amount = 5, unit = TimeUnit.MINUTES)
     ): FreshnessStrategy {
         return if (shouldGetFresh) {
             FreshnessStrategy.Fresh

@@ -17,7 +17,8 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
+import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -109,6 +110,10 @@ class CustodialActivityViewModel(
             }
 
             is ActivityIntent.RefreshRequested -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
                 onIntent(ActivityIntent.LoadActivity(sectionSize = modelState.sectionSize, forceRefresh = true))
             }
         }
@@ -117,7 +122,7 @@ class CustodialActivityViewModel(
     private fun loadData(forceRefresh: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             custodialActivityService.getAllActivity(
-                ptrFreshnessStrategy(
+                PullToRefreshUtils.freshnessStrategy(
                     shouldGetFresh = forceRefresh,
                     cacheStrategy = custodialActivityService.defFreshness.refreshStrategy
                 )

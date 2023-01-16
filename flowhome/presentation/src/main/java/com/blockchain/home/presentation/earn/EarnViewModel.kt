@@ -123,7 +123,7 @@ class EarnViewModel(
                     navigate(it)
                 }
             }
-            EarnIntent.RefreshRequested -> {
+            EarnIntent.Refresh -> {
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
@@ -135,7 +135,7 @@ class EarnViewModel(
 
     private suspend fun loadEarnings(forceRefresh: Boolean) {
         val staking = stakingService.getBalanceForAllAssets(
-            refreshStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
+            refreshStrategy = PullToRefreshUtils.freshnessStrategy(
                 shouldGetFresh = forceRefresh,
                 cacheStrategy = stakingService.defFreshness.refreshStrategy
             )
@@ -147,7 +147,7 @@ class EarnViewModel(
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
                     fromAsset = asset,
-                    freshnessStrategy = PullToRefreshUtils.ptrFreshnessStrategy(
+                    freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
                         shouldGetFresh = forceRefresh,
                         cacheStrategy = exchangeRates.defFreshness.refreshStrategy
                     )
@@ -295,7 +295,7 @@ sealed interface EarnIntent : Intent<EarnModelState> {
 
     data class AssetSelected(val earnAsset: EarnAsset) : EarnIntent
 
-    object RefreshRequested : EarnIntent {
+    object Refresh : EarnIntent {
         override fun isValidFor(modelState: EarnModelState): Boolean {
             return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
         }

@@ -39,7 +39,7 @@ fun Referral(
 
     DisposableEffect(forceRefresh) {
         if (forceRefresh) {
-            viewModel.onIntent(ReferralIntent.RefreshRequested)
+            viewModel.onIntent(ReferralIntent.Refresh)
         }
         onDispose { }
     }
