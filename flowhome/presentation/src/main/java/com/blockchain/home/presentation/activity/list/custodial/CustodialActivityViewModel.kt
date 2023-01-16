@@ -20,13 +20,13 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
+import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class CustodialActivityViewModel(
     private val custodialActivityService: CustodialActivityService
