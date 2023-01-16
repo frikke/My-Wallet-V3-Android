@@ -79,9 +79,11 @@ fun MultiAppBottomNavigationHost(
                 modifier = modifier,
                 updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Prices, it)) },
                 isPullToRefreshEnabled = enableRefresh,
-                content = {
+                content = { shouldTriggerRefresh ->
                     Prices(
                         listState = listState,
+                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                            selectedNavigationItem == ChromeBottomNavigationItem.Home,
                         pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,

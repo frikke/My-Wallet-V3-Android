@@ -130,6 +130,10 @@ class PricesViewModel(
                     it.copy(filterBy = intent.filter)
                 }
             }
+
+            PricesIntents.RefreshRequested -> {
+                onIntent(PricesIntents.LoadData(forceRefresh = true))
+            }
         }
     }
 

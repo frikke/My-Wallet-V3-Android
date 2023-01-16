@@ -50,6 +50,7 @@ import org.koin.androidx.compose.getViewModel
 fun Prices(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
     listState: LazyListState,
+    shouldTriggerRefresh: Boolean,
     pricesNavigation: PricesNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit
@@ -58,6 +59,13 @@ fun Prices(
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(PricesIntents.LoadData())
+        onDispose { }
+    }
+
+    DisposableEffect(shouldTriggerRefresh) {
+        if (shouldTriggerRefresh) {
+            viewModel.onIntent(PricesIntents.RefreshRequested)
+        }
         onDispose { }
     }
 
