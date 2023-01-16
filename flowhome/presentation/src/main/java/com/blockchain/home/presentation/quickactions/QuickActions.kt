@@ -50,8 +50,8 @@ fun QuickActions(
         onDispose { }
     }
     DisposableEffect(key1 = forceRefresh) {
-        if(forceRefresh){
-            viewModel.onIntent(QuickActionsIntent.LoadActions(ActionType.Quick, forceRefresh = true))
+        if (forceRefresh) {
+            viewModel.onIntent(QuickActionsIntent.RefreshRequested)
         }
         onDispose { }
     }

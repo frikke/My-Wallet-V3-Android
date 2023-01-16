@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
+import java.util.concurrent.TimeUnit
 
 enum class HistoricalTimeSpan(val value: Int) {
     DAY(0),
@@ -59,6 +60,9 @@ interface ExchangeRates {
 }
 
 interface ExchangeRatesDataManager : ExchangeRates {
+    val defFreshness
+        get() = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+
     fun init(): Completable
 
     @Deprecated("Use the reactive flow exchangeRate")
@@ -67,17 +71,17 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun exchangeRate(
         fromAsset: Currency,
         toAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<ExchangeRate>>
 
     fun exchangeRateToUserFiat(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<ExchangeRate>
 
     fun exchangeRateToUserFiatFlow(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
@@ -85,32 +89,32 @@ interface ExchangeRatesDataManager : ExchangeRates {
     @Deprecated("Use the reactive getPricesWith24hDelta")
     fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<Prices24HrWithDelta>
 
     @Deprecated("Use the reactive getPricesWith24hDelta")
     fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
         fiat: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<Prices24HrWithDelta>
 
     fun getPricesWith24hDelta(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<Prices24HrWithDelta>>
 
     fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar = Calendar.getInstance(),
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
         asset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<HistoricalRateList>>
 
     fun getCurrentAssetPrice(

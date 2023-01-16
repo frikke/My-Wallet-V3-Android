@@ -37,6 +37,7 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
+import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -45,6 +46,7 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeActivity(
+    forceRefresh: Boolean,
     openAllActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 ) {
@@ -54,6 +56,7 @@ fun HomeActivity(
     walletMode?.let {
         when (walletMode) {
             WalletMode.CUSTODIAL -> CustodialHomeActivity(
+                forceRefresh = forceRefresh,
                 openAllActivity = openAllActivity,
                 activityOnClick = {
                     openActivityDetail(it, WalletMode.CUSTODIAL)
@@ -73,6 +76,7 @@ fun HomeActivity(
 @Composable
 fun CustodialHomeActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+    forceRefresh: Boolean,
     openAllActivity: () -> Unit,
     activityOnClick: (String) -> Unit
 ) {
@@ -91,6 +95,14 @@ fun CustodialHomeActivity(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(ActivityIntent.RefreshRequested())
+        }
+        onDispose { }
+    }
+
     HomeActivityScreen(
         activity = viewState.activity.map { it[TransactionGroup.Combined] ?: listOf() },
         onSeeAllCryptoAssetsClick = openAllActivity,

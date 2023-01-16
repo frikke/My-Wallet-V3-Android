@@ -99,6 +99,7 @@ fun HomeScreen(
 
         item {
             QuickActions(
+                forceRefresh = shouldTriggerRefresh,
                 assetActionsNavigation = assetActionsNavigation,
                 openMoreQuickActions = openMoreQuickActions
             )
@@ -122,19 +123,24 @@ fun HomeScreen(
         }
 
         item {
-            EarnAssets(assetActionsNavigation = assetActionsNavigation)
+            EarnAssets(
+                assetActionsNavigation = assetActionsNavigation,
+                forceRefresh = shouldTriggerRefresh
+            )
         }
 
         item {
             HomeActivity(
                 openAllActivity = openActivity,
-                openActivityDetail = openActivityDetail
+                openActivityDetail = openActivityDetail,
+                forceRefresh = shouldTriggerRefresh
             )
         }
 
         item {
             Referral(
-                openReferral = openReferral
+                openReferral = openReferral,
+                forceRefresh = shouldTriggerRefresh
             )
         }
 

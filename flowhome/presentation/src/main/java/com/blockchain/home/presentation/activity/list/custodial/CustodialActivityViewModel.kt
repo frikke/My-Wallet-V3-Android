@@ -17,13 +17,14 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
 import com.blockchain.walletmode.WalletMode
-import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class CustodialActivityViewModel(
     private val custodialActivityService: CustodialActivityService
@@ -98,7 +99,7 @@ class CustodialActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-                loadData()
+                loadData(intent.forceRefresh)
             }
 
             is ActivityIntent.FilterSearch -> {
@@ -106,12 +107,21 @@ class CustodialActivityViewModel(
                     it.copy(filterTerm = intent.term)
                 }
             }
+
+            is ActivityIntent.RefreshRequested -> {
+                onIntent(ActivityIntent.LoadActivity(sectionSize = modelState.sectionSize, forceRefresh = true))
+            }
         }
     }
 
-    private fun loadData() {
+    private fun loadData(forceRefresh: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
-            custodialActivityService.getAllActivity()
+            custodialActivityService.getAllActivity(
+                ptrFreshnessStrategy(
+                    shouldGetFresh = forceRefresh,
+                    cacheStrategy = custodialActivityService.defFreshness.refreshStrategy
+                )
+            )
                 .onEach { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))

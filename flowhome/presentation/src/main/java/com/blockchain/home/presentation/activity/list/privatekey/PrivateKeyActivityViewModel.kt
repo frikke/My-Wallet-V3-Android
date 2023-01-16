@@ -102,6 +102,9 @@ class PrivateKeyActivityViewModel(
                     it.copy(filterTerm = intent.term)
                 }
             }
+            is ActivityIntent.RefreshRequested -> {
+                // n/a no refresh as websocket is open - always up to date
+            }
         }
     }
 

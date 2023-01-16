@@ -6,5 +6,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 
 data class ReferralModelState(
     val referralInfo: DataResource<ReferralInfo> = DataResource.Loading,
-    val codeCopied: Boolean = false
+    val codeCopied: Boolean = false,
+    val lastFreshDataTime: Long = 0
 ) : ModelState

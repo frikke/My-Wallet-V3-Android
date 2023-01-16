@@ -47,6 +47,7 @@ import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import kotlinx.coroutines.flow.collectLatest
@@ -54,8 +55,9 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EarnAssets(
+    viewModel: EarnViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
-    viewModel: EarnViewModel = getViewModel(scope = payloadScope)
+    forceRefresh: Boolean
 ) {
     val viewState: EarnViewState by viewModel.viewState.collectAsStateLifecycleAware()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -63,13 +65,20 @@ fun EarnAssets(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(EarnIntent.LoadEarnAccounts)
+                viewModel.onIntent(EarnIntent.LoadEarnAccounts())
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(EarnIntent.RefreshRequested)
+        }
+        onDispose { }
     }
 
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {

@@ -77,7 +77,7 @@ fun HomeAssets(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onIntent(AssetsIntent.LoadFilters)
                 viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
-                viewModel.onIntent(AssetsIntent.LoadFundLocks)
+                viewModel.onIntent(AssetsIntent.LoadFundLocks())
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -88,10 +88,8 @@ fun HomeAssets(
 
     DisposableEffect(forceRefresh) {
         if (forceRefresh) {
-            viewModel.onIntent(AssetsIntent.LoadAccounts(sectionSize = SectionSize.Limited(), forceRefresh = true))
-            viewModel.onIntent(AssetsIntent.LoadFundLocks)
+            viewModel.onIntent(AssetsIntent.RefreshRequested)
         }
-
         onDispose { }
     }
 

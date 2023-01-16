@@ -21,22 +21,23 @@ import com.blockchain.data.doOnData
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.minus
+import com.blockchain.presentation.pulltorefresh.canRefresh
+import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
+import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import java.lang.IllegalStateException
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
+import java.util.concurrent.TimeUnit
 
 class EarnViewModel(
     private val stakingService: StakingService,
@@ -83,17 +84,13 @@ class EarnViewModel(
         return EarnViewState.None
     }
 
-    private var fetchEarningsJob: Job? = null
-
     override suspend fun handleIntent(modelState: EarnModelState, intent: EarnIntent) {
         when (intent) {
-            EarnIntent.LoadEarnAccounts -> {
+            is EarnIntent.LoadEarnAccounts -> {
                 viewModelScope.launch {
-                    walletModeService.walletMode.onEach {
-                        fetchEarningsJob?.cancel()
-                    }.collectLatest {
+                    walletModeService.walletMode.collectLatest {
                         if (it == WalletMode.CUSTODIAL) {
-                            loadEarnings()
+                            loadEarnings(forceRefresh = intent.forceRefresh)
                         } else {
                             updateState { state ->
                                 state.copy(
@@ -127,11 +124,23 @@ class EarnViewModel(
                     navigate(it)
                 }
             }
+            EarnIntent.RefreshRequested -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(EarnIntent.LoadEarnAccounts(forceRefresh = true))
+            }
         }
     }
 
-    private fun loadEarnings() {
-        val staking = stakingService.getBalanceForAllAssets().mapData {
+    private suspend fun loadEarnings(forceRefresh: Boolean) {
+        val staking = stakingService.getBalanceForAllAssets(
+            refreshStrategy = ptrFreshnessStrategy(
+                shouldGetFresh = forceRefresh,
+                cacheStrategy = stakingService.defFreshness.refreshStrategy
+            )
+        ).mapData {
             it.filterValues { asset -> asset.totalBalance.isPositive }
         }.doOnData {
             updateStakingAssetsIfNeeded(it.keys)
@@ -139,7 +148,10 @@ class EarnViewModel(
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
                     fromAsset = asset,
-                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    freshnessStrategy = ptrFreshnessStrategy(
+                        shouldGetFresh = forceRefresh,
+                        cacheStrategy = exchangeRates.defFreshness.refreshStrategy
+                    )
                 ).mapData { exchangeRate ->
                     EarnAsset(
                         currency = asset,
@@ -203,9 +215,7 @@ class EarnViewModel(
             }
         }
 
-        fetchEarningsJob = viewModelScope.launch {
-            merge(staking, interest, interestRates, stakingRates).collect()
-        }
+        merge(staking, interest, interestRates, stakingRates).collect()
     }
 
     private fun updateInterestAssetsIfNeeded(assets: Set<AssetInfo>) {
@@ -275,12 +285,22 @@ data class EarnModelState(
     val interestAssets: DataResource<Set<EarnAsset>>,
     val stakingAssets: DataResource<Set<EarnAsset>>,
     val interestRates: Map<AssetInfo, Double>,
-    val stakingRates: Map<AssetInfo, Double>
+    val stakingRates: Map<AssetInfo, Double>,
+    val lastFreshDataTime: Long = 0
 ) : ModelState
 
-sealed class EarnIntent : Intent<EarnModelState> {
-    object LoadEarnAccounts : EarnIntent()
-    class AssetSelected(val earnAsset: EarnAsset) : EarnIntent()
+sealed interface EarnIntent : Intent<EarnModelState> {
+    data class LoadEarnAccounts(
+        val forceRefresh: Boolean = false
+    ) : EarnIntent
+
+    data class AssetSelected(val earnAsset: EarnAsset) : EarnIntent
+
+    object RefreshRequested : EarnIntent {
+        override fun isValidFor(modelState: EarnModelState): Boolean {
+            return canRefresh(modelState.lastFreshDataTime)
+        }
+    }
 }
 
 sealed class EarnViewState : ViewState {
@@ -316,7 +336,7 @@ sealed class EarnViewState : ViewState {
 class EarnAsset(
     val currency: Currency,
     val type: EarnType,
-    val balance: Money,
+    val balance: Money
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

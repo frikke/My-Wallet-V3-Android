@@ -4,6 +4,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.presentation.pulltorefresh.canRefresh
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
     data class LoadAccounts(
@@ -11,7 +12,9 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
         val forceRefresh: Boolean = false
     ) : AssetsIntent
 
-    object LoadFundLocks : AssetsIntent {
+    data class LoadFundLocks(
+        val forceRefresh: Boolean = false
+    ) : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
             return modelState.fundsLocks !is DataResource.Data
         }
@@ -26,4 +29,10 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
     }
 
     data class UpdateFilters(val filters: List<AssetFilter>) : AssetsIntent
+
+    object RefreshRequested : AssetsIntent {
+        override fun isValidFor(modelState: AssetsModelState): Boolean {
+            return canRefresh(modelState.lastFreshDataTime)
+        }
+    }
 }

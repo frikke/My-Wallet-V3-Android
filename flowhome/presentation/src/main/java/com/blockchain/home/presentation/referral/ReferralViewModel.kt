@@ -6,6 +6,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.presentation.pulltorefresh.ptrFreshnessStrategy
+import com.blockchain.utils.CurrentTimeProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -36,15 +38,24 @@ class ReferralViewModel(
 
     override suspend fun handleIntent(modelState: ReferralModelState, intent: ReferralIntent) {
         when (intent) {
-            ReferralIntent.LoadData -> loadData()
+            is ReferralIntent.LoadData -> loadData(intent.forceRefresh)
             ReferralIntent.CodeCopied -> handleCodeCopied()
+            ReferralIntent.RefreshRequested -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(ReferralIntent.LoadData(forceRefresh = true))
+            }
         }
     }
 
-    private fun loadData() {
+    private fun loadData(forceRefresh: Boolean) {
         referralJob?.cancel()
         referralJob = viewModelScope.launch {
-            referralService.fetchReferralData()
+            referralService.fetchReferralData(
+                freshnessStrategy = ptrFreshnessStrategy(forceRefresh, referralService.defFreshness.refreshStrategy)
+            )
                 .onEach { dataResource ->
                     updateState {
                         it.copy(referralInfo = it.referralInfo.updateDataWith(dataResource))
