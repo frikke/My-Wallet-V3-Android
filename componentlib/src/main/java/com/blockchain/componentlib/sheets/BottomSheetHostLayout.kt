@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -56,7 +57,8 @@ fun BottomSheetHostLayout(
             topEnd = dimensionResource(R.dimen.small_spacing),
             topStart = dimensionResource(R.dimen.small_spacing)
         ),
-        sheetContent = sheetContent
+        sheetContent = sheetContent,
+        scrimColor = AppTheme.colors.overlay
     ) {
         content()
 
