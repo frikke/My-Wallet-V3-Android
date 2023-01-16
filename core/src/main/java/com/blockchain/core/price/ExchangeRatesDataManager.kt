@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.TimeUnit
 
 enum class HistoricalTimeSpan(val value: Int) {
     DAY(0),

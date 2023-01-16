@@ -45,7 +45,7 @@ class ReferralViewModel(
             ReferralIntent.CodeCopied -> {
                 handleCodeCopied()
             }
-            
+
             ReferralIntent.Refresh -> {
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())

@@ -377,7 +377,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                        .containsAll(
+                    .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {

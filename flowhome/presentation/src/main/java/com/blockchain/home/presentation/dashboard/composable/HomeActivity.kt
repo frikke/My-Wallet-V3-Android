@@ -37,7 +37,6 @@ import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.composable.DUMMY_DATA
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
-import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
