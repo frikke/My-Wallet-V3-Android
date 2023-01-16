@@ -111,7 +111,7 @@ interface CustodialWalletManager {
 
     fun isCurrencyAvailableForTrading(
         assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Boolean>>
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>

@@ -57,8 +57,7 @@ class ExchangeRatesDataManagerImplTest {
             getHistoricalPriceForAsset(
                 base = any(),
                 quote = any(),
-                timeSpan = any(),
-                freshnessStrategy = any()
+                timeSpan = any()
             )
         }.thenReturn(flowOf(DataResource.Data(PRICE_DATA)))
     }
@@ -83,7 +82,7 @@ class ExchangeRatesDataManagerImplTest {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
-                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME
                 )
             awaitComplete()
         }
@@ -103,8 +102,7 @@ class ExchangeRatesDataManagerImplTest {
                     .getHistoricalPriceForAsset(
                         OLD_ASSET,
                         SELECTED_FIAT,
-                        HistoricalTimeSpan.YEAR,
-                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                        HistoricalTimeSpan.YEAR
                     )
                 awaitComplete()
             }
@@ -124,8 +122,7 @@ class ExchangeRatesDataManagerImplTest {
                     .getHistoricalPriceForAsset(
                         OLD_ASSET,
                         SELECTED_FIAT,
-                        HistoricalTimeSpan.MONTH,
-                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                        HistoricalTimeSpan.MONTH
                     )
                 awaitComplete()
             }
@@ -144,8 +141,7 @@ class ExchangeRatesDataManagerImplTest {
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.WEEK,
-                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    HistoricalTimeSpan.WEEK
                 )
             awaitComplete()
         }
@@ -164,8 +160,7 @@ class ExchangeRatesDataManagerImplTest {
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.DAY,
-                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    HistoricalTimeSpan.DAY
                 )
             awaitComplete()
         }
@@ -184,8 +179,7 @@ class ExchangeRatesDataManagerImplTest {
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.WEEK,
-                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    HistoricalTimeSpan.WEEK
                 )
             awaitComplete()
         }

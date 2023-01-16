@@ -9,6 +9,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.android.data.QuotePrice
 
@@ -20,7 +21,9 @@ interface TradeDataService {
 
     fun getRecurringBuysForAsset(
         asset: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<List<RecurringBuy>>>
 
     fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>

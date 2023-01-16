@@ -300,10 +300,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
         exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
 
-    final override fun getPricesWith24hDelta(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<Prices24HrWithDelta>> {
-        return exchangeRates.getPricesWith24hDelta(fromAsset = currency, freshnessStrategy = freshnessStrategy)
+    final override fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(fromAsset = currency)
     }
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =

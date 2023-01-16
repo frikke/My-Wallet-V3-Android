@@ -148,13 +148,11 @@ interface Asset {
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
     // flow
-    fun getPricesWith24hDelta(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
-    ): Flow<DataResource<Prices24HrWithDelta>>
+    fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>>
 
     fun historicRateSeries(
         period: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<HistoricalRateList>>
 }
 

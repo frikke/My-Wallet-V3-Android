@@ -116,7 +116,7 @@ class CustodialTradingAccount(
                 asset = currency,
                 refreshStrategy = freshnessStrategy
             ),
-            exchangeRates.exchangeRateToUserFiat(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
             AccountBalance(

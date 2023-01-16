@@ -724,7 +724,9 @@ class CoinviewViewModel(
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
-                custodialWalletManager.isCurrencyAvailableForTrading(modelState.asset.currency)
+                custodialWalletManager.isCurrencyAvailableForTrading(
+                    modelState.asset.currency,
+                )
                     .filterNotLoading()
                     .doOnData { availableToBuy ->
                         navigate(

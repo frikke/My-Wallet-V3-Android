@@ -53,8 +53,8 @@ internal class UnifiedBalancesRepository(
                     .mapData { response ->
                         response.balances.filter {
                             if (wallet == null) true
-                            else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
-                                it.account.name == wallet.label
+                            else it.currency == wallet.currency.networkTicker &&
+                                it.account.index == wallet.index
                         }.mapNotNull {
                             if (it.price == null) return@mapNotNull null
                             val cc = assetCatalogue.fromNetworkTicker(it.currency)

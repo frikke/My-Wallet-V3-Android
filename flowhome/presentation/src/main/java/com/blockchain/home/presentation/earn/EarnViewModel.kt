@@ -138,8 +138,7 @@ class EarnViewModel(
         }.flatMapData { staking ->
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
-                    fromAsset = asset,
-                    freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    fromAsset = asset
                 ).mapData { exchangeRate ->
                     EarnAsset(
                         currency = asset,
@@ -168,8 +167,7 @@ class EarnViewModel(
             }.flatMapData { interest ->
                 val prices = interest.keys.map { asset ->
                     exchangeRates.exchangeRateToUserFiatFlow(
-                        fromAsset = asset,
-                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                        fromAsset = asset
                     ).mapData { exchangeRate ->
                         EarnAsset(
                             currency = asset,

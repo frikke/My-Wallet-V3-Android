@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -27,8 +24,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -66,22 +61,6 @@ fun LoadingChart(
             .fillMaxWidth()
             .height(240.dp)
     ) {
-        Image(
-            imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.medium_spacing))
-        )
-        Text(
-            text = loadingText,
-            style = AppTheme.typography.micro1,
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.smallest_spacing)),
-            color = AppTheme.colors.body
-        )
         Canvas(
             Modifier
                 .fillMaxWidth()

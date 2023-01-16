@@ -30,6 +30,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -62,7 +63,10 @@ class LoadAssetAccountsUseCase(
 
         val interestFlow = interestService.isAssetAvailableForInterestFlow(asset.currency).flatMapData {
             if (it) {
-                interestService.getInterestRateFlow(asset.currency)
+                interestService.getInterestRateFlow(
+                    asset.currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+                )
             } else
                 flow {
                     emit(DataResource.Data(0.toDouble()))
@@ -83,8 +87,7 @@ class LoadAssetAccountsUseCase(
             walletModeService.walletMode,
             accountsFlow,
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(
-                asset.currency,
-                freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                asset.currency
             ),
             interestFlow,
             stakingFlow
