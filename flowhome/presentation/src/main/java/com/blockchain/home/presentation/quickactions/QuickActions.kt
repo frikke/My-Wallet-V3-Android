@@ -74,20 +74,22 @@ fun QuickActions(
 fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickAction) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
     ) {
         quickActionItems.forEach { quickAction ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable(onClick = {
-                    if (quickAction.enabled)
-                        onClick(quickAction.action)
-                    else {
-                        // do nothing
-                    }
-                })
+                modifier = Modifier
+                    .padding(horizontal = AppTheme.dimensions.verySmallSpacing)
+                    .clickable(onClick = {
+                        if (quickAction.enabled)
+                            onClick(quickAction.action)
+                        else {
+                            // do nothing
+                        }
+                    })
             ) {
                 Image(
                     modifier = Modifier

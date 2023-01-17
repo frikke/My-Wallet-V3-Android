@@ -1,8 +1,10 @@
 package com.blockchain.home.actions
 
 import com.blockchain.coincore.StateAwareAction
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.Flow
 
 interface QuickActionsService {
-    fun moreActions(): Flow<List<StateAwareAction>>
+    fun availableQuickActionsForWalletMode(walletMode: WalletMode): Flow<List<StateAwareAction>>
+    fun moreActions(walletMode: WalletMode): Flow<List<StateAwareAction>>
 }

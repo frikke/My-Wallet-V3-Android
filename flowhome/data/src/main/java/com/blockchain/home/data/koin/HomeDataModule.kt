@@ -28,7 +28,8 @@ val homeDataModule = module {
         scoped {
             QuickActionsRepository(
                 coincore = get(),
-                userFeaturePermissionService = get()
+                userFeaturePermissionService = get(),
+                currencyPrefs = get()
             )
         }.bind(QuickActionsService::class)
     }
