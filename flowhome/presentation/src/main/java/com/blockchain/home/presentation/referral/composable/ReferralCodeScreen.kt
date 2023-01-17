@@ -70,7 +70,7 @@ fun ReferralCode(
     val viewState: ReferralViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ReferralIntent.LoadData)
+        viewModel.onIntent(ReferralIntent.LoadData())
         onDispose { }
     }
 
