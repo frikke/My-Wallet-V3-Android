@@ -59,7 +59,8 @@
         android:visibility="gone"
         android:background="@drawable/bkgd_white_rounded"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_amount"
+        app:layout_constraintTop_toTopOf="@+id/enter_amount"
+        app:layout_constraintBottom_toBottomOf="@+id/enter_amount"
         app:srcCompat="@drawable/ic_currency_type_swap"
         tools:visibility="visible" />
 
