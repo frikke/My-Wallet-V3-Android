@@ -45,7 +45,6 @@ fun PrimaryButton(
         icon = icon,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             ButtonContent(
-                modifier = Modifier.padding(AppTheme.dimensions.verySmallSpacing),
                 state = state,
                 text = text,
                 textColor = textColor,
