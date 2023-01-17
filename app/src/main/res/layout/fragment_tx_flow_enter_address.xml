@@ -15,35 +15,44 @@
         android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/tiny_spacing"
         android:background="@color/grey_000"
-        android:paddingBottom="@dimen/tiny_spacing"
+        android:paddingBottom="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Blurb about screen" />
 
-    <com.blockchain.componentlib.control.PrimarySwitchView
-        android:id="@+id/trading_accounts_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/show_trading_accounts"
-        style="@style/Text.Standard.16"
-        android:layout_width="0dp"
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/trading_accounts_switch_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:background="@drawable/bkgd_white_large_rounding"
         android:layout_marginHorizontal="@dimen/small_spacing"
-        android:text="@string/show_trading_accounts"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@id/trading_accounts_switch"
-        app:layout_constraintEnd_toStartOf="@id/trading_accounts_switch"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/trading_accounts_switch"
-        tools:text="Show trading accounts" />
+        app:layout_constraintTop_toBottomOf="@+id/subtitle">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/show_trading_accounts"
+            style="@style/Text.Standard.16"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/small_spacing"
+            android:text="@string/show_trading_accounts"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="Show trading accounts" />
+
+        <com.blockchain.componentlib.control.PrimarySwitchView
+            android:id="@+id/trading_accounts_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginEnd="@dimen/small_spacing"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -55,14 +64,14 @@
         android:fillViewport="true"
         android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@id/cta_button"
-        app:layout_constraintTop_toBottomOf="@+id/trading_accounts_switch">
+        app:layout_constraintTop_toBottomOf="@+id/trading_accounts_switch_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
-            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            <com.blockchain.componentlib.sectionheader.StandardSectionHeaderView
                 android:id="@+id/title_from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,14 +85,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/small_spacing"
-                android:layout_marginTop="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
                 android:layout_marginEnd="@dimen/small_spacing"
                 android:background="@drawable/bkgd_white_large_rounding"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title_from" />
 
-            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            <com.blockchain.componentlib.sectionheader.StandardSectionHeaderView
                 android:id="@+id/title_to"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -244,7 +253,7 @@
                 android:id="@+id/wallet_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/very_small_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
                 android:layout_marginBottom="@dimen/small_spacing"
                 android:nestedScrollingEnabled="false"
                 app:layout_constrainedHeight="true"
@@ -270,7 +279,7 @@
         app:layout_constraintBottom_toTopOf="@id/cta_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/show_trading_accounts"
+        app:layout_constraintTop_toBottomOf="@id/trading_accounts_switch_layout"
         app:layout_constraintVertical_bias="0.6"
         tools:visibility="visible" />
 
