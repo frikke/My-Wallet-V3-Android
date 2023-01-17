@@ -117,7 +117,7 @@ object FakeAppThemeProvider : AppThemeProvider {
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     themeProvider: AppThemeProvider = defValue(),
-    setSystemColors: Boolean = true,
+    setSystemColors: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val imageLoader = runCatching {

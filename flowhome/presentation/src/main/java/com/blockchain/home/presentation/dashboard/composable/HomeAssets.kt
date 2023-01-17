@@ -59,6 +59,8 @@ import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 import org.koin.androidx.compose.getViewModel
 
+private const val MAX_ASSET_COUNT = 7
+
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun HomeAssets(
@@ -75,7 +77,7 @@ fun HomeAssets(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onIntent(AssetsIntent.LoadFilters)
-                viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
+                viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 viewModel.onIntent(AssetsIntent.LoadFundLocks)
             }
         }
@@ -160,8 +162,7 @@ private fun HomeAssetsList(
 
         (fundsLocks as? DataResource.Data)?.data?.let { locks ->
             FundLocksData(
-                total = locks.onHoldTotalAmount.takeIf { it.isPositive }
-                    ?: Money.zero(locks.onHoldTotalAmount.currency),
+                total = locks.onHoldTotalAmount,
                 onClick = { onFundsLocksClick(locks) }
             )
         }
