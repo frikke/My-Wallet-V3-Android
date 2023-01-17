@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
