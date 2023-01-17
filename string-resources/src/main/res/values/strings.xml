@@ -1056,6 +1056,7 @@
     <string name="kyc_profile_submit">Submit</string>
     <string name="kyc_profile_error">Error creating user details, try again later</string>
     <string name="kyc_profile_error_conflict">A user already exists with this email address</string>
+    <string name="kyc_profile_error_invalid_name">Make sure your name and last name are correct</string>
     <string name="kyc_invalid_country_message_me">Message me when available</string>
     <string name="kyc_invalid_country_no_thanks">No thanks</string>
 

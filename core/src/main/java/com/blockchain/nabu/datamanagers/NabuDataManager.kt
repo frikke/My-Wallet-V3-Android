@@ -21,6 +21,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
@@ -32,11 +33,13 @@ import kotlinx.coroutines.rx3.asObservable
 
 interface NabuDataManager {
 
-    fun createBasicUser(
+    suspend fun createBasicUser(
         firstName: String,
         lastName: String,
         dateOfBirth: String,
-    ): Completable
+    ): Outcome<Exception, Unit>
+
+    suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean>
 
     fun requestJwt(): Single<String>
 
@@ -165,16 +168,19 @@ internal class NabuDataManagerImpl(
         }.cache()
     }
 
-    override fun createBasicUser(
+    override suspend fun createBasicUser(
         firstName: String,
         lastName: String,
         dateOfBirth: String,
-    ): Completable =
+    ): Outcome<Exception, Unit> =
         nabuService.createBasicUser(
             firstName,
             lastName,
             dateOfBirth,
         )
+
+    override suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =
+        nabuService.isProfileNameValid(firstName, lastName)
 
     override fun getAirdropCampaignStatus(): Single<AirdropStatusList> =
         nabuService.getAirdropCampaignStatus()

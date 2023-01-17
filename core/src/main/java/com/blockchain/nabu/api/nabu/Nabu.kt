@@ -7,6 +7,7 @@ import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
+import com.blockchain.nabu.models.responses.nabu.IsProfileNameValidRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
@@ -48,6 +49,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRespon
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.network.interceptor.AuthenticationNotRequired
 import com.blockchain.network.interceptor.CustomAuthentication
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.Serializable
@@ -85,12 +87,17 @@ internal interface Nabu {
         @Header("X-DEVICE-ID") deviceId: String
     ): Single<NabuSessionTokenResponse>
 
-    @PUT(NABU_USERS_CURRENT)
-    fun createBasicUser(
+    @PUT("users/current")
+    suspend fun createBasicUser(
         @Body basicUser: NabuBasicUser,
-    ): Completable
+    ): Outcome<Exception, Unit>
 
-    @GET(NABU_USERS_CURRENT)
+    @POST("validation/person-name")
+    suspend fun isProfileNameValid(
+        @Body request: IsProfileNameValidRequest,
+    ): Outcome<Exception, Unit>
+
+    @GET("users/current")
     fun getUser(): Single<NabuUser>
 
     @PATCH(NABU_USERS_TAGS_SYNC)

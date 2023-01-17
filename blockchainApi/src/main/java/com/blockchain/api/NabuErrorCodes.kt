@@ -80,6 +80,7 @@ enum class NabuErrorCodes(val code: Int) {
     KycAlreadyCompleted(24),
     MaxKycAttempts(25),
     InvalidCountryCode(29),
+    InvalidName(180),
 
     // user-onboarding errors
     InvalidJwtToken(30),

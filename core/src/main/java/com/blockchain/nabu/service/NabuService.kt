@@ -1,5 +1,7 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.core.sdd.domain.model.SddEligibilityDto
 import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -12,6 +14,7 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
+import com.blockchain.nabu.models.responses.nabu.IsProfileNameValidRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
@@ -45,6 +48,9 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.utils.thenSingle
 import com.blockchain.utils.toJsonElement
@@ -82,13 +88,25 @@ class NabuService internal constructor(
         deviceId
     ).wrapErrorMessage()
 
-    internal fun createBasicUser(
+    internal suspend fun createBasicUser(
         firstName: String,
         lastName: String,
         dateOfBirth: String,
-    ): Completable = nabu.createBasicUser(
+    ): Outcome<Exception, Unit> = nabu.createBasicUser(
         NabuBasicUser(firstName, lastName, dateOfBirth),
     )
+
+    internal suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =
+        nabu.isProfileNameValid(IsProfileNameValidRequest(firstName, lastName)).fold(
+            onSuccess = { Outcome.Success(true) },
+            onFailure = { error ->
+                if (error is NabuApiException && error.getErrorCode() == NabuErrorCodes.BadParamValue) {
+                    Outcome.Success(false)
+                } else {
+                    Outcome.Failure(error)
+                }
+            },
+        )
 
     internal fun getUser(): Single<NabuUser> = nabu.getUser().flatMap { user ->
         val newTags = tagsService.tags(user.tagKeys)

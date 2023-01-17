@@ -34,6 +34,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
+import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import java.text.SimpleDateFormat
@@ -105,6 +106,11 @@ fun KycProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.standardSpacing),
+                state = if (state.isNameInputErrorShowing) {
+                    TextInputState.Error(null)
+                } else {
+                    TextInputState.Default(null)
+                },
                 singleLine = true,
                 value = state.firstNameInput,
                 keyboardOptions = KeyboardOptions(
@@ -120,6 +126,11 @@ fun KycProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.smallSpacing),
+                state = if (state.isNameInputErrorShowing) {
+                    TextInputState.Error(stringResource(R.string.kyc_profile_error_invalid_name))
+                } else {
+                    TextInputState.Default(null)
+                },
                 singleLine = true,
                 value = state.lastNameInput,
                 keyboardOptions = KeyboardOptions(
@@ -175,6 +186,7 @@ fun KycProfileScreen(
 }
 
 private fun KycProfileError.errorMessage(context: Context) = when (this) {
-    KycProfileError.Generic -> context.getString(R.string.kyc_profile_error)
+    is KycProfileError.Generic -> message?.ifEmpty { null } ?: context.getString(R.string.kyc_profile_error)
     KycProfileError.UserConflict -> context.getString(R.string.kyc_profile_error_conflict)
+    KycProfileError.InvalidName -> context.getString(R.string.kyc_profile_error_invalid_name)
 }
