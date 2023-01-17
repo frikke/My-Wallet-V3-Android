@@ -94,7 +94,9 @@ class AssetsViewModel(
                 showNoResults = state.accounts.map { modelAccounts ->
                     modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
                 }.dataOrElse(false),
-                fundsLocks = state.fundsLocks.map { it?.takeIf { it.locks.isNotEmpty() } }
+                fundsLocks = state.fundsLocks.map {
+                    it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
+                }
             )
         }
     }

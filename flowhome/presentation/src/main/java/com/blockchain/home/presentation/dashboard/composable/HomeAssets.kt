@@ -160,8 +160,7 @@ private fun HomeAssetsList(
 
         (fundsLocks as? DataResource.Data)?.data?.let { locks ->
             FundLocksData(
-                total = locks.onHoldTotalAmount.takeIf { it.isPositive }
-                    ?: Money.zero(locks.onHoldTotalAmount.currency),
+                total = locks.onHoldTotalAmount,
                 onClick = { onFundsLocksClick(locks) }
             )
         }
