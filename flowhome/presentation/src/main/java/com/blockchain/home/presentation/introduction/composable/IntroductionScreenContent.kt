@@ -17,7 +17,7 @@ data class IntroductionScreenContent(
 )
 
 data class IntroductionScreenTag(
-    @StringRes  val title: Int?,
+    @StringRes val title: Int?,
     val titleColor: Color?,
     @StringRes val description: Int
 )

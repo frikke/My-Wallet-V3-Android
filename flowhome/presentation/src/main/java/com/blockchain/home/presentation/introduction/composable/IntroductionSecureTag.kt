@@ -57,7 +57,7 @@ fun EducationalWalletModeSecureTag(
 
             Text(
                 text = stringResource(tag.description),
-                style = if(tag.title != null) {
+                style = if (tag.title != null) {
                     AppTheme.typography.caption1
                 } else {
                     AppTheme.typography.paragraph1
@@ -89,7 +89,7 @@ fun PreviewEducationalWalletModeSecureTag() {
 fun PreviewEducationalWalletModeSecureTagNull() {
     EducationalWalletModeSecureTag(
         IntroductionScreenTag(
-           null, null,
+            null, null,
             R.string.intro_custodial_tag_description
         )
     )
