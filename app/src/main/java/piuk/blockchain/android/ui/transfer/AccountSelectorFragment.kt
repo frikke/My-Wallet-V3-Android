@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -76,12 +75,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
         onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
-        @StringRes title: Int,
-        @StringRes label: Int,
-        @DrawableRes icon: Int,
     ) {
-        introHeaderView.setDetails(title, label, icon, background = R.color.grey_000)
-
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
             this.onLockItemSelected = onExtraAccountInfoClicked
@@ -90,7 +84,6 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
                 source = accounts(),
                 status = statusDecorator,
                 accountsLocks = showWithdrawalLocks(),
-                introView = introHeaderView
             )
         }
     }

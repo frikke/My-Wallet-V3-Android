@@ -53,7 +53,7 @@ class ReceiveFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initialiseAccountSelectorWithHeader()
+        initialiseAccountSelector()
 
         setupSearchBox()
     }
@@ -101,18 +101,8 @@ class ReceiveFragment :
             displayTicker.contains(input, true) ||
             name.contains(input, true)
 
-    private fun initialiseAccountSelectorWithHeader() {
-        with(binding) {
-            header.setDetails(
-                title = R.string.transfer_receive_crypto_title,
-                label = R.string.transfer_receive_crypto_label,
-                icon = R.drawable.ic_receive_blue_circle,
-                background = R.color.grey_000,
-                showSeparator = false
-            )
-
-            model.process(ReceiveIntent.GetAvailableAssets(startForTicker))
-        }
+    private fun initialiseAccountSelector() {
+        model.process(ReceiveIntent.GetAvailableAssets(startForTicker))
     }
 
     private fun setupSearchBox() {
