@@ -18,6 +18,8 @@ import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +50,8 @@ class QuickActionsViewModel(
     ModelConfigArgs.NoArgs>(
     QuickActionsModelState()
 ) {
+    private var quickActionsJob: Job? = null
+    private var moreActionsJob: Job? = null
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -66,54 +70,60 @@ class QuickActionsViewModel(
         when (intent) {
             is QuickActionsIntent.LoadActions -> when (intent.type) {
                 ActionType.Quick -> {
-                    walletModeService.walletMode.onEach { wMode ->
-                        updateState {
-                            it.copy(
-                                quickActions = modelState.actionsForMode(wMode)
-                            )
-                        }
-                    }.flatMapLatest { wMode ->
-                        val actionsFlow = quickActionsService.availableQuickActionsForWalletMode(wMode)
-                            .map { actions ->
+                    quickActionsJob?.cancel()
+                    quickActionsJob = viewModelScope.launch {
+                        walletModeService.walletMode.onEach { wMode ->
+                            updateState {
+                                it.copy(
+                                    quickActions = modelState.actionsForMode(wMode)
+                                )
+                            }
+                        }.flatMapLatest { wMode ->
+                            val actionsFlow = quickActionsService.availableQuickActionsForWalletMode(
+                                walletMode = wMode,
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(intent.forceRefresh)
+                            ).map { actions ->
                                 actions.map {
                                     it.toQuickActionItem()
                                 }
                             }
 
-                        val moreActionsAvailableFlow =
-                            loadMoreActions(wMode)
-                                .onStart {
-                                    emit(emptyList())
-                                }
-                                .map { list ->
-                                    list.isNotEmpty()
-                                }
+                            val moreActionsAvailableFlow =
+                                loadMoreActions(walletMode = wMode, forceRefresh = intent.forceRefresh)
+                                    .onStart {
+                                        emit(emptyList())
+                                    }
+                                    .map { list ->
+                                        list.isNotEmpty()
+                                    }
 
-                        combine(actionsFlow, moreActionsAvailableFlow) { actions, moreActionsAvailable ->
-                            if (moreActionsAvailable) {
-                                actions + QuickActionItem(
-                                    title = R.string.common_more,
-                                    action = QuickAction.More,
-                                    enabled = true
+                            combine(actionsFlow, moreActionsAvailableFlow) { actions, moreActionsAvailable ->
+                                if (moreActionsAvailable) {
+                                    actions + QuickActionItem(
+                                        title = R.string.common_more,
+                                        action = QuickAction.More,
+                                        enabled = true
+                                    )
+                                } else {
+                                    actions
+                                }
+                            }.map { wMode to it }
+                        }.collectLatest { (walletMode, actions) ->
+                            Timber.d("Rendering Quick Actions for $walletMode with -> $actions")
+                            updateState {
+                                it.copy(
+                                    quickActions = actions
                                 )
-                            } else {
-                                actions
                             }
-                        }.map { wMode to it }
-                    }.collectLatest { (walletMode, actions) ->
-                        Timber.d("Rendering Quick Actions for $walletMode with -> $actions")
-                        updateState {
-                            it.copy(
-                                quickActions = actions
-                            )
+                            modelState.cacheActions(actions, walletMode)
                         }
-                        modelState.cacheActions(actions, walletMode)
                     }
                 }
                 ActionType.More -> {
-                    viewModelScope.launch {
+                    moreActionsJob?.cancel()
+                    moreActionsJob = viewModelScope.launch {
                         walletModeService.walletMode.flatMapLatest { walletMode ->
-                            loadMoreActions(walletMode)
+                            loadMoreActions(walletMode = walletMode, forceRefresh = false)
                         }.collectLatest { actions ->
                             updateState {
                                 it.copy(
@@ -127,11 +137,24 @@ class QuickActionsViewModel(
             is QuickActionsIntent.FiatAction -> {
                 handleFiatAction(action = intent.action)
             }
+            QuickActionsIntent.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(QuickActionsIntent.LoadActions(ActionType.Quick, forceRefresh = true))
+            }
         }
     }
 
-    private fun loadMoreActions(walletMode: WalletMode): Flow<List<MoreActionItem>> {
-        return quickActionsService.moreActions(walletMode).map { stateAwareActions ->
+    private fun loadMoreActions(
+        walletMode: WalletMode,
+        forceRefresh: Boolean
+    ): Flow<List<MoreActionItem>> {
+        return quickActionsService.moreActions(
+            walletMode = walletMode,
+            freshnessStrategy = PullToRefresh.freshnessStrategy(forceRefresh)
+        ).map { stateAwareActions ->
             Timber.d("Rendering More section with -> $stateAwareActions")
             stateAwareActions.map {
                 it.toMoreActionItem()
@@ -311,7 +334,8 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
 data class QuickActionsModelState(
     val quickActions: List<QuickActionItem> = emptyList(),
     val moreActions: List<MoreActionItem> = emptyList(),
-    private val _actionsForMode: MutableMap<WalletMode, List<QuickActionItem>> = mutableMapOf()
+    private val _actionsForMode: MutableMap<WalletMode, List<QuickActionItem>> = mutableMapOf(),
+    val lastFreshDataTime: Long = 0
 ) : ModelState {
     fun actionsForMode(walletMode: WalletMode): List<QuickActionItem> =
         _actionsForMode[walletMode] ?: emptyList()
@@ -336,11 +360,20 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    class LoadActions(val type: ActionType) : QuickActionsIntent
+    class LoadActions(
+        val type: ActionType,
+        val forceRefresh: Boolean = false
+    ) : QuickActionsIntent
 
     data class FiatAction(
         val action: AssetAction,
     ) : QuickActionsIntent
+
+    object Refresh : QuickActionsIntent {
+        override fun isValidFor(modelState: QuickActionsModelState): Boolean {
+            return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
+        }
+    }
 }
 
 sealed class QuickAction {

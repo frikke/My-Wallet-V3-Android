@@ -13,6 +13,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
 import com.blockchain.data.dataOrElse
@@ -31,6 +32,8 @@ import com.blockchain.home.domain.ModelAccount
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
@@ -183,11 +186,11 @@ class AssetsViewModel(
                         userFiat = currencyPrefs.selectedFiatCurrency
                     )
                 }
-                loadAccounts()
+                loadAccounts(intent.forceRefresh)
             }
 
             is AssetsIntent.LoadFundLocks -> {
-                loadFundsLocks()
+                loadFundsLocks(intent.forceRefresh)
             }
 
             is AssetsIntent.LoadFilters -> {
@@ -213,13 +216,28 @@ class AssetsViewModel(
                     it.copy(filters = intent.filters)
                 }
             }
+
+            AssetsIntent.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(AssetsIntent.LoadAccounts(sectionSize = modelState.sectionSize, forceRefresh = true))
+                onIntent(AssetsIntent.LoadFundLocks(forceRefresh = true))
+            }
         }
     }
 
-    private fun loadFundsLocks() {
+    private fun loadFundsLocks(forceRefresh: Boolean) {
         fundsLocksJob?.cancel()
         fundsLocksJob = viewModelScope.launch {
-            coincore.getWithdrawalLocks(localCurrency = currencyPrefs.selectedFiatCurrency)
+            coincore.getWithdrawalLocks(
+                localCurrency = currencyPrefs.selectedFiatCurrency,
+                freshnessStrategy = PullToRefresh.freshnessStrategy(
+                    shouldGetFresh = forceRefresh,
+                    cacheStrategy = RefreshStrategy.RefreshIfStale
+                )
+            )
                 .collectLatest { dataResource ->
                     updateState {
                         it.copy(fundsLocks = it.fundsLocks.updateDataWith(dataResource))
@@ -229,7 +247,7 @@ class AssetsViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccounts() {
+    private fun loadAccounts(forceRefresh: Boolean) {
         accountsJob?.cancel()
         accountsJob = CoroutineScope(Dispatchers.IO).launch {
             walletModeService.walletMode.onEach { walletMode ->
@@ -242,7 +260,10 @@ class AssetsViewModel(
                     }
                 }
             }.flatMapLatest {
-                homeAccountsService.accounts(it)
+                homeAccountsService.accounts(
+                    walletMode = it,
+                    freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
+                )
                     .doOnError {
                         /**
                          * TODO Handle error for fetching accounts for wallet mode
@@ -264,7 +285,9 @@ class AssetsViewModel(
                     .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
-                            account.balance().distinctUntilChanged()
+                            account.balance(
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
+                            ).distinctUntilChanged()
                                 .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
                                     emit(account to DataResource.Error(t as Exception))
@@ -284,8 +307,14 @@ class AssetsViewModel(
                         }
 
                         val usdRate = accounts.data.map { account ->
-                            exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
-                                .map { it to account }
+                            exchangeRates.exchangeRate(
+                                fromAsset = account.currency,
+                                toAsset = FiatCurrency.Dollars,
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(
+                                    shouldGetFresh = forceRefresh,
+                                    cacheStrategy = RefreshStrategy.RefreshIfStale
+                                )
+                            ).map { it to account }
                         }.merge().onEach { (usdExchangeRate, account) ->
                             updateState { state ->
                                 state.copy(
@@ -298,8 +327,9 @@ class AssetsViewModel(
                         }
 
                         val exchangeRates = accounts.data.map { account ->
-                            exchangeRates.getPricesWith24hDelta(fromAsset = account.currency)
-                                .map { it to account }
+                            exchangeRates.getPricesWith24hDelta(
+                                fromAsset = account.currency
+                            ).map { it to account }
                         }.merge().onEach { (price, account) ->
                             updateState { state ->
                                 state.copy(

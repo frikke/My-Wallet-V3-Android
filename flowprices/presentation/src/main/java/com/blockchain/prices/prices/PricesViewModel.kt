@@ -18,6 +18,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
+import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
@@ -26,6 +27,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -47,6 +49,8 @@ class PricesViewModel(
     ModelConfigArgs.NoArgs>(
     PricesModelState()
 ) {
+
+    private var pricesJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -130,11 +134,20 @@ class PricesViewModel(
                     it.copy(filterBy = intent.filter)
                 }
             }
+
+            PricesIntents.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(PricesIntents.LoadData(forceRefresh = true))
+            }
         }
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        pricesJob?.cancel()
+        pricesJob = viewModelScope.launch {
             val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
                 .mapListData { it.source.networkTicker }
 

@@ -392,8 +392,10 @@ abstract class CryptoNonCustodialAccount(
         val sellEligibility = identity.userAccessForFeature(
             Feature.Sell, defFreshness
         )
-        val fiatAccounts = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
-            .onErrorReturn { emptyList() }
+        val fiatAccounts = rxSingle {
+            custodialWalletManager.getSupportedFundsFiats(freshnessStrategy = defFreshness).first()
+        }.onErrorReturn { emptyList() }
+
         return sellEligibility.zipWith(fiatAccounts) { sellEligible, fiatAccountsSupported ->
             StateAwareAction(
                 when {

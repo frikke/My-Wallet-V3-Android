@@ -806,7 +806,7 @@ class DashboardActionInteractor(
                 if (isCowboysUser && cowboysFlagEnabled) {
                     Single.just(DashboardOnboardingState.Hidden)
                 } else {
-                    if (!walletMode.custodialEnabled) {
+                    if (walletMode != WalletMode.CUSTODIAL) {
                         Single.just(DashboardOnboardingState.Hidden)
                     } else {
                         getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->

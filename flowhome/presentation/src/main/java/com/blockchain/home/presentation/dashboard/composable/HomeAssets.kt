@@ -66,6 +66,7 @@ private const val MAX_ASSET_COUNT = 7
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
+    forceRefresh: Boolean,
     openAllAssets: () -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
@@ -78,13 +79,20 @@ fun HomeAssets(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onIntent(AssetsIntent.LoadFilters)
                 viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
-                viewModel.onIntent(AssetsIntent.LoadFundLocks)
+                viewModel.onIntent(AssetsIntent.LoadFundLocks())
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(AssetsIntent.Refresh)
+        }
+        onDispose { }
     }
 
     HomeAssetsScreen(

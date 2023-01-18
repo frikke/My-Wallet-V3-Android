@@ -3,9 +3,13 @@ package com.blockchain.home.presentation.referral
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.utils.CurrentTimeProvider
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -36,15 +40,32 @@ class ReferralViewModel(
 
     override suspend fun handleIntent(modelState: ReferralModelState, intent: ReferralIntent) {
         when (intent) {
-            ReferralIntent.LoadData -> loadData()
-            ReferralIntent.CodeCopied -> handleCodeCopied()
+            is ReferralIntent.LoadData -> {
+                loadData(intent.forceRefresh)
+            }
+
+            ReferralIntent.CodeCopied -> {
+                handleCodeCopied()
+            }
+
+            ReferralIntent.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(ReferralIntent.LoadData(forceRefresh = true))
+            }
         }
     }
 
-    private fun loadData() {
+    private fun loadData(forceRefresh: Boolean) {
         referralJob?.cancel()
         referralJob = viewModelScope.launch {
-            referralService.fetchReferralData()
+            referralService.fetchReferralData(
+                freshnessStrategy = PullToRefresh.freshnessStrategy(
+                    forceRefresh, RefreshStrategy.RefreshIfOlderThan(1, TimeUnit.HOURS)
+                )
+            )
                 .onEach { dataResource ->
                     updateState {
                         it.copy(referralInfo = it.referralInfo.updateDataWith(dataResource))

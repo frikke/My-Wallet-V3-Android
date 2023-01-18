@@ -11,7 +11,8 @@ data class PricesModelState(
     val watchlist: DataResource<List<String>> = DataResource.Loading,
     val data: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
     val filterTerm: String = "",
-    val filterBy: PricesFilter = PricesFilter.All
+    val filterBy: PricesFilter = PricesFilter.All,
+    val lastFreshDataTime: Long = 0
 ) : ModelState
 
 enum class PricesFilter {

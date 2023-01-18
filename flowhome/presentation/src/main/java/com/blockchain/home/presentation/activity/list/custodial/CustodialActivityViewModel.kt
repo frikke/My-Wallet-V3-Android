@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
@@ -17,10 +18,14 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -33,6 +38,8 @@ class CustodialActivityViewModel(
     ActivityModelState<CustodialTransaction>,
     HomeNavEvent,
     ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
+
+    private var activityJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -98,7 +105,7 @@ class CustodialActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-                loadData()
+                loadData(intent.forceRefresh)
             }
 
             is ActivityIntent.FilterSearch -> {
@@ -106,12 +113,26 @@ class CustodialActivityViewModel(
                     it.copy(filterTerm = intent.term)
                 }
             }
+
+            is ActivityIntent.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                onIntent(ActivityIntent.LoadActivity(sectionSize = modelState.sectionSize, forceRefresh = true))
+            }
         }
     }
 
-    private fun loadData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            custodialActivityService.getAllActivity()
+    private fun loadData(forceRefresh: Boolean) {
+        activityJob?.cancel()
+        activityJob = CoroutineScope(Dispatchers.IO).launch {
+            custodialActivityService.getAllActivity(
+                PullToRefresh.freshnessStrategy(
+                    shouldGetFresh = forceRefresh,
+                    cacheStrategy = RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+                )
+            )
                 .onEach { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))

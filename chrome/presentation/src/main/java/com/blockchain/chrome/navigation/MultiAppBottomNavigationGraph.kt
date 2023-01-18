@@ -30,6 +30,7 @@ fun MultiAppBottomNavigationHost(
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
+    selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
     openCryptoAssets: () -> Unit,
@@ -50,9 +51,11 @@ fun MultiAppBottomNavigationHost(
                 modifier = modifier,
                 updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
                 isPullToRefreshEnabled = enableRefresh,
-                content = {
+                content = { shouldTriggerRefresh ->
                     HomeScreen(
                         listState = listState,
+                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                            selectedNavigationItem == ChromeBottomNavigationItem.Home,
                         openCryptoAssets = openCryptoAssets,
                         assetActionsNavigation = assetActionsNavigation,
                         supportNavigation = supportNavigation,
@@ -74,11 +77,13 @@ fun MultiAppBottomNavigationHost(
             val listState = rememberLazyListState()
             ChromeScreen(
                 modifier = modifier,
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
+                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Prices, it)) },
                 isPullToRefreshEnabled = enableRefresh,
-                content = {
+                content = { shouldTriggerRefresh ->
                     Prices(
                         listState = listState,
+                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                            selectedNavigationItem == ChromeBottomNavigationItem.Prices,
                         pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,

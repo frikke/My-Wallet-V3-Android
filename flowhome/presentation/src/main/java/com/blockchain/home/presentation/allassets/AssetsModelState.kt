@@ -16,7 +16,8 @@ data class AssetsModelState(
     private val _accountsForMode: MutableMap<WalletMode, DataResource<List<ModelAccount>>> = mutableMapOf(),
     val sectionSize: SectionSize = SectionSize.All,
     val userFiat: FiatCurrency,
-    val filters: List<AssetFilter> = listOf()
+    val filters: List<AssetFilter> = listOf(),
+    val lastFreshDataTime: Long = 0
 ) : ModelState {
     init {
         _accountsForMode[walletMode] = accounts

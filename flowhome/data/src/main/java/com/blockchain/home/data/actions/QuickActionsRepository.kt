@@ -7,17 +7,14 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,11 +26,8 @@ import kotlinx.coroutines.rx3.asFlow
 
 class QuickActionsRepository(
     private val coincore: Coincore,
-    private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService
 ) : QuickActionsService {
-
-    private val defFreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
 
     private var moreActionsCache = listOf(
         StateAwareAction(action = AssetAction.Send, state = ActionState.Unavailable),
@@ -41,35 +35,50 @@ class QuickActionsRepository(
         StateAwareAction(action = AssetAction.FiatWithdraw, state = ActionState.Unavailable)
     )
 
-    override fun availableQuickActionsForWalletMode(walletMode: WalletMode): Flow<List<StateAwareAction>> =
-        allQuickActionsForWalletMode(walletMode).map { actionList ->
+    override fun availableQuickActionsForWalletMode(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<StateAwareAction>> =
+        allQuickActionsForWalletMode(
+            walletMode = walletMode,
+            freshnessStrategy = freshnessStrategy
+        ).map { actionList ->
             actionList.filter { action ->
                 action.state == ActionState.Available
             }
         }
 
-    private fun unavailableQuickActionsForWalletMode(walletMode: WalletMode): Flow<List<StateAwareAction>> =
-        allQuickActionsForWalletMode(walletMode).map { actionList ->
+    private fun unavailableQuickActionsForWalletMode(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<StateAwareAction>> =
+        allQuickActionsForWalletMode(
+            walletMode = walletMode,
+            freshnessStrategy = freshnessStrategy
+        ).map { actionList ->
             actionList.filter { action ->
                 action.state != ActionState.Available
             }
         }
 
-    private fun allQuickActionsForWalletMode(walletMode: WalletMode): Flow<List<StateAwareAction>> =
+    private fun allQuickActionsForWalletMode(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<StateAwareAction>> =
         when (walletMode) {
             WalletMode.NON_CUSTODIAL -> {
-                allActionsForDefi()
+                allActionsForDefi(freshnessStrategy)
             }
             WalletMode.CUSTODIAL -> {
-                allActionsForBrokerage()
+                allActionsForBrokerage(freshnessStrategy)
             }
         }
 
-    private fun allActionsForBrokerage(): Flow<List<StateAwareAction>> {
+    private fun allActionsForBrokerage(freshnessStrategy: FreshnessStrategy): Flow<List<StateAwareAction>> {
         val buyEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Buy,
-                defFreshnessStrategy
+                freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -78,7 +87,7 @@ class QuickActionsRepository(
         val sellEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.DepositFiat,
-                defFreshnessStrategy
+                freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -87,7 +96,7 @@ class QuickActionsRepository(
         val swapEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Swap,
-                defFreshnessStrategy
+                freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -96,13 +105,16 @@ class QuickActionsRepository(
         val receiveEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.DepositCrypto,
-                defFreshnessStrategy
+                freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
-        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL).map { it.totalFiat.isPositive }
+        val balanceFlow = totalWalletModeBalance(
+            walletMode = WalletMode.CUSTODIAL,
+            freshnessStrategy = freshnessStrategy
+        ).map { it.totalFiat.isPositive }
 
         return combine(
             balanceFlow,
@@ -137,11 +149,13 @@ class QuickActionsRepository(
         }
     }
 
-    private fun allActionsForDefi(): Flow<List<StateAwareAction>> {
+    private fun allActionsForDefi(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<StateAwareAction>> {
         val sellEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
-                defFreshnessStrategy
+                freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn {
                     false
@@ -150,7 +164,10 @@ class QuickActionsRepository(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
-        val balanceFlow = totalWalletModeBalance(WalletMode.NON_CUSTODIAL).map {
+        val balanceFlow = totalWalletModeBalance(
+            walletMode = WalletMode.NON_CUSTODIAL,
+            freshnessStrategy = freshnessStrategy
+        ).map {
             it.total.isPositive
         }
 
@@ -176,24 +193,31 @@ class QuickActionsRepository(
         }
     }
 
-    private fun totalWalletModeBalance(walletMode: WalletMode) =
+    private fun totalWalletModeBalance(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ) =
         coincore.activeWalletsInModeRx(
             walletMode = walletMode,
-            freshnessStrategy =
-            defFreshnessStrategy
+            freshnessStrategy = freshnessStrategy
         ).flatMap {
             it.balanceRx()
         }.asFlow()
 
-    override fun moreActions(walletMode: WalletMode): Flow<List<StateAwareAction>> {
+    override fun moreActions(
+        walletMode: WalletMode,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<List<StateAwareAction>> {
 
-        val disabledQuickActionsFlow = unavailableQuickActionsForWalletMode(walletMode)
+        val disabledQuickActionsFlow = unavailableQuickActionsForWalletMode(
+            walletMode = walletMode,
+            freshnessStrategy = freshnessStrategy
+        )
 
         val hasBalanceFlow =
             coincore.activeWalletsInModeRx(
                 walletMode = walletMode,
-                freshnessStrategy =
-                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+                freshnessStrategy = freshnessStrategy
             ).flatMap {
                 it.balanceRx()
             }.map {
@@ -203,9 +227,8 @@ class QuickActionsRepository(
 
         val hasFiatBalance =
             coincore.activeWalletsInModeRx(
-                WalletMode.CUSTODIAL,
-                freshnessStrategy =
-                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+                walletMode = WalletMode.CUSTODIAL,
+                freshnessStrategy = freshnessStrategy
             )
                 .map { it.accounts.filterIsInstance<FiatAccount>() }
                 .flatMap {
@@ -219,10 +242,8 @@ class QuickActionsRepository(
 
         val depositFiatFeature =
             userFeaturePermissionService.isEligibleFor(
-                Feature.DepositFiat,
-                FreshnessStrategy.Cached(
-                    RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-                )
+                feature = Feature.DepositFiat,
+                freshnessStrategy = freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {
@@ -231,8 +252,8 @@ class QuickActionsRepository(
 
         val withdrawFiatFeature =
             userFeaturePermissionService.isEligibleFor(
-                Feature.WithdrawFiat,
-                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+                feature = Feature.WithdrawFiat,
+                freshnessStrategy = freshnessStrategy
             ).filterNot { it is DataResource.Loading }
                 .onErrorReturn { false }
                 .map {

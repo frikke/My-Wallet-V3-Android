@@ -47,6 +47,7 @@ private const val MAX_ACTIVITY_COUNT = 6
 
 @Composable
 fun HomeActivity(
+    forceRefresh: Boolean,
     openAllActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 ) {
@@ -56,6 +57,7 @@ fun HomeActivity(
     walletMode?.let {
         when (walletMode) {
             WalletMode.CUSTODIAL -> CustodialHomeActivity(
+                forceRefresh = forceRefresh,
                 openAllActivity = openAllActivity,
                 activityOnClick = {
                     openActivityDetail(it, WalletMode.CUSTODIAL)
@@ -75,6 +77,7 @@ fun HomeActivity(
 @Composable
 fun CustodialHomeActivity(
     viewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+    forceRefresh: Boolean,
     openAllActivity: () -> Unit,
     activityOnClick: (String) -> Unit
 ) {
@@ -93,6 +96,14 @@ fun CustodialHomeActivity(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(ActivityIntent.Refresh())
+        }
+        onDispose { }
+    }
+
     HomeActivityScreen(
         activity = viewState.activity.map { it[TransactionGroup.Combined] ?: listOf() },
         onSeeAllCryptoAssetsClick = openAllActivity,

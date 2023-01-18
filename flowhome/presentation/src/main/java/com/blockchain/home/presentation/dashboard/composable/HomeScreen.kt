@@ -36,6 +36,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeScreen(
     listState: LazyListState,
+    shouldTriggerRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
     supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
@@ -98,6 +99,7 @@ fun HomeScreen(
 
         item {
             QuickActions(
+                forceRefresh = shouldTriggerRefresh,
                 assetActionsNavigation = assetActionsNavigation,
                 openMoreQuickActions = openMoreQuickActions
             )
@@ -114,25 +116,31 @@ fun HomeScreen(
         item {
             HomeAssets(
                 assetActionsNavigation = assetActionsNavigation,
+                forceRefresh = shouldTriggerRefresh,
                 openAllAssets = openCryptoAssets,
                 openFiatActionDetail = openFiatActionDetail
             )
         }
 
         item {
-            EarnAssets(assetActionsNavigation = assetActionsNavigation)
+            EarnAssets(
+                assetActionsNavigation = assetActionsNavigation,
+                forceRefresh = shouldTriggerRefresh
+            )
         }
 
         item {
             HomeActivity(
                 openAllActivity = openActivity,
-                openActivityDetail = openActivityDetail
+                openActivityDetail = openActivityDetail,
+                forceRefresh = shouldTriggerRefresh
             )
         }
 
         item {
             Referral(
-                openReferral = openReferral
+                openReferral = openReferral,
+                forceRefresh = shouldTriggerRefresh
             )
         }
 

@@ -27,12 +27,20 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun Referral(
     viewModel: ReferralViewModel = getViewModel(scope = payloadScope),
+    forceRefresh: Boolean,
     openReferral: () -> Unit
 ) {
     val viewState: ReferralViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ReferralIntent.LoadData)
+        viewModel.onIntent(ReferralIntent.LoadData())
+        onDispose { }
+    }
+
+    DisposableEffect(forceRefresh) {
+        if (forceRefresh) {
+            viewModel.onIntent(ReferralIntent.Refresh)
+        }
         onDispose { }
     }
 
