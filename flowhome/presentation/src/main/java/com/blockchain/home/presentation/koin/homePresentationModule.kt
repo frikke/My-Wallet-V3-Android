@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.koin
 
-import com.blockchain.home.introduction.IntroScreensViewModel
+import com.blockchain.home.presentation.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel

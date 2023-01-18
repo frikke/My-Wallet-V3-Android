@@ -6,7 +6,7 @@ import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
-import com.blockchain.home.introduction.composable.IntroductionScreens
+import com.blockchain.home.presentation.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
