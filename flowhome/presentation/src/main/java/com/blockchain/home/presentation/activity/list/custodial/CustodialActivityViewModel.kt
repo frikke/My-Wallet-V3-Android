@@ -17,7 +17,7 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
@@ -126,7 +126,7 @@ class CustodialActivityViewModel(
         activityJob?.cancel()
         activityJob = CoroutineScope(Dispatchers.IO).launch {
             custodialActivityService.getAllActivity(
-                PullToRefreshUtils.freshnessStrategy(
+                PullToRefresh.freshnessStrategy(
                     shouldGetFresh = forceRefresh,
                     cacheStrategy = custodialActivityService.defFreshness.refreshStrategy
                 )

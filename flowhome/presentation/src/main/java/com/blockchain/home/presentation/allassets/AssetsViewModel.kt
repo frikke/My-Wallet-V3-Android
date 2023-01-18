@@ -33,7 +33,7 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance
-import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -223,7 +223,7 @@ class AssetsViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
-                onIntent(AssetsIntent.LoadAccounts(sectionSize = SectionSize.Limited(), forceRefresh = true))
+                onIntent(AssetsIntent.LoadAccounts(sectionSize = modelState.sectionSize, forceRefresh = true))
                 onIntent(AssetsIntent.LoadFundLocks(forceRefresh = true))
             }
         }
@@ -234,7 +234,7 @@ class AssetsViewModel(
         fundsLocksJob = viewModelScope.launch {
             coincore.getWithdrawalLocks(
                 localCurrency = currencyPrefs.selectedFiatCurrency,
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
+                freshnessStrategy = PullToRefresh.freshnessStrategy(
                     shouldGetFresh = forceRefresh,
                     cacheStrategy = RefreshStrategy.RefreshIfStale
                 )
@@ -263,7 +263,7 @@ class AssetsViewModel(
             }.flatMapLatest {
                 homeAccountsService.accounts(
                     walletMode = it,
-                    freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
+                    freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
                 )
                     .doOnError {
                         /**
@@ -287,7 +287,7 @@ class AssetsViewModel(
                     .flatMapLatest { accounts ->
                         val balances = accounts.data.map { account ->
                             account.balance(
-                                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
                             ).distinctUntilChanged()
                                 .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
                                 .catch { t ->
@@ -311,9 +311,9 @@ class AssetsViewModel(
                             exchangeRates.exchangeRate(
                                 fromAsset = account.currency,
                                 toAsset = FiatCurrency.Dollars,
-                                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(
                                     shouldGetFresh = forceRefresh,
-                                    cacheStrategy = exchangeRates.defFreshness.refreshStrategy
+                                    cacheStrategy = RefreshStrategy.RefreshIfStale
                                 )
                             ).map { it to account }
                         }.merge().onEach { (usdExchangeRate, account) ->
@@ -329,11 +329,7 @@ class AssetsViewModel(
 
                         val exchangeRates = accounts.data.map { account ->
                             exchangeRates.getPricesWith24hDelta(
-                                fromAsset = account.currency,
-                                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
-                                    shouldGetFresh = forceRefresh,
-                                    cacheStrategy = exchangeRates.defFreshness.refreshStrategy
-                                )
+                                fromAsset = account.currency
                             ).map { it to account }
                         }.merge().onEach { (price, account) ->
                             updateState { state ->

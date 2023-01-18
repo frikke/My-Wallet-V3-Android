@@ -9,17 +9,16 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface CustodialActivityService {
-    val defFreshness
-        get() = FreshnessStrategy.Cached(
+    fun getAllActivity(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
             RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
         )
-
-    fun getAllActivity(
-        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<List<CustodialTransaction>>>
 
     fun getActivity(
         id: String,
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<ActivitySummaryItem>>
 }

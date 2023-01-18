@@ -5,7 +5,7 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.utils.CurrentTimeProvider
 import java.util.concurrent.TimeUnit
 
-object PullToRefreshUtils {
+object PullToRefresh {
     private val PULL_TO_REFRESH_THRESHOLD = TimeUnit.MINUTES.toMillis(2)
 
     fun canRefresh(lastFreshTime: Long): Boolean {

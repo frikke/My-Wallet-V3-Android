@@ -2,7 +2,7 @@ package com.blockchain.prices.prices
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
-import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
 
 sealed interface PricesIntents : Intent<PricesModelState> {
     data class LoadData(val forceRefresh: Boolean = false) : PricesIntents {
@@ -25,7 +25,7 @@ sealed interface PricesIntents : Intent<PricesModelState> {
 
     object Refresh : PricesIntents {
         override fun isValidFor(modelState: PricesModelState): Boolean {
-            return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
+            return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
         }
     }
 }

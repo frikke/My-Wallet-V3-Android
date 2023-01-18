@@ -6,7 +6,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -60,7 +60,7 @@ class ReferralViewModel(
         referralJob?.cancel()
         referralJob = viewModelScope.launch {
             referralService.fetchReferralData(
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
+                freshnessStrategy = PullToRefresh.freshnessStrategy(
                     forceRefresh, referralService.defFreshness.refreshStrategy
                 )
             )

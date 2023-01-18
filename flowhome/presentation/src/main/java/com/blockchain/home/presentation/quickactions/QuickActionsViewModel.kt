@@ -18,7 +18,7 @@ import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -81,7 +81,7 @@ class QuickActionsViewModel(
                         }.flatMapLatest { wMode ->
                             val actionsFlow = quickActionsService.availableQuickActionsForWalletMode(
                                 walletMode = wMode,
-                                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(intent.forceRefresh)
+                                freshnessStrategy = PullToRefresh.freshnessStrategy(intent.forceRefresh)
                             ).map { actions ->
                                 actions.map {
                                     it.toQuickActionItem()
@@ -153,7 +153,7 @@ class QuickActionsViewModel(
     ): Flow<List<MoreActionItem>> {
         return quickActionsService.moreActions(
             walletMode = walletMode,
-            freshnessStrategy = PullToRefreshUtils.freshnessStrategy(forceRefresh)
+            freshnessStrategy = PullToRefresh.freshnessStrategy(forceRefresh)
         ).map { stateAwareActions ->
             Timber.d("Rendering More section with -> $stateAwareActions")
             stateAwareActions.map {
@@ -371,7 +371,7 @@ sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
 
     object Refresh : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
-            return PullToRefreshUtils.canRefresh(modelState.lastFreshDataTime)
+            return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
         }
     }
 }
