@@ -1,4 +1,4 @@
-package com.blockchain.home.introduction.composable
+package com.blockchain.home.presentation.introduction.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
@@ -31,26 +29,13 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.standardSpacing)
-                .weight(1F),
+                .weight(0.8F),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (content.isLogo) {
-                Surface(
-                    elevation = 8.dp,
-                    shape = AppTheme.shapes.veryLarge,
-                    color = AppTheme.colors.background
-                ) {
-                    Image(
-                        modifier = Modifier.padding(AppTheme.dimensions.verySmallSpacing),
-                        imageResource = ImageResource.Local(content.image, size = 56.dp)
-                    )
-                }
-            } else {
-                Image(
-                    imageResource = ImageResource.Local(content.image)
-                )
-            }
+            Image(
+                imageResource = ImageResource.Local(content.image)
+            )
         }
         Column(
             modifier = Modifier
@@ -77,11 +62,8 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-            content.tag?.let { (text, color) ->
-                EducationalWalletModeSecureTag(
-                    text = stringResource(text),
-                    color = color
-                )
+            content.tag?.let {
+                EducationalWalletModeSecureTag(it)
             }
         }
     }

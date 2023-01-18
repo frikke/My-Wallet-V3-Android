@@ -3295,17 +3295,21 @@ If you want to know more about our verification process visit our <annotation li
     <string name="purchase_title_error">Purchasing error</string>
     <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
 
-    <!-- Educational - wallet modes-->
-    <string name="educational_wallet_mode_intro_title">Welcome to \nBlockchain.com</string>
-    <string name="educational_wallet_mode_intro_description">The only crypto app you’ll ever need.</string>
-    <string name="educational_wallet_mode_menu_title">Buy and secure your crypto (need new android phone screens)</string>
-    <string name="educational_wallet_mode_menu_description">Enjoy a trusted brokerage and a leading self-custody wallet—all in one app.</string>
-    <string name="educational_wallet_mode_defi_title">Discover the world of DeFi</string>
-    <string name="educational_wallet_mode_defi_description">Self-custody your crypto, use decentralized applications, and collect NFTs.</string>
-    <string name="educational_wallet_mode_defi_secure_tag">Held by You</string>
-    <string name="educational_wallet_mode_trading_title">Buy, sell, and swap crypto</string>
-    <string name="educational_wallet_mode_trading_description">Use a card or bank account to buy crypto. Earn rewards by putting your crypto to work.</string>
-    <string name="educational_wallet_mode_trading_secure_tag">Held by Blockchain.com</string>
+    <!-- intro screens-->
+    <string name="intro_new_user_title">Welcome to \nBlockchain.com</string>
+    <string name="intro_new_user_description">The only crypto app you’ll ever need.</string>
+    <string name="intro_new_user_tag_description">Join over 40M users who have transacted $1T+ since 2012 on Blockchain.com.</string>
+    <string name="intro_existing_user_title">Your app just got better</string>
+    <string name="intro_existing_user_description">Welcome to your new Blockchain.com app, a SuperApp for crypto. Experience powerful crypto trading together with a self-custody wallet, all in one place. </string>
+    <string name="intro_non_custodial_title">Control your crypto \nand use DeFi</string>
+    <string name="intro_non_custodial_description">Self-custody your crypto across multiple blockchains, use dapps, and collect NFTs.</string>
+    <string name="intro_non_custodial_tag_title">Self-Custody</string>
+    <string name="intro_non_custodial_tag_description">With a DeFi Wallet, only you have access to your crypto assets. Blockchain.com cannot access your funds. Your keys, your crypto!</string>
+    <string name="intro_custodial_title">Buy, sell, trade, and \nearn crypto</string>
+    <string name="intro_custodial_description">Link a card or bank account to buy crypto. Earn rewards by putting your crypto to work.</string>
+    <string name="intro_custodial_tag_title">Custodial</string>
+    <string name="intro_custodial_tag_description">Funds stored in your Blockchain.com Account are held in our custody system.</string>
+    <string name="intro_swipe_hint">Swipe to continue -></string>
 
     <!-- NFT -->
     <string name="nft_coming_soon_title">Coming soon!</string>

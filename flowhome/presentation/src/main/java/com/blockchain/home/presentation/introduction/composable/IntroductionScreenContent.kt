@@ -1,4 +1,4 @@
-package com.blockchain.home.introduction.composable
+package com.blockchain.home.presentation.introduction.composable
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -10,13 +10,17 @@ import com.blockchain.walletmode.WalletMode
 
 data class IntroductionScreenContent(
     @DrawableRes val image: Int,
-    val isLogo: Boolean,
     @StringRes val title: Int,
     @StringRes val description: Int,
-    val tag: Pair<Int, Color>? = null,
+    val tag: IntroductionScreenTag? = null,
     val forWalletMode: WalletMode? = null
 )
 
+data class IntroductionScreenTag(
+    @StringRes val title: Int?,
+    val titleColor: Color?,
+    @StringRes val description: Int
+)
 sealed interface IntroductionScreensSetup {
     data class All(val isNewUser: Boolean) : IntroductionScreensSetup
     data class ModesOnly(val startMode: WalletMode) : IntroductionScreensSetup
@@ -27,16 +31,19 @@ fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): Li
         is IntroductionScreensSetup.All -> {
             listOfNotNull(
                 IntroductionScreenContent(
-                    image = R.drawable.ic_blockchain,
-                    isLogo = true,
-                    title = R.string.educational_wallet_mode_intro_title,
-                    description = R.string.educational_wallet_mode_intro_description,
+                    image = R.drawable.ic_intro_new_user,
+                    title = R.string.intro_new_user_title,
+                    description = R.string.intro_new_user_description,
+                    tag = IntroductionScreenTag(
+                        title = null,
+                        titleColor = null,
+                        description = R.string.intro_new_user_tag_description
+                    )
                 ).takeIf { introductionScreensSetup.isNewUser },
                 IntroductionScreenContent(
-                    image = R.drawable.ic_educational_wallet_menu,
-                    isLogo = false,
-                    title = R.string.educational_wallet_mode_menu_title,
-                    description = R.string.educational_wallet_mode_menu_description,
+                    image = R.drawable.ic_intro_old_user,
+                    title = R.string.intro_existing_user_title,
+                    description = R.string.intro_existing_user_description,
                 ).takeIf { introductionScreensSetup.isNewUser.not() },
             ) + walletModeContent
         }
@@ -52,19 +59,25 @@ fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): Li
 
 private val walletModeContent = mutableListOf(
     IntroductionScreenContent(
-        image = R.drawable.ic_educational_wallet_menu,
-        isLogo = false,
-        title = R.string.educational_wallet_mode_trading_title,
-        description = R.string.educational_wallet_mode_trading_description,
-        tag = Pair(R.string.educational_wallet_mode_trading_secure_tag, Blue600),
+        image = R.drawable.ic_intro_custodial,
+        title = R.string.intro_custodial_title,
+        description = R.string.intro_custodial_description,
+        tag = IntroductionScreenTag(
+            title = R.string.intro_custodial_tag_title,
+            titleColor = Blue600,
+            description = R.string.intro_custodial_tag_description
+        ),
         forWalletMode = WalletMode.CUSTODIAL
     ),
     IntroductionScreenContent(
-        image = R.drawable.ic_educational_wallet_menu,
-        isLogo = false,
-        title = R.string.educational_wallet_mode_defi_title,
-        description = R.string.educational_wallet_mode_defi_description,
-        tag = Pair(R.string.educational_wallet_mode_defi_secure_tag, Purple0000),
+        image = R.drawable.ic_intro_non_custodial,
+        title = R.string.intro_non_custodial_title,
+        description = R.string.intro_non_custodial_description,
+        tag = IntroductionScreenTag(
+            title = R.string.intro_non_custodial_tag_title,
+            titleColor = Purple0000,
+            description = R.string.intro_non_custodial_tag_description
+        ),
         forWalletMode = WalletMode.NON_CUSTODIAL
     )
 )

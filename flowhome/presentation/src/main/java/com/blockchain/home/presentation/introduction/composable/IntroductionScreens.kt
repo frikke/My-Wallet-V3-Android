@@ -1,4 +1,4 @@
-package com.blockchain.home.introduction.composable
+package com.blockchain.home.presentation.introduction.composable
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -22,14 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.TextAnimatedBrush
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
-import com.blockchain.home.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.introduction.IntroScreensViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -41,7 +44,6 @@ import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun IntroductionScreens(
     viewModel: IntroScreensViewModel = getViewModel(),
@@ -64,7 +66,7 @@ fun IntroductionScreens(
     )
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalTextApi::class)
 @Composable
 fun IntroductionScreensData(
     setup: IntroductionScreensSetup,
@@ -74,6 +76,7 @@ fun IntroductionScreensData(
 ) {
     val pagerState = rememberPagerState()
     var buttonVisible by remember { mutableStateOf(false) }
+    var swipeHintVisible by remember { mutableStateOf(true) }
 
     val introductionsScreens = remember {
         introductionsScreens(introductionScreensSetup = setup)
@@ -84,6 +87,10 @@ fun IntroductionScreensData(
             .onEach { pageIndex ->
                 if (pageIndex == introductionsScreens.lastIndex) {
                     buttonVisible = true
+                }
+
+                if (pageIndex != 0) {
+                    swipeHintVisible = false
                 }
             }
             .collect()
@@ -138,6 +145,20 @@ fun IntroductionScreensData(
                 )
             }
 
+            AnimatedVisibility(
+                visible = swipeHintVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                TextAnimatedBrush(
+                    text = stringResource(R.string.intro_swipe_hint),
+                    style = AppTheme.typography.body2,
+                    baseColor = AppTheme.colors.background.copy(alpha = 0.4F),
+                    brushColor = AppTheme.colors.background.copy(alpha = 0.9F),
+                    textAlign = TextAlign.Center
+                )
+            }
+
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             HorizontalPagerIndicator(
@@ -157,5 +178,5 @@ fun IntroductionScreensData(
 @Preview(showBackground = true)
 @Composable
 fun PreviewIntroductionScreens() {
-    IntroductionScreensData(IntroductionScreensSetup.All(true), {}, {}, {})
+    IntroductionScreensData(IntroductionScreensSetup.ModesOnly(WalletMode.CUSTODIAL), {}, {}, {})
 }

@@ -1,4 +1,4 @@
-package com.blockchain.home.introduction
+package com.blockchain.home.presentation.introduction
 
 import androidx.lifecycle.ViewModel
 import com.blockchain.preferences.SuperAppMvpPrefs
