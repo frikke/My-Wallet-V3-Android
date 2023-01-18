@@ -5,8 +5,8 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
-import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
 
 interface ReferralService {
     fun fetchReferralData(

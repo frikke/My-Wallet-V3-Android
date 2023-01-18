@@ -29,7 +29,6 @@ import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
-import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance

@@ -3,11 +3,13 @@ package com.blockchain.home.presentation.referral
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -61,7 +63,7 @@ class ReferralViewModel(
         referralJob = viewModelScope.launch {
             referralService.fetchReferralData(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
-                    forceRefresh, referralService.defFreshness.refreshStrategy
+                    forceRefresh, RefreshStrategy.RefreshIfOlderThan(1, TimeUnit.HOURS)
                 )
             )
                 .onEach { dataResource ->

@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
@@ -21,6 +22,7 @@ import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -128,7 +130,7 @@ class CustodialActivityViewModel(
             custodialActivityService.getAllActivity(
                 PullToRefresh.freshnessStrategy(
                     shouldGetFresh = forceRefresh,
-                    cacheStrategy = custodialActivityService.defFreshness.refreshStrategy
+                    cacheStrategy = RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
                 )
             )
                 .onEach { dataResource ->
