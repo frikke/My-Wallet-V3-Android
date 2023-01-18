@@ -16,6 +16,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.any
@@ -23,6 +24,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 class NabuServiceTest {
@@ -95,7 +98,7 @@ class NabuServiceTest {
     }
 
     @Test
-    fun createBasicUser() {
+    fun createBasicUser() = runTest {
         val firstName = "FIRST_NAME"
         val lastName = "LAST_NAME"
         val dateOfBirth = "12-12-1234"
@@ -103,14 +106,15 @@ class NabuServiceTest {
         whenever(
             nabu.createBasicUser(NabuBasicUser(firstName, lastName, dateOfBirth))
         ).thenReturn(
-            Completable.complete()
+            Outcome.Success(Unit)
         )
 
-        subject.createBasicUser(
+        val result = subject.createBasicUser(
             firstName,
             lastName,
             dateOfBirth,
-        ).test().waitForCompletionWithoutErrors()
+        )
+        result shouldBeEqualTo Outcome.Success(Unit)
     }
 
     @Test

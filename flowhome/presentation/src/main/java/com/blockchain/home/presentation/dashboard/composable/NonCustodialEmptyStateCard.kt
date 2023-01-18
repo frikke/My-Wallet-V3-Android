@@ -58,7 +58,7 @@ fun NonCustodialEmptyStateCard(
 
                 Text(
                     textAlign = TextAlign.Center,
-                    text = stringResource(id = R.string.to_get_started_transfer_to_your_wallets),
+                    text = stringResource(id = R.string.nc_empty_state_title),
                     style = AppTheme.typography.title2,
                     color = Grey900
                 )
@@ -77,7 +77,7 @@ fun NonCustodialEmptyStateCard(
                     modifier = Modifier.padding(
                         vertical = AppTheme.dimensions.standardSpacing
                     ),
-                    text = stringResource(id = R.string.receive),
+                    text = stringResource(id = R.string.nc_empty_state_cta),
                     onClick = {
                         onReceiveClicked()
                     }

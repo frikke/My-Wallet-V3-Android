@@ -70,9 +70,6 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
         initialiseAccountSelectorWithHeader(
             statusDecorator = ::statusDecorator,
             onAccountSelected = ::doOnAccountSelected,
-            title = R.string.transfer_send_crypto_title,
-            label = R.string.transfer_send_crypto_label,
-            icon = R.drawable.ic_send_blue_circle,
             onExtraAccountInfoClicked = ::onExtraAccountInfoClicked
         )
     }

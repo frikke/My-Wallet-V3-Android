@@ -172,7 +172,7 @@ fun AssetAccountsData(
                         is CoinviewAccountsState.CoinviewAccountState.Available -> {
                             BalanceTableRow(
                                 titleStart = buildAnnotatedString { append(account.title) },
-                                bodyStart = buildAnnotatedString { append(account.subtitle.value()) },
+                                bodyStart = account.subtitle?.let { buildAnnotatedString { append(it.value()) } },
                                 titleEnd = buildAnnotatedString { append(account.fiatBalance) },
                                 bodyEnd = buildAnnotatedString { append(account.cryptoBalance) },
                                 startImageResource = when (account.logo) {

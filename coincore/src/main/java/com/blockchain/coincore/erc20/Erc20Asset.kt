@@ -14,6 +14,7 @@ import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
@@ -31,6 +32,7 @@ internal class Erc20Asset(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val labels: DefaultLabels,
+    private val currencyPrefs: CurrencyPrefs,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
@@ -83,6 +85,7 @@ internal class Erc20Asset(
             erc20address,
             feeDataManager,
             labels.getDefaultNonCustodialWalletLabel(),
+            currencyPrefs,
             exchangeRates,
             walletPreferences,
             addressResolver,

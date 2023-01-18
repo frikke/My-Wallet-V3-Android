@@ -74,10 +74,8 @@ class FiatAsset(
     override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
         exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
 
-    override fun getPricesWith24hDelta(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<Prices24HrWithDelta>> {
-        return exchangeRates.getPricesWith24hDelta(fromAsset = currency, freshnessStrategy = freshnessStrategy)
+    override fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(fromAsset = currency)
     }
 
     override fun historicRate(epochWhen: Long): Single<ExchangeRate> =

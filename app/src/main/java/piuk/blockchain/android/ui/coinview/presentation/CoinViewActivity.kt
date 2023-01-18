@@ -51,7 +51,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
-class CoinViewActivityV2 :
+class CoinViewActivity :
     MVIActivity<CoinviewViewState>(),
     KoinScopeComponent,
     NavigationRouter<CoinviewNavigationEvent>,
@@ -474,7 +474,7 @@ class CoinViewActivityV2 :
             recurringBuyId: String? = null,
             originScreen: String
         ): Intent {
-            return Intent(context, CoinViewActivityV2::class.java).apply {
+            return Intent(context, CoinViewActivity::class.java).apply {
                 putExtra(
                     CoinviewArgs.ARGS_KEY,
                     CoinviewArgs(

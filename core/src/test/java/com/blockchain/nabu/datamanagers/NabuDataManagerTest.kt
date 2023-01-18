@@ -14,6 +14,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.SessionPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -22,6 +23,8 @@ import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -162,7 +165,7 @@ class NabuDataManagerTest {
     }
 
     @Test
-    fun createBasicUser() {
+    fun createBasicUser() = runTest {
         // Arrange
         val firstName = "FIRST_NAME"
         val lastName = "LAST_NAME"
@@ -173,16 +176,15 @@ class NabuDataManagerTest {
                 lastName,
                 dateOfBirth,
             )
-        ).thenReturn(Completable.complete())
+        ).thenReturn(Outcome.Success(Unit))
         // Act
-        val testObserver = subject.createBasicUser(
+        val result = subject.createBasicUser(
             firstName,
             lastName,
             dateOfBirth,
-        ).test()
+        )
         // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
+        result shouldBeEqualTo Outcome.Success(Unit)
         verify(nabuService).createBasicUser(
             firstName,
             lastName,

@@ -23,7 +23,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
@@ -75,7 +75,7 @@ class GlobalEventHandler(
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    CoinViewActivityV2.newIntent(
+                    CoinViewActivity.newIntent(
                         context = application,
                         asset = assetInfo,
                         recurringBuyId = destination.recurringBuyId,

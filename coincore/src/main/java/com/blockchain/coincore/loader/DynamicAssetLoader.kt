@@ -19,7 +19,6 @@ import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -29,6 +28,7 @@ import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
@@ -37,7 +37,6 @@ import com.blockchain.utils.mapList
 import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -82,8 +81,7 @@ internal class DynamicAssetLoader(
     private val layerTwoFeatureFlag: FeatureFlag,
     private val stakingService: StakingService,
     private val coinNetworksEnabledFlag: FeatureFlag,
-    private val kycService: KycService,
-    private val walletModeService: WalletModeService
+    private val currencyPrefs: CurrencyPrefs,
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -343,6 +341,7 @@ internal class DynamicAssetLoader(
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             labels = labels,
+            currencyPrefs = currencyPrefs,
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,

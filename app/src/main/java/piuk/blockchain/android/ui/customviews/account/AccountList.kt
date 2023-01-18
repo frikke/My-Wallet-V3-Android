@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.MultipleCurrenciesAccountGroup
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
@@ -21,6 +21,8 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.updateSelectableItemBackgroundForSuperApp
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.extensions.minus
+import com.blockchain.extensions.replace
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -49,7 +51,7 @@ data class AccountLocks(
 
 internal data class SelectableAccountItem(
     val item: AccountListViewItem,
-    var isSelected: Boolean,
+    val isSelected: Boolean,
 ) : AccountsListItem
 
 object AddBankAccountItem : AccountsListItem
@@ -164,18 +166,18 @@ class AccountList @JvmOverloads constructor(
     fun updatedSelectedAccount(selectedAccount: BlockchainAccount) {
         with(adapter as AccountsDelegateAdapter) {
             if (items.isNotEmpty()) {
-                items.forEachIndexed { index, accountsListItem ->
-                    (accountsListItem as? SelectableAccountItem)?.run {
-                        if (isSelected && item.account != selectedAccount) {
-                            isSelected = false
-                            notifyItemChanged(index)
-                        }
-
-                        if (!isSelected && item.account == selectedAccount) {
-                            isSelected = true
-                            notifyItemChanged(index)
-                        }
+                val selectableItems = items.filterIsInstance<SelectableAccountItem>()
+                val currentSelected = selectableItems.firstOrNull { it.isSelected }
+                val newSelected = selectableItems.first { it.item.account == selectedAccount }
+                if (currentSelected != null) {
+                    val newItem = currentSelected.copy(isSelected = false)
+                    items = items.replace(currentSelected, newItem).also {
+                        notifyItemChanged(items.indexOf(newItem))
                     }
+                }
+                val newItem = newSelected.copy(isSelected = true)
+                items = items.replace(newSelected, newItem).also {
+                    notifyItemChanged(items.indexOf(newItem))
                 }
             } else {
                 // if list is empty, we're in a race condition between loading and selecting, so store value and check
@@ -285,12 +287,12 @@ private class AccountsDelegateAdapter(
 
 private class CryptoAccountDelegate(
     private val statusDecorator: StatusDecorator,
-    private val onAccountClicked: (CryptoAccount) -> Unit,
+    private val onAccountClicked: (SingleAccount) -> Unit,
     private val showSelectionStatus: Boolean,
 ) : AdapterDelegate<AccountsListItem> {
 
     override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
-        (items[position] as? SelectableAccountItem)?.item is AccountListViewItem.Crypto
+        (items[position] as? SelectableAccountItem)?.item?.type == AccountsListViewItemType.Crypto
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         CryptoSingleAccountViewHolder(
@@ -321,7 +323,7 @@ private class CryptoSingleAccountViewHolder(
     fun bind(
         selectableAccountItem: SelectableAccountItem,
         statusDecorator: StatusDecorator,
-        onAccountClicked: (CryptoAccount) -> Unit,
+        onAccountClicked: (SingleAccount) -> Unit,
         isFirstItemInList: Boolean,
         isLastItemInList: Boolean
     ) {
@@ -336,7 +338,7 @@ private class CryptoSingleAccountViewHolder(
             }
 
             cryptoAccount.updateItem(
-                item = selectableAccountItem.item as AccountListViewItem.Crypto,
+                item = selectableAccountItem.item,
                 onAccountClicked = onAccountClicked,
                 cellDecorator = statusDecorator(selectableAccountItem.item.account),
             )

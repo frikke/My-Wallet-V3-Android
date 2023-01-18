@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NullAddress
@@ -147,12 +146,12 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         if (newState.selectedTarget == NullAddress) {
             binding.walletSelect.loadItems(
                 accountsSource = Single.just(
-                    newState.availableTargets.filterIsInstance<BlockchainAccount>().map {
-                        if (newState.action == AssetAction.Send && it is CryptoAccount) {
-                            mapToSendRecipientAccountItem(it)
-                        } else {
-                            AccountListViewItem.create(it)
-                        }
+                    newState.availableTargets.filterIsInstance<SingleAccount>().map {
+                        AccountListViewItem(
+                            account = it,
+                            showRewardsUpsell = it is InterestAccount,
+                            emphasiseNameOverCurrency = newState.action == AssetAction.Send
+                        )
                     }
                 ),
                 accountsLocksSource = Single.just(emptyList())
@@ -263,12 +262,12 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             with(binding.walletSelect) {
                 initialise(
                     source = Single.just(
-                        fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
-                            if (state.action == AssetAction.Send && it is CryptoAccount) {
-                                mapToSendRecipientAccountItem(it)
-                            } else {
-                                AccountListViewItem.create(it)
-                            }
+                        fragmentState.accounts.filterIsInstance<SingleAccount>().map {
+                            AccountListViewItem(
+                                account = it,
+                                emphasiseNameOverCurrency = state.action == AssetAction.Send,
+                                showRewardsUpsell = it is InterestAccount
+                            )
                         }
                     ),
                     status = customiser.selectTargetStatusDecorator(state, it),
@@ -301,13 +300,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
         }
     }
-
-    private fun mapToSendRecipientAccountItem(it: CryptoAccount) = AccountListViewItem.Crypto(
-        title = it.label,
-        subTitle = it.currency.name,
-        showRewardsUpsell = it is InterestAccount,
-        account = it
-    )
 
     private fun hideTransferList() {
         binding.titlePick.gone()

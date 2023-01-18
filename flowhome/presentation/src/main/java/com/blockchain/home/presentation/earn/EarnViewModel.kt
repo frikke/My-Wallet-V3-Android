@@ -150,11 +150,7 @@ class EarnViewModel(
         }.flatMapData { staking ->
             val prices = staking.keys.map { asset ->
                 exchangeRates.exchangeRateToUserFiatFlow(
-                    fromAsset = asset,
-                    freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
-                        shouldGetFresh = forceRefresh,
-                        cacheStrategy = exchangeRates.defFreshness.refreshStrategy
-                    )
+                    fromAsset = asset
                 ).mapData { exchangeRate ->
                     EarnAsset(
                         currency = asset,
@@ -183,8 +179,7 @@ class EarnViewModel(
             }.flatMapData { interest ->
                 val prices = interest.keys.map { asset ->
                     exchangeRates.exchangeRateToUserFiatFlow(
-                        fromAsset = asset,
-                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                        fromAsset = asset
                     ).mapData { exchangeRate ->
                         EarnAsset(
                             currency = asset,
@@ -339,7 +334,7 @@ sealed class EarnViewState : ViewState {
 class EarnAsset(
     val currency: Currency,
     val type: EarnType,
-    val balance: Money
+    val balance: Money,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

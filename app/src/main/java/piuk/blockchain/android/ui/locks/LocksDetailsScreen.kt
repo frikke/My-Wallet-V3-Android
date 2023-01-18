@@ -25,12 +25,14 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.FiatCurrency
@@ -48,6 +50,25 @@ fun LocksDetailsScreen(
     contactSupportClicked: () -> Unit,
     okClicked: () -> Unit,
 ) {
+    LocksDetailsScreen(
+        modeColor = ModeBackgroundColor.Current,
+        locks = locks,
+        backClicked = backClicked,
+        learnMoreClicked = learnMoreClicked,
+        contactSupportClicked = contactSupportClicked,
+        okClicked = okClicked
+    )
+}
+
+@Composable
+private fun LocksDetailsScreen(
+    modeColor: ModeBackgroundColor,
+    locks: FundsLocks,
+    backClicked: () -> Unit,
+    learnMoreClicked: () -> Unit,
+    contactSupportClicked: () -> Unit,
+    okClicked: () -> Unit,
+) {
     Column(
         Modifier.fillMaxSize()
             .background(White)
@@ -57,8 +78,10 @@ fun LocksDetailsScreen(
                 .weight(1f)
         ) {
             NavigationBar(
+                modeColor = modeColor,
+                mutedBackground = false,
                 title = stringResource(R.string.funds_locked_details_toolbar),
-                onBackButtonClick = backClicked,
+                onBackButtonClick = backClicked
             )
 
             SimpleText(
@@ -325,6 +348,7 @@ private fun PreviewScreen1() {
         )
     )
     LocksDetailsScreen(
+        modeColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL),
         locks = locks,
         backClicked = {},
         learnMoreClicked = {},
@@ -377,6 +401,7 @@ private fun PreviewScreen2() {
         )
     )
     LocksDetailsScreen(
+        modeColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL),
         locks = locks,
         backClicked = {},
         learnMoreClicked = {},

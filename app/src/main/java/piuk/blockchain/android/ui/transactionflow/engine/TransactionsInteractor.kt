@@ -10,6 +10,7 @@ import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
@@ -156,14 +157,20 @@ class TransactionInteractor(
             customFeeAmount = customFeeAmount
         ) ?: throw IllegalStateException("TxProcessor not initialised")
 
-    fun getTargetAccounts(sourceAccount: BlockchainAccount, action: AssetAction): Single<SingleAccountList> =
-        when (action) {
+    fun getTargetAccounts(sourceAccount: BlockchainAccount, action: AssetAction): Single<SingleAccountList> {
+        val accounts = when (action) {
             AssetAction.Swap -> swapTargets(sourceAccount as CryptoAccount)
             AssetAction.Sell -> sellTargets(sourceAccount as CryptoAccount)
+            AssetAction.Send -> coincore[(sourceAccount as SingleAccount).currency]
+                .transactionTargets(sourceAccount)
             AssetAction.FiatDeposit -> linkedBanksFactory.getNonWireTransferBanks().mapList { it }
             AssetAction.FiatWithdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
             else -> coincore.getTransactionTargets(sourceAccount as CryptoAccount, action)
         }
+        return accounts.flatMap {
+            defaultAccountsSorting.sorter().invoke(it)
+        }
+    }
 
     private fun sellTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
         val availableFiats =
@@ -233,6 +240,7 @@ class TransactionInteractor(
     fun getAvailableSourceAccounts(
         action: AssetAction,
         targetAccount: TransactionTarget,
+        showPkwOnTradingMode: Boolean
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
@@ -256,9 +264,8 @@ class TransactionInteractor(
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
-                        acc is CryptoAccount &&
-                            acc !is InterestAccount &&
-                            acc != targetAccount
+                        acc is CustodialTradingAccount ||
+                            (acc is NonCustodialAccount && showPkwOnTradingMode)
                     }
                 }
             }
@@ -272,10 +279,8 @@ class TransactionInteractor(
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
-                        acc is CryptoAccount &&
-                            acc.currency == targetAccount.currency &&
-                            acc != targetAccount &&
-                            acc.isFunded
+                        acc is CustodialTradingAccount ||
+                            (acc is NonCustodialAccount && showPkwOnTradingMode)
                     }
                 }
             }

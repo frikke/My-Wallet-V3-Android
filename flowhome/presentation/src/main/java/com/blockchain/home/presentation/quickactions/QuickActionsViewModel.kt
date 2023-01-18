@@ -1,11 +1,11 @@
 package com.blockchain.home.presentation.quickactions
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -13,33 +13,27 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
-import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.onErrorReturn
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.pulltorefresh.PullToRefreshUtils
-import com.blockchain.store.filterNotLoading
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.await
+import timber.log.Timber
 
 class QuickActionsViewModel(
     private val userFeaturePermissionService: UserFeaturePermissionService,
@@ -56,7 +50,6 @@ class QuickActionsViewModel(
     ModelConfigArgs.NoArgs>(
     QuickActionsModelState()
 ) {
-
     private var quickActionsJob: Job? = null
     private var moreActionsJob: Job? = null
     private var fiatActionJob: Job? = null
@@ -72,6 +65,7 @@ class QuickActionsViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
             is QuickActionsIntent.LoadActions -> when (intent.type) {
@@ -85,12 +79,37 @@ class QuickActionsViewModel(
                                 )
                             }
                         }.flatMapLatest { wMode ->
-                            if (wMode == WalletMode.NON_CUSTODIAL) {
-                                actionsForDefi(intent.forceRefresh)
-                            } else {
-                                actionsForBrokerage(intent.forceRefresh)
+                            val actionsFlow = quickActionsService.availableQuickActionsForWalletMode(
+                                walletMode = wMode,
+                                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(intent.forceRefresh)
+                            ).map { actions ->
+                                actions.map {
+                                    it.toQuickActionItem()
+                                }
+                            }
+
+                            val moreActionsAvailableFlow =
+                                loadMoreActions(walletMode = wMode, forceRefresh = intent.forceRefresh)
+                                    .onStart {
+                                        emit(emptyList())
+                                    }
+                                    .map { list ->
+                                        list.isNotEmpty()
+                                    }
+
+                            combine(actionsFlow, moreActionsAvailableFlow) { actions, moreActionsAvailable ->
+                                if (moreActionsAvailable) {
+                                    actions + QuickActionItem(
+                                        title = R.string.common_more,
+                                        action = QuickAction.More,
+                                        enabled = true
+                                    )
+                                } else {
+                                    actions
+                                }
                             }.map { wMode to it }
                         }.collectLatest { (walletMode, actions) ->
+                            Timber.d("Rendering Quick Actions for $walletMode with -> $actions")
                             updateState {
                                 it.copy(
                                     quickActions = actions
@@ -103,8 +122,8 @@ class QuickActionsViewModel(
                 ActionType.More -> {
                     moreActionsJob?.cancel()
                     moreActionsJob = viewModelScope.launch {
-                        walletModeService.walletMode.flatMapLatest {
-                            loadMoreActions()
+                        walletModeService.walletMode.flatMapLatest { walletMode ->
+                            loadMoreActions(walletMode = walletMode, forceRefresh = false)
                         }.collectLatest { actions ->
                             updateState {
                                 it.copy(
@@ -128,177 +147,18 @@ class QuickActionsViewModel(
         }
     }
 
-    private fun loadMoreActions(): Flow<List<MoreActionItem>> {
-        return quickActionsService.moreActions().map { assetAwareActions ->
-            assetAwareActions.map {
-                when (it.action) {
-                    AssetAction.Send -> MoreActionItem(
-                        icon = R.drawable.ic_more_send,
-                        title = R.string.common_send,
-                        subtitle = R.string.transfer_to_other_wallets,
-                        action = QuickAction.TxAction(AssetAction.Send),
-                        enabled = it.state == ActionState.Available
-                    )
-                    AssetAction.FiatDeposit -> MoreActionItem(
-                        icon = R.drawable.ic_more_deposit,
-                        title = R.string.common_deposit,
-                        subtitle = R.string.add_cash_from_your_bank_or_card,
-                        action = QuickAction.TxAction(AssetAction.FiatDeposit),
-                        enabled = it.state == ActionState.Available
-                    )
-                    AssetAction.FiatWithdraw -> MoreActionItem(
-                        icon = R.drawable.ic_more_withdraw,
-                        title = R.string.common_withdraw,
-                        subtitle = R.string.cash_out_bank,
-                        action = QuickAction.TxAction(AssetAction.FiatWithdraw),
-                        enabled = it.state == ActionState.Available
-                    )
-                    AssetAction.ViewActivity,
-                    AssetAction.ViewStatement,
-                    AssetAction.Swap,
-                    AssetAction.Sell,
-                    AssetAction.Buy,
-                    AssetAction.Receive,
-                    AssetAction.InterestDeposit,
-                    AssetAction.InterestWithdraw,
-                    AssetAction.Sign,
-                    AssetAction.StakingDeposit -> throw IllegalStateException(
-                        "Action not supported for more menu"
-                    )
-                }
-            }
-        }
-    }
-
-    private fun totalWalletModeBalance(walletMode: WalletMode, forceRefresh: Boolean) =
-        coincore.activeWalletsInModeRx(
+    private fun loadMoreActions(
+        walletMode: WalletMode,
+        forceRefresh: Boolean
+    ): Flow<List<MoreActionItem>> {
+        return quickActionsService.moreActions(
             walletMode = walletMode,
-            freshnessStrategy = PullToRefreshUtils.freshnessStrategy(
-                shouldGetFresh = forceRefresh,
-                cacheStrategy = RefreshStrategy.ForceRefresh
-            )
-        ).flatMap {
-            it.balanceRx()
-        }.asFlow().catch { emit(AccountBalance.zero(currencyPrefs.selectedFiatCurrency)) }.onStart {
-            AccountBalance.zero(currencyPrefs.selectedFiatCurrency)
-        }
-
-    private fun actionsForDefi(forceRefresh: Boolean): Flow<List<QuickActionItem>> =
-        totalWalletModeBalance(WalletMode.NON_CUSTODIAL, forceRefresh)
-            .zip(
-                userFeaturePermissionService.isEligibleFor(
-                    Feature.Sell,
-                    PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
-                ).filterNotLoading()
-            ) { balance, sellEligible ->
-
-                listOf(
-                    QuickActionItem(
-                        title = R.string.common_swap,
-                        action = QuickAction.TxAction(AssetAction.Swap),
-                        enabled = balance.total.isPositive
-                    ),
-                    QuickActionItem(
-                        title = R.string.common_receive,
-                        enabled = true,
-                        action = QuickAction.TxAction(AssetAction.Receive),
-                    ),
-                    QuickActionItem(
-                        title = R.string.common_send,
-                        enabled = balance.total.isPositive,
-                        action = QuickAction.TxAction(AssetAction.Send),
-                    ),
-                    QuickActionItem(
-                        title = R.string.common_sell,
-                        enabled = balance.total.isPositive &&
-                            (sellEligible as? DataResource.Data)?.data ?: false,
-                        action = QuickAction.TxAction(AssetAction.Sell),
-                    )
-
-                )
+            freshnessStrategy = PullToRefreshUtils.freshnessStrategy(forceRefresh)
+        ).map { stateAwareActions ->
+            Timber.d("Rendering More section with -> $stateAwareActions")
+            stateAwareActions.map {
+                it.toMoreActionItem()
             }
-
-    private fun actionsForBrokerage(forceRefresh: Boolean): Flow<List<QuickActionItem>> {
-        val buyEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.Buy,
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val sellEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.DepositFiat,
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val swapEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.Swap,
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val receiveEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.DepositCrypto,
-                freshnessStrategy = PullToRefreshUtils.freshnessStrategy(shouldGetFresh = forceRefresh)
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val balanceFlow = totalWalletModeBalance(WalletMode.CUSTODIAL, forceRefresh).map { it.totalFiat.isPositive }
-        val more = loadMoreActions().onStart { emit(emptyList()) }.map { list -> list.any { it.enabled } }
-
-        return combine(
-            balanceFlow,
-            buyEnabledFlow,
-            sellEnabledFlow,
-            swapEnabledFlow,
-            receiveEnabledFlow,
-            more
-        ) { config ->
-            val balanceIsPositive = config[0]
-            val buyEnabled = config[1]
-            val sellEnabled = config[2]
-            val swapEnabled = config[3]
-            val receiveEnabled = config[4]
-            val moreEnabled = config[5]
-            listOf(
-                QuickActionItem(
-                    title = R.string.common_buy,
-                    enabled = buyEnabled,
-                    action = QuickAction.TxAction(AssetAction.Buy),
-                ),
-                QuickActionItem(
-                    title = R.string.common_sell,
-                    enabled = sellEnabled && balanceIsPositive,
-                    action = QuickAction.TxAction(AssetAction.Sell),
-                ),
-                QuickActionItem(
-                    title = R.string.common_swap,
-                    enabled = swapEnabled && balanceIsPositive,
-                    action = QuickAction.TxAction(AssetAction.Swap),
-                ),
-                QuickActionItem(
-                    title = R.string.common_receive,
-                    enabled = receiveEnabled,
-                    action = QuickAction.TxAction(AssetAction.Receive),
-                ),
-                QuickActionItem(
-                    title = R.string.common_more,
-                    action = QuickAction.More,
-                    enabled = moreEnabled
-                )
-            )
         }
     }
 
@@ -372,6 +232,102 @@ class QuickActionsViewModel(
                     }
                 }
             }
+    }
+}
+
+fun StateAwareAction.toQuickActionItem(): QuickActionItem {
+    return when (this.action) {
+        AssetAction.Buy -> QuickActionItem(
+            title = R.string.common_buy,
+            enabled = this.state == ActionState.Available,
+            action = QuickAction.TxAction(AssetAction.Buy),
+        )
+        AssetAction.Sell -> QuickActionItem(
+            title = R.string.common_sell,
+            enabled = this.state == ActionState.Available,
+            action = QuickAction.TxAction(AssetAction.Sell),
+        )
+        AssetAction.Swap -> QuickActionItem(
+            title = R.string.common_swap,
+            enabled = this.state == ActionState.Available,
+            action = QuickAction.TxAction(AssetAction.Swap),
+        )
+        AssetAction.Receive -> QuickActionItem(
+            title = R.string.common_receive,
+            enabled = this.state == ActionState.Available,
+            action = QuickAction.TxAction(AssetAction.Receive),
+        )
+        AssetAction.Send -> QuickActionItem(
+            title = R.string.common_send,
+            enabled = this.state == ActionState.Available,
+            action = QuickAction.TxAction(AssetAction.Send),
+        )
+        // what should we do with these?
+        else -> throw IllegalStateException(
+            "Action ${this.action} not supported for quick action menu"
+        )
+    }
+}
+
+fun StateAwareAction.toMoreActionItem(): MoreActionItem {
+    return when (this.action) {
+        AssetAction.Send -> MoreActionItem(
+            icon = R.drawable.ic_more_send,
+            title = R.string.common_send,
+            subtitle = R.string.transfer_to_other_wallets,
+            action = QuickAction.TxAction(AssetAction.Send),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.FiatDeposit -> MoreActionItem(
+            icon = R.drawable.ic_more_deposit,
+            title = R.string.common_add_cash,
+            subtitle = R.string.add_cash_from_your_bank_or_card,
+            action = QuickAction.TxAction(AssetAction.FiatDeposit),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.FiatWithdraw -> MoreActionItem(
+            icon = R.drawable.ic_more_withdraw,
+            title = R.string.common_cash_out,
+            subtitle = R.string.cash_out_bank,
+            action = QuickAction.TxAction(AssetAction.FiatWithdraw),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.Buy -> MoreActionItem(
+            icon = R.drawable.ic_activity_buy,
+            title = R.string.common_buy,
+            subtitle = R.string.buy_crypto,
+            action = QuickAction.TxAction(AssetAction.Buy),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.Sell -> MoreActionItem(
+            icon = R.drawable.ic_activity_sell,
+            title = R.string.common_sell,
+            subtitle = R.string.sell_crypto,
+            action = QuickAction.TxAction(AssetAction.Sell),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.Swap -> MoreActionItem(
+            icon = R.drawable.ic_activity_swap,
+            title = R.string.common_swap,
+            subtitle = R.string.swap_header_label,
+            action = QuickAction.TxAction(AssetAction.Swap),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.Receive -> MoreActionItem(
+            icon = R.drawable.ic_activity_receive,
+            title = R.string.common_receive,
+            subtitle = R.string.receive_to_your_wallet,
+            action = QuickAction.TxAction(AssetAction.Receive),
+            enabled = this.state == ActionState.Available
+        )
+        AssetAction.ViewActivity,
+        AssetAction.ViewStatement,
+        AssetAction.InterestDeposit,
+        AssetAction.InterestWithdraw,
+        AssetAction.Sign,
+        AssetAction.StakingDeposit -> throw IllegalStateException(
+            "Action ${this.action} not supported for more menu"
+        )
     }
 }
 

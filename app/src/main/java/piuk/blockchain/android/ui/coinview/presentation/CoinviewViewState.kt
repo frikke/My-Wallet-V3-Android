@@ -91,7 +91,7 @@ data class CoinviewAccountsState(
         data class Available(
             override val cvAccount: CoinviewAccount,
             val title: String,
-            val subtitle: TextValue,
+            val subtitle: TextValue?,
             val cryptoBalance: String,
             val fiatBalance: String,
             val logo: LogoSource,

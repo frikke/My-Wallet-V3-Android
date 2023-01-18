@@ -6,6 +6,7 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
@@ -40,14 +41,13 @@ internal class AssetPriceStore(
 
     internal fun getCurrentPriceForAsset(
         base: Currency,
-        quote: Currency,
-        freshnessStrategy: FreshnessStrategy
+        quote: Currency
     ): Flow<DataResource<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                freshnessStrategy.withKey(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
                     AssetPriceStoreCache.Key.GetAllCurrent(quote.networkTicker)
                 )
             ).onEach { response ->
@@ -60,16 +60,16 @@ internal class AssetPriceStore(
 
     internal fun getYesterdayPriceForAsset(
         base: Currency,
-        quote: Currency,
-        freshnessStrategy: FreshnessStrategy
+        quote: Currency
     ): Flow<DataResource<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                freshnessStrategy.withKey(
-                    AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
-                )
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    .withKey(
+                        AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
+                    )
             ).findAssetOrError(base, quote)
                 .distinctUntilChanged()
         }
@@ -77,10 +77,9 @@ internal class AssetPriceStore(
     internal fun getHistoricalPriceForAsset(
         base: Currency,
         quote: Currency,
-        timeSpan: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy
+        timeSpan: HistoricalTimeSpan
     ): Flow<DataResource<List<AssetPriceRecord>>> = cache.stream(
-        freshnessStrategy.withKey(
+        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
             AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan)
         )
     )

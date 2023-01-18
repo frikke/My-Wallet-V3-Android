@@ -9,17 +9,11 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
 
 class AssetRepository(
     private val assetInformationStore: AssetInformationStore
 ) : AssetService {
-    override fun getAvailableFiatAssets(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<FiatCurrency>>> {
-        TODO("Not yet implemented")
-    }
 
     override fun getAssetInformation(
         asset: AssetInfo,

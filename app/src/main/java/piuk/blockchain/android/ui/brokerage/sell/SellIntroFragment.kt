@@ -177,13 +177,13 @@ class SellIntroFragment :
             with(binding.accountsList) {
                 if (isAccountsFirstLoad) {
                     initialise(
-                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
+                        Single.just(supportedAccounts.map { (AccountListViewItem(it)) }),
                         status = ::statusDecorator,
                     )
                     isAccountsFirstLoad = false
                 } else {
                     loadItems(
-                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
+                        Single.just(supportedAccounts.map { (AccountListViewItem(it)) }),
                         accountsLocksSource = Single.just(emptyList())
                     )
                 }

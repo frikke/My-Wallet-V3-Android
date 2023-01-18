@@ -110,8 +110,8 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2.Companion.ACCOUNT_FOR_ACTIVITY
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity.Companion.ACCOUNT_FOR_ACTIVITY
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
@@ -396,14 +396,11 @@ class MainActivity :
     private fun setupToolbarAndNavigation() {
         walletModeService.walletModeSingle.subscribeBy { walletMode ->
             binding.bottomNavigation.apply {
-                if (!dashboardPrefs.hasTappedFabButton) {
-                    isPulseAnimationEnabled = true
-                }
+
                 onNavigationItemClick = {
                     it.launch()
                 }
                 onMiddleButtonClick = {
-                    dashboardPrefs.hasTappedFabButton = true
                     binding.bottomNavigation.isPulseAnimationEnabled = false
                     showBottomSheet(
                         middleButtonBottomSheetLaunch(walletMode)
@@ -839,7 +836,7 @@ class MainActivity :
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     activityResultsContract.launch(
-                        CoinViewActivityV2.newIntent(
+                        CoinViewActivity.newIntent(
                             context = this,
                             asset = assetInfo,
                             recurringBuyId = destination.recurringBuyId,
@@ -1446,7 +1443,7 @@ class MainActivity :
         when (navigationEvent) {
             is PricesNavigationEvent.CoinView -> {
                 activityResultsContract.launch(
-                    CoinViewActivityV2.newIntent(
+                    CoinViewActivity.newIntent(
                         context = this,
                         asset = navigationEvent.assetInfo,
                         originScreen = LaunchOrigin.PRICES.name,

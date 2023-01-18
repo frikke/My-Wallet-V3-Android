@@ -59,9 +59,6 @@ interface ExchangeRates {
 }
 
 interface ExchangeRatesDataManager : ExchangeRates {
-    val defFreshness
-        get() = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-
     fun init(): Completable
 
     @Deprecated("Use the reactive flow exchangeRate")
@@ -70,50 +67,44 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun exchangeRate(
         fromAsset: Currency,
         toAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<ExchangeRate>>
 
     fun exchangeRateToUserFiat(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<ExchangeRate>
 
     fun exchangeRateToUserFiatFlow(
         fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
 
     @Deprecated("Use the reactive getPricesWith24hDelta")
     fun getPricesWith24hDeltaLegacy(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        fromAsset: Currency
     ): Observable<Prices24HrWithDelta>
 
     @Deprecated("Use the reactive getPricesWith24hDelta")
     fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
-        fiat: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        fiat: Currency
     ): Observable<Prices24HrWithDelta>
 
     fun getPricesWith24hDelta(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        fromAsset: Currency
     ): Flow<DataResource<Prices24HrWithDelta>>
 
     fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar = Calendar.getInstance(),
-        freshnessStrategy: FreshnessStrategy = defFreshness
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
         asset: Currency,
-        freshnessStrategy: FreshnessStrategy = defFreshness
     ): Flow<DataResource<HistoricalRateList>>
 
     fun getCurrentAssetPrice(

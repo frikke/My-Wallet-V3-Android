@@ -37,8 +37,8 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             walletModeService.walletModeSingle.subscribeBy {
                 accountList.initialise(
                     source = Single.just(
-                        newState.availableTargets.map { transactionTarget ->
-                            AccountListViewItem.create(transactionTarget as SingleAccount)
+                        newState.availableTargets.filterIsInstance<SingleAccount>().map { transactionTarget ->
+                            AccountListViewItem(transactionTarget)
                         }
                     ),
                     status = customiser.selectTargetStatusDecorator(newState, it),

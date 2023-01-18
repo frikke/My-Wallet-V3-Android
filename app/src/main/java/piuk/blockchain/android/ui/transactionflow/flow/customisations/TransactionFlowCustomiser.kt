@@ -48,7 +48,6 @@ import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
@@ -206,17 +205,8 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun selectTargetStatusDecorator(state: TransactionState, walletMode: WalletMode): StatusDecorator =
-        when (state.action) {
-            AssetAction.Swap -> {
-                {
-                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletMode)
-                }
-            }
-            else -> {
-                {
-                    DefaultCellDecorator()
-                }
-            }
+        {
+            DefaultCellDecorator()
         }
 
     override fun selectTargetShowManualEnterAddress(state: TransactionState): Boolean =
@@ -1361,25 +1351,8 @@ class TransactionFlowCustomiserImpl(
         state: TransactionState,
         walletMode: WalletMode
     ): StatusDecorator =
-        when (state.action) {
-            AssetAction.Swap -> {
-                {
-                    SwapAccountSelectSheetFeeDecorator(
-                        account = it,
-                        walletMode = walletMode
-                    )
-                }
-            }
-            AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit,
-            AssetAction.FiatWithdraw,
-            AssetAction.FiatDeposit,
-            AssetAction.Sell -> {
-                {
-                    DefaultCellDecorator()
-                }
-            }
-            else -> throw IllegalStateException("Action is not supported")
+        {
+            DefaultCellDecorator()
         }
 
     override fun getLinkingSourceForAction(state: TransactionState): BankAuthSource =

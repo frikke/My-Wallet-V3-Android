@@ -43,6 +43,8 @@ import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
+private const val MAX_ACTIVITY_COUNT = 6
+
 @Composable
 fun HomeActivity(
     forceRefresh: Boolean,
@@ -86,7 +88,7 @@ fun CustodialHomeActivity(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
+                viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -122,7 +124,7 @@ fun PrivateKeyHomeActivity(
     val viewState: ActivityViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited()))
+        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
         onDispose { }
     }
 

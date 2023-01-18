@@ -7,6 +7,4 @@ interface DashboardPrefs {
     var isRewardsIntroSeen: Boolean
     var isStakingIntroSeen: Boolean
     var remainingSendsWithoutBackup: Int
-    var dashboardAssetOrder: List<String>
-    var hasTappedFabButton: Boolean
 }

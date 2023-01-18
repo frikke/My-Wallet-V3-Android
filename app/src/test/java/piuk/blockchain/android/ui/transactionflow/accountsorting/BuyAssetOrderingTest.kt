@@ -14,6 +14,7 @@ import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
+import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -40,6 +41,9 @@ class BuyAssetOrderingTest {
     private lateinit var subject: BuyListAccountSorting
     private val assetListOrderingFF: FeatureFlag = mock()
     private val coincore: Coincore = mock()
+    private val currencyPrefs: CurrencyPrefs = mock {
+        on { selectedFiatCurrency }.thenReturn(FiatCurrency.Dollars)
+    }
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val watchlistDataManager: WatchlistDataManager = mock()
     private val momentLogger: MomentLogger = mock()
@@ -85,6 +89,7 @@ class BuyAssetOrderingTest {
             coincore = coincore,
             exchangeRatesDataManager = exchangeRatesDataManager,
             watchlistDataManager = watchlistDataManager,
+            currencyPrefs = currencyPrefs,
             momentLogger = momentLogger
         )
 

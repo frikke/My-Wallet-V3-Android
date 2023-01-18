@@ -32,6 +32,7 @@ import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asSingle
 import com.blockchain.store.filterNotLoading
 import com.blockchain.store.mapData
@@ -63,6 +64,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     protected val exchangeRates: ExchangeRatesDataManager by inject()
     private val labels: DefaultLabels by inject()
+    private val currencyPrefs: CurrencyPrefs by inject()
     protected val custodialManager: CustodialWalletManager by scopedInject()
     private val interestService: InterestService by scopedInject()
     private val tradingService: TradingService by scopedInject()
@@ -81,8 +83,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     protected fun accounts(filter: AssetFilter): Single<SingleAccountList> {
         return activeAccounts.fetchAccountList(assetFilter = filter, loader = { f ->
             loadAccounts(f)
-        }).doOnSuccess {
-            updateLabelsIfNeeded(it)
+        }).flatMap {
+            updateLabelsIfNeeded(it).toSingle { it }
         }
     }
 
@@ -92,10 +94,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 val cryptoNonCustodialAccount = it as? CryptoNonCustodialAccount
                 if (cryptoNonCustodialAccount?.labelNeedsUpdate() == true) {
                     cryptoNonCustodialAccount.updateLabel(
-                        cryptoNonCustodialAccount.label.replace(
-                            labels.getOldDefaultNonCustodialWalletLabel(currency),
-                            labels.getDefaultNonCustodialWalletLabel()
-                        )
+                        cryptoNonCustodialAccount.label.updatedLabel()
                     ).doOnError { error ->
                         remoteLogger.logException(error)
                     }.onErrorComplete()
@@ -104,6 +103,24 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 }
             }
         )
+
+    private fun String.updatedLabel(): String {
+        if (contains(labels.getV0DefaultNonCustodialWalletLabel(currency), true)) {
+            return this.replace(
+                labels.getV0DefaultNonCustodialWalletLabel(currency),
+                labels.getDefaultNonCustodialWalletLabel(),
+                true
+            )
+        }
+        if (contains(labels.getV1DefaultNonCustodialWalletLabel(currency), true)) {
+            return this.replace(
+                labels.getV1DefaultNonCustodialWalletLabel(currency),
+                labels.getDefaultNonCustodialWalletLabel(),
+                true
+            )
+        }
+        return this
+    }
 
     private fun loadAccounts(filter: AssetFilter): Single<SingleAccountList> {
         return when (filter) {
@@ -148,9 +165,12 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 
     private fun CryptoNonCustodialAccount.labelNeedsUpdate(): Boolean {
-        val regex =
-            """${labels.getOldDefaultNonCustodialWalletLabel(this@CryptoAssetBase.currency)}(\s?)([\d]*)""".toRegex()
-        return label.matches(regex)
+        val regexV0 =
+            """${labels.getV0DefaultNonCustodialWalletLabel(this@CryptoAssetBase.currency)}(\s?)([\d]*)""".toRegex()
+        val regexV1 =
+            """${labels.getV1DefaultNonCustodialWalletLabel(this@CryptoAssetBase.currency)}(\s?)([\d]*)""".toRegex()
+
+        return label.matches(regexV0) || label.matches(regexV1)
     }
 
     final override fun forceAccountsRefresh() {
@@ -280,10 +300,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
         exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
 
-    final override fun getPricesWith24hDelta(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<Prices24HrWithDelta>> {
-        return exchangeRates.getPricesWith24hDelta(fromAsset = currency, freshnessStrategy = freshnessStrategy)
+    final override fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(fromAsset = currency)
     }
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
@@ -303,7 +321,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         } ?: flowOf(DataResource.Data(emptyList()))
     }
 
-    private fun getPitLinkingTargets(): Maybe<SingleAccountList> =
+    private fun getExchangeTargets(): Maybe<SingleAccountList> =
         exchangeLinking.isExchangeLinked().filter { it }
             .flatMap { custodialManager.getExchangeSendAddressFor(currency) }
             .map { address ->
@@ -312,6 +330,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         currency = currency,
                         label = labels.getDefaultExchangeWalletLabel(),
                         address = address,
+                        currencyPrefs = currencyPrefs,
                         exchangeRates = exchangeRates
                     )
                 )
@@ -375,7 +394,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             is NonCustodialAccount ->
                 Maybe.concat(
                     listOf(
-                        getPitLinkingTargets(),
+                        getExchangeTargets(),
                         getInterestTargets(),
                         getTradingTargets(),
                         getNonCustodialTargets(exclude = account),

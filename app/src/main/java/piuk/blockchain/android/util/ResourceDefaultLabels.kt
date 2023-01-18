@@ -6,26 +6,29 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AssetResources
 
 internal class ResourceDefaultLabels(
-    private val resources: Resources,
-    private val assetResources: AssetResources
+    private val resources: Resources
 ) : DefaultLabels {
 
     override fun getDefaultNonCustodialWalletLabel(): String =
         resources.getString(
-            R.string.default_crypto_non_custodial_wallet_label
+            R.string.default_v2_crypto_non_custodial_wallet_label
         )
 
-    override fun getOldDefaultNonCustodialWalletLabel(asset: AssetInfo): String =
+    override fun getV0DefaultNonCustodialWalletLabel(asset: AssetInfo): String =
         resources.getString(
             R.string.old_default_non_custodial_wallet_label,
             asset.name
         )
 
+    override fun getV1DefaultNonCustodialWalletLabel(asset: AssetInfo): String =
+        resources.getString(
+            R.string.default_v1_crypto_non_custodial_wallet_label
+        )
+
     override fun getDefaultTradingWalletLabel(): String {
-        return resources.getString(R.string.custodial_wallet_default_label_1)
+        return resources.getString(R.string.custodial_wallet_default_label)
     }
 
     override fun getDefaultFiatWalletLabel(): String =

@@ -107,13 +107,7 @@ val dashboardModule = module {
         }
 
         factory(defaultOrder) {
-            DefaultAccountsSorting(
-                dashboardPrefs = get(),
-                assetCatalogue = get(),
-                walletModeService = get(),
-                coincore = get(),
-                momentLogger = get()
-            )
+            DefaultAccountsSorting(currencyPrefs = get())
         }.bind(AccountsSorting::class)
 
         factory(swapSourceOrder) {
@@ -127,21 +121,15 @@ val dashboardModule = module {
 
         factory(swapTargetOrder) {
             SwapTargetAccountsSorting(
-                assetListOrderingFF = get(assetOrderingFeatureFlag),
-                dashboardAccountsSorter = get(defaultOrder),
                 currencyPrefs = get(),
                 exchangeRatesDataManager = get(),
                 watchlistDataManager = get(),
-                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
         factory(sellOrder) {
             SellAccountsSorting(
-                assetListOrderingFF = get(assetOrderingFeatureFlag),
-                dashboardAccountsSorter = get(defaultOrder),
                 coincore = get(),
-                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
@@ -151,7 +139,8 @@ val dashboardModule = module {
                 coincore = get(),
                 exchangeRatesDataManager = get(),
                 watchlistDataManager = get(),
-                momentLogger = get()
+                momentLogger = get(),
+                currencyPrefs = get()
             )
         }
 

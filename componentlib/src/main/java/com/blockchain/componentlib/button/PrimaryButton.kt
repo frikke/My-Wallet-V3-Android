@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,7 +44,6 @@ fun PrimaryButton(
         icon = icon,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             ButtonContent(
-                modifier = Modifier.padding(AppTheme.dimensions.verySmallSpacing),
                 state = state,
                 text = text,
                 textColor = textColor,

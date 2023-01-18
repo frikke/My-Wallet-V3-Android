@@ -42,7 +42,8 @@ fun CustomStackedIcon(
                 .size(AppTheme.dimensions.standardSpacing)
                 .background(color = AppTheme.colors.light, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = icon.icon
+            imageResource = icon.icon,
+            onErrorDrawable = R.drawable.coins_on
         )
         StackedIcon.None -> {
             // n/a

@@ -229,6 +229,7 @@ private fun DisconnectBottomSheet(
         title = session.dAppInfo.peerMeta.name,
         subtitle = session.dAppInfo.peerMeta.description,
         headerImageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
+        shouldShowHeaderDivider = false,
         button = BottomSheetButton(
             type = ButtonType.DESTRUCTIVE_MINIMAL,
             text = stringResource(R.string.common_disconnect),

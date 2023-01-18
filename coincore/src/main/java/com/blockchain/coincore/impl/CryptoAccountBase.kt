@@ -32,6 +32,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
@@ -41,19 +42,20 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.asFiatCurrencyOrThrow
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 internal const val transactionFetchCount = 50
 internal const val transactionFetchOffset = 0
@@ -139,10 +141,10 @@ abstract class CryptoAccountBase : CryptoAccount {
     }
 }
 
-// To handle Send to PIT
 /*internal*/ class CryptoExchangeAccount internal constructor(
     override val currency: AssetInfo,
     override val label: String,
+    private val currencyPrefs: CurrencyPrefs,
     private val address: String,
     override val exchangeRates: ExchangeRatesDataManager,
 ) : CryptoAccountBase(), ExchangeAccount {
@@ -156,7 +158,15 @@ abstract class CryptoAccountBase : CryptoAccount {
         other is CryptoExchangeAccount && other.currency == currency
 
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
-        Observable.just(AccountBalance.zero(currency))
+        Observable.just(
+            AccountBalance.zero(
+                currency,
+                ExchangeRate.zeroRateExchangeRate(
+                    from = currency,
+                    to = currencyPrefs.selectedFiatCurrency
+                )
+            )
+        )
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
@@ -334,9 +344,7 @@ abstract class CryptoNonCustodialAccount(
         other is CryptoNonCustodialAccount && other.currency == currency
 
     private fun AssetAction.eligibility(): Single<StateAwareAction> {
-        val balance = balanceRx().firstOrError().onErrorReturn {
-            AccountBalance.zero(currency)
-        }
+        val hasAnyBalance = balanceRx().firstOrError().map { it.total.isPositive }.onErrorReturn { false }
 
         val isActive = !isArchived
 
@@ -349,27 +357,27 @@ abstract class CryptoNonCustodialAccount(
                 )
             )
             AssetAction.Send ->
-                balance
-                    .flatMap { sendActionEligibility(isActive && it.total.isPositive) }
+                hasAnyBalance
+                    .flatMap { sendActionEligibility(isActive && it) }
             AssetAction.Swap ->
-                balance
+                hasAnyBalance
                     .flatMap {
-                        swapActionEligibility(isActive && it.total.isPositive)
+                        swapActionEligibility(isActive && it)
                     }
             AssetAction.Sell ->
-                balance
+                hasAnyBalance
                     .flatMap {
-                        sellActionEligibility(isActive && it.total.isPositive)
+                        sellActionEligibility(isActive && it)
                     }
             AssetAction.InterestDeposit ->
-                balance
+                hasAnyBalance
                     .flatMap {
-                        interestDepositActionEligibility(isActive && it.total.isPositive)
+                        interestDepositActionEligibility(isActive && it)
                     }
             AssetAction.StakingDeposit ->
-                balance
+                hasAnyBalance
                     .flatMap {
-                        stakingDepositEligibility(isActive && it.total.isPositive)
+                        stakingDepositEligibility(isActive && it)
                     }
             AssetAction.ViewStatement,
             AssetAction.Buy,
@@ -384,8 +392,10 @@ abstract class CryptoNonCustodialAccount(
         val sellEligibility = identity.userAccessForFeature(
             Feature.Sell, defFreshness
         )
-        val fiatAccounts = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
-            .onErrorReturn { emptyList() }
+        val fiatAccounts = rxSingle {
+            custodialWalletManager.getSupportedFundsFiats(freshnessStrategy = defFreshness).first()
+        }.onErrorReturn { emptyList() }
+
         return sellEligibility.zipWith(fiatAccounts) { sellEligible, fiatAccountsSupported ->
             StateAwareAction(
                 when {

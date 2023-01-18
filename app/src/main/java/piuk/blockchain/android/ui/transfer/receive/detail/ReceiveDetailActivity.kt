@@ -61,7 +61,7 @@ class ReceiveDetailActivity :
 
         account?.let {
             model.process(InitWithAccount(it))
-            binding.receiveAccountDetails.updateItem(AccountListViewItem.Crypto(it))
+            binding.receiveAccountDetails.updateItem(AccountListViewItem(it))
         } ?: finish()
 
         with(binding) {
@@ -69,7 +69,10 @@ class ReceiveDetailActivity :
                 text = getString(R.string.receive_share)
                 buttonState = ButtonState.Disabled
             }
-            copyButton.isEnabled = false
+            copyButton.apply {
+                text = getString(R.string.receive_copy)
+                buttonState = ButtonState.Disabled
+            }
             qrImage.invisible()
         }
     }
@@ -84,35 +87,38 @@ class ReceiveDetailActivity :
                 toolbarTitle = getString(R.string.tx_title_receive, newState.account.currency.displayTicker),
                 backAction = { onBackPressedDispatcher.onBackPressed() }
             )
-            val addressAvailable = newState.qrUri != null
-            if (addressAvailable) {
-                copyButton.setOnClickListener {
-                    analytics.logEvent(
-                        TransferAnalyticsEvent.ReceiveDetailsCopied(
-                            accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
-                            asset = account?.currency ?: throw IllegalStateException(
-                                "Account asset is missing"
-                            )
-                        )
-                    )
 
-                    copyToClipboardWithConfirmationDialog(
-                        confirmationAnchorView = binding.root,
-                        confirmationMessage = R.string.receive_address_to_clipboard,
-                        label = getString(R.string.send_address_title),
-                        text = newState.cryptoAddress.address
-                    )
-                }
-            } else {
-                copyButton.setOnClickListener { }
-            }
-            copyButton.isEnabled = addressAvailable
+            val addressAvailable = newState.qrUri != null
 
             shareButton.apply {
                 isEnabled = addressAvailable
                 onClick = {
                     if (addressAvailable) {
                         shareAddress()
+                    }
+                }
+                buttonState = if (addressAvailable) ButtonState.Enabled else ButtonState.Disabled
+            }
+
+            copyButton.apply {
+                isEnabled = addressAvailable
+                onClick = {
+                    if (addressAvailable) {
+                        analytics.logEvent(
+                            TransferAnalyticsEvent.ReceiveDetailsCopied(
+                                accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
+                                asset = account?.currency ?: throw IllegalStateException(
+                                    "Account asset is missing"
+                                )
+                            )
+                        )
+
+                        copyToClipboardWithConfirmationDialog(
+                            confirmationAnchorView = binding.root,
+                            confirmationMessage = R.string.receive_address_to_clipboard,
+                            label = getString(R.string.send_address_title),
+                            text = newState.cryptoAddress.address
+                        )
                     }
                 }
                 buttonState = if (addressAvailable) ButtonState.Enabled else ButtonState.Disabled

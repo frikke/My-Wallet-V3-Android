@@ -167,7 +167,9 @@ class SelectSourceAccountFragment :
                         } else {
                             true
                         }
-                    }?.map(AccountListViewItem.Companion::create) ?: emptyList()
+                    }?.filterIsInstance<SingleAccount>()?.map {
+                        AccountListViewItem(it)
+                    } ?: emptyList()
                 ),
                 accountsLocksSource = Single.just(emptyList()),
                 showLoader = false
@@ -270,7 +272,11 @@ class SelectSourceAccountFragment :
         with(binding) {
             walletModeService.walletModeSingle.subscribeBy {
                 accountList.initialise(
-                    source = Single.just(newState.availableSources.map(AccountListViewItem.Companion::create)),
+                    source = Single.just(
+                        newState.availableSources.filterIsInstance<SingleAccount>().map { account ->
+                            AccountListViewItem(account)
+                        }
+                    ),
                     status = customiser.sourceAccountSelectionStatusDecorator(newState, it),
                     assetAction = newState.action
                 )

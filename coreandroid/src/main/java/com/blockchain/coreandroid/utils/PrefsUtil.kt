@@ -156,22 +156,6 @@ class PrefsUtil(
         get() = getValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, MAX_ALLOWED_SENDS)
         set(remaining) = setValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, remaining)
 
-    override var dashboardAssetOrder: List<String>
-        get() = getValue(KEY_DASHBOARD_ORDER)?.let {
-            try {
-                Json.decodeFromString<List<String>>(it)
-            } catch (t: Throwable) {
-                emptyList()
-            }
-        } ?: emptyList()
-        set(value) {
-            setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
-        }
-
-    override var hasTappedFabButton: Boolean
-        get() = getValue(KEY_TAPPED_FAB, false)
-        set(seen) = setValue(KEY_TAPPED_FAB, seen)
-
     override val areScreenshotsEnabled: Boolean
         get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
 

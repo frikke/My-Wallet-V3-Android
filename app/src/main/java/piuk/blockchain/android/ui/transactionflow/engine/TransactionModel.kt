@@ -561,7 +561,7 @@ class TransactionModel(
         shouldShowPkwOnTrading: Boolean
     ) = Singles.zip(
         fetchProductEligibility(action, NullCryptoAccount(), transactionTarget).toSingle(),
-        interactor.getAvailableSourceAccounts(action, transactionTarget)
+        interactor.getAvailableSourceAccounts(action, transactionTarget, shouldShowPkwOnTrading)
     ).subscribeBy(
         onSuccess = { (access, accountList) ->
             if (access is FeatureAccess.Blocked) {
@@ -569,9 +569,7 @@ class TransactionModel(
             } else {
                 process(
                     TransactionIntent.AvailableSourceAccountsListUpdated(
-                        accountList.filter {
-                            shouldShowPkwOnTrading || it !is NonCustodialAccount
-                        }
+                        accountList
                     )
                 )
             }
@@ -590,14 +588,12 @@ class TransactionModel(
         transactionTarget: TransactionTarget,
         shouldResetBackStack: Boolean,
         shouldShowPkwOnTrading: Boolean
-    ) = interactor.getAvailableSourceAccounts(action, transactionTarget)
+    ) = interactor.getAvailableSourceAccounts(action, transactionTarget, shouldShowPkwOnTrading)
         .subscribeBy(
             onSuccess = { accountList ->
                 process(
                     TransactionIntent.AvailableSourceAccountsListUpdated(
-                        accountList.filter {
-                            shouldShowPkwOnTrading || it !is NonCustodialAccount
-                        }
+                        accountList
                     )
                 )
                 if (shouldResetBackStack) {

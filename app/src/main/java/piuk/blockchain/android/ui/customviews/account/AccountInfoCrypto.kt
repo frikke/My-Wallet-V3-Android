@@ -4,17 +4,17 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -44,14 +44,14 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private var accountBalance: Money? = null
     private var isEnabled: Boolean? = null
     private var interestRate: Double? = null
-    private var displayedAccount: CryptoAccount = NullCryptoAccount()
+    private var displayedAccount: SingleAccount = NullCryptoAccount()
 
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
     fun updateItem(
-        item: AccountListViewItem.Crypto,
-        onAccountClicked: (CryptoAccount) -> Unit = {},
+        item: AccountListViewItem,
+        onAccountClicked: (SingleAccount) -> Unit = {},
         cellDecorator: CellDecorator = DefaultCellDecorator(),
     ) {
         compositeDisposable.clear()
@@ -59,8 +59,8 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     private fun updateView(
-        item: AccountListViewItem.Crypto,
-        onAccountClicked: (CryptoAccount) -> Unit,
+        item: AccountListViewItem,
+        onAccountClicked: (SingleAccount) -> Unit,
         cellDecorator: CellDecorator,
     ) {
         val accountsAreTheSame = displayedAccount.isTheSameWith(item.account)
@@ -76,7 +76,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     private fun setInterestAccountDetails(
-        account: CryptoAccount,
+        account: SingleAccount,
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
@@ -102,9 +102,9 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     private fun updateAccountDetails(
-        item: AccountListViewItem.Crypto,
+        item: AccountListViewItem,
         accountsAreTheSame: Boolean,
-        onAccountClicked: (CryptoAccount) -> Unit,
+        onAccountClicked: (SingleAccount) -> Unit,
         cellDecorator: CellDecorator,
     ) {
 
@@ -201,7 +201,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     override fun update(state: TransactionState) {
         updateItem(
-            item = AccountListViewItem.Crypto(state.sendingAccount as CryptoAccount),
+            item = AccountListViewItem(state.sendingAccount),
             onAccountClicked = { }
         )
     }
@@ -226,28 +226,27 @@ private fun <T> Single<T>.startWithValueIfCondition(
         }
     }
 
-sealed class AccountListViewItem(open val account: BlockchainAccount) {
-    class Blockchain(override val account: BlockchainAccount) : AccountListViewItem(account)
+class AccountListViewItem(
+    val account: SingleAccount,
+    private val emphasiseNameOverCurrency: Boolean = false,
+    val showRewardsUpsell: Boolean = false
+) {
+    val type: AccountsListViewItemType
+        get() = if (account is CryptoAccount) AccountsListViewItemType.Crypto else AccountsListViewItemType.Blockchain
 
-    class Crypto(
-        val title: String,
-        val subTitle: String,
-        val showRewardsUpsell: Boolean,
-        override val account: CryptoAccount,
-    ) : AccountListViewItem(account) {
-        constructor(account: CryptoAccount) : this(
-            title = account.currency.name,
-            subTitle = account.label,
-            showRewardsUpsell = false,
-            account = account
-        )
-    }
+    private val currencyName = account.currency.name
 
-    companion object {
-        fun create(account: BlockchainAccount) = if (account is CryptoAccount) {
-            Crypto(account)
-        } else {
-            Blockchain(account)
-        }
-    }
+    private val accountLabel = if (account is CustodialTradingAccount)
+        account.label.replaceAfter("Blockchain.com", "")
+            .replaceBefore("Blockchain.com", "") else account.label
+
+    val title: String
+        get() = if (emphasiseNameOverCurrency) accountLabel else currencyName
+
+    val subTitle: String
+        get() = if (emphasiseNameOverCurrency) currencyName else accountLabel
+}
+
+enum class AccountsListViewItemType {
+    Crypto, Blockchain
 }
