@@ -198,7 +198,7 @@ fun FiatFundDetailScreenData(
                             modifier = Modifier.alpha(
                                 if (data.data.depositEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
                             ),
-                            primaryText = stringResource(R.string.common_deposit),
+                            primaryText = stringResource(R.string.common_add_cash),
                             secondaryText = stringResource(R.string.fiat_funds_detail_deposit_details),
                             startImageResource = ImageResource.Local(R.drawable.ic_fiat_deposit),
                             endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
@@ -220,7 +220,7 @@ fun FiatFundDetailScreenData(
                                 modifier = Modifier.alpha(
                                     if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
                                 ),
-                                primaryText = stringResource(R.string.common_withdraw),
+                                primaryText = stringResource(R.string.common_cash_out),
                                 secondaryText = stringResource(R.string.fiat_funds_detail_withdraw_details),
                                 startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
                                 endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {

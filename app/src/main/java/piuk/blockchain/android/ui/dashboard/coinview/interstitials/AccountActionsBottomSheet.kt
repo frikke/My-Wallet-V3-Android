@@ -349,7 +349,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 processAction(AssetAction.InterestDeposit)
             }
             AssetAction.InterestWithdraw -> AssetActionItem(
-                title = getString(R.string.common_withdraw),
+                title = getString(R.string.common_cash_out),
                 icon = Icons.Send.id,
                 description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset = asset,

@@ -165,7 +165,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
-            AssetAction.FiatWithdraw -> resources.getString(R.string.common_withdraw)
+            AssetAction.FiatWithdraw -> resources.getString(R.string.common_cash_out)
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }

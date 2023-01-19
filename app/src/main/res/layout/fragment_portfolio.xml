@@ -98,7 +98,7 @@
             app:leftButtonIcon="@drawable/ic_qr_scan"
             app:leftButtonText="@string/receive"
             app:rightButtonIcon="@drawable/ic_bank_details"
-            app:rightButtonText="@string/common_deposit"
+            app:rightButtonText="@string/common_add_cash"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.AppCompatButton
