@@ -1,6 +1,5 @@
 package com.blockchain.coincore.fiat
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -9,6 +8,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.testutils.rxInit
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock

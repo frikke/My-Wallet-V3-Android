@@ -32,7 +32,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import timber.log.Timber
 
 class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -218,7 +217,6 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
         subject.doInitialiseTx()
             .test()
             .assertValue {
-                Timber.d("$it")
                 it.amount == CryptoValue.zero(ASSET) &&
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&

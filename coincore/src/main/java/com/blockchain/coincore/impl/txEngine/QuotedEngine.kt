@@ -110,13 +110,12 @@ abstract class QuotedEngine(
             )
         }
 
-    override fun start(
+    override fun doAfterOnStart(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
-        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
         quotesEngine.start(direction, pair)
     }
 

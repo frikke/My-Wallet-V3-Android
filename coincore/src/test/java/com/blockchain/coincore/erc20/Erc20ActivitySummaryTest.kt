@@ -1,9 +1,9 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions

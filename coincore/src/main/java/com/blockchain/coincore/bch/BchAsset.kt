@@ -18,6 +18,7 @@ import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -27,7 +28,6 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 
 private const val BCH_URL_PREFIX = "bitcoincash:"
 
@@ -51,7 +51,7 @@ internal class BchAsset internal constructor(
 
     override fun initToken(): Completable =
         bchDataManager.initBchWallet(labels.getDefaultNonCustodialWalletLabel())
-            .doOnError { Timber.e("Unable to init BCH, because: $it") }
+            .doOnError { Logger.e("Unable to init BCH, because: $it") }
             .onErrorComplete()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =

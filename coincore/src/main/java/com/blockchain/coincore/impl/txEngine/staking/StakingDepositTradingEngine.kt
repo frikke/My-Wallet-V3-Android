@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.staking
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -17,7 +16,6 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,18 +28,17 @@ import io.reactivex.rxjava3.core.Single
 const val STAKING_LIMITS: String = "STAKING_LIMITS"
 
 class StakingDepositTradingEngine(
-    private val stakingBalanceStore: StakingBalanceStore,
+    private val stakingBalanceStore: FlushableDataSource,
     stakingService: StakingService,
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
 ) : StakingBaseEngine(stakingService) {
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(stakingBalanceStore, tradingStore)
 
     override fun ensureSourceBalanceFreshness() {
-        stakingBalanceStore.markAsStale()
+        stakingBalanceStore.invalidate()
     }
 
     override fun assertInputsValid() {

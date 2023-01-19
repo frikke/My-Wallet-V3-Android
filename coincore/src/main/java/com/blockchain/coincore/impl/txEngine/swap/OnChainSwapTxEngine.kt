@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -27,18 +26,14 @@ import io.reactivex.rxjava3.core.Single
 
 class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
     swapTransactionsStore: SwapTransactionsStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val userIdentity: UserIdentity,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val engine: OnChainTxEngineBase
+    private val userIdentity: UserIdentity,
+    private val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
     quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore
 ) {
-
     private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override val flushableDataSources: List<FlushableDataSource>

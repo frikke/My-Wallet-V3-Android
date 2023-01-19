@@ -20,7 +20,7 @@ abstract class StakingBaseEngine(
     private val stakingService: StakingService
 ) : TxEngine() {
 
-    protected val sourceAssetInfo: AssetInfo
+    private val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
 
     protected fun modifyEngineConfirmations(

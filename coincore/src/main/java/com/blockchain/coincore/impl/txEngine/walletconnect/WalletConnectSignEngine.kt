@@ -39,13 +39,12 @@ class WalletConnectSignEngine(
         check(sourceAsset == CryptoCurrency.ETHER)
     }
 
-    override fun start(
+    override fun doAfterOnStart(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
-        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
         assetEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
     }
 

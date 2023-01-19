@@ -1,6 +1,5 @@
 package com.blockchain.coincore.testutil
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -8,6 +7,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Store
+import com.blockchain.testutils.rxInit
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
@@ -21,7 +21,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.bind
-import org.koin.dsl.factory
 import org.koin.dsl.module
 
 private fun injectMocks(module: Module) {

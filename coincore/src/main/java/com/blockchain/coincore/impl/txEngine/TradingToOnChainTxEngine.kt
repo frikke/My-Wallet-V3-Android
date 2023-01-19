@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.api.NabuErrorStatusCodes
@@ -57,10 +56,8 @@ private val PendingTx.memo: String?
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val isNoteSupported: Boolean = false,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val isNoteSupported: Boolean = false,
+    private val walletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity,
     private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {

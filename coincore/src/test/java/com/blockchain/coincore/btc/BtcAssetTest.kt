@@ -1,6 +1,5 @@
 package com.blockchain.coincore.btc
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.custodial.domain.TradingService
@@ -12,6 +11,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.testutils.rxInit
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

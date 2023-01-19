@@ -1,11 +1,11 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test

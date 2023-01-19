@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.fiat
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FeeLevel
@@ -54,11 +53,9 @@ const val WITHDRAW_LOCKS = "locks"
 private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 
 class FiatDepositTxEngine(
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     private val bankService: BankService,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
     private val withdrawLocksRepository: WithdrawLocksRepository,

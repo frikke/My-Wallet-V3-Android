@@ -14,8 +14,12 @@ import com.blockchain.earn.data.repository.InterestRepository
 import com.blockchain.earn.data.repository.StakingRepository
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingAccountFeatureFlag
+import com.blockchain.koin.stakingBalanceStore
+import com.blockchain.storedatasource.FlushableDataSource
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val earnDataModule = module {
@@ -33,11 +37,11 @@ val earnDataModule = module {
             )
         }
 
-        scoped {
+        scoped(stakingBalanceStore) {
             StakingBalanceStore(
                 stakingApiService = get()
             )
-        }
+        }.bind(FlushableDataSource::class)
 
         scoped {
             StakingLimitsStore(
@@ -50,7 +54,7 @@ val earnDataModule = module {
             StakingRepository(
                 stakingRatesStore = get(),
                 stakingEligibilityStore = get(),
-                stakingBalanceStore = get(),
+                stakingBalanceStore = get(stakingBalanceStore),
                 assetCatalogue = get(),
                 stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 paymentTransactionHistoryStore = get(),
@@ -61,11 +65,11 @@ val earnDataModule = module {
             )
         }
 
-        scoped {
+        scoped(interestBalanceStore) {
             InterestBalancesStore(
                 interestApiService = get(),
             )
-        }
+        }.bind(FlushableDataSource::class)
 
         scoped {
             InterestAvailableAssetsStore(
@@ -101,7 +105,7 @@ val earnDataModule = module {
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
-                interestBalancesStore = get(),
+                interestBalancesStore = get(interestBalanceStore),
                 interestEligibilityStore = get(),
                 interestAvailableAssetsStore = get(),
                 interestLimitsStore = get(),

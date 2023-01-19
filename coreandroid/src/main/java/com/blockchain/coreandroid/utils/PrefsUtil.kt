@@ -34,6 +34,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
@@ -66,6 +67,7 @@ class PrefsUtil(
     SecureChannelPrefs,
     WalletModePrefs,
     PricesPrefs,
+    SmallBalancesPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
     TransactionPrefs,
@@ -898,7 +900,6 @@ class PrefsUtil(
         private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
 
         // multiapp assets
-        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
 
         // Exchange Campaign
         private const val CAMPAIGN_DISMISS_COUNT = "campaign_show_count"
@@ -909,6 +910,7 @@ class PrefsUtil(
         private const val WALLET_MODE_LEGACY_KEY = "WALLET_MODE"
         private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
+        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
     }
 
     override val legacyWalletMode: String
@@ -924,6 +926,11 @@ class PrefsUtil(
         get() = getValue(USER_DEFAULTED_TO_PKW, false)
         set(value) {
             setValue(USER_DEFAULTED_TO_PKW, value)
+        }
+    override var showSmallBalances: Boolean
+        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, true)
+        set(value) {
+            setValue(SHOULD_SHOW_SMALL_BALANCES, value)
         }
 }
 

@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -17,7 +16,6 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,11 +28,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 
 class InterestWithdrawTradingTxEngine(
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>

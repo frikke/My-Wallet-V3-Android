@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
@@ -29,6 +28,7 @@ import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.stakingAccountFeatureFlag
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -54,7 +54,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import timber.log.Timber
 
 interface AccountRefreshTrigger {
     fun forceAccountsRefresh()
@@ -135,7 +134,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 nonCustodial + trading + interest + staking
             }.doOnError {
                 val errorMsg = "Error loading accounts for ${currency.networkTicker}"
-                Timber.e("$errorMsg: $it")
+                Logger.e("$errorMsg: $it")
                 remoteLogger.logException(it, errorMsg)
             }
             AssetFilter.NonCustodial -> loadNonCustodialAccounts(
@@ -152,7 +151,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         trading + interest + staking
                     }.doOnError {
                         val errorMsg = "Error loading accounts for ${currency.networkTicker}"
-                        Timber.e("$errorMsg: $it")
+                        Logger.e("$errorMsg: $it")
                         remoteLogger.logException(it, errorMsg)
                     }
                 else Single.just(emptyList())
@@ -417,7 +416,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 }
 
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class ActiveAccountList(
     private val asset: AssetInfo,
     private val interestService: InterestService

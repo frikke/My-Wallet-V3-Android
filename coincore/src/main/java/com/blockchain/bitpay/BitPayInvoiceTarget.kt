@@ -3,6 +3,7 @@ package com.blockchain.bitpay
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.InvoiceTarget
+import com.blockchain.logging.Logger
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetInfo
@@ -11,7 +12,6 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
 import java.util.regex.Pattern
-import timber.log.Timber
 
 class BitPayInvoiceTarget(
     override val asset: AssetInfo,
@@ -56,7 +56,7 @@ class BitPayInvoiceTarget(
                     expires = rawRequest.expires
                 ) as CryptoTarget
             }.doOnError { e ->
-                Timber.e("Error loading invoice: $e")
+                Logger.e("Error loading invoice: $e")
             }
         }
     }

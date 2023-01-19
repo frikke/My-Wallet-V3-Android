@@ -45,8 +45,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
-import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -55,6 +53,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.storedatasource.FlushableDataSource
 import io.reactivex.rxjava3.core.Single
 
 class TxProcessorFactory(
@@ -63,7 +62,7 @@ class TxProcessorFactory(
     private val walletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
     private val tradingStore: TradingStore,
     private val walletPrefs: WalletStatusPrefs,
@@ -77,7 +76,7 @@ class TxProcessorFactory(
     private val userIdentity: UserIdentity,
     private val swapTransactionsStore: SwapTransactionsStore,
     private val plaidFeatureFlag: FeatureFlag,
-    private val stakingBalanceStore: StakingBalanceStore,
+    private val stakingBalanceStore: FlushableDataSource,
     private val stakingService: StakingService
 ) {
     fun createProcessor(
@@ -254,7 +253,6 @@ class TxProcessorFactory(
                             engine = StakingDepositOnChainTxEngine(
                                 stakingBalanceStore = stakingBalanceStore,
                                 stakingService = stakingService,
-                                walletManager = walletManager,
                                 onChainEngine = engine
                             )
                         )

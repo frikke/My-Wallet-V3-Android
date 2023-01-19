@@ -1,10 +1,8 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
@@ -15,10 +13,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
@@ -148,43 +144,6 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(exchangeRates).exchangeRateToUserFiat(ASSET)
-
-        noMoreInteractions()
-    }
-
-    @Test
-    fun `confirmations are refreshed`() {
-        // Arrange
-        val balance = CryptoValue.fromMajor(ASSET, 10.1.toBigDecimal())
-        whenever(sourceAccount.balanceRx()).thenReturn(
-            Observable.just(
-                AccountBalance(
-                    total = balance,
-                    dashboardDisplay = balance,
-                    withdrawable = Money.zero(balance.currency),
-                    pending = Money.zero(balance.currency),
-                    exchangeRate = ExchangeRate.identityExchangeRate(balance.currency),
-                )
-            )
-        )
-
-        val refreshTrigger = object : TxEngine.RefreshTrigger {
-            override fun refreshConfirmations(revalidate: Boolean): Completable =
-                Completable.fromAction { sourceAccount.balanceRx() }
-        }
-
-        // Act
-        subject.start(
-            sourceAccount,
-            txTarget,
-            exchangeRates,
-            refreshTrigger
-        )
-
-        subject.refreshConfirmations(false)
-
-        // Assert
-        verify(sourceAccount).balanceRx()
 
         noMoreInteractions()
     }

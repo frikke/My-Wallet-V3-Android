@@ -16,6 +16,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.then
@@ -32,7 +33,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import timber.log.Timber
 
 class L1EvmOnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
@@ -258,7 +258,7 @@ class L1EvmOnChainTxEngine(
                 erc20DataManager.pushErc20Transaction(it, evmNetworkTicker)
             }
             .onErrorResumeNext {
-                Timber.e(it)
+                Logger.e(it)
                 Single.error(TransactionError.ExecutionFailed)
             }.map { hash ->
                 TxResult.HashedTxResult(hash, pendingTx.amount)

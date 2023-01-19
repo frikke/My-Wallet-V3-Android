@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.fiat
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -30,8 +29,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class FiatWithdrawalTxEngine(
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity
 ) : TxEngine() {

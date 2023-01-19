@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -20,13 +19,11 @@ import io.reactivex.rxjava3.core.Single
 
 class TradingToTradingSwapTxEngine(
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
     swapTransactionsStore: SwapTransactionsStore,
     quotesEngine: TransferQuotesEngine,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val userIdentity: UserIdentity,
+    private val userIdentity: UserIdentity,
 ) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore) {
 
     override val flushableDataSources: List<FlushableDataSource>

@@ -62,7 +62,7 @@ class XlmOnChainTxEngine(
         check(sourceAsset == CryptoCurrency.XLM)
     }
 
-    override fun restart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {
+    override fun doAfterOnRestart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {
         return super.restart(txTarget, pendingTx).map { px ->
             targetXlmAddress.memo?.let {
                 px.setMemo(

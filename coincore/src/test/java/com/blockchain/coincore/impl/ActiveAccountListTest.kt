@@ -1,13 +1,12 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever

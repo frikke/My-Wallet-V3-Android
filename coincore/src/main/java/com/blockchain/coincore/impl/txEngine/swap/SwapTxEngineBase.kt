@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.NullAddress
@@ -33,7 +32,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val RECEIVE_AMOUNT = "RECEIVE_AMOUNT"
 const val OUTGOING_FEE = "OUTGOING_FEE"
 const val LATEST_QUOTE_ID = "LATEST_QUOTE_ID"

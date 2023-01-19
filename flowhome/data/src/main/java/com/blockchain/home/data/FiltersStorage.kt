@@ -1,14 +1,14 @@
 package com.blockchain.home.data
 
-import android.content.SharedPreferences
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.FiltersService
+import com.blockchain.preferences.SmallBalancesPrefs
 
-class FiltersStorage(private val sharedPreferences: SharedPreferences) : FiltersService {
+class FiltersStorage(private val smallBalancesPrefs: SmallBalancesPrefs) : FiltersService {
     override fun filters(): List<AssetFilter> {
         return listOf(
             AssetFilter.ShowSmallBalances(
-                sharedPreferences.getBoolean(SHOULD_SHOW_SMALL_BALANCES, false)
+                smallBalancesPrefs.showSmallBalances
             )
         )
     }
@@ -16,9 +16,7 @@ class FiltersStorage(private val sharedPreferences: SharedPreferences) : Filters
     override fun updateFilters(filter: List<AssetFilter>) {
         filter.forEach {
             if (it is AssetFilter.ShowSmallBalances)
-                sharedPreferences.edit().putBoolean(SHOULD_SHOW_SMALL_BALANCES, it.enabled).apply()
+                smallBalancesPrefs.showSmallBalances = it.enabled
         }
     }
 }
-
-private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"

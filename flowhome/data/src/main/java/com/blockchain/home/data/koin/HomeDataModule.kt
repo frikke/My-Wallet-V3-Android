@@ -34,6 +34,6 @@ val homeDataModule = module {
     }
 
     factory {
-        FiltersStorage(sharedPreferences = get())
+        FiltersStorage(smallBalancesPrefs = get())
     }.bind(FiltersService::class)
 }

@@ -17,6 +17,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
+import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
@@ -32,7 +33,6 @@ import java.math.BigInteger
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
-import timber.log.Timber
 
 class DynamicOnChanTxEngine(
     private val nonCustodialService: NonCustodialService,
@@ -128,7 +128,7 @@ class DynamicOnChanTxEngine(
             )
         }
             .onErrorResumeNext {
-                Timber.e(it)
+                Logger.e(it)
                 Single.error(TransactionError.ExecutionFailed)
             }
             .flatMap {

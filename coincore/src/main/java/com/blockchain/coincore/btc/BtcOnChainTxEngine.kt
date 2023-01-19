@@ -22,6 +22,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
@@ -49,7 +50,6 @@ import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongycastle.util.encoders.Hex
-import timber.log.Timber
 
 private const val STATE_UTXO = "btc_utxo"
 private const val FEE_OPTIONS = "fee_options"
@@ -467,7 +467,7 @@ class BtcOnChainTxEngine(
     }
 
     override fun doOnTransactionFailed(pendingTx: PendingTx, e: Throwable) {
-        Timber.e("BTC Send failed: $e")
+        Logger.e("BTC Send failed: $e")
         remoteLogger.logException(e)
     }
 
@@ -481,7 +481,7 @@ class BtcOnChainTxEngine(
                 totalSent.toLong()
             )
         } catch (e: Exception) {
-            Timber.e(e)
+            Logger.e(e)
         }
     }
 

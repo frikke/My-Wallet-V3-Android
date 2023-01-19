@@ -13,11 +13,11 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.models.interest.InterestLimits
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -42,7 +42,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestBalanceStore: FlushableDataSource = mock()
     private val interestService: InterestService = mock()
     private val tradingStore: TradingStore = mock()
 

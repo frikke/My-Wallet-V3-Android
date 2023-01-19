@@ -1,18 +1,5 @@
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
-apply plugin: 'kotlin-parcelize'
-
-android {
-    compileOptions {
-        coreLibraryDesugaringEnabled true
-    }
-
-    lintOptions {
-        baseline file("lint-baseline.xml")
-        warningsAsErrors true
-        abortOnError true
-    }
-}
 
 dependencies {
     implementation project(':wallet')
@@ -22,13 +9,12 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':core')
     implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':blockchainApi')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
     implementation project(':earn:domain')
-    implementation project(':earn:data')
-
     api project(':balance')
 
     implementation Libraries.kotlinJson
@@ -36,9 +22,6 @@ dependencies {
     implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxKotlin
 
-    coreLibraryDesugaring Libraries.desugaring
-
     // Unit Test dependencies
     testImplementation Libraries.koinTestJunit
-    testImplementation project(':testutils-android')
 }

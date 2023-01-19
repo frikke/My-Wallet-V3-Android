@@ -30,6 +30,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
@@ -59,6 +60,7 @@ val coreAndroidModule = module {
     }.apply {
         bind(SessionPrefs::class)
         bind(CurrencyPrefs::class)
+        bind(SmallBalancesPrefs::class)
         bind(NotificationPrefs::class)
         bind(DashboardPrefs::class)
         bind(SecurityPrefs::class)

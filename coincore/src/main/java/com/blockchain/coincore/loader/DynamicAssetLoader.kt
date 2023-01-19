@@ -26,6 +26,7 @@ import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -55,7 +56,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
-import timber.log.Timber
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
@@ -209,7 +209,7 @@ internal class DynamicAssetLoader(
                         .associateBy { it.currency }
                 )
             }
-            .doOnError { Timber.e("init failed") }
+            .doOnError { Logger.e("init failed") }
             .ignoreElement()
     }
 

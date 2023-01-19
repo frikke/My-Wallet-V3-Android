@@ -5,6 +5,7 @@ import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.coincore.impl.CoinAddressesStore
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.HotWalletService
 import com.blockchain.coincore.impl.TxProcessorFactory
@@ -21,9 +22,11 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.koin.coinNetworksFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
+import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.stakingBalanceStore
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
@@ -161,7 +164,7 @@ val coincoreModule = module {
             TxProcessorFactory(
                 bitPayManager = get(),
                 exchangeRates = get(),
-                interestBalanceStore = get(),
+                interestBalanceStore = get(interestBalanceStore),
                 interestService = get(),
                 tradingStore = get(),
                 walletManager = get(),
@@ -178,7 +181,7 @@ val coincoreModule = module {
                 withdrawLocksRepository = get(),
                 plaidFeatureFlag = get(plaidFeatureFlag),
                 swapTransactionsStore = get(),
-                stakingBalanceStore = get(),
+                stakingBalanceStore = get(stakingBalanceStore),
                 stakingService = get()
             )
         }
@@ -192,9 +195,15 @@ val coincoreModule = module {
 
         scoped {
             BackendNotificationUpdater(
-                prefs = get(),
-                walletApi = get(),
+                coinAddressesStore = get(),
                 json = get(),
+            )
+        }
+
+        scoped {
+            CoinAddressesStore(
+                prefs = get(),
+                walletApi = get()
             )
         }
 

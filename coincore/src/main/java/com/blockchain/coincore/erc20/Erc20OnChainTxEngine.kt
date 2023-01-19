@@ -131,7 +131,10 @@ class Erc20OnChainTxEngine(
         get() = sourceAsset as AssetInfo
 
     private fun feeOptions(): Single<FeeOptions> =
-        feeManager.getErc20FeeOptions(sourceAssetInfo.l1chainTicker, sourceAssetInfo.l2identifier)
+        feeManager.getErc20FeeOptions(
+            sourceAssetInfo.l1chainTicker!!,
+            sourceAssetInfo.l2identifier
+        )
             .singleOrError()
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {

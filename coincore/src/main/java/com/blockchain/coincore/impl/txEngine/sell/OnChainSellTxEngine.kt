@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -28,13 +27,10 @@ import io.reactivex.rxjava3.core.Single
 
 class OnChainSellTxEngine(
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val engine: OnChainTxEngineBase,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val engine: OnChainTxEngineBase,
+    walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val userIdentity: UserIdentity,
+    userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
 ) : SellTxEngineBase(
     walletManager, limitsDataManager, userIdentity, quotesEngine

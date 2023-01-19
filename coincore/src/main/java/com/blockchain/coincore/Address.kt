@@ -2,6 +2,7 @@ package com.blockchain.coincore
 
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
+import com.blockchain.logging.Logger
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -9,7 +10,6 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
 import kotlinx.coroutines.rx3.asObservable
-import timber.log.Timber
 
 interface TransactionTarget {
     val label: String
@@ -103,7 +103,7 @@ class AddressFactoryImpl(
         when (t) {
             is DomainAddressNotFound -> Maybe.error(TxValidationFailure(ValidationState.INVALID_DOMAIN))
             else -> {
-                Timber.e(t, "Failed to resolve domain address")
+                Logger.e(t, "Failed to resolve domain address")
                 throw IllegalStateException(t)
             }
         }

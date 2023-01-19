@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import android.os.Parcelable
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -16,8 +15,8 @@ import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.parcelize.Parcelize
 
 enum class AssetFilter {
     All,
@@ -88,30 +87,23 @@ enum class AssetAction(
     StakingDeposit(ActionOrigin.FROM_SOURCE);
 }
 
-@Parcelize
 data class StateAwareAction(
     val state: ActionState,
     val action: AssetAction,
-) : java.io.Serializable, Parcelable
+) : Serializable
 
-sealed class ActionState : Parcelable {
-    @Parcelize
-    object Available : ActionState()
+sealed class ActionState : Serializable {
+    object Available : ActionState(), Serializable
 
-    @Parcelize
-    object LockedForBalance : ActionState()
+    object LockedForBalance : ActionState(), Serializable
 
-    @Parcelize
-    object LockedForTier : ActionState()
+    object LockedForTier : ActionState(), Serializable
 
-    @Parcelize
-    data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState()
+    data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState(), Serializable
 
-    @Parcelize
-    object LockedDueToAvailability : ActionState()
+    object LockedDueToAvailability : ActionState(), Serializable
 
-    @Parcelize
-    object Unavailable : ActionState()
+    object Unavailable : ActionState(), Serializable
 }
 
 typealias AvailableActions = Set<AssetAction>
