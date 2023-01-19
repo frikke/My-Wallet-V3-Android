@@ -63,7 +63,9 @@ internal const val transactionFetchOffset = 0
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
     protected abstract val baseActions: Single<Set<AssetAction>>
-    protected val defFreshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+    protected val defFreshness = FreshnessStrategy.Cached(
+        RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+    )
     final override var hasTransactions: Boolean = true
         private set
 

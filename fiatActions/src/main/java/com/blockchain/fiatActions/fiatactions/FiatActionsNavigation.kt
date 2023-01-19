@@ -10,6 +10,7 @@ import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
+import info.blockchain.balance.FiatCurrency
 
 @Stable
 interface FiatActionsNavigation {
@@ -45,5 +46,9 @@ interface FiatActionsNavigation {
     fun bankLinkWithAlias(
         launcher: ActivityResultLauncher<Intent>,
         fiatAccount: FiatAccount
+    )
+
+    fun kycCashBenefits(
+        currency: FiatCurrency
     )
 }

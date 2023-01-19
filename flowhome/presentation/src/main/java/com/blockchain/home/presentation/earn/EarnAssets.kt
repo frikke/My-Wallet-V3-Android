@@ -56,7 +56,6 @@ import org.koin.androidx.compose.getViewModel
 fun EarnAssets(
     viewModel: EarnViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
-    forceRefresh: Boolean
 ) {
     val viewState: EarnViewState by viewModel.viewState.collectAsStateLifecycleAware()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -71,13 +70,6 @@ fun EarnAssets(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
-    }
-
-    DisposableEffect(forceRefresh) {
-        if (forceRefresh) {
-            viewModel.onIntent(EarnIntent.Refresh)
-        }
-        onDispose { }
     }
 
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {

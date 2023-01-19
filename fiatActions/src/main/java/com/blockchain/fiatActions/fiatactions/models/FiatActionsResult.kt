@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
+import info.blockchain.balance.FiatCurrency
 
 sealed interface FiatActionsResult : NavigationEvent {
     val account: FiatAccount
@@ -51,11 +52,20 @@ sealed interface FiatActionsResult : NavigationEvent {
     ) : FiatActionsResult
 
     /**
-     * opens external link bank
+     * opens external link bank cache
      */
     data class BankLinkFlow(
         override val account: FiatAccount,
         override val action: AssetAction,
         val linkBankTransfer: LinkBankTransfer,
     ) : FiatActionsResult
+
+    data class KycDepositCashBenefits(
+        val currency: FiatCurrency,
+    ) : FiatActionsResult {
+        override val account: FiatAccount
+            get() = NullFiatAccount
+        override val action: AssetAction
+            get() = AssetAction.FiatDeposit
+    }
 }

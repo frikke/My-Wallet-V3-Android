@@ -13,7 +13,11 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
+import info.blockchain.balance.FiatCurrency
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
+import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
+import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
@@ -103,6 +107,36 @@ class FiatActionsNavigationImpl(
                     context = activity
                 )
             )
+        }
+    }
+
+    override fun kycCashBenefits(currency: FiatCurrency) {
+        activity?.let {
+            with(it) {
+                showBottomSheet(
+                    KycBenefitsBottomSheet.newInstance(
+                        KycBenefitsBottomSheet.BenefitsDetails(
+                            title = getString(R.string.fiat_funds_no_kyc_announcement_title),
+                            description = getString(R.string.fiat_funds_no_kyc_announcement_description),
+                            listOfBenefits = listOf(
+                                VerifyIdentityNumericBenefitItem(
+                                    getString(R.string.fiat_funds_no_kyc_step_1_title),
+                                    getString(R.string.fiat_funds_no_kyc_step_1_description)
+                                ),
+                                VerifyIdentityNumericBenefitItem(
+                                    getString(R.string.fiat_funds_no_kyc_step_2_title),
+                                    getString(R.string.fiat_funds_no_kyc_step_2_description)
+                                ),
+                                VerifyIdentityNumericBenefitItem(
+                                    getString(R.string.fiat_funds_no_kyc_step_3_title),
+                                    getString(R.string.fiat_funds_no_kyc_step_3_description)
+                                )
+                            ),
+                            icon = currency.logo
+                        )
+                    )
+                )
+            }
         }
     }
 }

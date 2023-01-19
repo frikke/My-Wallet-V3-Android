@@ -8,14 +8,8 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface QuickActionsService {
-    fun availableQuickActionsForWalletMode(
-        walletMode: WalletMode,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
-            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-        )
-    ): Flow<List<StateAwareAction>>
 
-    fun moreActions(
+    fun availableQuickActionsForWalletMode(
         walletMode: WalletMode,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
             RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)

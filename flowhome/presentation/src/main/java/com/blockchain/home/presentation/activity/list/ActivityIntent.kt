@@ -8,8 +8,7 @@ import com.blockchain.walletmode.WalletMode
 
 sealed interface ActivityIntent<ACTIVITY_MODEL> : Intent<ActivityModelState<ACTIVITY_MODEL>> {
     data class LoadActivity<ACTIVITY_MODEL>(
-        val sectionSize: SectionSize,
-        val forceRefresh: Boolean = false
+        val sectionSize: SectionSize
     ) : ActivityIntent<ACTIVITY_MODEL>
 
     data class FilterSearch<ACTIVITY_MODEL>(val term: String) : ActivityIntent<ACTIVITY_MODEL> {

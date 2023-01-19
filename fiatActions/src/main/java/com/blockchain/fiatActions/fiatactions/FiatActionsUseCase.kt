@@ -41,6 +41,12 @@ class FiatActionsUseCase(
     private val _result = MutableSharedFlow<FiatActionsResult>()
     val result: SharedFlow<FiatActionsResult> get() = _result
 
+    fun noEligibleAccount(currency: FiatCurrency) {
+        scope.launch {
+            _result.emit(FiatActionsResult.KycDepositCashBenefits(currency))
+        }
+    }
+
     fun deposit(
         account: FiatAccount,
         action: AssetAction,

@@ -99,10 +99,9 @@ val homePresentationModule = module {
         viewModel {
             QuickActionsViewModel(
                 walletModeService = get(),
-                userFeaturePermissionService = get(),
                 coincore = get(),
                 quickActionsService = get(),
-                currencyPrefs = get(),
+                fiatCurrenciesService = get(),
                 fiatActions = get()
             )
         }

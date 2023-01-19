@@ -44,7 +44,7 @@ fun MoreActions(
     }
     val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions(ActionType.More))
+        viewModel.onIntent(QuickActionsIntent.LoadActions)
         onDispose { }
     }
 

@@ -7,6 +7,7 @@ import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.nabu.BlockedReason
+import info.blockchain.balance.FiatCurrency
 
 sealed interface FiatActionsNavEvent {
     data class TransactionFlow(
@@ -40,5 +41,9 @@ sealed interface FiatActionsNavEvent {
     data class LinkBankWithAlias(
         val account: FiatAccount,
         val action: AssetAction
+    ) : FiatActionsNavEvent
+
+    data class KycCashBenefits(
+        val currency: FiatCurrency
     ) : FiatActionsNavEvent
 }

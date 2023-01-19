@@ -67,7 +67,6 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun exchangeRate(
         fromAsset: Currency,
         toAsset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<ExchangeRate>>
 
     fun exchangeRateToUserFiat(

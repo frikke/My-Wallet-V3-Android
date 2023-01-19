@@ -18,12 +18,11 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
-import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -45,7 +44,6 @@ import kotlinx.coroutines.flow.flowOf
     private val fees: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
-    private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
@@ -89,7 +87,7 @@ import kotlinx.coroutines.flow.flowOf
             listOf(
                 PublicKey(
                     address = it,
-                    descriptor = MULTIPLE_ADDRESSES_DESCRIPTOR,
+                    descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
                     style = PubKeyStyle.SINGLE
                 )
             )

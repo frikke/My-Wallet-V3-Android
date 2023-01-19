@@ -89,7 +89,6 @@ internal class L1EvmAsset(
             exchangeRates = exchangeRates,
             ethDataManager = ethDataManager,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialManager,
             addressResolver = addressResolver,
             l1Network = evmNetwork
         )

@@ -27,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class CustodialActivityViewModel(
@@ -105,7 +104,7 @@ class CustodialActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-                loadData(intent.forceRefresh)
+                loadData(false)
             }
 
             is ActivityIntent.FilterSearch -> {
@@ -118,8 +117,7 @@ class CustodialActivityViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-
-                onIntent(ActivityIntent.LoadActivity(sectionSize = modelState.sectionSize, forceRefresh = true))
+                loadData(true)
             }
         }
     }
@@ -133,12 +131,11 @@ class CustodialActivityViewModel(
                     cacheStrategy = RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
                 )
             )
-                .onEach { dataResource ->
+                .collect { dataRes ->
                     updateState {
-                        it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
+                        it.copy(activityItems = it.activityItems.updateDataWith(dataRes))
                     }
                 }
-                .collect()
         }
     }
 }

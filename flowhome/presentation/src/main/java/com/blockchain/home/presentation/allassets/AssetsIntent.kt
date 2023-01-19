@@ -5,6 +5,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.walletmode.WalletMode
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
     data class LoadAccounts(
@@ -12,11 +13,10 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
         val forceRefresh: Boolean = false
     ) : AssetsIntent
 
-    data class LoadFundLocks(
-        val forceRefresh: Boolean = false
-    ) : AssetsIntent {
+    object LoadFundLocks : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
-            return modelState.fundsLocks !is DataResource.Data
+            return modelState.fundsLocks !is DataResource.Data &&
+                modelState.walletMode == WalletMode.CUSTODIAL
         }
     }
 

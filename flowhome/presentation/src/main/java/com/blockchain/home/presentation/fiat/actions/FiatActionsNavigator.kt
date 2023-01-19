@@ -81,6 +81,11 @@ class FiatActionsNavigator(
                             )
                         )
                     }
+                    is FiatActionsResult.KycDepositCashBenefits -> navigate(
+                        FiatActionsNavEvent.KycCashBenefits(
+                            currency = result.currency
+                        )
+                    )
                 }
             }
         }

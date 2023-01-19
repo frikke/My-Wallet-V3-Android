@@ -45,6 +45,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -55,6 +56,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class AssetsViewModel(
@@ -186,11 +188,11 @@ class AssetsViewModel(
                         userFiat = currencyPrefs.selectedFiatCurrency
                     )
                 }
-                loadAccounts(intent.forceRefresh)
+                loadAccounts()
             }
 
             is AssetsIntent.LoadFundLocks -> {
-                loadFundsLocks(intent.forceRefresh)
+                loadFundsLocks(false)
             }
 
             is AssetsIntent.LoadFilters -> {
@@ -221,10 +223,18 @@ class AssetsViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-
-                onIntent(AssetsIntent.LoadAccounts(sectionSize = modelState.sectionSize, forceRefresh = true))
-                onIntent(AssetsIntent.LoadFundLocks(forceRefresh = true))
+                refreshAccounts()
+                if (modelState.walletMode == WalletMode.CUSTODIAL)
+                    loadFundsLocks(true)
             }
+        }
+    }
+
+    private fun refreshAccounts() {
+        viewModelScope.launch {
+            walletModeService.walletMode.take(1).flatMapLatest {
+                loadAccountsForWalletMode(it, true)
+            }.collect()
         }
     }
 
@@ -247,7 +257,7 @@ class AssetsViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccounts(forceRefresh: Boolean) {
+    private fun loadAccounts() {
         accountsJob?.cancel()
         accountsJob = CoroutineScope(Dispatchers.IO).launch {
             walletModeService.walletMode.onEach { walletMode ->
@@ -260,87 +270,87 @@ class AssetsViewModel(
                     }
                 }
             }.flatMapLatest {
-                homeAccountsService.accounts(
-                    walletMode = it,
-                    freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
-                )
-                    .doOnError {
-                        /**
-                         * TODO Handle error for fetching accounts for wallet mode
-                         */
-                        println("Handling exception $it")
-                    }
-                    .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-                    .distinctUntilChanged { old, new ->
-                        val oldAssets = old.data.map { it.currency.networkTicker }
-                        val newAssets = new.data.map { it.currency.networkTicker }
-                        newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
-                    }
-                    .map { accounts ->
-                        updateAccountsIfNeeded(
-                            accounts.data,
-                            modelState.accounts
-                        )
-                    }
-                    .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-                    .flatMapLatest { accounts ->
-                        val balances = accounts.data.map { account ->
-                            account.balance(
-                                freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
-                            ).distinctUntilChanged()
-                                .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
-                                .catch { t ->
-                                    emit(account to DataResource.Error(t as Exception))
-                                }
-                        }.merge().scan(emptyMap<SingleAccount, DataResource<AccountBalance>>()) { acc, value ->
-                            acc + value
-                        }.onEach { map ->
-                            if (map.keys.containsAll(accounts.data)) {
-                                updateState { state ->
-                                    state.copy(
-                                        accounts = state.accounts.withBalancedAccounts(
-                                            map
-                                        )
-                                    )
-                                }
-                            }
-                        }
-
-                        val usdRate = accounts.data.map { account ->
-                            exchangeRates.exchangeRate(
-                                fromAsset = account.currency,
-                                toAsset = FiatCurrency.Dollars,
-                                freshnessStrategy = PullToRefresh.freshnessStrategy(
-                                    shouldGetFresh = forceRefresh,
-                                    cacheStrategy = RefreshStrategy.RefreshIfStale
-                                )
-                            ).map { it to account }
-                        }.merge().onEach { (usdExchangeRate, account) ->
-                            updateState { state ->
-                                state.copy(
-                                    accounts = state.accounts.withUsdRate(
-                                        account = account,
-                                        usdRate = usdExchangeRate
-                                    )
-                                )
-                            }
-                        }
-
-                        val exchangeRates = accounts.data.map { account ->
-                            exchangeRates.getPricesWith24hDelta(
-                                fromAsset = account.currency
-                            ).map { it to account }
-                        }.merge().onEach { (price, account) ->
-                            updateState { state ->
-                                state.copy(
-                                    accounts = state.accounts.withPricing(account, price)
-                                )
-                            }
-                        }
-                        merge(usdRate, balances, exchangeRates)
-                    }
+                loadAccountsForWalletMode(it, false)
             }.collect()
         }
+    }
+
+    private fun loadAccountsForWalletMode(walletMode: WalletMode, forceRefresh: Boolean): Flow<Any> {
+        return homeAccountsService.accounts(
+            walletMode = walletMode,
+            freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
+        )
+            .doOnError {
+                /**
+                 * TODO Handle error for fetching accounts for wallet mode
+                 */
+                println("Handling exception $it")
+            }
+            .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+            .distinctUntilChanged { old, new ->
+                val oldAssets = old.data.map { it.currency.networkTicker }
+                val newAssets = new.data.map { it.currency.networkTicker }
+                newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
+            }
+            .map { accounts ->
+                updateAccountsIfNeeded(
+                    accounts.data,
+                    modelState.accounts
+                )
+            }
+            .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+            .flatMapLatest { accounts ->
+                val balances = accounts.data.map { account ->
+                    account.balance(
+                        freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
+                    ).distinctUntilChanged()
+                        .map { account to DataResource.Data(it) as DataResource<AccountBalance> }
+                        .catch { t ->
+                            emit(account to DataResource.Error(t as Exception))
+                        }
+                }.merge().scan(emptyMap<SingleAccount, DataResource<AccountBalance>>()) { acc, value ->
+                    acc + value
+                }.onEach { map ->
+                    if (map.keys.containsAll(accounts.data)) {
+                        updateState { state ->
+                            state.copy(
+                                accounts = state.accounts.withBalancedAccounts(
+                                    map
+                                )
+                            )
+                        }
+                    }
+                }
+
+                val usdRate = accounts.data.map { account ->
+                    exchangeRates.exchangeRate(
+                        fromAsset = account.currency,
+                        toAsset = FiatCurrency.Dollars
+                    ).map { it to account }
+                }.merge().onEach { (usdExchangeRate, account) ->
+                    updateState { state ->
+                        state.copy(
+                            accounts = state.accounts.withUsdRate(
+                                account = account,
+                                usdRate = usdExchangeRate
+                            )
+                        )
+                    }
+                }
+
+                val exchangeRates = accounts.data.map { account ->
+                    exchangeRates.getPricesWith24hDelta(
+                        fromAsset = account.currency
+                    ).map { it to account }
+                }.merge().onEach { (price, account) ->
+                    updateState { state ->
+                        state.copy(
+                            accounts = state.accounts.withPricing(account, price)
+                        )
+                    }
+                }
+                merge(usdRate, balances, exchangeRates)
+            }
     }
 
     /**
@@ -495,12 +505,14 @@ private fun DataResource<List<ModelAccount>>.withBalancedAccounts(
 ): DataResource<List<ModelAccount>> {
     val accounts = (this as? DataResource.Data)?.data ?: return this
     return DataResource.Data(
-        balances.map { (account, balance) ->
-            val oldAccount = accounts.first { it.singleAccount == account }
-            oldAccount.copy(
-                balance = balance.map { it.total },
-                fiatBalance = balance.map { it.totalFiat }
-            )
+        balances.mapNotNull { (account, balance) ->
+            val oldAccount = accounts.firstOrNull { it.singleAccount == account }
+            oldAccount?.let {
+                it.copy(
+                    balance = balance.map { it.total },
+                    fiatBalance = balance.map { it.totalFiat }
+                )
+            }
         }
     )
 }
@@ -510,13 +522,15 @@ private fun DataResource<List<ModelAccount>>.withUsdRate(
     usdRate: DataResource<ExchangeRate>
 ): DataResource<List<ModelAccount>> {
     return this.map { accounts ->
-        val oldAccount = accounts.first { it.singleAccount == account }
-        accounts.replace(
-            old = oldAccount,
-            new = oldAccount.copy(
-                usdRate = oldAccount.usdRate.updateDataWith(usdRate)
+        val oldAccount = accounts.firstOrNull { it.singleAccount == account }
+        oldAccount?.let {
+            accounts.replace(
+                old = it,
+                new = it.copy(
+                    usdRate = oldAccount.usdRate.updateDataWith(usdRate)
+                )
             )
-        )
+        } ?: accounts
     }
 }
 
@@ -525,14 +539,14 @@ private fun DataResource<List<ModelAccount>>.withPricing(
     price: DataResource<Prices24HrWithDelta>
 ): DataResource<List<ModelAccount>> {
     return this.map { accounts ->
-        val oldAccount = accounts.first { it.singleAccount == account }
-        accounts.replace(
-            old = oldAccount,
-            new = oldAccount.copy(
-                exchangeRate24hWithDelta = oldAccount.exchangeRate24hWithDelta.updateDataWith(
-                    price
+        val oldAccount = accounts.firstOrNull { it.singleAccount == account }
+        oldAccount?.let {
+            accounts.replace(
+                old = it,
+                new = it.copy(
+                    exchangeRate24hWithDelta = oldAccount.exchangeRate24hWithDelta.updateDataWith(price)
                 )
             )
-        )
+        } ?: accounts
     }
 }

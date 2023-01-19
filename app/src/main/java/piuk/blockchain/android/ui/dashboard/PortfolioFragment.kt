@@ -37,6 +37,7 @@ import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.extensions.minus
 import com.blockchain.fiatActions.BankLinkingHost
 import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
@@ -116,7 +117,7 @@ class PortfolioFragment :
     HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentPortfolioBinding>(),
     ForceBackupForSendSheet.Host,
     FiatFundsDetailSheet.Host,
-    KycBenefitsBottomSheet.Host,
+    KycBenefitsSheetHost,
     BuyPendingOrdersBottomSheet.Host,
     QuestionnaireSheetHost,
     BankLinkingHost {

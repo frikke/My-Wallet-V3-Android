@@ -79,7 +79,7 @@ fun HomeAssets(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onIntent(AssetsIntent.LoadFilters)
                 viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
-                viewModel.onIntent(AssetsIntent.LoadFundLocks())
+                viewModel.onIntent(AssetsIntent.LoadFundLocks)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

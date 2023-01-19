@@ -60,7 +60,6 @@ internal class ExchangeRatesDataManagerImpl(
     override fun exchangeRate(
         fromAsset: Currency,
         toAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<ExchangeRate>> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset

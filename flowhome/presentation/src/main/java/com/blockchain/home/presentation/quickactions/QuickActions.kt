@@ -9,16 +9,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Bank
+import com.blockchain.componentlib.icons.Cash
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.MenuKebabHorizontal
 import com.blockchain.componentlib.icons.Minus
@@ -30,7 +37,6 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
@@ -43,28 +49,54 @@ fun QuickActions(
     assetActionsNavigation: AssetActionsNavigation,
     openMoreQuickActions: () -> Unit,
 ) {
-    val viewState: QuickActionsViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions(ActionType.Quick))
+        viewModel.onIntent(QuickActionsIntent.LoadActions)
         onDispose { }
     }
+
     DisposableEffect(key1 = forceRefresh) {
         if (forceRefresh) {
             viewModel.onIntent(QuickActionsIntent.Refresh)
         }
         onDispose { }
     }
-
-    QuickActionsRow(
-        quickActionItems = viewState.actions,
-        onClick = { action ->
-            when (action) {
-                is QuickAction.TxAction -> assetActionsNavigation.navigate(action.assetAction)
-                is QuickAction.More -> openMoreQuickActions()
+    viewState?.let {
+        QuickActionsRow(
+            quickActionItems = it.actions,
+            onClick = { action ->
+                when (action) {
+                    is QuickAction.TxAction -> when (action.assetAction) {
+                        AssetAction.Send,
+                        AssetAction.Swap,
+                        AssetAction.Sell,
+                        AssetAction.Receive,
+                        AssetAction.Buy -> assetActionsNavigation.navigate(action.assetAction)
+                        AssetAction.FiatDeposit -> viewModel.onIntent(
+                            QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
+                        )
+                        AssetAction.FiatWithdraw -> viewModel.onIntent(
+                            QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
+                        )
+                        AssetAction.ViewActivity,
+                        AssetAction.ViewStatement,
+                        AssetAction.InterestDeposit,
+                        AssetAction.InterestWithdraw,
+                        AssetAction.Sign,
+                        AssetAction.StakingDeposit -> {
+                        }
+                    }
+                    /**/
+                    is QuickAction.More -> openMoreQuickActions()
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -118,6 +150,8 @@ private val QuickActionItem.icon: ImageResource
             AssetAction.Send -> Icons.Send
             AssetAction.Swap -> Icons.Swap
             AssetAction.Sell -> Icons.Minus
+            AssetAction.FiatDeposit -> Icons.Bank
+            AssetAction.FiatWithdraw -> Icons.Cash
             AssetAction.Buy -> Icons.Plus
             AssetAction.Receive -> Icons.Receive
             else -> throw UnsupportedOperationException()

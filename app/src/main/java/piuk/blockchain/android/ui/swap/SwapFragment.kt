@@ -28,6 +28,7 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.extensions.exhaustive
+import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -69,7 +70,7 @@ import retrofit2.HttpException
 
 class SwapFragment :
     Fragment(),
-    KycBenefitsBottomSheet.Host,
+    KycBenefitsSheetHost,
     KycUpgradeNowSheet.Host {
 
     interface Host {

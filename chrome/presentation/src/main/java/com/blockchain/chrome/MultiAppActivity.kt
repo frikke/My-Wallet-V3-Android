@@ -29,6 +29,7 @@ import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.fiatActions.BankLinkingHost
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
+import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAction
 import com.blockchain.home.presentation.fiat.actions.FiatActionRequest
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
@@ -77,6 +78,7 @@ class MultiAppActivity :
     BankLinkingHost,
     AccountWalletLinkAlertSheetHost,
     WCApproveSessionBottomSheet.Host,
+    KycBenefitsSheetHost,
     SelectNetworkBottomSheet.Host,
     KoinScopeComponent {
 
@@ -442,6 +444,11 @@ class MultiAppActivity :
                             fiatAccount = it.account
                         )
                     }
+                    is FiatActionsNavEvent.KycCashBenefits -> {
+                        fiatActionsNavigation.kycCashBenefits(
+                            currency = it.currency
+                        )
+                    }
                 }
             }
         }
@@ -554,6 +561,10 @@ class MultiAppActivity :
 
     override fun logout() {
         authNavigation.logout()
+    }
+
+    override fun verificationCtaClicked() {
+        assetActionsNavigation.startKyc()
     }
 
     override fun onSheetClosed() {

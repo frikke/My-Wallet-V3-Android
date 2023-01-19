@@ -20,7 +20,6 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
@@ -43,7 +42,6 @@ class L1EvmNonCustodialAccount(
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork,
 ) : MultiChainAccount, CryptoNonCustodialAccount(asset) {

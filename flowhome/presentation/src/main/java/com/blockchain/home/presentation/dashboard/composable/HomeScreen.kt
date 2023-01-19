@@ -124,8 +124,7 @@ fun HomeScreen(
 
         item {
             EarnAssets(
-                assetActionsNavigation = assetActionsNavigation,
-                forceRefresh = shouldTriggerRefresh
+                assetActionsNavigation = assetActionsNavigation
             )
         }
 
@@ -133,7 +132,6 @@ fun HomeScreen(
             HomeActivity(
                 openAllActivity = openActivity,
                 openActivityDetail = openActivityDetail,
-                forceRefresh = shouldTriggerRefresh
             )
         }
 

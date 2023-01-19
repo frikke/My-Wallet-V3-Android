@@ -52,7 +52,6 @@ internal class EthAsset(
                 jsonAccount = ethDataManager.ehtAccount,
                 walletPreferences = walletPrefs,
                 exchangeRates = exchangeRates,
-                custodialWalletManager = custodialManager,
                 assetCatalogue = assetCatalogue.value,
                 addressResolver = addressResolver,
                 l1Network = EthDataManager.ethChain

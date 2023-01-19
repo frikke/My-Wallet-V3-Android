@@ -7,6 +7,7 @@ import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.Flow
@@ -17,11 +18,11 @@ class AssetRepository(
 
     override fun getAssetInformation(
         asset: AssetInfo,
-        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<DetailedAssetInformation>> {
         return assetInformationStore
             .stream(
-                freshnessStrategy.withKey(AssetInformationStore.Key(asset.networkTicker))
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    .withKey(AssetInformationStore.Key(asset.networkTicker))
             )
             .mapData {
                 it.toAssetInfo()

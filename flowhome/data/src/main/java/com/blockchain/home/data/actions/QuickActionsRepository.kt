@@ -9,15 +9,14 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.actions.QuickActionsService
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -29,37 +28,14 @@ class QuickActionsRepository(
     private val userFeaturePermissionService: UserFeaturePermissionService
 ) : QuickActionsService {
 
-    private var moreActionsCache = listOf(
-        StateAwareAction(action = AssetAction.Send, state = ActionState.Unavailable),
-        StateAwareAction(action = AssetAction.FiatDeposit, state = ActionState.Unavailable),
-        StateAwareAction(action = AssetAction.FiatWithdraw, state = ActionState.Unavailable)
-    )
+    private var defiActionsCache = listOf<StateAwareAction>()
+    private var tradingActionsCache = listOf<StateAwareAction>()
 
     override fun availableQuickActionsForWalletMode(
         walletMode: WalletMode,
         freshnessStrategy: FreshnessStrategy
     ): Flow<List<StateAwareAction>> =
-        allQuickActionsForWalletMode(
-            walletMode = walletMode,
-            freshnessStrategy = freshnessStrategy
-        ).map { actionList ->
-            actionList.filter { action ->
-                action.state == ActionState.Available
-            }
-        }
-
-    private fun unavailableQuickActionsForWalletMode(
-        walletMode: WalletMode,
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<List<StateAwareAction>> =
-        allQuickActionsForWalletMode(
-            walletMode = walletMode,
-            freshnessStrategy = freshnessStrategy
-        ).map { actionList ->
-            actionList.filter { action ->
-                action.state != ActionState.Available
-            }
-        }
+        allQuickActionsForWalletMode(walletMode, freshnessStrategy)
 
     private fun allQuickActionsForWalletMode(
         walletMode: WalletMode,
@@ -75,83 +51,112 @@ class QuickActionsRepository(
         }
 
     private fun allActionsForBrokerage(freshnessStrategy: FreshnessStrategy): Flow<List<StateAwareAction>> {
-        val buyEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                Feature.Buy,
-                freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val sellEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                Feature.DepositFiat,
-                freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val swapEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                Feature.Swap,
-                freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val receiveEnabledFlow =
-            userFeaturePermissionService.isEligibleFor(
-                Feature.DepositCrypto,
-                freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-        val balanceFlow = totalWalletModeBalance(
-            walletMode = WalletMode.CUSTODIAL,
+        val featuresFlow = userFeaturePermissionService.getAccessForFeatures(
+            Feature.Sell,
+            Feature.Buy,
+            Feature.Swap,
+            Feature.DepositFiat,
+            Feature.WithdrawFiat,
+            Feature.DepositCrypto,
             freshnessStrategy = freshnessStrategy
-        ).map { it.totalFiat.isPositive }
+        ).filterNot { it is DataResource.Loading }
+            .onErrorReturn { false }
+            .map {
+                (it as? DataResource.Data<Map<Feature, FeatureAccess>>)?.data ?: throw IllegalStateException(
+                    "Data should be returned"
+                )
+            }
+        val balanceFlow =
+            totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy).map { it.totalFiat.isPositive }
+        val hasFiatBalance =
+            coincore.activeWalletsInModeRx(
+                WalletMode.CUSTODIAL,
+                freshnessStrategy = freshnessStrategy
+            )
+                .map { it.accounts.filterIsInstance<FiatAccount>() }
+                .flatMap {
+                    if (it.isEmpty()) {
+                        Observable.just(false)
+                    } else
+                        it[0].balanceRx().map { balance ->
+                            balance.total.isPositive
+                        }
+                }.onErrorReturn { false }.asFlow()
 
         return combine(
             balanceFlow,
-            buyEnabledFlow,
-            sellEnabledFlow,
-            swapEnabledFlow,
-            receiveEnabledFlow
-        ) { config ->
-            val balanceIsPositive = config[0]
-            val buyEnabled = config[1]
-            val sellEnabled = config[2]
-            val swapEnabled = config[3]
-            val receiveEnabled = config[4]
+            featuresFlow,
+            hasFiatBalance
+        ) { balanceIsPositive, features, fiatBalanceIsPositive ->
             listOf(
                 StateAwareAction(
                     action = AssetAction.Buy,
-                    state = if (buyEnabled) ActionState.Available else ActionState.Unavailable
+                    state = features[Feature.Buy].toAvailability()
                 ),
                 StateAwareAction(
                     action = AssetAction.Sell,
-                    state = if (sellEnabled && balanceIsPositive) ActionState.Available else ActionState.Unavailable
+                    state = if (features[Feature.Sell].toAvailability() == ActionState.Available &&
+                        balanceIsPositive
+                    ) ActionState.Available else ActionState.Unavailable
                 ),
                 StateAwareAction(
                     action = AssetAction.Swap,
-                    state = if (swapEnabled && balanceIsPositive) ActionState.Available else ActionState.Unavailable
+                    state = if (features[Feature.Swap].toAvailability() == ActionState.Available &&
+                        balanceIsPositive
+                    ) ActionState.Available else ActionState.Unavailable
                 ),
                 StateAwareAction(
                     action = AssetAction.Receive,
-                    state = if (receiveEnabled) ActionState.Available else ActionState.Unavailable
+                    state = features[Feature.DepositCrypto].toAvailability()
+                ),
+                StateAwareAction(
+                    action = AssetAction.Send,
+                    state = if (balanceIsPositive) ActionState.Available else ActionState.Unavailable
+                ),
+                StateAwareAction(
+                    action = AssetAction.FiatDeposit,
+                    state = features[Feature.WithdrawFiat].toAvailability()
+                ),
+                StateAwareAction(
+                    action = AssetAction.FiatWithdraw,
+                    state = if (features[Feature.WithdrawFiat].toAvailability() == ActionState.Available &&
+                        fiatBalanceIsPositive
+                    ) ActionState.Available else ActionState.Unavailable
                 )
-            )
+            ).sorted(balanceIsPositive)
+        }.onEach {
+            tradingActionsCache = it
+        }.onStart {
+            emit(tradingActionsCache)
         }
     }
 
-    private fun allActionsForDefi(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<List<StateAwareAction>> {
+    private fun AssetAction.canAddFunds() =
+        when (this) {
+            AssetAction.Buy,
+            AssetAction.FiatDeposit,
+            AssetAction.Receive -> true
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement,
+            AssetAction.Send,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.FiatWithdraw,
+            AssetAction.InterestDeposit,
+            AssetAction.InterestWithdraw,
+            AssetAction.Sign,
+            AssetAction.StakingDeposit -> false
+        }
+
+    private fun FeatureAccess?.toAvailability(): ActionState {
+        return if (this is FeatureAccess.Granted ||
+            (this is FeatureAccess.Blocked && this.reason is BlockedReason.InsufficientTier)
+        ) {
+            ActionState.Available
+        } else ActionState.Unavailable
+    }
+
+    private fun allActionsForDefi(freshnessStrategy: FreshnessStrategy): Flow<List<StateAwareAction>> {
         val sellEnabledFlow =
             userFeaturePermissionService.isEligibleFor(
                 Feature.Sell,
@@ -164,10 +169,7 @@ class QuickActionsRepository(
                     (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
                 }
 
-        val balanceFlow = totalWalletModeBalance(
-            walletMode = WalletMode.NON_CUSTODIAL,
-            freshnessStrategy = freshnessStrategy
-        ).map {
+        val balanceFlow = totalWalletModeBalance(WalletMode.NON_CUSTODIAL, freshnessStrategy).map {
             it.total.isPositive
         }
 
@@ -189,14 +191,15 @@ class QuickActionsRepository(
                     action = AssetAction.Sell,
                     state = if (balanceIsPositive && sellEligible) ActionState.Available else ActionState.Unavailable
                 )
-            )
+            ).sorted(balanceIsPositive)
+        }.onEach {
+            defiActionsCache = it
+        }.onStart {
+            emit(defiActionsCache)
         }
     }
 
-    private fun totalWalletModeBalance(
-        walletMode: WalletMode,
-        freshnessStrategy: FreshnessStrategy
-    ) =
+    private fun totalWalletModeBalance(walletMode: WalletMode, freshnessStrategy: FreshnessStrategy) =
         coincore.activeWalletsInModeRx(
             walletMode = walletMode,
             freshnessStrategy = freshnessStrategy
@@ -204,111 +207,10 @@ class QuickActionsRepository(
             it.balanceRx()
         }.asFlow()
 
-    override fun moreActions(
-        walletMode: WalletMode,
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<List<StateAwareAction>> {
-
-        val disabledQuickActionsFlow = unavailableQuickActionsForWalletMode(
-            walletMode = walletMode,
-            freshnessStrategy = freshnessStrategy
-        )
-
-        val hasBalanceFlow =
-            coincore.activeWalletsInModeRx(
-                walletMode = walletMode,
-                freshnessStrategy = freshnessStrategy
-            ).flatMap {
-                it.balanceRx()
-            }.map {
-                it.total.isPositive
-            }.onErrorReturn { false }
-                .asFlow()
-
-        val hasFiatBalance =
-            coincore.activeWalletsInModeRx(
-                walletMode = WalletMode.CUSTODIAL,
-                freshnessStrategy = freshnessStrategy
-            )
-                .map { it.accounts.filterIsInstance<FiatAccount>() }
-                .flatMap {
-                    if (it.isEmpty()) {
-                        Observable.just(false)
-                    } else
-                        it[0].balanceRx().map { balance ->
-                            balance.total.isPositive
-                        }
-                }.onErrorReturn { false }.asFlow()
-
-        val depositFiatFeature =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.DepositFiat,
-                freshnessStrategy = freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-
-        val withdrawFiatFeature =
-            userFeaturePermissionService.isEligibleFor(
-                feature = Feature.WithdrawFiat,
-                freshnessStrategy = freshnessStrategy
-            ).filterNot { it is DataResource.Loading }
-                .onErrorReturn { false }
-                .map {
-                    (it as? DataResource.Data<Boolean>)?.data ?: throw IllegalStateException("Data should be returned")
-                }
-
-        val stateAwareActions = coincore.allFiats()
-            .flatMap { list ->
-                list.firstOrNull()?.stateAwareActions ?: Single.just(emptySet())
-            }.asFlow()
-
-        val moreActionsFlow = combine(
-            hasBalanceFlow,
-            depositFiatFeature,
-            withdrawFiatFeature,
-            hasFiatBalance,
-            stateAwareActions
-        ) { hasBalance, depositEnabled, withdrawEnabled, hasAnyFiatBalance, actions ->
-            if (walletMode == WalletMode.CUSTODIAL) {
-                listOf(
-                    StateAwareAction(
-                        action = AssetAction.Send,
-                        state = if (hasBalance) ActionState.Available else ActionState.Unavailable
-                    ),
-                    StateAwareAction(
-                        action = AssetAction.FiatDeposit,
-                        state = if (depositEnabled && hasAnyFiatBalance && actions.hasAvailableAction(
-                                AssetAction.FiatDeposit
-                            )
-                        ) ActionState.Available else ActionState.Unavailable
-                    ),
-                    StateAwareAction(
-                        action = AssetAction.FiatWithdraw,
-                        state = if (withdrawEnabled && actions.hasAvailableAction(
-                                AssetAction.FiatWithdraw
-                            )
-                        ) ActionState.Available else ActionState.Unavailable
-                    ),
-                )
-            } else {
-                emptyList()
-            }
-        }
-
-        return combine(moreActionsFlow, disabledQuickActionsFlow) { moreActions, disabledActions ->
-            moreActions + disabledActions
-        }.onStart {
-            emit(moreActionsCache)
-        }
-            .distinctUntilChanged()
-            .onEach {
-                moreActionsCache = it
-            }
+    private fun List<StateAwareAction>.sorted(balanceIsPositive: Boolean): List<StateAwareAction> {
+        return if (balanceIsPositive) {
+            this
+        } else
+            sortedByDescending { it.action.canAddFunds() && it.state == ActionState.Available }
     }
-
-    private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
-        firstOrNull { it.action == action && it.state == ActionState.Available } != null
 }
