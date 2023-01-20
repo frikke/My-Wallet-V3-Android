@@ -613,9 +613,7 @@ class SimpleBuyCryptoFragment :
         return when (type) {
             InfoActionType.KYC_UPGRADE -> return {
                 analytics.logEvent(InfoBottomSheetKycUpsellActionClicked(AssetAction.Buy))
-                showBottomSheet(
-                    KycUpgradeNowSheet.newInstance(transactionsLimit)
-                )
+                showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
             }
             InfoActionType.BUY -> {
                 {}

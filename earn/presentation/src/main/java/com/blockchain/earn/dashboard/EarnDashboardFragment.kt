@@ -27,7 +27,6 @@ import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
@@ -41,7 +40,6 @@ class EarnDashboardFragment :
     NavigationRouter<EarnDashboardNavigationEvent>,
     InterestSummarySheet.Host,
     StakingSummaryBottomSheet.Host,
-    KycUpgradeNowSheet.Host,
     NoBalanceActionBottomSheet.Host {
 
     interface Host {
@@ -109,6 +107,7 @@ class EarnDashboardFragment :
                 BuySellViewType.TYPE_BUY, navigationEvent.assetInfo, false
             )
             is EarnDashboardNavigationEvent.OpenReceive -> host.launchReceive(navigationEvent.networkTicker)
+            EarnDashboardNavigationEvent.OpenKyc -> host.startKycClicked()
         }
 
     private fun showBuyUpsellSheet(account: BlockchainAccount, action: AssetAction, canBuy: Boolean) {
@@ -172,10 +171,6 @@ class EarnDashboardFragment :
                 type = SnackbarType.Error
             ).show()
         }
-    }
-
-    override fun startKycClicked() {
-        host.startKycClicked()
     }
 
     override fun onSheetClosed() {

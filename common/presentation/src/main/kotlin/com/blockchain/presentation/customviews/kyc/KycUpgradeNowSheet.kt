@@ -9,22 +9,17 @@ import com.blockchain.common.databinding.DialogSheetKycUpgradeNowBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.presentation.koin.scopedInject
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.RoundedCornerTreatment
-import com.google.android.material.shape.ShapeAppearanceModel
-import com.google.android.material.tabs.TabLayoutMediator
+import com.blockchain.utils.emptySubscribe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 
 class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
 
@@ -36,9 +31,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
     private val userIdentity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
-
-    private val initialTab: ViewPagerTab = ViewPagerTab.VERIFIED
-    private lateinit var tabLayoutMediator: TabLayoutMediator
 
     private val transactionsLimit: TransactionsLimit by lazy {
         arguments?.getSerializable(ARG_TRANSACTIONS_LIMIT) as TransactionsLimit
@@ -63,7 +55,17 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetKycUpgradeNowBinding =
-        DialogSheetKycUpgradeNowBinding.inflate(inflater, container, false)
+        DialogSheetKycUpgradeNowBinding.inflate(inflater, container, false).apply {
+            composeView.setContent {
+                KycUpgradeNowScreen(
+                    transactionsLimit = transactionsLimit,
+                    startKycClicked = {
+                        ctaClicked = true
+                        startKycClicked()
+                    }
+                )
+            }
+        }
 
     override fun initControls(binding: DialogSheetKycUpgradeNowBinding): Unit = with(binding) {
         if (!showsDialog) {
@@ -84,74 +86,8 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                 )
             }
         }
-
-        val indicatorDrawable = MaterialShapeDrawable(
-            ShapeAppearanceModel()
-                .toBuilder()
-                .setAllCorners(RoundedCornerTreatment())
-                .setAllCornerSizes(8.px.toFloat())
-                .build()
-        ).apply {
-            initializeElevationOverlay(requireContext())
-            elevation = 8f
-            shadowCompatibilityMode = MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
-        }
-
-        tabLayout.setSelectedTabIndicator(indicatorDrawable)
-
-        val viewPagerAdapter = KycCtaViewPagerAdapter(
-            basicClicked = {
-                ctaClicked = true
-                logAnalytics(
-                    AnalyticsType.GetBasicClicked
-                )
-                startKycClicked()
-            },
-            verifyClicked = {
-                ctaClicked = true
-                logAnalytics(
-                    AnalyticsType.GetVerifiedClicked
-                )
-                startKycClicked()
-            }
-        ).apply {
-            val initialItems =
-                ViewPagerTab.values().toList()
-                    .toItems(isBasicApproved = false)
-            submitList(initialItems)
-        }
-
-        viewPager.adapter = viewPagerAdapter
-        tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text =
-                when (ViewPagerTab.values()[position]) {
-                    ViewPagerTab.BASIC -> getString(
-                        R.string.kyc_upgrade_now_tab_basic
-                    )
-                    ViewPagerTab.VERIFIED -> getString(
-                        R.string.kyc_upgrade_now_tab_verified
-                    )
-                }
-        }
-        tabLayoutMediator.attach()
-        viewPager.setCurrentItem(
-            ViewPagerTab.values().indexOf(initialTab),
-            false
-        )
-
-        disposables +=
-            getHighestTierAndIsSdd.subscribeBy(
-                onSuccess = { (highestTier, _) ->
-                    val isAtleastSilver = highestTier != KycTier.BRONZE
-                    val items =
-                        ViewPagerTab.values().toList()
-                            .toItems(isBasicApproved = isAtleastSilver)
-                    viewPagerAdapter.submitList(items)
-                },
-                onError = {}
-            )
-
-        logAnalytics(AnalyticsType.Viewed)
+        // prep stream for onDestroyView call
+        getHighestTierAndIsSdd.emptySubscribe()
     }
 
     private fun startKycClicked() {
@@ -160,43 +96,13 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     override fun onDestroyView() {
-        if (!ctaClicked) logAnalytics(AnalyticsType.Dismissed)
-        disposables.dispose()
-        tabLayoutMediator.detach()
-        super.onDestroyView()
-    }
-
-    enum class ViewPagerTab {
-        BASIC,
-        VERIFIED
-    }
-
-    private fun List<ViewPagerTab>.toItems(
-        isBasicApproved: Boolean
-    ): List<ViewPagerItem> = map {
-        when (it) {
-            ViewPagerTab.BASIC -> ViewPagerItem.Basic(isBasicApproved, transactionsLimit)
-            ViewPagerTab.VERIFIED -> ViewPagerItem.Verified
-        }
-    }
-
-    private fun logAnalytics(type: AnalyticsType) {
-        disposables += getHighestTierAndIsSdd.subscribe { (highestTier, isSdd) ->
-            val event = when (type) {
-                AnalyticsType.GetBasicClicked -> KycUpgradeNowGetBasicClicked(highestTier, isSdd)
-                AnalyticsType.GetVerifiedClicked -> KycUpgradeNowGetVerifiedClicked(highestTier, isSdd)
-                AnalyticsType.Viewed -> KycUpgradeNowViewed(highestTier, isSdd)
-                AnalyticsType.Dismissed -> KycUpgradeNowDismissed(highestTier, isSdd)
+        if (!ctaClicked) {
+            disposables += getHighestTierAndIsSdd.subscribe { (highestTier, isSdd) ->
+                analytics.logEvent(KycUpgradeNowDismissed(highestTier, isSdd))
             }
-            analytics.logEvent(event)
         }
-    }
-
-    private enum class AnalyticsType {
-        GetBasicClicked,
-        GetVerifiedClicked,
-        Viewed,
-        Dismissed,
+        disposables.dispose()
+        super.onDestroyView()
     }
 
     companion object {

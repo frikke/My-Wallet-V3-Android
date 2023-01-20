@@ -23,7 +23,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
 import info.blockchain.balance.AssetInfo
@@ -49,9 +48,7 @@ import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import retrofit2.HttpException
 
-class BuyIntroFragment :
-    ViewPagerFragment(),
-    KycUpgradeNowSheet.Host {
+class BuyIntroFragment : ViewPagerFragment() {
 
     private var isInitialLoading = true
 
@@ -100,9 +97,11 @@ class BuyIntroFragment :
                         checkEligibilityAndLoadBuyDetails()
                     },
                     onErrorContactSupportClicked = {
-                        SupportCentreActivity.newIntent(requireContext())
+                        startActivity(SupportCentreActivity.newIntent(requireContext()))
                     },
-                    fragmentManager = childFragmentManager
+                    startKycClicked = {
+                        KycNavHostActivity.startForResult(this@BuyIntroFragment, CampaignType.SimpleBuy, KYC_STARTED)
+                    },
                 )
             }
         }
@@ -266,10 +265,6 @@ class BuyIntroFragment :
         }
     }
 
-    override fun startKycClicked() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
-    }
-
     override fun onDestroyView() {
         compositeDisposable.clear()
         super.onDestroyView()
@@ -277,10 +272,6 @@ class BuyIntroFragment :
 
     companion object {
         fun newInstance() = BuyIntroFragment()
-    }
-
-    override fun onSheetClosed() {
-        // do nothing
     }
 }
 

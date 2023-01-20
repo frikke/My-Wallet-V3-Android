@@ -172,7 +172,6 @@ class SellIntroFragment :
             }
             DataResource.Loading -> {}
         }
-
         state.supportedAccountList.doOnData { supportedAccounts ->
             with(binding.accountsList) {
                 if (isAccountsFirstLoad) {

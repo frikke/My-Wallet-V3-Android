@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.brokerage.buy
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +30,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.fragment.app.FragmentManager
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -39,13 +37,12 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
-import com.blockchain.componentlib.system.EmbeddedFragment
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.EmptyStateView
-import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.CustomEmptyStateView
 import piuk.blockchain.android.ui.dashboard.asPercentString
@@ -57,8 +54,8 @@ fun BuyIntroScreen(
     onListItemClicked: (BuyCryptoItem) -> Unit,
     onEmptyStateClicked: (BlockedReason) -> Unit,
     onErrorRetryClicked: () -> Unit,
-    onErrorContactSupportClicked: () -> Intent,
-    fragmentManager: FragmentManager
+    onErrorContactSupportClicked: () -> Unit,
+    startKycClicked: () -> Unit,
 ) {
     when (buyViewState) {
         BuyViewState.Loading -> {}
@@ -137,19 +134,14 @@ fun BuyIntroScreen(
             factory = { context ->
                 EmptyStateView(context).apply {
                     setDetails(
-                        action = { onErrorRetryClicked() },
-                        onContactSupport = { onErrorContactSupportClicked() },
+                        action = onErrorRetryClicked,
+                        onContactSupport = onErrorContactSupportClicked,
                         contactSupportEnabled = true
                     )
                 }
             }
         )
-        BuyViewState.ShowKyc ->
-            EmbeddedFragment(
-                fragment = KycUpgradeNowSheet.newInstance(),
-                fragmentManager = fragmentManager,
-                tag = "KYC_Now"
-            )
+        BuyViewState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
     }
 }
 

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,7 +50,6 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.filter.FilterState
 import com.blockchain.componentlib.filter.LabeledFilterState
 import com.blockchain.componentlib.filter.LabeledFiltersGroup
-import com.blockchain.componentlib.system.EmbeddedFragment
 import com.blockchain.componentlib.system.LazyRoundedCornersColumn
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
@@ -68,7 +66,7 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
 import com.blockchain.earn.dashboard.viewmodel.EarnEligibility
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.presentation.customviews.EmptyStateView
-import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
 import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
 
@@ -108,11 +106,13 @@ fun EarnDashboardScreen(
                 onRefreshData = {
                     viewModel.onIntent(EarnDashboardIntent.LoadEarn)
                 },
-                fragmentManager = fragmentManager,
                 earningTabQueryBy = state.earningTabQueryBy,
                 discoverTabQueryBy = state.discoverTabQueryBy,
                 carouselLearnMoreClicked = { url ->
                     viewModel.onIntent(EarnDashboardIntent.CarouselLearnMoreSelected(url))
+                },
+                startKycClicked = {
+                    viewModel.onIntent(EarnDashboardIntent.StartKycClicked)
                 }
             )
         }
@@ -129,14 +129,14 @@ fun EarnDashboard(
     discoverTabQueryFilter: (String) -> Unit,
     onDiscoverItemClicked: (EarnAsset) -> Unit,
     onRefreshData: () -> Unit,
-    fragmentManager: FragmentManager,
     earningTabQueryBy: String,
     discoverTabQueryBy: String,
-    carouselLearnMoreClicked: (String) -> Unit
+    carouselLearnMoreClicked: (String) -> Unit,
+    startKycClicked: () -> Unit,
 ) {
     when (val s = state.dashboardState) {
         DashboardState.Loading -> EarnDashboardLoading()
-        DashboardState.ShowKyc -> EarnKycRequired(fragmentManager)
+        DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
         is DashboardState.ShowError -> EarnLoadError(onRefreshData)
         is DashboardState.EarningAndDiscover -> EarningAndDiscover(
             state = s,
@@ -624,15 +624,5 @@ fun EarnLoadError(onRefresh: () -> Unit) {
                 )
             }
         }
-    )
-}
-
-@Composable
-fun EarnKycRequired(fm: FragmentManager) {
-    EmbeddedFragment(
-        modifier = Modifier.fillMaxSize(),
-        fragment = KycUpgradeNowSheet.newInstance(),
-        fragmentManager = fm,
-        tag = "EarnDashboardKyc"
     )
 }

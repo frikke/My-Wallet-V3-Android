@@ -122,6 +122,7 @@ class EarnDashboardViewModel(
                 )
             is EarnDashboardIntent.CarouselLearnMoreSelected ->
                 navigate(EarnDashboardNavigationEvent.OpenUrl(intent.url))
+            EarnDashboardIntent.StartKycClicked -> navigate(EarnDashboardNavigationEvent.OpenKyc)
             is EarnDashboardIntent.OnNavigateToAction -> {
                 when (intent.action) {
                     AssetAction.Buy -> navigate(EarnDashboardNavigationEvent.OpenBuy(intent.assetInfo))
