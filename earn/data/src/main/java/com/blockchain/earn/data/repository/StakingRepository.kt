@@ -22,7 +22,6 @@ import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.earn.domain.models.staking.StakingTransactionBeneficiary
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.outcome.fold
@@ -54,7 +53,6 @@ class StakingRepository(
     private val stakingEligibilityStore: StakingEligibilityStore,
     private val stakingBalanceStore: StakingBalanceStore,
     private val assetCatalogue: AssetCatalogue,
-    private val stakingFeatureFlag: FeatureFlag,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val stakingLimitsStore: StakingLimitsStore,
     private val currencyPrefs: CurrencyPrefs,
@@ -97,21 +95,17 @@ class StakingRepository(
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> =
         flow {
-            if (stakingFeatureFlag.coEnabled()) {
-                emitAll(
-                    stakingBalanceStore.stream(refreshStrategy)
-                        .getDataOrThrow().map {
-                            it.keys.map { assetTicker ->
-                                assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
-                                    ?: throw IllegalStateException(
-                                        "Failed mapping unknown asset $assetTicker for Staking"
-                                    )
-                            }.toSet()
-                        }
-                )
-            } else {
-                emit(emptySet())
-            }
+            emitAll(
+                stakingBalanceStore.stream(refreshStrategy)
+                    .getDataOrThrow().map {
+                        it.keys.map { assetTicker ->
+                            assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
+                                ?: throw IllegalStateException(
+                                    "Failed mapping unknown asset $assetTicker for Staking"
+                                )
+                        }.toSet()
+                    }
+            )
         }
 
     override fun getBalanceForAsset(

@@ -6,12 +6,10 @@ import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -80,7 +78,6 @@ val dashboardModule = module {
                 referralService = get(),
                 cowboysPrefs = get(),
                 productsEligibilityStore = get(),
-                stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 totalDisplayBalanceFF = get(paymentUxTotalDisplayBalanceFeatureFlag),
                 assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
                 shouldAssetShowUseCase = get()
@@ -89,7 +86,6 @@ val dashboardModule = module {
 
         factory {
             ShouldAssetShowUseCase(
-                hideDustFeatureFlag = get(hideDustFeatureFlag),
                 assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
                 localSettingsPrefs = get(),
                 watchlistService = get()

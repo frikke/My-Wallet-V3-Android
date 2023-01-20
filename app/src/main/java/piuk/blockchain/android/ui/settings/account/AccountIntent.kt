@@ -61,10 +61,6 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadFeatureFlags : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
     class UpdateFeatureFlagSet(private val featureFlagSet: FeatureFlagSet) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState =
             oldState.copy(featureFlagSet = featureFlagSet)

@@ -595,7 +595,6 @@ class MainActivity :
     }
 
     override fun render(newState: MainState) {
-        isStakingAccountEnabled = newState.isStakingEnabled
         isEarnOnNavBarEnabled = newState.isEarnOnNavEnabled
 
         when (val view = newState.viewToLaunch) {

@@ -122,22 +122,6 @@ class AccountModel(
                     )
                 }
             }
-            is AccountIntent.LoadFeatureFlags ->
-                interactor.loadFeatureFlags()
-                    .subscribeBy(
-                        onSuccess = { set ->
-                            process(AccountIntent.UpdateFeatureFlagSet(set))
-                        },
-                        onError = {
-                            process(
-                                AccountIntent.UpdateFeatureFlagSet(
-                                    FeatureFlagSet(
-                                        dustBalancesFF = false
-                                    )
-                                )
-                            )
-                        }
-                    )
             is AccountIntent.UpdateFeatureFlagSet,
             is AccountIntent.UpdateChartVibration,
             is AccountIntent.UpdateAccountInformation,

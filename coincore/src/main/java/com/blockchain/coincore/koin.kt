@@ -20,8 +20,6 @@ import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.koin.coinNetworksFeatureFlag
-import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -137,9 +135,7 @@ val coincoreModule = module {
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stakingService = get(),
-                coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
                 currencyPrefs = get()
             )
         }.bind(AssetLoader::class)
@@ -253,8 +249,6 @@ val coincoreModule = module {
         NonCustodialL2sDynamicAssetRepository(
             discoveryService = get(),
             l2Store = get(),
-            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) },
-            coinNetworksFeatureFlag = lazy { get(coinNetworksFeatureFlag) },
             evmNetworksService = lazy { payloadScope.get() },
             coinNetworksStore = get()
         )

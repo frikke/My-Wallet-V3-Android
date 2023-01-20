@@ -527,16 +527,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         )
     }
 
-    object LoadStakingFlag : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
-    }
-
     object DisposePricesAndBalances : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
-    }
-
-    class UpdateStakingFlag(private val isStakingEnabled: Boolean) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState =
-            oldState.copy(isStakingEnabled = isStakingEnabled)
     }
 }

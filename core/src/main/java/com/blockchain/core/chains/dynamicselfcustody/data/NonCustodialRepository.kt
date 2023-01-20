@@ -15,10 +15,7 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.wallet.CoinType
-import com.blockchain.domain.wallet.NetworkType
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
@@ -26,13 +23,11 @@ import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
@@ -43,8 +38,6 @@ internal class NonCustodialRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteConfigService: RemoteConfigService,
-    private val networkConfigsFF: FeatureFlag,
     private val coinTypeStore: CoinTypeStore
 ) : NonCustodialService {
 
@@ -52,35 +45,20 @@ internal class NonCustodialRepository(
         get() = getAllSupportedCoins()
 
     private fun getAllSupportedCoins(): Single<Map<String, CoinType>> {
-        return networkConfigsFF.enabled.flatMap { isEnabled ->
-            if (isEnabled) {
-                coinTypeStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
-                    .asSingle().map { coinTypes ->
-                        coinTypes.map { coinTypeDto ->
-                            coinTypeDto.derivations.map { derivationDto ->
-                                CoinType(
-                                    network = coinTypeDto.type,
-                                    type = derivationDto.coinType,
-                                    purpose = derivationDto.purpose
-                                )
-                            }
-                        }
-                            .flatten()
-                            .associateBy { it.network.name }
+        return coinTypeStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            .asSingle().map { coinTypes ->
+                coinTypes.map { coinTypeDto ->
+                    coinTypeDto.derivations.map { derivationDto ->
+                        CoinType(
+                            network = coinTypeDto.type,
+                            type = derivationDto.coinType,
+                            purpose = derivationDto.purpose
+                        )
                     }
-            } else {
-                remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
-                    jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
-                        .map {
-                            CoinType(
-                                network = NetworkType.valueOf(it.key),
-                                type = it.value.coinType,
-                                purpose = it.value.purpose
-                            )
-                        }.associateBy { it.network.name }
                 }
+                    .flatten()
+                    .associateBy { it.network.name }
             }
-        }
     }
 
     override suspend fun getCoinTypeFor(currency: Currency): CoinType? {

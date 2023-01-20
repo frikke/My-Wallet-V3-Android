@@ -225,7 +225,6 @@ class PortfolioFragment :
         model.process(DashboardIntent.CheckCowboysFlow)
         model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
         model.process(DashboardIntent.FetchReferralSuccess)
-        model.process(DashboardIntent.LoadStakingFlag)
     }
 
     @UiThread

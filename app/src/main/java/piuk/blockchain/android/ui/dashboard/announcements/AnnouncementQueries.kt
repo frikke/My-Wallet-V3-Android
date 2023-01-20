@@ -53,7 +53,6 @@ class AnnouncementQueries(
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val hideDustFF: FeatureFlag
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
@@ -166,24 +165,18 @@ class AnnouncementQueries(
         exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, currencyPrefs.selectedFiatCurrency)
 
     fun hasDustBalances(): Single<Boolean> =
-        hideDustFF.enabled.flatMap { enabled ->
-            if (!enabled) {
-                Single.just(false)
-            } else {
-                coincore.allWallets(
-                    includeArchived = false
-                ).flatMapObservable { group ->
-                    group.accounts
-                        .filterIsInstance<CryptoAccount>()
-                        .map { account ->
-                            account.balanceRx()
-                        }.zipObservables()
-                        .map { balances ->
-                            balances.any { it.totalFiat.isDust() }
-                        }
-                }.firstOrError()
-            }
-        }
+        coincore.allWallets(
+            includeArchived = false
+        ).flatMapObservable { group ->
+            group.accounts
+                .filterIsInstance<CryptoAccount>()
+                .map { account ->
+                    account.balanceRx()
+                }.zipObservables()
+                .map { balances ->
+                    balances.any { it.totalFiat.isDust() }
+                }
+        }.firstOrError()
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

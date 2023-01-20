@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.settings.account
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
@@ -26,7 +25,6 @@ class AccountInteractor internal constructor(
     private val exchangeLinkingState: ExchangeLinking,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val dustBalancesFF: FeatureFlag
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -78,11 +76,5 @@ class AccountInteractor internal constructor(
         Single.fromCallable {
             localSettingsPrefs.isChartVibrationEnabled = !chartVibrationEnabled
             return@fromCallable !chartVibrationEnabled
-        }
-    fun loadFeatureFlags(): Single<FeatureFlagSet> =
-        dustBalancesFF.enabled.map { dustBalancesEnabled ->
-            FeatureFlagSet(
-                dustBalancesEnabled
-            )
         }
 }

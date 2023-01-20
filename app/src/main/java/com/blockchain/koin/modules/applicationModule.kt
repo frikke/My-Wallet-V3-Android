@@ -42,7 +42,6 @@ import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.gbp
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
@@ -720,7 +719,6 @@ val applicationModule = module {
                 kycService = get(),
                 accountsSorting = get(sellOrder),
                 localSettingsPrefs = get(),
-                hideDustFlag = get(hideDustFeatureFlag),
                 simpleBuyService = get(),
                 coincore = get(),
                 custodialWalletManager = get(),

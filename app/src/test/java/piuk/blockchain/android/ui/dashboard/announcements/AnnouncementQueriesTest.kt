@@ -2,11 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -27,14 +23,11 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -81,7 +74,6 @@ class AnnouncementQueriesTest {
                 fiatCurrenciesService = fiatCurrenciesService,
                 exchangeRatesDataManager = exchangeRatesDataManager,
                 currencyPrefs = currencyPrefs,
-                hideDustFF = hideDustFF
             )
         )
     }
@@ -475,95 +467,6 @@ class AnnouncementQueriesTest {
             .thenReturn(Observable.just(prices24HrWithDelta))
 
         subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)
-    }
-
-    @Test
-    fun `given dust ff is off when query is checked then don't show`() {
-        whenever(hideDustFF.enabled).thenReturn(Single.just(false))
-
-        val test = subject.hasDustBalances().test()
-        test.assertValue {
-            !it
-        }
-
-        verify(hideDustFF).enabled
-        verifyNoMoreInteractions(coincore)
-        verifyNoMoreInteractions(hideDustFF)
-    }
-
-    @Test
-    fun `given dust ff is on and no dust wallets when query is checked then don't show`() {
-        whenever(hideDustFF.enabled).thenReturn(Single.just(true))
-        val noDustFiat: Money = mock {
-            on { isDust() }.thenReturn(false)
-        }
-        val noDustBalance: AccountBalance = mock {
-            on { totalFiat }.thenReturn(noDustFiat)
-        }
-        val accountsList: SingleAccountList = listOf(
-            mock<CryptoAccount> {
-                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
-            },
-            mock<CryptoAccount> {
-                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
-            }
-        )
-        val accountGroup: AccountGroup = mock {
-            on { accounts }.thenReturn(accountsList)
-        }
-        whenever(coincore.allWallets(includeArchived = false)).thenReturn(Single.just(accountGroup))
-
-        val test = subject.hasDustBalances().test()
-        test.assertValue {
-            it == false
-        }
-
-        verify(hideDustFF).enabled
-        verify(coincore).allWallets(includeArchived = false)
-
-        verifyNoMoreInteractions(coincore)
-        verifyNoMoreInteractions(hideDustFF)
-    }
-
-    @Test
-    fun `given dust ff is on and some dust wallets when query is checked then show`() {
-        whenever(hideDustFF.enabled).thenReturn(Single.just(true))
-        val noDustFiat: Money = mock {
-            on { isDust() }.thenReturn(false)
-        }
-        val noDustBalance: AccountBalance = mock {
-            on { totalFiat }.thenReturn(noDustFiat)
-        }
-
-        val dustFiat: Money = mock {
-            on { isDust() }.thenReturn(true)
-        }
-        val dustBalance: AccountBalance = mock {
-            on { totalFiat }.thenReturn(dustFiat)
-        }
-        val accountsList: SingleAccountList = listOf(
-            mock<CryptoAccount> {
-                on { balanceRx() }.thenReturn(Observable.just(dustBalance))
-            },
-            mock<CryptoAccount> {
-                on { balanceRx() }.thenReturn(Observable.just(noDustBalance))
-            }
-        )
-        val accountGroup: AccountGroup = mock {
-            on { accounts }.thenReturn(accountsList)
-        }
-        whenever(coincore.allWallets(includeArchived = false)).thenReturn(Single.just(accountGroup))
-
-        val test = subject.hasDustBalances().test()
-        test.assertValue {
-            it == true
-        }
-
-        verify(hideDustFF).enabled
-        verify(coincore).allWallets(includeArchived = false)
-
-        verifyNoMoreInteractions(coincore)
-        verifyNoMoreInteractions(hideDustFF)
     }
 
     companion object {

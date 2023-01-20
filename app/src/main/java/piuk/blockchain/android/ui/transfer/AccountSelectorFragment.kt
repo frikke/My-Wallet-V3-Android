@@ -15,9 +15,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.defaultOrder
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -45,7 +43,6 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     private val accountsSorting: AccountsSorting by scopedInject(defaultOrder)
     private val bankService: BankService by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val hideDustFF: FeatureFlag by scopedInject(hideDustFeatureFlag)
     private val localSettingsPrefs: LocalSettingsPrefs by scopedInject()
 
     private lateinit var introHeaderView: IntroHeaderView
@@ -126,22 +123,20 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         }
 
     private fun checkAndFilterDustBalancesList(list: SingleAccountList) =
-        hideDustFF.enabled.flatMap { enabled ->
-            if (enabled && localSettingsPrefs.hideSmallBalancesEnabled) {
-                list.map { account ->
-                    account.balanceRx()
-                }.zipObservables().map {
-                    list.mapIndexedNotNull { index, singleAccount ->
-                        if (!it[index].totalFiat.isDust()) {
-                            singleAccount
-                        } else {
-                            null
-                        }
+        if (localSettingsPrefs.hideSmallBalancesEnabled) {
+            list.map { account ->
+                account.balanceRx()
+            }.zipObservables().map {
+                list.mapIndexedNotNull { index, singleAccount ->
+                    if (!it[index].totalFiat.isDust()) {
+                        singleAccount
+                    } else {
+                        null
                     }
-                }.firstOrError()
-            } else {
-                Single.just(list)
-            }
+                }
+            }.firstOrError()
+        } else {
+            Single.just(list)
         }
 
     protected abstract val fragmentAction: AssetAction

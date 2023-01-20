@@ -75,7 +75,6 @@ class MainInteractor internal constructor(
     private val referralPrefs: ReferralPrefs,
     private val referralRepository: ReferralRepository,
     private val ethDataManager: EthDataManager,
-    private val stakingAccountFlag: FeatureFlag,
     private val membershipFlag: FeatureFlag,
     private val coincore: Coincore,
     private val walletModeService: WalletModeService,
@@ -172,9 +171,6 @@ class MainInteractor internal constructor(
     }
 
     fun getSupportedEvmNetworks() = ethDataManager.supportedNetworks
-
-    fun isStakingEnabled(): Single<Boolean> =
-        stakingAccountFlag.enabled
 
     fun selectAccountForTxFlow(networkTicker: String, action: AssetAction): Single<LaunchFlowForAccount> =
         if (action == AssetAction.FiatDeposit) {

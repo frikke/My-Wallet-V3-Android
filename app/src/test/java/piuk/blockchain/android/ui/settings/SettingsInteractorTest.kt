@@ -54,7 +54,6 @@ class SettingsInteractorTest {
             currencyPrefs = currencyPrefs,
             referralService = referralService,
             nabuUserIdentity = nabuUserIdentity,
-            dustBalancesFF = dustBalancesFF
         )
     }
 

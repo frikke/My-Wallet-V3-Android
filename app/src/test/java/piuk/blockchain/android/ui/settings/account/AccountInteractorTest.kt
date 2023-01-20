@@ -54,7 +54,6 @@ class AccountInteractorTest {
             fiatCurrenciesService = fiatCurrenciesService,
             exchangeLinkingState = exchangeLinkingState,
             localSettingsPrefs = localSettingsPrefs,
-            dustBalancesFF = dustBalancesFF
         )
     }
 

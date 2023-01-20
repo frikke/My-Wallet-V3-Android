@@ -12,7 +12,6 @@ import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -44,7 +43,6 @@ class SellRepository(
     private val kycService: KycService,
     private val coincore: Coincore,
     private val localSettingsPrefs: LocalSettingsPrefs,
-    private val hideDustFlag: FeatureFlag,
     private val accountsSorting: AccountsSorting,
     private val simpleBuyService: SimpleBuyService,
     private val custodialWalletManager: CustodialWalletManager,
@@ -77,7 +75,7 @@ class SellRepository(
         ).map { accountList ->
             accountList
                 .filterUnsupportedPairs(availableAssets)
-        }.zipWith(hideDustFlag.enabled.map { it && localSettingsPrefs.hideSmallBalancesEnabled })
+        }.zipWith(Single.just(localSettingsPrefs.hideSmallBalancesEnabled))
             .flatMap { (accounts, shouldHideDust) ->
                 if (shouldHideDust) {
                     accounts.filterDustBalances()

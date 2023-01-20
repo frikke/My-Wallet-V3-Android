@@ -82,7 +82,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import timber.log.Timber
 
 @Composable
 fun KycUpgradeNowScreen(

@@ -10,7 +10,6 @@ import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.data.DataResource
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
@@ -84,12 +83,6 @@ class Erc20DataManagerTest {
     private val erc20DataSource: Erc20DataSource = mock()
     private val erc20L2StoreService: Erc20L2StoreService = mock()
     private val erc20L2DataSource: Erc20L2DataSource = mock()
-    private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
-    private val evmWithoutL1BalanceFeatureFlag: IntegratedFeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
@@ -99,9 +92,7 @@ class Erc20DataManagerTest {
         erc20StoreService = erc20StoreService,
         erc20DataSource = erc20DataSource,
         erc20L2StoreService = erc20L2StoreService,
-        erc20L2DataSource = erc20L2DataSource,
-        ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag,
-        evmWithoutL1BalanceFeatureFlag = evmWithoutL1BalanceFeatureFlag
+        erc20L2DataSource = erc20L2DataSource
     )
 
     @Test

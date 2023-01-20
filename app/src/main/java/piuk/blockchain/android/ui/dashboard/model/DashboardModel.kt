@@ -96,15 +96,6 @@ class DashboardModel(
                 process(DashboardIntent.GetActiveAssets(true))
                 null
             }
-            is DashboardIntent.LoadStakingFlag ->
-                interactor.getStakingFeatureFlag().subscribeBy(
-                    onSuccess = {
-                        process(DashboardIntent.UpdateStakingFlag(it))
-                    },
-                    onError = {
-                        process(DashboardIntent.UpdateStakingFlag(false))
-                    }
-                )
             is DashboardIntent.DisposePricesAndBalances -> {
                 interactor.disposeBalances()
                 null
@@ -136,8 +127,7 @@ class DashboardModel(
             is DashboardIntent.BalanceFetching,
             is DashboardIntent.UpdateNavigationAction,
             is DashboardIntent.UpdateCowboysViewState,
-            is DashboardIntent.BalanceUpdate,
-            is DashboardIntent.UpdateStakingFlag -> null
+            is DashboardIntent.BalanceUpdate -> null
         }.exhaustive
     }
 

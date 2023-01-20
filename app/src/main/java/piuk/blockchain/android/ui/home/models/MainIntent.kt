@@ -138,11 +138,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class UpdateFlags(
-        private val isStakingEnabled: Boolean,
         private val isEarnEnabled: Boolean
     ) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
-            oldState.copy(isStakingEnabled = isStakingEnabled, isEarnOnNavEnabled = isEarnEnabled)
+            oldState.copy(isEarnOnNavEnabled = isEarnEnabled)
     }
 
     class LaunchTransactionFlowFromDeepLink(val networkTicker: String, val action: AssetAction) : MainIntent() {

@@ -259,15 +259,12 @@ class MainModel(
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
             is MainIntent.LoadFeatureFlags ->
-                Singles.zip(
-                    interactor.isStakingEnabled(),
-                    interactor.isEarnOnNavBarEnabled()
-                ).subscribeBy(
-                    onSuccess = { (stakingEnabled, earnEnabled) ->
-                        process(MainIntent.UpdateFlags(stakingEnabled, earnEnabled))
+                interactor.isEarnOnNavBarEnabled().subscribeBy(
+                    onSuccess = { earnEnabled ->
+                        process(MainIntent.UpdateFlags(earnEnabled))
                     },
                     onError = {
-                        process(MainIntent.UpdateFlags(isStakingEnabled = false, isEarnEnabled = false))
+                        process(MainIntent.UpdateFlags(isEarnEnabled = false))
                     }
                 )
             is MainIntent.LaunchTransactionFlowFromDeepLink ->

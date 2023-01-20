@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class ShouldAssetShowUseCase(
-    private val hideDustFeatureFlag: FeatureFlag,
     private val assetDisplayBalanceFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val watchlistService: WatchlistService
@@ -22,13 +21,13 @@ class ShouldAssetShowUseCase(
 
     operator fun invoke(accountBalance: AccountBalance): Flow<Boolean> =
         flow {
-            val isFFenabled = hideDustFeatureFlag.coEnabled()
+
             emitAll(
                 watchlistService.isAssetInWatchlist(
                     asset = accountBalance.total.currency,
                     freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 ).getDataOrThrow().map { isInWatchlist ->
-                    if (isFFenabled && localSettingsPrefs.hideSmallBalancesEnabled) {
+                    if (localSettingsPrefs.hideSmallBalancesEnabled) {
                         if (isInWatchlist) {
                             true
                         } else {

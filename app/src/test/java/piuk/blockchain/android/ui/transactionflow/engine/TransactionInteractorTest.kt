@@ -86,7 +86,6 @@ class TransactionInteractorTest {
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
             quickFillRoundingService = quickFillRoundingService,
-            hideDustFF = hideDustFF,
             localSettingsPrefs = localSettingsPrefs,
             dynamicAssetRepository = dynamicRepository,
             improvedPaymentUxFF = improvedPaymentUxFF,

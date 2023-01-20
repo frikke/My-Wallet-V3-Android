@@ -16,7 +16,6 @@ import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stakingBalanceStore
 import com.blockchain.storedatasource.FlushableDataSource
 import org.koin.dsl.bind
@@ -56,7 +55,6 @@ val earnDataModule = module {
                 stakingEligibilityStore = get(),
                 stakingBalanceStore = get(stakingBalanceStore),
                 assetCatalogue = get(),
-                stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 paymentTransactionHistoryStore = get(),
                 stakingLimitsStore = get(),
                 currencyPrefs = get(),

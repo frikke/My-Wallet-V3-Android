@@ -25,7 +25,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -39,7 +38,6 @@ import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
@@ -78,9 +76,7 @@ internal class DynamicAssetLoader(
     private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
-    private val layerTwoFeatureFlag: FeatureFlag,
     private val stakingService: StakingService,
-    private val coinNetworksEnabledFlag: FeatureFlag,
     private val currencyPrefs: CurrencyPrefs,
 ) : AssetLoader {
 
@@ -101,71 +97,20 @@ internal class DynamicAssetLoader(
         }
 
     private val enabledEvmL1Assets: Single<Set<CryptoAsset>>
-        get() {
-            return Singles.zip(
-                layerTwoFeatureFlag.enabled,
-                coinNetworksEnabledFlag.enabled
-            ).flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
-                when {
-                    isL2Enabled && isCoinNetworksEnabled -> {
-                        // When the both flags are enabled, load the asset info (except the hard-coded ETH for now)
-                        // from the coin definitions endpoint, then intersect with the supported networks using the new
-                        // coin networks endpoint. That was we only load coins when their networks are supported/enabled
-                        assetCatalogue.otherEvmAssets().map { evmAssets ->
-                            evmAssets.map { asset ->
-                                L1EvmAsset(
-                                    currency = asset,
-                                    erc20DataManager = erc20DataManager,
-                                    feeDataManager = feeDataManager,
-                                    walletPreferences = walletPreferences,
-                                    labels = labels,
-                                    formatUtils = formatUtils,
-                                    addressResolver = ethHotWalletAddressResolver,
-                                    layerTwoFeatureFlag = layerTwoFeatureFlag,
-                                    coinNetworksFlag = coinNetworksEnabledFlag,
-                                    evmNetworks = assetCatalogue.otherEvmNetworks(),
-                                    ethDataManager = ethDataManager
-                                )
-                            }.toSet()
-                        }
-                    }
-                    isL2Enabled -> {
-                        Singles.zip(
-                            erc20DataManager.getSupportedNetworks(),
-                            assetCatalogue.availableL1Assets()
-                        ).map { (evmNetworks, evmAssets) ->
-                            // When the coin networks flags is disabled, load the asset info (except the hard-coded ETH
-                            // for now) from the coin definitions endpoint, then intersect with the supported networks
-                            // from the remote config.
-                            evmAssets.filter { asset ->
-                                evmNetworks.find { network ->
-                                    (
-                                        asset.networkTicker == network.networkTicker ||
-                                            asset.displayTicker == network.networkTicker
-                                        ) &&
-                                        asset.networkTicker != CryptoCurrency.ETHER.networkTicker
-                                } != null
-                            }
-                                .map { asset ->
-                                    L1EvmAsset(
-                                        currency = asset,
-                                        erc20DataManager = erc20DataManager,
-                                        feeDataManager = feeDataManager,
-                                        walletPreferences = walletPreferences,
-                                        labels = labels,
-                                        formatUtils = formatUtils,
-                                        addressResolver = ethHotWalletAddressResolver,
-                                        layerTwoFeatureFlag = layerTwoFeatureFlag,
-                                        coinNetworksFlag = coinNetworksEnabledFlag,
-                                        evmNetworks = erc20DataManager.getSupportedNetworks().map { it.toList() },
-                                        ethDataManager = ethDataManager
-                                    )
-                                }.toSet()
-                        }
-                    }
-                    else -> Single.just(emptySet())
-                }
-            }
+        get() = assetCatalogue.otherEvmAssets().map { evmAssets ->
+            evmAssets.map { asset ->
+                L1EvmAsset(
+                    currency = asset,
+                    erc20DataManager = erc20DataManager,
+                    feeDataManager = feeDataManager,
+                    walletPreferences = walletPreferences,
+                    labels = labels,
+                    formatUtils = formatUtils,
+                    addressResolver = ethHotWalletAddressResolver,
+                    evmNetworks = assetCatalogue.otherEvmNetworks(),
+                    ethDataManager = ethDataManager
+                )
+            }.toSet()
         }
 
     /*
@@ -345,7 +290,6 @@ internal class DynamicAssetLoader(
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
-            layerTwoFeatureFlag = layerTwoFeatureFlag,
             evmNetworks = assetCatalogue.allEvmNetworks(),
         )
     }

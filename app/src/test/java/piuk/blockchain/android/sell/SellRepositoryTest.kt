@@ -61,7 +61,6 @@ class SellRepositoryTest {
             userFeaturePermissionService = userFeaturePermissionService,
             kycService = kycService,
             coincore = mockk(),
-            hideDustFlag = mockk(),
             accountsSorting = mockk(),
             localSettingsPrefs = mockk(),
             simpleBuyService = simpleBuyService,

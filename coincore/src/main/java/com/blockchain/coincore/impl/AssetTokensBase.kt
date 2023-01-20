@@ -25,9 +25,7 @@ import com.blockchain.domain.eligibility.model.StakingEligibility
 import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -73,7 +71,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     protected val identity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
     private val stakingService: StakingService by scopedInject()
-    private val stakingEnabledFlag: FeatureFlag by inject(stakingAccountFeatureFlag)
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList(currency, interestService)
@@ -221,35 +218,30 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
         flow {
-            val stakingEnabled = stakingEnabledFlag.coEnabled()
-            if (!stakingEnabled) {
-                emit(DataResource.Data(emptyList()))
-            } else {
-                emitAll(
-                    stakingService.getAvailabilityForAsset(
-                        currency,
-                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-                    ).filterNotLoading()
-                        .mapData {
-                            if (it) {
-                                listOf(
-                                    CustodialStakingAccount(
-                                        currency = currency,
-                                        label = labels.getDefaultStakingWalletLabel(),
-                                        stakingService = stakingService,
-                                        exchangeRates = exchangeRates,
-                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                                        identity = identity,
-                                        kycService = kycService,
-                                        custodialWalletManager = custodialManager
-                                    )
+            emitAll(
+                stakingService.getAvailabilityForAsset(
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                ).filterNotLoading()
+                    .mapData {
+                        if (it) {
+                            listOf(
+                                CustodialStakingAccount(
+                                    currency = currency,
+                                    label = labels.getDefaultStakingWalletLabel(),
+                                    stakingService = stakingService,
+                                    exchangeRates = exchangeRates,
+                                    internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                                    identity = identity,
+                                    kycService = kycService,
+                                    custodialWalletManager = custodialManager
                                 )
-                            } else {
-                                emptyList()
-                            }
+                            )
+                        } else {
+                            emptyList()
                         }
-                )
-            }
+                    }
+            )
         }
 
     final override fun interestRate(): Single<Double> =

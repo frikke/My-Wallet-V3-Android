@@ -124,7 +124,6 @@ class SettingsFragment :
 
     override fun onResume() {
         super.onResume()
-        model.process(SettingsIntent.InitializeFeatureFlags)
         model.process(SettingsIntent.LoadHeaderInformation)
         model.process(SettingsIntent.LoadPaymentMethods)
 
@@ -221,18 +220,16 @@ class SettingsFragment :
             }
         }
 
-        if (newState.featureFlagsSet.dustBalancesFF) {
-            with(binding) {
-                with(generalGroup) {
-                    primaryText = getString(R.string.common_general)
-                    secondaryText = getString(R.string.settings_general_description)
-                    onClick = {
-                        navigator().goToGeneralSettings()
-                    }
-                    visible()
+        with(binding) {
+            with(generalGroup) {
+                primaryText = getString(R.string.common_general)
+                secondaryText = getString(R.string.settings_general_description)
+                onClick = {
+                    navigator().goToGeneralSettings()
                 }
-                dividerGeneral.visible()
+                visible()
             }
+            dividerGeneral.visible()
         }
 
         if (newState.error != SettingsError.None) {

@@ -96,7 +96,6 @@ class TransactionInteractor(
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val quickFillRoundingService: QuickFillRoundingService,
-    private val hideDustFF: FeatureFlag,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val improvedPaymentUxFF: FeatureFlag,
     private val dynamicAssetRepository: UniversalDynamicAssetRepository,
@@ -244,13 +243,11 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                hideDustFF.enabled.flatMap { flagEnabled ->
-                    getAvailableSwapAccounts().flatMap { accountList ->
-                        if (flagEnabled && localSettingsPrefs.hideSmallBalancesEnabled) {
-                            filterDustBalances(accountList)
-                        } else {
-                            Single.just(accountList)
-                        }
+                getAvailableSwapAccounts().flatMap { accountList ->
+                    if (localSettingsPrefs.hideSmallBalancesEnabled) {
+                        filterDustBalances(accountList)
+                    } else {
+                        Single.just(accountList)
                     }
                 }
             }

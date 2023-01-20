@@ -22,18 +22,14 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.koin.scopedInject
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.FragmentSecurityBinding
 import piuk.blockchain.android.ui.BottomSheetInformation
-import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsNavigator
 import piuk.blockchain.android.ui.settings.SettingsScreen
@@ -69,8 +65,6 @@ class SecurityFragment :
     ) {
         model.process(SecurityIntent.ToggleBiometrics)
     }
-
-    private val backupFeatureFlag: FeatureFlag by inject(backupPhraseFeatureFlag)
 
     private val onBackupResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -391,13 +385,7 @@ class SecurityFragment :
     }
 
     private fun startBackupPhraseFlow() {
-        backupFeatureFlag.enabled.subscribe { isEnabled ->
-            if (isEnabled) {
-                launchPhraseRecovery()
-            } else {
-                onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
-            }
-        }
+        launchPhraseRecovery()
     }
 
     private fun launchPhraseRecovery() {

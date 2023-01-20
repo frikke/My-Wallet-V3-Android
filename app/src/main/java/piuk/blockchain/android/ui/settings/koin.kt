@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings
 
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.presentation.BackupPhrasePinService
@@ -67,7 +66,6 @@ val redesignSettingsModule = module {
                 currencyPrefs = get(),
                 referralService = get(),
                 nabuUserIdentity = get(),
-                dustBalancesFF = get(hideDustFeatureFlag)
             )
         }
 
@@ -196,7 +194,6 @@ val redesignSettingsModule = module {
                 exchangeLinkingState = get(),
                 localSettingsPrefs = get(),
                 fiatCurrenciesService = get(),
-                dustBalancesFF = get(hideDustFeatureFlag)
             )
         }
 

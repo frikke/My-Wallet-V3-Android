@@ -4,7 +4,6 @@ import com.blockchain.analytics.TraitsService
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import com.blockchain.walletmode.WalletModeStore
@@ -57,7 +56,6 @@ val mainModule = module {
                 referralPrefs = get(),
                 referralRepository = get(),
                 ethDataManager = get(),
-                stakingAccountFlag = get(stakingAccountFeatureFlag),
                 membershipFlag = get(blockchainMembershipsFeatureFlag),
                 coincore = get(),
                 walletModeService = get(),

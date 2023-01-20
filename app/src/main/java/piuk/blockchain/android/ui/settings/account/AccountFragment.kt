@@ -171,7 +171,6 @@ class AccountFragment :
     override fun onResume() {
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
-        model.process(AccountIntent.LoadFeatureFlags)
     }
 
     override fun render(newState: AccountState) {

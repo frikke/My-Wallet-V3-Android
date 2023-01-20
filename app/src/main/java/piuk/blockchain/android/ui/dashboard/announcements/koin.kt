@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.googlePayFeatureFlag
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -75,7 +74,6 @@ val dashboardAnnouncementsModule = module {
                 fiatCurrenciesService = get(),
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get(),
-                hideDustFF = get(hideDustFeatureFlag)
             )
         }
 

@@ -124,7 +124,6 @@ class DashboardActionInteractor(
     private val cowboysDataProvider: CowboysPromoDataProvider,
     private val referralService: ReferralService,
     private val cowboysPrefs: CowboysPrefs,
-    private val stakingFeatureFlag: FeatureFlag,
     private val totalDisplayBalanceFF: FeatureFlag,
     private val assetDisplayBalanceFF: FeatureFlag,
     private val shouldAssetShowUseCase: ShouldAssetShowUseCase,
@@ -968,9 +967,6 @@ class DashboardActionInteractor(
         balancesDisposable.clear()
         activeAssetsDisposable.clear()
     }
-
-    fun getStakingFeatureFlag(): Single<Boolean> =
-        stakingFeatureFlag.enabled
 
     companion object {
         private val FLATLINE_CHART = listOf(

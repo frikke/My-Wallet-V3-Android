@@ -38,7 +38,7 @@ import java.math.BigInteger
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 
-/*internal*/ class EthCryptoWalletAccount internal constructor(
+class EthCryptoWalletAccount internal constructor(
     private var jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
     private val fees: FeeDataManager,

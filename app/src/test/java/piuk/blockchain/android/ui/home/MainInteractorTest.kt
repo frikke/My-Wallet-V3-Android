@@ -125,7 +125,6 @@ class MainInteractorTest {
             referralPrefs = referralPrefs,
             referralRepository = referralRepository,
             ethDataManager = ethDataManager,
-            stakingAccountFlag = stakingFF,
             membershipFlag = membershipsFF,
             coincore = coincore,
             earnOnNavBarFlag = earnEnabledFF,

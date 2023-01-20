@@ -29,7 +29,6 @@ data class MainState(
     val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode? = null,
     val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable),
-    val isStakingEnabled: Boolean = false,
     val isEarnOnNavEnabled: Boolean = false
 ) : MviState
 

@@ -11,9 +11,7 @@ import com.blockchain.preferences.LocalSettingsPrefs
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import io.mockk.Called
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -29,7 +27,6 @@ class ShouldAssetShowUseCaseTest {
 
     private lateinit var subject: ShouldAssetShowUseCase
 
-    private val hideDustFF: FeatureFlag = mockk()
     private val assetDisplayBalanceFF: FeatureFlag = mockk() {
         coEvery { coEnabled() } returns false
     }
@@ -49,87 +46,10 @@ class ShouldAssetShowUseCaseTest {
     @Before
     fun setup() {
         subject = ShouldAssetShowUseCase(
-            hideDustFeatureFlag = hideDustFF,
             assetDisplayBalanceFF = assetDisplayBalanceFF,
             localSettingsPrefs = localSettingsPrefs,
             watchlistService = watchlistService
         )
-    }
-
-    @Test
-    fun `given hide dust flag is disabled then asset should show`() = runTest {
-        val accountBalance: AccountBalance = mockk {
-            every { total }.returns(Money.zero(currency))
-        }
-
-        coEvery { hideDustFF.coEnabled() }.returns(false)
-        every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
-            flowOf(
-                DataResource.Data(false)
-            )
-        )
-
-        subject.invoke(accountBalance).test {
-            with(expectMostRecentItem()) {
-                assertEquals(true, this)
-            }
-        }
-
-        coVerify { hideDustFF.coEnabled() }
-        verify(exactly = 0) { localSettingsPrefs.hideSmallBalancesEnabled }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
-        verify { accountBalance.totalFiat wasNot Called }
-    }
-
-    @Test
-    fun `given hide dust ff on & local pref off then asset should show`() = runTest {
-        val accountBalance: AccountBalance = mockk {
-            every { total }.returns(Money.zero(currency))
-        }
-
-        coEvery { hideDustFF.coEnabled() }.returns(true)
-        every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(false)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
-            flowOf(
-                DataResource.Data(false)
-            )
-        )
-
-        subject.invoke(accountBalance).test {
-            with(expectMostRecentItem()) {
-                assertEquals(true, this)
-            }
-        }
-
-        coVerify { hideDustFF.coEnabled() }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
-        verify { accountBalance.totalFiat wasNot Called }
-    }
-
-    @Test
-    fun `given both flag and pref are on and asset is in watchlist then asset should show`() = runTest {
-        val accountBalance: AccountBalance = mockk {
-            every { total }.returns(Money.zero(currency))
-        }
-
-        coEvery { hideDustFF.coEnabled() }.returns(true)
-        every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
-        every { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }.returns(
-            flowOf(
-                DataResource.Data(true)
-            )
-        )
-
-        subject.invoke(accountBalance).test {
-            with(expectMostRecentItem()) {
-                assertEquals(true, this)
-            }
-        }
-
-        coVerify { hideDustFF.coEnabled() }
-        verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
-        verify { accountBalance.totalFiat wasNot Called }
     }
 
     @Test
@@ -142,8 +62,6 @@ class ShouldAssetShowUseCaseTest {
                 every { total }.returns(Money.zero(currency))
                 every { totalFiat }.returns(dustBalance)
             }
-
-            coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
@@ -161,9 +79,12 @@ class ShouldAssetShowUseCaseTest {
                 }
             }
 
-            coVerify { hideDustFF.coEnabled() }
             verify { localSettingsPrefs.hideSmallBalancesEnabled }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
+            verify {
+                watchlistService.isAssetInWatchlist(
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                )
+            }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
@@ -179,7 +100,6 @@ class ShouldAssetShowUseCaseTest {
                 every { totalFiat }.returns(dustBalance)
             }
 
-            coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
@@ -197,8 +117,11 @@ class ShouldAssetShowUseCaseTest {
                 }
             }
 
-            coVerify { hideDustFF.coEnabled() }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
+            verify {
+                watchlistService.isAssetInWatchlist(
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                )
+            }
             verify { accountBalance.totalFiat }
             verify { dustBalance.isDust() }
         }
@@ -211,7 +134,6 @@ class ShouldAssetShowUseCaseTest {
                 every { totalFiat }.returns(Money.zero(currency))
             }
 
-            coEvery { hideDustFF.coEnabled() }.returns(true)
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
@@ -229,8 +151,11 @@ class ShouldAssetShowUseCaseTest {
                 }
             }
 
-            coVerify { hideDustFF.coEnabled() }
-            verify { watchlistService.isAssetInWatchlist(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)) }
+            verify {
+                watchlistService.isAssetInWatchlist(
+                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                )
+            }
             verify { accountBalance.totalFiat }
         }
 }
