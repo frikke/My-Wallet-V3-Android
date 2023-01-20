@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun AppSurface(content: @Composable () -> Unit) {
+fun AppSurface(color: Color = Color.Transparent, content: @Composable () -> Unit) {
     Surface(
-        color = Color.Transparent,
+        color = color,
         content = content
     )
 }

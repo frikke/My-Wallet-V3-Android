@@ -194,8 +194,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addTransactionAnimation()
-            .replace(
-                binding.settingsContentFrame.id, newFragment, newFragment::class.simpleName
+            .add(
+                binding.settingsContentFrame.id,
+                newFragment,
+                newFragment::class.simpleName
             ).addToBackStack(newFragment::class.simpleName)
             .commitAllowingStateLoss()
     }

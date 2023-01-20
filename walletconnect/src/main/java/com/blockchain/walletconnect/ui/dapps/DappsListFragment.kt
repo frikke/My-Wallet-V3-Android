@@ -26,6 +26,7 @@ import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -43,6 +44,7 @@ import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.R
@@ -85,7 +87,9 @@ class DappsListFragment :
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppTheme(setSystemColors = false) {
-                    Dapps(model)
+                    AppSurface(color = Color.White) {
+                        Dapps(model)
+                    }
                 }
             }
         }

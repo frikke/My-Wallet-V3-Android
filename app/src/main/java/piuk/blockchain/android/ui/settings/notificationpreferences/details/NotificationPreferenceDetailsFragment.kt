@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.analytics.Analytics
@@ -17,6 +18,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.koin.payloadScope
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject
@@ -49,9 +51,11 @@ class NotificationPreferenceDetailsFragment :
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val state by model.viewState.collectAsState()
-                NotificationPreferenceDetailsScreen(state = state) { methods, changed ->
-                    model.onIntent(NotificationPreferenceDetailsIntent.ContactMethodChanged(methods, changed))
+                AppSurface(color = Color.White) {
+                    val state by model.viewState.collectAsState()
+                    NotificationPreferenceDetailsScreen(state = state) { methods, changed ->
+                        model.onIntent(NotificationPreferenceDetailsIntent.ContactMethodChanged(methods, changed))
+                    }
                 }
             }
         }
