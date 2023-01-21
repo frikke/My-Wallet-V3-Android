@@ -44,6 +44,8 @@
         android:id="@+id/supper_app_account_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:paddingBottom="@dimen/standard_spacing"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

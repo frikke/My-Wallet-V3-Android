@@ -66,11 +66,7 @@ fun BuyIntroScreen(
             Column(
                 modifier = Modifier
                     .background(AppTheme.colors.light)
-                    .padding(
-                        top = AppTheme.dimensions.smallSpacing,
-                        start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing
-                    )
+                    .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 var searchedText by remember { mutableStateOf("") }
 

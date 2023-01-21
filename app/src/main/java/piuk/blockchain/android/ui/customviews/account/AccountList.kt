@@ -21,7 +21,6 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.updateSelectableItemBackgroundForSuperApp
 import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -81,6 +80,11 @@ class AccountList @JvmOverloads constructor(
         )
         itemAnimator = null
     }
+
+    // Necessary to make fading edge not affected by padding
+    override fun isPaddingOffsetRequired(): Boolean = true
+    override fun getTopPaddingOffset(): Int = -paddingTop
+    override fun getBottomPaddingOffset(): Int = paddingBottom
 
     fun initialise(
         source: Single<List<AccountListViewItem>>,
@@ -310,7 +314,7 @@ private class CryptoAccountDelegate(
         items[position] as SelectableAccountItem,
         statusDecorator,
         onAccountClicked,
-        isFirstItemInList = position == 0,
+        isFirstItemInList = if (items[0] is SelectableAccountItem) position == 0 else position == 1,
         isLastItemInList = items.lastIndex == position
     )
 }

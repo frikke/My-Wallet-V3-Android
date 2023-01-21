@@ -54,6 +54,8 @@
         <piuk.blockchain.android.ui.customviews.account.AccountList
             android:id="@+id/accounts_list"
             android:background="@color/grey_000"
+            android:paddingBottom="@dimen/standard_spacing"
+            android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
