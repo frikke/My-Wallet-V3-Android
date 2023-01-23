@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
@@ -129,7 +130,7 @@ class DappsListFragment :
             }, content = {
                 state?.let {
                     if (it.connectedSessions.isEmpty()) {
-                        renderNoDapps()
+                        RenderNoDapps()
                     } else {
                         DappsList(it.connectedSessions) { session ->
                             currentBottomSheet = SessionBottomSheet.Disconnect(
@@ -272,8 +273,9 @@ private fun DappListItem(session: WalletConnectSession, onClick: () -> Unit) {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun renderNoDapps() {
+private fun RenderNoDapps() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -304,7 +306,7 @@ private fun renderNoDapps() {
                 end = dimensionResource(R.dimen.standard_spacing)
             ),
             style = AppTheme.typography.paragraph1,
-            color = AppTheme.colors.medium
+            color = AppTheme.colors.body
         )
     }
 }

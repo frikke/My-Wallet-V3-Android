@@ -92,7 +92,7 @@ fun HomeScreen(
                         if (balanceScrollRange != it) balanceScrollRange = it
                     }
                 },
-                scrollRange = balanceScrollRange,
+                scrollRangeProvider = { balanceScrollRange },
                 hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F
             )
         }

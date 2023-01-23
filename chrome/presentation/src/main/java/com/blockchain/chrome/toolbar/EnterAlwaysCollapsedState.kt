@@ -65,6 +65,24 @@ class EnterAlwaysCollapsedState(
     override val scrollState: ScrollState
         get() = _scrollState
 
+    override fun balanceScrollAlpha(isFirstLaunch: Boolean): Float {
+        return if (isFirstLaunch) {
+            0F
+        } else {
+            (1 - (scrollOffset + (scrollOffset * 0.3F)) / halfCollapsedOffset).coerceIn(0F, 1F)
+        }
+    }
+
+    override fun switcherScrollAlpha(): Float {
+        return (1 - (scrollOffset - halfCollapsedOffset) / (fullCollapsedOffset - halfCollapsedOffset))
+            .coerceIn(0F, 1F)
+    }
+
+    override var isRefreshing: Boolean = false
+    override var isPullToRefreshSwipeInProgress: Boolean = false
+
+    override var isBalanceRevealInProgress: Boolean = false
+
     companion object {
         val Saver = run {
 

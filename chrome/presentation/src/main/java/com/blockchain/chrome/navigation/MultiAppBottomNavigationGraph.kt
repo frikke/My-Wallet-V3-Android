@@ -18,11 +18,10 @@ import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
-
 @Composable
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    navControllerProvider: () -> NavHostController,
     enableRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -44,7 +43,7 @@ fun MultiAppBottomNavigationHost(
     val openSettings = remember { { settingsNavigation.settings() } }
     val launchQrScanner = remember { { qrScanNavigation.launchQrScan() } }
 
-    NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
+    NavHost(navControllerProvider(), startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
             val listState = rememberLazyListState()
             ChromeScreen(

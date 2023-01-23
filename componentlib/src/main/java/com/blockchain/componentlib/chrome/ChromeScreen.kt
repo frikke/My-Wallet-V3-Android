@@ -3,6 +3,7 @@ package com.blockchain.componentlib.chrome
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,19 +59,36 @@ fun ChromeScreen(
 }
 
 data class ListStateInfo(
-    val firstVisibleItemIndex: Int,
-    val firstVisibleItemScrollOffset: Int,
+    val isFirstItemVisible: Boolean,
+    val isFirstVisibleItemOffsetZero: Boolean,
     val isSwipeInProgress: Boolean
 )
 
+@Composable
 fun extractStatesInfo(
     listState: LazyListState,
     swipeRefreshState: SwipeRefreshState?
 ): ListStateInfo {
+    val isFirstItemVisible by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+    val isFirstVisibleItemOffsetZero by remember {
+        derivedStateOf {
+            listState.firstVisibleItemScrollOffset == 0
+        }
+    }
+    val isSwipeInProgress by remember {
+        derivedStateOf {
+            swipeRefreshState?.isSwipeInProgress ?: false
+        }
+    }
+
     return ListStateInfo(
-        firstVisibleItemIndex = listState.firstVisibleItemIndex,
-        firstVisibleItemScrollOffset = listState.firstVisibleItemScrollOffset,
-        isSwipeInProgress = swipeRefreshState?.isSwipeInProgress ?: false
+        isFirstItemVisible = isFirstItemVisible,
+        isFirstVisibleItemOffsetZero = isFirstVisibleItemOffsetZero,
+        isSwipeInProgress = isSwipeInProgress
     )
 }
 
