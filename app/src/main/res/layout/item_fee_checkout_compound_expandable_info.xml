@@ -166,7 +166,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_200" />
+        android:background="@color/grey_000" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/compound_item_note"

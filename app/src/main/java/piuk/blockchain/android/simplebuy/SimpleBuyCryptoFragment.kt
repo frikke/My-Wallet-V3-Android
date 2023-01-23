@@ -19,6 +19,7 @@ import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
@@ -218,9 +219,12 @@ class SimpleBuyCryptoFragment :
                 }
             }
 
-        binding.btnContinue.setOnClickListener {
-            currentFraudFlow?.let { fraudService.trackFlow(it) }
-            startBuy()
+        binding.btnContinue.apply {
+            onClick = {
+                currentFraudFlow?.let { fraudService.trackFlow(it) }
+                startBuy()
+            }
+            text = getString(R.string.preview_buy)
         }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
@@ -508,7 +512,12 @@ class SimpleBuyCryptoFragment :
             binding.inputAmount.hideInfo()
         }
 
-        binding.btnContinue.isEnabled = canContinue(newState)
+        binding.btnContinue.buttonState = if (canContinue(newState)) {
+            ButtonState.Enabled
+        } else {
+            ButtonState.Disabled
+        }
+
         updateInputStateUI(newState)
 
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {

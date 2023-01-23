@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/small_spacing"
-        android:layout_marginBottom="@dimen/tiny_spacing"
+        android:layout_marginBottom="@dimen/standard_spacing"
         android:gravity="center"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/confirm_cta_button"
