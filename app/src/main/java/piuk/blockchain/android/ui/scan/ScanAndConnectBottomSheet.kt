@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.scan
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.ui.unit.dp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -50,7 +51,7 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                         ScanBenefit(
                             title = getString(R.string.scan_friends_qr),
                             description = getString(R.string.scan_friends_qr_description),
-                            image = ImageResource.Local(R.drawable.ic_region)
+                            image = ImageResource.Local(R.drawable.ic_region, size = 24.dp)
                         ),
                         ScanBenefit(
                             title = getString(R.string.web_access),

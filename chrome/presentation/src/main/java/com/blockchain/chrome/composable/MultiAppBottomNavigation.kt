@@ -24,12 +24,14 @@ import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun MultiAppBottomNavigation(
     modifier: Modifier = Modifier,
-    navigationItems: List<ChromeBottomNavigationItem>,
-    navController: NavController,
+    navigationItems: ImmutableList<ChromeBottomNavigationItem>,
+    navControllerProvider: () -> NavController,
     onSelected: (ChromeBottomNavigationItem) -> Unit
 ) {
     Card(
@@ -39,7 +41,7 @@ fun MultiAppBottomNavigation(
         shape = RoundedCornerShape(100.dp)
     ) {
         Row(modifier = Modifier.padding(vertical = 8.dp)) {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val navBackStackEntry by navControllerProvider().currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
             Spacer(Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -49,9 +51,9 @@ fun MultiAppBottomNavigation(
                 Column(
                     modifier = Modifier.clickable {
                         onSelected(item)
-                        navController.navigate(item.route) {
+                        navControllerProvider().navigate(item.route) {
 
-                            navController.graph.startDestinationRoute?.let { screen_route ->
+                            navControllerProvider().graph.startDestinationRoute?.let { screen_route ->
                                 popUpTo(screen_route) {
                                     saveState = true
                                 }
@@ -90,12 +92,13 @@ fun MultiAppBottomNavigation(
 @Preview
 @Composable
 fun PreviewMultiAppBottomNavigation() {
+    val navController = rememberNavController()
     MultiAppBottomNavigation(
         navigationItems = listOf(
             ChromeBottomNavigationItem.Home,
             ChromeBottomNavigationItem.Prices
-        ),
-        navController = rememberNavController(),
+        ).toImmutableList(),
+        navControllerProvider = { navController },
         onSelected = {}
     )
 }

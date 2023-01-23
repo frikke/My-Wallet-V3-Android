@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -88,12 +89,13 @@ fun MenuOptionsScreen(
                             modifier = Modifier
                                 .clipToBounds()
                                 .align(Alignment.Center)
-                                .alpha(BALANCE_OFFSET_TARGET - balanceOffset / BALANCE_OFFSET_TARGET.toFloat())
                                 .offset {
                                     IntOffset(
                                         x = 0,
                                         y = balanceOffset
                                     )
+                                }.graphicsLayer {
+                                    alpha = BALANCE_OFFSET_TARGET - balanceOffset / BALANCE_OFFSET_TARGET.toFloat()
                                 },
                             text = walletBalance,
                             style = AppTheme.typography.title3,

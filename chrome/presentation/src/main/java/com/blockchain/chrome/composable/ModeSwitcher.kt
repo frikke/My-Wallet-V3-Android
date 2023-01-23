@@ -34,12 +34,14 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.walletmode.WalletMode
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.cancelChildren
 
 @Composable
 fun ModeSwitcher(
     modifier: Modifier = Modifier,
-    modes: List<WalletMode>,
+    modes: ImmutableList<WalletMode>,
     selectedMode: WalletMode,
     onModeClicked: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit
@@ -168,7 +170,7 @@ fun ModeSwitcher(
 @Composable
 fun PreviewModeSwitcher() {
     ModeSwitcher(
-        modes = listOf(WalletMode.CUSTODIAL, WalletMode.NON_CUSTODIAL),
+        modes = listOf(WalletMode.CUSTODIAL, WalletMode.NON_CUSTODIAL).toImmutableList(),
         selectedMode = WalletMode.CUSTODIAL,
         onModeClicked = {},
         onModeLongClicked = {}

@@ -31,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -73,12 +72,13 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
-
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
     val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) 0 else 145
@@ -139,7 +139,7 @@ fun MultiAppChrome(
             backgroundColors = viewState.backgroundColors,
             balance = viewState.totalBalance,
             shouldRevealBalance = viewState.shouldRevealBalance,
-            bottomNavigationItems = viewState.bottomNavigationItems,
+            bottomNavigationItems = viewState.bottomNavigationItems.toImmutableList(),
             onModeSelected = { walletMode ->
                 viewModel.onIntent(MultiAppIntents.WalletModeChangeRequested(walletMode))
             },
@@ -171,7 +171,7 @@ fun MultiAppChromeScreen(
     backgroundColors: ChromeBackgroundColors,
     balance: DataResource<String>,
     shouldRevealBalance: Boolean,
-    bottomNavigationItems: List<ChromeBottomNavigationItem>,
+    bottomNavigationItems: ImmutableList<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
@@ -192,13 +192,6 @@ fun MultiAppChromeScreen(
     //    var tabsSectionHeight = remember { headerSectionHeightPx }
 
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
-
-    /**
-     * if the screen is currently trying pull to refresh
-     * i.e. is pulling and seeing the loading indicator
-     * (refreshing is not triggered yet at this point, just the interaction swipe up and down)
-     */
-    var isPullToRefreshSwipeInProgress by remember { mutableStateOf(false) }
 
     var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
 
@@ -270,35 +263,17 @@ fun MultiAppChromeScreen(
             durationMillis = ANIMATION_DURATION
         )
     )
-    var balanceScrollAlpha by remember { mutableStateOf(1F) }
-    balanceScrollAlpha =
-        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.halfCollapsedOffset)
-            .coerceIn(0F, 1F)
-
-    var switcherScrollAlpha by remember { mutableStateOf(1F) }
-    switcherScrollAlpha =
-        (
-            1 - (toolbarState.scrollOffset - toolbarState.halfCollapsedOffset) /
-                (toolbarState.fullCollapsedOffset - toolbarState.halfCollapsedOffset)
-            ).coerceIn(0F, 1F)
-
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // first launch
     var firstLaunch by remember { mutableStateOf(true) }
     if (firstLaunch) {
-        balanceScrollAlpha = 0F
         updateOffsetNoAnimation(targetValue = toolbarState.halfCollapsedOffset)
         firstLaunch = false
     }
 
     val coroutineScopeBalanceReveal = rememberCoroutineScope()
-
-    /**
-     * is reveal animation in progress
-     */
-    var isBalanceRevealInProgress by remember { mutableStateOf(false) }
 
     /**
      * true if the balance is the target to show.
@@ -321,8 +296,8 @@ fun MultiAppChromeScreen(
         finishedListener = {
             // reveal in progress and switcher is back to fully visible
             // -> all done
-            if (isBalanceRevealInProgress && it == 1F) {
-                isBalanceRevealInProgress = false
+            if (toolbarState.isBalanceRevealInProgress && it == 1F) {
+                toolbarState.isBalanceRevealInProgress = false
             }
         }
     )
@@ -338,9 +313,9 @@ fun MultiAppChromeScreen(
     }
 
     fun revealBalance() {
-        if (isBalanceRevealInProgress.not()) {
+        if (toolbarState.isBalanceRevealInProgress.not()) {
 
-            isBalanceRevealInProgress = true
+            toolbarState.isBalanceRevealInProgress = true
             isRevealingTargetBalance = true
 
             onBalanceRevealed()
@@ -357,7 +332,7 @@ fun MultiAppChromeScreen(
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
 
-                if (isPullToRefreshSwipeInProgress) {
+                if (toolbarState.isPullToRefreshSwipeInProgress) {
                     toolbarState.isInteractingWithPullToRefresh = true
                     // let pull to refresh consume the scroll
                     return Offset.Zero
@@ -553,7 +528,13 @@ fun MultiAppChromeScreen(
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha),
+                        .graphicsLayer {
+                            alpha = if (isRefreshing) {
+                                balanceLoadingAlpha
+                            } else {
+                                toolbarState.balanceScrollAlpha(firstLaunch)
+                            }
+                        },
                     balance = balance
                 )
 
@@ -573,13 +554,14 @@ fun MultiAppChromeScreen(
                                     .fillMaxWidth()
                                     .graphicsLayer {
                                         translationY = (balanceRevealAlpha - 1) * revealPadding
-                                    }
-                                    .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
+                                        alpha = min(balanceRevealAlpha, toolbarState.switcherScrollAlpha())
+                                    },
                                 balance = balance
                             )
 
                             if (
-                                balance is DataResource.Data && shouldRevealBalance && isBalanceRevealInProgress.not()
+                                balance is DataResource.Data && shouldRevealBalance &&
+                                toolbarState.isBalanceRevealInProgress.not()
                             ) {
                                 revealBalance()
                             }
@@ -589,18 +571,16 @@ fun MultiAppChromeScreen(
                                     .fillMaxWidth()
                                     .graphicsLayer {
                                         translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
-                                    }
-                                    .alpha(
-                                        if (isBalanceRevealInProgress) {
-                                            min(switcherRevealAlpha, switcherScrollAlpha)
+                                        alpha = if (toolbarState.isBalanceRevealInProgress) {
+                                            min(switcherRevealAlpha, toolbarState.switcherScrollAlpha())
                                         } else {
-                                            switcherScrollAlpha
+                                            toolbarState.switcherScrollAlpha()
                                         }
-                                    ),
-                                modes = modeSwitcherOptions.modes,
+                                    },
+                                modes = modeSwitcherOptions.modes.toImmutableList(),
                                 selectedMode = selectedMode,
                                 onModeClicked = { walletMode ->
-                                    if (isBalanceRevealInProgress.not()) {
+                                    if (toolbarState.isBalanceRevealInProgress.not()) {
                                         stopRefresh()
                                         bottomNavigationVisible = false
                                         onModeSelected(walletMode)
@@ -632,8 +612,8 @@ fun MultiAppChromeScreen(
                     .fillMaxSize()
                     .graphicsLayer {
                         translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
+                        alpha = contentAlpha
                     }
-                    .alpha(contentAlpha)
                     .background(
                         color = Color(0XFFF1F2F7),
                         shape = RoundedCornerShape(
@@ -648,13 +628,14 @@ fun MultiAppChromeScreen(
                     .fillMaxSize()
                     .graphicsLayer {
                         translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
+                        alpha = contentAlpha
                     }
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
                                 // ignore the reveal if user interacts with the
                                 // content already before getting the balance
-                                if (isBalanceRevealInProgress.not()) {
+                                if (toolbarState.isBalanceRevealInProgress.not()) {
                                     onBalanceRevealed()
                                     coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
                                 }
@@ -665,15 +646,14 @@ fun MultiAppChromeScreen(
                                 toolbarState.isAutoScrolling = false
                             }
                         )
-                    }
-                    .alpha(contentAlpha),
-                navController = navController,
+                    },
+                navControllerProvider = { navController },
                 enableRefresh = enablePullToRefresh,
                 updateScrollInfo = { (navItem, listStateInfo) ->
-                    toolbarState.scrollTopLimitReached = listStateInfo.firstVisibleItemIndex == 0 &&
-                        listStateInfo.firstVisibleItemScrollOffset == 0
+                    toolbarState.scrollTopLimitReached = listStateInfo.isFirstItemVisible &&
+                        listStateInfo.isFirstVisibleItemOffsetZero
 
-                    isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
+                    toolbarState.isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
 
                     if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
                         verifyAndCollapseHeaderForNewScreen()
@@ -716,8 +696,8 @@ fun MultiAppChromeScreen(
                         y = bottomNavOffsetY
                     )
                 },
-            navigationItems = currentBottomNavigationItems,
-            navController = navController
+            navControllerProvider = { navController },
+            navigationItems = currentBottomNavigationItems.toImmutableList(),
         ) {
             if (isRefreshing) {
                 stopRefresh()

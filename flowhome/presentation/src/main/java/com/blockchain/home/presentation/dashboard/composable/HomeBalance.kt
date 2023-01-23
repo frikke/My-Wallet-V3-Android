@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -42,7 +43,7 @@ import org.koin.androidx.compose.getViewModel
 fun Balance(
     modifier: Modifier = Modifier,
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    scrollRange: Float,
+    scrollRangeProvider: () -> Float,
     hideBalance: Boolean
 ) {
     val viewState: AssetsViewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -50,7 +51,7 @@ fun Balance(
     BalanceScreen(
         modifier = modifier,
         walletBalance = viewState.balance,
-        balanceAlpha = scrollRange,
+        balanceAlphaProvider = scrollRangeProvider,
         hideBalance = hideBalance
     )
 }
@@ -59,7 +60,7 @@ fun Balance(
 fun BalanceScreen(
     modifier: Modifier = Modifier,
     walletBalance: WalletBalance,
-    balanceAlpha: Float,
+    balanceAlphaProvider: () -> Float,
     hideBalance: Boolean
 ) {
     Column(
@@ -73,7 +74,7 @@ fun BalanceScreen(
     ) {
         TotalBalance(
             balance = walletBalance.balance,
-            alpha = balanceAlpha,
+            balanceAlphaProvider = balanceAlphaProvider,
             hide = hideBalance
         )
         BalanceDifference(
@@ -84,7 +85,7 @@ fun BalanceScreen(
 
 @Composable
 fun TotalBalance(
-    alpha: Float,
+    balanceAlphaProvider: () -> Float,
     hide: Boolean,
     balance: DataResource<Money>
 ) {
@@ -112,13 +113,17 @@ fun TotalBalance(
             Text(
                 modifier = Modifier
                     .clipToBounds()
-                    .alpha(alpha)
-                    .scale((alpha * 1.6F).coerceIn(0F, 1F))
                     .offset {
                         IntOffset(
                             x = 0,
                             y = balanceOffset
                         )
+                    }
+                    .graphicsLayer {
+                        this.alpha = balanceAlphaProvider()
+                        val scale = (balanceAlphaProvider() * 1.6F).coerceIn(0F, 1F)
+                        scaleX = scale
+                        scaleY = scale
                     },
                 text = balance.data.toStringWithSymbol(),
                 style = AppTheme.typography.title1,
@@ -159,7 +164,7 @@ fun PreviewBalanceScreen() {
                 ),
                 cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
             ),
-            balanceAlpha = 1F,
+            balanceAlphaProvider = { 1F },
             hideBalance = false
         )
     }
@@ -174,7 +179,7 @@ fun PreviewBalanceScreenLoading() {
             cryptoBalanceDifference24h = DataResource.Loading,
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
         ),
-        balanceAlpha = 1F,
+        balanceAlphaProvider = { 1F },
         hideBalance = false
     )
 }

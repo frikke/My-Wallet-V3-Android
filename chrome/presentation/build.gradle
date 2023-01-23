@@ -29,5 +29,5 @@ dependencies {
 
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistSwipeRefresh
-
+    implementation Libraries.kotlinImmutableCollections
 }
