@@ -33,8 +33,7 @@ import kotlin.random.Random
 @Composable
 fun LoadingChart(
     modifier: Modifier = Modifier,
-    historicalRates: List<SparkLineHistoricalRate>,
-    loadingText: String,
+    historicalRates: List<SparkLineHistoricalRate>
 ) {
     if (historicalRates.isEmpty()) {
         return
@@ -108,7 +107,6 @@ private fun LineLoadingPreview() {
     AppTheme {
         AppSurface {
             LoadingChart(
-                loadingText = "Loading chart",
                 historicalRates = data
             )
         }

@@ -7,8 +7,6 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
 import com.blockchain.preferences.CurrencyPrefs
@@ -77,7 +75,6 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.ALL_TIME,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -94,7 +91,6 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.YEAR,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         )
             .test {
                 awaitEvent()
@@ -114,7 +110,6 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.MONTH,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         )
             .test {
                 awaitEvent()
@@ -134,7 +129,6 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.WEEK,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -153,7 +147,6 @@ class ExchangeRatesDataManagerImplTest {
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.DAY,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -172,7 +165,6 @@ class ExchangeRatesDataManagerImplTest {
             asset = NEW_ASSET,
             span = HistoricalTimeSpan.WEEK,
             now = calendar,
-            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         ).test {
             awaitEvent()
             verify(priceStore)

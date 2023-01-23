@@ -128,7 +128,7 @@ class SelectNetworkViewModelTest {
         private const val ETH_CHAIN_ID = 1
         private val ethEvmNetwork = EvmNetwork(
             "ETH",
-            "Ethereum",
+            "ETH",
             "Ethereum",
             ETH_CHAIN_ID,
             "",
@@ -148,7 +148,7 @@ class SelectNetworkViewModelTest {
         private const val EVM_CHAIN_ID = 2
         private val otherEvmNetwork = EvmNetwork(
             "OTHER",
-            "Other",
+            "OTHER",
             "Other",
             EVM_CHAIN_ID,
             "",

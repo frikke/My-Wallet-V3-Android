@@ -21,7 +21,6 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -133,12 +132,7 @@ class L1EvmOnChainTxEngine(
             ?: sourceAssetInfo.networkTicker
 
     private fun feeOptions(): Single<FeeOptions> =
-        if (sourceAssetInfo.networkTicker == CryptoCurrency.MATIC_ON_POLYGON) {
-            feeManager.getEvmFeeOptions(evmNetworkTicker).singleOrError()
-        } else {
-            // Once MATIC is migrated onto the new endpoint, remember that the suffix needs to be removed from its ticker
-            erc20DataManager.getFeesForEvmTransaction(evmNetworkTicker)
-        }
+        erc20DataManager.getFeesForEvmTransaction(evmNetworkTicker)
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)

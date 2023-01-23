@@ -10,7 +10,6 @@ import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
@@ -281,7 +280,6 @@ internal class ExchangeRatesDataManagerImpl(
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar,
-        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<HistoricalRateList>> {
         require(asset.startDate != null)
         return priceStore.getHistoricalPriceForAsset(asset, userFiat, span)

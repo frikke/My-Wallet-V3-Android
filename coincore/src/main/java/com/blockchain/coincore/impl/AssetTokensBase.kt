@@ -300,10 +300,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     final override fun historicRateSeries(
         period: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
-            exchangeRates.getHistoricPriceSeries(asset = currency, span = period, freshnessStrategy = freshnessStrategy)
+            exchangeRates.getHistoricPriceSeries(asset = currency, span = period)
         } ?: flowOf(DataResource.Data(emptyList()))
 
     final override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {

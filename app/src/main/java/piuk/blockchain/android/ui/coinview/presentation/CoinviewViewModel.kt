@@ -846,7 +846,9 @@ class CoinviewViewModel(
         loadPriceDataJob?.cancel()
         loadPriceDataJob = viewModelScope.launch {
             getAssetPriceUseCase(
-                asset = asset, timeSpan = requestedTimeSpan, fiatCurrency = fiatCurrency
+                asset = asset,
+                timeSpan = requestedTimeSpan,
+                fiatCurrency = fiatCurrency
             ).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {

@@ -158,11 +158,7 @@ open class CryptoCurrency(
             get() = XLM_ORDER_INDEX
     }
     companion object {
-        // TODO(dtverdota): remove these once the coin networks feature flag is removed(enabled forever)
         const val AVAX = "AVAX"
-        const val MATIC = "MATIC"
-        const val BNB = "BNB"
-        const val MATIC_ON_POLYGON = "MATIC.MATIC"
     }
 }
 

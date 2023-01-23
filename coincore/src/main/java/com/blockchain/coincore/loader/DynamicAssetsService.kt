@@ -71,13 +71,14 @@ internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): As
 private const val BTC_START_DATE = 1282089600L
 
 private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == CryptoCurrency.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
+    if (parentChain == MATIC_NETWORK_TICKER && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
         return this.plus(POLYGON_NETWORK_SUFFIX)
     }
     return this
 }
 
 private const val POLYGON_NETWORK_SUFFIX = " - Polygon"
+private const val MATIC_NETWORK_TICKER = "MATIC"
 
 private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategory> =
     products.mapNotNull {

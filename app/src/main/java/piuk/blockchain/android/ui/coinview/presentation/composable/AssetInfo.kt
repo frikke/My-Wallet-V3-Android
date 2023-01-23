@@ -34,7 +34,7 @@ fun AssetInfo(
 ) {
     when (data) {
         CoinviewAssetInfoState.Loading -> {
-            AssetInfoLoading()
+            Empty()
         }
 
         CoinviewAssetInfoState.Error -> {

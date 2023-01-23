@@ -27,7 +27,7 @@ fun BottomQuickActions(
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
-        DataResource.Loading -> BottomQuickActionLoading()
+        DataResource.Loading,
         is DataResource.Error -> Empty()
         is DataResource.Data -> {
             BottomQuickActionData(

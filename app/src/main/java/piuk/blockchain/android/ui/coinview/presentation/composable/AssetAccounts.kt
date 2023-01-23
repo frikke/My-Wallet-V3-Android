@@ -74,9 +74,7 @@ fun AssetAccounts(
     onLockedAccountClick: () -> Unit
 ) {
     when (data) {
-        DataResource.Loading -> {
-            AssetAccountsLoading()
-        }
+        DataResource.Loading -> {}
 
         is DataResource.Error -> {
             AssetAccountsError()

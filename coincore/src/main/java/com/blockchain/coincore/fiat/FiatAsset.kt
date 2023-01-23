@@ -14,7 +14,6 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
@@ -83,10 +82,9 @@ class FiatAsset(
 
     override fun historicRateSeries(
         period: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
-            exchangeRates.getHistoricPriceSeries(asset = currency, span = period, freshnessStrategy = freshnessStrategy)
+            exchangeRates.getHistoricPriceSeries(asset = currency, span = period)
         } ?: flowOf(DataResource.Data(emptyList()))
 
     override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {

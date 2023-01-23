@@ -193,7 +193,6 @@ fun LoadingChart() {
                 override val rate: Double = Random.nextDouble(50.0, 150.0)
             }
         },
-        loadingText = stringResource(R.string.coinview_chart_loading)
     )
 }
 

@@ -9,7 +9,6 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.utils.awaitOutcome
-import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -87,11 +86,7 @@ class SelectNetworkViewModel(
 
     private fun EvmNetwork.toNetworkInfo() =
         NetworkInfo(
-            networkTicker = if (networkTicker == CryptoCurrency.MATIC) {
-                CryptoCurrency.MATIC_ON_POLYGON
-            } else {
-                networkTicker
-            },
+            networkTicker = nativeAsset,
             name = networkName,
             chainId = chainId
         )
