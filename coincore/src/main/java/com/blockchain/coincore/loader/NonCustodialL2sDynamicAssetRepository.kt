@@ -30,22 +30,6 @@ class NonCustodialL2sDynamicAssetRepository(
         return getL2sForSupportedL1s()
     }
 
-    fun otherEvmAssets(): Single<DynamicAssetList> {
-        return coinNetworksStore.stream(
-            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-        )
-            .asSingle()
-            .flatMap { evmNetworks ->
-                getL1AssetsForNetworks(
-                    evmNetworks.filter { network ->
-                        network.type == NetworkType.EVM &&
-                            network.currency != CryptoCurrency.ETHER.networkTicker
-                    }
-                        .mapNotNull { it.toEvmNetwork() }
-                )
-            }
-    }
-
     fun allEvmAssets(): Single<DynamicAssetList> {
         return coinNetworksStore.stream(
             FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
@@ -102,7 +86,7 @@ class NonCustodialL2sDynamicAssetRepository(
             .asSingle()
             .flatMapMaybe { evmNetworks ->
                 evmNetworks.first { network ->
-                    network.type == NetworkType.EVM && network.currency == currency
+                    network.type == NetworkType.EVM && network.nativeAsset == currency
                 }
                     .toEvmNetwork()?.let { evmNetwork ->
                         Maybe.just(evmNetwork)
@@ -117,7 +101,7 @@ class NonCustodialL2sDynamicAssetRepository(
             .asSingle()
             .map { evmNetworks ->
                 evmNetworks.filter { network ->
-                    network.type == NetworkType.EVM && network.currency != CryptoCurrency.ETHER.networkTicker
+                    network.type == NetworkType.EVM && network.nativeAsset != CryptoCurrency.ETHER.networkTicker
                 }
                     .mapNotNull { it.toEvmNetwork() }
             }
@@ -144,6 +128,7 @@ class NonCustodialL2sDynamicAssetRepository(
                     EvmNetwork(
                         networkTicker = it,
                         networkName = name,
+                        nativeAsset = this.nativeAsset,
                         chainId = chainId,
                         nodeUrl = nodeUrls.first(),
                         explorerUrl = explorerUrl

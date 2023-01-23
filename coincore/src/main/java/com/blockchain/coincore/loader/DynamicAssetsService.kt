@@ -16,10 +16,9 @@ import kotlinx.coroutines.flow.Flow
 interface DynamicAssetsService {
     fun availableCryptoAssets(): Single<List<AssetInfo>>
     fun availableL1Assets(): Single<List<AssetInfo>>
-    fun otherEvmAssets(): Single<List<AssetInfo>>
+    fun allEvmAssets(): Single<List<AssetInfo>>
     fun allEvmNetworks(): Single<List<EvmNetwork>>
     fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
-    fun otherEvmNetworks(): Single<List<EvmNetwork>>
     fun allNetworks(): Flow<DataResource<List<CoinNetwork>>>
 }
 

@@ -101,14 +101,6 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun otherEvmNetworks(): Single<List<CoinNetworkDto>> {
-        return supportedEvmNetworks().map {
-            // TODO(dtverdota): remove this once Ethereum is moved to be a dynamic L1EvmAsset from the hard-coded
-            // Cryptocurrency.ETHER object
-            it.filter { coinNetwork -> coinNetwork.network != CryptoCurrency.ETHER.networkTicker }
-        }
-    }
-
     fun supportedEvmNetworks(): Single<List<CoinNetworkDto>> {
         return rxSingle {
             coinNetworkApi.getCoinNetworks().map { response ->
@@ -123,7 +115,7 @@ class AssetDiscoveryApiService internal constructor(
         return rxMaybeOutcome {
             coinNetworkApi.getCoinNetworks().map { response ->
                 response.networks.first { coinNetwork ->
-                    coinNetwork.type == NetworkType.EVM && coinNetwork.currency == currency
+                    coinNetwork.type == NetworkType.EVM && coinNetwork.nativeAsset == currency
                 }
             }
         }

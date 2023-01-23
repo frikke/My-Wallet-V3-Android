@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.coinview.domain.model
 
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
 
@@ -66,7 +67,7 @@ sealed interface CoinviewAccount {
      * Defi mode
      */
     data class PrivateKey(
-        override val account: BlockchainAccount,
+        override val account: SingleAccount,
         override val cryptoBalance: DataResource<Money>,
         override val fiatBalance: DataResource<Money>,
         override val isEnabled: Boolean

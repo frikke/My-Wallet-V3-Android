@@ -25,11 +25,12 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.TxSourceState
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.Image
@@ -360,7 +361,13 @@ fun PreviewAssetAccounts_Data() {
     )
 }
 
-private val previewBlockchainAccount = object : BlockchainAccount {
+private val previewBlockchainAccount = object : SingleAccount {
+    override val isDefault: Boolean
+        get() = false
+    override val currency: Currency
+        get() = error("preview")
+    override val sourceState: Single<TxSourceState>
+        get() = error("preview")
     override val label: String
         get() = error("preview")
 

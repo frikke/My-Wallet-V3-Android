@@ -105,11 +105,6 @@ data class CoinviewAccountsState(
             val logo: LogoSource
         ) : CoinviewAccountState
     }
-
-    data class CoinviewNetworkInfoState(
-        val logo: String,
-        val name: String
-    )
 }
 
 // Recurring buys

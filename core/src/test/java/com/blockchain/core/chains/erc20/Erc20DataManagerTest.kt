@@ -67,6 +67,7 @@ class Erc20DataManagerTest {
                 EvmNetwork(
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
+                    CryptoCurrency.ETHER.name,
                     EthDataManager.ETH_CHAIN_ID,
                     "",
                     ""

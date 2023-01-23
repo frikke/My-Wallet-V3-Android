@@ -53,10 +53,9 @@ class UniversalDynamicAssetRepository(
             .map { assets -> assets.mapNotNull { it.toAssetInfo() } }
     }
 
-    // Returns the AssetInfo for every Coin from coin definitions with the network type EVM except Ethereum
-    override fun otherEvmAssets(): Single<List<AssetInfo>> {
-        return l2sDynamicAssetRepository.otherEvmAssets()
-            .map { it.mapNotNull { asset -> asset.toAssetInfo() } }
+    override fun allEvmAssets(): Single<List<AssetInfo>> {
+        return l2sDynamicAssetRepository.allEvmAssets()
+            .map { it.map { asset -> asset.toAssetInfo() } }
     }
 
     // Returns the list of EvmNetworks from the coin networks service including Ethereum
@@ -65,16 +64,13 @@ class UniversalDynamicAssetRepository(
     override fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> =
         l2sDynamicAssetRepository.getEvmNetworkForCurrency(currency)
 
-    // Returns the list of EvmNetworks from the coin networks service except Ethereum
-    override fun otherEvmNetworks(): Single<List<EvmNetwork>> = l2sDynamicAssetRepository.otherEvmNetworks()
-
     override fun allNetworks(): Flow<DataResource<List<CoinNetwork>>> {
         return coinNetworksStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .mapData { coinNetworks ->
                 coinNetworks.map { coinNetworkDto ->
                     CoinNetwork(
                         explorerUrl = coinNetworkDto.explorerUrl,
-                        currency = coinNetworkDto.currency,
+                        currency = coinNetworkDto.nativeAsset,
                         network = coinNetworkDto.network,
                         name = coinNetworkDto.name,
                         type = coinNetworkDto.type,

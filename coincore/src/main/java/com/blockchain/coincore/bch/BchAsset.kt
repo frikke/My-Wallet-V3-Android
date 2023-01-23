@@ -69,7 +69,6 @@ internal class BchAsset internal constructor(
                             feeDataManager = feeDataManager,
                             sendDataManager = sendDataManager,
                             walletPreferences = walletPreferences,
-                            custodialWalletManager = custodialManager,
                             refreshTrigger = this@BchAsset,
                             addressResolver = addressResolver
                         )

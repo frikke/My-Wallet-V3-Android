@@ -70,25 +70,34 @@ class PricesViewModel(
                             true
                         }
                         PricesFilter.Tradable -> {
-                            state.tradableCurrencies.map {
-                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                            state.tradableCurrencies.map { tradable ->
+                                assetPriceInfo.assetInfo.networkTicker in tradable
                             }.dataOrElse(false)
                         }
                         PricesFilter.Favorites -> {
-                            state.watchlist.map {
-                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                            state.watchlist.map { watchlist ->
+                                assetPriceInfo.assetInfo.networkTicker in watchlist
                             }.dataOrElse(false)
                         }
                     }
                 }
-                .map {
-                    it.sortedWith(
-                        compareByDescending<AssetPriceInfo> { assetPriceInfo ->
-                            state.tradableCurrencies.map {
-                                it.contains(assetPriceInfo.assetInfo.networkTicker)
+                .map { list ->
+                    /**
+                     * sorted by: watchlist - asset index - is tradable - marketcap
+                     */
+                    list.sortedWith(
+                        compareByDescending<AssetPriceInfo> {
+                            state.watchlist.map { watchlist ->
+                                it.assetInfo.networkTicker in watchlist
                             }.dataOrElse(false)
                         }.thenByDescending {
-                            it.price.map { it.marketCap }.dataOrElse(null)
+                            it.assetInfo.index
+                        }.thenByDescending {
+                            state.tradableCurrencies.map { tradable ->
+                                it.assetInfo.networkTicker in tradable
+                            }.dataOrElse(false)
+                        }.thenByDescending {
+                            it.price.map { price -> price.marketCap }.dataOrElse(null)
                         }.thenBy {
                             it.assetInfo.name
                         }

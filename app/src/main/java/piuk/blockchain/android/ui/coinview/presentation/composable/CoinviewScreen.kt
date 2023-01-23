@@ -171,7 +171,7 @@ fun CoinviewScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
-                title = (asset as? DataResource.Data)?.data?.asset?.networkTicker ?: "",
+                title = (asset as? DataResource.Data)?.data?.asset?.displayTicker ?: "",
                 icon = (asset as? DataResource.Data)?.data?.let { assetState ->
                     assetState.l1Network?.let { l1Network ->
                         StackedIcon.SmallTag(

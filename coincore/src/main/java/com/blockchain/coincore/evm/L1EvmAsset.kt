@@ -13,9 +13,9 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
@@ -26,35 +26,24 @@ internal class L1EvmAsset(
     override val currency: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
-    private val ethDataManager: EthDataManager,
     private val labels: DefaultLabels,
     private val walletPreferences: WalletStatusPrefs,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
-    private val evmNetworks: Single<List<EvmNetwork>>
+    private val evmNetwork: EvmNetwork
 ) : CryptoAssetBase(),
     StandardL1Asset {
     private val erc20address
         get() = erc20DataManager.accountHash
 
     // For example to get MATIC from MATIC.MATIC
-    private val nativeNetworkTicker = currency.networkTicker.split(".").first()
+    private val ethDataManager: EthDataManager by scopedInject()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        evmNetworks.map { networks ->
-            loadNonCustodialAccount(networks)
-        }
+        Single.just(loadNonCustodialAccount())
 
-    private fun loadNonCustodialAccount(availableNetworks: List<EvmNetwork>): SingleAccountList {
-        return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-            availableNetworks.firstOrNull { evmNetwork ->
-                evmNetwork.networkTicker == nativeNetworkTicker
-            }?.let { evmNetwork ->
-                listOf(getNonCustodialAccount(evmNetwork))
-            } ?: emptyList()
-        } else {
-            emptyList()
-        }
+    private fun loadNonCustodialAccount(): SingleAccountList {
+        return listOf(getNonCustodialAccount(evmNetwork))
     }
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
@@ -81,7 +70,7 @@ internal class L1EvmAsset(
                 if (isValid) {
                     erc20DataManager.isContractAddress(
                         address = normalisedAddress,
-                        l1Chain = nativeNetworkTicker
+                        l1Chain = evmNetwork.networkTicker
                     )
                         .flatMapMaybe { isContract ->
                             Maybe.just(

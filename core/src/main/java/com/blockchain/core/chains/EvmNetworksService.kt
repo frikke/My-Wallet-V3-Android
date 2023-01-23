@@ -20,6 +20,8 @@ data class EvmNetworkList(
 data class EvmNetwork(
     @SerialName("networkTicker")
     val networkTicker: String,
+    @SerialName("nativeAsset")
+    val nativeAsset: String,
     @SerialName("networkName")
     val networkName: String,
     @SerialName("chainId")
@@ -27,7 +29,7 @@ data class EvmNetwork(
     @SerialName("nodeUrl")
     val nodeUrl: String,
     @SerialName("explorerUrl")
-    val explorerUrl: String
+    val explorerUrl: String,
 )
 
 class EvmNetworksService(

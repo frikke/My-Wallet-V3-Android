@@ -55,7 +55,7 @@ interface AssetCatalogue {
     fun assetFromL1ChainByContractAddress(l1chain: String, contractAddress: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
     fun availableL1Assets(): Single<List<AssetInfo>>
-    fun otherEvmAssets(): Single<List<AssetInfo>>
+    fun allEvmAssets(): Single<List<AssetInfo>>
 }
 
 open class CryptoCurrency(

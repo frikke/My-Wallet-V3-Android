@@ -437,6 +437,7 @@ class EthDataManager(
             networkTicker = CryptoCurrency.ETHER.networkTicker,
             networkName = CryptoCurrency.ETHER.name,
             chainId = ETH_CHAIN_ID,
+            nativeAsset = CryptoCurrency.ETHER.networkTicker,
             nodeUrl = EthUrls.ETH_NODES,
             explorerUrl = CryptoCurrency.ETHER.txExplorerUrlBase ?: ""
         )

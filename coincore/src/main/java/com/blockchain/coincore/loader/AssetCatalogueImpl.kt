@@ -74,12 +74,8 @@ class AssetCatalogueImpl internal constructor(
 
     override fun availableL1Assets(): Single<List<AssetInfo>> = assetsService.availableL1Assets()
 
-    // Returns the AssetInfo for every Coin from coin definitions with the network type EVM except Ethereum
-    override fun otherEvmAssets(): Single<List<AssetInfo>> = assetsService.otherEvmAssets()
+    override fun allEvmAssets(): Single<List<AssetInfo>> = assetsService.allEvmAssets()
 
     // Returns the list of EvmNetworks from the coin networks service including Ethereum
     fun allEvmNetworks() = assetsService.allEvmNetworks()
-
-    // Returns the list of EvmNetworks from the coin networks service except Ethereum
-    fun otherEvmNetworks() = assetsService.otherEvmNetworks()
 }

@@ -17,6 +17,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.service.InterestService
@@ -177,7 +178,6 @@ class LoadAssetAccountsUseCase(
                         account = account,
                         balance = balance.map { it.total },
                         isAvailable = actions.data.any { it.state == ActionState.Available },
-                        isDefault = account.isDefault
                     )
                 }
             }.run {
@@ -195,7 +195,14 @@ class LoadAssetAccountsUseCase(
         stakingRate: Double = Double.NaN
     ): CoinviewAccounts {
 
-        val sortedAccounts = accounts.sorted()
+        val sortedAccounts =
+            accounts.sortedWith(
+                compareBy<CoinviewAccountDetail> { it.getIndexedValue() }.thenByDescending {
+                    it.balance.dataOrElse(
+                        Money.zero(it.account.currency)
+                    )
+                }.thenBy { it.account.label }
+            )
 
         // create accounts based on wallet mode and account type
         return when (walletMode) {
@@ -207,8 +214,8 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = it.balance.map {
-                                    exchangeRate.convert(it)
+                                fiatBalance = it.balance.map { balance ->
+                                    exchangeRate.convert(balance)
                                 },
                             )
                         }
@@ -217,8 +224,8 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = it.balance.map {
-                                    exchangeRate.convert(it)
+                                fiatBalance = it.balance.map { balance ->
+                                    exchangeRate.convert(balance)
                                 },
                                 interestRate = interestRate
                             )
@@ -228,8 +235,8 @@ class LoadAssetAccountsUseCase(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
-                                fiatBalance = it.balance.map {
-                                    exchangeRate.convert(it)
+                                fiatBalance = it.balance.map { balance ->
+                                    exchangeRate.convert(balance)
                                 },
                                 stakingRate = stakingRate
                             )

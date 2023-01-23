@@ -15,7 +15,6 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
@@ -40,7 +39,6 @@ import org.bitcoinj.core.LegacyAddress
     private val bchBalanceCache: BchBalanceCache,
     private var internalAccount: GenericMetadataAccount,
     private val walletPreferences: WalletStatusPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
@@ -165,7 +163,6 @@ import org.bitcoinj.core.LegacyAddress
             sendDataManager: SendDataManager,
             bchBalanceCache: BchBalanceCache,
             walletPreferences: WalletStatusPrefs,
-            custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,
         ) = BchCryptoWalletAccount(
@@ -178,7 +175,6 @@ import org.bitcoinj.core.LegacyAddress
             bchBalanceCache = bchBalanceCache,
             internalAccount = jsonAccount,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
             addressResolver = addressResolver
         )
