@@ -1,10 +1,14 @@
 package com.blockchain.commonarch.presentation.mvi
 
+import android.os.Bundle
 import androidx.annotation.CallSuper
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.cancel
 import timber.log.Timber
 
 abstract class MviBottomSheet<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E : ViewBinding> :
@@ -13,6 +17,15 @@ abstract class MviBottomSheet<M : MviModel<S, I>, I : MviIntent<S>, S : MviState
     protected abstract val model: M
 
     private var subscription: Disposable? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
+            model.disablePermanently()
+            lifecycleScope.cancel()
+            viewLifecycleOwner.lifecycleScope.cancel()
+        }
+    }
 
     override fun onResume() {
         super.onResume()

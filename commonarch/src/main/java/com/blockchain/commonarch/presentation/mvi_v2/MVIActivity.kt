@@ -3,7 +3,9 @@ package com.blockchain.commonarch.presentation.mvi_v2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -27,6 +29,11 @@ fun <TIntent : Intent<TModelState>,
     navigator: NavigationRouter<NavEnt>,
     args: TArgs
 ) {
+    if (processDeathOccurredAndThisIsNotLauncherActivity) {
+        viewModel.viewModelScope.cancel()
+        lifecycleScope.cancel()
+        return
+    }
     viewModel.viewCreated(args)
     // Create a new coroutine in the lifecycleScope
     lifecycleScope.launch {

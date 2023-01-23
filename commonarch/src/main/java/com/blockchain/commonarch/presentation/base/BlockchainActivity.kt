@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -43,6 +44,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -51,6 +53,8 @@ import org.koin.android.ext.android.inject
 /**
  * A base Activity for all activities which need auth timeouts & screenshot prevention
  */
+
+interface ManifestLauncherActivity
 
 abstract class BlockchainActivity : ToolBarActivity() {
 
@@ -105,9 +109,21 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private val walletPrefs: WalletStatusPrefs by inject()
     private val walletModeService = payloadScope.get<WalletModeService>()
 
+    var processDeathOccurredAndThisIsNotLauncherActivity: Boolean = false
+        private set
+
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        processDeathOccurredAndThisIsNotLauncherActivity =
+            isFirstActivityToBeCreated && this !is ManifestLauncherActivity
+
+        isFirstActivityToBeCreated = false
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+            lifecycleScope.cancel()
+            appUtil.restartApp()
+            return
+        }
 
         setStatusBarForMode()
 
@@ -155,7 +171,17 @@ abstract class BlockchainActivity : ToolBarActivity() {
         }
     }
 
+    override fun setContentView(layoutResID: Int) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
+        else super.setContentView(layoutResID)
+    }
+
     override fun setContentView(view: View?) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+            super.setContentView(CoordinatorLayout(this))
+            return
+        }
+
         val view = if (BuildConfig.DEBUG) {
             // Some activities are calling setContentView twice, once on specific activity onCreate and another on
             // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
@@ -179,6 +205,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
             view
         }
         super.setContentView(view)
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
+        else super.setContentView(view, params)
     }
 
     /**
@@ -240,6 +271,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onResume() {
         super.onResume()
+        if (processDeathOccurredAndThisIsNotLauncherActivity) return
         logoutTimer.stop()
 
         if (enableScreenshots) {
@@ -266,6 +298,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onPause() {
         super.onPause()
+        if (processDeathOccurredAndThisIsNotLauncherActivity) return
         if (enableLogoutTimer) {
             logoutTimer.start()
         }
@@ -367,6 +400,8 @@ abstract class BlockchainActivity : ToolBarActivity() {
     companion object {
         private const val BOTTOM_DIALOG = "BOTTOM_DIALOG"
         const val LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT"
+
+        private var isFirstActivityToBeCreated = true
     }
 }
 

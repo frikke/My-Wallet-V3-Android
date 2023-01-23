@@ -6,11 +6,14 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -83,6 +86,12 @@ fun <TIntent : Intent<TModelState>,
     navigator: NavigationRouter<NavEnt>,
     args: TArgs
 ) {
+    if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
+        viewModel.viewModelScope.cancel()
+        lifecycleScope.cancel()
+        viewLifecycleOwner.lifecycleScope.cancel()
+        return
+    }
     viewModel.viewCreated(args)
     // Create a new coroutine in the lifecycleScope
     viewLifecycleOwner.lifecycleScope.launch {

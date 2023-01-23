@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -15,6 +16,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.cancel
 import org.koin.core.error.ClosedScopeException
 import timber.log.Timber
 
@@ -44,6 +46,15 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
         subscription?.dispose()
         subscription = null
         super.onPause()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (activity.processDeathOccurredAndThisIsNotLauncherActivity) {
+            model.disablePermanently()
+            lifecycleScope.cancel()
+            viewLifecycleOwner.lifecycleScope.cancel()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.NotificationAppOpened
+import com.blockchain.commonarch.presentation.base.ManifestLauncherActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -35,7 +36,10 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class LauncherActivity
-class LauncherActivityV2 : MVIActivity<LauncherState>(), NavigationRouter<LaunchNavigationEvent> {
+class LauncherActivityV2 :
+    MVIActivity<LauncherState>(),
+    NavigationRouter<LaunchNavigationEvent>,
+    ManifestLauncherActivity {
 
     override val alwaysDisableScreenshots: Boolean = false
 

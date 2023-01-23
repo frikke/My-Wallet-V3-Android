@@ -51,7 +51,6 @@ import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
@@ -114,7 +113,6 @@ class SimpleBuyCryptoFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
-    private val assetCatalogue: AssetCatalogue by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val fraudService: FraudService by inject()
@@ -137,9 +135,7 @@ class SimpleBuyCryptoFragment :
     private var shouldShowPaymentMethodSheet = false
 
     private val asset: AssetInfo
-        get() = arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.assetInfoFromNetworkTicker(it)
-        } ?: throw IllegalArgumentException("No cryptoCurrency specified")
+        get() = requireArguments().getSerializable(ARG_CRYPTO_ASSET) as AssetInfo
 
     private val preselectedMethodId: String?
         get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
@@ -1370,7 +1366,7 @@ class SimpleBuyCryptoFragment :
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
+                    putSerializable(ARG_CRYPTO_ASSET, asset)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, it) }
                     preselectedAmount?.let { putString(ARG_AMOUNT, it) }
                     preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }

@@ -214,7 +214,6 @@ val applicationModule = module {
             pinRepository = get(),
             remoteLogger = get(),
             walletStatusPrefs = get(),
-            unifiedActivityService = payloadScope.get()
         )
     }.bind(AppUtilAPI::class)
 
