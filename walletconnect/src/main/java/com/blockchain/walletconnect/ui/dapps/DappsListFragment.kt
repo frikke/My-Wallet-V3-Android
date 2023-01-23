@@ -130,7 +130,7 @@ class DappsListFragment :
             }, content = {
                 state?.let {
                     if (it.connectedSessions.isEmpty()) {
-                        RenderNoDapps()
+                        NoDapps()
                     } else {
                         DappsList(it.connectedSessions) { session ->
                             currentBottomSheet = SessionBottomSheet.Disconnect(
@@ -275,7 +275,7 @@ private fun DappListItem(session: WalletConnectSession, onClick: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-private fun RenderNoDapps() {
+private fun NoDapps() {
     Column(
         modifier = Modifier
             .fillMaxSize()
