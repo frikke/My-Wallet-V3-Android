@@ -2,12 +2,9 @@ package com.blockchain.core.chains.erc20
 
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
-import com.blockchain.core.chains.erc20.domain.Erc20StoreService
-import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
@@ -21,13 +18,11 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.TestScheduler
@@ -63,7 +58,7 @@ class Erc20DataManagerTest {
     private val ethDataManager: EthDataManager = mockk {
         every { accountAddress } returns ACCOUNT_HASH
         every { supportedNetworks } returns Single.just(
-            setOf(
+            listOf(
                 EvmNetwork(
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
@@ -80,8 +75,6 @@ class Erc20DataManagerTest {
     }
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val assetCatalogue: AssetCatalogue = mockk()
-    private val erc20StoreService: Erc20StoreService = mock()
-    private val erc20DataSource: Erc20DataSource = mock()
     private val erc20L2StoreService: Erc20L2StoreService = mock()
     private val erc20L2DataSource: Erc20L2DataSource = mock()
 
@@ -90,10 +83,6 @@ class Erc20DataManagerTest {
         l1BalanceStore = l1BalanceStore,
         historyCallCache = historyCallCache,
         assetCatalogue = assetCatalogue,
-        erc20StoreService = erc20StoreService,
-        erc20DataSource = erc20DataSource,
-        erc20L2StoreService = erc20L2StoreService,
-        erc20L2DataSource = erc20L2DataSource
     )
 
     @Test
@@ -103,54 +92,7 @@ class Erc20DataManagerTest {
         assertEquals(ACCOUNT_HASH, result)
 
         io.mockk.verify { ethDataManager.accountAddress }
-        verifyNoMoreInteractions(erc20StoreService)
         verifyNoMoreInteractions(historyCallCache)
-    }
-
-    @Test
-    fun `eth balance is fetched from eth data manager`() {
-
-        val ethBalance = 1001.toBigInteger()
-
-        whenever(l1BalanceStore.stream(any())).thenReturn(flowOf(DataResource.Data(ethBalance)))
-        every { ethDataManager.supportedNetworks } returns Single.just(setOf(EthDataManager.ethChain))
-        every { assetCatalogue.fromNetworkTicker(EthDataManager.ethChain.networkTicker) } returns CryptoCurrency.ETHER
-
-        val expectedResult = CryptoValue.fromMinor(CryptoCurrency.ETHER, ethBalance)
-        val result = subject.getL1TokenBalance(CryptoCurrency.ETHER).blockingGet()
-        assertEquals(expectedResult, result)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun `getErc20Balance fails for non-erc20 assets`() {
-        subject.getErc20Balance(CryptoCurrency.ETHER)
-    }
-
-    @Test
-    fun `getErc20Balance delegates to balance cache`() {
-        val mockBalance: Erc20Balance = mock()
-        whenever(erc20StoreService.getBalanceFor(asset = ERC20_TOKEN))
-            .thenReturn(Observable.just(mockBalance))
-
-        val result = subject.getErc20Balance(ERC20_TOKEN).blockingFirst()
-        assertEquals(mockBalance, result)
-
-        verify(erc20StoreService).getBalanceFor(asset = ERC20_TOKEN)
-
-        verifyNoMoreInteractions(erc20StoreService)
-    }
-
-    @Test
-    fun `getErc20Balance returns zero if asset not found`() {
-        whenever(erc20StoreService.getBalanceFor(asset = UNKNOWN_ERC20_TOKEN))
-            .thenReturn(Observable.just(Erc20Balance.zero(UNKNOWN_ERC20_TOKEN)))
-
-        val result = subject.getErc20Balance(UNKNOWN_ERC20_TOKEN).blockingFirst()
-        assert(result.balance.isZero)
-
-        verify(erc20StoreService).getBalanceFor(asset = UNKNOWN_ERC20_TOKEN)
-
-        verifyNoMoreInteractions(erc20StoreService)
     }
 
     @Test
@@ -383,23 +325,6 @@ class Erc20DataManagerTest {
             .assertValue(false)
 
         io.mockk.verify { ethDataManager.isContractAddress(ACCOUNT_HASH) }
-
-        verifyNoMoreInteractions(historyCallCache)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun `flushCaches fails in called for a non-erc20 token`() {
-        subject.flushCaches(CryptoCurrency.ETHER)
-    }
-
-    @Test
-    fun `flushCaches clears cached API data`() {
-        subject.flushCaches(ERC20_TOKEN)
-
-        verify(erc20DataSource).invalidate()
-        verify(erc20L2DataSource).invalidate(ERC20_TOKEN.networkTicker)
-
-        verify(historyCallCache).flush(ERC20_TOKEN)
 
         verifyNoMoreInteractions(historyCallCache)
     }

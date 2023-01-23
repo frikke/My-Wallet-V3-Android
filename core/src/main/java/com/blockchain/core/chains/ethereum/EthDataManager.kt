@@ -3,7 +3,6 @@ package com.blockchain.core.chains.ethereum
 import com.blockchain.api.ethereum.evm.FeeLevel
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
@@ -68,11 +67,8 @@ class EthDataManager(
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
-    val supportedNetworks: Single<Set<EvmNetwork>>
-        get() = evmNetworksService.getSupportedNetworks().map {
-            it.plus(ethChain).toSet()
-        }
-            .onErrorReturn { setOf(ethChain) }
+    val supportedNetworks: Single<List<EvmNetwork>>
+        get() = evmNetworksService.allEvmNetworks()
 
     /**
      * Clears the currently stored ETH account from memory.

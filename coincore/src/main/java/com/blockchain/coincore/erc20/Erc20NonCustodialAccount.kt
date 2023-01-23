@@ -21,7 +21,6 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
@@ -50,12 +49,6 @@ class Erc20NonCustodialAccount(
         get() = Single.just(
             Erc20Address(currency, address, label)
         )
-
-    override fun getOnChainBalance(): Observable<Money> =
-        erc20DataManager.getErc20Balance(currency)
-            .doOnNext { hasFunds.set(it.balance.isPositive) }
-            .doOnNext { setHasTransactions(it.hasTransactions) }
-            .map { it.balance }
 
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return super.balanceRx(freshnessStrategy).onErrorResumeNext {
@@ -102,8 +95,4 @@ class Erc20NonCustodialAccount(
             walletPreferences = walletPreferences,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
-
-    companion object {
-        private const val ETH_CHAIN_TX_HISTORY_MULTIPLIER = 1000
-    }
 }

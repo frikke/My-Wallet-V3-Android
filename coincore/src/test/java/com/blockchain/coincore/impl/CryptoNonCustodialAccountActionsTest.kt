@@ -37,7 +37,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -457,10 +456,6 @@ private class NonCustodialTestAccount(
     override val isFunded: Boolean,
     currency: AssetInfo,
 ) : CryptoNonCustodialAccount(currency) {
-
-    override fun getOnChainBalance(): Observable<Money> =
-        Observable.just(Money.zero(currency))
-
     override val index: Int
         get() = 1
 

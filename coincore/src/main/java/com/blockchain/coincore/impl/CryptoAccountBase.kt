@@ -266,11 +266,6 @@ abstract class CryptoNonCustodialAccount(
         }.doOnNext { hasFunds.set(it.total.isPositive) }
     }
 
-    /**
-     * Remove after unified balances are fully integrated and stable
-     */
-    protected abstract fun getOnChainBalance(): Observable<out Money>
-
     protected abstract val addressResolver: AddressResolver
 
     override val stateAwareActions: Single<Set<StateAwareAction>>

@@ -19,12 +19,10 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 
@@ -75,12 +73,6 @@ import org.bitcoinj.core.LegacyAddress
             )
         )
     }
-
-    override fun getOnChainBalance(): Observable<Money> =
-        Single.fromCallable { internalAccount.xpubs() }
-            .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { Money.fromMinor(currency, it) }
-            .toObservable()
 
     override val index: Int
         get() = addressIndex

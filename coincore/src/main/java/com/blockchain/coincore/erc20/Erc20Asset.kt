@@ -11,7 +11,9 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -32,25 +34,18 @@ internal class Erc20Asset(
     private val currencyPrefs: CurrencyPrefs,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
-    private val evmNetworks: Single<List<EvmNetwork>>,
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        evmNetworks.map { networks ->
-            loadNonCustodialAccount(networks)
-        }
+    private val evmNetworksService: EvmNetworksService by scopedInject()
 
-    private fun loadNonCustodialAccount(supportedNetworks: List<EvmNetwork>): SingleAccountList {
-        return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-            supportedNetworks.firstOrNull { evmNetwork ->
-                evmNetwork.networkTicker == currency.l1chainTicker
-            }?.let { evmNetwork ->
-                listOf(getNonCustodialAccount(evmNetwork))
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        if (AssetCategory.NON_CUSTODIAL !in currency.categories) return Single.just(emptyList())
+        return evmNetworksService.allEvmNetworks().map { networks ->
+            networks.firstOrNull { network -> network.networkTicker == currency.l1chainTicker }?.let {
+                listOf(getNonCustodialAccount(it))
             } ?: emptyList()
-        } else {
-            emptyList()
         }
     }
 

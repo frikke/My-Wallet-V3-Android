@@ -12,24 +12,16 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.getOrThrow
-import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
 import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigDecimal
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 
@@ -99,37 +91,6 @@ class DynamicNonCustodialAccount(
             internalAccount.signingKey
         }
     }
-
-    override fun getOnChainBalance(): Observable<out Money> = rxSingle {
-        // Check if we are subscribed to the given currency.
-        val subscriptions = nonCustodialService.getSubscriptions().first().getOrDefault(emptyList())
-
-        if (subscriptions.contains(currency.networkTicker)) {
-            // Get the balance if we found the currency in the subscriptions
-            getBalance().getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
-        } else {
-            // If not, we need to subscribe. However if the list of subscriptions is empty then it's the first time
-            // we're calling this endpoint. In that case we also need to authenticate.
-            subscribeToBalance().flatMap {
-                getBalance()
-            }.getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
-        }
-    }
-        .toObservable()
-
-    private suspend fun getBalance() = nonCustodialService.getBalances(listOf(currency.networkTicker))
-        .map { accountBalances ->
-            accountBalances.firstOrNull { it.networkTicker == currency.networkTicker }?.let { balance ->
-                Money.fromMinor(currency, balance.amount)
-            } ?: Money.fromMajor(currency, BigDecimal.ZERO)
-        }
-
-    private suspend fun subscribeToBalance(): Outcome<Exception, Boolean> =
-        nonCustodialService.subscribe(
-            currency = currency.networkTicker,
-            label = label,
-            addresses = listOf(xpubAddress)
-        )
 
     override val index: Int
         get() = 0

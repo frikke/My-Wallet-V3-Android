@@ -14,24 +14,14 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.store.asObservable
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigInteger
-import kotlinx.coroutines.flow.catch
 
 class L1EvmNonCustodialAccount(
     asset: AssetInfo,
@@ -73,16 +63,6 @@ class L1EvmNonCustodialAccount(
         } ?: throw IllegalStateException(
             "Public key for Eth account hasn't been derived"
         )
-
-    override fun getOnChainBalance(): Observable<Money> {
-        return l1BalanceStore
-            .stream(
-                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh).withKey(L1BalanceStore.Key(l1Network.nodeUrl))
-            )
-            .catch { DataResource.Data(BigInteger.ZERO) }
-            .mapData { balance -> Money.fromMinor(currency, balance) }
-            .asObservable()
-    }
 
     override val sourceState: Single<TxSourceState>
         get() = super.sourceState.flatMap { state ->

@@ -58,7 +58,7 @@ class SelectNetworkViewModelTest {
             logo = "logo"
         )
 
-        every { ethDataManager.supportedNetworks } returns Single.just(setOf(ethEvmNetwork))
+        every { ethDataManager.supportedNetworks } returns Single.just(listOf(ethEvmNetwork))
         every { coincore[ethEvmNetwork.networkTicker] } returns asset
 
         subject.viewState.test {
@@ -101,7 +101,7 @@ class SelectNetworkViewModelTest {
             logo = "logo"
         )
 
-        every { ethDataManager.supportedNetworks } returns Single.just(setOf(ethEvmNetwork, otherEvmNetwork))
+        every { ethDataManager.supportedNetworks } returns Single.just(listOf(ethEvmNetwork, otherEvmNetwork))
         every { coincore[ethEvmNetwork.networkTicker] } returns asset
         every { coincore[otherEvmNetwork.networkTicker] } returns asset
 

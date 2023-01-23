@@ -54,11 +54,6 @@ internal class XlmCryptoWalletAccount(
             XlmAddress(_address = address, _label = label)
         )
 
-    override fun getOnChainBalance(): Observable<Money> =
-        getMinBalance().map {
-            it.balance
-        }
-
     private fun getMinBalance(): Observable<BalanceAndMin> =
         xlmManager.getBalanceAndMin()
             .toObservable()

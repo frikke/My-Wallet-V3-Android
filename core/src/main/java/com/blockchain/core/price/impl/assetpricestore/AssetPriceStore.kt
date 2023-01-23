@@ -32,7 +32,7 @@ internal class AssetPriceStore(
         private set
 
     internal suspend fun warmSupportedTickersCache(): Outcome<Exception, Unit> =
-        supportedTickersStore.stream(FreshnessStrategy.Fresh)
+        supportedTickersStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .doOnSuccess { tickerGroup ->
                 fiatQuoteTickers = tickerGroup.fiatQuoteTickers

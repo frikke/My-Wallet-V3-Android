@@ -5,7 +5,7 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAssetList
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.chains.EvmNetworksService
+import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
@@ -23,9 +23,8 @@ import kotlinx.coroutines.rx3.rxSingle
 class NonCustodialL2sDynamicAssetRepository(
     private val discoveryService: AssetDiscoveryApiService,
     private val l2Store: NonCustodialL2sDynamicAssetStore,
-    private val evmNetworksService: Lazy<EvmNetworksService>,
     private val coinNetworksStore: CoinNetworksStore
-) {
+) : EvmNetworksService {
     fun availableL2s(): Single<DynamicAssetList> {
         return getL2sForSupportedL1s()
     }
@@ -50,7 +49,6 @@ class NonCustodialL2sDynamicAssetRepository(
                     networks.find {
                         it.networkTicker == coin.networkTicker || it.networkTicker == coin.displayTicker
                     }?.let { network ->
-                        // TODO(dtverdota) remove once PK product is added to coin definitions
                         coin.copy(
                             products = coin.products.plus(DynamicAssetProducts.PrivateKey),
                             explorerUrl = network.explorerUrl
@@ -62,7 +60,7 @@ class NonCustodialL2sDynamicAssetRepository(
 
     private var evmNetworksCache = listOf<EvmNetwork>()
 
-    fun allEvmNetworks(): Single<List<EvmNetwork>> {
+    override fun allEvmNetworks(): Single<List<EvmNetwork>> {
         return if (evmNetworksCache.isNotEmpty()) {
             Single.just(evmNetworksCache)
         } else

@@ -93,7 +93,7 @@ import io.reactivex.rxjava3.core.Single
             else -> Single.error(IllegalStateException("Cannot receive to Imported Account"))
         }
 
-    override fun getOnChainBalance(): Observable<Money> =
+    private fun getOnChainBalance(): Observable<Money> =
         getAccountBalance()
             .toObservable()
 

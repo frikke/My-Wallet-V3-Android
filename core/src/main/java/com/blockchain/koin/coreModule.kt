@@ -14,7 +14,6 @@ import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
 import com.blockchain.core.buy.domain.SimpleBuyService
-import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoin.PaymentService
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
@@ -28,14 +27,10 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
-import com.blockchain.core.chains.erc20.data.Erc20StoreRepository
-import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
-import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
-import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.chains.ethereum.EthMessageSigner
@@ -273,12 +268,6 @@ val coreModule = module {
             )
         }
 
-        factory {
-            EvmNetworksService(
-                remoteConfig = get()
-            )
-        }
-
         scoped {
             EthDataManager(
                 payloadDataManager = get(),
@@ -297,20 +286,6 @@ val coreModule = module {
             L1BalanceStore(
                 ethDataManager = get(),
                 remoteLogger = get()
-            )
-        }
-
-        scoped<Erc20DataSource> {
-            Erc20Store(
-                erc20Service = get(),
-                ethDataManager = get()
-            )
-        }
-
-        scoped<Erc20StoreService> {
-            Erc20StoreRepository(
-                assetCatalogue = get(),
-                erc20DataSource = get()
             )
         }
 
@@ -343,10 +318,6 @@ val coreModule = module {
                 l1BalanceStore = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
-                erc20StoreService = get(),
-                erc20DataSource = get(),
-                erc20L2StoreService = get(),
-                erc20L2DataSource = get(),
             )
         }.bind(Erc20DataManager::class)
 

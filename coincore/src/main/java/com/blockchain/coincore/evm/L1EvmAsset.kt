@@ -36,7 +36,6 @@ internal class L1EvmAsset(
     private val erc20address
         get() = erc20DataManager.accountHash
 
-    // For example to get MATIC from MATIC.MATIC
     private val ethDataManager: EthDataManager by scopedInject()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =

@@ -309,7 +309,6 @@ internal class DynamicAssetLoader(
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
-            evmNetworks = assetCatalogue.allEvmNetworks(),
         )
     }
 

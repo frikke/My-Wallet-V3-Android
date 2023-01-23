@@ -1,7 +1,6 @@
 package com.blockchain.core.chains.ethereum
 
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
@@ -61,7 +60,7 @@ class EthDataManagerTest {
     private val metadataRepository: MetadataRepository = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
     private val evmNetworksService: EvmNetworksService = mock {
-        on { getSupportedNetworks() }.thenReturn(Single.just(emptyList()))
+        on { allEvmNetworks() }.thenReturn(Single.just(emptyList()))
     }
     private val nonCustodialEvmService: NonCustodialEvmService = mock()
 
