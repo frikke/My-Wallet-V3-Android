@@ -1,10 +1,13 @@
 package com.blockchain.chrome.composable
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -79,6 +82,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
+
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
     val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) 0 else 145
@@ -599,20 +603,12 @@ fun MultiAppChromeScreen(
 
             // ////// content
             // the screen can look jumpy at first launch since views positions are initialized dynamically
-            // content will be hidden at first until we have the view heights
-            val contentAlpha by animateFloatAsState(
-                targetValue = if (toolbarState.offsetValuesSet) 1F else 0F,
-                animationSpec = tween(
-                    durationMillis = ANIMATION_DURATION / 2
-                )
-            )
-
+            // content will be hidden at first until we have the view heights (toolbarState.offsetValuesSet)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
                         translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
-                        alpha = contentAlpha
                     }
                     .background(
                         color = Color(0XFFF1F2F7),
@@ -623,61 +619,66 @@ fun MultiAppChromeScreen(
                     )
             )
 
-            MultiAppBottomNavigationHost(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
-                        alpha = contentAlpha
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                // ignore the reveal if user interacts with the
-                                // content already before getting the balance
-                                if (toolbarState.isBalanceRevealInProgress.not()) {
-                                    onBalanceRevealed()
-                                    coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
+            AnimatedVisibility(
+                visible = toolbarState.offsetValuesSet,
+                enter = fadeIn(tween(durationMillis = ANIMATION_DURATION / 2)),
+                exit = fadeOut(tween(durationMillis = ANIMATION_DURATION / 2))
+            ) {
+                MultiAppBottomNavigationHost(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    // ignore the reveal if user interacts with the
+                                    // content already before getting the balance
+                                    if (toolbarState.isBalanceRevealInProgress.not()) {
+                                        onBalanceRevealed()
+                                        coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
+                                    }
+
+                                    coroutineScopeSnaps.coroutineContext.cancelChildren()
+                                    animateSnap = false
+                                    verifyHeaderPositionForNewScreen = false
+                                    toolbarState.isAutoScrolling = false
                                 }
+                            )
+                        },
+                    navControllerProvider = { navController },
+                    enableRefresh = enablePullToRefresh,
+                    updateScrollInfo = { (navItem, listStateInfo) ->
+                        toolbarState.scrollTopLimitReached = listStateInfo.isFirstItemVisible &&
+                            listStateInfo.isFirstVisibleItemOffsetZero
 
-                                coroutineScopeSnaps.coroutineContext.cancelChildren()
-                                animateSnap = false
-                                verifyHeaderPositionForNewScreen = false
-                                toolbarState.isAutoScrolling = false
-                            }
-                        )
+                        toolbarState.isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
+
+                        if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
+                            verifyAndCollapseHeaderForNewScreen()
+                        }
                     },
-                navControllerProvider = { navController },
-                enableRefresh = enablePullToRefresh,
-                updateScrollInfo = { (navItem, listStateInfo) ->
-                    toolbarState.scrollTopLimitReached = listStateInfo.isFirstItemVisible &&
-                        listStateInfo.isFirstVisibleItemOffsetZero
-
-                    toolbarState.isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
-
-                    if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
-                        verifyAndCollapseHeaderForNewScreen()
-                    }
-                },
-                selectedNavigationItem = selectedNavigationItem,
-                refreshStarted = {
-                    isRefreshing = true
-                },
-                refreshComplete = {
-                    stopRefresh()
-                },
-                openCryptoAssets = openCryptoAssets,
-                openActivity = openActivity,
-                openActivityDetail = openActivityDetail,
-                openReferral = openReferral,
-                openMoreQuickActions = openMoreQuickActions,
-                openFiatActionDetail = openFiatActionDetail,
-                assetActionsNavigation = assetActionsNavigation,
-                settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation,
-                qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation,
-            )
+                    selectedNavigationItem = selectedNavigationItem,
+                    refreshStarted = {
+                        isRefreshing = true
+                    },
+                    refreshComplete = {
+                        stopRefresh()
+                    },
+                    openCryptoAssets = openCryptoAssets,
+                    openActivity = openActivity,
+                    openActivityDetail = openActivityDetail,
+                    openReferral = openReferral,
+                    openMoreQuickActions = openMoreQuickActions,
+                    openFiatActionDetail = openFiatActionDetail,
+                    assetActionsNavigation = assetActionsNavigation,
+                    settingsNavigation = settingsNavigation,
+                    pricesNavigation = pricesNavigation,
+                    qrScanNavigation = qrScanNavigation,
+                    supportNavigation = supportNavigation,
+                )
+            }
         }
 
         // ////// bottom nav
