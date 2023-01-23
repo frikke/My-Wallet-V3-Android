@@ -78,7 +78,6 @@ class EnterAlwaysCollapsedState(
             .coerceIn(0F, 1F)
     }
 
-    override var isRefreshing: Boolean = false
     override var isPullToRefreshSwipeInProgress: Boolean = false
 
     override var isBalanceRevealInProgress: Boolean = false

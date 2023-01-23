@@ -16,8 +16,6 @@ interface CollapsingToolbarState {
     fun balanceScrollAlpha(isFirstLaunch: Boolean): Float
     fun switcherScrollAlpha(): Float
 
-    var isRefreshing: Boolean
-
     /**
      * if the screen is currently trying pull to refresh
      * i.e. is pulling and seeing the loading indicator

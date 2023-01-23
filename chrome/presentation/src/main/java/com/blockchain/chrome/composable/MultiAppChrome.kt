@@ -237,6 +237,8 @@ fun MultiAppChromeScreen(
 
     // //////////////////////////////////////////////
     // pull to refresh
+    var isRefreshing by remember { mutableStateOf(false) }
+
     /**
      * pull to refresh needs to be enabled/disabled based on scroll position
      * because it also consumes nested scroll events
@@ -248,7 +250,7 @@ fun MultiAppChromeScreen(
             if (toolbarState.scrollOffset < toolbarState.halfCollapsedOffset) {
                 updateOffset(targetValue = toolbarState.halfCollapsedOffset)
             }
-            toolbarState.isRefreshing = false
+            isRefreshing = false
         }
     }
     // //////////////////////////////////////////////
@@ -256,7 +258,7 @@ fun MultiAppChromeScreen(
     // //////////////////////////////////////////////
     // header alpha
     val balanceLoadingAlpha by animateFloatAsState(
-        targetValue = if (toolbarState.isRefreshing) 0F else 1F,
+        targetValue = if (isRefreshing) 0F else 1F,
         animationSpec = tween(
             durationMillis = ANIMATION_DURATION
         )
@@ -527,7 +529,7 @@ fun MultiAppChromeScreen(
                         .height(54.dp)
                         .fillMaxWidth()
                         .graphicsLayer {
-                            alpha = if (toolbarState.isRefreshing) {
+                            alpha = if (isRefreshing) {
                                 balanceLoadingAlpha
                             } else {
                                 toolbarState.balanceScrollAlpha(firstLaunch)
@@ -659,7 +661,7 @@ fun MultiAppChromeScreen(
                 },
                 selectedNavigationItem = selectedNavigationItem,
                 refreshStarted = {
-                    toolbarState.isRefreshing = true
+                    isRefreshing = true
                 },
                 refreshComplete = {
                     stopRefresh()
@@ -697,7 +699,7 @@ fun MultiAppChromeScreen(
             navControllerProvider = { navController },
             navigationItems = currentBottomNavigationItems.toImmutableList(),
         ) {
-            if (toolbarState.isRefreshing) {
+            if (isRefreshing) {
                 stopRefresh()
             } else {
                 selectedNavigationItem = it
