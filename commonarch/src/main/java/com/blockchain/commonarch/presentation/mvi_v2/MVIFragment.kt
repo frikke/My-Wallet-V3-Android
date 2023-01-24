@@ -54,7 +54,11 @@ fun <TIntent : Intent<TModelState>,
     if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
         viewModel.viewModelScope.cancel()
         lifecycleScope.cancel()
-        viewLifecycleOwner.lifecycleScope.cancel()
+        try {
+            viewLifecycleOwner.lifecycleScope.cancel()
+        } catch (ex: Exception) {
+            // no-op
+        }
         return
     }
     viewModel.viewCreated(args)

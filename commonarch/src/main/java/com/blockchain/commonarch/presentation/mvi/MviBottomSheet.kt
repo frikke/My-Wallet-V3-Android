@@ -1,6 +1,7 @@
 package com.blockchain.commonarch.presentation.mvi
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.CallSuper
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
@@ -23,6 +24,13 @@ abstract class MviBottomSheet<M : MviModel<S, I>, I : MviIntent<S>, S : MviState
         if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
             model.disablePermanently()
             lifecycleScope.cancel()
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
             viewLifecycleOwner.lifecycleScope.cancel()
         }
     }

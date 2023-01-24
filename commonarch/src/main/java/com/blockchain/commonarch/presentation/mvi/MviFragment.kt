@@ -53,13 +53,20 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
         if (activity.processDeathOccurredAndThisIsNotLauncherActivity) {
             model.disablePermanently()
             lifecycleScope.cancel()
-            viewLifecycleOwner.lifecycleScope.cancel()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = initBinding(inflater, container)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if (activity.processDeathOccurredAndThisIsNotLauncherActivity) {
+            viewLifecycleOwner.lifecycleScope.cancel()
+        }
     }
 
     override fun onDestroy() {

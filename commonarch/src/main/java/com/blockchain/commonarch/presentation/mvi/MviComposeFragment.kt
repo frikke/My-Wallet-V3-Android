@@ -1,6 +1,7 @@
 package com.blockchain.commonarch.presentation.mvi
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
@@ -45,6 +46,13 @@ abstract class MviComposeFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviS
         if (activity.processDeathOccurredAndThisIsNotLauncherActivity) {
             model.disablePermanently()
             lifecycleScope.cancel()
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if (activity.processDeathOccurredAndThisIsNotLauncherActivity) {
             viewLifecycleOwner.lifecycleScope.cancel()
         }
     }
