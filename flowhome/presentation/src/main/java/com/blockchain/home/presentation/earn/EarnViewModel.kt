@@ -16,6 +16,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.earn.domain.service.InterestService
@@ -29,15 +30,20 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.util.concurrent.TimeUnit
+import java.util.stream.Collectors.toSet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
+
+private const val MAX_SIZE = 5
 
 class EarnViewModel(
     private val stakingService: StakingService,
@@ -63,10 +69,14 @@ class EarnViewModel(
         if (state.stakingAssets is DataResource.Data && state.interestAssets is DataResource.Data) {
             val staking = state.stakingAssets.data
             val interest = state.interestAssets.data
-            return if (staking.isEmpty() && interest.isEmpty()) {
+            val assets = (staking + interest).filter {
+                it.isSmallBalance().not()
+            }.take(MAX_SIZE).toSet()
+
+            return if (assets.isEmpty()) {
                 EarnViewState.NoAssetsInvested
             } else EarnViewState.Assets(
-                _assets = staking + interest,
+                _assets = assets,
                 interestRates = state.interestRates.mapKeys { it.key.networkTicker },
                 stakingRates = state.stakingRates.mapKeys { it.key.networkTicker }
             )
@@ -77,8 +87,12 @@ class EarnViewModel(
         ) {
             val staking = (state.stakingAssets as? DataResource.Data)?.data ?: emptySet()
             val interest = (state.interestAssets as? DataResource.Data)?.data ?: emptySet()
+            val assets = (staking + interest).filter {
+                it.isSmallBalance().not()
+            }.take(MAX_SIZE).toSet()
+
             return EarnViewState.Assets(
-                _assets = staking + interest,
+                _assets = assets,
                 interestRates = state.interestRates.mapKeys { it.key.networkTicker },
                 stakingRates = state.stakingRates.mapKeys { it.key.networkTicker }
             )
@@ -149,13 +163,25 @@ class EarnViewModel(
             updateStakingAssetsIfNeeded(it.keys)
         }.flatMapData { staking ->
             val prices = staking.keys.map { asset ->
-                exchangeRates.exchangeRateToUserFiatFlow(
-                    fromAsset = asset
-                ).mapData { exchangeRate ->
+                combine(
+                    exchangeRates.exchangeRateToUserFiatFlow(
+                        fromAsset = asset
+                    ),
+                    exchangeRates.exchangeRate(
+                        fromAsset = asset,
+                        toAsset = FiatCurrency.Dollars
+                    )
+                ) { exchangeRateUserFiatData, exchangeRateUsdData ->
+                    combineDataResources(
+                        exchangeRateUserFiatData, exchangeRateUsdData
+                    ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
+                }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
                     EarnAsset(
                         currency = asset,
                         type = EarnType.STAKING,
-                        balance = staking[asset]?.totalBalance?.let { exchangeRate.convert(it) }
+                        balance = staking[asset]?.totalBalance?.let { exchangeRateUserFiat.convert(it) }
+                            ?: throw IllegalStateException("Missing asset balance"),
+                        usdBalance = staking[asset]?.totalBalance?.let { exchangeRateUsd.convert(it) }
                             ?: throw IllegalStateException("Missing asset balance")
                     )
                 }
@@ -178,13 +204,25 @@ class EarnViewModel(
                 updateInterestAssetsIfNeeded(it.keys)
             }.flatMapData { interest ->
                 val prices = interest.keys.map { asset ->
-                    exchangeRates.exchangeRateToUserFiatFlow(
-                        fromAsset = asset
-                    ).mapData { exchangeRate ->
+                    combine(
+                        exchangeRates.exchangeRateToUserFiatFlow(
+                            fromAsset = asset
+                        ),
+                        exchangeRates.exchangeRate(
+                            fromAsset = asset,
+                            toAsset = FiatCurrency.Dollars
+                        )
+                    ) { exchangeRateUserFiatData, exchangeRateUsdData ->
+                        combineDataResources(
+                            exchangeRateUserFiatData, exchangeRateUsdData
+                        ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
+                    }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
                         EarnAsset(
                             currency = asset,
                             type = EarnType.INTEREST,
-                            balance = interest[asset]?.totalBalance?.let { exchangeRate.convert(it) }
+                            balance = interest[asset]?.totalBalance?.let { exchangeRateUserFiat.convert(it) }
+                                ?: throw IllegalStateException("Missing asset balance"),
+                            usdBalance = interest[asset]?.totalBalance?.let { exchangeRateUsd.convert(it) }
                                 ?: throw IllegalStateException("Missing asset balance")
                         )
                     }
@@ -335,6 +373,7 @@ class EarnAsset(
     val currency: Currency,
     val type: EarnType,
     val balance: Money,
+    val usdBalance: Money
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -355,6 +394,8 @@ class EarnAsset(
         return result
     }
 }
+
+fun EarnAsset.isSmallBalance() = usdBalance < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
 
 sealed class EarnNavEvent : NavigationEvent {
     class Interest(val account: CryptoAccount) : EarnNavEvent()
