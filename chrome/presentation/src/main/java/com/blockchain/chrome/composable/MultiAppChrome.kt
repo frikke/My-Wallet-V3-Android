@@ -42,6 +42,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -85,13 +86,19 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
-    val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) 0 else 145
+    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
+
+    val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) {
+        0
+    } else {
+        headerSectionHeightPx.toInt()
+    }
 
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
-        // todo (ignore comment below, doing this way is buggy, a static 145 for now)
-        // initialize with minHeight:0 maxHeight:0
-        // the size will be calculated at runtime after drawing to get the real view heights
-        EnterAlwaysCollapsedState(topSectionHeight = 145, bottomSectionHeight = bottomSectionHeight)
+        EnterAlwaysCollapsedState(
+            topSectionHeight = headerSectionHeightPx.toInt(),
+            bottomSectionHeight = bottomSectionHeight
+        )
     }
 }
 
@@ -191,10 +198,6 @@ fun MultiAppChromeScreen(
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit
 ) {
-    //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
-    //    var balanceSectionHeight = remember { headerSectionHeightPx }
-    //    var tabsSectionHeight = remember { headerSectionHeightPx }
-
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
     var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
