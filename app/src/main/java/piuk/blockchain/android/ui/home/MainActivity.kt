@@ -36,6 +36,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.auth.SecureChannelBrowserMessage
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
@@ -257,8 +258,7 @@ class MainActivity :
                 showBottomSheet(
                     AuthNewLoginSheet.newInstance(
                         pubKeyHash = it.getString(AuthNewLoginSheet.PUB_KEY_HASH),
-                        message = it.getParcelable(AuthNewLoginSheet.MESSAGE),
-                        forcePin = it.getBoolean(AuthNewLoginSheet.FORCE_PIN),
+                        message = it.getSerializable(AuthNewLoginSheet.MESSAGE) as SecureChannelBrowserMessage,
                         originIP = it.getString(AuthNewLoginSheet.ORIGIN_IP),
                         originLocation = it.getString(AuthNewLoginSheet.ORIGIN_LOCATION),
                         originBrowser = it.getString(AuthNewLoginSheet.ORIGIN_BROWSER)

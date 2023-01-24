@@ -13,6 +13,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
 import com.blockchain.featureflag.FeatureFlag
@@ -52,7 +53,6 @@ import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.models.LaunchFlowForAccount
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -79,7 +79,6 @@ class MainInteractorTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
     private val ethDataManager: EthDataManager = mock()
-    private val stakingFF: FeatureFlag = mock()
     private val membershipsFF: FeatureFlag = mock()
     private val earnEnabledFF: FeatureFlag = mock()
     private val coincore: Coincore = mock()

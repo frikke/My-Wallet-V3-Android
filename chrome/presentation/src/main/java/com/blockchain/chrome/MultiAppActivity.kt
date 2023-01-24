@@ -5,8 +5,10 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
@@ -22,6 +24,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
@@ -39,7 +42,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch
-import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
@@ -85,7 +87,7 @@ class MultiAppActivity :
     override val scope: Scope = payloadScope
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
     private val walletModeService: WalletModeService by scopedInject()
-
+    private val secureChannelService: SecureChannelService by scopedInject()
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)
     }
@@ -157,10 +159,6 @@ class MultiAppActivity :
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        qrScanNavigation.registerForQrScan(
-            onScan = { decodedData -> qrScanNavigation.processQrResult(decodedData) }
-        )
-
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
@@ -175,7 +173,7 @@ class MultiAppActivity :
                 supportNavigation = supportNavigation
             )
         }
-
+        subscribeForSecurityChannelLogin()
         handleFiatActionsNav()
         if (savedInstanceState == null) {
             lifecycleScope.launch {
@@ -249,15 +247,19 @@ class MultiAppActivity :
     }
 
     private fun handleIntent(intent: Intent) {
-        if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
-            intent.getBooleanExtra(LAUNCH_AUTH_FLOW, false)
-        ) {
-            intent.extras?.let {
-                authNavigation.launchAuth(it)
-            }
-        } else if (intent.hasExtra(PENDING_DESTINATION)) {
+        if (intent.hasExtra(PENDING_DESTINATION)) {
             intent.getParcelableExtra<Destination>(PENDING_DESTINATION)?.let { destination ->
                 navigateToDeeplinkDestination(destination)
+            }
+        }
+    }
+
+    private fun subscribeForSecurityChannelLogin() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                secureChannelService.secureLoginAttempted.collectLatest {
+                    authNavigation.launchAuth(it)
+                }
             }
         }
     }
@@ -396,8 +398,10 @@ class MultiAppActivity :
         ).show()
     }
 
-    override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) =
+    override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
+        clearBottomSheet()
         showBottomSheet(bottomSheet)
+    }
 
     private fun handleFiatActionsNav() {
         lifecycleScope.launch {

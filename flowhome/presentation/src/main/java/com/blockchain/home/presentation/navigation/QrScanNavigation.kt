@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.navigation
 
 import android.os.Parcelable
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Stable
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
@@ -45,7 +44,6 @@ sealed interface WCSessionIntent {
 
 @Stable
 interface QrScanNavigation {
-    fun registerForQrScan(onScan: (String) -> Unit = {}): ActivityResultLauncher<Set<QrExpected>>
     fun launchQrScan()
     fun processQrResult(decodedData: String)
     fun updateWalletConnectSession(wcIntent: WCSessionIntent)

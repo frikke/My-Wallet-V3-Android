@@ -89,7 +89,13 @@ class AssetsViewModel(
                             // create search term filter predicate
                             modelAccount.shouldBeFiltered(state) &&
                                 modelAccount.balance !is DataResource.Loading &&
-                                (modelAccount.balance as? DataResource.Data)?.data?.isPositive == true
+                                /**
+                                 * we need to show all fiats
+                                 */
+                                (
+                                    (modelAccount.balance as? DataResource.Data)?.data?.isPositive == true ||
+                                        modelAccount.singleAccount is FiatAccount
+                                    )
                         }
                         .toHomeAssets()
                         .allFiatAndSectionCrypto(state.sectionSize.size)

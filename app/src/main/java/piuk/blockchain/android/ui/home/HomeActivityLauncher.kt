@@ -11,7 +11,6 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
 import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
-import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 
 class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
 
@@ -29,20 +28,10 @@ class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
         context: Context,
         launchAuthFlow: Boolean,
         pubKeyHash: String,
-        message: SecureChannelBrowserMessageArg,
-        originIp: String?,
-        originLocation: String?,
-        originBrowser: String?,
-        forcePin: Boolean,
         shouldBeNewTask: Boolean,
     ): Intent = Intent(context, homeActivity).apply {
         putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
         putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
-        putExtra(AuthNewLoginSheet.MESSAGE, message)
-        putExtra(AuthNewLoginSheet.ORIGIN_IP, originIp)
-        putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, originLocation)
-        putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, originBrowser)
-        putExtra(AuthNewLoginSheet.FORCE_PIN, forcePin)
 
         if (shouldBeNewTask) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

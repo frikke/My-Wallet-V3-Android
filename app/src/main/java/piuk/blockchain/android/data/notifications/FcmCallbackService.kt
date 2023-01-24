@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
@@ -29,10 +30,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import timber.log.Timber
@@ -128,6 +129,13 @@ class FcmCallbackService : FirebaseMessagingService() {
      * TODO verify if this is true.
      */
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
+        if (isSecureChannelMessage(payload)) {
+            GlobalScope.launch {
+                secureChannelService.secureChannelLogin(payload.payload)
+            }
+            return
+        }
+
         compositeDisposable += createIntentForNotification(payload, foreground)
             .subscribeOn(Schedulers.io())
             .subscribeBy(
@@ -172,7 +180,6 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     private fun createIntentForNotification(payload: NotificationPayload, foreground: Boolean): Maybe<Intent> {
         return when {
-            isSecureChannelMessage(payload) -> createSecureChannelIntent(payload.payload, foreground)
             foreground -> Maybe.just(
                 homeActivityLauncher.newIntent(
                     context = applicationContext,
@@ -192,30 +199,6 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     private fun isSecureChannelMessage(payload: NotificationPayload) =
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
-
-    private fun createSecureChannelIntent(payload: Map<String, String?>, foreground: Boolean): Maybe<Intent> {
-        val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
-            ?: return Maybe.empty()
-        val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
-            ?: return Maybe.empty()
-
-        val message = secureChannelService.decryptMessage(pubKeyHash, messageRawEncrypted)
-            ?: return Maybe.empty()
-
-        return Maybe.just(
-            homeActivityLauncher.newIntent(
-                context = applicationContext,
-                launchAuthFlow = true,
-                pubKeyHash = pubKeyHash,
-                message = message.toArg(),
-                originIp = payload[NotificationPayload.ORIGIN_IP],
-                originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
-                originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],
-                forcePin = !foreground,
-                shouldBeNewTask = foreground
-            )
-        )
-    }
 
     private fun triggerNotification(
         title: String?,

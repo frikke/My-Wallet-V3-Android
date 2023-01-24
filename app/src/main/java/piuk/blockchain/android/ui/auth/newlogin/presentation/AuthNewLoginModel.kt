@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.coreandroid.utils.pubKeyHash
+import com.blockchain.domain.auth.SecureChannelBrowserMessage
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.Authorization
@@ -11,8 +13,6 @@ import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import timber.log.Timber
 
 class AuthNewLoginModel(
@@ -30,7 +30,7 @@ class AuthNewLoginModel(
             is AuthNewLoginIntents.InitAuthInfo ->
                 parseMessage(
                     pubKeyHash = intent.pubKeyHash,
-                    message = intent.message.toDomain(),
+                    message = intent.message,
                     originIp = intent.originIp
                 )
             is AuthNewLoginIntents.ProcessBrowserMessage ->

@@ -7,6 +7,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.ScanResult
@@ -30,12 +31,11 @@ import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.awaitSingle
 import piuk.blockchain.android.R
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
 class QrScanNavigationImpl(
-    private val activity: BlockchainActivity,
+    private val activity: BlockchainActivity?,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val secureChannelService: SecureChannelService,
@@ -43,33 +43,34 @@ class QrScanNavigationImpl(
     private val assetCatalogue: AssetCatalogue
 ) : QrScanNavigation {
 
-    private lateinit var resultLauncher: ActivityResultLauncher<Set<QrExpected>>
+    private var resultLauncher: ActivityResultLauncher<Set<QrExpected>>?
 
     private var walletConnectEventsTask: Job? = null
     private var qrResultProcessorTask: Job? = null
     private var wcSessionProcessorTask: Job? = null
 
-    override fun registerForQrScan(onScan: (String) -> Unit): ActivityResultLauncher<Set<QrExpected>> {
-        resultLauncher = activity.registerForActivityResult(QrScanActivityContract(), onScan)
-        return resultLauncher
+    init {
+        resultLauncher = activity?.registerForActivityResult(QrScanActivityContract()) {
+            processQrResult(it)
+        }
     }
 
     override fun launchQrScan() {
         if (walletConnectEventsTask == null) {
             // Only launch it once
-            walletConnectEventsTask = activity.lifecycleScope.launch {
-                walletConnectServiceAPI.sessionEvents.distinctUntilChanged().asFlow()
+            walletConnectEventsTask = activity!!.lifecycleScope.launch {
+                walletConnectServiceAPI.sessionEvents.asFlow()
                     .collect { sessionEvent ->
                         processWC(sessionEvent)
                     }
             }
         }
-        resultLauncher.launch(QrExpected.MAIN_ACTIVITY_QR)
+        resultLauncher!!.launch(QrExpected.MAIN_ACTIVITY_QR)
     }
 
     override fun processQrResult(decodedData: String) {
         qrResultProcessorTask?.cancel()
-        qrResultProcessorTask = activity.lifecycleScope.launch {
+        qrResultProcessorTask = activity!!.lifecycleScope.launch {
             qrScanResultProcessor.processScan(decodedData).awaitOutcome()
                 .doOnFailure {
                     Timber.e(it)
@@ -87,7 +88,7 @@ class QrScanNavigationImpl(
 
     override fun updateWalletConnectSession(wcIntent: WCSessionIntent) {
         wcSessionProcessorTask?.cancel()
-        wcSessionProcessorTask = activity.lifecycleScope.launch {
+        wcSessionProcessorTask = activity!!.lifecycleScope.launch {
             when (wcIntent) {
                 is WCSessionIntent.ApproveWCSession ->
                     walletConnectServiceAPI.acceptConnection(wcIntent.session).awaitOutcome()
@@ -102,7 +103,7 @@ class QrScanNavigationImpl(
 
     private suspend fun launchTxFlowWithTarget(target: CryptoTarget) {
         try {
-            val sourceAccount = qrScanResultProcessor.selectSourceAccount(activity, target).awaitSingle()
+            val sourceAccount = qrScanResultProcessor.selectSourceAccount(activity!!, target).awaitSingle()
             activity.startActivity(
                 TransactionFlowActivity.newIntent(
                     context = activity,
@@ -114,14 +115,14 @@ class QrScanNavigationImpl(
         } catch (ex: Exception) {
             Timber.e(ex)
             BlockchainSnackbar.make(
-                activity.window.decorView.rootView,
+                activity!!.window.decorView.rootView,
                 activity.getString(R.string.scan_no_available_account, target.asset.displayTicker)
             )
         }
     }
 
     private suspend fun disambiguateSendScan(targets: Collection<CryptoTarget>): Outcome<Exception, CryptoTarget> {
-        return qrScanResultProcessor.disambiguateScan(activity, targets).awaitOutcome()
+        return qrScanResultProcessor.disambiguateScan(activity!!, targets).awaitOutcome()
     }
 
     private suspend fun processResult(scanResult: ScanResult) {
@@ -141,7 +142,7 @@ class QrScanNavigationImpl(
                         .doOnFailure {
                             Timber.e(it)
                             BlockchainSnackbar.make(
-                                activity.window.decorView.rootView,
+                                activity!!.window.decorView.rootView,
                                 activity.getString(R.string.scan_failed),
                                 duration = Snackbar.LENGTH_SHORT
                             )
@@ -164,7 +165,7 @@ class QrScanNavigationImpl(
     private suspend fun processWC(sessionEvent: WalletConnectSessionEvent) {
         when (sessionEvent) {
             is WalletConnectSessionEvent.DidConnect -> {
-                activity.showBottomSheet(
+                activity!!.showBottomSheet(
                     WCSessionUpdatedBottomSheet.newInstance(session = sessionEvent.session, approved = true)
                 )
             }
@@ -173,7 +174,7 @@ class QrScanNavigationImpl(
             }
             is WalletConnectSessionEvent.DidReject,
             is WalletConnectSessionEvent.FailToConnect -> {
-                activity.showBottomSheet(
+                activity!!.showBottomSheet(
                     WCSessionUpdatedBottomSheet.newInstance(session = sessionEvent.session, approved = false)
                 )
             }
@@ -188,7 +189,7 @@ class QrScanNavigationImpl(
             .fold(
                 onFailure = {
                     Timber.e(it)
-                    activity.showBottomSheet(
+                    activity!!.showBottomSheet(
                         WCApproveSessionBottomSheet.newInstance(session)
                     )
                 },
@@ -201,13 +202,13 @@ class QrScanNavigationImpl(
                             chainId = network.chainId,
                             logo = assetCatalogue.assetInfoFromNetworkTicker(network.networkTicker)?.logo
                         )
-                        activity.showBottomSheet(
+                        activity!!.showBottomSheet(
                             WCApproveSessionBottomSheet.newInstance(
                                 session,
                                 networkInfo
                             )
                         )
-                    } ?: activity.showBottomSheet(WCApproveSessionBottomSheet.newInstance(session))
+                    } ?: activity!!.showBottomSheet(WCApproveSessionBottomSheet.newInstance(session))
                 }
             )
 }
