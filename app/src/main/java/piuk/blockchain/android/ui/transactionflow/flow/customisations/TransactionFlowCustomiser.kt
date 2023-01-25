@@ -3,8 +3,11 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -905,7 +908,23 @@ class TransactionFlowCustomiserImpl(
             }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
             AssetAction.FiatWithdraw,
-            AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
+            AssetAction.FiatDeposit -> AccountInfoBank(ctx).apply {
+                background = ContextCompat.getDrawable(context, R.drawable.rounded_box_no_stroke)
+            }.also {
+                frame.addView(
+                    it,
+                    ConstraintLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(
+                            resources.getDimensionPixelOffset(R.dimen.small_spacing),
+                            0,
+                            resources.getDimensionPixelOffset(R.dimen.small_spacing),
+                            0
+                        )
+                    }
+                )
+            }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
             AssetAction.Sign,

@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/standard_spacing">
+    android:layout_margin="@dimen/standard_spacing"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/verify_phone_msg"
