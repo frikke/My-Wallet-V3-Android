@@ -2,25 +2,26 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.home.presentation.R
 
 @Composable
@@ -46,37 +47,41 @@ fun NonCustodialEmptyStateCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
-                Text(
-                    modifier = Modifier
-                        .padding(
-                            bottom = AppTheme.dimensions.smallSpacing
-                        ),
-                    text = "📥",
-                    style = AppTheme.typography.display,
+                StandardVerticalSpacer()
+
+                Image(
+                    imageResource = ImageResource.Local(
+                        id = R.drawable.ic_empty_state_deposit,
+                        contentDescription = stringResource(id = R.string.nc_empty_state_title),
+                    )
                 )
 
-                Text(
-                    textAlign = TextAlign.Center,
+                StandardVerticalSpacer()
+
+                SimpleText(
                     text = stringResource(id = R.string.nc_empty_state_title),
-                    style = AppTheme.typography.title2,
-                    color = Grey900
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
                 )
 
-                Text(
+                SimpleText(
+                    text = stringResource(id = R.string.transfer_from_your_trading_account),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre,
                     modifier = Modifier.padding(
                         vertical = AppTheme.dimensions.smallSpacing,
-                    ),
-                    textAlign = TextAlign.Center,
-                    text = stringResource(id = R.string.transfer_from_your_trading_account),
-                    style = AppTheme.typography.paragraph1,
-                    color = Grey700
+                    )
                 )
 
                 PrimaryButton(
-                    modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.standardSpacing
-                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = AppTheme.dimensions.standardSpacing,
+                            horizontal = AppTheme.dimensions.smallSpacing
+                        ),
                     text = stringResource(id = R.string.nc_empty_state_cta),
                     onClick = {
                         onReceiveClicked()
@@ -85,4 +90,12 @@ fun NonCustodialEmptyStateCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NonCustodialEmptyStateCardPreview() {
+    NonCustodialEmptyStateCard(
+        onReceiveClicked = {}
+    )
 }
