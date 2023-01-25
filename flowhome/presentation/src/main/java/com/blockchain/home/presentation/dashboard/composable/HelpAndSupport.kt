@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,10 +17,8 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.home.presentation.R
 
-@Preview
 @Composable
 fun HelpAndSupport(
-    openSupportChat: () -> Unit,
     openSupportCenter: () -> Unit,
 ) {
     Column(
@@ -41,17 +37,18 @@ fun HelpAndSupport(
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             elevation = 0.dp
         ) {
-            Column {
-                DefaultTableRow(
-                    primaryText = stringResource(R.string.chat_with_support),
-                    onClick = openSupportChat
-                )
-                Divider()
-                DefaultTableRow(
-                    primaryText = stringResource(R.string.view_support_center),
-                    onClick = openSupportCenter
-                )
-            }
+            DefaultTableRow(
+                primaryText = stringResource(R.string.view_support_center),
+                onClick = openSupportCenter
+            )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HelpAndSupportPreview() {
+    HelpAndSupport(
+        openSupportCenter = {}
+    )
 }

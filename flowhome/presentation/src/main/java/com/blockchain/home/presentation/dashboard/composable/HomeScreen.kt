@@ -143,7 +143,6 @@ fun HomeScreen(
 
         item {
             HelpAndSupport(
-                openSupportChat = { supportNavigation.launchSupportChat() },
                 openSupportCenter = { supportNavigation.launchSupportCenter() }
             )
         }
