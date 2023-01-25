@@ -44,6 +44,7 @@ import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.home.presentation.R
@@ -113,6 +114,7 @@ fun CustodialEmptyStateCards(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 ) {
                     viewState.amounts.map { amount ->
                         Button(
@@ -134,25 +136,47 @@ fun CustodialEmptyStateCards(
                                 }
                             },
                             shape = RoundedCornerShape(50),
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
+                            modifier = Modifier.weight(1f)
                         )
+
+                        SmallHorizontalSpacer()
                     }
+
+                    Button(
+                        content = {
+                            Text(
+                                text = stringResource(id = R.string.common_other),
+                                color = Color.White,
+                                style = AppTheme.typography.paragraphMono
+                            )
+                        },
+                        onClick = {
+                            if (viewState.userCanBuy) {
+                                assetActionsNavigation.buyCrypto(
+                                    currency = viewState.trendCurrency,
+                                    amount = null
+                                )
+                            } else {
+                                assetActionsNavigation.navigate(AssetAction.Buy)
+                            }
+                        },
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 MinimalButton(
-                    modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.standardSpacing
-                    ),
-                    text = stringResource(id = R.string.other_amount),
+                    modifier = Modifier
+                        .padding(
+                            vertical = AppTheme.dimensions.standardSpacing,
+                            horizontal = AppTheme.dimensions.smallSpacing
+                        )
+                        .fillMaxWidth(),
+                    text = stringResource(id = R.string.buy_different_crypto),
                     onClick = {
-                        if (viewState.userCanBuy) {
-                            assetActionsNavigation.buyCrypto(
-                                currency = viewState.trendCurrency,
-                                amount = null
-                            )
-                        } else {
-                            assetActionsNavigation.navigate(AssetAction.Buy)
-                        }
+                        assetActionsNavigation.navigate(AssetAction.Buy)
                     }
                 )
             }

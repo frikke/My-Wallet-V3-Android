@@ -6,8 +6,11 @@ import com.blockchain.home.data.FiltersStorage
 import com.blockchain.home.data.HomeAccountsRepository
 import com.blockchain.home.data.actions.QuickActionsRepository
 import com.blockchain.home.data.activity.CustodialActivityRepository
+import com.blockchain.home.data.emptystate.CustodialEmptyCardRepository
+import com.blockchain.home.data.emptystate.EmptyStateBuyAmountsRemoteConfig
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
+import com.blockchain.home.emptystate.CustodialEmptyCardService
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -31,6 +34,19 @@ val homeDataModule = module {
                 userFeaturePermissionService = get()
             )
         }.bind(QuickActionsService::class)
+
+        scoped {
+            CustodialEmptyCardRepository(
+                emptyStateBuyAmountsRemoteConfig = get()
+            )
+        }.bind(CustodialEmptyCardService::class)
+
+        scoped {
+            EmptyStateBuyAmountsRemoteConfig(
+                remoteConfigService = get(),
+                json = get()
+            )
+        }
     }
 
     factory {

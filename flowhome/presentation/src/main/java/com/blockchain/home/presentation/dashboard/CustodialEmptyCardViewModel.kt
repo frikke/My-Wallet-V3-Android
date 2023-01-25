@@ -17,19 +17,20 @@ import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.domain.onboarding.OnBoardingStepsService
+import com.blockchain.home.emptystate.CustodialEmptyCardService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CustodialEmptyCardViewModel(
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val onBoardingStepsService: OnBoardingStepsService,
-    private val userFeaturePermissionService: UserFeaturePermissionService
+    private val userFeaturePermissionService: UserFeaturePermissionService,
+    private val custodialEmptyCardService: CustodialEmptyCardService
 ) : MviViewModel
 <
     CustodialEmptyCardIntent,
@@ -74,16 +75,16 @@ class CustodialEmptyCardViewModel(
                         )
                     }
                 }
+
+                val emptyStateAmounts = custodialEmptyCardService.getEmptyStateBuyAmounts(
+                    fiatCurrenciesService.selectedTradingCurrency
+                )
                 updateState {
                     it.copy(
-                        buyAmounts = (1..3).map { c ->
-                            Money.fromMajor(
-                                fiatCurrenciesService.selectedTradingCurrency,
-                                100.toBigDecimal().times(c.toBigDecimal())
-                            )
-                        },
+                        buyAmounts = emptyStateAmounts
                     )
                 }
+
                 viewModelScope.launch {
                     userFeaturePermissionService.getAccessForFeature(
                         Feature.Buy, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)

@@ -120,7 +120,8 @@ val homePresentationModule = module {
             CustodialEmptyCardViewModel(
                 fiatCurrenciesService = get(),
                 userFeaturePermissionService = get(),
-                onBoardingStepsService = get()
+                onBoardingStepsService = get(),
+                custodialEmptyCardService = get()
             )
         }
 

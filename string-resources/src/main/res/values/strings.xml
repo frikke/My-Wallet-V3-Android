@@ -79,6 +79,7 @@
     <string name="common_no_results_found">No results found</string>
     <string name="common_general">General</string>
     <string name="common_status">Status</string>
+    <string name="common_other">Other</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -3552,5 +3553,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_rate_apy">%1$s%% APY</string>
     <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
     <string name="cash_out_bank">Cash out to your bank</string>
+    <string name="buy_different_crypto">Buy a different crypto</string>
 
 </resources>
