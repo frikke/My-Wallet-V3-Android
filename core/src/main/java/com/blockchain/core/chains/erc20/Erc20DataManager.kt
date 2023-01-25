@@ -298,4 +298,4 @@ internal class Erc20DataManagerImpl(
 }
 
 fun Currency.isErc20() =
-    (this as? AssetInfo)?.isErc20 ?: false
+    (this as? AssetInfo)?.coinNetwork != null

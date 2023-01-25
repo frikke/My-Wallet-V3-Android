@@ -91,7 +91,7 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
             require(account is MultiChainAccount)
             selectedSource = account
             showBottomSheet(
-                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.networkName)
+                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.name)
             )
         } else {
             startTransactionFlow(account)

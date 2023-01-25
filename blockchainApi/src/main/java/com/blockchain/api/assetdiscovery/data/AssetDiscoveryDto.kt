@@ -2,7 +2,6 @@ package com.blockchain.api.assetdiscovery.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -22,11 +21,11 @@ data class DynamicCurrency(
     @SerialName("products")
     val products: List<String>
 ) {
-    @Transient
-    val networkSymbol: String = symbol
+    val networkSymbol: String
+        get() = symbol
 
-    @Transient
-    val displaySymbol: String = display ?: symbol
+    val displaySymbol: String
+        get() = display ?: symbol
 }
 
 internal val assetTypeSerializers = SerializersModule {

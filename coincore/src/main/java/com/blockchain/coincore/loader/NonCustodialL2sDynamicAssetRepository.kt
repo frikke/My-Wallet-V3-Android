@@ -25,7 +25,7 @@ class NonCustodialL2sDynamicAssetRepository(
     private val l2Store: NonCustodialL2sDynamicAssetStore,
     private val coinNetworksStore: CoinNetworksStore
 ) : EvmNetworksService {
-    fun availableL2s(): Single<DynamicAssetList> {
+    fun getOtherEvmsErc20s(): Single<DynamicAssetList> {
         return getL2sForSupportedL1s()
     }
 
@@ -125,7 +125,8 @@ class NonCustodialL2sDynamicAssetRepository(
                 network?.let {
                     EvmNetwork(
                         networkTicker = it,
-                        networkName = name,
+                        name = name,
+                        shortName = shortName,
                         nativeAsset = this.nativeAsset,
                         chainId = chainId,
                         nodeUrl = nodeUrls.first(),

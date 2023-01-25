@@ -269,7 +269,7 @@ class TransactionModel(
             is TransactionIntent.GetNetworkName -> {
                 when (val account = intent.fromAccount) {
                     is MultiChainAccount -> { // PKW
-                        process(TransactionIntent.SetNetworkName(account.l1Network.networkName))
+                        process(TransactionIntent.SetNetworkName(account.l1Network.name))
                         null
                     }
                     is CustodialTradingAccount -> { // Trading Accounts
@@ -444,7 +444,7 @@ class TransactionModel(
         interactor.getEvmNetworkForCurrency(currency)
             .subscribeBy(
                 onSuccess = {
-                    process(TransactionIntent.SetNetworkName(it.networkName))
+                    process(TransactionIntent.SetNetworkName(it.name))
                 },
                 onError = {
                     Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")

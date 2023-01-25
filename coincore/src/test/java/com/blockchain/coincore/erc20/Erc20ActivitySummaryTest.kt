@@ -210,7 +210,6 @@ class Erc20ActivitySummaryTest {
             precisionDp = 8,
             requiredConfirmations = 5,
             colour = "#123456",
-            isErc20 = true
         )
     }
 }

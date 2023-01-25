@@ -92,7 +92,7 @@ class ReceiveDetailModel(
             is InitWithAccount -> {
                 when (val account = intent.cryptoAccount) {
                     is MultiChainAccount -> { // PKW
-                        process(SetNetworkName(account.l1Network.networkName))
+                        process(SetNetworkName(account.l1Network.name))
                     }
                     is CustodialTradingAccount -> { // Trading Accounts
                         account.currency.l1chainTicker?.let {
@@ -112,7 +112,7 @@ class ReceiveDetailModel(
             .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = {
-                    process(SetNetworkName(it.networkName))
+                    process(SetNetworkName(it.name))
                 },
                 onError = {
                     Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")

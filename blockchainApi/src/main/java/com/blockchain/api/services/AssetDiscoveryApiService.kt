@@ -14,14 +14,10 @@ import com.blockchain.api.coinnetworks.data.CoinTypeDto
 import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.utils.rxMaybeOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -83,7 +79,7 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun getErc20Assets(): Single<DynamicAssetList> =
+    fun getEthErc20s(): Single<DynamicAssetList> =
         api.getErc20Currencies()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset(listOf(CryptoCurrency.ETHER.networkTicker)) }
@@ -100,26 +96,6 @@ class AssetDiscoveryApiService internal constructor(
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
-
-    fun supportedEvmNetworks(): Single<List<CoinNetworkDto>> {
-        return rxSingle {
-            coinNetworkApi.getCoinNetworks().map { response ->
-                response.networks.filter { coinNetwork ->
-                    coinNetwork.type == NetworkType.EVM
-                }
-            }.getOrDefault(emptyList())
-        }
-    }
-
-    fun getEvmNetworkForCurrency(currency: String): Maybe<CoinNetworkDto> {
-        return rxMaybeOutcome {
-            coinNetworkApi.getCoinNetworks().map { response ->
-                response.networks.first { coinNetwork ->
-                    coinNetwork.type == NetworkType.EVM && coinNetwork.nativeAsset == currency
-                }
-            }
-        }
-    }
 
     suspend fun allNetworks(): Outcome<Exception, List<CoinNetworkDto>> =
         coinNetworkApi.getCoinNetworks()

@@ -144,8 +144,11 @@ class CoinviewViewModel(
                 CoinviewAssetState(
                     asset = asset.currency,
                     l1Network = if (walletMode == WalletMode.NON_CUSTODIAL) {
-                        asset.currency.l1chainTicker?.let {
-                            assetCatalogue.fromNetworkTicker(it)
+                        asset.currency.coinNetwork?.let {
+                            CoinViewNetwork(
+                                logo = assetCatalogue.fromNetworkTicker(it.nativeAsset)?.logo.orEmpty(),
+                                name = it.shortName,
+                            )
                         }
                     } else {
                         null
@@ -252,7 +255,7 @@ class CoinviewViewModel(
                             }
 
                             CoinviewAccountsState(
-                                assetName = asset.currency.networkTicker,
+                                assetName = asset.currency.displayTicker,
                                 totalBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
                                 accounts = accounts.accounts.map { cvAccount ->
                                     val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
@@ -582,6 +585,7 @@ class CoinviewViewModel(
                         walletMode = walletMode
                     )
                 }
+
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)

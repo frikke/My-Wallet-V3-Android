@@ -228,7 +228,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("has_cloud_backup") isMobileSetup: Boolean,
         @Field("mobile_device_type") deviceType: Int
-    ): Single<ResponseBody>
+    ): Completable
 
     // TODO move these to the blockchainApi module
     @GET("wallet/poll-for-wallet-info")

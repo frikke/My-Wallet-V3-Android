@@ -19,7 +19,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
 import com.blockchain.utils.CurrentTimeProvider
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
 import info.blockchain.balance.CryptoCurrency.ETHER
@@ -41,7 +40,6 @@ class PricesViewModel(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val simpleBuyService: SimpleBuyService,
     private val watchlistService: WatchlistService,
-    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<PricesIntents,
     PricesViewState,
     PricesModelState,
@@ -114,9 +112,7 @@ class PricesViewModel(
             asset = assetInfo,
             name = assetInfo.name,
             ticker = assetInfo.networkTicker,
-            network = assetInfo.l1chainTicker?.let {
-                assetCatalogue.fromNetworkTicker(it)?.name
-            },
+            network = assetInfo.coinNetwork?.shortName,
             logo = assetInfo.logo,
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {

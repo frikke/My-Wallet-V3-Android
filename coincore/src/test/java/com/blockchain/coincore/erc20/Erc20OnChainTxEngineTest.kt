@@ -596,7 +596,6 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",
-            isErc20 = true
         )
 
         fun Number.dummies() = CryptoValue.fromMajor(DUMMY_ERC20, numberToBigDecimal())

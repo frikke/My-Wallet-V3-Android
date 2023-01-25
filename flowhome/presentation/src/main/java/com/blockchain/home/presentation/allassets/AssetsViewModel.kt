@@ -146,30 +146,30 @@ class AssetsViewModel(
 
     private fun List<ModelAccount>.toHomeAsset(): HomeAsset {
         require(this.map { it.singleAccount.currency.networkTicker }.distinct().size == 1)
-        return when (val first = first().singleAccount) {
+        return when (val account = first().singleAccount) {
             is NonCustodialAccount -> NonCustodialAssetState(
-                asset = first.currency as AssetInfo,
+                asset = account.currency as AssetInfo,
                 icon = listOfNotNull(
-                    first.currency.logo,
-                    (first.currency as? AssetInfo)?.l1chainTicker?.let { l1 ->
-                        assetCatalogue.fromNetworkTicker(l1)?.logo
+                    account.currency.logo,
+                    (account.currency as? AssetInfo)?.coinNetwork?.nativeAsset?.let {
+                        assetCatalogue.fromNetworkTicker(it)?.logo
                     }
                 ),
-                name = first.currency.name,
+                name = account.currency.name,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
             )
             is FiatAccount -> FiatAssetState(
-                icon = listOf(first.currency.logo),
-                name = first.label,
+                icon = listOf(account.currency.logo),
+                name = account.label,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                account = first
+                account = account
             )
             else -> CustodialAssetState(
-                asset = first.currency as AssetInfo,
-                icon = listOf(first.currency.logo),
-                name = first.currency.name,
+                asset = account.currency as AssetInfo,
+                icon = listOf(account.currency.logo),
+                name = account.currency.name,
                 balance = map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
                 change = this.first().exchangeRate24hWithDelta.map { value ->

@@ -15,6 +15,8 @@ interface AssetInfo : Currency, Serializable {
     // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
     val l1chainTicker: String?
 
+    val coinNetwork: CoinNetwork?
+
     // If non-null, then this an l2 asset and this is the id on the l1 chain. Ie contract address for erc20 assets
     val l2identifier: String?
 
@@ -23,8 +25,6 @@ interface AssetInfo : Currency, Serializable {
 
     override val type: CurrencyType
         get() = CurrencyType.CRYPTO
-
-    val isErc20: Boolean
 }
 
 val Currency.isCustodialOnly: Boolean
@@ -71,7 +71,7 @@ open class CryptoCurrency(
     override val colour: String,
     override val logo: String = "",
     override val txExplorerUrlBase: String? = null,
-    override val isErc20: Boolean = false
+    override val coinNetwork: CoinNetwork? = null,
 ) : AssetInfo {
 
     override val symbol: String
@@ -157,6 +157,7 @@ open class CryptoCurrency(
         override val index: Int
             get() = XLM_ORDER_INDEX
     }
+
     companion object {
         const val AVAX = "AVAX"
     }
@@ -166,3 +167,13 @@ private const val BITCOIN_ORDER_INDEX = 4
 private const val ETHER_ORDER_INDEX = 3
 private const val BCH_ORDER_INDEX = 2
 private const val XLM_ORDER_INDEX = 1
+
+interface CoinNetwork {
+    val networkTicker: String
+    val nativeAsset: String
+    val name: String
+    val shortName: String
+    val chainId: Int
+    val nodeUrl: String
+    val explorerUrl: String
+}

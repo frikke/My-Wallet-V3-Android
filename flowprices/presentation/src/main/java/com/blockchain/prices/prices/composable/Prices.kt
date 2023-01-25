@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -161,9 +161,13 @@ fun ColumnScope.PricesScreenData(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        itemsIndexed(
+        items(
+
             items = cryptoPrices,
-            itemContent = { index, cryptoAsset ->
+            key = {
+                it.asset.networkTicker
+            },
+            itemContent = { cryptoAsset ->
                 BalanceChangeTableRow(
                     name = cryptoAsset.name,
                     subtitle = cryptoAsset.ticker,
@@ -179,7 +183,7 @@ fun ColumnScope.PricesScreenData(
                     },
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
-                if (index < cryptoPrices.lastIndex) {
+                if (cryptoPrices.last() != cryptoAsset) {
                     Divider(color = Color(0XFFF1F2F7))
                 }
             }
@@ -206,7 +210,11 @@ fun ColumnScope.PricesScreenData(
                         .background(AppTheme.colors.background)
                 )
 
-                Spacer(modifier = Modifier.size(90.dp).background(Color(0XFFF1F2F7)))
+                Spacer(
+                    modifier = Modifier
+                        .size(90.dp)
+                        .background(Color(0XFFF1F2F7))
+                )
             }
         }
     }

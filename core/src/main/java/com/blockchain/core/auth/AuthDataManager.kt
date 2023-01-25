@@ -305,13 +305,11 @@ class AuthDataManager(
      * @return A [Completable] wrapping the result
      */
     fun verifyCloudBackup(): Completable = if (shouldVerifyCloudBackup) {
-        Completable.fromSingle(
-            walletAuthService.verifyCloudBackup(
-                guid = authPrefs.walletGuid,
-                sharedKey = authPrefs.sharedKey,
-                hasCloudBackup = true,
-                deviceType = DEVICE_TYPE_ANDROID
-            )
+        walletAuthService.verifyCloudBackup(
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey,
+            hasCloudBackup = true,
+            deviceType = DEVICE_TYPE_ANDROID
         ).applySchedulers()
     } else {
         Completable.complete()

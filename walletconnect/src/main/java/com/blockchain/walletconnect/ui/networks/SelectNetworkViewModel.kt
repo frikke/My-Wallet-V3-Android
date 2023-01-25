@@ -87,7 +87,7 @@ class SelectNetworkViewModel(
     private fun EvmNetwork.toNetworkInfo() =
         NetworkInfo(
             networkTicker = nativeAsset,
-            name = networkName,
+            name = name,
             chainId = chainId
         )
 

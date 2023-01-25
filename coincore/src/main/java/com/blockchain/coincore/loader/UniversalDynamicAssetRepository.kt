@@ -24,17 +24,18 @@ class UniversalDynamicAssetRepository(
 ) : DynamicAssetsService {
     override fun availableCryptoAssets(): Single<List<AssetInfo>> {
         return Single.zip(
-            discoveryService.getErc20Assets(),
+            discoveryService.getEthErc20s(),
             discoveryService.getCustodialAssets(),
             l2sDynamicAssetRepository.allEvmAssets(),
-            l2sDynamicAssetRepository.availableL2s()
-        ) { erc20, custodial, evmCoins, evmList ->
+            l2sDynamicAssetRepository.getOtherEvmsErc20s(),
+            l2sDynamicAssetRepository.allEvmNetworks()
+        ) { erc20, custodial, evmCoins, evmList, evmNetworks ->
             val cryptoAssets = erc20 + custodial + evmCoins + evmList
             cryptoAssets.asSequence().filterNot { it.isFiat }
                 .toSet() // Remove dups
                 .asSequence()
                 .filter { it.supportsAnyCustodialOrNonCustodialProducts() }
-                .mapNotNull { it.toAssetInfo(evmCoins.map { it.displayTicker }) }
+                .mapNotNull { it.toAssetInfo(evmNetworks) }
                 .filterNot { it.networkTicker in dominantL1Assets.map { l1 -> l1.networkTicker } }
                 .plus(dominantL1Assets)
                 .toList()

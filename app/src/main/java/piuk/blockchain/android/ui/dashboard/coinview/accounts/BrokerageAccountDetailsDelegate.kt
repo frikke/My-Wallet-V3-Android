@@ -107,7 +107,7 @@ private class AssetWalletViewHolder(
                                     if (account is MultiChainAccount) {
                                         context.getString(
                                             R.string.coinview_multi_nc_desc,
-                                            account.l1Network.networkName
+                                            account.l1Network.name
                                         )
                                     } else {
                                         context.getString(R.string.coinview_nc_desc)

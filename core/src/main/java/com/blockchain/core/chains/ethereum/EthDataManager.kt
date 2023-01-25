@@ -431,7 +431,8 @@ class EthDataManager(
         private const val DEFAULT_MAX_FEE = 26L
         val ethChain: EvmNetwork = EvmNetwork(
             networkTicker = CryptoCurrency.ETHER.networkTicker,
-            networkName = CryptoCurrency.ETHER.name,
+            name = CryptoCurrency.ETHER.name,
+            shortName = CryptoCurrency.ETHER.name,
             chainId = ETH_CHAIN_ID,
             nativeAsset = CryptoCurrency.ETHER.networkTicker,
             nodeUrl = EthUrls.ETH_NODES,

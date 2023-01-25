@@ -40,7 +40,6 @@ class Erc20L2StoreRepositoryTest {
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456",
-        isErc20 = true
     ) {}
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -51,7 +50,6 @@ class Erc20L2StoreRepositoryTest {
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#678912",
-        isErc20 = true
     ) {}
 
     private val evmBalanceResponseNative = EvmBalanceResponse(

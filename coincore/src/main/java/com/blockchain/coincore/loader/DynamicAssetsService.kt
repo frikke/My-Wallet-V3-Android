@@ -22,9 +22,9 @@ interface DynamicAssetsService {
     fun allNetworks(): Flow<DataResource<List<CoinNetwork>>>
 }
 
-internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
+internal fun DynamicAsset.toAssetInfo(evmNetworks: List<EvmNetwork> = emptyList()): AssetInfo =
     parentChain?.let { chain ->
-        val pChain = evmChains.find { it == chain } ?: kotlin.run {
+        val pChain = evmNetworks.find { it.networkTicker == chain }?.networkTicker ?: kotlin.run {
             when (chain) {
                 AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
                 else -> null
@@ -41,11 +41,11 @@ internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): As
                 precisionDp = precision,
                 l1chainTicker = pChain,
                 l2identifier = chainIdentifier,
+                coinNetwork = evmNetworks.find { it.networkTicker == chain },
                 requiredConfirmations = minConfirmations,
                 startDate = BTC_START_DATE,
                 colour = mapColour(),
                 logo = logoUrl ?: "", // TODO: Um?
-                isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
                 txExplorerUrlBase = explorerUrl
             )
         }
@@ -63,7 +63,6 @@ internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): As
             startDate = BTC_START_DATE,
             colour = mapColour(),
             logo = logoUrl ?: "", // TODO: Um?
-            isErc20 = false,
             txExplorerUrlBase = explorerUrl
         )
     }

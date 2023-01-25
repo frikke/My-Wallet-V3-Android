@@ -60,6 +60,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isPrivateKeyAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isTradingAccount
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewNetwork
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.LogoSource
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
@@ -68,7 +69,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 fun AssetAccounts(
     analytics: Analytics = get(),
     data: DataResource<CoinviewAccountsState?>,
-    l1Network: Currency?,
+    l1Network: CoinViewNetwork?,
     assetTicker: String,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -128,7 +129,7 @@ fun AssetAccountsError() {
 fun AssetAccountsData(
     analytics: Analytics = get(),
     assetTicker: String,
-    l1Network: Currency?,
+    l1Network: CoinViewNetwork?,
     data: DataResource.Data<CoinviewAccountsState?>,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
@@ -352,7 +353,7 @@ fun PreviewAssetAccounts_Data() {
                 assetName = "Ethereum"
             )
         ),
-        l1Network = CryptoCurrency.BTC,
+        l1Network = CoinViewNetwork("", "MATIC"),
         assetTicker = "ETH",
         onAccountClick = {},
         onLockedAccountClick = {}

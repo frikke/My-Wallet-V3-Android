@@ -2,9 +2,7 @@ package com.blockchain.core.chains.erc20
 
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
-import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
@@ -63,6 +61,7 @@ class Erc20DataManagerTest {
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
                     CryptoCurrency.ETHER.name,
+                    CryptoCurrency.ETHER.name,
                     EthDataManager.ETH_CHAIN_ID,
                     "",
                     ""
@@ -75,8 +74,6 @@ class Erc20DataManagerTest {
     }
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val assetCatalogue: AssetCatalogue = mockk()
-    private val erc20L2StoreService: Erc20L2StoreService = mock()
-    private val erc20L2DataSource: Erc20L2DataSource = mock()
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
@@ -339,26 +336,26 @@ class Erc20DataManagerTest {
             displayTicker = "DUMMY",
             networkTicker = "DUMMY",
             name = "Dummies",
+            coinNetwork = mock<EvmNetwork>(),
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",
-            isErc20 = true
         ) {}
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
             displayTicker = "WHATEVER",
             networkTicker = "WHATEVER",
             name = "Whatevs",
+            coinNetwork = mock<EvmNetwork>(),
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",
-            isErc20 = true
         ) {}
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -45,12 +46,14 @@ fun NonCustodialAssetBalanceTableRow(
                 ) {
                     Text(
                         text = valueFiat,
+                        textAlign = TextAlign.End,
                         style = AppTheme.typography.paragraph2,
                         color = AppTheme.colors.title
                     )
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
                     Text(
                         text = valueCrypto,
+                        textAlign = TextAlign.End,
                         style = AppTheme.typography.paragraph1,
                         color = AppTheme.colors.body
                     )

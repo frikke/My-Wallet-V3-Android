@@ -47,13 +47,13 @@ class SelectNetworkViewModelTest {
     fun `load supported networks successfully and selects preselected`() = runTest {
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
+            name = ethEvmNetwork.name,
             chainId = ethEvmNetwork.chainId,
         )
 
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
+            name = ethEvmNetwork.name,
             chainId = ethEvmNetwork.chainId,
             logo = "logo"
         )
@@ -80,23 +80,23 @@ class SelectNetworkViewModelTest {
 
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
+            name = ethEvmNetwork.name,
             chainId = ethEvmNetwork.chainId,
         )
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
+            name = ethEvmNetwork.name,
             chainId = ethEvmNetwork.chainId,
             logo = "logo"
         )
         val otherEvmNetworkInfoNoLogo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
-            name = otherEvmNetwork.networkName,
+            name = otherEvmNetwork.name,
             chainId = otherEvmNetwork.chainId,
         )
         val otherEvmNetworkInfo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
-            name = otherEvmNetwork.networkName,
+            name = otherEvmNetwork.name,
             chainId = otherEvmNetwork.chainId,
             logo = "logo"
         )
@@ -130,6 +130,7 @@ class SelectNetworkViewModelTest {
             "ETH",
             "ETH",
             "Ethereum",
+            "Ethereum",
             ETH_CHAIN_ID,
             "",
             ""
@@ -143,12 +144,12 @@ class SelectNetworkViewModelTest {
             requiredConfirmations = 1,
             colour = "",
             logo = "logo",
-            isErc20 = true
         )
         private const val EVM_CHAIN_ID = 2
         private val otherEvmNetwork = EvmNetwork(
             "OTHER",
             "OTHER",
+            "Other",
             "Other",
             EVM_CHAIN_ID,
             "",

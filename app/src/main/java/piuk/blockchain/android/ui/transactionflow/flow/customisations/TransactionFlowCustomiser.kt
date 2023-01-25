@@ -1465,7 +1465,7 @@ class TransactionFlowCustomiserImpl(
                 resources.getString(
                     R.string.send_select_wallet_warning_sheet_desc,
                     state.sendingAsset.displayTicker,
-                    state.selectedTarget.l1Network.networkName
+                    state.selectedTarget.l1Network.name
                 )
             } else {
                 ""

@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -108,6 +109,7 @@ fun BalanceChangeTableRow(
                         is DataResource.Data -> {
                             Text(
                                 text = value.data,
+                                textAlign = TextAlign.End,
                                 style = AppTheme.typography.paragraph2,
                                 color = AppTheme.colors.title
                             )
@@ -134,6 +136,7 @@ fun BalanceChangeTableRow(
                                 Text(
                                     text = "${valueChange.data.indicator} ${valueChange.data.value}%",
                                     style = AppTheme.typography.caption1,
+                                    textAlign = TextAlign.End,
                                     color = valueChange.data.color
                                 )
                             }

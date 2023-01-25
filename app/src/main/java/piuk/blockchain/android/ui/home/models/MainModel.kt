@@ -697,7 +697,7 @@ class MainModel(
                 network?.let {
                     val networkInfo = NetworkInfo(
                         networkTicker = network.networkTicker,
-                        name = network.networkName,
+                        name = network.name,
                         chainId = network.chainId,
                         logo = interactor.getAssetFromTicker(network.networkTicker)?.logo
                     )

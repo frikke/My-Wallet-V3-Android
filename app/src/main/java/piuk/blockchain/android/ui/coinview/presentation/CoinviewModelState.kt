@@ -25,7 +25,6 @@ data class CoinviewModelState(
     val walletMode: WalletMode? = null,
 
     val asset: CryptoAsset? = null,
-
     // price
     val isChartDataLoading: Boolean = false,
     val assetPriceHistory: DataResource<CoinviewAssetPriceHistory> = DataResource.Loading,

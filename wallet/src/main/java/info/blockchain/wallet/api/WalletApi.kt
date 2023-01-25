@@ -303,7 +303,7 @@ class WalletApi(
         sharedKey: String,
         hasCloudBackup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> {
+    ): Completable {
         return explorerInstance.verifyCloudBackup(
             "verify-cloud-backup",
             guid,

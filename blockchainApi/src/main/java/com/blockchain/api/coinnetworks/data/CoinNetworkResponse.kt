@@ -19,6 +19,8 @@ data class CoinNetworkDto(
     val explorerUrl: String,
     @SerialName("nativeAsset")
     val nativeAsset: String,
+    @SerialName("shortName")
+    val shortName: String,
     @SerialName("networkTicker")
     val network: String? = null,
     @SerialName("name")
