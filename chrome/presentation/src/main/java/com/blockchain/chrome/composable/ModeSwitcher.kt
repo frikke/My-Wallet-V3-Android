@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,6 +61,7 @@ fun ModeSwitcher(
     Row(modifier = modifier.fillMaxWidth()) {
         val animatableIndicatorWidthPx = remember { Animatable(fullIndicatorWidthPx) }
         LaunchedEffect(selectedMode) {
+
             animatableIndicatorWidthPx.snapTo(fullIndicatorWidthPx - animatableIndicatorWidthPx.value)
             previousMode = currentMode
             currentMode = selectedMode
@@ -103,31 +105,35 @@ fun ModeSwitcher(
             ) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 Row(modifier = Modifier.wrapContentHeight()) {
-                    val alpha = when (mode) {
-                        currentMode -> modeAlpha.value
-                        previousMode -> fullModeAlpha - modeAlpha.value + minModeAlpha
-                        else -> minModeAlpha
+                    val alpha: () -> Float = {
+                        when (mode) {
+                            currentMode -> modeAlpha.value
+                            previousMode -> fullModeAlpha - modeAlpha.value + minModeAlpha
+                            else -> minModeAlpha
+                        }
                     }
                     val imageResource = mode.titleIcon()
                     Image(
                         modifier = Modifier
-                            .alpha(
-                                alpha
-                            )
                             .align(Alignment.CenterVertically)
                             .padding(
                                 end = if (imageResource != ImageResource.None)
                                     AppTheme.dimensions.tinySpacing
                                 else 0.dp
-                            ),
+                            )
+                            .graphicsLayer {
+                                this.alpha = alpha()
+                            },
                         imageResource = mode.titleIcon(),
                     )
                     Text(
-                        modifier = Modifier.align(Alignment.CenterVertically),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .graphicsLayer {
+                                this.alpha = alpha()
+                            },
                         style = AppTheme.typography.title3,
-                        color = AppTheme.colors.background.copy(
-                            alpha = alpha
-                        ),
+                        color = AppTheme.colors.background,
                         text = stringResource(mode.titleSuperApp())
                     )
                 }
@@ -135,21 +141,34 @@ fun ModeSwitcher(
                 Box(
                     modifier = Modifier
                         .height(AppTheme.dimensions.smallestSpacing)
-                        .width(
-                            when (mode) {
-                                currentMode -> animatableIndicatorWidthPx.value.dp
-                                previousMode -> (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
-                                else -> 0.dp
-                            }
-                        )
-                        .background(
-                            color = AppTheme.colors.background.copy(
-                                alpha = when (mode) {
-                                    currentMode -> animatableIndicatorWidthPx.value / fullIndicatorWidthPx
-                                    previousMode -> 1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
-                                    else -> 0F
+                        .width(fullIndicatorWidthPx.dp)
+                        .graphicsLayer {
+                            alpha = when (mode) {
+                                currentMode -> {
+                                    animatableIndicatorWidthPx.value / fullIndicatorWidthPx
                                 }
-                            ),
+                                previousMode -> {
+                                    1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
+                                }
+                                else -> {
+                                    0F
+                                }
+                            }
+
+                            scaleX = when (mode) {
+                                currentMode -> {
+                                    animatableIndicatorWidthPx.value / fullIndicatorWidthPx
+                                }
+                                previousMode -> {
+                                    (fullIndicatorWidthPx - animatableIndicatorWidthPx.value) / fullIndicatorWidthPx
+                                }
+                                else -> {
+                                    0F
+                                }
+                            }
+                        }
+                        .background(
+                            color = AppTheme.colors.background,
                             shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
                         )
                 )
@@ -169,10 +188,11 @@ fun ModeSwitcher(
 @Preview
 @Composable
 fun PreviewModeSwitcher() {
+    var selectedMode by remember { mutableStateOf(WalletMode.CUSTODIAL) }
     ModeSwitcher(
         modes = listOf(WalletMode.CUSTODIAL, WalletMode.NON_CUSTODIAL).toImmutableList(),
-        selectedMode = WalletMode.CUSTODIAL,
-        onModeClicked = {},
+        selectedMode = selectedMode,
+        onModeClicked = { selectedMode = it },
         onModeLongClicked = {}
     )
 }
