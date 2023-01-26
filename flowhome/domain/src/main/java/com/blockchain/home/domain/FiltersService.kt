@@ -4,6 +4,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.map
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -18,12 +19,7 @@ sealed interface AssetFilter {
 
     data class ShowSmallBalances(val enabled: Boolean) : AssetFilter {
         override fun shouldFilterOut(modelAccount: ModelAccount): Boolean =
-            enabled ||
-                (modelAccount.usdBalance as? DataResource.Data<Money>)?.data?.let {
-                    it >= Money.fromMajor(
-                        FiatCurrency.Dollars, 1.toBigDecimal()
-                    )
-                } ?: true
+            enabled || !modelAccount.isSmallBalance()
     }
 
     data class SearchFilter(private val query: String = "") : AssetFilter {
@@ -47,4 +43,16 @@ data class ModelAccount(
         get() = combineDataResources(balance, usdRate) { balance, usdRate ->
             usdRate.convert(balance)
         }
+}
+
+private fun ModelAccount.isSmallBalance(): Boolean {
+    return (usdBalance as? DataResource.Data<Money>)?.data?.let {
+        it < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
+    } ?: true
+}
+
+fun DataResource<List<ModelAccount>>.allSmallBalances(): DataResource<Boolean> {
+    return map { accounts ->
+        accounts.all { it.isSmallBalance() }
+    }
 }
