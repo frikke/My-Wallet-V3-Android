@@ -2,7 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="buy_now">Comprar Agora</string>
     <string name="deposit_enter_amount_limit_title">Limite</string>
-    <string name="chrome_navigation_prices">Comércio</string>
     <string name="no_fees_title">Sem taxas</string>
     <string name="create_wallet_email_hint">your@email.com</string>
     <string name="activity_details_title_bought">Comprado</string>
@@ -598,9 +597,6 @@
     <string name="minimum_with_value">%1$s Mínimo</string>
     <string name="maximum_with_value">%1$s Máximo</string>
     <string name="max_with_value">%1$s Máx</string>
-    <string name="exchange_campaign_announcement_title">Eleva o teu trading</string>
-    <string name="exchange_campaign_announcement_description">Disfruta de taxas reduzidas, mais pares de trading e suporte 24/7 na Corretora Blockchain.com</string>
-    <string name="exchange_campaign_announcement_action">Começar</string>
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>
     <string name="new_asset_card_subheader_suffix">Hoje</string>
@@ -1005,11 +1001,13 @@
     <string name="payment_methods_bank_transfer">Se primeiro preferir depositar fundos diretamente da sua conta bancária, siga as instruções no próximo ecrã. Assim que o seu depósito chegar à sua conta Blockchain.com, pode regressar aqui para comprar cripto.</string>
     <string name="payment_methods_make_deposit">Fazer um depósito - &gt;</string>
     <string name="alias_tooltip">O nome da conta bancária permite identificar a sua conta bancária com muito mais facilidade do que com os 22 dígitos do Código Bancário Único.</string>
+    <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">A minha Carteira %1s</string>
     <string name="default_label_all_wallets">Todas as carteiras</string>
     <string name="default_label_rewards_wallet">Conta Rewards</string>
     <string name="exchange_default_account_label_1">Conta Exchange</string>
     <string name="approximately_symbol">~ %1$s</string>
+    <string name="custodial_wallet_default_label_1">Trading Account</string>
     <string name="custodial_wallet_default_label_2">%s Conta de negociação</string>
     <string name="select_account_sheet_title">Selecione uma Wallet</string>
     <string name="select_account_sheet_empty">Não tem Wallets elegíveis para realizar esta ação.</string>
@@ -1325,7 +1323,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Envie %1$s ou mais.</string>
     <string name="send_enter_invalid_password">A palavra-passe é incorreta.</string>
     <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Tente novamente.</string>
-    <string name="send_enter_insufficient_gas">Não tem %1$s suficiente para processar esta transação.</string>
+    <string name="send_enter_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
     <string name="send_select_a_wallet_title">ou selecione uma carteira</string>
     <string name="send_select_a_wallet_warning">Envie apenas %1$s para carteiras na rede ( %2$s ).\n <annotation link="send_network_options"> Saiba mais </annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s ( %2$s ) é um token que pode estar disponível em várias redes. Certifique-se de que conhece a rede do endereço da carteira para a qual está a enviar antes de efetuar o envio.</string>
@@ -1377,7 +1375,7 @@
     <string name="rewards_summary_hold_period">Período inicial de retenção</string>
     <string name="rewards_summary_hold_period_days">%1$d Dias</string>
     <string name="rewards_summary_rate">Taxa de Recompensas</string>
-    <string name="earn_dashboard_title">Conta Rewards</string>
+    <string name="rewards_dashboard_title">Conta Rewards</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Saldo</string>
     <string name="rewards_dashboard_item_accrued_title">Total de Rewards ganhos</string>
     <string name="rewards_dashboard_item_action_earn">Ganhe Rewards</string>
@@ -1474,7 +1472,7 @@
     <string name="select_a_wallet">Selecione uma Wallet</string>
     <string name="select_a_bank">Selecione um banco</string>
     <string name="confirm_status_msg_insufficient_funds">Não tem fundos suficientes nesta conta para processar esta transação</string>
-    <string name="confirm_status_msg_insufficient_gas">Não tem %1$s suficiente para processar esta transação.</string>
+    <string name="confirm_status_msg_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
     <string name="confirm_status_msg_option_invalid">Certifique-se de que concordou com os nossos Termos.</string>
     <string name="confirm_status_memo_invalid">Adicione um memorando.</string>
     <string name="confirm_status_msg_invoice_expired">Fatura BitPay expirada</string>
@@ -1956,7 +1954,7 @@
     <string name="funds_locked_summary_available_send">Disponível para envio</string>
     <string name="funds_locked_summary_on_hold">%s Em espera</string>
     <string name="funds_locked_summary_details">Veja Detalhes</string>
-    <string name="funds_locked_summary_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir, entretanto, entre as suas contas Trading, Rewards e Exchange.</string>
+    <string name="funds_locked_summary_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir, entretanto, entre as suas contas Trading, Rewards e Exchange. <annotation link="learn_more"> Saiba mais → </annotation></string>
     <string name="funds_locked_details_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir entre as suas contas Trading, Rewards e Exchange entretanto.</string>
     <string name="funds_locked_details_contact_support">Vê algo que não parece certo? <annotation link="contact_support"> Contacte o apoio ao cliente </annotation></string>
     <string name="funds_locked__details_title_date">RETIDO ATÉ</string>
@@ -2313,7 +2311,6 @@
     <string name="transaction_denied">Transação recusada</string>
     <string name="explainer_custodial_title">Trading Account</string>
     <string name="explainer_custodial_description">A sua Trading Account é uma carteira de custódia hospedada pela Blockchain.com. A sua trading account permite que possa negociar com taxas mais baratas e compre e venda criptomoedas em segundos.</string>
-    <string name="explainer_non_custodial_title">Private Key Wallet</string>
     <string name="explainer_non_custodial_description">A sua Private Key Wallet significa que os seus fundos são propriedade sua e controlados por si e apenas por si. A Blockchain.com não pode ver ou gerir os seus saldos nesta carteira.</string>
     <string name="explainer_rewards_title">Conta Rewards</string>
     <string name="explainer_rewards_description">A sua Conta Rewards permite-lhe ganhar recompensas na sua criptomoeda; até %s %% APY.</string>
@@ -2564,16 +2561,16 @@
     <string name="default_label_all_custodial_wallets">Todos</string>
     <string name="purchase_title_error">Erro de compra</string>
     <string name="purchase_description_error">Encontrámos um problema com a compra. Por favor, tente novamente.</string>
-    <string name="intro_new_user_title">A sua Wallet ficou ainda melhor</string>
-    <string name="intro_new_user_description">Fizemos algumas melhorias importantes na aplicação Blockchain.com.</string>
-    <string name="intro_existing_user_title">Uma nova forma de navegar</string>
-    <string name="intro_existing_user_description">Mova-se facilmente entre a Conta de Negociação e a DeFi Wallet.</string>
-    <string name="intro_non_custodial_title">A sua nova página inicial com Private Key Wallet</string>
-    <string name="intro_non_custodial_description">Aceda às suas Private Key Wallets e interaja com a web3 e finanças descentralizadas.</string>
-    <string name="intro_non_custodial_tag_title">Protegida por si</string>
-    <string name="intro_custodial_title">As suas contas</string>
-    <string name="intro_custodial_description">Aceda ás suas contas de Negociação e Recompensas e compre e venda criptomoedas.</string>
-    <string name="intro_custodial_tag_title">Protegido por Blockchain.com</string>
+    <string name="educational_wallet_mode_intro_title">A sua Wallet ficou ainda melhor</string>
+    <string name="educational_wallet_mode_intro_description">Fizemos algumas melhorias importantes na aplicação Blockchain.com.</string>
+    <string name="educational_wallet_mode_menu_title">Uma nova forma de navegar</string>
+    <string name="educational_wallet_mode_menu_description">Mova-se facilmente entre a Conta de Negociação e a DeFi Wallet.</string>
+    <string name="educational_wallet_mode_defi_title">A sua nova página inicial com Private Key Wallet</string>
+    <string name="educational_wallet_mode_defi_description">Aceda às suas Private Key Wallets e interaja com a web3 e finanças descentralizadas.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Protegida por si</string>
+    <string name="educational_wallet_mode_trading_title">As suas contas</string>
+    <string name="educational_wallet_mode_trading_description">Aceda ás suas contas de Negociação e Recompensas e compre e venda criptomoedas.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Protegido por Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Começar</string>
     <string name="nft_coming_soon_title">Disponível em breve!</string>
     <string name="nft_coming_soon_description">Estamos a trabalhar arduamente para proporcionar suporte aos NFT na sua carteira. Iremos enviar-lhe um e-mail quando for altura de atualizar a sua aplicação.</string>
@@ -2660,7 +2657,7 @@
     <string name="bc_card_transaction_funding">Financiamento</string>
     <string name="bc_card_transaction_chargeback">Estorno</string>
     <string name="wallet_connect_switch_network">Trocar de rede</string>
-    <string name="default_label_staking_wallet">Conta de Apostas</string>
+    <string name="default_label_staking_wallet">Conta de Staking</string>
     <string name="default_label_custodial_wallets">Contas</string>
     <string name="ma_home_assets_title">Ativos</string>
     <string name="add_to_google_pay">Adicionar ao Google Pay</string>
@@ -2689,10 +2686,10 @@
     <string name="nft_help_instructions_5_description">Aceda aos seus NFTs a partir da sua Blockchain Wallet</string>
     <string name="coinview_no_asset_blurb_1">Parece que não temos dados sobre este ativo. Se isso continuar,</string>
     <string name="coinview_no_asset_blurb_2">contacte o suporte.</string>
-    <string name="explainer_staking_title">Conta de Apostas</string>
-    <string name="explainer_staking_description">A sua Conta de Apostas permite-lhe ganhar até %1$s%% recompensas APY sobre os seus criptoativos ao garantir as suas redes blockchain favoritas.</string>
+    <string name="explainer_staking_title">Conta de Staking</string>
+    <string name="explainer_staking_description">A sua Conta de Staking permite-lhe ganhar até %1$s%% recompensas APY sobre os seus criptoativos ao garantir as suas redes blockchain favoritas.</string>
     <string name="staking_coming_soon_title">Brevemente em versão móvel</string>
-    <string name="staking_coming_soon_subtitle">Entretanto, pode gerir a sua Conta de Apostas usando a nossa aplicação web.</string>
+    <string name="staking_coming_soon_subtitle">Entretanto, pode gerir a sua Conta de Staking usando a nossa aplicação web.</string>
     <string name="staking_coming_soon_cta">Ir para a Aplicação Web</string>
     <string name="tx_title_stake_earned">%s Ganhos</string>
     <string name="tx_title_stake_withdrawn">%s Desmarcado</string>
@@ -2810,7 +2807,7 @@
         <item quantity="one" tools:ignore="ImpliedQuantity">dia</item>
         <item quantity="other">Vazio</item>
     </plurals>
-    <string name="staking_confirmation_bonding_period_7"> de gerar recompensas.</string>
+    <string name="staking_confirmation_bonding_period_7"> de gerar recompensas.</string>
     <string name="staking_confirmation_progress_title">%1$s Staking</string>
     <string name="staking_cannot_withdraw_title">Considerações Staking</string>
     <string name="bc_card_empty_statements_title">Os seus extratos aqui</string>
@@ -2855,7 +2852,6 @@
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Recompensas</string>
     <string name="staking_dashboard_search">Pesquisar moedas</string>
-    <string name="earning_dashboard_no_results">Sem resultados</string>
     <string name="earn_rewards_label_passive">Rewards Passivos</string>
     <string name="earn_rewards_label_staking">Apostar em Rewards</string>
     <string name="earn_dashboard_tab_earning">A ganhar</string>
@@ -2877,6 +2873,17 @@
     <string name="earn_up_to">Ganhe até 10%</string>
     <string name="put_your_crypto_to_work">Ponha a sua criptomoeda a funcionar</string>
     <string name="ui_tour_earn_title">Ganhe Rewards</string>
+    <string name="chrome_navigation_prices">Preços</string>
     <string name="prices_filter_all">Todos</string>
     <string name="prices_filter_tradable">Negociável</string>
+    <string name="common_more">Mais</string>
+    <string name="exchange_campaign_announcement_action">Começar</string>
+    <string name="earn_dashboard_title">Ganhar</string>
+    <string name="earning_dashboard_no_results">😞 Sem resultados</string>
+    <string name="defi_onboarding_intro_section2_title">As suas chaves, a sua criptomoeda</string>
+    <string name="prove_resend_sms">Reenviar SMS</string>
+    <string name="prove_waiting_prefill_data_loading">A verificar as suas informações</string>
+    <string name="prove_view_prefill_data_address_label">Endereço</string>
+    <string name="intro_custodial_tag_title">Custódia</string>
+    <string name="common_other">Outro</string>
 </resources>
