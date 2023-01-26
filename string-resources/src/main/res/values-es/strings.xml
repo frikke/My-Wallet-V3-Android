@@ -2,7 +2,6 @@
 <resources>
     <string name="buy_now">Comprar ahora</string>
     <string name="deposit_enter_amount_limit_title">Límite</string>
-    <string name="chrome_navigation_prices">Operación</string>
     <string name="no_fees_title">Sin comisiones</string>
     <string name="create_wallet_email_hint">su@correo.com</string>
     <string name="activity_details_title_bought">Comprado</string>
@@ -54,7 +53,7 @@
     <string name="common_send">Enviar</string>
     <string name="common_receive">Recibir</string>
     <string name="common_rewards">Recompensas</string>
-    <string name="common_swap">Intercambiar</string>
+    <string name="common_swap">Swap</string>
     <string name="common_add_cash">Añadir efectivo</string>
     <string name="common_withdraw">Retirar</string>
     <string name="common_activity">Actividad</string>
@@ -121,7 +120,7 @@
     <string name="please_wait">Espera</string>
     <string name="toolbar_cmd_home">Inicio</string>
     <string name="toolbar_cmd_activity">Actividad</string>
-    <string name="toolbar_cmd_swap">Intercambiar</string>
+    <string name="toolbar_cmd_swap">Swap</string>
     <string name="toolbar_cmd_transfer">Transferir</string>
     <string name="polite_no">No, gracias</string>
     <string name="done">Hecho</string>
@@ -601,9 +600,6 @@
     <string name="new_asset_card_header">1 %1$s = %2$s</string>
     <string name="new_asset_card_subheader">%1$s (%2$s)</string>
     <string name="new_asset_card_subheader_suffix">Hoy</string>
-    <string name="exchange_campaign_announcement_title">Mejora tu trading</string>
-    <string name="exchange_campaign_announcement_description">Comisiones más bajas, más pares para cambiar y soporte directo 24/7 en el Exchange de Blockchain.com</string>
-    <string name="exchange_campaign_announcement_action">Comienza ya</string>
     <string name="new_asset_card_title">%1$s (%2$s) está comprando y vendiendo ahora</string>
     <string name="new_asset_card_body">Compre, venda, intercambie, reciba y guarde %1$s en su Wallet de Blockchain.com.</string>
     <string name="new_asset_card_cta">Comprar %1$s</string>
@@ -685,7 +681,7 @@
     <string name="airdrop_status_date_active">Se deposita en %1s</string>
     <string name="airdrop_status_date_inactive">Finalizado en %1s</string>
     <string name="kyc_non_specific_server_error">Error, por favor intente nuevamente</string>
-    <string name="kyc_splash_title">Intercambiar</string>
+    <string name="kyc_splash_title">Swap</string>
     <string name="kyc_splash_apply_now">Empieza ahora</string>
     <string name="kyc_splash_message">Presentamos Swap de Blockchain, la forma más rápida e inteligente de intercambiar sus criptomonedas.</string>
     <string name="kyc_splash_terms_and_conditions_submit">Al tocar Enviar, acepta el acuerdo de Blockchain</string>
@@ -1005,11 +1001,13 @@
     <string name="payment_methods_bank_transfer">Si primero prefiere depositar fondos directamente desde su cuenta bancaria, siga las instrucciones que aparecen en la siguiente pantalla. Una vez que su depósito llegue a su cuenta de Blockchain.com, puede volver aquí para comprar criptomonedas.</string>
     <string name="payment_methods_make_deposit">Hacer un depósito -&gt;</string>
     <string name="alias_tooltip">El alias bancario le permite identificar su cuenta bancaria mucho más fácil que con los 22 dígitos CBU.</string>
+    <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">Mi monedero %1s</string>
     <string name="default_label_all_wallets">Todas las carteras</string>
     <string name="default_label_rewards_wallet">Cuenta Rewards</string>
     <string name="exchange_default_account_label_1">Cuenta Exchange</string>
     <string name="approximately_symbol">~ %1$s</string>
+    <string name="custodial_wallet_default_label_1">Cuenta Trading</string>
     <string name="custodial_wallet_default_label_2">Cuenta de operaciones %s</string>
     <string name="select_account_sheet_title">Seleccionar Wallet</string>
     <string name="select_account_sheet_empty">No dispone de monederos aptos para realizar esta acción.</string>
@@ -1285,7 +1283,7 @@
     <string name="swap_confirmation_success_message">Ahora tiene %1$s disponible en su monedero.</string>
     <string name="send_confirmation_deposit_cta_button">Transferir ahora</string>
     <string name="send_confirmation_rewards_tos_pp">He leído y acepto las <annotation link="interest_tos">Condiciones de servicio</annotation> y <annotation link="interest_pp"> la Política de privacidad</annotation>.</string>
-    <string name="send_confirmation_rewards_holding_period_1">Al aceptar esto, usted acepta transferir </string>
+    <string name="send_confirmation_rewards_holding_period_1">Al aceptar esto, usted acepta transferir </string>
     <string name="send_confirmation_rewards_holding_period_2">  (%1$s) de su monedero %2$s a su cuenta de recompensas. Se aplicará un período de retención inicial de 7 días a sus fondos.</string>
     <string name="send_confirmation_progress_title">Transfiriendo %1$s</string>
     <string name="send_confirmation_progress_message">Estamos transfiriendo su %1$s ahora mismo.</string>
@@ -1325,7 +1323,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Enviar %1$s o más.</string>
     <string name="send_enter_invalid_password">La contraseña es incorrecta.</string>
     <string name="send_enter_unexpected_error">Se ha producido un error inesperado. Inténtelo de nuevo.</string>
-    <string name="send_enter_insufficient_gas">No tiene suficientes %1$s para procesar esta transacción.</string>
+    <string name="send_enter_insufficient_gas">No tiene suficientes ETH para procesar esta transacción.</string>
     <string name="send_select_a_wallet_title">o Seleccionar una Wallet</string>
     <string name="send_select_a_wallet_warning">Solo envía %1$s a billeteras de la red (%2$s).\n<annotation link="send_network_options">Más información</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) es un token que puede estar disponible en varias redes. Asegúrate de conocer la red de la dirección de la billetera a la que estás haciendo el envío antes.</string>
@@ -1377,7 +1375,7 @@
     <string name="rewards_summary_hold_period">Período de retención inicial</string>
     <string name="rewards_summary_hold_period_days">%1$d días</string>
     <string name="rewards_summary_rate">Tasa de recompensas</string>
-    <string name="earn_dashboard_title">Cuenta Rewards</string>
+    <string name="rewards_dashboard_title">Cuenta Rewards</string>
     <string name="rewards_dashboard_item_balance_title">Saldo de %1$s</string>
     <string name="rewards_dashboard_item_accrued_title">Total de Rewards obtenidas</string>
     <string name="rewards_dashboard_item_action_earn">Obtener Rewards</string>
@@ -1474,7 +1472,7 @@
     <string name="select_a_wallet">Seleccionar Wallet</string>
     <string name="select_a_bank">Seleccione un banco</string>
     <string name="confirm_status_msg_insufficient_funds">No tiene fondos suficientes en esta cuenta para procesar esta transacción</string>
-    <string name="confirm_status_msg_insufficient_gas">No tiene suficientes %1$s para procesar esta transacción.</string>
+    <string name="confirm_status_msg_insufficient_gas">No tiene suficientes ETH para procesar esta transacción.</string>
     <string name="confirm_status_msg_option_invalid">Por favor, asegúrese de haber aceptado nuestros Términos.</string>
     <string name="confirm_status_memo_invalid">Añada un memorando.</string>
     <string name="confirm_status_msg_invoice_expired">Factura de BitPay caducada</string>
@@ -1526,14 +1524,14 @@
     <string name="instantly_buy_crypto_with_link_a_bank">Vincule su banco y compre criptomonedas al instante en cualquier momento.</string>
     <string name="link_once_and_instantly_buy_crypto_anytime">Rápido y seguro sin introducir los detalles de su cuenta.</string>
     <string name="add_payment_method">+ Agregar nuevo</string>
-    <string name="pay_with_my_dotted">Pagar con mi...</string>
+    <string name="pay_with_my_dotted">Pagar con mi…</string>
     <string name="add_new_bank_account">+ Agregar nueva cuenta bancaria</string>
     <string name="yodlee_splash_title_partner">Blockchain.com utiliza Yodlee para verificar sus credenciales bancarias y vincular de forma segura sus cuentas.</string>
     <string name="yodlee_splash_title">Conexión segura</string>
     <string name="yodlee_splash_blurb">Yodlee almacena sus credenciales de forma segura siguiendo las prácticas líderes de la industria en cuanto a protección de datos, cumplimiento de normativas y privacidad.\n <annotation link="yodlee_learn_more">Más información</annotation></string>
-    <string name="yodlee_connection_title">Llevándole a Yodlee...</string>
+    <string name="yodlee_connection_title">Llevándole a Yodlee…</string>
     <string name="yodlee_connection_subtitle">Esto puede tardar hasta 30 segundos.</string>
-    <string name="yodlee_linking_title">Llevándole de vuelta a su monedero...</string>
+    <string name="yodlee_linking_title">Llevándole de vuelta a su monedero…</string>
     <string name="yodlee_linking_subtitle">Esta operación puede tardar hasta 30 segundos. No vuelva atrás ni cierre la aplicación.</string>
     <string name="yodlee_parsing_error">Se ha producido un error al vincular Yodlee. Vuelva a intentarlo o póngase en contacto con Asistencia.</string>
     <string name="yodlee_flow_exited">Se ha cerrado la vinculación a Yodlee. ¿Desea volver a intentarlo?</string>
@@ -1659,7 +1657,7 @@
     <string name="yapily_linking_in_progress_title">Esperando noticias de %1$s</string>
     <string name="yapily_linking_in_progress_subtitle">Complete la aprobación de emparejamiento para continuar.</string>
     <string name="yapily_approval_in_progress_subtitle">Complete la aprobación de la transacción con su banco para continuar.</string>
-    <string name="yapily_activating_title">Actualizando su monedero...</string>
+    <string name="yapily_activating_title">Actualizando su monedero…</string>
     <string name="yapily_activating_subtitle">Esta operación puede tardar hasta 30 segundos. No vuelva atrás ni cierre la aplicación.</string>
     <string name="yapily_approving_title">Conectándole a %1$s</string>
     <string name="yapily_approving_subtitle">Esta operación puede tardar hasta 30 segundos. No vuelva atrás ni cierre la aplicación.</string>
@@ -1774,7 +1772,7 @@
     <string name="checkout_item_network_fee_note">Pagos por minadores %1$s para confirmar su transacción en la red de Blockchain.</string>
     <string name="swap_confirmation_disclaimer_1">Puede que el importe final cambie según la actividad del mercado. Al aprobar este intercambio, acepta la <annotation link="refund_policy">Política de reembolso</annotation> de Blockchain.com</string>
     <string name="sell_confirmation_disclaimer">El importe final puede cambiar debido a la actividad del mercado. Al aprobar esta Venta, acepta la <annotation link="refund_policy">Política de reembolso</annotation> de Blockchain.com</string>
-    <string name="checkout_swap_exchange_note">El tipo de cambio es el mejor precio para %1$s respecto a 1 %2$s </string>
+    <string name="checkout_swap_exchange_note">El tipo de cambio es el mejor precio para %1$s respecto a 1 %2$s </string>
     <string name="upsell_message">Obtenga tarifas más bajas y duplique la velocidad de transacción cuando cambie sus criptomonedas desde cualquier cuenta de operaciones. Busque estos símbolos para reducir las tarifas hasta un 50 %.</string>
     <string name="upsell_title">Reduzca las tarifas. Cambie a cuenta de operaciones.</string>
     <string name="swap_erc_20_tooltip">Este es un token ERC-20. Las tarifas de red las establece la red Ethereum.</string>
@@ -1956,7 +1954,7 @@
     <string name="funds_locked_summary_available_send">Disponible para enviar</string>
     <string name="funds_locked_summary_on_hold">%s En espera</string>
     <string name="funds_locked_summary_details">Ver detalles</string>
-    <string name="funds_locked_summary_text">Los fondos recién agregados están sujetos a un período de retención. Mientras tanto, puedes realizar transferencias entre tus cuentas de Trading, Rewards y Exchange.</string>
+    <string name="funds_locked_summary_text">Los fondos recién agregados están sujetos a un período de retención. Mientras tanto, puedes realizar transferencias entre tus cuentas de Trading, Rewards y Exchange. <annotation link="learn_more"> Más información → </annotation></string>
     <string name="funds_locked_details_text">Los fondos recién agregados están sujetos a un período de retención. Mientras tanto, puede realizar transferencias entre sus cuentas de Trading, Rewards y Exchange.</string>
     <string name="funds_locked_details_contact_support">¿Hay algo que no se ve bien? <annotation link="contact_support">Ponte en contacto con el equipo de asistencia</annotation></string>
     <string name="funds_locked__details_title_date">MANTENIDO HASTA</string>
@@ -1978,7 +1976,7 @@
     <string name="main_toolbar_prices">Precios</string>
     <string name="main_toolbar_buy_sell">Comprar y vender</string>
     <string name="main_toolbar_activity">Actividad</string>
-    <string name="toolbar_swap">Intercambiar</string>
+    <string name="toolbar_swap">Swap</string>
     <string name="toolbar_send">Enviar</string>
     <string name="toolbar_receive">Recibir</string>
     <string name="toolbar_settings">Ajustes</string>
@@ -2313,7 +2311,6 @@
     <string name="transaction_denied">Transacción denegada</string>
     <string name="explainer_custodial_title">Cuenta Trading</string>
     <string name="explainer_custodial_description">Su Trading Account es un monedero con custodia alojado en Blockchain.com que le permite hacer trading con tarifas más económicas y comprar y vender criptomonedas en cuestión de segundos.</string>
-    <string name="explainer_non_custodial_title">Private Key Wallet</string>
     <string name="explainer_non_custodial_description">Su Private Key Wallet significa que usted, y solo usted, posee la titularidad y el control de sus fondos. Blockchain.com no puede ver ni administrar los saldos de este monedero.</string>
     <string name="explainer_rewards_title">Cuenta Rewards</string>
     <string name="explainer_rewards_description">Su cuenta Rewards le permite obtener recompensas por sus criptomonedas. Hasta un %s%% APY (porcentaje de rendimiento anual).</string>
@@ -2564,16 +2561,16 @@
     <string name="default_label_all_custodial_wallets">Todas</string>
     <string name="purchase_title_error">Error en la compra</string>
     <string name="purchase_description_error">Se ha producido un error en la compra. Vuelve a intentarlo.</string>
-    <string name="intro_new_user_title">Su Wallet acaba de mejorar</string>
-    <string name="intro_new_user_description">Hemos realizado algunas mejoras importantes en la aplicación de Blockchain.com</string>
-    <string name="intro_existing_user_title">Una nueva forma de navegar</string>
-    <string name="intro_existing_user_description">Muévase fácilmente entre la cuenta Trading y la Wallet DeFi.</string>
-    <string name="intro_non_custodial_title">Tu nuevo hogar para Private Key Wallet</string>
-    <string name="intro_non_custodial_description">Accede a tus Private Key Wallets e interactúa con web3 y finanzas descentralizadas.</string>
-    <string name="intro_non_custodial_tag_title">Asegurado por ti</string>
-    <string name="intro_custodial_title">Tus cuentas</string>
-    <string name="intro_custodial_description">Acceda a sus cuentas Trading y Rewards, y compre y venda criptomonedas.</string>
-    <string name="intro_custodial_tag_title">Protegido por Blockchain.com</string>
+    <string name="educational_wallet_mode_intro_title">Su Wallet acaba de mejorar</string>
+    <string name="educational_wallet_mode_intro_description">Hemos realizado algunas mejoras importantes en la aplicación de Blockchain.com</string>
+    <string name="educational_wallet_mode_menu_title">Una nueva forma de navegar</string>
+    <string name="educational_wallet_mode_menu_description">Muévase fácilmente entre la cuenta Trading y la Wallet DeFi.</string>
+    <string name="educational_wallet_mode_defi_title">Tu nuevo hogar para Private Key Wallet</string>
+    <string name="educational_wallet_mode_defi_description">Accede a tus Private Key Wallets e interactúa con web3 y finanzas descentralizadas.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Asegurado por ti</string>
+    <string name="educational_wallet_mode_trading_title">Tus cuentas</string>
+    <string name="educational_wallet_mode_trading_description">Acceda a sus cuentas Trading y Rewards, y compre y venda criptomonedas.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Protegido por Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Empezar</string>
     <string name="nft_coming_soon_title">¡Próximamente!</string>
     <string name="nft_coming_soon_description">Estamos trabajando duro para respaldar sus NFT en su cartera. Le enviaremos un correo electrónico cuando sea el momento de actualizar su aplicación.</string>
@@ -2628,7 +2625,7 @@
     <string name="secured_by_bchain">Protegido por Blockchain.com</string>
     <string name="see_card_benefits">Ver beneficios de la tarjeta</string>
     <string name="crypto_back_title">Cripto Back</string>
-    <string name="crypto_back_description">Gana 0,5 %% en recompensas de criptomonedas en todas tus compras.²</string>
+    <string name="crypto_back_description">Gana 1\u0025 en recompensas de criptomonedas en todas tus compras.²</string>
     <string name="bc_card_order_intro_legal_disclaimer">Esta tarjeta Visa® de Blockchain.com es emitida por Pathward, NA, miembro de la FDIC, conforme a una licencia de Visa USA Inc. La tarjeta Visa de Blockchain.com se puede usar en todos los lugares donde se acepten tarjetas de débito Visa. ¹No hay comisiones de Blockchain.com, pero se aplica un diferencial cuando vendemos criptomonedas. ²Esta oferta opcional no es un producto o servicio de Pathward ni Pathward respalda esta oferta.</string>
     <string name="bc_card_spend_limits">Límites de gasto</string>
     <string name="bc_card_atm_limits_disclaimer">Acceso único a cajero automático en un período de 24 horas</string>
@@ -2689,10 +2686,10 @@
     <string name="nft_help_instructions_5_description">Acceda a sus NFT desde su Blockchain Wallet</string>
     <string name="coinview_no_asset_blurb_1">Parece que no tenemos datos sobre este activo. Si esta situación continúa,</string>
     <string name="coinview_no_asset_blurb_2">póngase en contacto con el servicio de asistencia.</string>
-    <string name="explainer_staking_title">Cuenta de inversiones</string>
-    <string name="explainer_staking_description">Su cuenta de inversiones le permite ganar recompensas de hasta %1$s%% APY por sus criptomonedas al asegurar sus redes de blockchain favoritas.</string>
+    <string name="explainer_staking_title">Cuenta de Staking</string>
+    <string name="explainer_staking_description">Su cuenta de Staking le permite ganar recompensas de hasta %1$s%% APY por sus criptomonedas al asegurar sus redes de blockchain favoritas.</string>
     <string name="staking_coming_soon_title">Próximamente disponible para teléfonos móviles</string>
-    <string name="staking_coming_soon_subtitle">Mientras tanto, puede gestionar su cuenta de inversiones utilizando nuestra aplicación web.</string>
+    <string name="staking_coming_soon_subtitle">Mientras tanto, puede gestionar su cuenta de Staking utilizando nuestra aplicación web.</string>
     <string name="staking_coming_soon_cta">Ir a la aplicación web</string>
     <string name="tx_title_stake_earned">%s ganado</string>
     <string name="tx_title_stake_withdrawn">%s sin asignar</string>
@@ -2854,7 +2851,6 @@
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_rewards">Recompensas</string>
     <string name="staking_dashboard_search">Buscar monedas</string>
-    <string name="earning_dashboard_no_results">Sin resultados</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
     <string name="earn_dashboard_tab_earning">Ganar</string>
@@ -2878,6 +2874,17 @@
     <string name="show_pkw_accounts">Mostrar billeteras de claves privadas</string>
     <string name="actions_sheet_percentage_rate">Tasa: %s%%</string>
     <string name="ui_tour_earn_title">Obtener Rewards</string>
+    <string name="chrome_navigation_prices">Precios</string>
     <string name="prices_filter_all">Todas</string>
     <string name="prices_filter_tradable">Intercambiable</string>
+    <string name="common_more">Más</string>
+    <string name="exchange_campaign_announcement_action">Empezar</string>
+    <string name="earn_dashboard_title">Ganar</string>
+    <string name="earning_dashboard_no_results">😞 Sin resultados</string>
+    <string name="defi_onboarding_intro_section2_title">Sus claves, sus criptomonedas</string>
+    <string name="prove_resend_sms">Volver a enviar SMS</string>
+    <string name="prove_waiting_prefill_data_loading">Verificando su información</string>
+    <string name="prove_view_prefill_data_address_label">Dirección</string>
+    <string name="intro_custodial_tag_title">Bajo custodia</string>
+    <string name="common_other">Otros</string>
 </resources>
