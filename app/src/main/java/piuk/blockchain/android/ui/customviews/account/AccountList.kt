@@ -236,6 +236,11 @@ private class AccountsDelegateAdapter(
                 DiffUtil.calculateDiff(AccountsDiffUtil(this.items, value))
             field = value
             diffResult.dispatchUpdatesTo(this)
+
+            // need to update first and last item if shape needs to update for superapp
+            // see CryptoSingleAccountViewHolder.bind
+            notifyItemChanged(0)
+            notifyItemChanged(value.lastIndex)
         }
 
     init {
