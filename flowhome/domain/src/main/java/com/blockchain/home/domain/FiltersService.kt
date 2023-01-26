@@ -4,7 +4,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.data.map
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
