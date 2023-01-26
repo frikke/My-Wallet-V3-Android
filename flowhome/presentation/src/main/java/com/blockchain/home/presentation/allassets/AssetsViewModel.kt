@@ -29,7 +29,7 @@ import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
-import com.blockchain.home.domain.allSmallBalances
+import com.blockchain.home.domain.isSmallBalance
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance
@@ -392,7 +392,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                        .containsAll(
+                    .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {
@@ -486,8 +486,14 @@ class AssetsViewModel(
     }
 }
 
+private fun DataResource<List<ModelAccount>>.allSmallBalances(): DataResource<Boolean> {
+    return map { accounts ->
+        accounts.all { it.isSmallBalance() }
+    }
+}
+
 private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
-    val filters = if(state.accounts.allSmallBalances().dataOrElse(true)){
+    val filters = if (state.accounts.allSmallBalances().dataOrElse(true)) {
         state.filters.minus { it is AssetFilter.ShowSmallBalances }
     } else {
         state.filters

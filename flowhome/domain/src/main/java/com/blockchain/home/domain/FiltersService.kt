@@ -45,14 +45,8 @@ data class ModelAccount(
         }
 }
 
-private fun ModelAccount.isSmallBalance(): Boolean {
+fun ModelAccount.isSmallBalance(): Boolean {
     return (usdBalance as? DataResource.Data<Money>)?.data?.let {
         it < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
     } ?: true
-}
-
-fun DataResource<List<ModelAccount>>.allSmallBalances(): DataResource<Boolean> {
-    return map { accounts ->
-        accounts.all { it.isSmallBalance() }
-    }
 }

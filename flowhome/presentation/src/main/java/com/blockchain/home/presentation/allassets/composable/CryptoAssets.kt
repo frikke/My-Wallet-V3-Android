@@ -119,7 +119,6 @@ fun CryptoAssetsScreen(
     onAssetClick: (AssetInfo) -> Unit,
     onBackPressed: () -> Unit
 ) {
-    println("------ recomp")
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
