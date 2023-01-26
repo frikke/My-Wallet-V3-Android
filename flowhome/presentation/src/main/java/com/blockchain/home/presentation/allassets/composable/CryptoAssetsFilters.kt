@@ -98,7 +98,7 @@ fun CryptoAssetsFilters(
 
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.assets_filter_confirmation),
+            text = stringResource(R.string.common_confirm),
             onClick = { onConfirmClick(editableFilters.value) }
         )
     }
