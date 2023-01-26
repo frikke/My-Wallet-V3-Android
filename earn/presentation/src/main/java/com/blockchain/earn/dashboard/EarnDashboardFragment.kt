@@ -66,7 +66,7 @@ class EarnDashboardFragment :
             setContent {
                 bindViewModel(viewModel, this@EarnDashboardFragment, ModelConfigArgs.NoArgs)
 
-                EarnDashboardScreen(viewModel, childFragmentManager)
+                EarnDashboardScreen(viewModel)
             }
         }
     }
