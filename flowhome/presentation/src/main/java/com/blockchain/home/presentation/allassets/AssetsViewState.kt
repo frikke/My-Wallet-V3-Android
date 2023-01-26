@@ -15,6 +15,7 @@ data class AssetsViewState(
     val assets: DataResource<List<HomeAsset>>,
     val filters: List<AssetFilter>,
     val showNoResults: Boolean,
+    val showFilterIcon: Boolean,
     val fundsLocks: DataResource<FundsLocks?>,
 ) : ViewState
 

@@ -29,6 +29,7 @@ import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.domain.ModelAccount
+import com.blockchain.home.domain.isSmallBalance
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.balance.WalletBalance
@@ -105,6 +106,7 @@ class AssetsViewModel(
                 showNoResults = state.accounts.map { modelAccounts ->
                     modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
                 }.dataOrElse(false),
+                showFilterIcon = !state.accounts.allSmallBalances().dataOrElse(true),
                 fundsLocks = state.fundsLocks.map {
                     it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
                 }
@@ -484,8 +486,20 @@ class AssetsViewModel(
     }
 }
 
+private fun DataResource<List<ModelAccount>>.allSmallBalances(): DataResource<Boolean> {
+    return map { accounts ->
+        accounts.all { it.isSmallBalance() }
+    }
+}
+
 private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
-    return state.filters.all { it.shouldFilterOut(this) }
+    val filters = if (state.accounts.allSmallBalances().dataOrElse(true)) {
+        state.filters.minus { it is AssetFilter.ShowSmallBalances }
+    } else {
+        state.filters
+    }
+
+    return filters.all { it.shouldFilterOut(this) }
 }
 
 private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {

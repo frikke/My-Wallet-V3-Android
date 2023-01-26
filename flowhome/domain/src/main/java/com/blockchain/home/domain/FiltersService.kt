@@ -18,12 +18,7 @@ sealed interface AssetFilter {
 
     data class ShowSmallBalances(val enabled: Boolean) : AssetFilter {
         override fun shouldFilterOut(modelAccount: ModelAccount): Boolean =
-            enabled ||
-                (modelAccount.usdBalance as? DataResource.Data<Money>)?.data?.let {
-                    it >= Money.fromMajor(
-                        FiatCurrency.Dollars, 1.toBigDecimal()
-                    )
-                } ?: true
+            enabled || !modelAccount.isSmallBalance()
     }
 
     data class SearchFilter(private val query: String = "") : AssetFilter {
@@ -47,4 +42,10 @@ data class ModelAccount(
         get() = combineDataResources(balance, usdRate) { balance, usdRate ->
             usdRate.convert(balance)
         }
+}
+
+fun ModelAccount.isSmallBalance(): Boolean {
+    return (usdBalance as? DataResource.Data<Money>)?.data?.let {
+        it < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
+    } ?: true
 }

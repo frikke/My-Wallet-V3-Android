@@ -2716,7 +2716,6 @@
     <string name="assets_no_result">😞 Sin resultados</string>
     <string name="assets_filter_title">Filtrar activos</string>
     <string name="assets_filter_small_balances">Mostrar saldos pequeños</string>
-    <string name="assets_filter_confirmation">Mostrar</string>
     <string name="bc_card_order_processing">Procesando</string>
     <string name="bc_card_order_shipped">Enviada</string>
     <string name="bc_card_order_delivered">Entregada</string>

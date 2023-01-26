@@ -43,7 +43,7 @@ import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
-private const val MAX_ACTIVITY_COUNT = 6
+private const val MAX_ACTIVITY_COUNT = 5
 
 @Composable
 fun HomeActivity(

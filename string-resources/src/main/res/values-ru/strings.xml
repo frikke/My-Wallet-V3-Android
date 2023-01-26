@@ -2720,7 +2720,6 @@
     <string name="assets_no_result">😞 Нет результатов</string>
     <string name="assets_filter_title">Фильтр активовов</string>
     <string name="assets_filter_small_balances">Показать малые балансы</string>
-    <string name="assets_filter_confirmation">Показать</string>
     <string name="bc_card_order_processing">Идет обработка</string>
     <string name="bc_card_order_shipped">Отправлена</string>
     <string name="bc_card_order_delivered">Доставлена</string>

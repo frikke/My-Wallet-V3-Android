@@ -95,6 +95,7 @@ fun CryptoAssets(
             },
             filters = state.filters,
             showNoResults = state.showNoResults,
+            showFilterIcon = state.showFilterIcon,
             onFiltersConfirmed = { filters ->
                 viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
             },
@@ -111,6 +112,7 @@ fun CryptoAssets(
 fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
     showNoResults: Boolean,
+    showFilterIcon: Boolean,
     onSearchTermEntered: (String) -> Unit,
     filters: List<AssetFilter>,
     onFiltersConfirmed: (List<AssetFilter>) -> Unit,
@@ -150,13 +152,13 @@ fun CryptoAssetsScreen(
             NavigationBar(
                 title = stringResource(R.string.ma_home_assets_title),
                 onBackButtonClick = onBackPressed,
-                navigationBarButtons = listOf(
+                navigationBarButtons = listOfNotNull(
                     NavigationBarButton.IconResource(
                         Icons.Filter.copy(contentDescription = stringResource(R.string.accessibility_filter)),
                     ) {
                         focusManager.clearFocus(true)
                         coroutineScope.launch { sheetState.show() }
-                    }
+                    }.takeIf { showFilterIcon }
                 )
             )
 
@@ -362,6 +364,7 @@ fun PreviewCryptoAssetsScreen() {
         onFiltersConfirmed = {},
         onAssetClick = {},
         showNoResults = false,
+        showFilterIcon = true,
         onBackPressed = { }
     )
 }
@@ -374,6 +377,7 @@ fun PreviewCryptoAssetsScreen_Empty() {
             listOf()
         ),
         showNoResults = true,
+        showFilterIcon = true,
         onSearchTermEntered = {},
         filters = listOf(),
         onFiltersConfirmed = {},

@@ -21,6 +21,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
@@ -83,6 +84,8 @@ class MultiAppActivity :
     KycBenefitsSheetHost,
     SelectNetworkBottomSheet.Host,
     KoinScopeComponent {
+
+    override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
 
     override val scope: Scope = payloadScope
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()

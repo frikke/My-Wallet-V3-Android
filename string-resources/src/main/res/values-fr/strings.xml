@@ -2718,7 +2718,6 @@
     <string name="assets_no_result">😞 Aucun résultat</string>
     <string name="assets_filter_title">Filtrer les actifs</string>
     <string name="assets_filter_small_balances">Afficher des petits soldes</string>
-    <string name="assets_filter_confirmation">Afficher</string>
     <string name="bc_card_order_processing">En cours de traitement</string>
     <string name="bc_card_order_shipped">Expédiée</string>
     <string name="bc_card_order_delivered">Livrée</string>
