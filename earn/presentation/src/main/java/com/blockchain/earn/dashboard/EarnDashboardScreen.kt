@@ -48,7 +48,6 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.filter.FilterState
 import com.blockchain.componentlib.filter.LabeledFilterState
 import com.blockchain.componentlib.filter.LabeledFiltersGroup
-import com.blockchain.componentlib.system.LazyRoundedCornersColumn
 import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow

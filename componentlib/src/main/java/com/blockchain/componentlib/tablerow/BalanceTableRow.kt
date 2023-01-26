@@ -36,7 +36,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun BalanceTableRow(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     titleStart: AnnotatedString,
     titleEnd: AnnotatedString? = null,
     bodyStart: AnnotatedString? = null,
