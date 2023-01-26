@@ -38,13 +38,11 @@ import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.isCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -73,7 +71,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val stakingService: StakingService by scopedInject()
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
-        ActiveAccountList(currency, interestService)
+        ActiveAccountList()
     }
 
     protected fun accounts(filter: AssetFilter): Single<SingleAccountList> {
@@ -407,13 +405,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 }
 
-internal class ActiveAccountList(
-    private val asset: AssetInfo,
-    private val interestService: InterestService
-) {
+internal class ActiveAccountList {
     private val activeList = mutableMapOf<AssetFilter, Set<CryptoAccount>>()
 
-    private var interestEnabled = false
     private val forceRefreshOnNext = AtomicBoolean(true)
 
     fun setForceRefresh() {
@@ -437,14 +431,7 @@ internal class ActiveAccountList(
             Single.just(true).doOnSuccess {
                 forceRefreshOnNext.set(false)
             }
-        } else Singles.zip(
-            Single.just(interestEnabled),
-            interestService.isAssetAvailableForInterest(asset),
-            Single.just(forceRefreshOnNext.getAndSet(false))
-        ) { wasEnabled, isEnabled, force ->
-            interestEnabled = isEnabled
-            wasEnabled != isEnabled || force
-        }.onErrorReturn { false }
+        } else Single.just(false)
     }
 
     @Synchronized

@@ -183,8 +183,16 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
             warningMessage.apply {
-                visibleIf { state.networkName != null }
-                text = customiser.selectTargetAddressInputWarning(state)
+                (state.sendingAsset as? AssetInfo)?.coinNetwork?.let {
+                    visible()
+                    text = customiser.selectTargetAddressInputWarning(
+                        state.action,
+                        state.sendingAsset,
+                        it
+                    )
+                } ?: run {
+                    gone()
+                }
             }
             titlePick.apply {
                 visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }

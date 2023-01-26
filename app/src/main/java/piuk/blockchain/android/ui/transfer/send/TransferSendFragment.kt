@@ -8,7 +8,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.preferences.OnboardingPrefs
@@ -85,10 +85,10 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
         require(account is CryptoAccount)
 
         val shouldShowNetworkWarningSheet = !onboardingPrefs.isSendNetworkWarningDismissed &&
-            account is MultiChainAccount
+            account is L2NonCustodialAccount
 
         if (shouldShowNetworkWarningSheet) {
-            require(account is MultiChainAccount)
+            require(account is L2NonCustodialAccount)
             selectedSource = account
             showBottomSheet(
                 SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.name)

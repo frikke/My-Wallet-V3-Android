@@ -111,7 +111,7 @@ class PricesViewModel(
         return PriceItemViewState(
             asset = assetInfo,
             name = assetInfo.name,
-            ticker = assetInfo.networkTicker,
+            ticker = assetInfo.displayTicker,
             network = assetInfo.coinNetwork?.shortName,
             logo = assetInfo.logo,
             delta = price.map { ValueChange.fromValue(it.delta24h) },

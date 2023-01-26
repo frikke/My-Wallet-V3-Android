@@ -12,7 +12,6 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -25,7 +24,6 @@ import io.reactivex.rxjava3.core.Single
 internal class L1EvmAsset(
     override val currency: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
-    private val feeDataManager: FeeDataManager,
     private val labels: DefaultLabels,
     private val walletPreferences: WalletStatusPrefs,
     private val formatUtils: FormatUtilities,
@@ -50,7 +48,6 @@ internal class L1EvmAsset(
             asset = currency,
             erc20DataManager = erc20DataManager,
             address = erc20address,
-            fees = feeDataManager,
             label = labels.getDefaultNonCustodialWalletLabel(),
             exchangeRates = exchangeRates,
             ethDataManager = ethDataManager,

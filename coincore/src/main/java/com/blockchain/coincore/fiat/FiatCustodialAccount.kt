@@ -66,8 +66,8 @@ import kotlinx.coroutines.flow.onEach
     override var hasTransactions: Boolean = false
         private set
 
-    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
-        simpleBuyService.getFiatTransactions(
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return simpleBuyService.getFiatTransactions(
             freshnessStrategy = freshnessStrategy,
             fiatCurrency = currency,
             product = Product.BUY
@@ -89,6 +89,7 @@ import kotlinx.coroutines.flow.onEach
                     )
                 }
             }.asObservable()
+    }
 
     override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
         simpleBuyService.getFiatTransactions(

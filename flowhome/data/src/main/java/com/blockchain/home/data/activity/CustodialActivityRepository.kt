@@ -26,7 +26,11 @@ class CustodialActivityRepository(
     override fun getAllActivity(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<CustodialTransaction>>> {
-        return coincore.activeWalletsInMode(WalletMode.CUSTODIAL, freshnessStrategy).flatMapLatest {
+        return coincore.activeWalletsInMode(WalletMode.CUSTODIAL, freshnessStrategy).distinctUntilChanged { old, new ->
+            val oldAssets = old.accounts.map { it.currency.networkTicker }
+            val newAssets = new.accounts.map { it.currency.networkTicker }
+            oldAssets.size == newAssets.size && oldAssets.toSet() == newAssets.toSet()
+        }.flatMapLatest {
             it.activity(freshnessStrategy).asFlow().debounce(500).map { transactions ->
                 require(
                     transactions.all { activitySummaryItem ->

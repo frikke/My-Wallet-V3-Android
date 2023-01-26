@@ -54,7 +54,6 @@ internal class EthAsset(
                 exchangeRates = exchangeRates,
                 assetCatalogue = assetCatalogue.value,
                 addressResolver = addressResolver,
-                l1Network = EthDataManager.ethChain
             )
         ).doOnSuccess { ethAccount ->
             updateBackendNotificationAddresses(ethAccount)

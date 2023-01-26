@@ -172,7 +172,6 @@ class TransactionFlowActivity :
             action = action
         )
 
-        model.process(TransactionIntent.GetNetworkName(sourceAccount))
         compositeDisposable += sourceAccount.requireSecondPassword()
             .map { intentMapper.map(it) }
             .subscribeBy(

@@ -18,11 +18,9 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
@@ -155,7 +153,6 @@ data class TransactionState(
     val isLoading: Boolean = false,
     val ffImprovedPaymentUxEnabled: Boolean = false,
     val depositTerms: DepositTerms? = null,
-    val networkName: String? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -266,20 +263,6 @@ class TransactionModel(
         Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
         return when (intent) {
-            is TransactionIntent.GetNetworkName -> {
-                when (val account = intent.fromAccount) {
-                    is MultiChainAccount -> { // PKW
-                        process(TransactionIntent.SetNetworkName(account.l1Network.name))
-                        null
-                    }
-                    is CustodialTradingAccount -> { // Trading Accounts
-                        account.currency.l1chainTicker?.let { l1Ticker ->
-                            getNetworkNameForTradingAccount(l1Ticker)
-                        }
-                    }
-                    else -> null
-                }
-            }
             is TransactionIntent.InitialiseWithSourceAccount -> processAccountsListUpdate(
                 selectedTarget = previousState.selectedTarget,
                 fromAccount = intent.fromAccount,
@@ -413,7 +396,6 @@ class TransactionModel(
             is TransactionIntent.UpdateTradingAccountsFilterState,
             is TransactionIntent.DepositTermsReceived,
             is TransactionIntent.ResetPrefillAmount,
-            is TransactionIntent.SetNetworkName,
             is TransactionIntent.ImprovedPaymentUxFeatureFlagLoaded,
             is TransactionIntent.ShowTargetSelection,
             is TransactionIntent.TargetSelectionUpdated,
@@ -439,17 +421,6 @@ class TransactionModel(
             is TransactionIntent.UpdatePrivateKeyAccountsFilterState -> null
         }
     }
-
-    private fun getNetworkNameForTradingAccount(currency: String): Disposable =
-        interactor.getEvmNetworkForCurrency(currency)
-            .subscribeBy(
-                onSuccess = {
-                    process(TransactionIntent.SetNetworkName(it.name))
-                },
-                onError = {
-                    Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")
-                }
-            )
 
     private fun getInitialAmountFromTarget(
         intent: TransactionIntent.InitialiseWithSourceAndTargetAccount

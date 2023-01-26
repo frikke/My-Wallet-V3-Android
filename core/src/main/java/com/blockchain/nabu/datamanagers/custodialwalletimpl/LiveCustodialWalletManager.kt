@@ -294,23 +294,11 @@ class LiveCustodialWalletManager(
         }
             .asSingle()
 
-    override fun isAssetSupportedForSwapLegacy(assetInfo: AssetInfo): Single<Boolean> =
+    override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
         custodialRepository.getSwapAvailablePairs()
             .map { pairs ->
                 assetInfo.networkTicker in pairs.map { it.source.networkTicker }
             }
-
-    override fun isAssetSupportedForSwap(
-        assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<Boolean>> {
-        return simpleBuyService.getPairs(freshnessStrategy)
-            .mapData {
-                it.any { buyPair ->
-                    buyPair.pair.first == assetInfo.networkTicker
-                }
-            }.onErrorReturn { false }
-    }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         simpleBuyService.getBuyOrders(

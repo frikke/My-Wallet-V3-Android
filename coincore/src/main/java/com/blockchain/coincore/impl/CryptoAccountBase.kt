@@ -450,7 +450,7 @@ abstract class CryptoNonCustodialAccount(
 
     private fun swapActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
         val swapEligibility = identity.userAccessForFeature(Feature.Swap, defFreshness)
-        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwapLegacy(currency)
+        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwap(currency)
         return swapEligibility.zipWith(assetAvailableForSwap) { swapEligible, assetEligibleForSwap ->
             StateAwareAction(
                 when {

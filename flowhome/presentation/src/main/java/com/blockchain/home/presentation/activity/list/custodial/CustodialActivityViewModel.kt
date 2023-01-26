@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
 import com.blockchain.data.map
@@ -18,11 +19,9 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivityComponent
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -104,7 +103,7 @@ class CustodialActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-                loadData(false)
+                loadData(intent.freshnessStrategy)
             }
 
             is ActivityIntent.FilterSearch -> {
@@ -117,19 +116,16 @@ class CustodialActivityViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                loadData(true)
+                loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
             }
         }
     }
 
-    private fun loadData(forceRefresh: Boolean) {
+    private fun loadData(freshnessStrategy: FreshnessStrategy) {
         activityJob?.cancel()
         activityJob = CoroutineScope(Dispatchers.IO).launch {
             custodialActivityService.getAllActivity(
-                PullToRefresh.freshnessStrategy(
-                    shouldGetFresh = forceRefresh,
-                    cacheStrategy = RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-                )
+                freshnessStrategy
             )
                 .collect { dataRes ->
                     updateState {

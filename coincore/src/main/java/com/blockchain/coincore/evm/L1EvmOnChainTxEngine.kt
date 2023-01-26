@@ -15,7 +15,6 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
@@ -35,7 +34,6 @@ import org.web3j.utils.Convert
 
 class L1EvmOnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
-    private val feeManager: FeeDataManager,
     walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
     resolvedAddress: Single<String>

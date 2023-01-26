@@ -4,7 +4,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.NullCryptoAddress
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
@@ -91,8 +91,8 @@ class ReceiveDetailModel(
         when (intent) {
             is InitWithAccount -> {
                 when (val account = intent.cryptoAccount) {
-                    is MultiChainAccount -> { // PKW
-                        process(SetNetworkName(account.l1Network.name))
+                    is L2NonCustodialAccount -> { // PKW
+                        process(SetNetworkName(account.l1Network.shortName))
                     }
                     is CustodialTradingAccount -> { // Trading Accounts
                         account.currency.l1chainTicker?.let {

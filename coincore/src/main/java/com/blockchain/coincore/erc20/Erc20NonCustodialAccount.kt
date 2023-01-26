@@ -7,7 +7,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -36,7 +36,7 @@ class Erc20NonCustodialAccount(
     private val walletPreferences: WalletStatusPrefs,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
-) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
+) : L2NonCustodialAccount, CryptoNonCustodialAccount(asset) {
 
     private val hasFunds = AtomicBoolean(false)
 

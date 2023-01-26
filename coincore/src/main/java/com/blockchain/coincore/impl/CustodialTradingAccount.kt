@@ -237,7 +237,7 @@ class CustodialTradingAccount(
     }
 
     private fun swapEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        val assetAvailable = custodialWalletManager.isAssetSupportedForSwapLegacy(assetInfo = currency)
+        val assetAvailable = custodialWalletManager.isAssetSupportedForSwap(assetInfo = currency)
         val swapEligibility = identity.userAccessForFeature(Feature.Swap, defFreshness)
         return swapEligibility.zipWith(assetAvailable) { swapEligible, isAssetAvailable ->
             StateAwareAction(

@@ -199,7 +199,6 @@ internal class DynamicAssetLoader(
         return L1EvmAsset(
             currency = currency,
             erc20DataManager = erc20DataManager,
-            feeDataManager = feeDataManager,
             walletPreferences = walletPreferences,
             labels = labels,
             formatUtils = formatUtils,

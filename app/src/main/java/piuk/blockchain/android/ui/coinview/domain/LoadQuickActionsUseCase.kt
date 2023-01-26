@@ -12,6 +12,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.store.mapData
+import com.blockchain.utils.toFlowDataResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -49,7 +50,7 @@ class LoadQuickActionsUseCase(
                         userFeaturePermissionService.isEligibleFor(Feature.SimplifiedDueDiligence),
                         userFeaturePermissionService.getAccessForFeatures(Feature.Buy, Feature.Sell),
                         custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
-                        custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                        custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
                     ) { kycTier, sddEligibility, featuresAccess, isAvailableForTrading, isSupportedForSwap ->
                         combineDataResources(
                             kycTier, sddEligibility, featuresAccess, isAvailableForTrading, isSupportedForSwap
@@ -110,8 +111,7 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
-                            @Suppress("UnnecessaryVariable")
-                            val canSwap = hasPositiveFilterBalance
+                            val canSwap = hasPositiveFilterBalance && isSupportedForSwapData
 
                             /**
                              * Send button will be enabled if
@@ -165,43 +165,46 @@ class LoadQuickActionsUseCase(
                 if (nonCustodialAccount == null) {
                     flowOf(DataResource.Data(CoinviewQuickActions.none()))
                 } else {
-                    custodialWalletManager.isAssetSupportedForSwap(asset.currency).mapData {
-                        /**
-                         * Send button will be enabled if
-                         * * Balance is positive
-                         */
-                        val canSend = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+                    custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
+                        .mapData { isSwapAvailable ->
+                            /**
+                             * Send button will be enabled if
+                             * * Balance is positive
+                             */
+                            val canSend = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
 
-                        /**
-                         * Can always receive
-                         */
-                        val canReceive = true
+                            /**
+                             * Can always receive
+                             */
+                            val canReceive = true
 
-                        /**
-                         * Swap button will be enabled if
-                         * * Balance is positive
-                         */
-                        val canSwap = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+                            /**
+                             * Swap button will be enabled if
+                             * * Balance is positive
+                             */
+                            val canSwap =
+                                totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true &&
+                                    isSwapAvailable
 
-                        val centerButtons = listOfNotNull(
-                            CoinviewQuickAction.Send.takeIf { canSend },
-                            CoinviewQuickAction.Receive.takeIf { canReceive },
-                        )
+                            val centerButtons = listOfNotNull(
+                                CoinviewQuickAction.Send.takeIf { canSend },
+                                CoinviewQuickAction.Receive.takeIf { canReceive },
+                            )
 
-                        val bottomButtons = listOfNotNull(
-                            CoinviewQuickAction.Swap.takeIf { canSwap }
-                        )
+                            val bottomButtons = listOfNotNull(
+                                CoinviewQuickAction.Swap.takeIf { canSwap }
+                            )
 
-                        /**
-                         * if true, put the centerbottons on the bottom
-                         */
-                        val shouldSwitch = bottomButtons.isEmpty()
+                            /**
+                             * if true, put the centerbottons on the bottom
+                             */
+                            val shouldSwitch = bottomButtons.isEmpty()
 
-                        CoinviewQuickActions(
-                            center = if (shouldSwitch) emptyList() else centerButtons,
-                            bottom = if (shouldSwitch) centerButtons else bottomButtons
-                        )
-                    }
+                            CoinviewQuickActions(
+                                center = if (shouldSwitch) emptyList() else centerButtons,
+                                bottom = if (shouldSwitch) centerButtons else bottomButtons
+                            )
+                        }
                 }
             }
         }

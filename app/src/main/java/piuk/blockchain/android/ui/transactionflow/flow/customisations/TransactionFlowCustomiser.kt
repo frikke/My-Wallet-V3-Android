@@ -17,7 +17,7 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
@@ -33,6 +33,7 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -121,12 +122,16 @@ class TransactionFlowCustomiserImpl(
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
 
-    override fun selectTargetAddressInputWarning(state: TransactionState): String =
-        when (state.action) {
+    override fun selectTargetAddressInputWarning(
+        action: AssetAction,
+        currency: Currency,
+        coinNetwork: CoinNetwork
+    ): String =
+        when (action) {
             AssetAction.Send -> resources.getString(
                 R.string.send_address_warning,
-                state.sendingAsset.displayTicker,
-                state.networkName
+                currency.displayTicker,
+                coinNetwork.shortName
             )
             else -> ""
         }
@@ -1461,7 +1466,7 @@ class TransactionFlowCustomiserImpl(
 
     override fun selectTargetNetworkDescription(state: TransactionState): String {
         return when (state.action) {
-            AssetAction.Send -> if (state.selectedTarget is MultiChainAccount) {
+            AssetAction.Send -> if (state.selectedTarget is L2NonCustodialAccount) {
                 resources.getString(
                     R.string.send_select_wallet_warning_sheet_desc,
                     state.sendingAsset.displayTicker,
@@ -1476,7 +1481,7 @@ class TransactionFlowCustomiserImpl(
 
     override fun shouldShowSelectTargetNetworkDescription(state: TransactionState): Boolean =
         when (state.action) {
-            AssetAction.Send -> state.selectedTarget is MultiChainAccount
+            AssetAction.Send -> state.selectedTarget is L2NonCustodialAccount
             else -> false
         }
 

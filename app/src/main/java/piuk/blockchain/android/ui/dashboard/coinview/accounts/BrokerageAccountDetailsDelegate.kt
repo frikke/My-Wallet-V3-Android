@@ -9,7 +9,7 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.Grey400
@@ -104,7 +104,7 @@ private class AssetWalletViewHolder(
                             when (item.assetFilter) {
                                 // todo (othman) should be removed once universal mode is removed
                                 AssetFilter.NonCustodial -> {
-                                    if (account is MultiChainAccount) {
+                                    if (account is L2NonCustodialAccount) {
                                         context.getString(
                                             R.string.coinview_multi_nc_desc,
                                             account.l1Network.name

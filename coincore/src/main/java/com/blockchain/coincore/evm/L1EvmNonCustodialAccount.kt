@@ -6,16 +6,12 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
@@ -28,13 +24,12 @@ class L1EvmNonCustodialAccount(
     private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     internal val address: String,
-    private val fees: FeeDataManager,
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val addressResolver: AddressResolver,
-    override val l1Network: EvmNetwork,
-) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
+    val l1Network: EvmNetwork,
+) : CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default
 
@@ -46,7 +41,6 @@ class L1EvmNonCustodialAccount(
                 label = label
             )
         )
-    private val l1BalanceStore: L1BalanceStore by scopedInject()
 
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
@@ -79,7 +73,6 @@ class L1EvmNonCustodialAccount(
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         L1EvmOnChainTxEngine(
             erc20DataManager = erc20DataManager,
-            feeManager = fees,
             requireSecondPassword = erc20DataManager.requireSecondPassword,
             walletPreferences = walletPreferences,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)

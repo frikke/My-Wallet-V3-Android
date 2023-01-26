@@ -7,7 +7,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -31,11 +30,9 @@ class EthCryptoWalletAccount internal constructor(
     override val exchangeRates: ExchangeRatesDataManager,
     private val assetCatalogue: AssetCatalogue,
     override val addressResolver: AddressResolver,
-    override val l1Network: EvmNetwork
-) : MultiChainAccount,
-    CryptoNonCustodialAccount(
-        CryptoCurrency.ETHER
-    ) {
+) : CryptoNonCustodialAccount(
+    CryptoCurrency.ETHER
+) {
     internal val address: String
         get() = jsonAccount.address
 

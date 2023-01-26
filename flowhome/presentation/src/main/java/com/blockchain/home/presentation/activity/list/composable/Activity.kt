@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -20,6 +20,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,8 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
@@ -37,6 +41,8 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -80,10 +86,20 @@ fun CustodialActivity(
     onBackPressed: () -> Unit
 ) {
     val viewState: ActivityViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.All))
-        onDispose { }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(
+                    ActivityIntent.LoadActivity(SectionSize.All, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
+                )
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     ActivityScreen(
@@ -243,9 +259,12 @@ fun ActivityGroups(
     onActivityClick: (ClickAction) -> Unit
 ) {
     LazyColumn {
-        itemsIndexed(
+        items(
+            key = {
+                it.hashCode()
+            },
             items = activity.keys.toList(),
-            itemContent = { index, group ->
+            itemContent = { group ->
                 activity[group]?.let { transactionsList ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -275,7 +294,7 @@ fun ActivityGroups(
                         onClick = onActivityClick
                     )
 
-                    if (index < activity.keys.toList().lastIndex) {
+                    if (activity.keys.toList().last() != group) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     }
                 }

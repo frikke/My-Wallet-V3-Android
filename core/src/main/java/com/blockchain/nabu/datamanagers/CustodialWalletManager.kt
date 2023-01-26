@@ -116,15 +116,9 @@ interface CustodialWalletManager {
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 
-    @Deprecated("use flow isAssetSupportedForSwap")
-    fun isAssetSupportedForSwapLegacy(
+    fun isAssetSupportedForSwap(
         assetInfo: AssetInfo
     ): Single<Boolean>
-
-    fun isAssetSupportedForSwap(
-        assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-    ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
