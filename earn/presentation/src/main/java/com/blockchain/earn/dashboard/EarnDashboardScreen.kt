@@ -4,8 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,9 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,14 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -50,12 +48,13 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.filter.FilterState
 import com.blockchain.componentlib.filter.LabeledFilterState
 import com.blockchain.componentlib.filter.LabeledFiltersGroup
-import com.blockchain.componentlib.system.LazyRoundedCornersColumn
+import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.earn.R
 import com.blockchain.earn.dashboard.viewmodel.DashboardState
 import com.blockchain.earn.dashboard.viewmodel.EarnAsset
@@ -72,50 +71,47 @@ import okhttp3.internal.toImmutableList
 
 @Composable
 fun EarnDashboardScreen(
-    viewModel: EarnDashboardViewModel,
-    fragmentManager: FragmentManager
+    viewModel: EarnDashboardViewModel
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: EarnDashboardViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: EarnDashboardViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    viewState?.let { state ->
-        Box(modifier = Modifier.background(AppTheme.colors.light)) {
-            EarnDashboard(
-                state = state,
-                earningTabFilterAction = {
-                    viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabListFilter(it))
-                },
-                earningTabQueryFilter = {
-                    viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabSearchQuery(it))
-                },
-                onEarningItemClicked = {
-                    viewModel.onIntent(EarnDashboardIntent.EarningItemSelected(it))
-                },
-                discoverTabFilterAction = {
-                    viewModel.onIntent(EarnDashboardIntent.UpdateDiscoverTabListFilter(it))
-                },
-                discoverTabQueryFilter = {
-                    viewModel.onIntent(EarnDashboardIntent.UpdateDiscoverTabSearchQuery(it))
-                },
-                onDiscoverItemClicked = {
-                    viewModel.onIntent(EarnDashboardIntent.DiscoverItemSelected(it))
-                },
-                onRefreshData = {
-                    viewModel.onIntent(EarnDashboardIntent.LoadEarn)
-                },
-                earningTabQueryBy = state.earningTabQueryBy,
-                discoverTabQueryBy = state.discoverTabQueryBy,
-                carouselLearnMoreClicked = { url ->
-                    viewModel.onIntent(EarnDashboardIntent.CarouselLearnMoreSelected(url))
-                },
-                startKycClicked = {
-                    viewModel.onIntent(EarnDashboardIntent.StartKycClicked)
-                }
-            )
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.light)
+    ) {
+        EarnDashboard(
+            state = viewState,
+            earningTabFilterAction = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabListFilter(it))
+            },
+            earningTabQueryFilter = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabSearchQuery(it))
+            },
+            onEarningItemClicked = {
+                viewModel.onIntent(EarnDashboardIntent.EarningItemSelected(it))
+            },
+            discoverTabFilterAction = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateDiscoverTabListFilter(it))
+            },
+            discoverTabQueryFilter = {
+                viewModel.onIntent(EarnDashboardIntent.UpdateDiscoverTabSearchQuery(it))
+            },
+            onDiscoverItemClicked = {
+                viewModel.onIntent(EarnDashboardIntent.DiscoverItemSelected(it))
+            },
+            onRefreshData = {
+                viewModel.onIntent(EarnDashboardIntent.LoadEarn)
+            },
+            earningTabQueryBy = viewState.earningTabQueryBy,
+            discoverTabQueryBy = viewState.discoverTabQueryBy,
+            carouselLearnMoreClicked = { url ->
+                viewModel.onIntent(EarnDashboardIntent.CarouselLearnMoreSelected(url))
+            },
+            startKycClicked = {
+                viewModel.onIntent(EarnDashboardIntent.StartKycClicked)
+            }
+        )
     }
 }
 
@@ -238,9 +234,9 @@ private fun DiscoverScreen(
 
     LazyColumn(
         modifier = Modifier
-            .padding(horizontal = AppTheme.dimensions.smallSpacing)
-            .background(AppTheme.colors.light)
-            .shadow(elevation = 0.dp)
+            .fillMaxSize()
+            .background(AppTheme.colors.backgroundMuted),
+        contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing)
     ) {
         item {
             LearningCarousel(carouselLearnMoreClicked)
@@ -317,56 +313,56 @@ private fun DiscoverScreen(
                         AppTheme.dimensions.noSpacing
                     }
 
-                    Card(
+                    Surface(
                         shape = RoundedCornerShape(
                             topStart = top,
                             topEnd = top,
                             bottomEnd = bottom,
                             bottomStart = bottom
-                        )
+                        ),
+                        color = Color.Transparent
                     ) {
                         Column {
-                            Box(
+                            BalanceTableRow(
                                 modifier = Modifier.alpha(
                                     if (item.eligibility !is EarnEligibility.Eligible) {
                                         0.5f
                                     } else {
                                         1f
                                     }
-                                )
-                            ) {
-                                BalanceTableRow(
-                                    titleStart = buildAnnotatedString { append(item.assetName) },
-                                    startImageResource = ImageResource.Remote(item.iconUrl),
-                                    bodyStart = buildAnnotatedString {
-                                        append(
-                                            stringResource(
-                                                id = R.string.staking_summary_rate_value, item.rate.toString()
+                                ),
+                                titleStart = buildAnnotatedString { append(item.assetName) },
+                                startImageResource = ImageResource.Remote(item.iconUrl),
+                                bodyStart = buildAnnotatedString {
+                                    append(
+                                        stringResource(
+                                            id = R.string.staking_summary_rate_value, item.rate.toString()
+                                        )
+                                    )
+                                },
+                                tags = listOf(
+                                    TagViewState(
+                                        when (item.type) {
+                                            EarnType.Passive -> stringResource(
+                                                id = R.string.earn_rewards_label_passive
                                             )
-                                        )
-                                    },
-                                    tags = listOf(
-                                        TagViewState(
-                                            when (item.type) {
-                                                EarnType.Passive -> stringResource(
-                                                    id = R.string.earn_rewards_label_passive
-                                                )
-                                                EarnType.Staking -> stringResource(
-                                                    id = R.string.earn_rewards_label_staking
-                                                )
-                                            },
-                                            TagType.Default()
-                                        )
-                                    ),
-                                    isInlineTags = true,
-                                    endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
-                                    onClick = { onItemClicked(item) },
+                                            EarnType.Staking -> stringResource(
+                                                id = R.string.earn_rewards_label_staking
+                                            )
+                                        },
+                                        TagType.Default()
+                                    )
+                                ),
+                                isInlineTags = true,
+                                endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
+                                onClick = { onItemClicked(item) },
+                            )
+
+                            if (index < discoverAssetList.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
                                 )
                             }
-
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium
-                            )
                         }
                     }
                 }
@@ -536,24 +532,24 @@ private fun EarningScreen(
             )
         } else {
             Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
-                LazyRoundedCornersColumn(
+                LazyRoundedCornersColumnIndexed(
                     items = earningAssetList,
-                    rowContent = {
+                    rowContent = { asset, index ->
                         Column {
                             BalanceTableRow(
-                                titleStart = buildAnnotatedString { append(it.assetName) },
-                                titleEnd = buildAnnotatedString { append(it.balanceFiat.toStringWithSymbol()) },
-                                startImageResource = ImageResource.Remote(it.iconUrl),
+                                titleStart = buildAnnotatedString { append(asset.assetName) },
+                                titleEnd = buildAnnotatedString { append(asset.balanceFiat.toStringWithSymbol()) },
+                                startImageResource = ImageResource.Remote(asset.iconUrl),
                                 bodyStart = buildAnnotatedString {
                                     append(
                                         stringResource(
-                                            id = R.string.staking_summary_rate_value, it.rate.toString()
+                                            id = R.string.staking_summary_rate_value, asset.rate.toString()
                                         )
                                     )
                                 },
                                 tags = listOf(
                                     TagViewState(
-                                        when (it.type) {
+                                        when (asset.type) {
                                             EarnType.Passive -> stringResource(id = R.string.earn_rewards_label_passive)
                                             EarnType.Staking -> stringResource(id = R.string.earn_rewards_label_staking)
                                         },
@@ -561,13 +557,15 @@ private fun EarningScreen(
                                     )
                                 ),
                                 isInlineTags = true,
-                                bodyEnd = buildAnnotatedString { append(it.balanceCrypto.toStringWithSymbol()) },
-                                onClick = { onItemClicked(it) }
+                                bodyEnd = buildAnnotatedString { append(asset.balanceCrypto.toStringWithSymbol()) },
+                                onClick = { onItemClicked(asset) }
                             )
 
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium
-                            )
+                            if (index < earningAssetList.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
+                                )
+                            }
                         }
                     }
                 )
