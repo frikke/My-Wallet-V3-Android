@@ -17,6 +17,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
+import piuk.blockchain.android.databinding.ActivityOnboardingBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 
 internal class OnboardingActivity :
@@ -29,11 +30,15 @@ internal class OnboardingActivity :
     private val biometricsController: BiometricsController by scopedInject()
     private var emailLaunched = false
 
+    private val binding: ActivityOnboardingBinding by lazy {
+        ActivityOnboardingBinding.inflate(layoutInflater)
+    }
+
     private var progressDialog: MaterialProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_onboarding)
+        setContentView(binding.root)
 
         progressDialog = MaterialProgressDialog(this).apply {
             setMessage(R.string.please_wait)

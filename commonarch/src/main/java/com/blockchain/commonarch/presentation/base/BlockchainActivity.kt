@@ -171,14 +171,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
         }
     }
 
-    override fun setContentView(layoutResID: Int) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
-        else super.setContentView(layoutResID)
-    }
-
     override fun setContentView(view: View?) {
         if (processDeathOccurredAndThisIsNotLauncherActivity) {
-            super.setContentView(CoordinatorLayout(this))
+            super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
             return
         }
 
@@ -208,8 +203,34 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
-        else super.setContentView(view, params)
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+            super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
+        } else {
+            super.setContentView(view, params)
+        }
+    }
+
+    private fun createWrapperAndHideViewWithWhiteScrim(view: View?): View? {
+        // Some activities are calling setContentView twice, once on specific activity onCreate and another on
+        // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
+        if (view == null) return null
+        if (view.parent != null) return null
+
+        val wrapper = FrameLayout(this).apply {
+            val params =
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            layoutParams = params
+        }
+        val scrimView = View(this).apply {
+            val params =
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            layoutParams = params
+            setBackgroundColor(getColor(R.color.white))
+        }
+        view.visibility = View.GONE
+        wrapper.addView(view)
+        wrapper.addView(scrimView)
+        return wrapper
     }
 
     /**

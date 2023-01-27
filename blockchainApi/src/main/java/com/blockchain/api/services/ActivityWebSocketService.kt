@@ -4,6 +4,7 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.activity.ActivityRequest
 import com.blockchain.api.selfcustody.activity.ActivityRequestParams
 import com.blockchain.api.selfcustody.activity.ActivityResponse
+import com.blockchain.extensions.safeLet
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.network.websocket.ConnectionEvent
@@ -70,11 +71,16 @@ class ActivityWebSocketService(
 
     private var onAppForegrounded = {}
 
-    private val authInfo: AuthInfo
-        get() = AuthInfo(
-            guidHash = credentials.hashedGuid,
-            sharedKeyHash = credentials.hashedSharedKey,
-        )
+    private val authInfo: AuthInfo?
+        get() = safeLet(
+            credentials.hashedGuidOrNull,
+            credentials.hashedSharedKeyOrNull,
+        ) { hashedGuid, hashedSharedKey ->
+            AuthInfo(
+                guidHash = hashedGuid,
+                sharedKeyHash = hashedSharedKey,
+            )
+        }
 
     fun open(fiatCurrency: String) {
         if (isActive.not()) {
@@ -88,6 +94,7 @@ class ActivityWebSocketService(
     }
 
     fun send(fiatCurrency: String, acceptLanguage: String, timeZone: String) {
+        val authInfo = authInfo ?: return
         webSocket.send(
             ActivityRequest(
                 auth = authInfo,
