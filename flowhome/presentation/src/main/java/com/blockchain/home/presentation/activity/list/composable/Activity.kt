@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.list.composable
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -20,7 +20,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +36,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -46,7 +46,7 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivitySectionCard
+import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ClickAction
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.ActivityIntent
@@ -198,7 +198,6 @@ fun ActivityScreen(
                     .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 when (activity) {
-
                     is DataResource.Data -> {
                         ActivityData(
                             activity = activity.data,
@@ -253,53 +252,50 @@ fun ActivityData(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ActivityGroups(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
     onActivityClick: (ClickAction) -> Unit
 ) {
+
     LazyColumn {
-        items(
-            key = {
-                it.hashCode()
-            },
-            items = activity.keys.toList(),
-            itemContent = { group ->
-                activity[group]?.let { transactionsList ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val name = when (group) {
-                            TransactionGroup.Group.Pending -> stringResource(id = R.string.common_pending)
-                            is TransactionGroup.Group.Date -> group.date.format()
-                            TransactionGroup.Combined -> error("not allowed")
-                        }
-                        Text(
-                            text = name,
-                            style = AppTheme.typography.body2,
-                            color = AppTheme.colors.muted
-                        )
-
-                        if (group is TransactionGroup.Group.Pending) {
-                            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
-
-                            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    ActivitySectionCard(
-                        components = transactionsList,
-                        onClick = onActivityClick
-                    )
-
-                    if (activity.keys.toList().last() != group) {
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-                    }
+        activity
+            .forEach { (group, transactions) ->
+                stickyHeader {
+                    TransactionRow(group)
+                }
+                roundedCornersItems(transactions, key = { it.id }) { transaction ->
+                    ActivityComponentItem(transaction, onActivityClick)
                 }
             }
+    }
+}
+
+@Composable
+private fun TransactionRow(group: TransactionGroup) {
+    Row(
+        modifier = Modifier
+            .background(AppTheme.colors.backgroundMuted)
+            .padding(vertical = AppTheme.dimensions.tinySpacing)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val name = when (group) {
+            TransactionGroup.Group.Pending -> stringResource(id = R.string.common_pending)
+            is TransactionGroup.Group.Date -> group.date.format()
+            TransactionGroup.Combined -> error("not allowed")
+        }
+        Text(
+            text = name,
+            style = AppTheme.typography.body2,
+            color = AppTheme.colors.muted
         )
+
+        if (group is TransactionGroup.Group.Pending) {
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
+        }
     }
 }
 

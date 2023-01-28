@@ -93,7 +93,6 @@ class PrivateKeyActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-
                 loadData()
             }
 

@@ -26,14 +26,20 @@ sealed interface ActivityComponent {
         val leadingImage: StackedIcon = StackedIcon.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
-    ) : ActivityComponent
+    ) : ActivityComponent {
+        override fun equals(other: Any?) = id == (other as? StackView)?.id
+        override fun hashCode() = id.hashCode()
+    }
 
     data class Button(
         override val id: String,
         val value: TextValue,
         val style: ActivityButtonStyle,
         val action: ActivityButtonAction
-    ) : ActivityComponent
+    ) : ActivityComponent {
+        override fun equals(other: Any?) = id == (other as? Button)?.id
+        override fun hashCode() = id.hashCode()
+    }
 }
 
 /**

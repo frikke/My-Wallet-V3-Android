@@ -7,6 +7,7 @@ import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActiv
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
+import com.blockchain.home.presentation.dashboard.composable.HomeActivityViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
@@ -67,6 +68,14 @@ val homePresentationModule = module {
         viewModel {
             PrivateKeyActivityViewModel(
                 unifiedActivityService = get()
+            )
+        }
+
+        viewModel {
+            HomeActivityViewModel(
+                pkwViewmodel = get(),
+                custodialActivityViewModel = get(),
+                walletModeService = get(),
             )
         }
 

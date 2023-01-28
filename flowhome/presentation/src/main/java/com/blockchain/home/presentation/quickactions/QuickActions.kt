@@ -8,19 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -34,73 +27,17 @@ import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.withBackground
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.koin.payloadScope
-import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun QuickActions(
-    viewModel: QuickActionsViewModel = getViewModel(scope = payloadScope),
-    forceRefresh: Boolean,
+    quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
-    openMoreQuickActions: () -> Unit,
+    quickActionsViewModel: QuickActionsViewModel,
+    openMoreQuickActions: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
-
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions)
-        onDispose { }
-    }
-
-    DisposableEffect(key1 = forceRefresh) {
-        if (forceRefresh) {
-            viewModel.onIntent(QuickActionsIntent.Refresh)
-        }
-        onDispose { }
-    }
-    viewState?.let {
-        QuickActionsRow(
-            quickActionItems = it.actions,
-            onClick = { action ->
-                when (action) {
-                    is QuickAction.TxAction -> when (action.assetAction) {
-                        AssetAction.Send,
-                        AssetAction.Swap,
-                        AssetAction.Sell,
-                        AssetAction.Receive,
-                        AssetAction.Buy -> assetActionsNavigation.navigate(action.assetAction)
-                        AssetAction.FiatDeposit -> viewModel.onIntent(
-                            QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
-                        )
-                        AssetAction.FiatWithdraw -> viewModel.onIntent(
-                            QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
-                        )
-                        AssetAction.ViewActivity,
-                        AssetAction.ViewStatement,
-                        AssetAction.InterestDeposit,
-                        AssetAction.InterestWithdraw,
-                        AssetAction.Sign,
-                        AssetAction.StakingDeposit -> {
-                        }
-                    }
-                    /**/
-                    is QuickAction.More -> openMoreQuickActions()
-                }
-            }
-        )
-    }
-}
-
-@Composable
-fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickAction) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -114,7 +51,29 @@ fun QuickActionsRow(quickActionItems: List<QuickActionItem>, onClick: (QuickActi
                     .padding(horizontal = AppTheme.dimensions.verySmallSpacing)
                     .clickable(onClick = {
                         if (quickAction.enabled)
-                            onClick(quickAction.action)
+                            when (quickAction.action) {
+                                is QuickAction.TxAction -> when (quickAction.action.assetAction) {
+                                    AssetAction.Send,
+                                    AssetAction.Swap,
+                                    AssetAction.Sell,
+                                    AssetAction.Receive,
+                                    AssetAction.Buy -> assetActionsNavigation.navigate(quickAction.action.assetAction)
+                                    AssetAction.FiatDeposit -> quickActionsViewModel.onIntent(
+                                        QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
+                                    )
+                                    AssetAction.FiatWithdraw -> quickActionsViewModel.onIntent(
+                                        QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
+                                    )
+                                    AssetAction.ViewActivity,
+                                    AssetAction.ViewStatement,
+                                    AssetAction.InterestDeposit,
+                                    AssetAction.InterestWithdraw,
+                                    AssetAction.Sign,
+                                    AssetAction.StakingDeposit -> {
+                                    }
+                                }
+                                is QuickAction.More -> openMoreQuickActions()
+                            }
                         else {
                             // do nothing
                         }
@@ -162,32 +121,3 @@ private val QuickActionItem.icon: ImageResource
         iconSize = AppTheme.dimensions.standardSpacing,
         backgroundSize = AppTheme.dimensions.xHugeSpacing,
     )
-
-@Preview
-@Composable
-fun QuickActionsPreview() {
-    AppTheme {
-        AppSurface {
-            QuickActionsRow(
-                listOf(
-                    QuickActionItem(
-                        title = R.string.common_buy,
-                        action = QuickAction.TxAction(AssetAction.Swap),
-                        enabled = false
-                    ),
-                    QuickActionItem(
-                        title = R.string.common_buy,
-                        enabled = true,
-                        action = QuickAction.TxAction(AssetAction.Swap)
-                    ),
-                    QuickActionItem(
-                        title = R.string.common_buy,
-                        enabled = false,
-                        action = QuickAction.TxAction(AssetAction.Swap)
-                    )
-                ),
-                {}
-            )
-        }
-    }
-}

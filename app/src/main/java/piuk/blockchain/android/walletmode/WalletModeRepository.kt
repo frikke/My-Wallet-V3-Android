@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 
-open class WalletModeRepository(
+class WalletModeRepository(
     private val walletModeStore: WalletModeStore,
     private val defaultWalletModeStrategy: DefaultWalletModeStrategy
 ) : WalletModeService {

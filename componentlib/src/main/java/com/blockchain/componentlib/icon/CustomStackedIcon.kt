@@ -9,14 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CustomStackedIcon(
     icon: StackedIcon,

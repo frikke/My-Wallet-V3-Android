@@ -85,7 +85,6 @@ class PrivateKeyActivityDetailViewModel(
                     when (summaryDataResource) {
                         is DataResource.Data -> {
                             with(summaryDataResource.data) {
-                                // todo(othman) real values
                                 unifiedActivityService.getActivityDetails(
                                     txId = txId,
                                     network = network,

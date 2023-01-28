@@ -41,7 +41,6 @@ fun AsyncMediaItem(
     @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
 ) {
     val context = LocalContext.current
-
     when (url.getUrlType().ifEmpty { fallbackUrlType?.name }) {
         UrlType.MP4.name,
         UrlType.WAV.name,
@@ -117,7 +116,6 @@ fun AsyncMediaItem(
     }
 }
 
-@ExperimentalCoilApi
 @Composable
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,

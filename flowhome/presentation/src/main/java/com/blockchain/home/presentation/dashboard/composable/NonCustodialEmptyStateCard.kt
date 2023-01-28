@@ -31,7 +31,6 @@ fun NonCustodialEmptyStateCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Card(
             backgroundColor = AppTheme.colors.background,

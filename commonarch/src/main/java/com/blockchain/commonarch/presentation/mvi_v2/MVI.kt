@@ -107,7 +107,12 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
     val viewState: StateFlow<TViewState>
         get() = _modelState.map {
             reduce(it)
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, reduce(initialState))
+        }.stateIn(
+            viewModelScope, SharingStarted.Eagerly,
+            reduce(initialState).also {
+                Timber.d("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
+            }
+        )
 
     /**
      * Method that should be override in every Model created. In this method, base on the latest internal

@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.base
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.MotionEvent
@@ -64,7 +65,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     val appUtil: AppUtilAPI by inject()
 
     val environment: EnvironmentConfig by inject()
-    val logoutTimer: LogoutTimer by inject()
+    private val logoutTimer: LogoutTimer by inject()
     private val remoteLogger: RemoteLogger by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
@@ -235,6 +236,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     /**
      * Allows you to disable Portrait orientation lock on a per-Activity basis.
      */
+    @SuppressLint("SourceLockedOrientationActivity")
     protected open fun lockScreenOrientation() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
