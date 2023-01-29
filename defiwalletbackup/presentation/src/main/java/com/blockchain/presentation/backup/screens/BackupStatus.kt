@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +37,8 @@ fun BackupStatus(backupStatus: BackUpStatus) {
         Image(
             imageResource = ImageResource.Local(
                 id = backupStatus.icon,
-                size = dimensionResource(R.dimen.size_standard)
+                size = dimensionResource(R.dimen.size_standard),
+                colorFilter = ColorFilter.tint(backupStatus.iconColor)
             )
         )
 

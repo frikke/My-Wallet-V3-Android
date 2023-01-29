@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.quickactions
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +28,7 @@ import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
+import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 
 @Composable
@@ -49,7 +49,7 @@ fun QuickActions(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = AppTheme.dimensions.verySmallSpacing)
-                    .clickable(onClick = {
+                    .clickableWithIndication {
                         if (quickAction.enabled)
                             when (quickAction.action) {
                                 is QuickAction.TxAction -> when (quickAction.action.assetAction) {
@@ -77,7 +77,7 @@ fun QuickActions(
                         else {
                             // do nothing
                         }
-                    })
+                    }
             ) {
                 Image(
                     modifier = Modifier

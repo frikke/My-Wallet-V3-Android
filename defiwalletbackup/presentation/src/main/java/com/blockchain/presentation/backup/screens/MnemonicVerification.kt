@@ -13,19 +13,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Card
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
@@ -43,14 +43,14 @@ fun MnemonicVerification(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                width = 1.dp,
+                width = AppTheme.dimensions.borderSmall,
                 color = when (mnemonicVerificationStatus) {
                     UserMnemonicVerificationStatus.IDLE -> Color.Transparent
                     UserMnemonicVerificationStatus.INCORRECT -> AppTheme.colors.errorMuted
                 }.exhaustive,
                 shape = AppTheme.shapes.large
             )
-            .background(color = AppTheme.colors.background, shape = AppTheme.shapes.large)
+            .background(color = AppTheme.colors.backgroundMuted, shape = AppTheme.shapes.large)
             .padding(dimensionResource(R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
@@ -92,11 +92,11 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
             // if a word is selected it should still occupy the space but should be hidden
             .alpha(if (selectableWord.selected) 0F else 1F),
         border = BorderStroke(
-            width = 1.dp,
-            color = if (index == null) AppTheme.colors.medium else Color.Transparent,
+            width = AppTheme.dimensions.borderSmall,
+            color = AppTheme.colors.medium,
         ),
-        shape = AppTheme.shapes.large,
-        backgroundColor = if (index == null) Color.White else AppTheme.colors.light,
+        shape = AppTheme.shapes.small,
+        backgroundColor = Color.White,
         elevation = 0.dp
     ) {
         Row(
@@ -107,26 +107,27 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
                     onClick = onClick
                 )
                 .padding(
-                    vertical = dimensionResource(R.dimen.minuscule_spacing),
-                    horizontal = dimensionResource(R.dimen.very_small_spacing)
+                    vertical = AppTheme.dimensions.minusculeSpacing,
+                    horizontal = AppTheme.dimensions.verySmallSpacing
                 ),
             horizontalArrangement = Arrangement.Center,
         ) {
             index?.let {
-                Text(
+                SimpleText(
                     text = index.toString(),
-                    style = AppTheme.typography.paragraphMono,
-                    color = Grey400,
-                    textAlign = TextAlign.End
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Muted,
+                    gravity = ComposeGravities.End
                 )
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             }
 
-            Text(
+            SimpleText(
                 text = selectableWord.word,
-                style = AppTheme.typography.paragraphMono,
-                color = Grey900,
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
             )
         }
     }

@@ -35,7 +35,10 @@ import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.Red600
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackupPhraseIntent
@@ -112,33 +115,34 @@ fun VerifyPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            mutedBackground = false,
             title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.verify_phrase_title),
-                style = ComposeTypographies.Title3,
+                style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            SmallVerticalSpacer()
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
@@ -148,7 +152,7 @@ fun VerifyPhraseScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            LargeVerticalSpacer()
 
             MnemonicVerification(userMnemonic, mnemonicVerificationStatus) { selectableWord ->
                 if (isLoading.not()) {

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
@@ -23,10 +21,14 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
@@ -67,21 +69,22 @@ fun BackedUpPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            mutedBackground = false,
             onBackButtonClick = null
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -93,15 +96,15 @@ fun BackedUpPhraseScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+            StandardVerticalSpacer()
 
             BackupStatus(BackUpStatus.BACKED_UP)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            LargeVerticalSpacer()
 
             HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -109,7 +112,7 @@ fun BackedUpPhraseScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
@@ -121,7 +124,7 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            TertiaryButton(
+            MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_backup_again),
                 onClick = nextOnClick
