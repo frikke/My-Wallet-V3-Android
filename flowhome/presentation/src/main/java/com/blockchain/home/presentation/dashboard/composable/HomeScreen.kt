@@ -20,20 +20,20 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
-import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
+import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
@@ -41,7 +41,6 @@ import com.blockchain.home.presentation.earn.EarnIntent
 import com.blockchain.home.presentation.earn.EarnNavEvent
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.earn.EarnViewState
-import com.blockchain.home.presentation.earn.HomeEarnHeader
 import com.blockchain.home.presentation.earn.homeEarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
@@ -63,7 +62,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeScreen(
     listState: LazyListState,
-    shouldTriggerRefresh: Boolean,
+    isSwipingToRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
     supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
@@ -91,8 +90,11 @@ fun HomeScreen(
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(scope = payloadScope)
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
 
-    val homeActivityViewModel: HomeActivityViewModel = getViewModel(scope = payloadScope)
-    val activityState: ActivityViewState? by homeActivityViewModel.state().collectAsStateLifecycleAware(null)
+    val custodialActivityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope)
+    val custodialActivityState: ActivityViewState by custodialActivityViewModel.viewState.collectAsStateLifecycleAware()
+
+    val pkwActivityViewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
+    val pkwActivityState: ActivityViewState by pkwActivityViewModel.viewState.collectAsStateLifecycleAware()
 
     val referralViewModel: ReferralViewModel = getViewModel(scope = payloadScope)
     val referralState: ReferralViewState by referralViewModel.viewState.collectAsStateLifecycleAware()
@@ -109,6 +111,10 @@ fun HomeScreen(
                 earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions)
                 referralViewModel.onIntent(ReferralIntent.LoadData())
+                custodialActivityViewModel.onIntent(
+                    ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT))
+                )
+                pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -127,6 +133,16 @@ fun HomeScreen(
                 is EarnNavEvent.Interest -> assetActionsNavigation.interestSummary(it.account)
                 is EarnNavEvent.Staking -> assetActionsNavigation.stakingSummary(it.account.currency)
             }
+        }
+    }
+
+    LaunchedEffect(key1 = isSwipingToRefresh) {
+        if (isSwipingToRefresh) {
+            homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
+            earnViewModel.onIntent(EarnIntent.Refresh)
+            quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
+            pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
+            custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
         }
     }
 
@@ -182,60 +198,45 @@ fun HomeScreen(
             }
         }
 
-        emptyCard(wMode = walletMode, homeViewState, activityState, assetActionsNavigation)
+        walletMode?.let {
+            emptyCard(
+                it, homeViewState,
+                when (it) {
+                    WalletMode.CUSTODIAL -> custodialActivityState
+                    WalletMode.NON_CUSTODIAL -> pkwActivityState
+                },
+                assetActionsNavigation
+            )
+        }
 
         val assets = (homeViewState.assets as? DataResource.Data)?.data
         val locks = (homeViewState.fundsLocks as? DataResource.Data)?.data
 
         assets?.takeIf { it.isNotEmpty() }?.let { data ->
-
-            item {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
-                HomeAssetsHeader(openCryptoAssets)
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            }
-
-            locks?.let {
-                item {
-                    FundLocksData(
-                        total = locks.onHoldTotalAmount,
-                        onClick = { assetActionsNavigation.fundsLocksDetail(it) }
-                    )
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-                }
-            }
-
             homeAssets(
+                locks,
                 assets,
+                openCryptoAssets,
                 assetActionsNavigation,
                 openFiatActionDetail
             )
         }
 
         earnViewState.let { earnState ->
-            if (earnState == EarnViewState.None) {
-                return@let
-            }
-            item {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-                HomeEarnHeader(earnState is EarnViewState.Assets) {
-                    assetActionsNavigation.earnRewards()
-                }
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            }
             homeEarnAssets(earnState, assetActionsNavigation, earnViewModel)
         }
 
-        (activityState?.activity as? DataResource.Data)?.data?.get(TransactionGroup.Combined)?.takeIf {
-            it.isNotEmpty()
-        }?.let { activities ->
-            val wMode = activityState?.walletMode ?: return@let
-            item {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-                HomeActivityHeader(openActivity)
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        walletMode?.let {
+            val activityState = when (it) {
+                WalletMode.CUSTODIAL -> custodialActivityState
+                WalletMode.NON_CUSTODIAL -> pkwActivityState
             }
-            homeActivityScreen(activities, openActivityDetail, wMode)
+            homeActivityScreen(
+                activityState,
+                openActivity,
+                openActivityDetail,
+                it
+            )
         }
 
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
@@ -264,3 +265,4 @@ fun HomeScreen(
 }
 
 private const val MAX_ASSET_COUNT = 7
+private const val MAX_ACTIVITY_COUNT = 5

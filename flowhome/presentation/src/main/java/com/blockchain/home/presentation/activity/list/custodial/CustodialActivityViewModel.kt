@@ -1,10 +1,12 @@
 package com.blockchain.home.presentation.activity.list.custodial
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
@@ -21,15 +23,17 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.toActivi
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import java.util.Calendar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class CustodialActivityViewModel(
-    private val custodialActivityService: CustodialActivityService
+    private val custodialActivityService: CustodialActivityService,
+    private val walletModeService: WalletModeService
 ) : MviViewModel<
     ActivityIntent<CustodialTransaction>,
     ActivityViewState,
@@ -103,7 +107,16 @@ class CustodialActivityViewModel(
         when (intent) {
             is ActivityIntent.LoadActivity -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
-                loadData(intent.freshnessStrategy)
+                activityJob?.cancel()
+                activityJob = viewModelScope.launch {
+                    walletModeService.walletMode.flatMapLatest {
+                        loadData(intent.freshnessStrategy, it)
+                    }.collect { dataRes ->
+                        updateState {
+                            it.copy(activityItems = it.activityItems.updateDataWith(dataRes))
+                        }
+                    }
+                }
             }
 
             is ActivityIntent.FilterSearch -> {
@@ -116,24 +129,26 @@ class CustodialActivityViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh))
-            }
-        }
-    }
-
-    private fun loadData(freshnessStrategy: FreshnessStrategy) {
-        activityJob?.cancel()
-        activityJob = CoroutineScope(Dispatchers.IO).launch {
-            custodialActivityService.getAllActivity(
-                freshnessStrategy
-            )
-                .collect { dataRes ->
+                walletModeService.walletMode.take(1).flatMapLatest {
+                    loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh), it)
+                }.collect { dataRes ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataRes))
                     }
                 }
+            }
         }
     }
+
+    private fun loadData(freshnessStrategy: FreshnessStrategy, walletMode: WalletMode) =
+        when (walletMode) {
+            WalletMode.CUSTODIAL -> {
+                custodialActivityService.getAllActivity(
+                    freshnessStrategy
+                )
+            }
+            WalletMode.NON_CUSTODIAL -> flowOf(DataResource.Data(emptyList()))
+        }
 }
 
 private fun ActivitySummaryItem.matches(filterTerm: String): Boolean {

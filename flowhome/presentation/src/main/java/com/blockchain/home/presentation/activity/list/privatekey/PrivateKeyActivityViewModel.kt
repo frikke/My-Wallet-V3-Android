@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.activity.list.privatekey
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.DataResource
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
@@ -18,13 +19,16 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
 import com.blockchain.unifiedcryptowallet.domain.activity.model.UnifiedActivityItem
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import java.util.Calendar
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class PrivateKeyActivityViewModel(
-    private val unifiedActivityService: UnifiedActivityService
+    private val unifiedActivityService: UnifiedActivityService,
+    private val walletModeService: WalletModeService
 ) : MviViewModel<
     ActivityIntent<UnifiedActivityItem>,
     ActivityViewState,
@@ -109,14 +113,19 @@ class PrivateKeyActivityViewModel(
 
     private fun loadData() {
         viewModelScope.launch {
-            unifiedActivityService
-                .getAllActivity()
-                .onEach { dataResource ->
+            walletModeService.walletMode.flatMapLatest {
+                when (it) {
+                    WalletMode.CUSTODIAL -> flowOf(DataResource.Data(emptyList()))
+                    WalletMode.NON_CUSTODIAL ->
+                        unifiedActivityService
+                            .getAllActivity()
+                }
+            }
+                .collect { dataResource ->
                     updateState {
                         it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
                     }
                 }
-                .collect()
         }
     }
 }
