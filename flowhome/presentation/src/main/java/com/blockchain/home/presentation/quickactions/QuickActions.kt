@@ -30,8 +30,6 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
-import com.blockchain.home.presentation.activity.list.ActivityViewState
-import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.actionName
 import com.blockchain.home.presentation.dashboard.composable.DashboardState

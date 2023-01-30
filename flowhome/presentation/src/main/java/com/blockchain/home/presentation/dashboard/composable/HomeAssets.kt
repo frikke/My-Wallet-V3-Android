@@ -36,7 +36,6 @@ import com.blockchain.home.presentation.allassets.HomeAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
@@ -113,7 +112,7 @@ internal fun LazyListScope.homeAssets(
         item {
             FundLocksData(
                 total = locks.onHoldTotalAmount,
-                onClick =  { fundsLocksOnClick(it)  }
+                onClick = { fundsLocksOnClick(it) }
             )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
