@@ -39,23 +39,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/super_app_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="@dimen/standard_spacing"
-        android:checked="true"
-        android:enabled="false"
-        android:gravity="center"
-        android:text="Super app"
-        android:textColor="#f00"
-        android:textOff="Off"
-        android:textOn="On"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pin_logout" />
-
     <ImageView
         android:id="@+id/customer_support"
         android:layout_width="@dimen/size_huge"

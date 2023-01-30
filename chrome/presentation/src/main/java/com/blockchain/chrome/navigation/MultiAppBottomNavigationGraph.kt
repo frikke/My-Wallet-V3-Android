@@ -53,7 +53,7 @@ fun MultiAppBottomNavigationHost(
                 content = { shouldTriggerRefresh ->
                     HomeScreen(
                         listState = listState,
-                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                        isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
                         openCryptoAssets = openCryptoAssets,
                         assetActionsNavigation = assetActionsNavigation,

@@ -13,13 +13,11 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.walletmode.WalletMode
 
 fun LazyListScope.emptyCard(
-    walletMode: WalletMode?,
+    walletMode: WalletMode,
     assetsViewState: AssetsViewState,
-    actiityViewState: ActivityViewState?,
+    actiityViewState: ActivityViewState,
     assetActionsNavigation: AssetActionsNavigation,
 ) {
-    walletMode ?: return
-
     val state = dashboardState(assetsViewState, actiityViewState)
 
     if (state == DashboardState.EMPTY) {

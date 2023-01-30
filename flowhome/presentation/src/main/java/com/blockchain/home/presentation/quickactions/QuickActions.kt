@@ -34,6 +34,7 @@ import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.actionName
+import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.composable.dashboardState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import org.koin.androidx.compose.get
@@ -44,8 +45,7 @@ fun QuickActions(
     quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
     quickActionsViewModel: QuickActionsViewModel,
-    assetsViewState: AssetsViewState,
-    actiityViewState: ActivityViewState?,
+    dashboardState: DashboardState,
     openMoreQuickActions: () -> Unit
 ) {
     Row(
@@ -92,8 +92,8 @@ fun QuickActions(
                                     assetAction.actionName()?.let {
                                         analytics.logEvent(
                                             DashboardAnalyticsEvents.QuickActionClicked(
-                                                action = assetAction,
-                                                state = dashboardState(assetsViewState, actiityViewState)
+                                                actionName = it,
+                                                state = dashboardState
                                             )
                                         )
                                     }

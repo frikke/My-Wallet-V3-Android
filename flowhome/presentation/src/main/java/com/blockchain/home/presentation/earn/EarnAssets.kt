@@ -78,6 +78,16 @@ internal fun LazyListScope.homeEarnAssets(
     assetActionsNavigation: AssetActionsNavigation,
     earnViewModel: EarnViewModel
 ) {
+    if (earnState == EarnViewState.None) {
+        return
+    }
+    item {
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+        HomeEarnHeader(hasAssets = earnState is EarnViewState.Assets) {
+            assetActionsNavigation.earnRewards()
+        }
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+    }
     when (earnState) {
         EarnViewState.NoAssetsInvested ->
             item { NoAssetsInvested { assetActionsNavigation.earnRewards() } }

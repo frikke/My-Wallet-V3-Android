@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
@@ -110,7 +111,7 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
         }.stateIn(
             viewModelScope, SharingStarted.Eagerly,
             reduce(initialState).also {
-                Timber.d("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
+                Timber.e("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
             }
         )
 
@@ -125,13 +126,19 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      * Called by the UI to feed the model with Intents
      * @param intent the UI originated intent
      */
-    fun onIntent(intent: TIntent) {
+    @SuppressLint("BinaryOperationInTimber") fun onIntent(intent: TIntent) {
         viewModelScope.launch {
             if (intent.isValidFor(modelState)) {
-                Timber.d("Model: Process Intent ****> : ${intent.javaClass.simpleName}")
+                Timber.d(
+                    "Model ${this@MviViewModel.javaClass.simpleName}:" +
+                        " Process Intent ****> : ${intent.javaClass.simpleName}"
+                )
                 handleIntent(modelState, intent)
             } else {
-                Timber.d("Model: Dropping Intent ****> : ${intent.javaClass.simpleName}")
+                Timber.d(
+                    "Model ${this@MviViewModel.javaClass.simpleName}:" +
+                        " Dropping Intent ****> : ${intent.javaClass.simpleName}"
+                )
             }
         }
     }

@@ -29,12 +29,14 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.map
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
 import com.blockchain.home.presentation.allassets.HomeAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
@@ -94,10 +96,29 @@ fun FundLocksData(
 }
 
 internal fun LazyListScope.homeAssets(
+    locks: FundsLocks?,
     data: List<HomeAsset>,
     assetOnClick: (AssetInfo) -> Unit,
+    openCryptoAssets: () -> Unit,
+    fundsLocksOnClick: (FundsLocks) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
+    item {
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        HomeAssetsHeader(openCryptoAssets)
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+    }
+
+    locks?.let {
+        item {
+            FundLocksData(
+                total = locks.onHoldTotalAmount,
+                onClick =  { fundsLocksOnClick(it)  }
+            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        }
+    }
+
     roundedCornersItems(items = data.filterIsInstance<CustodialAssetState>(), key = { state ->
         state.asset.networkTicker
     }) {
@@ -148,78 +169,3 @@ internal fun LazyListScope.homeAssets(
         )
     }
 }
-/*
-@Preview(backgroundColor = 0xFF272727)
-@Composable
-fun PreviewHomeAccounts() {
-    HomeAssetsScreen(
-        assets = DataResource.Data(
-            listOf(
-                CustodialAssetState(
-                    icon = listOf(""),
-                    name = "Ethereum",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 128.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Up(3.94)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal())),
-                    asset = CryptoCurrency.ETHER
-                ),
-                CustodialAssetState(
-                    icon = listOf(""),
-                    name = "Bitcoin",
-                    balance = DataResource.Loading,
-                    change = DataResource.Loading,
-                    fiatBalance = DataResource.Loading,
-                    asset = CryptoCurrency.ETHER
-                ),
-                CustodialAssetState(
-                    icon = listOf(""),
-                    name = "Solana",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 555.28.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Down(2.32)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 1.28.toBigDecimal())),
-                    asset = CryptoCurrency.ETHER
-                )
-            ) +
-
-                listOf(
-                    FiatAssetState(
-                        icon = listOf(""),
-                        name = "US Dollar",
-                        balance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
-                        fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
-                        account = NullFiatAccount
-                    ),
-                    FiatAssetState(
-                        icon = listOf(""),
-                        name = "Euro",
-                        balance = DataResource.Loading,
-                        fiatBalance = DataResource.Loading,
-                        account = NullFiatAccount
-                    )
-                )
-        ),
-        fundsLocks = DataResource.Data(
-            FundsLocks(
-                onHoldTotalAmount = Money.fromMajor(Dollars, 100.28.toBigDecimal()),
-                locks = listOf()
-            )
-        ),
-        onSeeAllCryptoAssetsClick = {},
-        onFundsLocksClick = {},
-        onAssetClick = {},
-        openFiatActionDetail = {}
-    )
-}
-
-@Preview(backgroundColor = 0xFF272727)
-@Composable
-fun PreviewHomeAccounts_Loading() {
-    HomeAssetsScreen(
-        assets = DataResource.Loading,
-        fundsLocks = DataResource.Loading,
-        onSeeAllCryptoAssetsClick = {},
-        onFundsLocksClick = {},
-        onAssetClick = {},
-        openFiatActionDetail = {}
-    )
-}*/

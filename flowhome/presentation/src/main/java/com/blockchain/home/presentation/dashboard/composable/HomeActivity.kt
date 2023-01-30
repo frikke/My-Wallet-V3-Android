@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.dashboard.composable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,9 +16,11 @@ import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ClickAction
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.activity.list.TransactionGroup
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
@@ -47,18 +50,28 @@ fun HomeActivityHeader(
 }
 
 fun LazyListScope.homeActivityScreen(
-    activities: List<ActivityComponent>,
+    activityState: ActivityViewState,
+    openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     wMode: WalletMode
 ) {
-    roundedCornersItems(items = activities, key = { it.id }) {
-        ActivityComponentItem(
-            component = it,
-            onClick = { clickAction ->
-                (clickAction as? ClickAction.Stack)?.data?.let { data ->
-                    openActivityDetail(data, wMode)
+    (activityState.activity as? DataResource.Data)?.data?.get(TransactionGroup.Combined)?.takeIf { activity ->
+        activity.isNotEmpty()
+    }?.let { activities ->
+        item {
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+            HomeActivityHeader(openActivity = openActivity)
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        }
+        roundedCornersItems(items = activities, key = { it.id }) {
+            ActivityComponentItem(
+                component = it,
+                onClick = { clickAction ->
+                    (clickAction as? ClickAction.Stack)?.data?.let { data ->
+                        openActivityDetail(data, wMode)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
