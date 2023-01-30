@@ -252,7 +252,7 @@ fun HomeScreen(
             val wMode = activityState?.walletMode ?: return@let
             item {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-                HomeActivityHeader(openActivity)
+                HomeActivityHeader(openActivity = openActivity)
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
             homeActivityScreen(activities, openActivityDetail, wMode)

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.theme.AppTheme
@@ -17,11 +18,15 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ClickAction
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
 
 @Composable
-fun HomeActivityHeader(openActivity: () -> Unit) {
+fun HomeActivityHeader(
+    analytics: Analytics = get(),
+    openActivity: () -> Unit
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.ma_home_activity_title),
@@ -30,7 +35,10 @@ fun HomeActivityHeader(openActivity: () -> Unit) {
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            modifier = Modifier.clickableNoEffect(openActivity),
+            modifier = Modifier.clickableNoEffect{
+                openActivity()
+                analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
+            },
             text = stringResource(R.string.see_all),
             style = AppTheme.typography.paragraph2,
             color = AppTheme.colors.primary,
