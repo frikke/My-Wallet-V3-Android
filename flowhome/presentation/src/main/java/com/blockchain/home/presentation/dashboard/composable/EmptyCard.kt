@@ -46,10 +46,10 @@ fun EmptyCard(
 
     when (viewState.mode) {
         WalletMode.CUSTODIAL -> CustodialEmptyStateCards(
-            assetActionsNavigation
+            assetActionsNavigation  = assetActionsNavigation
         )
         WalletMode.NON_CUSTODIAL -> NonCustodialEmptyStateCard(
-            onReceive
+            onReceiveClicked  =  onReceive
         )
         else -> throw IllegalStateException("Wallet mode not supported")
     }
