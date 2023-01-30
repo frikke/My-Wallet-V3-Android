@@ -14,11 +14,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -30,7 +32,9 @@ import com.blockchain.componentlib.theme.White800
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
+import com.blockchain.presentation.onboarding.OnboardingAnalyticsEvents
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
+import org.koin.androidx.compose.get
 
 private data class DefiOnboardingSection(
     @StringRes val title: Int,
@@ -72,9 +76,20 @@ private val sections = listOf(
 )
 
 @Composable
-fun DeFiOnboardingIntro(viewModel: DeFiOnboardingViewModel) {
+fun DeFiOnboardingIntro(
+    analytics: Analytics = get(),
+    viewModel: DeFiOnboardingViewModel
+) {
+    DisposableEffect(Unit) {
+        analytics.logEvent(OnboardingAnalyticsEvents.OnboardingViewed)
+        onDispose { }
+    }
+
     DeFiOnboardingIntroScreen(
-        onContinueClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) }
+        onContinueClick = {
+            viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet)
+            analytics.logEvent(OnboardingAnalyticsEvents.OnboardingContinueClicked)
+        }
     )
 }
 

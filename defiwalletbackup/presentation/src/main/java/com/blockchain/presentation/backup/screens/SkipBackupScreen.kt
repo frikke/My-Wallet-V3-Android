@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
@@ -29,15 +30,23 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 @Composable
-fun SkipBackup(viewModel: BackupPhraseViewModel) {
+fun SkipBackup(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
     SkipBackupScreen(
         backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
-        skipOnClick = { viewModel.onIntent(BackupPhraseIntent.SkipBackup) },
+        skipOnClick = {
+            viewModel.onIntent(BackupPhraseIntent.SkipBackup)
+            analytics.logEvent(BackupAnalyticsEvents.BackupSkipClicked)
+        },
         backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) }
     )
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -38,13 +39,16 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun QuickActions(
     viewModel: QuickActionsViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     forceRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
     openMoreQuickActions: () -> Unit,
@@ -93,6 +97,10 @@ fun QuickActions(
                     }
                     /**/
                     is QuickAction.More -> openMoreQuickActions()
+                }
+
+                (action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
+                    analytics.logEvent(DashboardAnalyticsEvents.QuickActionClicked(action = assetAction))
                 }
             }
         )

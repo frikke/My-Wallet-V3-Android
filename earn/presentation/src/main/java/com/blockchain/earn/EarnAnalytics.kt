@@ -22,6 +22,27 @@ sealed class EarnAnalytics(
     object InterestSummaryDepositCta : EarnAnalytics("earn_deposit_clicked")
     object InterestSummaryWithdrawCta : EarnAnalytics("earn_withdraw_clicked")
 
+    object DiscoverClicked : EarnAnalytics(AnalyticsNames.SUPERAPP_EARN_DISCOVER_CLICKED.eventName)
+    data class LearnMoreClicked(
+        val product: String
+    ) : EarnAnalytics(AnalyticsNames.SUPERAPP_EARN_LEARN_MORE_CLICKED.eventName)
+
+    data class AddClicked(
+        val currency: String,
+        val product: String
+    ) : EarnAnalytics(
+        event = AnalyticsNames.SUPERAPP_EARN_LEARN_MORE_CLICKED.eventName,
+        params = mapOf(CURRENCY to currency, EARN_PRODUCT to product)
+    )
+
+    data class WithdrawClicked(
+        val currency: String,
+        val product: String
+    ) : EarnAnalytics(
+        event = AnalyticsNames.SUPERAPP_EARN_LEARN_MORE_CLICKED.eventName,
+        params = mapOf(CURRENCY to currency, EARN_PRODUCT to product)
+    )
+
     class InterestClicked(override val origin: LaunchOrigin) :
         EarnAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
 
@@ -99,6 +120,7 @@ sealed class EarnAnalytics(
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"
         private const val INPUT_AMOUNT = "input_amount"
         private const val INTEREST_RATE = "interest_rate"
+        private const val EARN_PRODUCT = "earn_product"
     }
 }
 

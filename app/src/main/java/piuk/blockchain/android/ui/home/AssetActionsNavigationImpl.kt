@@ -73,16 +73,6 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = currency))
     }
 
-    override fun buyCrypto(currency: AssetInfo, amount: Money) {
-        activity!!.startActivity(
-            SimpleBuyActivity.newIntent(
-                context = activity,
-                asset = currency,
-                preselectedAmount = amount.toBigDecimal().toString(),
-            )
-        )
-    }
-
     override fun buyCrypto(
         currency: AssetInfo,
         amount: String?,

@@ -21,6 +21,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
+import com.blockchain.earn.dashboard.typeName
+import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.databinding.DialogSheetInterestDetailsBinding
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
@@ -105,6 +107,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(EarnAnalytics.InterestSummaryDepositCta)
+                            analytics.logEvent(
+                                EarnAnalytics.AddClicked(
+                                    currency = asset.networkTicker,
+                                    product = EarnType.Passive.typeName()
+                                )
+                            )
                             host.goToInterestDeposit(account)
                             dismiss()
                         }
@@ -155,6 +163,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )
+
+                    EarnAnalytics.WithdrawClicked(
+                        currency = asset.networkTicker,
+                        product = EarnType.Passive.typeName()
+                    )
+
                     analytics.logEvent(EarnAnalytics.InterestSummaryWithdrawCta)
 
                     host.goToInterestWithdraw(account)

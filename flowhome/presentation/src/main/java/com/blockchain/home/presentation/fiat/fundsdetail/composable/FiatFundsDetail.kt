@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
@@ -44,6 +45,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatActionErrorState
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetail
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailData
@@ -56,11 +58,13 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import java.lang.Exception
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun FiatFundDetail(
+    analytics: Analytics = get(),
     fiatTicker: String,
     dismiss: () -> Unit
 ) {
@@ -94,30 +98,22 @@ fun FiatFundDetail(
         showWithdrawChecksLoading = viewState.showWithdrawChecksLoading,
         actionError = viewState.actionError,
         depositOnClick = { account ->
-            //            analytics.logEvent(
-            //                fiatAssetAction(AssetDetailsAnalytics.FIAT_DEPOSIT_CLICKED, account.currency.networkTicker)
-            //            )
-            //            analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.CURRENCY_PAGE))
-
             viewModel.onIntent(
                 FiatFundsDetailIntent.FiatAction(
                     account = account,
                     action = AssetAction.FiatDeposit
                 )
             )
+            analytics.logEvent(DashboardAnalyticsEvents.FiatAddCashClicked(ticker = account.currency.networkTicker))
         },
         withdrawOnClick = { account ->
-            //            analytics.logEvent(
-            //                fiatAssetAction(AssetDetailsAnalytics.FIAT_DEPOSIT_CLICKED, account.currency.networkTicker)
-            //            )
-            //            analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.CURRENCY_PAGE))
-
             viewModel.onIntent(
                 FiatFundsDetailIntent.FiatAction(
                     account = account,
                     action = AssetAction.FiatWithdraw
                 )
             )
+            analytics.logEvent(DashboardAnalyticsEvents.FiatCashOutClicked(ticker = account.currency.networkTicker))
         },
         retryLoadData = {
             viewModel.onIntent(FiatFundsDetailIntent.LoadData)

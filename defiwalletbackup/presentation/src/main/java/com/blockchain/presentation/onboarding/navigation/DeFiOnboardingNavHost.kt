@@ -33,7 +33,7 @@ fun DeFiOnboardingNavHost(
     ) {
         // Intro
         composable(navigationEvent = DeFiOnboardingDestination.DeFiOnboardingIntro) {
-            DeFiOnboardingIntro(viewModel)
+            DeFiOnboardingIntro(viewModel = viewModel)
         }
     }
 }

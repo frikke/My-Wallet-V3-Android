@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceTableRow
@@ -47,14 +48,17 @@ import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EarnAssets(
     viewModel: EarnViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     assetActionsNavigation: AssetActionsNavigation,
 ) {
     val viewState: EarnViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -105,7 +109,10 @@ fun EarnAssets(
 
             if (viewState is EarnViewState.Assets) {
                 Text(
-                    modifier = Modifier.clickableNoEffect { assetActionsNavigation.earnRewards() },
+                    modifier = Modifier.clickableNoEffect {
+                        assetActionsNavigation.earnRewards()
+                        analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
+                    },
                     text = stringResource(R.string.manage),
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.primary,
@@ -184,7 +191,10 @@ private fun Double.withoutTrailingZerosIfWhole(): Any {
 
 @Preview
 @Composable
-private fun NoAssetsInvested(earn: () -> Unit = {}) {
+private fun NoAssetsInvested(
+    analytics: Analytics = get(),
+    earn: () -> Unit = {}
+) {
     TableRow(
         contentStart = {
             Box {
@@ -237,6 +247,7 @@ private fun NoAssetsInvested(earn: () -> Unit = {}) {
                 },
                 onClick = {
                     earn()
+                    analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked)
                 },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)

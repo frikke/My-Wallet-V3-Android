@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -31,14 +32,19 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 import java.util.Locale
 
 @Composable
-fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
+fun RecoveryPhrase(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -51,8 +57,14 @@ fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
             mnemonic = state.mnemonic,
             showLoading = state.showLoading,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
-            backUpCloudOnClick = { viewModel.onIntent(BackupPhraseIntent.EnableCloudBackup) },
-            backUpManualOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
+            backUpCloudOnClick = {
+                viewModel.onIntent(BackupPhraseIntent.EnableCloudBackup)
+                analytics.logEvent(BackupAnalyticsEvents.BackupToCloudClicked)
+            },
+            backUpManualOnClick = {
+                viewModel.onIntent(BackupPhraseIntent.StartManualBackup)
+                analytics.logEvent(BackupAnalyticsEvents.BackupManuallyClicked)
+            }
         )
     }
 }

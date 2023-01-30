@@ -24,7 +24,7 @@ import com.blockchain.data.DataResource
 @Composable
 fun TotalBalance(
     modifier: Modifier = Modifier,
-    balance: DataResource<String>
+    balance: String?
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -57,12 +57,12 @@ fun TotalBalance(
 
                 Text(
                     modifier = Modifier,
-                    text = when (balance) {
-                        // todo(othman) check with Ethan about different states
+                    text = if (balance != null) { balance } else { "Loading.."}
+                        /*// todo(othman) check with Ethan about different states
                         DataResource.Loading -> "Loading.."
                         is DataResource.Error -> "Error.."
                         is DataResource.Data -> balance.data
-                    },
+                    }*/,
                     color = Color.White,
                     style = AppTheme.typography.paragraph2
                 )
@@ -74,5 +74,5 @@ fun TotalBalance(
 @Preview
 @Composable
 fun PreviewTotalBalance() {
-    TotalBalance(balance = DataResource.Data("$278,031.12"))
+    TotalBalance(balance =  "$278,031.12")
 }

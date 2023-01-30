@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
@@ -38,16 +39,21 @@ import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 /**
  * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
  */
 @Composable
-fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
+fun BackupPhraseIntro(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -59,7 +65,10 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
             backupStatus = state.backUpStatus,
             showSkipBackup = state.showSkipBackup,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
-            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) },
+            backUpNowOnClick = {
+                viewModel.onIntent(BackupPhraseIntent.StartBackupProcess)
+                analytics.logEvent(BackupAnalyticsEvents.BackupNowClicked)
+            },
             skipOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToSkipBackup) }
         )
     }

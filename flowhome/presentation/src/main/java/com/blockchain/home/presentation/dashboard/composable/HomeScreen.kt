@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +18,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.theme.AppTheme
@@ -25,17 +27,21 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.earn.EarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    analytics: Analytics = get(),
     listState: LazyListState,
     shouldTriggerRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
@@ -47,13 +53,22 @@ fun HomeScreen(
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
-    openMoreQuickActions: () -> Unit,
-    custodialActivityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope),
+    openMoreQuickActions: () -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
     val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
     var balanceScrollRange: Float by remember { mutableStateOf(0F) }
+
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode
+        .collectAsStateLifecycleAware(null)
+
+    DisposableEffect(walletMode) {
+        walletMode?.let {
+            analytics.logEvent(DashboardAnalyticsEvents.ModeViewed(walletMode  = it))
+        }
+        onDispose { }
+    }
 
     LazyColumn(
         state = listState,

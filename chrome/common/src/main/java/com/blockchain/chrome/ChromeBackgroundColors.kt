@@ -1,11 +1,13 @@
 package com.blockchain.chrome
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 
+@Stable
 sealed interface ChromeBackgroundColors {
     val startColor: Color
     val endColor: Color

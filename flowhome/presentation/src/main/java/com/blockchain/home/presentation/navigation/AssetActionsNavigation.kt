@@ -13,7 +13,6 @@ import info.blockchain.balance.Money
 interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
     fun receive(currency: String)
-    fun buyCrypto(currency: AssetInfo, amount: Money)
     fun buyCrypto(
         currency: AssetInfo,
         amount: String? = null,

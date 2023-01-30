@@ -362,7 +362,35 @@ enum class AnalyticsNames(val eventName: String) {
     MVP_SWITCHED_TO_TRADING("Switched to Trading"),
     MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
     ENABLE_DEFI_CLICKED("Enable DeFi Clicked"),
-    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
+    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading"),
+
+    // superapp
+    SUPERAPP_MODE_CLICKED("%s App Mode Clicked"),
+    SUPERAPP_EMPTY_BUY_BTC_CLICKED("Wallet Dashboard Empty State Buy Bitcoin Clicked"),
+    SUPERAPP_EMPTY_BUY_OTHER_CLICKED("Wallet Dashboard Empty State Buy Different Clicked"),
+    SUPERAPP_EMPTY_RECEIVE_CLICKED("Wallet Dashboard Empty State Deposit In DeFi Wallet Clicked"),
+    SUPERAPP_QUICK_ACTION_CLICKED("Wallet Dashboard %s QA Clicked"),
+    SUPERAPP_MODE_LONG_CLICK("%s App Mode Long Pressed"),
+    SUPERAPP_MODE_VIEWED("%s App Mode Viewed"),
+    SUPERAPP_ASSETS_SEE_ALL_CLICKED("Wallet Dashboard Assets See All Clicked"),
+    SUPERAPP_CRYPTO_ASSET_CLICKED("Wallet Dashboard Assets Balance Clicked"),
+    SUPERAPP_FIAT_ASSET_CLICKED("Wallet Dashboard Fiat Balance Clicked"),
+    SUPERAPP_FIAT_ADD_CASH_CLICKED("Wallet Fiat Detail Add Cash Shortcut Clicked"),
+    SUPERAPP_FIAT_CASH_OUT_CLICKED("Wallet Fiat Detail Cash Out Shortcut Clicked"),
+    SUPERAPP_EARN_GET_STARTED_CLICKED("Wallet Dashboard Earn Get Started Clicked"),
+    SUPERAPP_EARN_MANAGE_CLICKED("Wallet Dashboard Earn Manage Clicked"),
+    SUPERAPP_EARN_DISCOVER_CLICKED("Wallet Earn Discover Clicked"),
+    SUPERAPP_EARN_LEARN_MORE_CLICKED("Wallet Earn Discover Learn More Clicked"),
+    SUPERAPP_ACTIVITY_SEE_ALL_CLICKED("Wallet Dashboard Activity See All Clicked"),
+    SUPERAPP_SUPPORT_CLICKED("Wallet Dashboard Need Help Support Center Clicked"),
+    SUPERAPP_DEFI_ONBOARDING_VIEWED("Introducing DeFi Wallet Viewed"),
+    SUPERAPP_DEFI_ONBOARDING_CONTINUE_CLICKED("Go To DeFi Wallet Clicked"),
+    SUPERAPP_DEFI_BACKUP_SKIP_CLICKED("Back Up Flow Skipped"),
+    SUPERAPP_DEFI_BACKUP_NOW_CLICKED("Back Up Flow Back Up Now Clicked"),
+    SUPERAPP_DEFI_BACKUP_TO_CLOUD_CLICKED("Back Up Flow Back Up To Cloud Clicked"),
+    SUPERAPP_DEFI_BACKUP_MANUALLY_CLICKED("Back Up Flow Backup Manually Clicked"),
+    SUPERAPP_DEFI_BACKUP_SUCCESSFUL_VIEWED("Back Up Flow DeFi Wallet Back Up Successful Viewed"),
+    SUPERAPP_DEFI_DCA_LEARN_MORE_CLICKED("Wallet Coinview X Sell Learn More Clicked"),
     ;
 }
 

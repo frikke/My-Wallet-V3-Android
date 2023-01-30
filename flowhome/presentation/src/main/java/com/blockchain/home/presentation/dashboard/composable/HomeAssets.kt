@@ -27,6 +27,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.blockchain.analytics.Analytics
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
@@ -51,12 +53,14 @@ import com.blockchain.home.presentation.allassets.FiatAssetState
 import com.blockchain.home.presentation.allassets.HomeAsset
 import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 private const val MAX_ASSET_COUNT = 7
@@ -136,6 +140,7 @@ fun HomeAssetsScreen(
 
 @Composable
 private fun HomeAssetsList(
+    analytics: Analytics = get(),
     assets: List<HomeAsset>,
     fundsLocks: DataResource<FundsLocks?>,
     onSeeAllCryptoAssetsClick: () -> Unit,
@@ -159,7 +164,10 @@ private fun HomeAssetsList(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
+                    modifier = Modifier.clickableNoEffect {
+                        onSeeAllCryptoAssetsClick()
+                        analytics.logEvent(DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = assets.size))
+                    },
                     text = stringResource(R.string.see_all),
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.primary,
@@ -178,7 +186,10 @@ private fun HomeAssetsList(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         CryptoAssetsList(
             cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>(),
-            onAssetClick = onAssetClick,
+            onAssetClick = { asset ->
+                onAssetClick(asset)
+                analytics.logEvent(DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker))
+            },
             showNoResults = false
         )
 
@@ -186,7 +197,10 @@ private fun HomeAssetsList(
         if (fiats.isNotEmpty())
             FiatAssetsStateList(
                 assets = fiats,
-                openFiatActionDetail = openFiatActionDetail
+                openFiatActionDetail = { ticker ->
+                    openFiatActionDetail(ticker)
+                    analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
+                }
             )
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -23,9 +24,12 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import org.koin.androidx.compose.get
 
 @Composable
 fun NonCustodialEmptyStateCard(
+    analytics: Analytics = get(),
     onReceiveClicked: () -> Unit,
 ) {
     Column(
@@ -85,6 +89,7 @@ fun NonCustodialEmptyStateCard(
                     text = stringResource(id = R.string.nc_empty_state_cta),
                     onClick = {
                         onReceiveClicked()
+                        analytics.logEvent(DashboardAnalyticsEvents.EmptyStateReceiveCrypto)
                     }
                 )
             }

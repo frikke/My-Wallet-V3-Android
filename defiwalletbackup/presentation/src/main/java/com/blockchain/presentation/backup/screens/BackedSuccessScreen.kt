@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Check
@@ -28,12 +30,23 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.onboarding.OnboardingAnalyticsEvents
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 @Composable
-fun BackupSuccess(viewModel: BackupPhraseViewModel) {
+fun BackupSuccess(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
+    DisposableEffect(Unit) {
+        analytics.logEvent(BackupAnalyticsEvents.BackupSuccessfullViewed)
+        onDispose { }
+    }
+
     BackupSuccessScreen(
         doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
     )

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -19,9 +20,12 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import org.koin.androidx.compose.get
 
 @Composable
 fun HelpAndSupport(
+    analytics: Analytics = get(),
     openSupportCenter: () -> Unit,
 ) {
     Column(
@@ -46,7 +50,10 @@ fun HelpAndSupport(
         ) {
             DefaultTableRow(
                 primaryText = stringResource(R.string.view_support_center),
-                onClick = openSupportCenter
+                onClick = {
+                    openSupportCenter()
+                    analytics.logEvent(DashboardAnalyticsEvents.SupportClicked)
+                }
             )
         }
     }
