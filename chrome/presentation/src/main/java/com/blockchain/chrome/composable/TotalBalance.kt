@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.chrome.R
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.data.DataResource
 
 @Composable
 fun TotalBalance(
@@ -57,7 +56,7 @@ fun TotalBalance(
 
                 Text(
                     modifier = Modifier,
-                    text = if (balance != null) { balance } else { "Loading.."}
+                    text = if (balance != null) { balance } else { "Loading.." }
                         /*// todo(othman) check with Ethan about different states
                         DataResource.Loading -> "Loading.."
                         is DataResource.Error -> "Error.."
@@ -74,5 +73,5 @@ fun TotalBalance(
 @Preview
 @Composable
 fun PreviewTotalBalance() {
-    TotalBalance(balance =  "$278,031.12")
+    TotalBalance(balance = "$278,031.12")
 }

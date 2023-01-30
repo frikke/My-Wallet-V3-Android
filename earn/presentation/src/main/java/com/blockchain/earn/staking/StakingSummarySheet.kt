@@ -28,7 +28,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.StakingAccount
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.alert.SnackbarAlert
@@ -266,7 +265,6 @@ fun StakingSummarySheet(
                                 product = EarnType.Staking.typeName()
                             )
                         }
-
                     },
                     state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
                     icon = ImageResource.Local(R.drawable.ic_deposit)

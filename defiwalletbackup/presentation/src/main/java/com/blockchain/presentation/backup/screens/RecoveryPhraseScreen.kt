@@ -39,8 +39,8 @@ import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.walletmode.WalletMode
-import org.koin.androidx.compose.get
 import java.util.Locale
+import org.koin.androidx.compose.get
 
 @Composable
 fun RecoveryPhrase(

@@ -109,7 +109,7 @@ private fun WalletMode.modeName() = when (this) {
     WalletMode.NON_CUSTODIAL -> "DeFi"
 }
 
-  fun AssetAction.actionName() = when (this) {
+fun AssetAction.actionName() = when (this) {
     AssetAction.Buy -> "Buy"
     AssetAction.Swap -> "Swap"
     AssetAction.Sell -> "Sell"
@@ -125,7 +125,7 @@ private fun WalletMode.modeName() = when (this) {
     AssetAction.StakingDeposit -> null
 }
 
-private fun DashboardState.stateName() = when(this){
+private fun DashboardState.stateName() = when (this) {
     DashboardState.EMPTY -> "EMPTY_STATE"
     DashboardState.NON_EMPTY -> "NON_EMPTY_STATE"
     DashboardState.UNKNOWN -> null

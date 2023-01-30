@@ -35,7 +35,7 @@ fun HomeActivityHeader(
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            modifier = Modifier.clickableNoEffect{
+            modifier = Modifier.clickableNoEffect {
                 openActivity()
                 analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
             },

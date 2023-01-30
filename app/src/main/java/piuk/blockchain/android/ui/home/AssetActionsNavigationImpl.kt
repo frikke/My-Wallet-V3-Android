@@ -14,7 +14,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity

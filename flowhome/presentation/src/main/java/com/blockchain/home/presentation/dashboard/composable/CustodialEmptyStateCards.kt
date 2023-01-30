@@ -98,7 +98,6 @@ fun CustodialEmptyStateCards(
         onCryptoClick = {
             assetActionsNavigation.navigate(AssetAction.Buy)
             analytics.logEvent(DashboardAnalyticsEvents.EmptyStateBuyOther)
-
         }
     )
 }

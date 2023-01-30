@@ -2,7 +2,6 @@ package com.blockchain.presentation.onboarding
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.walletmode.WalletMode
 
 sealed class OnboardingAnalyticsEvents(
     override val event: String,
@@ -10,10 +9,10 @@ sealed class OnboardingAnalyticsEvents(
 ) : AnalyticsEvent {
 
     object OnboardingViewed : OnboardingAnalyticsEvents(
-        event =  AnalyticsNames.SUPERAPP_DEFI_ONBOARDING_VIEWED.eventName
+        event = AnalyticsNames.SUPERAPP_DEFI_ONBOARDING_VIEWED.eventName
     )
 
     object OnboardingContinueClicked : OnboardingAnalyticsEvents(
-        event =  AnalyticsNames.SUPERAPP_DEFI_ONBOARDING_CONTINUE_CLICKED.eventName
+        event = AnalyticsNames.SUPERAPP_DEFI_ONBOARDING_CONTINUE_CLICKED.eventName
     )
 }

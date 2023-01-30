@@ -28,7 +28,7 @@ sealed class ChromeAnalyticsEvents(
     )
 }
 
-private fun WalletMode.modeName() = when(this){
+private fun WalletMode.modeName() = when (this) {
     WalletMode.CUSTODIAL -> "BCDC Account"
     WalletMode.NON_CUSTODIAL -> "DeFi"
 }
