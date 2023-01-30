@@ -237,12 +237,12 @@ class LoaderInteractor(
         } else Completable.complete()
     }
 
-    class LoginAnalyticsEvent(private val isOnMvp: Boolean) : AnalyticsEvent {
+    class LoginAnalyticsEvent(private val isOnV1: Boolean) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.SIGNED_IN.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
-                "is_superapp_mvp" to isOnMvp
+                "is_superapp_v1" to isOnV1
             )
     }
 }

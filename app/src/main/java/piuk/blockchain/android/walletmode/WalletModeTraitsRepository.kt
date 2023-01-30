@@ -12,7 +12,7 @@ class WalletModeTraitsRepository : TraitsService {
         return if (walletModeService != null) {
             val walletMode = walletModeService.walletModeSingle.await()
             mapOf(
-                "is_superapp_mvp" to true.toString(),
+                "is_superapp_v1" to true.toString(),
                 "app_mode" to walletMode.toTraitsString(),
             )
         } else
