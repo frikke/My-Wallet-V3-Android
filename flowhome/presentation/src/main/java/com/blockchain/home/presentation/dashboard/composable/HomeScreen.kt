@@ -41,6 +41,7 @@ import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.earn.EarnIntent
 import com.blockchain.home.presentation.earn.EarnNavEvent
+import com.blockchain.home.presentation.earn.EarnType
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.earn.EarnViewState
 import com.blockchain.home.presentation.earn.HomeEarnHeader
@@ -106,7 +107,7 @@ fun HomeScreen(
 
     DisposableEffect(walletMode) {
         walletMode?.let {
-            analytics.logEvent(DashboardAnalyticsEvents.ModeViewed(walletMode  = it))
+            analytics.logEvent(DashboardAnalyticsEvents.ModeViewed(walletMode = it))
         }
         onDispose { }
     }
@@ -135,8 +136,24 @@ fun HomeScreen(
     LaunchedEffect(key1 = earnViewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is EarnNavEvent.Interest -> assetActionsNavigation.interestSummary(it.account)
-                is EarnNavEvent.Staking -> assetActionsNavigation.stakingSummary(it.account.currency)
+                is EarnNavEvent.Interest -> {
+                    assetActionsNavigation.interestSummary(it.account)
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.EarnAssetClicked(
+                            currency = it.account.currency.networkTicker,
+                            product = EarnType.INTEREST.typeName()
+                        )
+                    )
+                }
+                is EarnNavEvent.Staking -> {
+                    assetActionsNavigation.stakingSummary(it.account.currency)
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.EarnAssetClicked(
+                            currency = it.account.currency.networkTicker,
+                            product = EarnType.STAKING.typeName()
+                        )
+                    )
+                }
             }
         }
     }
@@ -188,12 +205,19 @@ fun HomeScreen(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
                     quickActionsViewModel = quickActionsViewModel,
+                    assetsViewState = homeViewState,
+                    actiityViewState = activityState,
                     openMoreQuickActions = openMoreQuickActions,
                 )
             }
         }
 
-        emptyCard(wMode = walletMode, homeViewState, activityState, assetActionsNavigation)
+        emptyCard(
+            walletMode = walletMode,
+            assetsViewState = homeViewState,
+            actiityViewState = activityState,
+            assetActionsNavigation = assetActionsNavigation
+        )
 
         val assets = (homeViewState.assets as? DataResource.Data)?.data
         val locks = (homeViewState.fundsLocks as? DataResource.Data)?.data
@@ -284,3 +308,8 @@ fun HomeScreen(
 }
 
 private const val MAX_ASSET_COUNT = 7
+
+fun EarnType.typeName() = when (this) {
+    EarnType.INTEREST -> "SAVINGS"
+    EarnType.STAKING -> "STAKING"
+}

@@ -30,7 +30,11 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
+import com.blockchain.home.presentation.activity.list.ActivityViewState
+import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import com.blockchain.home.presentation.dashboard.actionName
+import com.blockchain.home.presentation.dashboard.composable.dashboardState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import org.koin.androidx.compose.get
 
@@ -40,6 +44,8 @@ fun QuickActions(
     quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
     quickActionsViewModel: QuickActionsViewModel,
+    assetsViewState: AssetsViewState,
+    actiityViewState: ActivityViewState?,
     openMoreQuickActions: () -> Unit
 ) {
     Row(
@@ -83,7 +89,14 @@ fun QuickActions(
                                 }
 
                                 (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
-                                    analytics.logEvent(DashboardAnalyticsEvents.QuickActionClicked(action = assetAction))
+                                    assetAction.actionName()?.let {
+                                        analytics.logEvent(
+                                            DashboardAnalyticsEvents.QuickActionClicked(
+                                                action = assetAction,
+                                                state = dashboardState(assetsViewState, actiityViewState)
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         } else {

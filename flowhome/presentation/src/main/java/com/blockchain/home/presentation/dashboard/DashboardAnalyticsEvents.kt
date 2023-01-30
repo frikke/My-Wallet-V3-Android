@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.dashboard
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.AssetAction
+import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.walletmode.WalletMode
 
 sealed class DashboardAnalyticsEvents(
@@ -30,11 +31,15 @@ sealed class DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_EMPTY_RECEIVE_CLICKED.eventName
     )
 
-    data class QuickActionClicked(val action: AssetAction) : DashboardAnalyticsEvents(
+    data class QuickActionClicked(
+        val actionName: String,
+        val state: DashboardState?
+    ) : DashboardAnalyticsEvents(
         event = String.format(
             AnalyticsNames.SUPERAPP_QUICK_ACTION_CLICKED.eventName,
-            action.actionName()
-        )
+            actionName
+        ),
+        params = state?.stateName()?.let { mapOf(DASHBOARD_STATE to it) } ?: emptyMap()
     )
 
     data class AssetsSeeAllClicked(val assetsCount: Int) : DashboardAnalyticsEvents(
@@ -70,6 +75,17 @@ sealed class DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_EARN_MANAGE_CLICKED.eventName
     )
 
+    data class EarnAssetClicked(
+        val currency: String,
+        val product: String
+    ) : DashboardAnalyticsEvents(
+        event = AnalyticsNames.SUPERAPP_EARN_MANAGE_CLICKED.eventName,
+        params = mapOf(
+            CURRENCY to currency,
+            EARN_PRODUCT to product
+        )
+    )
+
     object ActivitySeeAllClicked : DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_ACTIVITY_SEE_ALL_CLICKED.eventName
     )
@@ -83,6 +99,8 @@ sealed class DashboardAnalyticsEvents(
         private const val BTC_BUY_OTHER_AMOUNT = "OTHER"
         private const val ASSETS_COUNT = "number_assets"
         private const val CURRENCY = "currency"
+        private const val EARN_PRODUCT = "earn_product"
+        private const val DASHBOARD_STATE = "dashboard_state"
     }
 }
 
@@ -91,18 +109,24 @@ private fun WalletMode.modeName() = when (this) {
     WalletMode.NON_CUSTODIAL -> "DeFi"
 }
 
-private fun AssetAction.actionName() = when (this) {
+  fun AssetAction.actionName() = when (this) {
+    AssetAction.Buy -> "Buy"
     AssetAction.Swap -> "Swap"
     AssetAction.Sell -> "Sell"
+    AssetAction.Receive -> "Receive"
     AssetAction.Send -> "Send"
+    AssetAction.FiatDeposit -> "Add Cash"
     AssetAction.FiatWithdraw -> "Cash Out"
-    AssetAction.ViewActivity -> TODO()
-    AssetAction.ViewStatement -> TODO()
-    AssetAction.Buy -> TODO()
-    AssetAction.FiatDeposit -> TODO()
-    AssetAction.Receive -> TODO()
-    AssetAction.InterestDeposit -> TODO()
-    AssetAction.InterestWithdraw -> TODO()
-    AssetAction.Sign -> TODO()
-    AssetAction.StakingDeposit -> TODO()
+    AssetAction.ViewActivity,
+    AssetAction.ViewStatement,
+    AssetAction.InterestDeposit,
+    AssetAction.InterestWithdraw,
+    AssetAction.Sign,
+    AssetAction.StakingDeposit -> null
+}
+
+private fun DashboardState.stateName() = when(this){
+    DashboardState.EMPTY -> "EMPTY_STATE"
+    DashboardState.NON_EMPTY -> "NON_EMPTY_STATE"
+    DashboardState.UNKNOWN -> null
 }

@@ -13,23 +13,21 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.walletmode.WalletMode
 
 fun LazyListScope.emptyCard(
-    wMode: WalletMode?,
+    walletMode: WalletMode?,
     assetsViewState: AssetsViewState,
-    aViewState: ActivityViewState?,
+    actiityViewState: ActivityViewState?,
     assetActionsNavigation: AssetActionsNavigation,
 ) {
-    val walletMode = wMode ?: return
-    val activityViewState = aViewState ?: return
-    val hasAnyActivity =
-        (activityViewState.activity as? DataResource.Data)?.data?.any { act -> act.value.isNotEmpty() } ?: return
-    val hasAnyAssets = (assetsViewState.assets as? DataResource.Data)?.data?.isNotEmpty() ?: return
+    walletMode ?: return
 
-    if (hasAnyActivity.not() && hasAnyAssets.not()) {
+    val state = dashboardState(assetsViewState, actiityViewState)
+
+    if (state == DashboardState.EMPTY) {
         item {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             when (walletMode) {
                 WalletMode.CUSTODIAL -> CustodialEmptyStateCards(
-                    assetActionsNavigation
+                    assetActionsNavigation = assetActionsNavigation
                 )
                 WalletMode.NON_CUSTODIAL -> NonCustodialEmptyStateCard {
                     assetActionsNavigation.navigate(AssetAction.Receive)
@@ -37,4 +35,23 @@ fun LazyListScope.emptyCard(
             }
         }
     }
+}
+
+enum class DashboardState {
+    EMPTY, NON_EMPTY, UNKNOWN
+}
+
+fun dashboardState(
+    assetsViewState: AssetsViewState,
+    activityViewState: ActivityViewState?,
+): DashboardState {
+    activityViewState ?: return DashboardState.UNKNOWN
+    val hasAnyActivity =
+        (activityViewState.activity as? DataResource.Data)?.data?.any { act -> act.value.isNotEmpty() }
+            ?: return DashboardState.UNKNOWN
+    val hasAnyAssets =
+        (assetsViewState.assets as? DataResource.Data)?.data?.isNotEmpty() ?: return DashboardState.UNKNOWN
+
+    return if (hasAnyActivity || hasAnyAssets) DashboardState.NON_EMPTY
+    else DashboardState.EMPTY
 }
