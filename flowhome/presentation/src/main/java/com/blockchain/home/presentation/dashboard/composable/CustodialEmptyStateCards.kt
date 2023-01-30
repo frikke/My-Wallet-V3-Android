@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
@@ -46,17 +47,24 @@ import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardIntent
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewState
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun CustodialEmptyStateCards(
+    analytics: Analytics = get(),
     assetActionsNavigation: AssetActionsNavigation,
     viewModel: CustodialEmptyCardViewModel = getViewModel(scope = payloadScope)
 ) {
@@ -67,16 +75,53 @@ fun CustodialEmptyStateCards(
         onDispose { }
     }
 
+    CustodialEmptyStateCardsScreen(
+        steps = viewState.steps,
+        trendCurrency = viewState.trendCurrency,
+        tradingCurrency = viewState.tradingCurrency,
+        amounts = viewState.amounts,
+        onStepsClick = { assetActionsNavigation.onBoardingNavigation(viewState.steps) },
+        onBuyAmountClick = {
+            val amount = it?.toBigDecimal()?.toString()
+
+            if (viewState.userCanBuy) {
+                assetActionsNavigation.buyCrypto(
+                    currency = viewState.trendCurrency,
+                    amount = amount
+                )
+            } else {
+                assetActionsNavigation.navigate(AssetAction.Buy)
+            }
+
+            analytics.logEvent(DashboardAnalyticsEvents.EmptyStateBuyBtc(amount = amount))
+        },
+        onCryptoClick = {
+            assetActionsNavigation.navigate(AssetAction.Buy)
+            analytics.logEvent(DashboardAnalyticsEvents.EmptyStateBuyOther)
+
+        }
+    )
+}
+
+@Composable
+fun CustodialEmptyStateCardsScreen(
+    steps: List<CompletableDashboardOnboardingStep>,
+    trendCurrency: CryptoCurrency,
+    tradingCurrency: FiatCurrency,
+    amounts: List<Money>,
+    onStepsClick: () -> Unit,
+    onBuyAmountClick: (Money?) -> Unit,
+    onCryptoClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         BuyProgressCard(
-            viewState.steps.size,
-            viewState.steps.filter { it.state == DashboardOnboardingStepState.COMPLETE }.size
-        ) {
-            assetActionsNavigation.onBoardingNavigation(viewState.steps)
-        }
+            totalSteps = steps.size,
+            completedSteps = steps.filter { it.state == DashboardOnboardingStepState.COMPLETE }.size,
+            onboardingLaunch = onStepsClick
+        )
 
         Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.standard_spacing)))
         Card(
@@ -93,8 +138,8 @@ fun CustodialEmptyStateCards(
                 Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
                 CustomStackedIcon(
                     icon = StackedIcon.SmallTag(
-                        main = ImageResource.Remote(viewState.trendCurrency.logo),
-                        tag = ImageResource.Remote(viewState.tradingCurrency.logo)
+                        main = ImageResource.Remote(trendCurrency.logo),
+                        tag = ImageResource.Remote(tradingCurrency.logo)
                     ),
                     size = 88.dp
                 )
@@ -115,7 +160,7 @@ fun CustodialEmptyStateCards(
                         .fillMaxWidth()
                         .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 ) {
-                    viewState.amounts.map { amount ->
+                    amounts.map { amount ->
                         Button(
                             content = {
                                 Text(
@@ -125,14 +170,7 @@ fun CustodialEmptyStateCards(
                                 )
                             },
                             onClick = {
-                                if (viewState.userCanBuy) {
-                                    assetActionsNavigation.buyCrypto(
-                                        viewState.trendCurrency,
-                                        amount
-                                    )
-                                } else {
-                                    assetActionsNavigation.navigate(AssetAction.Buy)
-                                }
+                                onBuyAmountClick(amount)
                             },
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
@@ -151,14 +189,7 @@ fun CustodialEmptyStateCards(
                             )
                         },
                         onClick = {
-                            if (viewState.userCanBuy) {
-                                assetActionsNavigation.buyCrypto(
-                                    currency = viewState.trendCurrency,
-                                    amount = null
-                                )
-                            } else {
-                                assetActionsNavigation.navigate(AssetAction.Buy)
-                            }
+                            onBuyAmountClick(null)
                         },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
@@ -174,9 +205,7 @@ fun CustodialEmptyStateCards(
                         )
                         .fillMaxWidth(),
                     text = stringResource(id = R.string.buy_different_crypto),
-                    onClick = {
-                        assetActionsNavigation.navigate(AssetAction.Buy)
-                    }
+                    onClick = onCryptoClick
                 )
             }
         }
@@ -257,6 +286,23 @@ fun BuyProgressCard(totalSteps: Int, completedSteps: Int, onboardingLaunch: () -
             }, onContentClicked = onboardingLaunch
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewCustodialEmptyStateCardsScreen() {
+    CustodialEmptyStateCardsScreen(
+        steps = listOf(),
+        trendCurrency = CryptoCurrency.ETHER,
+        tradingCurrency = FiatCurrency.Dollars,
+        amounts = listOf(
+            Money.fromMajor(CryptoCurrency.ETHER, 10.toBigDecimal()),
+            Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal())
+        ),
+        onStepsClick = {},
+        onBuyAmountClick = {},
+        onCryptoClick = {}
+    )
 }
 
 @Preview
