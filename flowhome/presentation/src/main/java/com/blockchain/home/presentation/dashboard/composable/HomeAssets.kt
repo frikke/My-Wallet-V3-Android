@@ -1,218 +1,68 @@
 package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.NullCryptoAddress.asset
-import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.allassets.AssetsIntent
-import com.blockchain.home.presentation.allassets.AssetsViewModel
-import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
 import com.blockchain.home.presentation.allassets.HomeAsset
-import com.blockchain.home.presentation.allassets.HomeCryptoAsset
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
-import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.koin.payloadScope
+import com.blockchain.home.presentation.allassets.NonCustodialAssetState
+import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
+import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
-import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
-
-private const val MAX_ASSET_COUNT = 7
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
-@Composable
-fun HomeAssets(
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    assetActionsNavigation: AssetActionsNavigation,
-    forceRefresh: Boolean,
-    openAllAssets: () -> Unit,
-    openFiatActionDetail: (String) -> Unit
-) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateWithLifecycle()
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(AssetsIntent.LoadFilters)
-                viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
-                viewModel.onIntent(AssetsIntent.LoadFundLocks)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    DisposableEffect(forceRefresh) {
-        if (forceRefresh) {
-            viewModel.onIntent(AssetsIntent.Refresh)
-        }
-        onDispose { }
-    }
-
-    HomeAssetsScreen(
-        assets = viewState.assets,
-        fundsLocks = viewState.fundsLocks,
-        onSeeAllCryptoAssetsClick = openAllAssets,
-        onFundsLocksClick = { fundsLocks ->
-            assetActionsNavigation.fundsLocksDetail(fundsLocks)
-        },
-        onAssetClick = { asset ->
-            assetActionsNavigation.coinview(asset)
-        },
-        openFiatActionDetail = openFiatActionDetail
-    )
-}
 
 @Composable
-fun HomeAssetsScreen(
-    assets: DataResource<List<HomeAsset>>,
-    fundsLocks: DataResource<FundsLocks?>,
-    onSeeAllCryptoAssetsClick: () -> Unit,
-    onFundsLocksClick: (FundsLocks) -> Unit,
-    onAssetClick: (AssetInfo) -> Unit,
-    openFiatActionDetail: (String) -> Unit
-) {
-    when (assets) {
-        DataResource.Loading -> { /*DO NOTHING*/
-        }
-        is DataResource.Data -> HomeAssetsList(
-            assets = assets.data,
-            fundsLocks = fundsLocks,
-            onSeeAllCryptoAssetsClick = onSeeAllCryptoAssetsClick,
-            onFundsLocksClick = onFundsLocksClick,
-            onAssetClick = onAssetClick,
-            openFiatActionDetail = openFiatActionDetail
+fun HomeAssetsHeader(openCryptoAssets: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.ma_home_assets_title),
+            style = AppTheme.typography.body2,
+            color = Grey700
         )
-        is DataResource.Error -> { /*DO NOTHING*/
-        }
-    }
-}
-
-@Composable
-private fun HomeAssetsList(
-    analytics: Analytics = get(),
-    assets: List<HomeAsset>,
-    fundsLocks: DataResource<FundsLocks?>,
-    onSeeAllCryptoAssetsClick: () -> Unit,
-    onFundsLocksClick: (FundsLocks) -> Unit,
-    onAssetClick: (AssetInfo) -> Unit,
-    openFiatActionDetail: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            if (assets.filterIsInstance<HomeCryptoAsset>().isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.ma_home_assets_title),
-                    style = AppTheme.typography.body2,
-                    color = Grey700
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(
-                    modifier = Modifier.clickableNoEffect {
-                        onSeeAllCryptoAssetsClick()
-                        analytics.logEvent(DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = assets.size))
-                    },
-                    text = stringResource(R.string.see_all),
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.primary,
-                )
-            }
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-        }
-
-        (fundsLocks as? DataResource.Data)?.data?.let { locks ->
-            FundLocksData(
-                total = locks.onHoldTotalAmount,
-                onClick = { onFundsLocksClick(locks) }
-            )
-        }
-
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-        CryptoAssetsList(
-            cryptoAssets = assets.filterIsInstance<HomeCryptoAsset>(),
-            onAssetClick = { asset ->
-                onAssetClick(asset)
-                analytics.logEvent(DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker))
-            },
-            showNoResults = false
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            modifier = Modifier.clickableNoEffect(openCryptoAssets),
+            text = stringResource(R.string.see_all),
+            style = AppTheme.typography.paragraph2,
+            color = AppTheme.colors.primary,
         )
-
-        val fiats = assets.filterIsInstance<FiatAssetState>()
-        if (fiats.isNotEmpty())
-            FiatAssetsStateList(
-                assets = fiats,
-                openFiatActionDetail = { ticker ->
-                    openFiatActionDetail(ticker)
-                    analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
-                }
-            )
     }
 }
 
 @Composable
-private fun FundLocksData(
+fun FundLocksData(
     total: Money,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
-            .padding(vertical = AppTheme.dimensions.tinySpacing)
             .clickable(onClick = onClick),
         backgroundColor = AppTheme.colors.background,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
@@ -243,46 +93,62 @@ private fun FundLocksData(
     }
 }
 
-@Composable
-private fun FiatAssetsStateList(
-    assets: List<FiatAssetState>,
+internal fun LazyListScope.homeAssets(
+    data: List<HomeAsset>,
+    assetOnClick: (AssetInfo) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
-    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-    Card(
-        backgroundColor = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-        elevation = 0.dp
-    ) {
-        Column {
-            assets.forEachIndexed { index, fiatAsset ->
-                BalanceChangeTableRow(
-                    name = fiatAsset.name,
-                    value = fiatAsset.balance.map {
-                        it.toStringWithSymbol()
-                    },
-                    contentStart = {
-                        Image(
-                            imageResource = ImageResource.Remote(fiatAsset.icon[0]),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .size(dimensionResource(R.dimen.standard_spacing)),
-                            defaultShape = CircleShape
-                        )
-                    },
-                    onClick = {
-                        openFiatActionDetail(fiatAsset.account.currency.networkTicker)
-                    }
-                )
+    roundedCornersItems(items = data.filterIsInstance<CustodialAssetState>(), key = { state ->
+        state.asset.networkTicker
+    }) {
+        BalanceWithPriceChange(
+            cryptoAsset = it,
+            onAssetClick = assetOnClick
+        )
+    }
+    roundedCornersItems(items = data.filterIsInstance<NonCustodialAssetState>(), key = { state ->
+        state.asset.networkTicker
+    }) {
+        BalanceWithFiatAndCryptoBalance(
+            cryptoAsset = it,
+            onAssetClick = assetOnClick
+        )
+    }
 
-                if (index < assets.lastIndex) {
-                    Divider(color = Color(0XFFF1F2F7))
-                }
+    item {
+        val fiatSpacer = if (data.filterIsInstance<CustodialAssetState>().isNotEmpty() &&
+            data.filterIsInstance<FiatAssetState>().isNotEmpty()
+        ) {
+            AppTheme.dimensions.smallSpacing
+        } else
+            0.dp
+        Spacer(modifier = Modifier.size(fiatSpacer))
+    }
+
+    roundedCornersItems(items = data.filterIsInstance<FiatAssetState>(), key = { state ->
+        state.account.currency.networkTicker
+    }) {
+        BalanceChangeTableRow(
+            name = it.name,
+            value = it.balance.map { money ->
+                money.toStringWithSymbol()
+            },
+            contentStart = {
+                Image(
+                    imageResource = ImageResource.Remote(it.icon[0]),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .size(dimensionResource(R.dimen.standard_spacing)),
+                    defaultShape = CircleShape
+                )
+            },
+            onClick = {
+                openFiatActionDetail(it.account.currency.networkTicker)
             }
-        }
+        )
     }
 }
-
+/*
 @Preview(backgroundColor = 0xFF272727)
 @Composable
 fun PreviewHomeAccounts() {
@@ -356,4 +222,4 @@ fun PreviewHomeAccounts_Loading() {
         onAssetClick = {},
         openFiatActionDetail = {}
     )
-}
+}*/

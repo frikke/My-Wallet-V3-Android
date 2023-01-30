@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.base
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.MotionEvent
@@ -16,7 +17,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -65,7 +65,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     val appUtil: AppUtilAPI by inject()
 
     val environment: EnvironmentConfig by inject()
-    val logoutTimer: LogoutTimer by inject()
+    private val logoutTimer: LogoutTimer by inject()
     private val remoteLogger: RemoteLogger by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
@@ -171,14 +171,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
         }
     }
 
-    override fun setContentView(layoutResID: Int) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
-        else super.setContentView(layoutResID)
-    }
-
     override fun setContentView(view: View?) {
         if (processDeathOccurredAndThisIsNotLauncherActivity) {
-            super.setContentView(CoordinatorLayout(this))
+            super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
             return
         }
 
@@ -208,13 +203,40 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) super.setContentView(CoordinatorLayout(this))
-        else super.setContentView(view, params)
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+            super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
+        } else {
+            super.setContentView(view, params)
+        }
+    }
+
+    private fun createWrapperAndHideViewWithWhiteScrim(view: View?): View? {
+        // Some activities are calling setContentView twice, once on specific activity onCreate and another on
+        // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
+        if (view == null) return null
+        if (view.parent != null) return null
+
+        val wrapper = FrameLayout(this).apply {
+            val params =
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            layoutParams = params
+        }
+        val scrimView = View(this).apply {
+            val params =
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            layoutParams = params
+            setBackgroundColor(getColor(R.color.white))
+        }
+        view.visibility = View.GONE
+        wrapper.addView(view)
+        wrapper.addView(scrimView)
+        return wrapper
     }
 
     /**
      * Allows you to disable Portrait orientation lock on a per-Activity basis.
      */
+    @SuppressLint("SourceLockedOrientationActivity")
     protected open fun lockScreenOrientation() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }

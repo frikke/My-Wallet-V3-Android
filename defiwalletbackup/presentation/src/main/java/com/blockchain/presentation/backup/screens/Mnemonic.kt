@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,17 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.presentation.R
 import java.util.Locale
 
@@ -66,6 +65,11 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                 }
                 .fillMaxWidth()
                 .background(color = Color.White, shape = AppTheme.shapes.large)
+                .border(
+                    width = AppTheme.dimensions.borderSmall,
+                    color = Grey100,
+                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                )
                 .run {
                     if (hidable) {
                         pointerInteropFilter {
@@ -77,13 +81,10 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                         }
                     } else this
                 },
-            contentPadding = PaddingValues(
-                horizontal = dimensionResource(R.dimen.small_spacing),
-                vertical = dimensionResource(R.dimen.small_spacing)
-            ),
+            contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing),
             columns = GridCells.Fixed(count = COLUMN_COUNT),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.standard_spacing)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.smallest_spacing))
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing),
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallestSpacing)
         ) {
             itemsIndexed(
                 items = mnemonic,
@@ -105,9 +106,9 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                         height = Dimension.fillToConstraints
                     }
                     .border(
-                        width = 1.dp,
-                        color = AppTheme.colors.background,
-                        shape = AppTheme.shapes.large
+                        width = AppTheme.dimensions.borderSmall,
+                        color = Grey100,
+                        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
                     )
                     .background(color = Grey000, shape = AppTheme.shapes.large)
             )
@@ -129,20 +130,21 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
 @Composable
 fun MnemonicWord(index: Int, word: String) {
     Row {
-        Text(
+        SimpleText(
             modifier = Modifier.width(dimensionResource(R.dimen.standard_spacing)),
             text = index.toString(),
-            style = AppTheme.typography.paragraphMono,
-            color = Grey400,
-            textAlign = TextAlign.End
+            style = ComposeTypographies.ParagraphMono,
+            color = ComposeColors.Muted,
+            gravity = ComposeGravities.End
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        TinyHorizontalSpacer()
 
-        Text(
+        SimpleText(
             text = word,
-            style = AppTheme.typography.paragraphMono,
-            color = Grey900,
+            style = ComposeTypographies.ParagraphMono,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start
         )
     }
 }

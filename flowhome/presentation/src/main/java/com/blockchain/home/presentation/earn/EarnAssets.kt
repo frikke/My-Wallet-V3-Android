@@ -9,34 +9,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tag.TagType
@@ -47,139 +40,88 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.koin.payloadScope
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun EarnAssets(
-    viewModel: EarnViewModel = getViewModel(scope = payloadScope),
+internal fun HomeEarnHeader(
     analytics: Analytics = get(),
-    assetActionsNavigation: AssetActionsNavigation,
+    hasAssets: Boolean,
+    earnRewards: () -> Unit
 ) {
-    val viewState: EarnViewState by viewModel.viewState.collectAsStateLifecycleAware()
-    val lifecycleOwner = LocalLifecycleOwner.current
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.common_earn),
+            style = AppTheme.typography.body2,
+            color = Grey700
+        )
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(EarnIntent.LoadEarnAccounts())
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+        Spacer(modifier = Modifier.weight(1f))
 
-    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
-        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-
-    LaunchedEffect(key1 = viewModel) {
-        navEventsFlowLifecycleAware.collectLatest {
-            when (it) {
-                is EarnNavEvent.Interest -> assetActionsNavigation.interestSummary(it.account)
-                is EarnNavEvent.Staking -> assetActionsNavigation.stakingSummary(it.account.currency)
-            }
-        }
-    }
-
-    if (viewState == EarnViewState.None) {
-        return
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        if (hasAssets) {
             Text(
-                text = stringResource(R.string.common_earn),
-                style = AppTheme.typography.body2,
-                color = Grey700
+                modifier = Modifier.clickableNoEffect {
+                    earnRewards()
+                    analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
+                },
+                text = stringResource(R.string.manage),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.primary,
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (viewState is EarnViewState.Assets) {
-                Text(
-                    modifier = Modifier.clickableNoEffect {
-                        assetActionsNavigation.earnRewards()
-                        analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
-                    },
-                    text = stringResource(R.string.manage),
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.primary,
-                )
-            }
-        }
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-        Card(
-            backgroundColor = AppTheme.colors.background,
-            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp
-        ) {
-            when (viewState) {
-                EarnViewState.NoAssetsInvested -> NoAssetsInvested { assetActionsNavigation.earnRewards() }
-                is EarnViewState.Assets -> EarnedAssets(
-                    viewState as EarnViewState.Assets,
-                    onClick = {
-                        viewModel.onIntent(
-                            EarnIntent.AssetSelected(
-                                it
-                            )
-                        )
-                    }
-                )
-                EarnViewState.None -> throw IllegalStateException("No render for state None")
-            }
         }
     }
 }
 
-@Composable
-private fun EarnedAssets(viewState: EarnViewState.Assets, onClick: (EarnAsset) -> Unit) {
-    Column {
-        viewState.assets.forEachIndexed { index, asset ->
-            BalanceTableRow(
-                titleStart = buildAnnotatedString {
-                    append(asset.currency.name)
-                },
-                onClick = {
-                    onClick(asset)
-                },
-                startImageResource = ImageResource.Remote(asset.currency.logo),
-                tags = listOf(
-                    TagViewState(
-                        when (asset.type) {
-                            EarnType.INTEREST -> stringResource(id = R.string.earn_rewards_label_passive)
-                            EarnType.STAKING -> stringResource(id = R.string.earn_rewards_label_staking)
-                        },
-                        TagType.Default()
-                    )
-                ),
-                isInlineTags = true,
-                titleEnd = buildAnnotatedString { append(asset.balance.toStringWithSymbol()) },
-                bodyEnd = buildAnnotatedString {
-                    append(
-                        viewState.rateForAsset(
-                            asset
-                        )?.let {
-                            stringResource(id = R.string.earn_rate_apy, it.withoutTrailingZerosIfWhole())
-                        }.orEmpty()
-                    )
-                }
-            )
-            if (index < viewState.assets.size - 1) {
-                Divider(color = Color(0XFFF1F2F7))
+internal fun LazyListScope.homeEarnAssets(
+    earnState: EarnViewState,
+    assetActionsNavigation: AssetActionsNavigation,
+    earnViewModel: EarnViewModel
+) {
+    when (earnState) {
+        EarnViewState.NoAssetsInvested ->
+            item { NoAssetsInvested { assetActionsNavigation.earnRewards() } }
+        is EarnViewState.Assets -> {
+            val mAssets = earnState.assets
+            roundedCornersItems(items = mAssets.toList(), key = {
+                it.type.hashCode() + it.currency.networkTicker.hashCode()
+            }) { asset ->
+                BalanceTableRow(
+                    titleStart = buildAnnotatedString {
+                        append(asset.currency.name)
+                    },
+                    onClick = {
+                        earnViewModel.onIntent(
+                            EarnIntent.AssetSelected(
+                                asset
+                            )
+                        )
+                    },
+                    startImageResource = ImageResource.Remote(asset.currency.logo),
+                    tags = listOf(
+                        TagViewState(
+                            when (asset.type) {
+                                EarnType.INTEREST -> stringResource(id = R.string.earn_rewards_label_passive)
+                                EarnType.STAKING -> stringResource(id = R.string.earn_rewards_label_staking)
+                            },
+                            TagType.Default()
+                        )
+                    ),
+                    isInlineTags = true,
+                    titleEnd = buildAnnotatedString { append(asset.balance.toStringWithSymbol()) },
+                    bodyEnd = buildAnnotatedString {
+                        append(
+                            (earnState as? EarnViewState.Assets)?.rateForAsset(
+                                asset
+                            )?.let {
+                                stringResource(id = R.string.earn_rate_apy, it.withoutTrailingZerosIfWhole())
+                            }.orEmpty()
+                        )
+                    }
+                )
             }
+        }
+        EarnViewState.None -> {
         }
     }
 }
@@ -191,67 +133,73 @@ private fun Double.withoutTrailingZerosIfWhole(): Any {
 
 @Preview
 @Composable
-private fun NoAssetsInvested(
+fun NoAssetsInvested(
     analytics: Analytics = get(),
     earn: () -> Unit = {}
 ) {
-    TableRow(
-        contentStart = {
-            Box {
-                Canvas(
-                    modifier = Modifier
-                        .size(dimensionResource(id = R.dimen.large_spacing))
-                        .align(Center),
-                    onDraw = {
-                        drawCircle(
-                            color = Grey400,
-                        )
-                    }
-                )
-                Text(
-                    modifier = Modifier.align(Center),
-                    text = "%",
-                    style = AppTheme.typography.body2,
-                    color = Color.White,
-                )
-            }
-        },
-        content = {
-            Column(modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)) {
-                Text(
-                    text = stringResource(id = R.string.earn_up_to),
-                    style = AppTheme.typography.caption2,
-                    color = Grey900
-                )
-                Spacer(modifier = Modifier.size(2.dp))
-                Text(
-                    text = stringResource(id = R.string.put_your_crypto_to_work),
-                    style = AppTheme.typography.paragraph1,
-                    color = Grey900
-                )
-            }
-        },
-        contentEnd = {
-            Button(
-                modifier = Modifier
-                    .wrapContentWidth(align = End)
-                    .weight(1f),
-                content = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.common_earn
-                        ).uppercase(),
-                        color = Color.White,
-                        style = AppTheme.typography.paragraphMono
+    Card(
+        backgroundColor = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp
+    ) {
+        TableRow(
+            contentStart = {
+                Box {
+                    Canvas(
+                        modifier = Modifier
+                            .size(dimensionResource(id = R.dimen.large_spacing))
+                            .align(Center),
+                        onDraw = {
+                            drawCircle(
+                                color = Grey400,
+                            )
+                        }
                     )
-                },
-                onClick = {
-                    earn()
-                    analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked)
-                },
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)
-            )
-        }
-    )
+                    Text(
+                        modifier = Modifier.align(Center),
+                        text = "%",
+                        style = AppTheme.typography.body2,
+                        color = Color.White,
+                    )
+                }
+            },
+            content = {
+                Column(modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)) {
+                    Text(
+                        text = stringResource(id = R.string.earn_up_to),
+                        style = AppTheme.typography.caption2,
+                        color = Grey900
+                    )
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Text(
+                        text = stringResource(id = R.string.put_your_crypto_to_work),
+                        style = AppTheme.typography.paragraph1,
+                        color = Grey900
+                    )
+                }
+            },
+            contentEnd = {
+                Button(
+                    modifier = Modifier
+                        .wrapContentWidth(align = End)
+                        .weight(1f),
+                    content = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.common_earn
+                            ).uppercase(),
+                            color = Color.White,
+                            style = AppTheme.typography.paragraphMono
+                        )
+                    },
+                    onClick = {
+                        earn()
+                        analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked)
+                    },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)
+                )
+            }
+        )
+    }
 }

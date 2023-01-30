@@ -15,7 +15,20 @@ sealed interface TextValue {
     data class IntResValue(
         @StringRes val value: Int,
         val args: List<Any> = emptyList()
-    ) : TextValue
+    ) : TextValue {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as IntResValue
+            return value == other.value && args.toSet() == other.args.toSet()
+        }
+
+        override fun hashCode(): Int {
+            var result = value
+            result = 31 * result + args.toSet().hashCode()
+            return result
+        }
+    }
 }
 
 @Composable

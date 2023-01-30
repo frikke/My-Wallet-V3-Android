@@ -117,11 +117,32 @@ class PayloadDataManager internal constructor(
     override val guid: String
         get() = wallet.guid
 
-    override val hashedSharedKey: String
+    override val guidOrNull: String?
+        get() = try {
+            guid
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
+
+    val hashedSharedKey: String
         get() = String(Hex.encode(Sha256Hash.hash(sharedKey.toByteArray())))
 
-    override val hashedGuid: String
+    override val hashedSharedKeyOrNull: String?
+        get() = try {
+            hashedSharedKey
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
+
+    val hashedGuid: String
         get() = String(Hex.encode(Sha256Hash.hash(guid.toByteArray())))
+
+    override val hashedGuidOrNull: String?
+        get() = try {
+            hashedGuid
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
 
     override val sharedKey: String
         get() = wallet.sharedKey

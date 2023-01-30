@@ -3,7 +3,6 @@ package com.blockchain.home.presentation.dashboard.composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -31,7 +30,6 @@ fun HelpAndSupport(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
     ) {
 
         SimpleText(
@@ -41,7 +39,7 @@ fun HelpAndSupport(
             gravity = ComposeGravities.Start
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Card(
             backgroundColor = AppTheme.colors.background,

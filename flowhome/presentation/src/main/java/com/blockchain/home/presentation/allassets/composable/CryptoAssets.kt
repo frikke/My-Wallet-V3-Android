@@ -245,11 +245,8 @@ fun CryptoAssetsList(
     }
 }
 
-/**
- * TODO ERRROS!
- */
 @Composable
-private fun BalanceWithFiatAndCryptoBalance(
+fun BalanceWithFiatAndCryptoBalance(
     cryptoAsset: NonCustodialAssetState,
     onAssetClick: (AssetInfo) -> Unit
 ) {
@@ -281,7 +278,7 @@ private fun BalanceWithFiatAndCryptoBalance(
 }
 
 @Composable
-private fun BalanceWithPriceChange(
+fun BalanceWithPriceChange(
     cryptoAsset: CustodialAssetState,
     onAssetClick: (AssetInfo) -> Unit
 ) {

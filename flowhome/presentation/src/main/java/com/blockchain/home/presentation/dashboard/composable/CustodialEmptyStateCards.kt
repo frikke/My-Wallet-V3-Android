@@ -70,7 +70,6 @@ fun CustodialEmptyStateCards(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         BuyProgressCard(
             viewState.steps.size,

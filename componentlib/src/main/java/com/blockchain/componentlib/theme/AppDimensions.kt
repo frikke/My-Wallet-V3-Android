@@ -28,6 +28,10 @@ class AppDimensions {
         @Composable
         get() = dimensionResource(R.dimen.smallest_spacing)
 
+    val minusculeSpacing: Dp
+        @Composable
+        get() = dimensionResource(R.dimen.minuscule_spacing)
+
     val tinySpacing: Dp
         @Composable
         get() = dimensionResource(R.dimen.tiny_spacing)

@@ -111,7 +111,7 @@ object Versions {
     // Compose
     const val compose = "1.2.0"
     const val composeShowkase = "1.1.1"
-    const val coil = "2.1.0"
+    const val coil = "2.2.2"
     const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.2.0"

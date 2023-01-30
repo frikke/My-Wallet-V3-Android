@@ -36,6 +36,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun BalanceTableRow(
+    modifier: Modifier = Modifier,
     titleStart: AnnotatedString,
     titleEnd: AnnotatedString? = null,
     bodyStart: AnnotatedString? = null,
@@ -51,6 +52,7 @@ fun BalanceTableRow(
 ) {
 
     TableRow(
+        modifier = modifier,
         contentStart = {
             Image(
                 imageResource = startImageResource,

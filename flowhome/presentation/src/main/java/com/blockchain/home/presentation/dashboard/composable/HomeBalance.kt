@@ -22,39 +22,15 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.allassets.AssetsViewModel
-import com.blockchain.home.presentation.allassets.AssetsViewState
-import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.balance.BalanceDifferenceConfig
 import com.blockchain.presentation.balance.WalletBalance
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import org.koin.androidx.compose.getViewModel
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
-@Composable
-fun Balance(
-    modifier: Modifier = Modifier,
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    scrollRangeProvider: () -> Float,
-    hideBalance: Boolean
-) {
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateWithLifecycle()
-
-    BalanceScreen(
-        modifier = modifier,
-        walletBalance = viewState.balance,
-        balanceAlphaProvider = scrollRangeProvider,
-        hideBalance = hideBalance
-    )
-}
 
 @Composable
 fun BalanceScreen(

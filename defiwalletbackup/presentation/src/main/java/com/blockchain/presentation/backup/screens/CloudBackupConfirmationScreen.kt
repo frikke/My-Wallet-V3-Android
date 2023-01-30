@@ -28,6 +28,10 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
@@ -70,21 +74,22 @@ fun CloudBackupConfirmationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            mutedBackground = false,
             title = stringResource(R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -96,15 +101,15 @@ fun CloudBackupConfirmationScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+            StandardVerticalSpacer()
 
             BackupStatus(BackUpStatus.BACKED_UP)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            LargeVerticalSpacer()
 
             HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -130,7 +135,7 @@ fun CloudBackupConfirmationScreen(
                 onClick = doneOnClick
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            SmallVerticalSpacer()
 
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),

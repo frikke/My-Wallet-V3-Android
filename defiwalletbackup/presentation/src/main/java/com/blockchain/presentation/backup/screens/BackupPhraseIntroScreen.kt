@@ -2,6 +2,7 @@ package com.blockchain.presentation.backup.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,23 +19,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
-import com.blockchain.componentlib.control.NoPaddingRadio
 import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.control.RadioCheckMark
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
@@ -87,24 +96,19 @@ fun BackupPhraseIntroScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            mutedBackground = false,
             onBackButtonClick = backOnClick
         )
-
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    bottom = dimensionResource(id = R.dimen.standard_spacing)
-                ),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -138,7 +142,7 @@ fun BackupPhraseIntroScreen(
             if (showSkipBackup) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-                TertiaryButton(
+                MinimalButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.common_skip),
                     onClick = skipOnClick
@@ -155,20 +159,32 @@ fun BackupPhraseIntroScreenDescription() {
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.backup_phrase_intro_title),
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.title3,
-            color = Grey900
+
+        Image(
+            imageResource = ImageResource.Local(
+                id = R.drawable.lock_on,
+                contentDescription = stringResource(R.string.backup_phrase_intro_title),
+                colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+            ),
+            modifier = Modifier.size(32.dp)
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        SmallVerticalSpacer()
 
-        Text(
+        SimpleText(
+            text = stringResource(R.string.backup_phrase_intro_title),
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        SmallVerticalSpacer()
+
+        SimpleText(
             text = stringResource(R.string.backup_phrase_intro_description),
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.body1,
-            color = AppTheme.colors.body
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
         )
     }
 }
@@ -182,33 +198,36 @@ fun BackupPhraseIntroAcknowledgmentItem(
 
     Row(
         modifier = Modifier
+            .border(
+                width = AppTheme.dimensions.borderSmall,
+                color = Grey100,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            )
             .clickableNoEffect {
                 isChecked = true
                 onAccepted()
             }
-            .background(
-                color = AppTheme.colors.background,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
-            )
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
-                horizontal = dimensionResource(R.dimen.very_small_spacing),
-                vertical = dimensionResource(R.dimen.small_spacing)
+                horizontal = AppTheme.dimensions.smallSpacing,
+                vertical = dimensionResource(R.dimen.very_small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            modifier = Modifier.weight(1F),
+        SimpleText(
             text = text,
-            color = AppTheme.colors.title,
-            style = AppTheme.typography.paragraph2
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier.weight(1f)
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
-        NoPaddingRadio(
+        RadioCheckMark(
             state = if (isChecked) RadioButtonState.Selected else RadioButtonState.Unselected,
             onSelectedChanged = {
-                isChecked = true
+                isChecked = !isChecked
                 onAccepted()
             }
         )

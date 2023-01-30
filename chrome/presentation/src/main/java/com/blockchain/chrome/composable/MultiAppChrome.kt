@@ -408,12 +408,22 @@ fun MultiAppChromeScreen(
                         )
                     }
                 }
-                // if switcher is scrolled but still visible, snap to the top of it
+                // hide switcher if the offset is 1/2 below its height
                 if (toolbarState.scrollOffset > toolbarState.halfCollapsedOffset &&
                     toolbarState.scrollOffset < toolbarState.fullCollapsedOffset
                 ) {
+                    val halfSwitcherHeight = (toolbarState.fullCollapsedOffset + toolbarState.halfCollapsedOffset) / 2
+
                     coroutineScopeSnaps.launch {
-                        updateOffset(targetValue = toolbarState.halfCollapsedOffset)
+                        updateOffset(
+                            targetValue = if (toolbarState.scrollOffset < halfSwitcherHeight) {
+                                // snap to top of it
+                                toolbarState.halfCollapsedOffset
+                            } else {
+                                // snap below (hide it)
+                                toolbarState.fullCollapsedOffset
+                            }
+                        )
                     }
                 }
 
