@@ -188,7 +188,8 @@ fun HomeScreen(
                 modifier = Modifier.onGloballyPositioned {
                     menuOptionsHeight = it.size.height
                 },
-                walletBalance = (assetsViewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",
+                walletBalance = (assetsViewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol()
+                    ?: "",
                 openSettings = openSettings,
                 launchQrScanner = launchQrScanner,
                 showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
