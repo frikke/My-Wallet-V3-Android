@@ -69,6 +69,7 @@ import com.blockchain.chrome.toolbar.ScrollState
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
@@ -153,7 +154,7 @@ fun MultiAppChrome(
             modeSwitcherOptions = viewState.modeSwitcherOptions,
             selectedMode = viewState.selectedMode,
             backgroundColors = viewState.backgroundColors,
-            balance = viewState.totalBalance.dataOrElse(null),
+            balance = viewState.totalBalance,
             shouldRevealBalance = viewState.shouldRevealBalance,
             bottomNavigationItems = viewState.bottomNavigationItems.toImmutableList(),
             onModeSelected = { walletMode ->
@@ -186,7 +187,7 @@ fun MultiAppChromeScreen(
     modeSwitcherOptions: ChromeModeOptions,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
-    balance: String?,
+    balance: DataResource<String>,
     shouldRevealBalance: Boolean,
     bottomNavigationItems: ImmutableList<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
@@ -471,7 +472,7 @@ fun MultiAppChromeScreen(
     var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
     fun showAndHideBalanceOnFirstLaunch() {
         coroutineScopeSnaps.launch {
-            if (balance != null && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
+            if (balance is DataResource.Data && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
                 hideBalanceAfterInitialValue = true
 
                 updateOffset(0F)
@@ -583,7 +584,7 @@ fun MultiAppChromeScreen(
                             )
 
                             if (
-                                balance != null && shouldRevealBalance &&
+                                balance is DataResource.Data && shouldRevealBalance &&
                                 toolbarState.isBalanceRevealInProgress.not()
                             ) {
                                 revealBalance()
