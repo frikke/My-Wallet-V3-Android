@@ -171,8 +171,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
         }
     }
 
-    override fun setContentView(view: View?) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+    override fun setContentView(view: View) {
+        // Some activities are calling setContentView twice, once on specific activity onCreate and another on
+        // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
+        if (processDeathOccurredAndThisIsNotLauncherActivity && view.parent == null) {
             super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
             return
         }
@@ -180,7 +182,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
         val view = if (BuildConfig.DEBUG) {
             // Some activities are calling setContentView twice, once on specific activity onCreate and another on
             // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
-            if (view?.parent != null) return
+            if (view.parent != null) return
 
             val wrapper = FrameLayout(this).apply {
                 val params =
@@ -202,20 +204,17 @@ abstract class BlockchainActivity : ToolBarActivity() {
         super.setContentView(view)
     }
 
-    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+    override fun setContentView(view: View, params: ViewGroup.LayoutParams?) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity && view.parent == null) {
             super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
         } else {
             super.setContentView(view, params)
         }
     }
 
-    private fun createWrapperAndHideViewWithWhiteScrim(view: View?): View? {
+    private fun createWrapperAndHideViewWithWhiteScrim(view: View): View {
         // Some activities are calling setContentView twice, once on specific activity onCreate and another on
         // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
-        if (view == null) return null
-        if (view.parent != null) return null
-
         val wrapper = FrameLayout(this).apply {
             val params =
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
