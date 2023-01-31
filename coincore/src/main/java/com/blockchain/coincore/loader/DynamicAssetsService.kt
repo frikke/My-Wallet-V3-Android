@@ -34,9 +34,7 @@ internal fun DynamicAsset.toAssetInfo(evmNetworks: List<EvmNetwork> = emptyList(
             CryptoCurrency(
                 displayTicker = displayTicker,
                 networkTicker = networkTicker,
-                name = parentChain?.let {
-                    assetName.forParentTicker(it)
-                } ?: assetName,
+                name = assetName,
                 categories = mapCategories(products),
                 precisionDp = precision,
                 l1chainTicker = pChain,
@@ -68,16 +66,6 @@ internal fun DynamicAsset.toAssetInfo(evmNetworks: List<EvmNetwork> = emptyList(
     }
 
 private const val BTC_START_DATE = 1282089600L
-
-private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == MATIC_NETWORK_TICKER && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
-        return this.plus(POLYGON_NETWORK_SUFFIX)
-    }
-    return this
-}
-
-private const val POLYGON_NETWORK_SUFFIX = " - Polygon"
-private const val MATIC_NETWORK_TICKER = "MATIC"
 
 private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategory> =
     products.mapNotNull {
