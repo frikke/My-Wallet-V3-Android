@@ -7,6 +7,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.extensions.range
 import com.blockchain.home.presentation.activity.common.toActivityComponent
 import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
@@ -17,6 +18,8 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDetailGroups
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import java.util.Locale
+import java.util.TimeZone
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -89,8 +92,8 @@ class PrivateKeyActivityDetailViewModel(
                                     txId = txId,
                                     network = network,
                                     pubKey = pubkey,
-                                    locales = "en-GB;q=1.0, en",
-                                    timeZone = "Europe/London"
+                                    locales = Locale.getDefault().range,
+                                    timeZone = TimeZone.getDefault().id
                                 )
                             }
                         }
