@@ -7,12 +7,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 
 data class MultiAppViewState(
-    val modeSwitcherOptions: ChromeModeOptions,
-    val selectedMode: WalletMode,
-    val backgroundColors: ChromeBackgroundColors,
+    val modeSwitcherOptions: ChromeModeOptions?,
+    val selectedMode: WalletMode?,
+    val backgroundColors: ChromeBackgroundColors?,
     val totalBalance: DataResource<String>,
     val shouldRevealBalance: Boolean,
-    val bottomNavigationItems: List<ChromeBottomNavigationItem>
+    val bottomNavigationItems: List<ChromeBottomNavigationItem>?
 ) : ViewState
 
 sealed interface ChromeBottomNavigationItem {

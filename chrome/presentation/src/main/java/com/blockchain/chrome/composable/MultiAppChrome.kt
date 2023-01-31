@@ -66,10 +66,10 @@ import com.blockchain.chrome.navigation.MultiAppBottomNavigationHost
 import com.blockchain.chrome.toolbar.CollapsingToolbarState
 import com.blockchain.chrome.toolbar.EnterAlwaysCollapsedState
 import com.blockchain.chrome.toolbar.ScrollState
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -124,7 +124,7 @@ fun MultiAppChrome(
     openMoreQuickActions: () -> Unit,
 ) {
     DisposableEffect(key1 = viewModel) {
-        viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        viewModel.onIntent(MultiAppIntents.LoadData)
         onDispose { }
     }
 
@@ -145,17 +145,22 @@ fun MultiAppChrome(
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    if (statusBarHeight > 0.dp && navBarHeight > 0.dp) {
+    safeLet(
+        viewState.modeSwitcherOptions,
+        viewState.selectedMode,
+        viewState.backgroundColors,
+        viewState.bottomNavigationItems
+    ) { modeSwitcherOptions, selectedMode, backgroundColors, bottomNavigationItems ->
         MultiAppChromeScreen(
             analytics = analytics,
             statusBarHeight = statusBarHeight,
             navBarHeight = navBarHeight,
-            modeSwitcherOptions = viewState.modeSwitcherOptions,
-            selectedMode = viewState.selectedMode,
-            backgroundColors = viewState.backgroundColors,
+            modeSwitcherOptions = modeSwitcherOptions,
+            selectedMode = selectedMode,
+            backgroundColors = backgroundColors,
             balance = viewState.totalBalance,
             shouldRevealBalance = viewState.shouldRevealBalance,
-            bottomNavigationItems = viewState.bottomNavigationItems.toImmutableList(),
+            bottomNavigationItems = bottomNavigationItems.toImmutableList(),
             onModeSelected = { walletMode ->
                 viewModel.onIntent(MultiAppIntents.WalletModeChangeRequested(walletMode))
             },

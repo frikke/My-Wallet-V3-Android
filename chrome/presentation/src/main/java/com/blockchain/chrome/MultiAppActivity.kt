@@ -169,7 +169,6 @@ class MultiAppActivity :
             MultiAppNavHost(
                 startDefiOnboarding = { walletActivationRequired -> handleDefiOnboarding(walletActivationRequired) },
                 assetActionsNavigation = assetActionsNavigation,
-                fiatActionsNavigation = fiatActionsNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
