@@ -10,18 +10,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
@@ -33,33 +37,39 @@ fun MoreActions(
     assetActionsNavigation: AssetActionsNavigation,
     dismiss: () -> Unit
 ) {
-    val viewState: QuickActionsViewState by viewModel.viewState.collectAsStateLifecycleAware()
-
     val maxQuickActions = maxQuickActionsOnScreen
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
         onDispose { }
     }
 
-    MoreActionsScreen(
-        actions = viewState.moreActions,
-        onActionClick = { action ->
-            when (action) {
-                AssetAction.Send -> assetActionsNavigation.navigate(action)
-                AssetAction.FiatDeposit -> {
-                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
+    viewState?.moreActions?.let { actions ->
+        MoreActionsScreen(
+            actions = actions,
+            onActionClick = { action ->
+                when (action) {
+                    AssetAction.Send -> assetActionsNavigation.navigate(action)
+                    AssetAction.FiatDeposit -> {
+                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
+                    }
+                    AssetAction.FiatWithdraw -> {
+                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
+                    }
+                    else -> {
+                        // n/a
+                    }
                 }
-                AssetAction.FiatWithdraw -> {
-                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
-                }
-                else -> {
-                    // n/a
-                }
-            }
-        },
-        dismiss = dismiss
-    )
+            },
+            dismiss = dismiss
+        )
+    }
 }
 
 @Composable
