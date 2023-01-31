@@ -65,7 +65,7 @@ class QuickActionsViewModel(
             else state.quickActions.map { it.toQuickActionItem() }
 
             val moreActions = if (state.quickActions.size > quickActionItemsCount) {
-                state.quickActions.subList(quickActionItemsCount, state.quickActions.size)
+                state.quickActions.subList(quickActionItemsCount - 1, state.quickActions.size)
                     .map { it.toMoreActionItem() }
             } else emptyList()
 
