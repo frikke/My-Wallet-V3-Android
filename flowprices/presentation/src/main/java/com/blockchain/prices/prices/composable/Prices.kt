@@ -70,11 +70,16 @@ fun Prices(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-
-        MenuOptionsScreen(
-            openSettings = openSettings,
-            launchQrScanner = launchQrScanner
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppTheme.dimensions.smallSpacing)
+        ) {
+            MenuOptionsScreen(
+                openSettings = openSettings,
+                launchQrScanner = launchQrScanner
+            )
+        }
 
         PricesScreen(
             filters = viewState.availableFilters,
@@ -107,7 +112,10 @@ fun PricesScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
+            .padding(
+                start = AppTheme.dimensions.smallSpacing, end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
     ) {
         when (data) {
             DataResource.Loading -> {
