@@ -17,6 +17,7 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import coil.imageLoader
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -69,6 +70,8 @@ fun AsyncMediaItem(
         UrlType.JPG.name,
         UrlType.PNG.name -> {
             val imageRequest = ImageRequest.Builder(context)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
                 .data(url)
                 .placeholder(onLoadingPlaceholder)
                 .error(onErrorDrawable)

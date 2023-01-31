@@ -114,8 +114,10 @@ fun RecurringBuysUpsell(
             .fillMaxWidth()
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
+        val title = stringResource(R.string.coinview_rb_card_title)
+
         DefaultCard(
-            title = stringResource(R.string.coinview_rb_card_title),
+            title = title,
             subtitle = stringResource(R.string.coinview_rb_card_blurb),
             iconResource = ImageResource.LocalWithBackground(
                 R.drawable.ic_tx_recurring_buy, AppTheme.colors.primary, Blue200
@@ -125,6 +127,7 @@ fun RecurringBuysUpsell(
                 type = ButtonType.Minimal,
                 onClick = {
                     analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
+                    analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreXSellClicked(dcaTitle = title))
                     onRecurringBuyUpsellClick()
                 }
             ),

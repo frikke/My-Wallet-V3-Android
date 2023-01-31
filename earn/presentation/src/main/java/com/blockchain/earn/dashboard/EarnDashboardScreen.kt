@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -55,6 +56,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
 import com.blockchain.earn.dashboard.viewmodel.DashboardState
 import com.blockchain.earn.dashboard.viewmodel.EarnAsset
@@ -68,6 +70,7 @@ import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
 import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
+import org.koin.androidx.compose.get
 
 @Composable
 fun EarnDashboardScreen(
@@ -162,6 +165,7 @@ fun EarnDashboard(
 
 @Composable
 fun EarningAndDiscover(
+    analytics: Analytics = get(),
     state: DashboardState.EarningAndDiscover,
     earningTabFilterBy: EarnDashboardListFilter,
     earningTabFilterAction: (EarnDashboardListFilter) -> Unit,
@@ -187,6 +191,10 @@ fun EarningAndDiscover(
             hasBottomShadow = true,
             onItemSelected = {
                 selectedTab = SelectedTab.fromInt(it)
+
+                if (selectedTab == SelectedTab.Discover) {
+                    analytics.logEvent(EarnAnalytics.DiscoverClicked)
+                }
             }
         )
 
@@ -239,7 +247,7 @@ private fun DiscoverScreen(
         contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing)
     ) {
         item {
-            LearningCarousel(carouselLearnMoreClicked)
+            LearningCarousel(onLearnMoreClicked = carouselLearnMoreClicked)
         }
 
         stickyHeader {
@@ -372,6 +380,7 @@ private fun DiscoverScreen(
 }
 
 private data class DiscoverCarouselItem(
+    val type: EarnType,
     val title: Int,
     val description: Int,
     val icon: Int,
@@ -382,19 +391,24 @@ private const val CAROUSEL_STAKING_LINK = "https://support.blockchain.com/hc/en-
 private const val CAROUSEL_REWARDS_LINK = "https://support.blockchain.com/hc/en-us/sections/4416668318740-Rewards"
 
 @Composable
-private fun LearningCarousel(onLearnMoreClicked: (String) -> Unit) {
+private fun LearningCarousel(
+    analytics: Analytics = get(),
+    onLearnMoreClicked: (String) -> Unit
+) {
     val listItems = immutableListOf(
         DiscoverCarouselItem(
-            R.string.earn_rewards_label_passive,
-            R.string.earn_rewards_carousel_passive_desc,
-            R.drawable.ic_interest_blue_circle,
-            CAROUSEL_REWARDS_LINK
+            type = EarnType.Passive,
+            title = R.string.earn_rewards_label_passive,
+            description = R.string.earn_rewards_carousel_passive_desc,
+            icon = R.drawable.ic_interest_blue_circle,
+            learnMoreUrl = CAROUSEL_REWARDS_LINK
         ),
         DiscoverCarouselItem(
-            R.string.earn_rewards_label_staking,
-            R.string.earn_rewards_carousel_staking_desc,
-            R.drawable.ic_lock,
-            CAROUSEL_STAKING_LINK
+            type = EarnType.Staking,
+            title = R.string.earn_rewards_label_staking,
+            description = R.string.earn_rewards_carousel_staking_desc,
+            icon = R.drawable.ic_lock,
+            learnMoreUrl = CAROUSEL_STAKING_LINK
         )
     )
 
@@ -450,7 +464,10 @@ private fun LearningCarousel(onLearnMoreClicked: (String) -> Unit) {
 
                         SmallMinimalButton(
                             text = stringResource(R.string.common_learn_more),
-                            onClick = { onLearnMoreClicked(it.learnMoreUrl) },
+                            onClick = {
+                                onLearnMoreClicked(it.learnMoreUrl)
+                                analytics.logEvent(EarnAnalytics.LearnMoreClicked(product = it.type.typeName()))
+                            },
                             isTransparent = false
                         )
                     }
@@ -623,4 +640,9 @@ fun EarnLoadError(onRefresh: () -> Unit) {
             }
         }
     )
+}
+
+fun EarnType.typeName() = when (this) {
+    EarnType.Passive -> "SAVINGS"
+    EarnType.Staking -> "STAKING"
 }

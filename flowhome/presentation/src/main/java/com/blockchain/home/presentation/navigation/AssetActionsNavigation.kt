@@ -7,13 +7,11 @@ import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
 
 @Stable
 interface AssetActionsNavigation {
     fun navigate(assetAction: AssetAction)
     fun receive(currency: String)
-    fun buyCrypto(currency: AssetInfo, amount: Money)
     fun buyCrypto(
         currency: AssetInfo,
         amount: String? = null,

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -29,13 +30,20 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import com.blockchain.home.presentation.dashboard.actionName
+import com.blockchain.home.presentation.dashboard.composable.DashboardState
+import com.blockchain.home.presentation.dashboard.composable.dashboardState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import org.koin.androidx.compose.get
 
 @Composable
 fun QuickActions(
+    analytics: Analytics = get(),
     quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
     quickActionsViewModel: QuickActionsViewModel,
+    dashboardState: DashboardState,
     openMoreQuickActions: () -> Unit
 ) {
     Row(
@@ -49,35 +57,50 @@ fun QuickActions(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = AppTheme.dimensions.verySmallSpacing)
-                    .clickableWithIndication {
-                        if (quickAction.enabled)
-                            when (quickAction.action) {
-                                is QuickAction.TxAction -> when (quickAction.action.assetAction) {
-                                    AssetAction.Send,
-                                    AssetAction.Swap,
-                                    AssetAction.Sell,
-                                    AssetAction.Receive,
-                                    AssetAction.Buy -> assetActionsNavigation.navigate(quickAction.action.assetAction)
-                                    AssetAction.FiatDeposit -> quickActionsViewModel.onIntent(
-                                        QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
-                                    )
-                                    AssetAction.FiatWithdraw -> quickActionsViewModel.onIntent(
-                                        QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
-                                    )
-                                    AssetAction.ViewActivity,
-                                    AssetAction.ViewStatement,
-                                    AssetAction.InterestDeposit,
-                                    AssetAction.InterestWithdraw,
-                                    AssetAction.Sign,
-                                    AssetAction.StakingDeposit -> {
+                    .then(
+                        if (quickAction.enabled) {
+                            Modifier.clickableWithIndication {
+                                when (quickAction.action) {
+                                    is QuickAction.TxAction -> when (quickAction.action.assetAction) {
+                                        AssetAction.Send,
+                                        AssetAction.Swap,
+                                        AssetAction.Sell,
+                                        AssetAction.Receive,
+                                        AssetAction.Buy -> assetActionsNavigation.navigate(
+                                            quickAction.action.assetAction
+                                        )
+                                        AssetAction.FiatDeposit -> quickActionsViewModel.onIntent(
+                                            QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
+                                        )
+                                        AssetAction.FiatWithdraw -> quickActionsViewModel.onIntent(
+                                            QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
+                                        )
+                                        AssetAction.ViewActivity,
+                                        AssetAction.ViewStatement,
+                                        AssetAction.InterestDeposit,
+                                        AssetAction.InterestWithdraw,
+                                        AssetAction.Sign,
+                                        AssetAction.StakingDeposit -> {
+                                        }
+                                    }
+                                    is QuickAction.More -> openMoreQuickActions()
+                                }
+
+                                (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
+                                    assetAction.actionName()?.let {
+                                        analytics.logEvent(
+                                            DashboardAnalyticsEvents.QuickActionClicked(
+                                                actionName = it,
+                                                state = dashboardState
+                                            )
+                                        )
                                     }
                                 }
-                                is QuickAction.More -> openMoreQuickActions()
                             }
-                        else {
-                            // do nothing
+                        } else {
+                            Modifier
                         }
-                    }
+                    )
             ) {
                 Image(
                     modifier = Modifier

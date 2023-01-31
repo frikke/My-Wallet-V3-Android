@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -24,12 +26,22 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.R
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 @Composable
-fun BackupSuccess(viewModel: BackupPhraseViewModel) {
+fun BackupSuccess(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
+    DisposableEffect(Unit) {
+        analytics.logEvent(BackupAnalyticsEvents.BackupSuccessfullViewed)
+        onDispose { }
+    }
+
     BackupSuccessScreen(
         doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
     )

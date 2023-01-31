@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -37,7 +36,7 @@ import com.blockchain.home.presentation.allassets.HomeAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
 @Composable
@@ -98,8 +97,9 @@ fun FundLocksData(
 internal fun LazyListScope.homeAssets(
     locks: FundsLocks?,
     data: List<HomeAsset>,
+    assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: () -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
+    fundsLocksOnClick: (FundsLocks) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
     item {
@@ -112,7 +112,7 @@ internal fun LazyListScope.homeAssets(
         item {
             FundLocksData(
                 total = locks.onHoldTotalAmount,
-                onClick = { assetActionsNavigation.fundsLocksDetail(it) }
+                onClick = { fundsLocksOnClick(it) }
             )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
@@ -123,7 +123,7 @@ internal fun LazyListScope.homeAssets(
     }) {
         BalanceWithPriceChange(
             cryptoAsset = it,
-            onAssetClick = { asset -> assetActionsNavigation.coinview(asset) }
+            onAssetClick = assetOnClick
         )
     }
     roundedCornersItems(items = data.filterIsInstance<NonCustodialAssetState>(), key = { state ->
@@ -131,7 +131,7 @@ internal fun LazyListScope.homeAssets(
     }) {
         BalanceWithFiatAndCryptoBalance(
             cryptoAsset = it,
-            onAssetClick = { asset -> assetActionsNavigation.coinview(asset) }
+            onAssetClick = assetOnClick
         )
     }
 

@@ -48,7 +48,10 @@ import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
+import com.blockchain.earn.dashboard.typeName
+import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
@@ -195,9 +198,9 @@ fun StakingSummarySheet(
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium)
-
                 if (state.shouldShowWithdrawWarning()) {
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.medium)
+
                     Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_spacing))) {
                         CardAlert(
                             title = stringResource(id = R.string.empty),
@@ -230,6 +233,13 @@ fun StakingSummarySheet(
                         state.account?.let {
                             onWithdrawPressed(it)
                         }
+
+                        state.balanceCrypto?.let {
+                            EarnAnalytics.WithdrawClicked(
+                                currency = it.currency.networkTicker,
+                                product = EarnType.Staking.typeName()
+                            )
+                        }
                     },
                     state = if (state.isWithdrawable && (state.balanceCrypto?.isPositive) == true) {
                         ButtonState.Enabled
@@ -247,6 +257,13 @@ fun StakingSummarySheet(
                     onClick = {
                         state.account?.let {
                             onDepositPressed(it)
+                        }
+
+                        state.balanceCrypto?.let {
+                            EarnAnalytics.AddClicked(
+                                currency = it.currency.networkTicker,
+                                product = EarnType.Staking.typeName()
+                            )
                         }
                     },
                     state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,

@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.lazylist.roundedCornersItems
@@ -39,10 +40,16 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import org.koin.androidx.compose.get
 
 @Composable
-internal fun HomeEarnHeader(hasAssets: Boolean, earnRewards: () -> Unit) {
+internal fun HomeEarnHeader(
+    analytics: Analytics = get(),
+    hasAssets: Boolean,
+    earnRewards: () -> Unit
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.common_earn),
@@ -54,7 +61,10 @@ internal fun HomeEarnHeader(hasAssets: Boolean, earnRewards: () -> Unit) {
 
         if (hasAssets) {
             Text(
-                modifier = Modifier.clickableNoEffect { earnRewards() },
+                modifier = Modifier.clickableNoEffect {
+                    earnRewards()
+                    analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
+                },
                 text = stringResource(R.string.manage),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.primary,
@@ -73,7 +83,7 @@ internal fun LazyListScope.homeEarnAssets(
     }
     item {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-        HomeEarnHeader(earnState is EarnViewState.Assets) {
+        HomeEarnHeader(hasAssets = earnState is EarnViewState.Assets) {
             assetActionsNavigation.earnRewards()
         }
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -133,7 +143,10 @@ private fun Double.withoutTrailingZerosIfWhole(): Any {
 
 @Preview
 @Composable
-fun NoAssetsInvested(earn: () -> Unit = {}) {
+fun NoAssetsInvested(
+    analytics: Analytics = get(),
+    earn: () -> Unit = {}
+) {
     Card(
         backgroundColor = AppTheme.colors.background,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
@@ -191,6 +204,7 @@ fun NoAssetsInvested(earn: () -> Unit = {}) {
                     },
                     onClick = {
                         earn()
+                        analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked)
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)

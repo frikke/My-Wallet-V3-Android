@@ -14,7 +14,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
@@ -71,16 +70,6 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun receive(currency: String) {
         actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = currency))
-    }
-
-    override fun buyCrypto(currency: AssetInfo, amount: Money) {
-        activity!!.startActivity(
-            SimpleBuyActivity.newIntent(
-                context = activity,
-                asset = currency,
-                preselectedAmount = amount.toBigDecimal().toString(),
-            )
-        )
     }
 
     override fun buyCrypto(

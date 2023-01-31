@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -40,14 +42,27 @@ import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.circleAround
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
+import com.blockchain.presentation.onboarding.OnboardingAnalyticsEvents
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 @Composable
-fun DeFiOnboardingIntro(viewModel: DeFiOnboardingViewModel) {
+fun DeFiOnboardingIntro(
+    analytics: Analytics = get(),
+    viewModel: DeFiOnboardingViewModel
+) {
+    DisposableEffect(Unit) {
+        analytics.logEvent(OnboardingAnalyticsEvents.OnboardingViewed)
+        onDispose { }
+    }
+
     DeFiOnboardingIntroScreen(
         closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = false)) },
-        enableDeFiOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) },
+        enableDeFiOnClick = {
+            viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet)
+            analytics.logEvent(OnboardingAnalyticsEvents.OnboardingContinueClicked)
+        }
     )
 }
 

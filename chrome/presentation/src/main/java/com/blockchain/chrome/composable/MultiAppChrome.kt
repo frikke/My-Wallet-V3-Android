@@ -53,6 +53,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.ChromeAnalyticsEvents
 import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromeModeOptions
@@ -82,6 +84,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -105,6 +108,7 @@ private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): Collap
 @Composable
 fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
     startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
     openCryptoAssets: () -> Unit,
@@ -143,6 +147,7 @@ fun MultiAppChrome(
 
     if (statusBarHeight > 0.dp && navBarHeight > 0.dp) {
         MultiAppChromeScreen(
+            analytics = analytics,
             statusBarHeight = statusBarHeight,
             navBarHeight = navBarHeight,
             modeSwitcherOptions = viewState.modeSwitcherOptions,
@@ -175,6 +180,7 @@ fun MultiAppChrome(
 
 @Composable
 fun MultiAppChromeScreen(
+    analytics: Analytics,
     statusBarHeight: Dp,
     navBarHeight: Dp,
     modeSwitcherOptions: ChromeModeOptions,
@@ -602,8 +608,14 @@ fun MultiAppChromeScreen(
                                         bottomNavigationVisible = false
                                         onModeSelected(walletMode)
                                     }
+
+                                    analytics.logEvent(ChromeAnalyticsEvents.ModeClicked(walletMode))
                                 },
-                                onModeLongClicked = onModeLongClicked
+                                onModeLongClicked = { walletMode ->
+                                    onModeLongClicked(walletMode)
+
+                                    analytics.logEvent(ChromeAnalyticsEvents.ModeLongClicked(walletMode))
+                                }
                             )
                         }
                     }

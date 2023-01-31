@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -37,8 +38,10 @@ import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActiv
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.earn.EarnIntent
 import com.blockchain.home.presentation.earn.EarnNavEvent
+import com.blockchain.home.presentation.earn.EarnType
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.earn.EarnViewState
 import com.blockchain.home.presentation.earn.homeEarnAssets
@@ -61,6 +64,7 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    analytics: Analytics = get(),
     listState: LazyListState,
     isSwipingToRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
@@ -74,6 +78,7 @@ fun HomeScreen(
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
 ) {
+
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
     val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
@@ -82,7 +87,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
-    val homeViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
+    val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
 
     val earnViewModel: EarnViewModel = getViewModel(scope = payloadScope)
     val earnViewState: EarnViewState by earnViewModel.viewState.collectAsStateLifecycleAware()
@@ -101,6 +106,13 @@ fun HomeScreen(
 
     val walletMode by
     get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(initial = null)
+
+    DisposableEffect(walletMode) {
+        walletMode?.let {
+            analytics.logEvent(DashboardAnalyticsEvents.ModeViewed(walletMode = it))
+        }
+        onDispose { }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -130,8 +142,24 @@ fun HomeScreen(
     LaunchedEffect(key1 = earnViewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is EarnNavEvent.Interest -> assetActionsNavigation.interestSummary(it.account)
-                is EarnNavEvent.Staking -> assetActionsNavigation.stakingSummary(it.account.currency)
+                is EarnNavEvent.Interest -> {
+                    assetActionsNavigation.interestSummary(it.account)
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.EarnAssetClicked(
+                            currency = it.account.currency.networkTicker,
+                            product = EarnType.INTEREST.typeName()
+                        )
+                    )
+                }
+                is EarnNavEvent.Staking -> {
+                    assetActionsNavigation.stakingSummary(it.account.currency)
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.EarnAssetClicked(
+                            currency = it.account.currency.networkTicker,
+                            product = EarnType.STAKING.typeName()
+                        )
+                    )
+                }
             }
         }
     }
@@ -160,7 +188,8 @@ fun HomeScreen(
                 modifier = Modifier.onGloballyPositioned {
                     menuOptionsHeight = it.size.height
                 },
-                walletBalance = (homeViewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol() ?: "",
+                walletBalance = (assetsViewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol()
+                    ?: "",
                 openSettings = openSettings,
                 launchQrScanner = launchQrScanner,
                 showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
@@ -182,7 +211,7 @@ fun HomeScreen(
                 },
                 balanceAlphaProvider = { balanceScrollRange },
                 hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
-                walletBalance = homeViewState.balance
+                walletBalance = assetsViewState.balance
 
             )
         }
@@ -193,6 +222,14 @@ fun HomeScreen(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
                     quickActionsViewModel = quickActionsViewModel,
+                    dashboardState = dashboardState(
+                        assetsViewState,
+                        when (walletMode) {
+                            WalletMode.CUSTODIAL -> custodialActivityState
+                            WalletMode.NON_CUSTODIAL -> pkwActivityState
+                            else -> null
+                        }
+                    ),
                     openMoreQuickActions = openMoreQuickActions,
                 )
             }
@@ -200,25 +237,38 @@ fun HomeScreen(
 
         walletMode?.let {
             emptyCard(
-                it, homeViewState,
-                when (it) {
+                walletMode = it,
+                assetsViewState = assetsViewState,
+                actiityViewState = when (it) {
                     WalletMode.CUSTODIAL -> custodialActivityState
                     WalletMode.NON_CUSTODIAL -> pkwActivityState
                 },
-                assetActionsNavigation
+                assetActionsNavigation = assetActionsNavigation
             )
         }
 
-        val assets = (homeViewState.assets as? DataResource.Data)?.data
-        val locks = (homeViewState.fundsLocks as? DataResource.Data)?.data
+        val assets = (assetsViewState.assets as? DataResource.Data)?.data
+        val locks = (assetsViewState.fundsLocks as? DataResource.Data)?.data
 
         assets?.takeIf { it.isNotEmpty() }?.let { data ->
             homeAssets(
-                locks,
-                assets,
-                openCryptoAssets,
-                assetActionsNavigation,
-                openFiatActionDetail
+                locks = locks,
+                data = assets,
+                openCryptoAssets = {
+                    openCryptoAssets()
+                    analytics.logEvent(DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = data.size))
+                },
+                assetOnClick = { asset ->
+                    assetActionsNavigation.coinview(asset)
+                    analytics.logEvent(DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker))
+                },
+                fundsLocksOnClick = { fundsLocks ->
+                    assetActionsNavigation.fundsLocksDetail(fundsLocks)
+                },
+                openFiatActionDetail = { ticker ->
+                    openFiatActionDetail(ticker)
+                    analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
+                }
             )
         }
 
@@ -266,3 +316,8 @@ fun HomeScreen(
 
 private const val MAX_ASSET_COUNT = 7
 private const val MAX_ACTIVITY_COUNT = 5
+
+fun EarnType.typeName() = when (this) {
+    EarnType.INTEREST -> "SAVINGS"
+    EarnType.STAKING -> "STAKING"
+}
