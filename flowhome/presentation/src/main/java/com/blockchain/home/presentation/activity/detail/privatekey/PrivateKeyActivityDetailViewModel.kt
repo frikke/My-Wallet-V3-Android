@@ -91,9 +91,7 @@ class PrivateKeyActivityDetailViewModel(
                                 unifiedActivityService.getActivityDetails(
                                     txId = txId,
                                     network = network,
-                                    pubKey = pubkey,
-                                    locales = Locale.getDefault().range,
-                                    timeZone = TimeZone.getDefault().id
+                                    pubKey = pubkey
                                 )
                             }
                         }
