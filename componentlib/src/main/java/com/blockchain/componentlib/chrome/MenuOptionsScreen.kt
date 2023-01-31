@@ -60,13 +60,12 @@ fun MenuOptionsScreen(
                 .height(AppTheme.dimensions.xHugeSpacing)
                 .background(
                     AppTheme.colors.backgroundMuted.copy(alpha = 0.9F),
-                    AppTheme.shapes.veryLarge
                 )
         )
 
         Box(
             modifier = modifier
-                .padding(AppTheme.dimensions.smallestSpacing)
+                .padding(vertical = AppTheme.dimensions.tinySpacing)
                 .fillMaxWidth()
         ) {
             AnimatedVisibility(
@@ -77,7 +76,7 @@ fun MenuOptionsScreen(
             ) {
                 Surface(
                     modifier = Modifier
-                        .padding(AppTheme.dimensions.smallestSpacing)
+                        .padding(vertical = AppTheme.dimensions.smallestSpacing, horizontal = 1.dp)
                         .matchParentSize()
                         .background(AppTheme.colors.background, AppTheme.shapes.large)
                         .clickable { },
