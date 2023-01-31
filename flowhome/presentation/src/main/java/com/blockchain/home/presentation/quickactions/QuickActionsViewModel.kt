@@ -74,8 +74,8 @@ class QuickActionsViewModel(
                 moreActions = moreActions
             )
         } ?: QuickActionsViewState(
-            emptyList(),
-            emptyList()
+            actions = emptyList(),
+            moreActions = emptyList()
         )
     }
 
