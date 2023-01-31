@@ -202,13 +202,13 @@ class TransactionFlowCustomiserImpl(
 
     override fun selectTargetSourceLabel(state: TransactionState): String =
         when (state.action) {
-            AssetAction.Swap -> resources.getString(R.string.common_swap)
+            AssetAction.Swap -> resources.getString(R.string.common_swap_from)
             else -> resources.getString(R.string.common_from)
         }
 
     override fun selectTargetDestinationLabel(state: TransactionState): String =
         when (state.action) {
-            AssetAction.Swap -> resources.getString(R.string.common_receive)
+            AssetAction.Swap -> resources.getString(R.string.common_swap_to)
             else -> resources.getString(R.string.common_to)
         }
 

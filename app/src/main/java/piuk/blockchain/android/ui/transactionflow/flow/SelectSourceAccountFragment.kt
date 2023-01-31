@@ -282,13 +282,8 @@ class SelectSourceAccountFragment :
                 )
             }
 
-            if (customiser.selectSourceShouldShowSubtitle(newState)) {
-                accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
-                accountListSubtitle.visible()
-            } else {
-                accountListSubtitle.gone()
-                accountListSeparator.gone()
-            }
+            accountListSubtitle.gone()
+            accountListSeparator.gone()
 
             addMethod.visibleIf { customiser.selectSourceShouldShowAddNew(newState) }
         }

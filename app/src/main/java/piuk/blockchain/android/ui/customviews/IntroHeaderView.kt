@@ -31,14 +31,12 @@ class IntroHeaderView @JvmOverloads constructor(
 
         attributes?.let {
             val title = it.getString(R.styleable.IntroHeaderView_intro_header_title)
-            val label = it.getString(R.styleable.IntroHeaderView_intro_header_label)
             val icon = it.getDrawable(R.styleable.IntroHeaderView_intro_header_icon)
             val background = it.getDrawable(R.styleable.IntroHeaderView_intro_header_background)
             val showSeparator = it.getBoolean(R.styleable.IntroHeaderView_intro_header_separator, true)
 
             with(binding) {
                 introHeaderTitle.text = title
-                introHeaderLabel.text = label
                 introHeaderIcon.setImageDrawable(icon)
                 introHeaderParent.background = background
                 introHeaderSeparator.visibleIf { showSeparator }

@@ -22,7 +22,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:intro_header_icon="@drawable/ic_swap_filled_blue"
-                app:intro_header_label="@string/swap_header_label"
                 app:intro_header_title="@string/swap_header_title"
                 app:intro_header_background="@color/grey_000"
                 app:layout_constraintTop_toTopOf="parent" />

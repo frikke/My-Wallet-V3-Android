@@ -180,8 +180,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         with(binding) {
             titleFrom.title = customiser.selectTargetSourceLabel(state)
             titleTo.title = customiser.selectTargetDestinationLabel(state)
-            subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
-            subtitle.text = customiser.selectTargetSubtitle(state)
             warningMessage.apply {
                 (state.sendingAsset as? AssetInfo)?.coinNetwork?.let {
                     visible()
