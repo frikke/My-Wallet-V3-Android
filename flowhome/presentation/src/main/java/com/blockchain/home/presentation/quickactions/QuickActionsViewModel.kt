@@ -49,13 +49,16 @@ class QuickActionsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
     override fun reduce(state: QuickActionsModelState): QuickActionsViewState = state.run {
-        state.maxQuickActions?.let { maxQuickActions ->
+        state.maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
+            // leave space for More action
+            val maxQuickActions = maxQuickActionsOnScreen - 1
+
             val quickActionItemsCount = maxQuickActions.coerceAtMost(
                 state.quickActions.filter { it.state == ActionState.Available }.size
             )
 
             val quickActions = if (state.quickActions.size > quickActionItemsCount)
-                state.quickActions.subList(0, quickActionItemsCount - 1).map { it.toQuickActionItem() }.plus(
+                state.quickActions.subList(0, quickActionItemsCount).map { it.toQuickActionItem() }.plus(
                     QuickActionItem(
                         title = R.string.common_more,
                         action = QuickAction.More,
@@ -65,7 +68,7 @@ class QuickActionsViewModel(
             else state.quickActions.map { it.toQuickActionItem() }
 
             val moreActions = if (state.quickActions.size > quickActionItemsCount) {
-                state.quickActions.subList(quickActionItemsCount - 1, state.quickActions.size)
+                state.quickActions.subList(quickActionItemsCount, state.quickActions.size)
                     .map { it.toMoreActionItem() }
             } else emptyList()
 
@@ -84,7 +87,7 @@ class QuickActionsViewModel(
         when (intent) {
             is QuickActionsIntent.LoadActions -> {
                 updateState {
-                    it.copy(maxQuickActions = intent.maxQuickActions)
+                    it.copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
 
                 walletModeService.walletMode.flatMapLatest { wMode ->
@@ -304,7 +307,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
 
 data class QuickActionsModelState(
     val quickActions: List<StateAwareAction> = emptyList(),
-    val maxQuickActions: Int? = null,
+    val maxQuickActionsOnScreen: Int? = null,
     val lastFreshDataTime: Long = 0,
 ) : ModelState
 
@@ -323,7 +326,7 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    data class LoadActions(val maxQuickActions: Int) : QuickActionsIntent
+    data class LoadActions(val maxQuickActionsOnScreen: Int) : QuickActionsIntent
     object Refresh : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
             return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
