@@ -23,6 +23,8 @@ dependencies {
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')
     implementation project(':walletconnect')
+    implementation project(':appRating:domain')
+    implementation project(':appRating:presentaion')
 
     implementation project(':fiatActions')
     implementation Libraries.rxKotlin

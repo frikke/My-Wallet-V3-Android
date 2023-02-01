@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.base.ManifestLauncherActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
@@ -42,6 +43,8 @@ class LauncherActivityV2 :
     ManifestLauncherActivity {
 
     override val alwaysDisableScreenshots: Boolean = false
+
+    override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
 
     private val appMaintenanceViewModel: AppMaintenanceSharedViewModel by viewModel()
     private var appMaintenanceJob: Job? = null

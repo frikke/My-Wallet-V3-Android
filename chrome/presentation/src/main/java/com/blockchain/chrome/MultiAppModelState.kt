@@ -10,5 +10,6 @@ data class MultiAppModelState(
     val selectedWalletMode: WalletMode,
     val totalBalance: DataResource<Money> = DataResource.Loading,
     val defiBalance: DataResource<Money> = DataResource.Loading,
-    val balanceRevealed: Boolean = false
+    val balanceRevealed: Boolean = false,
+    val checkAppRating: Boolean = true
 ) : ModelState
