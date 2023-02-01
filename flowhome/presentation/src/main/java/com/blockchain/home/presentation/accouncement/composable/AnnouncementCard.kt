@@ -1,0 +1,118 @@
+package com.blockchain.home.presentation.accouncement.composable
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Unlock
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Pink600
+import com.blockchain.componentlib.theme.clickableWithIndication
+import com.blockchain.componentlib.utils.ImageValue
+import com.blockchain.componentlib.utils.value
+import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.accouncement.Announcement
+
+@Composable
+fun Announcements(
+    announcements: List<Announcement>,
+    onClick: (Announcement) -> Unit
+) {
+    if (announcements.isNotEmpty()) {
+        // todo support multiple announcements
+        announcements.first().let { announcement ->
+            AnnouncementCard(
+                title = announcement.title.value(),
+                subtitle = announcement.subtitle.value(),
+                icon = StackedIcon.SingleIcon(
+                    when (val icon = announcement.icon) {
+                        is ImageValue.Local -> {
+                            ImageResource.Local(icon.res, size = AppTheme.dimensions.hugeSpacing).run {
+                                icon.tint?.let { withTint(it) } ?: this
+                            }
+                        }
+                        is ImageValue.Remote -> {
+                            ImageResource.Remote(icon.url, size = AppTheme.dimensions.hugeSpacing)
+                        }
+                    }
+                ),
+                onClick = { onClick(announcement) }
+            )
+        }
+    }
+}
+
+@Composable
+fun AnnouncementCard(
+    title: String,
+    subtitle: String,
+    icon: StackedIcon,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .padding(vertical = AppTheme.dimensions.smallSpacing)
+            .fillMaxWidth(),
+        color = AppTheme.colors.background,
+        elevation = AppTheme.dimensions.mediumElevation,
+        shape = AppTheme.shapes.large
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(AppTheme.dimensions.smallSpacing)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CustomStackedIcon(
+                icon = icon,
+                iconBackground = Color.Transparent,
+                size = AppTheme.dimensions.hugeSpacing
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+            Column {
+                Text(
+                    text = title,
+                    style = AppTheme.typography.caption1,
+                    color = Grey400
+                )
+                Text(
+                    text = subtitle,
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.title
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewAnnouncementCard() {
+    AnnouncementCard(
+        title = "Secure your wallets",
+        subtitle = "Backup your Seed Phrase to keep your DeFi Wallet safe",
+        icon = StackedIcon.SingleIcon(Icons.Filled.Unlock.withTint(Pink600).withSize(40.dp)),
+        onClick = {}
+    )
+}

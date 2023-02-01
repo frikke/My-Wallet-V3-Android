@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.koin
 
+import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailViewModel
 import com.blockchain.home.presentation.activity.detail.privatekey.PrivateKeyActivityDetailViewModel
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -24,6 +25,13 @@ val homePresentationModule = module {
     }
 
     scope(payloadScopeQualifier) {
+        viewModel {
+            AnnouncementsViewModel(
+                walletModeService = get(),
+                backupPhraseService = get()
+            )
+        }
+
         viewModel {
             AssetsViewModel(
                 homeAccountsService = get(),

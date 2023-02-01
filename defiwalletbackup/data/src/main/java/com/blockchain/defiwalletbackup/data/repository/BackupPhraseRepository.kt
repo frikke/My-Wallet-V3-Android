@@ -1,5 +1,6 @@
 package com.blockchain.defiwalletbackup.data.repository
 
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.defiwalletbackup.domain.errors.BackupPhraseError
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
@@ -8,13 +9,15 @@ import com.blockchain.outcome.mapError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.BackupWallet
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.wallet.payload.WalletPayloadService
 import timber.log.Timber
 
 class BackupPhraseRepository(
     private val walletPayloadService: WalletPayloadService,
     private val backupWallet: BackupWallet,
-    private val walletStatusPrefs: WalletStatusPrefs
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val payloadManager: PayloadDataManager
 ) : BackupPhraseService {
 
     override fun isBackedUp() = walletPayloadService.isBackedUp
@@ -36,5 +39,16 @@ class BackupPhraseRepository(
                 Timber.e(it)
                 BackupPhraseError.BackupConfirmationError
             }
+    }
+
+    override fun shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
+        return when (walletMode) {
+            WalletMode.NON_CUSTODIAL -> {
+                payloadManager.isBackedUp.not() && walletStatusPrefs.isWalletBackUpSkipped.not()
+            }
+            else -> {
+                false
+            }
+        }
     }
 }

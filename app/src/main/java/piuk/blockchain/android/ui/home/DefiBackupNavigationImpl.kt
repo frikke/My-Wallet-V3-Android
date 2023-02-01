@@ -12,11 +12,11 @@ class DefiBackupNavigationImpl(
 ) : DefiBackupNavigation {
     override fun startBackup(
         launcher: ActivityResultLauncher<Intent>,
-        walletActivationRequired: Boolean
+        onboardingRequired: Boolean
     ) {
         activity?.let {
             launcher.launch(
-                if (walletActivationRequired) {
+                if (onboardingRequired) {
                     DeFiOnboardingActivity.newIntent(context = activity)
                 } else {
                     BackupPhraseActivity.newIntent(context = activity)

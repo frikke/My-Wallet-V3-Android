@@ -31,6 +31,11 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.accouncement.AnnouncementType
+import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
+import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
+import com.blockchain.home.presentation.accouncement.AnnouncementsViewState
+import com.blockchain.home.presentation.accouncement.composable.Announcements
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -77,6 +82,7 @@ fun HomeScreen(
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit
 ) {
 
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
@@ -94,6 +100,9 @@ fun HomeScreen(
 
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(scope = payloadScope)
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
+
+    val announcementsViewModel: AnnouncementsViewModel = getViewModel(scope = payloadScope)
+    val announcementsState: AnnouncementsViewState by announcementsViewModel.viewState.collectAsStateLifecycleAware()
 
     val custodialActivityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope)
     val custodialActivityState: ActivityViewState by custodialActivityViewModel.viewState.collectAsStateLifecycleAware()
@@ -117,6 +126,7 @@ fun HomeScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                announcementsViewModel.onIntent(AnnouncementsIntent.LoadAnnouncements)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
@@ -235,6 +245,19 @@ fun HomeScreen(
             }
         }
 
+        (announcementsState.announcements as? DataResource.Data)?.data?.let { announcements ->
+            item {
+                Announcements(
+                    announcements = announcements,
+                    onClick = { announcement ->
+                        when (announcement.type) {
+                            AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery(false)
+                        }
+                    }
+                )
+            }
+        }
+
         walletMode?.let {
             emptyCard(
                 walletMode = it,
@@ -302,7 +325,6 @@ fun HomeScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             HelpAndSupport(
                 openSupportCenter = { supportNavigation.launchSupportCenter() }
             )

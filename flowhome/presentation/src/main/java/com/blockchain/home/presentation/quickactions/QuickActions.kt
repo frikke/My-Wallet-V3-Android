@@ -3,8 +3,10 @@ package com.blockchain.home.presentation.quickactions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ fun QuickActions(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
+            .padding(vertical = AppTheme.dimensions.smallSpacing)
             .fillMaxWidth()
     ) {
         quickActionItems.forEach { quickAction ->
@@ -104,18 +107,19 @@ fun QuickActions(
             ) {
                 Image(
                     modifier = Modifier
-                        .padding(top = 2.dp, bottom = 2.dp)
                         .alpha(
                             if (quickAction.enabled) 1f else .6f
                         ),
                     imageResource = quickAction.icon
                 )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
                 Text(
                     text = stringResource(id = quickAction.title),
                     style = AppTheme.typography.caption1,
                     color = AppTheme.colors.muted,
                     modifier = Modifier
-                        .padding(bottom = 2.dp)
                         .alpha(
                             if (quickAction.enabled) 1f else .6f
                         )

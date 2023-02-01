@@ -10,6 +10,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -26,8 +27,7 @@ import kotlinx.coroutines.launch
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
-    private val payloadManager: PayloadDataManager,
-    private val walletStatusPrefs: WalletStatusPrefs,
+    private val backupPhraseService: BackupPhraseService,
     private val walletModePrefs: WalletModePrefs
 ) : MviViewModel<
     MultiAppIntents,
@@ -65,15 +65,29 @@ class MultiAppViewModel(
                         updateState {
                             it.copy(walletModes = availableModes)
                         }
-                    }
-                }
 
-                viewModelScope.launch {
-                    // collect wallet mode changes rather than manually change it when user switches modes
-                    // as there are cases where it will change automatically
-                    walletModeService.walletMode.collectLatest { walletMode ->
-                        updateState {
-                            it.copy(selectedWalletMode = walletMode)
+                        if (availableModes.size == 1 && availableModes.first() == WalletMode.NON_CUSTODIAL) {
+                            walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL)
+
+                            updateState {
+                                it.copy(selectedWalletMode = WalletMode.NON_CUSTODIAL)
+                            }
+//
+//                            if (shouldBackupPhraseForMode(WalletMode.NON_CUSTODIAL)) {
+//                                navigate(
+//                                    MultiAppNavigationEvent.PhraseRecovery(
+//                                        walletOnboardingRequired = false
+//                                    )
+//                                )
+//                            }
+                        } else {
+                            // collect wallet mode changes rather than manually change it when user switches modes
+                            // as there are cases where it will change automatically
+                            walletModeService.walletMode.collectLatest { walletMode ->
+                                updateState {
+                                    it.copy(selectedWalletMode = walletMode)
+                                }
+                            }
                         }
                     }
                 }
@@ -82,10 +96,10 @@ class MultiAppViewModel(
             }
 
             is MultiAppIntents.WalletModeChangeRequested -> {
-                if (shouldBackupPhraseForMode(intent.walletMode)) {
+                if (backupPhraseService.shouldBackupPhraseForMode(intent.walletMode)) {
                     navigate(
                         MultiAppNavigationEvent.PhraseRecovery(
-                            walletActivationRequired = shouldOnboardWalletForMode(intent.walletMode)
+                            walletOnboardingRequired = shouldOnboardWalletForMode(intent.walletMode)
                         )
                     )
                 } else {
@@ -134,17 +148,6 @@ class MultiAppViewModel(
         }
     }
 
-    private fun shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
-        return when (walletMode) {
-            WalletMode.NON_CUSTODIAL -> {
-                payloadManager.isBackedUp.not() && walletStatusPrefs.isWalletBackUpSkipped.not()
-            }
-            else -> {
-                false
-            }
-        }
-    }
-
     private fun shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
         val isWalletEligibleForActivation = when (walletMode) {
             WalletMode.NON_CUSTODIAL -> {
@@ -155,7 +158,7 @@ class MultiAppViewModel(
             }
         }
         return isWalletEligibleForActivation &&
-            shouldBackupPhraseForMode(walletMode) &&
+            backupPhraseService.shouldBackupPhraseForMode(walletMode) &&
             !walletModePrefs.userDefaultedToPKW
     }
 }

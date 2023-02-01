@@ -11,7 +11,8 @@ val backupPhraseDataModule = module {
             BackupPhraseRepository(
                 walletPayloadService = get(),
                 backupWallet = get(),
-                walletStatusPrefs = get()
+                walletStatusPrefs = get(),
+                payloadManager  = get()
             )
         }
     }
