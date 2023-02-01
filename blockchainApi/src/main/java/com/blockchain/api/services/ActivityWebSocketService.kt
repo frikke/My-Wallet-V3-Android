@@ -4,11 +4,14 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.activity.ActivityRequest
 import com.blockchain.api.selfcustody.activity.ActivityRequestParams
 import com.blockchain.api.selfcustody.activity.ActivityResponse
+import com.blockchain.extensions.range
 import com.blockchain.extensions.safeLet
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import java.util.Locale
+import java.util.TimeZone
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -87,8 +90,8 @@ class ActivityWebSocketService(
             webSocket.open()
             send(
                 fiatCurrency = fiatCurrency,
-                acceptLanguage = "en-GB;q=1.0, en",
-                timeZone = "Europe/London"
+                acceptLanguage = Locale.getDefault().range,
+                timeZone = TimeZone.getDefault().id
             )
         }
     }
