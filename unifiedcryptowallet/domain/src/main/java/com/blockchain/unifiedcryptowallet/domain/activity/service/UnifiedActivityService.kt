@@ -18,8 +18,6 @@ interface UnifiedActivityService {
         txId: String,
         network: String,
         pubKey: String,
-        locales: String,
-        timeZone: String,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ActivityDetailGroups>>
 

@@ -8,6 +8,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.WalletModePrefs
@@ -22,13 +23,15 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
     private val payloadManager: PayloadDataManager,
     private val walletStatusPrefs: WalletStatusPrefs,
-    private val walletModePrefs: WalletModePrefs
+    private val walletModePrefs: WalletModePrefs,
+    private val appRatingService: AppRatingService
 ) : MviViewModel<
     MultiAppIntents,
     MultiAppViewState,
@@ -113,6 +116,17 @@ class MultiAppViewModel(
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
                         it.copy(totalBalance = totalBalanceDataResource)
+                    }
+
+                    if (modelState.checkAppRating &&
+                        appRatingService.shouldShowRating() &&
+                        totalBalanceDataResource.map { it.isPositive }.dataOrElse(false)
+                    ) {
+                        navigate(MultiAppNavigationEvent.AppRating)
+
+                        updateState {
+                            it.copy(checkAppRating = false)
+                        }
                     }
                 }
         }

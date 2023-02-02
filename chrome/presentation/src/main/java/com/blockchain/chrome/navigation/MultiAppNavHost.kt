@@ -36,6 +36,7 @@ fun MultiAppNavHost(
     prefs: SuperAppMvpPrefs = get(),
     walletModePrefs: WalletModePrefs = get(),
     startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
@@ -68,7 +69,8 @@ fun MultiAppNavHost(
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation
+                supportNavigation = supportNavigation,
+                showAppRating = showAppRating
             )
 
             // home screens
@@ -90,6 +92,7 @@ fun MultiAppNavHost(
 private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
@@ -136,7 +139,8 @@ private fun NavGraphBuilder.chrome(
             },
             openMoreQuickActions = {
                 navController.navigate(HomeDestination.MoreQuickActions)
-            }
+            },
+            showAppRating = showAppRating
         )
     }
 }

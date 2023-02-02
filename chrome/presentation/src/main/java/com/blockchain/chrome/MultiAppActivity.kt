@@ -70,6 +70,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
+import piuk.blockchain.android.rating.presentaion.AppRatingFragment
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import timber.log.Timber
 
 class MultiAppActivity :
@@ -169,6 +171,7 @@ class MultiAppActivity :
             MultiAppNavHost(
                 startDefiOnboarding = { walletActivationRequired -> handleDefiOnboarding(walletActivationRequired) },
                 assetActionsNavigation = assetActionsNavigation,
+                showAppRating = { showAppRating() },
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
@@ -191,6 +194,13 @@ class MultiAppActivity :
     }
 
     // //////////////////////////////////
+    // app rating
+    private fun showAppRating() {
+        AppRatingFragment.newInstance(AppRatingTriggerSource.DASHBOARD)
+            .show(supportFragmentManager, AppRatingFragment.TAG)
+    }
+
+    // ////////////////////////////////
     // defi onboarding
     private val activityResultDefiOnboarding = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()

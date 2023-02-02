@@ -31,8 +31,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 
-private const val MAX_QUICK_ACTIONS_SHOWN = 4
-
 class QuickActionsViewModel(
     private val walletModeService: WalletModeService,
     private val fiatCurrenciesService: FiatCurrenciesService,
@@ -50,10 +48,12 @@ class QuickActionsViewModel(
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-    override fun reduce(state: QuickActionsModelState): QuickActionsViewState {
-        return with(state) {
+    override fun reduce(state: QuickActionsModelState): QuickActionsViewState = state.run {
+        state.maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
+            // leave space for More action
+            val maxQuickActions = maxQuickActionsOnScreen - 1
 
-            val quickActionItemsCount = MAX_QUICK_ACTIONS_SHOWN.coerceAtMost(
+            val quickActionItemsCount = maxQuickActions.coerceAtMost(
                 state.quickActions.filter { it.state == ActionState.Available }.size
             )
 
@@ -76,13 +76,20 @@ class QuickActionsViewModel(
                 actions = quickActions,
                 moreActions = moreActions
             )
-        }
+        } ?: QuickActionsViewState(
+            actions = emptyList(),
+            moreActions = emptyList()
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
-            is QuickActionsIntent.LoadActions ->
+            is QuickActionsIntent.LoadActions -> {
+                updateState {
+                    it.copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
+                }
+
                 walletModeService.walletMode.flatMapLatest { wMode ->
                     quickActionsService.availableQuickActionsForWalletMode(wMode)
                         .map { actions ->
@@ -95,6 +102,8 @@ class QuickActionsViewModel(
                         )
                     }
                 }
+            }
+
             is QuickActionsIntent.FiatAction -> {
                 handleFiatAction(action = intent.action)
             }
@@ -298,6 +307,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
 
 data class QuickActionsModelState(
     val quickActions: List<StateAwareAction> = emptyList(),
+    val maxQuickActionsOnScreen: Int? = null,
     val lastFreshDataTime: Long = 0,
 ) : ModelState
 
@@ -316,7 +326,7 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    object LoadActions : QuickActionsIntent
+    data class LoadActions(val maxQuickActionsOnScreen: Int) : QuickActionsIntent
     object Refresh : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
             return PullToRefresh.canRefresh(modelState.lastFreshDataTime)

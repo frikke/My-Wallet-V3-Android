@@ -52,13 +52,13 @@ internal data class SurveyBody private constructor(
         fun build(appRating: AppRating): SurveyBody {
             return SurveyBody(
                 questionResponses = listOf(
-                    // Static rating question id = 1
+                    // Static rating question id = 1 (rating)
                     SurveyQuestionResponses(
                         questionId = 1,
                         responses = listOf(SurveyResponse(responseId = appRating.rating))
                     ),
 
-                    // Static feedback question id = 2
+                    // Static feedback question id = 2 (feedback)
                     SurveyQuestionResponses(
                         questionId = 2,
                         responses = listOf(
@@ -66,6 +66,15 @@ internal data class SurveyBody private constructor(
                                 responseId = 1,
                                 value = appRating.feedback
                             )
+                        )
+                    ),
+
+                    // Static feedback question id = 3 (is superapp)
+                    // ResponseId: 1 = true / 2 = false
+                    SurveyQuestionResponses(
+                        questionId = 3,
+                        responses = listOf(
+                            SurveyResponse(responseId = 1)
                         )
                     )
                 )

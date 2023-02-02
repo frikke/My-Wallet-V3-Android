@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
@@ -36,7 +37,7 @@ fun MoreActions(
     assetActionsNavigation: AssetActionsNavigation,
     dismiss: () -> Unit
 ) {
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val maxQuickActions = maxQuickActionsOnScreen
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -44,55 +45,104 @@ fun MoreActions(
     }
     val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions)
+        viewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
         onDispose { }
     }
 
-    viewState?.moreActions?.let { items ->
-        Column(modifier = Modifier.fillMaxWidth()) {
-            SheetHeader(
-                title = stringResource(id = R.string.common_more),
-                onClosePress = dismiss,
-                startImageResource = ImageResource.None,
-                shouldShowDivider = false
+    viewState?.moreActions?.let { actions ->
+        MoreActionsScreen(
+            actions = actions,
+            onActionClick = { action ->
+                when (action) {
+                    AssetAction.Send -> assetActionsNavigation.navigate(action)
+                    AssetAction.FiatDeposit -> {
+                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
+                    }
+                    AssetAction.FiatWithdraw -> {
+                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
+                    }
+                    else -> {
+                        // n/a
+                    }
+                }
+            },
+            dismiss = dismiss
+        )
+    }
+}
+
+@Composable
+private fun MoreActionsScreen(
+    actions: List<MoreActionItem>,
+    onActionClick: (AssetAction) -> Unit,
+    dismiss: () -> Unit
+) {
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SheetHeader(
+            title = stringResource(id = R.string.common_more),
+            onClosePress = dismiss,
+            startImageResource = ImageResource.None,
+            shouldShowDivider = false
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        actions.forEach { item ->
+            DefaultTableRow(
+                modifier = Modifier.alpha(if (item.enabled) 1F else 0.5F),
+                primaryText = stringResource(id = item.title),
+                secondaryText = stringResource(id = item.subtitle),
+                startImageResource = ImageResource.Local(item.icon),
+                endImageResource = if (item.enabled) {
+                    ImageResource.Local(R.drawable.ic_chevron_end)
+                } else {
+                    ImageResource.None
+                },
+                onClick = {
+                    if (item.enabled) {
+                        onActionClick(item.action.assetAction)
+                    }
+                }
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-            items.forEach { item ->
-                DefaultTableRow(
-                    modifier = Modifier.alpha(if (item.enabled) 1F else 0.5F),
-                    primaryText = stringResource(id = item.title),
-                    secondaryText = stringResource(id = item.subtitle),
-                    startImageResource = ImageResource.Local(item.icon),
-                    endImageResource = if (item.enabled) {
-                        ImageResource.Local(R.drawable.ic_chevron_end)
-                    } else {
-                        ImageResource.None
-                    },
-                    onClick = {
-                        if (item.enabled) {
-                            when (item.action.assetAction) {
-                                AssetAction.Send -> assetActionsNavigation.navigate(item.action.assetAction)
-                                AssetAction.FiatDeposit -> {
-                                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
-                                }
-                                AssetAction.FiatWithdraw -> {
-                                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
-                                }
-                                else -> {
-                                    // n/a
-                                }
-                            }
-                        }
-                    }
-                )
-
-                if (viewState?.moreActions?.last() != item) {
-                    Divider(color = Color(0XFFF1F2F7))
-                }
+            if (actions.last() != item) {
+                Divider(color = Color(0XFFF1F2F7))
             }
-            Spacer(modifier = Modifier.size(navBarHeight))
         }
+        Spacer(modifier = Modifier.size(navBarHeight))
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewMoreActionsScreen() {
+    MoreActionsScreen(
+        actions = listOf(
+            MoreActionItem(
+                icon = R.drawable.ic_more_send,
+                title = R.string.common_send,
+                subtitle = R.string.transfer_to_other_wallets,
+                action = QuickAction.TxAction(AssetAction.Send),
+                enabled = true
+            ),
+            MoreActionItem(
+                icon = R.drawable.ic_more_send,
+                title = R.string.common_send,
+                subtitle = R.string.transfer_to_other_wallets,
+                action = QuickAction.TxAction(AssetAction.Send),
+                enabled = true
+            ),
+            MoreActionItem(
+                icon = R.drawable.ic_more_send,
+                title = R.string.common_send,
+                subtitle = R.string.transfer_to_other_wallets,
+                action = QuickAction.TxAction(AssetAction.Send),
+                enabled = false
+            ),
+        ),
+        onActionClick = {},
+        dismiss = {}
+    )
 }
