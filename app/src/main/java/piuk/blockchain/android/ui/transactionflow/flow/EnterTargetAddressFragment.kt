@@ -87,6 +87,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 text = getString(R.string.common_next)
             }
         }
+
+        configureSwitch()
+
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
 
@@ -120,7 +123,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
             }
-            configureSwitch(newState)
+
+            if (newState.canSwitchBetweenAccountType.not()) {
+                hideAccountTypeSwitch()
+            }
+
             updateList(newState)
             sourceSlot?.update(newState)
 
@@ -159,21 +166,26 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
-    private fun configureSwitch(newState: TransactionState) {
+    private fun configureSwitch() {
         with(binding) {
-            val canFilterOutTradingAccounts = newState.canFilterOutTradingAccounts
-            showTradingAccounts.visibleIf { canFilterOutTradingAccounts }
-            tradingAccountsSwitch.visibleIf { canFilterOutTradingAccounts }
-            if (canFilterOutTradingAccounts) {
-                tradingAccountsSwitch.onCheckChanged = { isChecked ->
-                    transactionPrefs.showTradingAccountsOnPkwMode = isChecked
-                    model.process(TransactionIntent.FilterTradingTargets(showTrading = isChecked))
+            accountTypeSwitcher.apply {
+                tabs = listOf(
+                    getString(R.string.pkw_wallets),
+                    getString(R.string.default_label_custodial_wallets)
+                )
+                onTabChanged = { tabIndex ->
+                    model.process(TransactionIntent.SwitchAccountType(showTrading = tabIndex == 1))
                 }
-                val showTrading = transactionPrefs.showTradingAccountsOnPkwMode
-                binding.tradingAccountsSwitch.isChecked = showTrading
-                model.process(TransactionIntent.FilterTradingTargets(showTrading = showTrading))
+                initialTabIndex = 0
+                visibility = View.VISIBLE
             }
         }
+
+        model.process(TransactionIntent.SwitchAccountType(showTrading = false))
+    }
+
+    private fun hideAccountTypeSwitch() {
+        binding.accountTypeSwitcher.visibility = View.GONE
     }
 
     private fun setupLabels(state: TransactionState) {
