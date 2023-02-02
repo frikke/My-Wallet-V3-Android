@@ -109,15 +109,14 @@ class MultiAppViewModel(
                         it.copy(totalBalance = totalBalanceDataResource)
                     }
 
-                    if (modelState.checkAppRating) {
-                        if (appRatingService.shouldShowRating() &&
-                            totalBalanceDataResource.map { it.isPositive }.dataOrElse(false)
-                        ) {
-                            navigate(MultiAppNavigationEvent.AppRating)
+                    if (modelState.checkAppRating &&
+                        appRatingService.shouldShowRating() &&
+                        totalBalanceDataResource.map { it.isPositive }.dataOrElse(false)
+                    ) {
+                        navigate(MultiAppNavigationEvent.AppRating)
 
-                            updateState {
-                                it.copy(checkAppRating = false)
-                            }
+                        updateState {
+                            it.copy(checkAppRating = false)
                         }
                     }
                 }
