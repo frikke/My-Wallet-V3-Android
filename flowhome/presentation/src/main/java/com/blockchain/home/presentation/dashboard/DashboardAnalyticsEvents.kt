@@ -12,10 +12,10 @@ sealed class DashboardAnalyticsEvents(
 ) : AnalyticsEvent {
 
     data class ModeViewed(val walletMode: WalletMode) : DashboardAnalyticsEvents(
-        event = String.format(
-            AnalyticsNames.SUPERAPP_MODE_VIEWED.eventName,
-            walletMode.modeName()
-        )
+        event = when (walletMode) {
+            WalletMode.CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_CUSTODIAL_VIEWED.eventName
+            WalletMode.NON_CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_NON_CUSTODIAL_VIEWED.eventName
+        }
     )
 
     data class EmptyStateBuyBtc(val amount: String?) : DashboardAnalyticsEvents(
@@ -32,13 +32,10 @@ sealed class DashboardAnalyticsEvents(
     )
 
     data class QuickActionClicked(
-        val actionName: String,
+        val assetAction: AssetAction,
         val state: DashboardState?
     ) : DashboardAnalyticsEvents(
-        event = String.format(
-            AnalyticsNames.SUPERAPP_QUICK_ACTION_CLICKED.eventName,
-            actionName
-        ),
+        event = assetAction.eventName() ?: error("not supported"),
         params = state?.stateName()?.let { mapOf(DASHBOARD_STATE to it) } ?: emptyMap()
     )
 
@@ -104,19 +101,14 @@ sealed class DashboardAnalyticsEvents(
     }
 }
 
-private fun WalletMode.modeName() = when (this) {
-    WalletMode.CUSTODIAL -> "BCDC Account"
-    WalletMode.NON_CUSTODIAL -> "DeFi"
-}
-
-fun AssetAction.actionName() = when (this) {
-    AssetAction.Buy -> "Buy"
-    AssetAction.Swap -> "Swap"
-    AssetAction.Sell -> "Sell"
-    AssetAction.Receive -> "Receive"
-    AssetAction.Send -> "Send"
-    AssetAction.FiatDeposit -> "Add Cash"
-    AssetAction.FiatWithdraw -> "Cash Out"
+fun AssetAction.eventName() = when (this) {
+    AssetAction.Buy -> AnalyticsNames.SUPERAPP_QUICK_ACTION_BUY_CLICKED.eventName
+    AssetAction.Swap -> AnalyticsNames.SUPERAPP_QUICK_ACTION_SWAP_CLICKED.eventName
+    AssetAction.Sell -> AnalyticsNames.SUPERAPP_QUICK_ACTION_SELL_CLICKED.eventName
+    AssetAction.Receive -> AnalyticsNames.SUPERAPP_QUICK_ACTION_RECEIVE_CLICKED.eventName
+    AssetAction.Send -> AnalyticsNames.SUPERAPP_QUICK_ACTION_SEND_CLICKED.eventName
+    AssetAction.FiatDeposit -> AnalyticsNames.SUPERAPP_QUICK_ACTION_ADD_CASH_CLICKED.eventName
+    AssetAction.FiatWithdraw -> AnalyticsNames.SUPERAPP_QUICK_ACTION_CASH_OUT_CLICKED.eventName
     AssetAction.ViewActivity,
     AssetAction.ViewStatement,
     AssetAction.InterestDeposit,
