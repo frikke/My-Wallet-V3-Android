@@ -13,7 +13,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
@@ -37,8 +36,8 @@ fun MultiAppNavHost(
     prefs: SuperAppMvpPrefs = get(),
     walletModePrefs: WalletModePrefs = get(),
     startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
-    fiatActionsNavigation: FiatActionsNavigation,
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -70,7 +69,8 @@ fun MultiAppNavHost(
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation
+                supportNavigation = supportNavigation,
+                showAppRating = showAppRating
             )
 
             // home screens
@@ -92,6 +92,7 @@ fun MultiAppNavHost(
 private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
@@ -138,7 +139,8 @@ private fun NavGraphBuilder.chrome(
             },
             openMoreQuickActions = {
                 navController.navigate(HomeDestination.MoreQuickActions)
-            }
+            },
+            showAppRating = showAppRating
         )
     }
 }
