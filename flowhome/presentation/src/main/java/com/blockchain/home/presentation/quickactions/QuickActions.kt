@@ -37,9 +37,8 @@ import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.dashboard.actionName
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
-import com.blockchain.home.presentation.dashboard.composable.dashboardState
+import com.blockchain.home.presentation.dashboard.eventName
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import org.koin.androidx.compose.get
 
@@ -129,16 +128,14 @@ private fun QuickActionsScreen(
                                 }
 
                                 (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
-                                    assetAction
-                                        .actionName()
-                                        ?.let {
-                                            analytics.logEvent(
-                                                DashboardAnalyticsEvents.QuickActionClicked(
-                                                    actionName = it,
-                                                    state = dashboardState
-                                                )
+                                    assetAction.eventName()?.let {
+                                        analytics.logEvent(
+                                            DashboardAnalyticsEvents.QuickActionClicked(
+                                                assetAction = assetAction,
+                                                state = dashboardState
                                             )
-                                        }
+                                        )
+                                    }
                                 }
                             }
                         } else {
