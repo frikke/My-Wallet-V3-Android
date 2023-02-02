@@ -73,7 +73,7 @@ class AboutAppFragment : Fragment(), SettingsScreen {
     }
 
     private fun showAppRating() {
-        AppRatingFragment.newInstance(AppRatingTriggerSource.DASHBOARD)
+        AppRatingFragment.newInstance(AppRatingTriggerSource.SETTINGS)
             .show(childFragmentManager, AppRatingFragment.TAG)
     }
 
