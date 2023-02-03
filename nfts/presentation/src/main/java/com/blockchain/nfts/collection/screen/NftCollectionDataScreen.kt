@@ -92,7 +92,7 @@ fun NftCollectionDataScreen(
         ) {
             items(
                 items = collection,
-                key = { it.id + it.tokenId },
+                key = { it.id },
                 itemContent = { nftAsset ->
                     AsyncMediaItem(
                         modifier = Modifier
