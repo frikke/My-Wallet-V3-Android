@@ -1,23 +1,38 @@
 package com.blockchain.chrome.navigation
 
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.composable.bottomNavigationItems
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
+import com.blockchain.componentlib.chrome.extractStatesInfo
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.koin.payloadScope
+import com.blockchain.nfts.collection.NftCollectionIntent
+import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import org.koin.androidx.compose.get
+
 @Composable
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
@@ -40,16 +55,49 @@ fun MultiAppBottomNavigationHost(
     openFiatActionDetail: (String) -> Unit
 ) {
 
+    val walletMode by get<WalletModeService>(scope = payloadScope)
+        .walletMode.collectAsStateLifecycleAware(initial = null)
+
+    // example: defi (nft page) -> custodial,
+    // custodial doesn't support nfts so auto navigate to home
+    DisposableEffect(key1 = walletMode) {
+        walletMode?.let { walletMode ->
+            if (walletMode.bottomNavigationItems().contains(selectedNavigationItem).not()) {
+                navControllerProvider().navigate(ChromeBottomNavigationItem.Home.route) {
+                    navControllerProvider().graph.startDestinationRoute?.let { screen_route ->
+                        popUpTo(screen_route) {
+                            saveState = true
+                        }
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
+        onDispose { }
+    }
+
     val openSettings = remember { { settingsNavigation.settings() } }
     val launchQrScanner = remember { { qrScanNavigation.launchQrScan() } }
 
     NavHost(navControllerProvider(), startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
             val listState = rememberLazyListState()
+            var isRefreshing by remember { mutableStateOf(false) }
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+            updateScrollInfo(
+                Pair(
+                    ChromeBottomNavigationItem.Home,
+                    extractStatesInfo(listState, swipeRefreshState)
+                )
+            )
+
             ChromeScreen(
                 modifier = modifier,
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
                 isPullToRefreshEnabled = enableRefresh,
+                isRefreshing = isRefreshing,
+                swipeRefreshState = swipeRefreshState,
                 content = { shouldTriggerRefresh ->
                     HomeScreen(
                         listState = listState,
@@ -67,17 +115,33 @@ fun MultiAppBottomNavigationHost(
                         openMoreQuickActions = openMoreQuickActions
                     )
                 },
-                listState = listState,
-                refreshStarted = refreshStarted,
-                refreshComplete = refreshComplete
+                refreshStarted = {
+                    isRefreshing = true
+                    refreshStarted()
+                },
+                refreshComplete = {
+                    refreshComplete()
+                    isRefreshing = false
+                }
             )
         }
         composable(ChromeBottomNavigationItem.Prices.route) {
             val listState = rememberLazyListState()
+            var isRefreshing by remember { mutableStateOf(false) }
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+            updateScrollInfo(
+                Pair(
+                    ChromeBottomNavigationItem.Home,
+                    extractStatesInfo(listState, swipeRefreshState)
+                )
+            )
+
             ChromeScreen(
                 modifier = modifier,
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Prices, it)) },
                 isPullToRefreshEnabled = enableRefresh,
+                isRefreshing = isRefreshing,
+                swipeRefreshState = swipeRefreshState,
                 content = { shouldTriggerRefresh ->
                     Prices(
                         listState = listState,
@@ -88,9 +152,49 @@ fun MultiAppBottomNavigationHost(
                         launchQrScanner = launchQrScanner,
                     )
                 },
-                listState = listState,
-                refreshStarted = refreshStarted,
-                refreshComplete = refreshComplete
+                refreshStarted = {
+                    isRefreshing = true
+                    refreshStarted()
+                },
+                refreshComplete = {
+                    refreshComplete()
+                    isRefreshing = false
+                }
+            )
+        }
+        composable(ChromeBottomNavigationItem.Nft.route) {
+            val gridState = rememberLazyGridState()
+            var isRefreshing by remember { mutableStateOf(false) }
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+            updateScrollInfo(
+                Pair(
+                    ChromeBottomNavigationItem.Home,
+                    extractStatesInfo(gridState, swipeRefreshState)
+                )
+            )
+
+            ChromeScreen(
+                modifier = modifier,
+                isPullToRefreshEnabled = enableRefresh,
+                isRefreshing = isRefreshing,
+                swipeRefreshState = swipeRefreshState,
+                content = { shouldTriggerRefresh ->
+                    NftCollection(
+                        gridState = gridState,
+                        //                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                        openSettings = openSettings,
+                        launchQrScanner = launchQrScanner
+                    )
+                },
+                refreshStarted = {
+                    isRefreshing = true
+                    refreshStarted()
+                },
+                refreshComplete = {
+                    refreshComplete()
+                    isRefreshing = false
+                }
             )
         }
     }

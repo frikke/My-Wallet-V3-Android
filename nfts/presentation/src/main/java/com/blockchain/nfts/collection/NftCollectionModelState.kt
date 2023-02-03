@@ -11,5 +11,6 @@ data class NftCollectionModelState(
     val isNextPageLoading: Boolean = false,
     val allPreviousPagesData: List<NftAsset> = emptyList(),
     val nextPageKey: String? = null,
-    val collection: DataResource<List<NftAsset>> = DataResource.Loading
+    val collection: DataResource<List<NftAsset>> = DataResource.Loading,
+    val displayType: DisplayType = DisplayType.Grid
 ) : ModelState

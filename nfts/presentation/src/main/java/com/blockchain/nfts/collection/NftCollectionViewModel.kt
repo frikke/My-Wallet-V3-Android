@@ -5,11 +5,13 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
@@ -30,30 +32,39 @@ class NftCollectionViewModel(
     ModelConfigArgs.NoArgs>(
     initialState = NftCollectionModelState()
 ) {
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        viewModelScope.launch {
-            loadAccount()
-            onIntent(NftCollectionIntent.LoadData(isFromPullToRefresh = false))
-        }
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
             isPullToRefreshLoading = isPullToRefreshLoading,
             showNextPageLoading = isNextPageLoading,
-            collection = collection.map { it.distinct() }
+            collection = collection.map { it.distinct() },
+            displayType = displayType
         )
     }
 
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {
         when (intent) {
             is NftCollectionIntent.LoadData -> {
-                check(modelState.account != null) { "account not initialized" }
+                val account = loadAccount()
+
+                updateState {
+                    it.copy(account = account)
+                }
+
                 loadNftCollection(
-                    account = modelState.account,
+                    account = account,
                     pageKey = null,
                     isFromPullToRefresh = intent.isFromPullToRefresh
                 )
+            }
+
+            is NftCollectionIntent.ChangeDisplayType -> {
+                updateState {
+                    it.copy(
+                        displayType = intent.displayType
+                    )
+                }
             }
 
             is NftCollectionIntent.LoadNextPage -> {
@@ -95,20 +106,21 @@ class NftCollectionViewModel(
         }
     }
 
-    private suspend fun loadAccount() {
+    private suspend fun loadAccount(): SingleAccount {
         (coincore[CryptoCurrency.ETHER.networkTicker] as? CryptoAsset)?.let { asset ->
             asset.accountGroup(AssetFilter.NonCustodial).awaitSingle()
                 .accounts.firstOrNull()?.let { account ->
-                    updateState {
-                        it.copy(account = account)
-                    }
+                    return account
                 } ?: error("account ${CryptoCurrency.ETHER.networkTicker} not found")
         } ?: error("asset ${CryptoCurrency.ETHER.networkTicker} not found")
     }
 
     private fun loadNftCollection(account: BlockchainAccount, pageKey: String?, isFromPullToRefresh: Boolean) {
         viewModelScope.launch {
-            val address = account.receiveAddress.await().address
+            //            nftService.getNftCollectionForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
+            //            nftService.getNftCollectionForAddress(address = "0xD3799B05bf81F05358fac9e09760Ba35876002b8")
+
+            val address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC" //account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
                 freshnessStrategy = if (isFromPullToRefresh) {
                     FreshnessStrategy.Fresh
@@ -147,6 +159,7 @@ class NftCollectionViewModel(
                     is DataResource.Data -> {
                         updateState {
                             val allPreviousPagesData = if (isFromPullToRefresh) emptyList() else it.allPreviousPagesData
+                            val allCollection = dataResource.map { data -> allPreviousPagesData + data.assets }
 
                             it.copy(
                                 isPullToRefreshLoading = false,
@@ -154,7 +167,12 @@ class NftCollectionViewModel(
                                 nextPageKey = dataResource.data.nextPageKey,
                                 allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
                                 // combine current page and new page items
-                                collection = dataResource.map { data -> allPreviousPagesData + data.assets }
+                                collection = allCollection,
+                                displayType = allCollection.map { it.size == 1 }
+                                    .dataOrElse(false).let { isOneItem ->
+                                        if(isOneItem) DisplayType.List
+                                        else it.displayType
+                                    }
                             )
                         }
                     }

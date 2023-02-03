@@ -2576,8 +2576,6 @@
     <string name="educational_wallet_mode_trading_description">Используйте карту или банковский счет для покупки криптовалюты. Зарабатывайте вознаграждения, заставляя свою криптовалюту работать.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Владелец – Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Начать</string>
-    <string name="nft_coming_soon_title">Скоро!</string>
-    <string name="nft_coming_soon_description">Мы прилагаем все усилия для поддержки ваших NFT в кошельке. Когда придет время обновить приложение, мы отправим вам электронное письмо.</string>
     <string name="shortcuts">Ярлыки</string>
     <string name="exchange_your_crypto">Обменяйте свою криптовалюту</string>
     <string name="transfer_to_another_wallet">Перевод на другой кошелек</string>

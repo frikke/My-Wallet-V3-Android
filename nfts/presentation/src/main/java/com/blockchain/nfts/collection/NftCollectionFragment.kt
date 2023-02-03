@@ -49,7 +49,7 @@ class NftCollectionFragment :
                     viewModel = viewModel, navigator = this@NftCollectionFragment, args = ModelConfigArgs.NoArgs
                 )
 
-                NftCollection(viewModel)
+//                NftCollection(viewModel)
             }
         }
     }

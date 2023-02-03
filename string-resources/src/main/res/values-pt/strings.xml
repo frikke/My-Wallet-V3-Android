@@ -2572,8 +2572,6 @@
     <string name="educational_wallet_mode_trading_description">Utilize um cartão ou conta bancária para comprar criptomoedas. Ganhe recompensas pondo as suas criptomoedas a trabalhar.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Detido pela Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Começar</string>
-    <string name="nft_coming_soon_title">Disponível em breve!</string>
-    <string name="nft_coming_soon_description">Estamos a trabalhar arduamente para proporcionar suporte aos NFT na sua carteira. Iremos enviar-lhe um e-mail quando for altura de atualizar a sua aplicação.</string>
     <string name="shortcuts">Atalhos</string>
     <string name="exchange_your_crypto">Troque a sua criptomoeda</string>
     <string name="transfer_to_another_wallet">Transferir para outra carteira</string>

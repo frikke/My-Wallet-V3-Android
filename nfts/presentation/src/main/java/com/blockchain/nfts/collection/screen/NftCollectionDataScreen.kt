@@ -1,8 +1,10 @@
 package com.blockchain.nfts.collection.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,105 +13,117 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.lazylist.PaginatedLazyVerticalGrid
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
-import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
+import com.blockchain.nfts.collection.DisplayType
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
-private const val COLUMN_COUNT = 2
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NftCollectionDataScreen(
+    gridState: LazyGridState,
     collection: List<NftAsset>,
-    isRefreshing: Boolean,
+    displayType: DisplayType,
     isNextPageLoading: Boolean,
+    changeDisplayTypeOnClick: (newDisplayType: DisplayType) -> Unit,
     onItemClick: (NftAsset) -> Unit,
-    onExternalShopClick: () -> Unit,
-    onRefresh: () -> Unit,
     onGetNextPage: () -> Unit
 ) {
-    SwipeRefreshWithoutOverscroll(
-        state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = onRefresh
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
-            PaginatedLazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(
-                    horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.smallSpacing
-                ),
-                columns = GridCells.Fixed(count = COLUMN_COUNT),
-                verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-                horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-                onGetNextPage = onGetNextPage,
-                loadNextPageItemOffset = 6
-            ) {
-                items(
-                    items = collection,
-                    itemContent = { nftAsset ->
-                        AsyncMediaItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1F)
-                                .clip(RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall))
-                                .clickableNoEffect { onItemClick(nftAsset) },
-                            url = nftAsset.imageUrl,
-                            contentScale = ContentScale.Crop,
-                            fallbackUrlType = UrlType.GIF
-                        )
-                    }
+            Text(
+                text = stringResource(id = R.string.nft_collectibles),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title,
+            )
+
+            Spacer(modifier = Modifier.weight(1F))
+
+            if (collection.size > 1) {
+                Image(
+                    modifier = Modifier.clickableWithIndication {
+                        changeDisplayTypeOnClick(displayType.change())
+                    },
+                    imageResource = displayType.icon
                 )
+            }
+        }
 
-                if (isNextPageLoading) {
-                    item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                        CircularProgressBar()
-                    }
+        PaginatedLazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxSize(),
+            lazyGridState = gridState,
+            contentPadding = PaddingValues(
+                AppTheme.dimensions.smallSpacing
+            ),
+            columns = GridCells.Fixed(count = displayType.columnCount),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+            onGetNextPage = onGetNextPage,
+            loadNextPageItemOffset = 6
+        ) {
+            items(
+                items = collection,
+                key = { it.id + it.tokenId },
+                itemContent = { nftAsset ->
+                    AsyncMediaItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1F)
+                            .clip(RoundedCornerShape(size = AppTheme.dimensions.borderRadiiStandard))
+                            .clickableNoEffect { onItemClick(nftAsset) }
+                            .animateItemPlacement(),
+                        url = nftAsset.imageUrl,
+                        contentScale = ContentScale.Crop,
+                        fallbackUrlType = UrlType.GIF
+                    )
                 }
+            )
 
-                item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
+            if (isNextPageLoading) {
+                item(span = { GridItemSpan(displayType.columnCount) }) {
+                    CircularProgressBar()
                 }
             }
 
-            PrimaryButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AppTheme.dimensions.tinySpacing)
-                    .align(Alignment.BottomCenter),
-                text = stringResource(R.string.nft_cta_shop),
-                icon = ImageResource.Local(
-                    R.drawable.ic_external,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                    size = AppTheme.dimensions.standardSpacing
-                ),
-                onClick = onExternalShopClick
-            )
+            item(span = { GridItemSpan(displayType.columnCount) }) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
+            }
         }
     }
+}
+
+private fun DisplayType.change() = when (this) {
+    DisplayType.Grid -> DisplayType.List
+    DisplayType.List -> DisplayType.Grid
 }
 
 // ///////////////
@@ -119,10 +133,13 @@ fun NftCollectionDataScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionDataScreen() {
+    var displayType: DisplayType by remember { mutableStateOf(DisplayType.Grid) }
+
     NftCollectionDataScreen(
+        gridState = rememberLazyGridState(),
         collection = listOf(
             NftAsset(
-                id = "",
+                id = "1",
                 pageKey = "",
                 tokenId = "",
                 imageUrl = "",
@@ -133,7 +150,7 @@ fun PreviewNftCollectionDataScreen() {
                 traits = listOf()
             ),
             NftAsset(
-                id = "",
+                id = "2",
                 pageKey = "",
                 tokenId = "",
                 imageUrl = "",
@@ -144,7 +161,7 @@ fun PreviewNftCollectionDataScreen() {
                 traits = listOf()
             ),
             NftAsset(
-                id = "",
+                id = "3",
                 pageKey = "",
                 tokenId = "",
                 imageUrl = "",
@@ -155,11 +172,12 @@ fun PreviewNftCollectionDataScreen() {
                 traits = listOf()
             )
         ),
-        isRefreshing = false,
+        displayType = displayType,
         isNextPageLoading = true,
+        changeDisplayTypeOnClick = {
+            displayType = it
+        },
         onItemClick = {},
-        onExternalShopClick = {},
-        onRefresh = {},
         onGetNextPage = {}
     )
 }

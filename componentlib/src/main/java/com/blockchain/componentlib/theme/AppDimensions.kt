@@ -84,6 +84,10 @@ class AppDimensions {
         @Composable
         get() = dimensionResource(R.dimen.borderRadiiMedium)
 
+    val borderRadiiStandard: Dp
+        @Composable
+        get() = dimensionResource(R.dimen.borderRadiiStandard)
+
     val borderRadiiLarge: Dp
         @Composable
         get() = dimensionResource(R.dimen.borderRadiiLarge)

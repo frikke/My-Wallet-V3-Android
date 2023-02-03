@@ -40,4 +40,11 @@ sealed interface ChromeBottomNavigationItem {
         override val iconSelected: Int = R.drawable.ic_chrome_trade_selected
         override val route: String = "trade"
     }
+
+    object Nft : ChromeBottomNavigationItem {
+        override val name: Int = R.string.chrome_navigation_nft
+        override val iconDefault: Int = R.drawable.ic_chrome_nft_default
+        override val iconSelected: Int = R.drawable.ic_chrome_nft_selected
+        override val route: String = "nft"
+    }
 }
