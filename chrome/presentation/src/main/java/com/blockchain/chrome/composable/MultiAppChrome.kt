@@ -111,6 +111,7 @@ fun MultiAppChrome(
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
     startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    showAppRating: () -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -137,6 +138,7 @@ fun MultiAppChrome(
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
                 is MultiAppNavigationEvent.PhraseRecovery -> startPhraseRecovery(it.walletOnboardingRequired)
+                is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }
     }

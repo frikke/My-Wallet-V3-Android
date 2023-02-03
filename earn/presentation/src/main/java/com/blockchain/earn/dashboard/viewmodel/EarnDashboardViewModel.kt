@@ -290,91 +290,53 @@ class EarnDashboardViewModel(
         val discoverList = mutableListOf<EarnAsset>()
 
         data.stakingEligibility.map { (asset, eligibility) ->
-            if (data.stakingBalancesWithFiat.isNotEmpty()) {
-                data.stakingBalancesWithFiat[asset]?.let { balances ->
-                    val totalBalance = balances.stakingCryptoBalances.totalBalance
-                    if (totalBalance.isPositive) {
-                        earningList.add(
-                            asset.createStakingAsset(
-                                stakingBalancesWithFiat = balances,
-                                stakingRate = data.stakingRates[asset],
-                                eligibility = eligibility
-                            )
-                        )
-                    } else {
-                        discoverList.add(
-                            asset.createStakingAsset(
-                                stakingBalancesWithFiat = balances,
-                                stakingRate = data.stakingRates[asset],
-                                eligibility = eligibility
-                            )
-                        )
-                    }
-                } ?: discoverList.add(
-                    asset.createStakingAsset(
-                        stakingBalancesWithFiat = StakingBalancesWithFiat(
-                            asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
-                        ),
-                        stakingRate = data.stakingRates[asset],
-                        eligibility = eligibility
-                    )
+            data.stakingBalancesWithFiat[asset]?.let { balances ->
+                val totalBalance = balances.stakingCryptoBalances.totalBalance
+
+                val stakingAsset = asset.createStakingAsset(
+                    stakingBalancesWithFiat = balances,
+                    stakingRate = data.stakingRates[asset],
+                    eligibility = eligibility
                 )
-            } else {
-                discoverList.add(
-                    asset.createStakingAsset(
-                        stakingBalancesWithFiat = StakingBalancesWithFiat(
-                            asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
-                        ),
-                        stakingRate = data.stakingRates[asset],
-                        eligibility = eligibility
-                    )
+
+                discoverList.add(stakingAsset)
+                if (totalBalance.isPositive) {
+                    earningList.add(stakingAsset)
+                }
+            } ?: discoverList.add(
+                asset.createStakingAsset(
+                    stakingBalancesWithFiat = StakingBalancesWithFiat(
+                        asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                    ),
+                    stakingRate = data.stakingRates[asset],
+                    eligibility = eligibility
                 )
-            }
+            )
         }
 
         data.interestEligibility.map { (asset, eligibility) ->
-            if (data.interestBalancesWithFiat.isNotEmpty()) {
-                data.interestBalancesWithFiat[asset]?.let { balances ->
-                    val totalBalance =
-                        balances.interestCryptoBalances.totalBalance
+            data.interestBalancesWithFiat[asset]?.let { balances ->
+                val totalBalance = balances.interestCryptoBalances.totalBalance
 
-                    if (totalBalance.isPositive) {
-                        earningList.add(
-                            asset.createPassiveAsset(
-                                interestBalancesWithFiat = balances,
-                                passiveRate = data.interestRates[asset],
-                                eligibility = eligibility
-                            )
-                        )
-                    } else {
-                        discoverList.add(
-                            asset.createPassiveAsset(
-                                interestBalancesWithFiat = balances,
-                                passiveRate = data.interestRates[asset],
-                                eligibility = eligibility
-                            )
-                        )
-                    }
-                } ?: discoverList.add(
-                    asset.createPassiveAsset(
-                        interestBalancesWithFiat = InterestBalancesWithFiat(
-                            asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
-                        ),
-                        passiveRate = data.interestRates[asset],
-                        eligibility = eligibility
-                    )
+                val passiveAsset = asset.createPassiveAsset(
+                    interestBalancesWithFiat = balances,
+                    passiveRate = data.interestRates[asset],
+                    eligibility = eligibility
                 )
-            } else {
-                discoverList.add(
-                    asset.createPassiveAsset(
-                        interestBalancesWithFiat = InterestBalancesWithFiat(
-                            asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
-                        ),
-                        passiveRate = data.interestRates[asset],
-                        eligibility = eligibility
-                    )
+
+                discoverList.add(passiveAsset)
+                if (totalBalance.isPositive) {
+                    earningList.add(passiveAsset)
+                }
+            } ?: discoverList.add(
+                asset.createPassiveAsset(
+                    interestBalancesWithFiat = InterestBalancesWithFiat(
+                        asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                    ),
+                    passiveRate = data.interestRates[asset],
+                    eligibility = eligibility
                 )
-            }
+            )
         }
 
         return DashboardState.EarningAndDiscover(

@@ -40,4 +40,6 @@ dependencies {
     implementation Libraries.rxAndroid
     implementation Libraries.koin
     implementation Libraries.rxKotlin
+    implementation Libraries.kotlinImmutableCollections
+
 }

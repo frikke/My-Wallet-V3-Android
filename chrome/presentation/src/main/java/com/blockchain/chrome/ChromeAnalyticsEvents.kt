@@ -12,23 +12,18 @@ sealed class ChromeAnalyticsEvents(
     data class ModeClicked(
         val walletMode: WalletMode
     ) : ChromeAnalyticsEvents(
-        event = String.format(
-            AnalyticsNames.SUPERAPP_MODE_CLICKED.eventName,
-            walletMode.modeName()
-        )
+        event = when (walletMode) {
+            WalletMode.CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_CUSTODIAL_CLICKED.eventName
+            WalletMode.NON_CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_NON_CUSTODIAL_CLICKED.eventName
+        }
     )
 
     data class ModeLongClicked(
         val walletMode: WalletMode
     ) : ChromeAnalyticsEvents(
-        event = String.format(
-            AnalyticsNames.SUPERAPP_MODE_LONG_CLICK.eventName,
-            walletMode.modeName()
-        )
+        event = when (walletMode) {
+            WalletMode.CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_CUSTODIAL_LONG_CLICK.eventName
+            WalletMode.NON_CUSTODIAL -> AnalyticsNames.SUPERAPP_MODE_NON_CUSTODIAL_LONG_CLICK.eventName
+        }
     )
-}
-
-private fun WalletMode.modeName() = when (this) {
-    WalletMode.CUSTODIAL -> "BCDC Account"
-    WalletMode.NON_CUSTODIAL -> "DeFi"
 }

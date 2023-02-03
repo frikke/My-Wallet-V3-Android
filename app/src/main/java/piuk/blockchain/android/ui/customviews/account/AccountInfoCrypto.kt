@@ -114,7 +114,11 @@ class AccountInfoCrypto @JvmOverloads constructor(
             root.contentDescription = "${item.title} ${item.subTitle}"
 
             assetTitle.text = item.title
-            assetSubtitle.text = item.subTitle
+            if (item.account !is CustodialTradingAccount) {
+                assetSubtitle.text = item.subTitle
+            } else {
+                assetSubtitle.text = ""
+            }
 
             compositeDisposable += account.balanceRx().firstOrError().map { it.total }
                 .doOnSuccess {

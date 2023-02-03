@@ -252,6 +252,7 @@ fun BalanceWithFiatAndCryptoBalance(
 ) {
     NonCustodialAssetBalanceTableRow(
         title = cryptoAsset.name,
+        subtitle = cryptoAsset.asset.coinNetwork?.shortName ?: "",
         valueCrypto = cryptoAsset.balance.map { it.toStringWithSymbol() }.dataOrElse(""),
         valueFiat = cryptoAsset.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         contentStart = {

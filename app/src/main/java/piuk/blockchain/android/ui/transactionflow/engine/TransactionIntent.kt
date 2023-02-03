@@ -7,6 +7,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.InvoiceTarget
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
@@ -660,7 +661,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         )
     }
 
-    class FilterTradingTargets(val showTrading: Boolean) : TransactionIntent() {
+    class SwitchAccountType(val showTrading: Boolean) : TransactionIntent() {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             selectedTarget = NullAddress,
             nextEnabled = false,
@@ -669,9 +670,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
         override fun isValidFor(oldState: TransactionState): Boolean {
             return if (showTrading) {
-                oldState.availableTargets.none { it is TradingAccount }
+                oldState.availableTargets.any { it is TradingAccount } &&
+                    oldState.availableTargets.any { it is NonCustodialAccount } ||
+                    oldState.availableTargets.none { it is TradingAccount }
             } else {
-                oldState.availableTargets.any { it is TradingAccount }
+                oldState.availableTargets.any { it is TradingAccount } &&
+                    oldState.availableTargets.any { it is NonCustodialAccount } ||
+                    oldState.availableTargets.none { it is NonCustodialAccount }
             }
         }
     }
@@ -679,7 +684,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     class UpdateTradingAccountsFilterState(private val canFilterTradingAccounts: Boolean) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                canFilterOutTradingAccounts = canFilterTradingAccounts
+                canSwitchBetweenAccountType = canFilterTradingAccounts
             )
     }
 

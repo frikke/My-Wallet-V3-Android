@@ -11,7 +11,8 @@ val multiAppModule = module {
                 walletModeService = get(),
                 walletModeBalanceService = get(),
                 backupPhraseService = get(),
-                walletModePrefs = get()
+                walletModePrefs = get(),
+                appRatingService = get()
             )
         }
 

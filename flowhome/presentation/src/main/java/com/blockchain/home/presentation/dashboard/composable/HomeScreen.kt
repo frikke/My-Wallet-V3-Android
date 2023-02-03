@@ -56,6 +56,7 @@ import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.home.presentation.quickactions.QuickActionsIntent
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewState
+import com.blockchain.home.presentation.quickactions.maxQuickActionsOnScreen
 import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
@@ -84,7 +85,6 @@ fun HomeScreen(
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: (onboardingRequired: Boolean) -> Unit
 ) {
-
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
     val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
@@ -123,6 +123,8 @@ fun HomeScreen(
         onDispose { }
     }
 
+    val maxQuickActions = maxQuickActionsOnScreen
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -131,7 +133,7 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
                 earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
-                quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions)
+                quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
                 referralViewModel.onIntent(ReferralIntent.LoadData())
                 custodialActivityViewModel.onIntent(
                     ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT))

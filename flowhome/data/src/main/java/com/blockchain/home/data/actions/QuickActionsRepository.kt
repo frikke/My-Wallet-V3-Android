@@ -17,6 +17,8 @@ import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -66,21 +68,29 @@ class QuickActionsRepository(
                     "Data should be returned"
                 )
             }
+
         val balanceFlow =
-            totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy).map { it.totalFiat.isPositive }
+            totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy)
+                .map { it.totalFiat.isPositive }
+                .distinctUntilChanged().debounce(200)
+
         val hasFiatBalance =
             coincore.activeWalletsInModeRx(
                 WalletMode.CUSTODIAL,
                 freshnessStrategy = freshnessStrategy
             )
                 .map { it.accounts.filterIsInstance<FiatAccount>() }
+                .distinctUntilChanged { old, new ->
+                    old.map { it.currency.networkTicker }.toSet() ==
+                        new.map { it.currency.networkTicker }
+                }
                 .flatMap {
                     if (it.isEmpty()) {
                         Observable.just(false)
                     } else
                         it[0].balanceRx().map { balance ->
                             balance.total.isPositive
-                        }
+                        }.distinctUntilChanged()
                 }.onErrorReturn { false }.asFlow()
 
         return combine(
@@ -203,7 +213,10 @@ class QuickActionsRepository(
         coincore.activeWalletsInModeRx(
             walletMode = walletMode,
             freshnessStrategy = freshnessStrategy
-        ).flatMap {
+        ).distinctUntilChanged { t1, t2 ->
+            t1.accounts.map { it.currency.networkTicker } ==
+                t2.accounts.map { it.currency.networkTicker }
+        }.flatMap {
             it.balanceRx()
         }.asFlow()
 

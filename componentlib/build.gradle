@@ -59,10 +59,15 @@ dependencies {
     implementation Libraries.lifecycleRuntime
     implementation Libraries.composeMarkdown
     implementation Libraries.accompanistSwipeRefresh
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+
+    implementation Libraries.kotlinImmutableCollections
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling
     debugImplementation Libraries.composeUiPoolingContainer
+
 
     // Unit Tests
     testImplementation Libraries.junit
