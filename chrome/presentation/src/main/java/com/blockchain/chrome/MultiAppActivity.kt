@@ -175,7 +175,8 @@ class MultiAppActivity :
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation
+                supportNavigation = supportNavigation,
+                openExternalUrl = {url ->  openExternalUrl(url)}
             )
         }
         subscribeForSecurityChannelLogin()

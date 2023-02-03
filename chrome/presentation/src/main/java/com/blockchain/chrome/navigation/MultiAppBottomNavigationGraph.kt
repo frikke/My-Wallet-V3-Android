@@ -51,7 +51,9 @@ fun MultiAppBottomNavigationHost(
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
-    openFiatActionDetail: (String) -> Unit
+    openFiatActionDetail: (String) -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit
 ) {
 
     val walletMode by get<WalletModeService>(scope = payloadScope)
@@ -183,7 +185,9 @@ fun MultiAppBottomNavigationHost(
                         gridState = gridState,
                         //                        shouldTriggerRefresh = shouldTriggerRefresh &&
                         openSettings = openSettings,
-                        launchQrScanner = launchQrScanner
+                        launchQrScanner = launchQrScanner,
+                        openExternalUrl = openExternalUrl,
+                        openNftHelp = openNftHelp
                     )
                 },
                 refreshStarted = {

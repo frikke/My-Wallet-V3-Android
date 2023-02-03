@@ -38,6 +38,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppTheme.colors.backgroundMuted)
     ) {
         Box(
             modifier = Modifier
@@ -54,7 +55,6 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
                     start = AppTheme.dimensions.smallSpacing,
                     top = AppTheme.dimensions.verySmallSpacing,
                     end = AppTheme.dimensions.smallSpacing,
-                    bottom = AppTheme.dimensions.standardSpacing
                 )
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally

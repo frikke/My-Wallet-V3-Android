@@ -8,9 +8,14 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -20,9 +25,11 @@ import com.blockchain.nfts.collection.DisplayType
 import com.blockchain.nfts.collection.NftCollectionIntent
 import com.blockchain.nfts.collection.NftCollectionViewModel
 import com.blockchain.nfts.collection.NftCollectionViewState
+import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -30,13 +37,37 @@ fun NftCollection(
     viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope),
     gridState: LazyGridState,
     openSettings: () -> Unit,
-    launchQrScanner: () -> Unit
+    launchQrScanner: () -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit
 ) {
     val viewState: NftCollectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(NftCollectionIntent.LoadData())
         onDispose { }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            when (it) {
+                is NftCollectionNavigationEvent.ShopExternal -> {
+                    openExternalUrl(it.url)
+                }
+                is NftCollectionNavigationEvent.ShowDetail -> {
+                    // todo next
+                }
+                NftCollectionNavigationEvent.ShowHelp -> {
+                    openNftHelp()
+                }
+                is NftCollectionNavigationEvent.ShowReceiveAddress -> {
+                }
+            }
+        }
     }
 
     NftCollectionScreen(

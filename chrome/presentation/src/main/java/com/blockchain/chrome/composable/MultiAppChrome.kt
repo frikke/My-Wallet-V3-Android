@@ -123,6 +123,8 @@ fun MultiAppChrome(
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -180,7 +182,9 @@ fun MultiAppChrome(
             supportNavigation = supportNavigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
-            }
+            },
+            openExternalUrl = openExternalUrl,
+            openNftHelp = openNftHelp
         )
     }
 }
@@ -209,7 +213,9 @@ fun MultiAppChromeScreen(
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
-    onBalanceRevealed: () -> Unit
+    onBalanceRevealed: () -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
@@ -709,6 +715,8 @@ fun MultiAppChromeScreen(
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
+                    openExternalUrl = openExternalUrl,
+                    openNftHelp = openNftHelp
                 )
             }
         }

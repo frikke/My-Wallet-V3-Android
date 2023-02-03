@@ -68,7 +68,7 @@ private fun NftEmptyCollection(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.weight(1F))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Image(imageResource = ImageResource.Local(R.drawable.ic_nft_hero))
 
@@ -119,8 +119,6 @@ private fun NftEmptyCollection(
             textAlign = TextAlign.Center,
             color = AppTheme.colors.primary
         )
-
-        Spacer(modifier = Modifier.weight(1F))
     }
 }
 

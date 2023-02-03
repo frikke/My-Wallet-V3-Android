@@ -22,6 +22,8 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
+import com.blockchain.nfts.navigation.NftDestination
+import com.blockchain.nfts.navigation.nftGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.prices.navigation.PricesNavigation
@@ -41,7 +43,8 @@ fun MultiAppNavHost(
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation
+    supportNavigation: SupportNavigation,
+    openExternalUrl: (url: String) -> Unit
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -70,7 +73,8 @@ fun MultiAppNavHost(
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
-                showAppRating = showAppRating
+                showAppRating = showAppRating,
+                openExternalUrl = openExternalUrl
             )
 
             // home screens
@@ -85,6 +89,10 @@ fun MultiAppNavHost(
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = navController::popBackStack
             )
+
+            nftGraph(
+                openExternalUrl = openExternalUrl
+            )
         }
     }
 }
@@ -97,7 +105,8 @@ private fun NavGraphBuilder.chrome(
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation
+    supportNavigation: SupportNavigation,
+    openExternalUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
@@ -140,7 +149,11 @@ private fun NavGraphBuilder.chrome(
             openMoreQuickActions = {
                 navController.navigate(HomeDestination.MoreQuickActions)
             },
-            showAppRating = showAppRating
+            showAppRating = showAppRating,
+            openExternalUrl = openExternalUrl,
+            openNftHelp = {
+                navController.navigate(NftDestination.Help)
+            }
         )
     }
 }
