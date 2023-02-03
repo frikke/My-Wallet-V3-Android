@@ -8,7 +8,6 @@ import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.data.DataResource
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -50,7 +49,7 @@ class AnnouncementsViewModel(
         announcementsJob?.cancel()
         announcementsJob = viewModelScope.launch {
             walletModeService.walletMode.collectLatest { walletMode ->
-                val announcements = mutableSetOf<Announcement>()
+                val announcements = mutableListOf<Announcement>()
 
                 backupPhraseService.shouldBackupPhraseForMode(walletMode).let { shouldBackup ->
                     if (shouldBackup) {
@@ -66,7 +65,7 @@ class AnnouncementsViewModel(
                 }
 
                 updateState {
-                    it.copy(announcements = DataResource.Data(announcements.toList()))
+                    it.copy(announcements = announcements)
                 }
             }
         }

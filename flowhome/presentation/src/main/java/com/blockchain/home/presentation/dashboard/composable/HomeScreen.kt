@@ -247,17 +247,15 @@ fun HomeScreen(
             }
         }
 
-        (announcementsState.announcements as? DataResource.Data)?.data?.let { announcements ->
-            item {
-                Announcements(
-                    announcements = announcements,
-                    onClick = { announcement ->
-                        when (announcement.type) {
-                            AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery(false)
-                        }
+        item {
+            Announcements(
+                announcements = announcementsState.announcements,
+                onClick = { announcement ->
+                    when (announcement.type) {
+                        AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery(false)
                     }
-                )
-            }
+                }
+            )
         }
 
         walletMode?.let {
