@@ -22,6 +22,9 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
+import com.blockchain.nfts.navigation.ARG_ADDRESS
+import com.blockchain.nfts.navigation.ARG_NFT_ID
+import com.blockchain.nfts.navigation.ARG_PAGE_KEY
 import com.blockchain.nfts.navigation.NftDestination
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.nfts.navigation.nftGraph
@@ -157,6 +160,16 @@ private fun NavGraphBuilder.chrome(
             openExternalUrl = openExternalUrl,
             openNftHelp = {
                 navController.navigate(NftDestination.Help)
+            },
+            openNftDetail = { nftId, address, pageKey ->
+                navController.navigate(
+                    NftDestination.Detail,
+                    listOfNotNull(
+                        NavArgument(key = ARG_NFT_ID, value = nftId),
+                        NavArgument(key = ARG_ADDRESS, value = address),
+                        pageKey?.let { NavArgument(key = ARG_PAGE_KEY, value = pageKey) }
+                    )
+                )
             },
             nftNavigation = nftNavigation
         )

@@ -56,7 +56,7 @@ class NftDetailFragment :
             setContent {
                 val viewModel: NftDetailViewModel = getViewModel(scope = payloadScope)
 
-                bindViewModel(viewModel = viewModel, navigator = this@NftDetailFragment, args = args)
+//                bindViewModel(viewModel = viewModel, navigator = this@NftDetailFragment, args = args)
 
                 Surface(
                     modifier = Modifier
@@ -64,7 +64,7 @@ class NftDetailFragment :
                     color = AppTheme.colors.background,
                     shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing)
                 ) {
-                    NftDetail(viewModel)
+//                    NftDetail(viewModel)
                 }
             }
         }

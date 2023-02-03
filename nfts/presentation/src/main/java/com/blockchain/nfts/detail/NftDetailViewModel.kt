@@ -1,8 +1,10 @@
 package com.blockchain.nfts.detail
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.updateDataWith
 import com.blockchain.nfts.NFT_NETWORK
 import com.blockchain.nfts.OPENSEA_ASSET_URL
 import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
@@ -12,17 +14,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NftDetailViewModel(
+    val nftId: String,
+    val address: String,
+    val pageKey: String?,
     private val nftService: NftService
 ) : MviViewModel<NftDetailIntent,
     NftDetailViewState,
     NftDetailModelState,
     NftDetailNavigationEvent,
-    NftDetailNavArgs>(
+    ModelConfigArgs.NoArgs>(
     initialState = NftDetailModelState()
 ) {
-    override fun viewCreated(args: NftDetailNavArgs) {
-        loadNftAsset(nftId = args.nftId, pageKey = args.pageKey, address = args.address)
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: NftDetailModelState): NftDetailViewState = state.run {
         NftDetailViewState(
@@ -32,6 +35,10 @@ class NftDetailViewModel(
 
     override suspend fun handleIntent(modelState: NftDetailModelState, intent: NftDetailIntent) {
         when (intent) {
+            NftDetailIntent.LoadData -> {
+                loadNftAsset(nftId = nftId, pageKey = pageKey, address = address)
+            }
+
             is NftDetailIntent.ExternalViewRequested -> {
                 navigate(
                     NftDetailNavigationEvent.ExternalView(
@@ -45,20 +52,17 @@ class NftDetailViewModel(
     private fun loadNftAsset(nftId: String, pageKey: String?, address: String) {
         viewModelScope.launch {
             nftService.getNftAsset(
-                address = address,
+                address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC"/*address*/,
                 nftId = nftId,
                 pageKey = pageKey
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(
-                        asset = if (dataResource is DataResource.Loading && it.asset is DataResource.Data) {
-                            // if data is present already - don't show loading
-                            it.asset
-                        } else {
-                            dataResource
-                        }
+                        asset = it.asset.updateDataWith(dataResource)
                     )
                 }
+
+                if(dataResource is DataResource.Error) dataResource.error.printStackTrace()
             }
         }
     }

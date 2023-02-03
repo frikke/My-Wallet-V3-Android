@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -46,8 +47,11 @@ import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.R
+import com.blockchain.nfts.collection.NftCollectionIntent
 import com.blockchain.nfts.detail.NftDetailIntent
 import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
@@ -55,55 +59,41 @@ import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val COLUMN_COUNT = 2
 
 @Composable
-fun NftDetail(viewModel: NftDetailViewModel) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+fun NftDetail(
+    nftId: String,
+    address: String,
+    pageKey: String?,
+    viewModel: NftDetailViewModel = getViewModel(
+        scope = payloadScope,
+        key = nftId,
+        parameters = { parametersOf(nftId, address, pageKey) }
+    )
+) {
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(NftDetailIntent.LoadData)
+        onDispose { }
     }
-    val viewState: NftDetailViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    viewState?.let { state ->
-        NftDetailScreen(
-            state.nftAsset,
-            onExternalViewClick = { nftAsset ->
-                viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
-            }
-        )
-    }
+    val viewState: NftDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    NftDetailScreen(
+        viewState.nftAsset,
+        onExternalViewClick = { nftAsset ->
+            viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
+        }
+    )
 }
 
 @Composable
 fun NftDetailScreen(
     nftAsset: DataResource<NftAsset?>,
     onExternalViewClick: (NftAsset) -> Unit
-) {
-    when (nftAsset) {
-        DataResource.Loading -> {
-        }
-
-        is DataResource.Error -> {
-            nftAsset.error.printStackTrace()
-        }
-
-        is DataResource.Data -> {
-            nftAsset.data?.let {
-                NftDetailDataScreen(
-                    nftAsset = it,
-                    onExternalViewClick = { onExternalViewClick(it) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun NftDetailDataScreen(
-    nftAsset: NftAsset,
-    onExternalViewClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -116,32 +106,52 @@ fun NftDetailDataScreen(
             SheetNub(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
         }
 
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxWidth(),
-            columns = GridCells.Fixed(count = COLUMN_COUNT),
-            contentPadding = PaddingValues(
-                start = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.verySmallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.standardSpacing
-            ),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
-        ) {
-            item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                NftBasicInfo(
-                    nftAsset = nftAsset,
-                    onExternalViewClick = onExternalViewClick
-                )
-            }
-
-            items(
-                items = nftAsset.traits,
-                itemContent = { trait ->
-                    NftTrait(trait)
-                }
+        (nftAsset as? DataResource.Data)?.data?.let {
+            NftDetailDataScreen(
+                nftAsset = it,
+                onExternalViewClick = { onExternalViewClick(it) }
+            )
+        } ?: kotlin.run {
+            Text(
+                text = nftAsset::class.java.toString(),
+                style = AppTheme.typography.title2,
+                color = AppTheme.colors.title
             )
         }
+    }
+}
+
+@Composable
+fun NftDetailDataScreen(
+    nftAsset: NftAsset,
+    onExternalViewClick: () -> Unit
+) {
+
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxWidth(),
+        columns = GridCells.Fixed(count = COLUMN_COUNT),
+        contentPadding = PaddingValues(
+            start = AppTheme.dimensions.smallSpacing,
+            top = AppTheme.dimensions.verySmallSpacing,
+            end = AppTheme.dimensions.smallSpacing,
+            bottom = AppTheme.dimensions.standardSpacing
+        ),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+    ) {
+        item(span = { GridItemSpan(COLUMN_COUNT) }) {
+            NftBasicInfo(
+                nftAsset = nftAsset,
+                onExternalViewClick = onExternalViewClick
+            )
+        }
+
+        items(
+            items = nftAsset.traits,
+            itemContent = { trait ->
+                NftTrait(trait)
+            }
+        )
     }
 }
 

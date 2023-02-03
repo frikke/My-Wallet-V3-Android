@@ -126,6 +126,7 @@ fun MultiAppChrome(
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
@@ -187,6 +188,7 @@ fun MultiAppChrome(
             },
             openExternalUrl = openExternalUrl,
             openNftHelp = openNftHelp,
+            openNftDetail = openNftDetail,
             nftNavigation = nftNavigation
         )
     }
@@ -219,6 +221,7 @@ fun MultiAppChromeScreen(
     onBalanceRevealed: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
@@ -721,6 +724,7 @@ fun MultiAppChromeScreen(
                     supportNavigation = supportNavigation,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
+                    openNftDetail = openNftDetail,
                     nftNavigation = nftNavigation
                 )
             }

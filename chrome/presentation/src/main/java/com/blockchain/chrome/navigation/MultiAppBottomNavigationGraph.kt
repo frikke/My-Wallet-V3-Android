@@ -55,6 +55,7 @@ fun MultiAppBottomNavigationHost(
     openFiatActionDetail: (String) -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
 ) {
 
@@ -191,6 +192,7 @@ fun MultiAppBottomNavigationHost(
                         launchQrScanner = launchQrScanner,
                         openExternalUrl = openExternalUrl,
                         openNftHelp = openNftHelp,
+                        openNftDetail = openNftDetail,
                         nftNavigation = nftNavigation
                     )
                 },

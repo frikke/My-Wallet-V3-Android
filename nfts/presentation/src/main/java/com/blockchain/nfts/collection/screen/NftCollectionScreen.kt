@@ -42,6 +42,7 @@ fun NftCollection(
     launchQrScanner: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation
 ) {
     val viewState: NftCollectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -68,14 +69,14 @@ fun NftCollection(
                 is NftCollectionNavigationEvent.ShopExternal -> {
                     openExternalUrl(it.url)
                 }
-                is NftCollectionNavigationEvent.ShowDetail -> {
-                    // todo next
-                }
                 NftCollectionNavigationEvent.ShowHelp -> {
                     openNftHelp()
                 }
                 is NftCollectionNavigationEvent.ShowReceiveAddress -> {
                     nftNavigation.showReceiveSheet(it.account)
+                }
+                is NftCollectionNavigationEvent.ShowDetail -> {
+                    openNftDetail(it.nftId, it.address, it.pageKey)
                 }
             }
         }

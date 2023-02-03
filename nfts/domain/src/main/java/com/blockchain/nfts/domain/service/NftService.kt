@@ -15,7 +15,7 @@ interface NftService {
     ): Flow<DataResource<NftAssetsPage>>
 
     suspend fun getNftAsset(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale),
         address: String,
         nftId: String,
         pageKey: String?
