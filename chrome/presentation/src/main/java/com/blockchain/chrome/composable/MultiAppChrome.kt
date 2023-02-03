@@ -75,6 +75,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
@@ -124,7 +125,8 @@ fun MultiAppChrome(
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
-    openNftHelp: () -> Unit
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -184,7 +186,8 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
             openExternalUrl = openExternalUrl,
-            openNftHelp = openNftHelp
+            openNftHelp = openNftHelp,
+            nftNavigation = nftNavigation
         )
     }
 }
@@ -215,7 +218,8 @@ fun MultiAppChromeScreen(
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
-    openNftHelp: () -> Unit
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation,
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
@@ -716,7 +720,8 @@ fun MultiAppChromeScreen(
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
                     openExternalUrl = openExternalUrl,
-                    openNftHelp = openNftHelp
+                    openNftHelp = openNftHelp,
+                    nftNavigation = nftNavigation
                 )
             }
         }

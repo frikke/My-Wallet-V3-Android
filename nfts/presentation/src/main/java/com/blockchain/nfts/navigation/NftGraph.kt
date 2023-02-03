@@ -5,7 +5,6 @@ import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.help.screen.NftHelpScreen
-import com.blockchain.nfts.navigation.NftDestination
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class)

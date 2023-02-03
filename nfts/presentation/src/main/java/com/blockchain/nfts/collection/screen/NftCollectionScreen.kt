@@ -29,6 +29,7 @@ import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
+import com.blockchain.nfts.navigation.NftNavigation
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
@@ -36,15 +37,24 @@ import org.koin.androidx.compose.getViewModel
 fun NftCollection(
     viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope),
     gridState: LazyGridState,
+    shouldTriggerRefresh: Boolean,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
-    openNftHelp: () -> Unit
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation
 ) {
     val viewState: NftCollectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(NftCollectionIntent.LoadData())
+        onDispose { }
+    }
+
+    DisposableEffect(shouldTriggerRefresh) {
+        if (shouldTriggerRefresh) {
+            viewModel.onIntent(NftCollectionIntent.Refresh)
+        }
         onDispose { }
     }
 
@@ -65,6 +75,7 @@ fun NftCollection(
                     openNftHelp()
                 }
                 is NftCollectionNavigationEvent.ShowReceiveAddress -> {
+                    nftNavigation.showReceiveSheet(it.account)
                 }
             }
         }

@@ -4,18 +4,19 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
+import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -55,7 +56,7 @@ class NftCollectionViewModel(
                 loadNftCollection(
                     account = account,
                     pageKey = null,
-                    isFromPullToRefresh = intent.isFromPullToRefresh
+                    forceRefresh = intent.isFromPullToRefresh
                 )
             }
 
@@ -72,7 +73,7 @@ class NftCollectionViewModel(
                 loadNftCollection(
                     account = modelState.account,
                     pageKey = modelState.nextPageKey,
-                    isFromPullToRefresh = false
+                    forceRefresh = false
                 )
             }
 
@@ -103,27 +104,43 @@ class NftCollectionViewModel(
                     )
                 }
             }
+
+            NftCollectionIntent.Refresh -> {
+                updateState {
+                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                }
+
+                check(modelState.account != null)
+                loadNftCollection(
+                    account = modelState.account,
+                    pageKey = null,
+                    forceRefresh = true
+                )
+            }
         }
     }
 
-    private suspend fun loadAccount(): SingleAccount {
+    private suspend fun loadAccount(): CryptoAccount {
         (coincore[CryptoCurrency.ETHER.networkTicker] as? CryptoAsset)?.let { asset ->
             asset.accountGroup(AssetFilter.NonCustodial).awaitSingle()
                 .accounts.firstOrNull()?.let { account ->
-                    return account
+                    return account as CryptoAccount
                 } ?: error("account ${CryptoCurrency.ETHER.networkTicker} not found")
         } ?: error("asset ${CryptoCurrency.ETHER.networkTicker} not found")
     }
 
-    private fun loadNftCollection(account: BlockchainAccount, pageKey: String?, isFromPullToRefresh: Boolean) {
+    private fun loadNftCollection(
+        account: BlockchainAccount,
+        pageKey: String?,
+        forceRefresh: Boolean
+    ) {
         viewModelScope.launch {
-            val address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC" // account.receiveAddress.await().address
+            val address = account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
-                freshnessStrategy = if (isFromPullToRefresh) {
-                    FreshnessStrategy.Fresh
-                } else {
-                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
-                },
+                freshnessStrategy = PullToRefresh.freshnessStrategy(
+                    shouldGetFresh = forceRefresh,
+                    cacheStrategy = RefreshStrategy.RefreshIfStale
+                ),
                 address = address,
                 pageKey = pageKey
             ).collectLatest { dataResource ->
@@ -131,7 +148,7 @@ class NftCollectionViewModel(
                     is DataResource.Loading -> {
                         updateState {
                             it.copy(
-                                isPullToRefreshLoading = isFromPullToRefresh,
+                                isPullToRefreshLoading = forceRefresh,
                                 isNextPageLoading = it.nextPageKey != null,
                                 collection = if (it.collection is DataResource.Data) {
                                     // if data is present already - don't show loading
@@ -155,7 +172,7 @@ class NftCollectionViewModel(
 
                     is DataResource.Data -> {
                         updateState {
-                            val allPreviousPagesData = if (isFromPullToRefresh) emptyList() else it.allPreviousPagesData
+                            val allPreviousPagesData = if (forceRefresh) emptyList() else it.allPreviousPagesData
                             val allCollection = dataResource.map { data -> allPreviousPagesData + data.assets }
 
                             it.copy(

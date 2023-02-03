@@ -25,6 +25,7 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
@@ -53,7 +54,8 @@ fun MultiAppBottomNavigationHost(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openExternalUrl: (url: String) -> Unit,
-    openNftHelp: () -> Unit
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation,
 ) {
 
     val walletMode by get<WalletModeService>(scope = payloadScope)
@@ -183,11 +185,13 @@ fun MultiAppBottomNavigationHost(
                 content = { shouldTriggerRefresh ->
                     NftCollection(
                         gridState = gridState,
-                        //                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                        shouldTriggerRefresh = shouldTriggerRefresh &&
+                            selectedNavigationItem == ChromeBottomNavigationItem.Nft,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
                         openExternalUrl = openExternalUrl,
-                        openNftHelp = openNftHelp
+                        openNftHelp = openNftHelp,
+                        nftNavigation = nftNavigation
                     )
                 },
                 refreshStarted = {

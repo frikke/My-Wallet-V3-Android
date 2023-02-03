@@ -23,6 +23,7 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.nfts.navigation.NftDestination
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.nfts.navigation.nftGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
@@ -44,6 +45,7 @@ fun MultiAppNavHost(
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    nftNavigation: NftNavigation,
     openExternalUrl: (url: String) -> Unit
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
@@ -74,7 +76,8 @@ fun MultiAppNavHost(
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 showAppRating = showAppRating,
-                openExternalUrl = openExternalUrl
+                openExternalUrl = openExternalUrl,
+                nftNavigation = nftNavigation
             )
 
             // home screens
@@ -106,6 +109,7 @@ private fun NavGraphBuilder.chrome(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    nftNavigation: NftNavigation,
     openExternalUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
@@ -153,7 +157,8 @@ private fun NavGraphBuilder.chrome(
             openExternalUrl = openExternalUrl,
             openNftHelp = {
                 navController.navigate(NftDestination.Help)
-            }
+            },
+            nftNavigation = nftNavigation
         )
     }
 }

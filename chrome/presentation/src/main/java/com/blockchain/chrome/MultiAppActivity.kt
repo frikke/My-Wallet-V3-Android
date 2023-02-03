@@ -51,6 +51,7 @@ import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -158,6 +159,12 @@ class MultiAppActivity :
         )
     }
 
+    private val nftNavigation: NftNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
@@ -176,7 +183,8 @@ class MultiAppActivity :
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
-                openExternalUrl = {url ->  openExternalUrl(url)}
+                nftNavigation = nftNavigation,
+                openExternalUrl = { url -> openExternalUrl(url) }
             )
         }
         subscribeForSecurityChannelLogin()
