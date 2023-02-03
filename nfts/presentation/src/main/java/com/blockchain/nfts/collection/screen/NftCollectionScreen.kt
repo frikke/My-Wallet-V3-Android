@@ -108,6 +108,7 @@ fun NftCollectionScreen(
                 with(nftCollection.data) {
                     if (isEmpty()) {
                         NftEmptyCollectionScreen(
+                            gridState = gridState,
                             onExternalShopClick = onExternalShopClick,
                             onReceiveClick = onReceiveClick,
                             onHelpClick = onHelpClick

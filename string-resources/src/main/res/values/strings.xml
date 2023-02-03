@@ -3319,8 +3319,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="intro_swipe_hint">Swipe to continue -></string>
 
     <!-- NFT -->
-    <string name="nft_empty_title">You Don’t Have Any NFTs</string>
-    <string name="nft_empty_description">Send from any wallet, or buy from a marketplace!</string>
+    <string name="nft_empty_title">Add NFTs to your DeFi Wallet</string>
+    <string name="nft_empty_description">Transfer from any wallet, \nor buy from a marketplace!</string>
     <string name="nft_cta_buy">Buy NFTs</string>
     <string name="nft_help">How does this work?</string>
     <string name="nft_cta_shop">Shop on Opensea</string>

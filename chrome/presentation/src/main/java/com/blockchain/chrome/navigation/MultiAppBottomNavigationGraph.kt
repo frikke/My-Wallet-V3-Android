@@ -24,7 +24,6 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
-import com.blockchain.nfts.collection.NftCollectionIntent
 import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices

@@ -117,10 +117,7 @@ class NftCollectionViewModel(
 
     private fun loadNftCollection(account: BlockchainAccount, pageKey: String?, isFromPullToRefresh: Boolean) {
         viewModelScope.launch {
-            //            nftService.getNftCollectionForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
-            //            nftService.getNftCollectionForAddress(address = "0xD3799B05bf81F05358fac9e09760Ba35876002b8")
-
-            val address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC" //account.receiveAddress.await().address
+            val address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC" // account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
                 freshnessStrategy = if (isFromPullToRefresh) {
                     FreshnessStrategy.Fresh
@@ -167,10 +164,10 @@ class NftCollectionViewModel(
                                 nextPageKey = dataResource.data.nextPageKey,
                                 allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
                                 // combine current page and new page items
-                                collection = allCollection.map { it.toSet().toList() },
+                                collection = allCollection.map { emptyList()/*it.toSet().toList()*/ },
                                 displayType = allCollection.map { it.size == 1 }
                                     .dataOrElse(false).let { isOneItem ->
-                                        if(isOneItem) DisplayType.List
+                                        if (isOneItem) DisplayType.List
                                         else it.displayType
                                     }
                             )

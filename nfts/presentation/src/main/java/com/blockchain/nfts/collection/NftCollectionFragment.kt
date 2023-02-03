@@ -12,7 +12,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
-import com.blockchain.nfts.collection.screen.NftCollection
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
