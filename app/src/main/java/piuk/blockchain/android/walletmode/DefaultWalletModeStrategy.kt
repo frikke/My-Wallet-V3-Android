@@ -18,7 +18,7 @@ class DefaultWalletModeStrategy(
         val productsEligibilityData =
             productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle().await()
         return productsEligibilityData.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.let { eligibility ->
-            if (eligibility.canTransact) {
+            if (eligibility.isDefault) {
                 try {
                     WalletMode.valueOf(walletModePrefs.legacyWalletMode)
                 } catch (e: Exception) {
@@ -28,5 +28,11 @@ class DefaultWalletModeStrategy(
                 walletModePrefs.userDefaultedToPKW = true
             }
         } ?: WalletMode.CUSTODIAL
+    }
+
+    suspend fun custodialEnabled(): Boolean {
+        val productsEligibilityData =
+            productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle().await()
+        return productsEligibilityData.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.canTransact ?: true
     }
 }

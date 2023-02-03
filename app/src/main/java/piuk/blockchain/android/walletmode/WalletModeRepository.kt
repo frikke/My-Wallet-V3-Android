@@ -42,5 +42,11 @@ class WalletModeRepository(
         }
     }
 
-    override fun availableModes(): List<WalletMode> = WalletMode.values().toList()
+    override suspend fun availableModes(): List<WalletMode> = WalletMode.values().toList().run {
+        if (defaultWalletModeStrategy.custodialEnabled().not()) {
+            minus(WalletMode.CUSTODIAL)
+        } else {
+            this
+        }
+    }
 }

@@ -38,43 +38,52 @@ class MultiAppViewModel(
     MultiAppModelState,
     MultiAppNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    MultiAppModelState(
-        walletModes = walletModeService.availableModes(),
-        selectedWalletMode = WalletMode.CUSTODIAL
-    )
+    MultiAppModelState()
 ) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        viewModelScope.launch {
-            // collect wallet mode changes rather than manually change it when user switches modes
-            // as there are cases where it will change automatically
-            walletModeService.walletMode.collectLatest { walletMode ->
-                updateState {
-                    it.copy(selectedWalletMode = walletMode)
-                }
-            }
-        }
-
-        loadBalance()
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
         MultiAppViewState(
-            modeSwitcherOptions = if (state.walletModes.size == 1) {
-                ChromeModeOptions.SingleSelection(state.walletModes.first())
-            } else {
-                ChromeModeOptions.MultiSelection(state.walletModes)
+            modeSwitcherOptions = state.walletModes?.let {
+                if (state.walletModes.size == 1) {
+                    ChromeModeOptions.SingleSelection(state.walletModes.first())
+                } else {
+                    ChromeModeOptions.MultiSelection(state.walletModes)
+                }
             },
             selectedMode = state.selectedWalletMode,
-            backgroundColors = state.selectedWalletMode.backgroundColors(),
+            backgroundColors = state.selectedWalletMode?.backgroundColors(),
             totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },
             shouldRevealBalance = state.balanceRevealed.not(),
-            bottomNavigationItems = state.selectedWalletMode.bottomNavigationItems()
+            bottomNavigationItems = state.selectedWalletMode?.bottomNavigationItems()
         )
     }
 
     override suspend fun handleIntent(modelState: MultiAppModelState, intent: MultiAppIntents) {
         when (intent) {
+            MultiAppIntents.LoadData -> {
+                viewModelScope.launch {
+                    walletModeService.availableModes().let { availableModes ->
+                        updateState {
+                            it.copy(walletModes = availableModes)
+                        }
+                    }
+                }
+
+                viewModelScope.launch {
+                    // collect wallet mode changes rather than manually change it when user switches modes
+                    // as there are cases where it will change automatically
+                    walletModeService.walletMode.collectLatest { walletMode ->
+                        updateState {
+                            it.copy(selectedWalletMode = walletMode)
+                        }
+                    }
+                }
+
+                loadBalance()
+            }
+
             is MultiAppIntents.WalletModeChangeRequested -> {
                 if (shouldBackupPhraseForMode(intent.walletMode)) {
                     navigate(
