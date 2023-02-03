@@ -181,7 +181,7 @@ fun MultiAppChrome(
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
-            startPhraseRecovery = {onboardingRequired ->
+            startPhraseRecovery = { onboardingRequired ->
                 startPhraseRecovery(onboardingRequired)
             }
         )

@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
@@ -23,12 +22,9 @@ import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.Pink600
-import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.value
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.accouncement.Announcement
 
 @Composable

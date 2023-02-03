@@ -12,7 +12,7 @@ val backupPhraseDataModule = module {
                 walletPayloadService = get(),
                 backupWallet = get(),
                 walletStatusPrefs = get(),
-                payloadManager  = get()
+                payloadManager = get()
             )
         }
     }

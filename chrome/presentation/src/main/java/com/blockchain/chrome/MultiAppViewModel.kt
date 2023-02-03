@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.chrome.composable.bottomNavigationItems
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
@@ -13,7 +12,6 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.preferences.WalletModePrefs
-import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
@@ -69,20 +67,12 @@ class MultiAppViewModel(
                             it.copy(walletModes = availableModes)
                         }
 
-                        if (availableModes.size == 1 && availableModes.first() == WalletMode.NON_CUSTODIAL) {
-                            walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL)
+                        if (availableModes.size == 1) {
+                            walletModeService.updateEnabledWalletMode(availableModes.first())
 
                             updateState {
-                                it.copy(selectedWalletMode = WalletMode.NON_CUSTODIAL)
+                                it.copy(selectedWalletMode = availableModes.first())
                             }
-//
-//                            if (shouldBackupPhraseForMode(WalletMode.NON_CUSTODIAL)) {
-//                                navigate(
-//                                    MultiAppNavigationEvent.PhraseRecovery(
-//                                        walletOnboardingRequired = false
-//                                    )
-//                                )
-//                            }
                         } else {
                             // collect wallet mode changes rather than manually change it when user switches modes
                             // as there are cases where it will change automatically
