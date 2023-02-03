@@ -147,7 +147,7 @@ data class TransactionState(
     val featureBlockedReason: BlockedReason? = null,
     val quickFillButtonData: QuickFillButtonData? = null,
     val amountsToPrefill: PrefillAmounts? = null,
-    val canFilterOutTradingAccounts: Boolean = false,
+    val canSwitchBetweenAccountType: Boolean = false,
     val isPkwAccountFilterActive: Boolean = false,
     val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
     val isLoading: Boolean = false,
@@ -338,11 +338,15 @@ class TransactionModel(
             )
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
-            is TransactionIntent.FilterTradingTargets -> interactor.getTargetAccounts(
+            is TransactionIntent.SwitchAccountType -> interactor.getTargetAccounts(
                 previousState.sendingAccount, previousState.action
             ).map { accounts ->
                 accounts.filter {
-                    it is NonCustodialAccount || intent.showTrading
+                    if (intent.showTrading) {
+                        it is TradingAccount
+                    } else {
+                        it is NonCustodialAccount
+                    }
                 }
             }.processTargets(
                 action = previousState.action,

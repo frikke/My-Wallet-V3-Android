@@ -199,6 +199,7 @@ class SimpleBuyInteractor(
         amount: Money,
         paymentMethod: PaymentMethodType,
     ): Observable<QuotePrice> {
+        // TODO(aromano): QUOTE whats the difference between quote and quotePrice
         return tradeDataService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),
@@ -287,18 +288,19 @@ class SimpleBuyInteractor(
 
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
+        orderId: String,
         order: SimpleBuyOrder,
-        selectedPaymentMethod: SelectedPaymentMethod?,
+        selectedPaymentMethod: SelectedPaymentMethod,
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<RecurringBuyOrder> {
         return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
             require(order.amount != null) { "createRecurringBuyOrder amount is null" }
-            require(selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
 
             val amount = order.amount
             custodialWalletManager.createRecurringBuyOrder(
                 RecurringBuyRequestBody(
+                    orderId = orderId,
                     inputValue = amount.toBigInteger().toString(),
                     inputCurrency = amount.currencyCode,
                     destinationCurrency = asset.networkTicker,

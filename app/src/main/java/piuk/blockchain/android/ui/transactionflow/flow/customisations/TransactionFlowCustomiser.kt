@@ -172,7 +172,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
-            AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
+            AssetAction.Swap -> resources.getString(R.string.common_swap_to)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_cash_out)
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -745,7 +745,7 @@ class TransactionFlowCustomiserImpl(
 
     override fun selectSourceAccountTitle(state: TransactionState): String =
         when (state.action) {
-            AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
+            AssetAction.Swap -> resources.getString(R.string.common_swap_from)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
             AssetAction.InterestDeposit -> resources.getString(R.string.select_interest_deposit_source_title)
             AssetAction.StakingDeposit -> resources.getString(R.string.select_staking_deposit_source_title)

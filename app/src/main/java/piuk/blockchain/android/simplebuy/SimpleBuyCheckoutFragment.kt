@@ -96,12 +96,10 @@ class SimpleBuyCheckoutFragment :
     override val model: SimpleBuyModel by scopedInject()
     private val googlePayViewUtils: GooglePayViewUtils by inject()
     private val fraudService: FraudService by inject()
-    private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
         onToggleChanged = {
-            updateRecurringBuy = it
             model.process(SimpleBuyIntent.ToggleRecurringBuy(it))
         },
         onAction = {
@@ -254,7 +252,7 @@ class SimpleBuyCheckoutFragment :
                 )
             )
             checkoutAdapterDelegate.items = getCheckoutFields(newState)
-        } else if (newState.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME) {
+        } else if (newState.suggestedRecurringBuyExperiment != RecurringBuyFrequency.ONE_TIME) {
             checkoutAdapterDelegate.items = getCheckoutFields(newState)
         }
 
@@ -326,8 +324,9 @@ class SimpleBuyCheckoutFragment :
                 if (newState.confirmationActionRequested) {
                     navigator().goToPaymentScreen(
                         showRecurringBuySuggestion = newState.suggestEnablingRecurringBuyFrequency() &&
-                            !updateRecurringBuy && newState.recurringBuyState == RecurringBuyState.UNINITIALISED,
-                        recurringBuyFrequencyRemote = newState.recurringBuyForExperiment
+                            !newState.isRecurringBuyToggled &&
+                            newState.recurringBuyState == RecurringBuyState.UNINITIALISED,
+                        recurringBuyFrequencyRemote = newState.suggestedRecurringBuyExperiment
                     )
                 }
             }
@@ -503,7 +502,8 @@ class SimpleBuyCheckoutFragment :
                     state.exchangeRate?.toStringWithSymbol().orEmpty()
                 },
                 expandableContent = priceExplanation,
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                hasChanged = state.hasQuoteChanged &&
+                    (state.featureFlagSet.buyQuoteRefreshFF || state.featureFlagSet.feynmanCheckoutFF),
                 actionType = ActionType.Price
             ),
             buildPaymentMethodItem(state),
@@ -535,11 +535,11 @@ class SimpleBuyCheckoutFragment :
             ),
             if (!isPendingOrAwaitingFunds(state.orderState) && state.suggestEnablingRecurringBuyFrequency()) {
                 SimpleBuyCheckoutItem.ToggleCheckoutItem(
-                    title = state.recurringBuyForExperiment.toRecurringBuySuggestionTitle(requireContext()),
+                    title = state.suggestedRecurringBuyExperiment.toRecurringBuySuggestionTitle(requireContext()),
                     subtitle = getString(
                         R.string.checkout_rb_subtitle,
-                        state.recurringBuyForExperiment.toHumanReadableRecurringBuy(requireContext()).lowercase(),
-                        state.recurringBuyForExperiment.toHumanReadableRecurringDate(
+                        state.suggestedRecurringBuyExperiment.toHumanReadableRecurringBuy(requireContext()).lowercase(),
+                        state.suggestedRecurringBuyExperiment.toHumanReadableRecurringDate(
                             requireContext(), ZonedDateTime.now()
                         )
                     )
@@ -555,7 +555,7 @@ class SimpleBuyCheckoutFragment :
         featureFlagSet.rbFrequencySuggestionFF &&
             this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
             this.isSelectedPaymentMethodRecurringBuyEligible() &&
-            this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME
+            this.suggestedRecurringBuyExperiment != RecurringBuyFrequency.ONE_TIME
 
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
@@ -601,7 +601,8 @@ class SimpleBuyCheckoutFragment :
                 title = feeDetails.fee.toStringWithSymbol(),
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                hasChanged = state.hasQuoteChanged &&
+                    (state.featureFlagSet.buyQuoteRefreshFF || state.featureFlagSet.feynmanCheckoutFF),
                 actionType = ActionType.Fee
             )
         }
@@ -720,33 +721,26 @@ class SimpleBuyCheckoutFragment :
                                 showErrorState(ErrorState.SettlementGenericError)
                             SettlementReason.UNKNOWN,
                             SettlementReason.NONE -> {
-                                if (state.featureFlagSet.buyQuoteRefreshFF) quoteExpiration.invisible()
+                                if (state.featureFlagSet.buyQuoteRefreshFF || state.featureFlagSet.feynmanCheckoutFF) {
+                                    quoteExpiration.invisible()
+                                }
 
-                                when {
-                                    state.featureFlagSet.feynmanCheckoutFF -> {
-                                        model.process(
-                                            SimpleBuyIntent.CreateAndConfirmOrder(
-                                                recurringBuyFrequency = if (updateRecurringBuy) {
-                                                    state.recurringBuyForExperiment
-                                                } else {
-                                                    state.recurringBuyFrequency
-                                                }
-                                            )
+                                if (state.featureFlagSet.feynmanCheckoutFF) {
+                                    model.process(
+                                        SimpleBuyIntent.CreateAndConfirmOrder(
+                                            recurringBuyFrequency = if (state.isRecurringBuyToggled) {
+                                                state.suggestedRecurringBuyExperiment
+                                            } else {
+                                                state.recurringBuyFrequency
+                                            }
                                         )
-                                    }
-                                    updateRecurringBuy -> {
-                                        model.process(
-                                            SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                                                recurringBuyFrequency = state.recurringBuyForExperiment
-                                            )
-                                        )
-                                    }
-                                    else -> {
-                                        state.id?.let { orderId ->
-                                            model.process(SimpleBuyIntent.ConfirmOrder(orderId))
-                                        }
+                                    )
+                                } else {
+                                    state.id?.let { orderId ->
+                                        model.process(SimpleBuyIntent.ConfirmOrder(orderId))
                                     }
                                 }
+
                                 analytics.logEvent(
                                     eventWithPaymentMethod(
                                         SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
@@ -768,10 +762,12 @@ class SimpleBuyCheckoutFragment :
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
                         } else {
+                            // isOrderAwaitingFunds == true
                             navigator().goToPaymentScreen(
                                 showRecurringBuySuggestion = state.suggestEnablingRecurringBuyFrequency() &&
-                                    !updateRecurringBuy && state.recurringBuyState == RecurringBuyState.UNINITIALISED,
-                                recurringBuyFrequencyRemote = state.recurringBuyForExperiment
+                                    !state.isRecurringBuyToggled &&
+                                    state.recurringBuyState == RecurringBuyState.UNINITIALISED,
+                                recurringBuyFrequencyRemote = state.suggestedRecurringBuyExperiment
                             )
                         }
                     }

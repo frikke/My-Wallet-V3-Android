@@ -14,6 +14,7 @@ enum class RecurringBuyState {
 }
 
 enum class RecurringBuyFrequency {
+    // TODO(aromano): ONE_TIME 'recurring' buy doesn't make sense, if there's no recurring buy selected it should just be null
     ONE_TIME,
     DAILY,
     WEEKLY,

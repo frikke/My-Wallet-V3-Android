@@ -270,7 +270,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object BuyButtonClicked : SimpleBuyIntent() {
+    object EnterAmountBuyButtonClicked : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(confirmationActionRequested = true, orderState = OrderState.INITIALISED)
     }
@@ -368,6 +368,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    // Feynman Specific
     class CreateAndConfirmOrder(
         val googlePayPayload: String? = null,
         val googlePayAddress: GooglePayAddress? = null,
@@ -455,15 +456,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object FinishedFirstBuy : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(showRecurringBuyFirstTimeFlow = true)
-
-        override fun isValidFor(oldState: SimpleBuyState): Boolean {
-            return !oldState.showRecurringBuyFirstTimeFlow
-        }
-    }
-
     class OrderCreated(
         private val buyOrder: BuySellOrder,
         private val quote: BrokerageQuote,
@@ -478,6 +470,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     fiatCurrency = buyOrder.source.currency as FiatCurrency,
                     orderFee = buyOrder.fee,
                 ),
+                // TODO(aromano): QUOTE with feynmanFF off we use the order crypto value instead of the quote
                 orderValue = buyOrder.orderValue as CryptoValue,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
@@ -607,7 +600,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(shouldShowUnlockHigherFunds = true)
     }
 
-    object PaymentPending : SimpleBuyIntent() {
+    object PollingTimedOutWithPaymentPending : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentPending = true, isLoading = false)
     }
@@ -636,7 +629,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class UpdateRecurringFrequencyRemote(private val recurringBuyFrequencyRemote: RecurringBuyFrequency) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(recurringBuyForExperiment = recurringBuyFrequencyRemote)
+            oldState.copy(suggestedRecurringBuyExperiment = recurringBuyFrequencyRemote)
     }
 
     class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) :
@@ -646,19 +639,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class CreateRecurringBuy(val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent()
-
-    class RecurringBuySuggestionAccepted(
-        val recurringBuyFrequency: RecurringBuyFrequency,
-        val googlePayPayload: String? = null,
-        val googlePayAddress: GooglePayAddress? = null
-    ) :
-        SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                confirmationActionRequested = true,
-                isLoading = true
-            )
-    }
 
     class RecurringBuyCreated(
         val recurringBuyId: String,
@@ -687,6 +667,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(
                 isRecurringBuyToggled = isRecurringBuyToggled
             )
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean =
+            oldState.isRecurringBuyToggled != isRecurringBuyToggled
     }
 
     class TxLimitsUpdated(private val limits: TxLimits) : SimpleBuyIntent() {
@@ -707,10 +690,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object CheckForOrderCompletedSideEvents : SimpleBuyIntent() {
+    object OrderFinishedSuccessfully : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(sideEventsChecked = true)
+            oldState.copy(orderFinishedSuccessfullyHandled = true)
 
-        override fun isValidFor(oldState: SimpleBuyState) = oldState.sideEventsChecked.not()
+        override fun isValidFor(oldState: SimpleBuyState) = !oldState.orderFinishedSuccessfullyHandled
     }
 }

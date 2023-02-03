@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RecurringBuyRequestBody(
+    private val orderId: String,
     private val inputValue: String,
     private val inputCurrency: String,
     private val destinationCurrency: String,

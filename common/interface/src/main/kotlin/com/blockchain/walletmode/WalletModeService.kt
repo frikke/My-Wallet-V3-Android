@@ -12,7 +12,7 @@ interface WalletModeService {
 
     fun reset()
     suspend fun updateEnabledWalletMode(type: WalletMode)
-    fun availableModes(): List<WalletMode>
+    suspend fun availableModes(): List<WalletMode>
 }
 
 enum class WalletMode {

@@ -98,7 +98,7 @@ class RecurringBuyModelTest {
             createDate = mock()
         )
         whenever(interactor.getRecurringBuyById(rbId)).thenReturn(Single.just(rbMock))
-        whenever(interactor.deleteRecurringBuy(rbId)).thenReturn(Completable.complete())
+        whenever(interactor.deleteRecurringBuy(rbMock)).thenReturn(Completable.complete())
 
         subject.process(RecurringBuyIntent.LoadRecurringBuy(rbId))
         val testState = subject.state.test()
@@ -118,7 +118,7 @@ class RecurringBuyModelTest {
             on { id }.thenReturn(rbId)
         }
         whenever(interactor.getRecurringBuyById(rbId)).thenReturn(Single.just(rbMock))
-        whenever(interactor.deleteRecurringBuy(rbId)).thenReturn(Completable.error(Exception()))
+        whenever(interactor.deleteRecurringBuy(rbMock)).thenReturn(Completable.error(Exception()))
 
         subject.process(RecurringBuyIntent.LoadRecurringBuy(rbId))
         val testState = subject.state.test()

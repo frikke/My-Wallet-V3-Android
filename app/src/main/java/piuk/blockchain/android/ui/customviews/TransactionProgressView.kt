@@ -51,7 +51,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private val binding: ViewTransactionProgressBinding =
         ViewTransactionProgressBinding.inflate(LayoutInflater.from(context), this, true)
 
-    fun showToggleUI(
+    fun showRecurringBuyToggleUI(
         showToggle: Boolean,
         recurringBuyFrequency: RecurringBuyFrequency
     ) {

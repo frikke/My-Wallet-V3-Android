@@ -46,7 +46,7 @@ class RecurringBuyModel(
         return when (intent) {
             is RecurringBuyIntent.DeleteRecurringBuy -> {
                 previousState.recurringBuy?.let {
-                    interactor.deleteRecurringBuy(it.id)
+                    interactor.deleteRecurringBuy(it)
                         .subscribeBy(
                             onComplete = {
                                 process(RecurringBuyIntent.UpdateRecurringBuyState)
