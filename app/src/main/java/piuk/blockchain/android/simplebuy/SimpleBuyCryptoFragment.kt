@@ -345,7 +345,7 @@ class SimpleBuyCryptoFragment :
     private fun startBuy() {
         lastState?.takeIf { canContinue(it) }?.let { state ->
             binding.inputAmount.canEdit(false)
-            model.process(SimpleBuyIntent.BuyButtonClicked)
+            model.process(SimpleBuyIntent.EnterAmountBuyButtonClicked)
             if (!state.featureFlagSet.feynmanCheckoutFF) {
                 analytics.logEvent(
                     buyConfirmClicked(

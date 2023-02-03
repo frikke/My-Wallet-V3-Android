@@ -34,7 +34,7 @@ class RecurringBuyInteractor(
         }
     }
 
-    fun deleteRecurringBuy(id: String) = tradeDataService.cancelRecurringBuy(id)
+    fun deleteRecurringBuy(recurringBuy: RecurringBuy) = tradeDataService.cancelRecurringBuy(recurringBuy)
 
     fun getRecurringBuyById(recurringBuyId: String): Single<RecurringBuy> =
         tradeDataService.getRecurringBuyForId(recurringBuyId)

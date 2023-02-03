@@ -90,11 +90,7 @@ import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.cvv.SecurityCodeViewModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
-import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
-import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.GetRecurringBuysStore
-import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
 import piuk.blockchain.android.data.TradeDataRepository
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
@@ -609,9 +605,6 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
-                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
-                recurringBuyMapper = get(),
                 getRecurringBuysStore = get(),
                 assetCatalogue = get()
             )
@@ -622,12 +615,6 @@ val applicationModule = module {
                 tradeService = get()
             )
         }
-
-        factory {
-            RecurringBuyResponseToRecurringBuyMapper(
-                assetCatalogue = get()
-            )
-        }.bind(Mapper::class)
 
         scoped {
             CreateBuyOrderUseCase(

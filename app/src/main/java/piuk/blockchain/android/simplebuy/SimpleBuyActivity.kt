@@ -71,8 +71,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
-import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
-import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 
 class SimpleBuyActivity :
     BlockchainActivity(),
@@ -384,7 +382,7 @@ class SimpleBuyActivity :
         addToBackStack: Boolean,
         isPaymentAuthorised: Boolean,
         showRecurringBuySuggestion: Boolean,
-        recurringBuyFrequencyRemote: RecurringBuyFrequency?
+        recurringBuyFrequencyRemote: RecurringBuyFrequency?,
     ) {
         supportFragmentManager.beginTransaction()
             .addTransactionAnimation()
@@ -410,30 +408,6 @@ class SimpleBuyActivity :
     override fun showLoading() = binding.progress.visible()
 
     override fun hideLoading() = binding.progress.gone()
-
-    override fun goToSetupFirstRecurringBuy(addToBackStack: Boolean) {
-        supportFragmentManager.beginTransaction()
-            .addTransactionAnimation()
-            .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
-            .apply {
-                if (addToBackStack) {
-                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
-                }
-            }
-            .commitAllowingStateLoss()
-    }
-
-    override fun goToFirstRecurringBuyCreated(addToBackStack: Boolean) {
-        supportFragmentManager.beginTransaction()
-            .addTransactionAnimation()
-            .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
-            .apply {
-                if (addToBackStack) {
-                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
-                }
-            }
-            .commitAllowingStateLoss()
-    }
 
     override fun onCurrencyChanged(
         currency: FiatCurrency,

@@ -317,18 +317,18 @@ internal interface Nabu {
         @Body body: ProductTransferRequestBody
     ): Completable
 
-    @POST(NABU_RECURRING_BUY_CREATE)
+    @POST("recurring-buy/create")
     fun createRecurringBuy(
         @Body recurringBuyBody: RecurringBuyRequestBody
     ): Single<RecurringBuyResponse>
 
-    @GET(NABU_RECURRING_BUY_LIST)
+    @GET("recurring-buy/list")
     fun getRecurringBuyById(
         @Query("id") recurringBuyId: String,
         @Query("states") states: String
     ): Single<List<RecurringBuyResponse>>
 
-    @DELETE("$NABU_RECURRING_BUY/{id}/cancel")
+    @DELETE("recurring-buy/{id}/cancel")
     fun cancelRecurringBuy(
         @Path("id") id: String
     ): Completable

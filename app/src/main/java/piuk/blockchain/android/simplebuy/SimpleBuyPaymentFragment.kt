@@ -149,23 +149,20 @@ class SimpleBuyPaymentFragment :
             return
         }
 
-        if (newState.sideEventsChecked) {
+        if (newState.paymentSucceeded) {
             recurringBuyFrequencyRemote?.let {
                 if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
-                    binding.transactionProgressView.showToggleUI(
+                    binding.transactionProgressView.showRecurringBuyToggleUI(
                         showToggle = showRecurringBuyToggle,
                         recurringBuyFrequency = it
                     )
                 }
             }
+            model.process(SimpleBuyIntent.OrderFinishedSuccessfully)
         }
 
         newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
-        }
-
-        if (newState.paymentSucceeded) {
-            model.process(SimpleBuyIntent.CheckForOrderCompletedSideEvents)
         }
 
         if (newState.buyErrorState != null) {
@@ -198,9 +195,6 @@ class SimpleBuyPaymentFragment :
 
         binding.transactionProgressView.setupPrimaryCta(getString(R.string.common_ok)) {
             when {
-                newState.showRecurringBuyFirstTimeFlow -> {
-                    navigator().goToSetupFirstRecurringBuy()
-                }
                 !newState.paymentPending -> {
                     if (showRecurringBuyToggle && binding.transactionProgressView.isRecurringBuyEnabled()) {
                         recurringBuyFrequencyRemote?.let {

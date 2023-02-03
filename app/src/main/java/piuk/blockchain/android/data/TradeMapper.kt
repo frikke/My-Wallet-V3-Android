@@ -1,7 +1,7 @@
 package piuk.blockchain.android.data
 
-import com.blockchain.api.trade.data.AccumulatedInPeriod
 import com.blockchain.api.trade.data.NextPaymentRecurringBuy
+import com.blockchain.api.trade.data.NextPaymentRecurringBuyResponse
 import com.blockchain.api.trade.data.RecurringBuyResponse
 import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
@@ -15,60 +15,40 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import java.util.Date
 
-class GetAccumulatedInPeriodToIsFirstTimeBuyerMapper : Mapper<List<AccumulatedInPeriod>, Boolean> {
-    override fun map(type: List<AccumulatedInPeriod>): Boolean =
-        type.first { it.termType == AccumulatedInPeriod.ALL }.amount.value.toDouble() == 0.0
+fun NextPaymentRecurringBuyResponse.toDomain(): List<EligibleAndNextPaymentRecurringBuy> = this.nextPayments.map {
+    EligibleAndNextPaymentRecurringBuy(
+        frequency = it.period.toRecurringBuyFrequency(),
+        nextPaymentDate = it.nextPayment,
+        eligibleMethods = it.eligibleMethods.map(String::toPaymentMethodTypeDomain)
+    )
 }
 
-class GetNextPaymentDateListToFrequencyDateMapper :
-    Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>> {
-    override fun map(type: List<NextPaymentRecurringBuy>): List<EligibleAndNextPaymentRecurringBuy> {
-        return type.map {
-            EligibleAndNextPaymentRecurringBuy(
-                frequency = it.period.toRecurringBuyFrequency(),
-                nextPaymentDate = it.nextPayment,
-                eligibleMethods = mapStringToPaymentMethod(it.eligibleMethods)
-            )
-        }.toList()
-    }
-
-    private fun mapStringToPaymentMethod(eligibleMethods: List<String>): List<PaymentMethodType> {
-        return eligibleMethods.map {
-            when (it) {
-                NextPaymentRecurringBuy.BANK_TRANSFER -> PaymentMethodType.BANK_TRANSFER
-                NextPaymentRecurringBuy.PAYMENT_CARD -> PaymentMethodType.PAYMENT_CARD
-                NextPaymentRecurringBuy.FUNDS -> PaymentMethodType.FUNDS
-                else -> PaymentMethodType.UNKNOWN
-            }
-        }.toList()
-    }
+private fun String.toPaymentMethodTypeDomain(): PaymentMethodType = when (this) {
+    NextPaymentRecurringBuy.BANK_TRANSFER -> PaymentMethodType.BANK_TRANSFER
+    NextPaymentRecurringBuy.PAYMENT_CARD -> PaymentMethodType.PAYMENT_CARD
+    NextPaymentRecurringBuy.FUNDS -> PaymentMethodType.FUNDS
+    else -> PaymentMethodType.UNKNOWN
 }
 
-class RecurringBuyResponseToRecurringBuyMapper(
-    private val assetCatalogue: AssetCatalogue
-) : Mapper<List<RecurringBuyResponse>, List<RecurringBuy>> {
-    override fun map(type: List<RecurringBuyResponse>): List<RecurringBuy> {
-        return type.mapNotNull {
-            val asset = assetCatalogue.assetInfoFromNetworkTicker(it.destinationCurrency) ?: return@mapNotNull null
-            val fiatCurrency = assetCatalogue.fiatFromNetworkTicker(it.inputCurrency) ?: return@mapNotNull null
-            return@mapNotNull RecurringBuy(
-                id = it.id,
-                state = it.state.toRecurringBuyState(),
-                recurringBuyFrequency = it.period.toRecurringBuyFrequency(),
-                nextPaymentDate = it.nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                paymentMethodType = it.paymentMethod.toPaymentMethodType(),
-                amount = Money.fromMinor(fiatCurrency, it.inputValue.toBigInteger()),
-                asset = asset,
-                createDate = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                paymentMethodId = it.paymentMethodId
-            )
-        }
-    }
-
-    private fun String.toRecurringBuyState() =
-        when (this) {
-            RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
-            RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
-            else -> throw IllegalStateException("Unsupported recurring state")
-        }
+fun RecurringBuyResponse.toDomain(assetCatalogue: AssetCatalogue): RecurringBuy? {
+    val asset = assetCatalogue.assetInfoFromNetworkTicker(destinationCurrency) ?: return null
+    val fiatCurrency = assetCatalogue.fiatFromNetworkTicker(inputCurrency) ?: return null
+    return RecurringBuy(
+        id = id,
+        state = state.toRecurringBuyStateDomain(),
+        recurringBuyFrequency = period.toRecurringBuyFrequency(),
+        nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        paymentMethodType = paymentMethod.toPaymentMethodType(),
+        amount = Money.fromMinor(fiatCurrency, inputValue.toBigInteger()),
+        asset = asset,
+        createDate = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        paymentMethodId = paymentMethodId
+    )
 }
+
+private fun String.toRecurringBuyStateDomain() =
+    when (this) {
+        RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
+        RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
+        else -> throw IllegalStateException("Unsupported recurring state")
+    }

@@ -38,8 +38,6 @@ interface SimpleBuyNavigator :
         showRecurringBuySuggestion: Boolean = false,
         recurringBuyFrequencyRemote: RecurringBuyFrequency? = RecurringBuyFrequency.ONE_TIME
     )
-    fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
-    fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)
     fun goToBlockedBuyScreen()
 }
 

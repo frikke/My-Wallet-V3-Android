@@ -28,7 +28,7 @@ interface TradeDataService {
 
     fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
 
-    fun cancelRecurringBuy(recurringBuyId: String): Completable
+    fun cancelRecurringBuy(recurringBuy: RecurringBuy): Completable
 
     fun getQuotePrice(
         currencyPair: String,

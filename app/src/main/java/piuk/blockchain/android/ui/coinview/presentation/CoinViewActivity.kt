@@ -432,7 +432,7 @@ class CoinViewActivity :
     }
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
-        viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
+        viewModel.onIntent(CoinviewIntent.RecurringBuyDeleted)
     }
 
     override fun openExternalUrl(url: String) {

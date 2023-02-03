@@ -20,6 +20,8 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
@@ -589,7 +591,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
-                onIntent(CoinviewIntent.LoadRecurringBuysData)
+                loadRecurringBuysData(modelState.asset, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
                 onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
@@ -619,12 +621,10 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntent.LoadRecurringBuysData -> {
+            CoinviewIntent.RecurringBuyDeleted -> {
                 check(modelState.asset != null) { "LoadRecurringBuysData asset not initialized" }
 
-                loadRecurringBuysData(
-                    asset = modelState.asset,
-                )
+                loadRecurringBuysData(modelState.asset, FreshnessStrategy.Fresh)
             }
 
             is CoinviewIntent.LoadQuickActions -> {
@@ -1201,10 +1201,10 @@ class CoinviewViewModel(
 
     // //////////////////////
     // Recurring buys
-    private fun loadRecurringBuysData(asset: CryptoAsset) {
+    private fun loadRecurringBuysData(asset: CryptoAsset, freshnessStrategy: FreshnessStrategy) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
-            loadAssetRecurringBuysUseCase(asset = asset).collectLatest { dataResource ->
+            loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         recurringBuys = if (dataResource is DataResource.Loading &&

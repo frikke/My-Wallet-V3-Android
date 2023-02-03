@@ -11,6 +11,7 @@ import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 
+// TODO(aromano): move to core
 class GetRecurringBuysStore(
     private val tradeService: TradeService
 ) : KeyedStore<GetRecurringBuysStore.Key, List<RecurringBuyResponse>> by PersistedJsonSqlDelightStoreBuilder()

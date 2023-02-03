@@ -2,9 +2,7 @@ package piuk.blockchain.android.data
 
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.trade.data.AccumulatedInPeriod
-import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.QuoteResponse
-import com.blockchain.api.trade.data.RecurringBuyResponse
 import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.data.DataResource
@@ -24,27 +22,22 @@ import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.simplebuy.BuyQuote.Companion.toFiat
 
+// TODO(aromano): move to core
 class TradeDataRepository(
     private val tradeService: TradeService,
-    private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
-    private val nextPaymentRecurringBuyMapper:
-        Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
-    private val recurringBuyMapper: Mapper<List<RecurringBuyResponse>, List<RecurringBuy>>,
     private val getRecurringBuysStore: GetRecurringBuysStore,
     private val assetCatalogue: AssetCatalogue
 ) : TradeDataService {
 
     override fun isFirstTimeBuyer(): Single<Boolean> =
         tradeService.isFirstTimeBuyer()
-            .map {
-                accumulatedInPeriodMapper.map(it.tradesAccumulated)
+            .map { accumulatedInPeriod ->
+                accumulatedInPeriod.tradesAccumulated
+                    .first { it.termType == AccumulatedInPeriod.ALL }.amount.value.toDouble() == 0.0
             }
 
     override fun getEligibilityAndNextPaymentDate(): Single<List<EligibleAndNextPaymentRecurringBuy>> =
-        tradeService.getNextPaymentDate()
-            .map {
-                nextPaymentRecurringBuyMapper.map(it.nextPayments)
-            }
+        tradeService.getNextPaymentDate().map { it.toDomain() }
 
     override fun getRecurringBuysForAsset(
         asset: AssetInfo,
@@ -54,19 +47,22 @@ class TradeDataRepository(
             .stream(
                 freshnessStrategy.withKey(GetRecurringBuysStore.Key(asset.networkTicker))
             )
-            .mapData {
-                recurringBuyMapper.map(it)
+            .mapData { recurringBuyResponses ->
+                recurringBuyResponses.mapNotNull { it.toDomain(assetCatalogue) }
             }
     }
 
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> =
         tradeService.getRecurringBuyForId(recurringBuyId)
-            .map {
-                recurringBuyMapper.map(it).first()
+            .map { recurringBuyResponses ->
+                recurringBuyResponses.mapNotNull { it.toDomain(assetCatalogue) }.first()
             }
 
-    override fun cancelRecurringBuy(recurringBuyId: String): Completable =
-        tradeService.cancelRecurringBuy(recurringBuyId)
+    override fun cancelRecurringBuy(recurringBuy: RecurringBuy): Completable =
+        tradeService.cancelRecurringBuy(recurringBuy.id)
+            .doOnComplete {
+                getRecurringBuysStore.markAsStale(GetRecurringBuysStore.Key(recurringBuy.asset.networkTicker))
+            }
 
     override fun getQuotePrice(
         currencyPair: String,
