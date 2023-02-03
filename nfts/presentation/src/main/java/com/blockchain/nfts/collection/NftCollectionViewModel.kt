@@ -181,7 +181,7 @@ class NftCollectionViewModel(
                                 nextPageKey = dataResource.data.nextPageKey,
                                 allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
                                 // combine current page and new page items
-                                collection = allCollection.map { emptyList()/*it.toSet().toList()*/ },
+                                collection = allCollection.map { it.toSet().toList() },
                                 displayType = allCollection.map { it.size == 1 }
                                     .dataOrElse(false).let { isOneItem ->
                                         if (isOneItem) DisplayType.List
