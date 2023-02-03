@@ -4,9 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
@@ -45,7 +45,7 @@ class NftCollectionViewModelTest {
 
     private val asset = mockk<CryptoAsset>()
     private val accountGroup = mockk<AccountGroup>()
-    private val singleAccount = mockk<SingleAccount>()
+    private val singleAccount = mockk<CryptoAccount>()
     private val receiveAddress = mockk<ReceiveAddress>()
     private val address = "address"
 
