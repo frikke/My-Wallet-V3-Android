@@ -105,8 +105,12 @@ class EthDataManager(
 
     fun updateAccountLabel(label: String): Completable {
         require(label.isNotEmpty())
-        check(ethDataStore.ethWallet != null)
-        return save(ethDataStore.ethWallet!!.renameAccount(label))
+        val wallet = ethDataStore.ethWallet
+        return if (wallet != null) {
+            save(wallet.renameAccount(label))
+        } else {
+            Completable.complete()
+        }
     }
 
     /**
