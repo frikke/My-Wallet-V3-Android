@@ -23,8 +23,6 @@ import com.blockchain.core.chains.dynamicselfcustody.data.CoinTypeStore
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
-import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
@@ -311,15 +309,6 @@ val coreModule = module {
                 assetCatalogue = get()
             )
         }
-
-        scoped {
-            Erc20DataManagerImpl(
-                ethDataManager = get(),
-                l1BalanceStore = get(),
-                historyCallCache = get(),
-                assetCatalogue = get(),
-            )
-        }.bind(Erc20DataManager::class)
 
         factory { BchDataStore() }
 

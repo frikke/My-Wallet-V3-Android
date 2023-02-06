@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.alert
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -21,19 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallSecondaryButton
 import com.blockchain.componentlib.card.CardButton
+import com.blockchain.componentlib.icons.Image
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey800
 
 enum class AlertType {
     Default, Success, Warning, Error
@@ -45,7 +43,7 @@ fun CardAlert(
     subtitle: String,
     alertType: AlertType = AlertType.Default,
     isBordered: Boolean = true,
-    backgroundColor: Color = AppTheme.colors.light,
+    backgroundColor: Color = Color.White,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     isDismissable: Boolean = true,
     onClose: () -> Unit = {},
@@ -71,8 +69,8 @@ fun CardAlert(
     }
 
     var boxModifier = Modifier
-        .padding(dimensionResource(R.dimen.smallest_spacing))
         .defaultMinSize(minWidth = 340.dp)
+        .clip(AppTheme.shapes.large)
         .background(color = backgroundColor, shape = AppTheme.shapes.small)
 
     if (isBordered) {
@@ -86,7 +84,6 @@ fun CardAlert(
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.small_spacing))
                 .background(backgroundColor)
-                .clip(AppTheme.shapes.small)
 
         ) {
             Column(
@@ -152,28 +149,18 @@ fun CardAlert(
 
 @Composable
 fun CardCloseButton(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     onClick: () -> Unit = {},
 ) {
-
-    val backgroundColor = if (!isDarkTheme) {
-        Grey100
-    } else {
-        Grey800
-    }
-
     Box(
         modifier = Modifier
             .clickable {
                 onClick.invoke()
             }
             .size(dimensionResource(R.dimen.standard_spacing))
-            .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(
+            imageResource = ImageResource.Local(R.drawable.ic_close_circle),
             modifier = Modifier.align(Alignment.Center),
-            painter = painterResource(id = R.drawable.ic_close),
-            contentDescription = null
         )
     }
 }

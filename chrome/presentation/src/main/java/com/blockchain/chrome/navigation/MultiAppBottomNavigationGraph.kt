@@ -53,6 +53,7 @@ fun MultiAppBottomNavigationHost(
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
@@ -116,7 +117,8 @@ fun MultiAppBottomNavigationHost(
                         openActivityDetail = openActivityDetail,
                         openReferral = openReferral,
                         openFiatActionDetail = openFiatActionDetail,
-                        openMoreQuickActions = openMoreQuickActions
+                        openMoreQuickActions = openMoreQuickActions,
+                        startPhraseRecovery = startPhraseRecovery
                     )
                 },
                 refreshStarted = {

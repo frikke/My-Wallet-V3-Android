@@ -7,7 +7,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -17,6 +16,7 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import io.reactivex.rxjava3.core.Single
 
 class L1EvmNonCustodialAccount(
@@ -28,7 +28,7 @@ class L1EvmNonCustodialAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val addressResolver: AddressResolver,
-    val l1Network: EvmNetwork,
+    val l1Network: CoinNetwork,
 ) : CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default

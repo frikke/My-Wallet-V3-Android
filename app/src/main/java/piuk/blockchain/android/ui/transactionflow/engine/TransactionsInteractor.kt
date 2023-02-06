@@ -25,7 +25,6 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -63,7 +62,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -104,10 +102,6 @@ class TransactionInteractor(
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
-
-    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork> {
-        return dynamicAssetRepository.getEvmNetworkForCurrency(currency)
-    }
 
     fun invalidateTransaction(): Completable =
         Completable.fromAction {

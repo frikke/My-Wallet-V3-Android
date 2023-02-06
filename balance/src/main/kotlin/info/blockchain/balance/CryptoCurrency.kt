@@ -1,6 +1,5 @@
 package info.blockchain.balance
 
-import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 enum class AssetCategory {
@@ -11,9 +10,6 @@ enum class AssetCategory {
 
 interface AssetInfo : Currency, Serializable {
     val requiredConfirmations: Int
-
-    // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
-    val l1chainTicker: String?
 
     val coinNetwork: CoinNetwork?
 
@@ -28,7 +24,7 @@ interface AssetInfo : Currency, Serializable {
 }
 
 val Currency.isCustodialOnly: Boolean
-    get() = categories.size == 1 && categories.contains(AssetCategory.CUSTODIAL)
+    get() = categories == setOf(AssetCategory.CUSTODIAL)
 
 val AssetInfo.isNonCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.NON_CUSTODIAL)
@@ -39,10 +35,11 @@ val AssetInfo.isDelegatedNonCustodial: Boolean
 val AssetInfo.isNonCustodial: Boolean
     get() = categories.contains(AssetCategory.NON_CUSTODIAL) || isDelegatedNonCustodial
 
-fun AssetInfo.l1chain(assetCatalogue: AssetCatalogue): AssetInfo? =
-    l1chainTicker?.let { ticker ->
-        assetCatalogue.fromNetworkTicker(ticker) as AssetInfo
-    }
+val Currency.isLayer2Token: Boolean
+    get() = (this as? AssetInfo)?.l2identifier != null && (this as? AssetInfo)?.coinNetwork != null
+
+fun Currency.isNetworkNativeAsset(): Boolean =
+    (this as? AssetInfo)?.coinNetwork != null && this.l2identifier == null
 
 interface AssetCatalogue {
     val supportedFiatAssets: List<FiatCurrency>
@@ -54,8 +51,6 @@ interface AssetCatalogue {
     fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
     fun assetFromL1ChainByContractAddress(l1chain: String, contractAddress: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
-    fun availableL1Assets(): Single<List<AssetInfo>>
-    fun allEvmAssets(): Single<List<AssetInfo>>
 }
 
 open class CryptoCurrency(
@@ -66,7 +61,6 @@ open class CryptoCurrency(
     override val precisionDp: Int,
     override val startDate: Long? = null, // token price start times in epoch-seconds. null if charting not supported
     override val requiredConfirmations: Int,
-    override val l1chainTicker: String? = null,
     override val l2identifier: String? = null,
     override val colour: String,
     override val logo: String = "",
@@ -82,14 +76,12 @@ open class CryptoCurrency(
             other === this -> true
             other !is AssetInfo -> false
             other.networkTicker == networkTicker &&
-                other.l1chainTicker == l1chainTicker &&
                 other.l2identifier == l2identifier -> true
             else -> false
         }
 
     override fun hashCode(): Int {
         var result = networkTicker.hashCode()
-        result = 31 * result + (l1chainTicker?.hashCode() ?: 0)
         result = 31 * result + (l2identifier?.hashCode() ?: 0)
         return result
     }
@@ -149,6 +141,18 @@ open class CryptoCurrency(
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 7,
         requiredConfirmations = 1,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://stellarchain.io/transactions",
+            nativeAssetTicker = "XLM",
+            networkTicker = "XLM",
+            name = "Stellar",
+            shortName = "Stellar",
+            isMemoSupported = true,
+            type = NetworkType.XLM,
+            chainId = null,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("https://api.blockchain.info/stellar")
+        ),
         startDate = 1409875200L, // 2014-09-04 00:00:00 UTC
         colour = "#000000",
         logo = "file:///android_asset/logo/stellar/logo.png",
@@ -167,13 +171,3 @@ private const val BITCOIN_ORDER_INDEX = 4
 private const val ETHER_ORDER_INDEX = 3
 private const val BCH_ORDER_INDEX = 2
 private const val XLM_ORDER_INDEX = 1
-
-interface CoinNetwork {
-    val networkTicker: String
-    val nativeAsset: String
-    val name: String
-    val shortName: String
-    val chainId: Int
-    val nodeUrl: String
-    val explorerUrl: String
-}

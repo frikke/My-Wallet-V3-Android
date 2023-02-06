@@ -3,13 +3,14 @@ package com.blockchain.walletconnect.data
 import app.cash.turbine.test
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkIntents
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.NetworkType
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
@@ -48,13 +49,13 @@ class SelectNetworkViewModelTest {
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId,
+            chainId = ethEvmNetwork.chainId!!,
         )
 
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId,
+            chainId = ethEvmNetwork.chainId!!,
             logo = "logo"
         )
 
@@ -81,23 +82,23 @@ class SelectNetworkViewModelTest {
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId,
+            chainId = ethEvmNetwork.chainId!!,
         )
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId,
+            chainId = ethEvmNetwork.chainId!!,
             logo = "logo"
         )
         val otherEvmNetworkInfoNoLogo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
             name = otherEvmNetwork.name,
-            chainId = otherEvmNetwork.chainId,
+            chainId = otherEvmNetwork.chainId!!,
         )
         val otherEvmNetworkInfo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
             name = otherEvmNetwork.name,
-            chainId = otherEvmNetwork.chainId,
+            chainId = otherEvmNetwork.chainId!!,
             logo = "logo"
         )
 
@@ -126,14 +127,17 @@ class SelectNetworkViewModelTest {
 
     companion object {
         private const val ETH_CHAIN_ID = 1
-        private val ethEvmNetwork = EvmNetwork(
-            "ETH",
-            "ETH",
-            "Ethereum",
-            "Ethereum",
-            ETH_CHAIN_ID,
-            "",
-            ""
+        private val ethEvmNetwork = CoinNetwork(
+            explorerUrl = "https://eth.io/transactions",
+            nativeAssetTicker = "ETH",
+            networkTicker = "ETH",
+            name = "Ethereum",
+            shortName = "Ethereum",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 1,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("sfasdsa")
         )
         private val evmAsset = CryptoCurrency(
             displayTicker = "EVM",
@@ -146,14 +150,17 @@ class SelectNetworkViewModelTest {
             logo = "logo",
         )
         private const val EVM_CHAIN_ID = 2
-        private val otherEvmNetwork = EvmNetwork(
-            "OTHER",
-            "OTHER",
-            "Other",
-            "Other",
-            EVM_CHAIN_ID,
-            "",
-            ""
+        private val otherEvmNetwork = CoinNetwork(
+            explorerUrl = "https://eth.io/transactions",
+            nativeAssetTicker = "OTHER",
+            networkTicker = "OTHER",
+            name = "Other",
+            shortName = "Other",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 2,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("sfasdsa")
         )
     }
 }

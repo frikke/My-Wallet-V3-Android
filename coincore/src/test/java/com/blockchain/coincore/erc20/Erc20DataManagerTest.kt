@@ -1,21 +1,19 @@
-package com.blockchain.core.chains.erc20
+package com.blockchain.coincore.erc20
 
-import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.coincore.eth.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.data.DataResource
 import com.blockchain.testutils.rxInit
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import io.mockk.every
@@ -25,7 +23,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.math.BigInteger
-import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -57,29 +54,16 @@ class Erc20DataManagerTest {
         every { accountAddress } returns ACCOUNT_HASH
         every { supportedNetworks } returns Single.just(
             listOf(
-                EvmNetwork(
-                    CryptoCurrency.ETHER.networkTicker,
-                    CryptoCurrency.ETHER.name,
-                    CryptoCurrency.ETHER.name,
-                    CryptoCurrency.ETHER.name,
-                    EthDataManager.ETH_CHAIN_ID,
-                    "",
-                    ""
-                )
+                coinNetwork
             )
         )
     }
-    private val l1BalanceStore: L1BalanceStore = mock {
-        on { stream(any()) }.thenReturn(flowOf(DataResource.Data(BigInteger.ZERO)))
-    }
+
     private val historyCallCache: Erc20HistoryCallCache = mock()
-    private val assetCatalogue: AssetCatalogue = mockk()
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
-        l1BalanceStore = l1BalanceStore,
         historyCallCache = historyCallCache,
-        assetCatalogue = assetCatalogue,
     )
 
     @Test
@@ -97,14 +81,14 @@ class Erc20DataManagerTest {
         val mockEvent: Erc20HistoryEvent = mock()
         val mockEventList = listOf(mockEvent)
 
-        whenever(historyCallCache.fetch(ACCOUNT_HASH, ERC20_TOKEN, EthDataManager.ethChain.networkTicker))
+        whenever(historyCallCache.fetch(ACCOUNT_HASH, ERC20_TOKEN, "ETH"))
             .thenReturn(Single.just(mockEventList))
 
-        subject.getErc20History(ERC20_TOKEN, EthDataManager.ethChain)
+        subject.getErc20History(ERC20_TOKEN, coinNetwork)
             .test()
             .assertValue(mockEventList)
 
-        verify(historyCallCache).fetch(ACCOUNT_HASH, ERC20_TOKEN, EthDataManager.ethChain.networkTicker)
+        verify(historyCallCache).fetch(ACCOUNT_HASH, ERC20_TOKEN, "ETH")
         io.mockk.verify { ethDataManager.accountAddress }
 
         verifyNoMoreInteractions(historyCallCache)
@@ -291,7 +275,7 @@ class Erc20DataManagerTest {
         }
         every { ethDataManager.getLatestBlockNumber(any()) } returns Single.just(lastBlock)
 
-        subject.latestBlockNumber(EthDataManager.ethChain.networkTicker)
+        subject.latestBlockNumber("ETH")
             .test()
             .assertValue { it == blockNumber }
 
@@ -331,15 +315,25 @@ class Erc20DataManagerTest {
         const val CONTRACT_ADDRESS = "0x8e870d67f660d95d5be530380d0ec0bd388289e1"
 
         const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
-
+        private val coinNetwork = CoinNetwork(
+            explorerUrl = "explorerUrl",
+            nativeAssetTicker = CryptoCurrency.ETHER.name,
+            networkTicker = CryptoCurrency.ETHER.networkTicker,
+            name = CryptoCurrency.ETHER.name,
+            shortName = CryptoCurrency.ETHER.name,
+            chainId = 1,
+            type = NetworkType.EVM,
+            nodeUrls = listOf("nodeurl1", "nodeurl2"),
+            feeCurrencies = listOf("ETH"),
+            isMemoSupported = false,
+        )
         private val ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
             displayTicker = "DUMMY",
             networkTicker = "DUMMY",
             name = "Dummies",
-            coinNetwork = mock<EvmNetwork>(),
+            coinNetwork = coinNetwork,
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",
@@ -349,10 +343,9 @@ class Erc20DataManagerTest {
             displayTicker = "WHATEVER",
             networkTicker = "WHATEVER",
             name = "Whatevs",
-            coinNetwork = mock<EvmNetwork>(),
+            coinNetwork = mock(),
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",

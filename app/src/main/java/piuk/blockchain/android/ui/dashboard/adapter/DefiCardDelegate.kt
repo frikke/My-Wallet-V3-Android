@@ -3,8 +3,6 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.componentlib.tag.TagType
-import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
@@ -54,16 +52,6 @@ private class DefiAssetCardViewHolder(
             root.contentDescription = "${ASSET_CARD_ID}${defiAsset.currency.networkTicker}"
             fiatBalance.contentDescription = "${FIAT_BALANCE_ID}${defiAsset.currency.networkTicker}"
             cryptoBalance.contentDescription = "${CRYPTO_BALANCE_ID}${defiAsset.currency.networkTicker}"
-            val l1Parent = defiAsset.currency.l1chainTicker?.let {
-                assetCatalogue.fromNetworkTicker(it)
-            }
-            l1Netwok.tags = listOfNotNull(
-                l1Parent?.let {
-                    TagViewState(
-                        it.name, TagType.Default()
-                    )
-                }
-            )
             assetResources.loadAssetIcon(icon, defiAsset.currency)
             currency.text = defiAsset.currency.displayTicker
             currencyName.text = defiAsset.currency.name

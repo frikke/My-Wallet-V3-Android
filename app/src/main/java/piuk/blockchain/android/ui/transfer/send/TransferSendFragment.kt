@@ -91,7 +91,7 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
             require(account is L2NonCustodialAccount)
             selectedSource = account
             showBottomSheet(
-                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.name)
+                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.shortName)
             )
         } else {
             startTransactionFlow(account)

@@ -3104,7 +3104,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
-    <string name="defi_onboarding_intro_title">Introducing your non-custodial %1$s</string>
+    <string name="defi_onboarding_intro_title">Introducing your non-custodia \n%1$s</string>
     <string name="defi_onboarding_intro_description">Use Bitcoin and DeFi, all in on place.</string>
     <string name="defi_onboarding_intro_property1_title">Self-custody your assets</string>
     <string name="defi_onboarding_intro_property1_subtitle">Your DeFi Wallet is on chain</string>
@@ -3558,5 +3558,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
     <string name="cash_out_bank">Cash out to your bank</string>
     <string name="buy_different_crypto">Buy a different crypto</string>
+
+    <string name="announcement_recovery_title">Secure your wallets</string>
+    <string name="announcement_recovery_subtitle">Backup your Seed Phrase to keep your DeFi Wallet safe</string>
 
 </resources>

@@ -4,10 +4,10 @@ import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.WalletModePrefs
-import com.blockchain.store.asSingle
+import com.blockchain.store.firstOutcome
 import com.blockchain.walletmode.WalletMode
-import kotlinx.coroutines.rx3.await
 
 class DefaultWalletModeStrategy(
     private val walletModePrefs: WalletModePrefs,
@@ -16,7 +16,11 @@ class DefaultWalletModeStrategy(
 
     suspend fun defaultWalletMode(): WalletMode {
         val productsEligibilityData =
-            productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle().await()
+            productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .firstOutcome()
+                .getOrNull()
+                ?: return WalletMode.CUSTODIAL
+
         return productsEligibilityData.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.let { eligibility ->
             if (eligibility.isDefault) {
                 try {
@@ -32,7 +36,11 @@ class DefaultWalletModeStrategy(
 
     suspend fun custodialEnabled(): Boolean {
         val productsEligibilityData =
-            productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle().await()
+            productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .firstOutcome()
+                .getOrNull()
+                ?: return true
+
         return productsEligibilityData.products[EligibleProduct.USE_CUSTODIAL_ACCOUNTS]?.canTransact ?: true
     }
 }

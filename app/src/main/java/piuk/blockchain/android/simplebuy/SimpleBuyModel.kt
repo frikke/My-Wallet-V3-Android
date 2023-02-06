@@ -1155,9 +1155,11 @@ class SimpleBuyModel(
             quote = quote,
         ).subscribeBy(
             onSuccess = {
-                if (selectedPaymentMethod.paymentMethodType == PaymentMethodType.GOOGLE_PAY) {
+                if (
+                    selectedPaymentMethod.paymentMethodType == PaymentMethodType.GOOGLE_PAY ||
+                    selectedPaymentMethod.concreteId() == PaymentMethod.GOOGLE_PAY_PAYMENT_ID
+                ) {
                     require(googlePayPayload != null) { "Missing googlePayPayload" }
-                    require(googlePayAddress != null) { "Missing googlePayAddress" }
                     process(
                         SimpleBuyIntent.ConfirmGooglePayOrder(
                             orderId = it.id,

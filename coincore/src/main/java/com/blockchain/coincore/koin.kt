@@ -2,6 +2,7 @@ package com.blockchain.coincore
 
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
+import com.blockchain.coincore.eth.Erc20DataManagerImpl
 import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
@@ -16,10 +17,10 @@ import com.blockchain.coincore.loader.CoinNetworksStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
-import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
@@ -29,14 +30,12 @@ import com.blockchain.koin.stakingBalanceStore
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val coincoreModule = module {
 
     scope(payloadScopeQualifier) {
-
         scoped {
             BtcAsset(
                 payloadManager = get(),
@@ -127,7 +126,6 @@ val coincoreModule = module {
                 unifiedBalancesService = lazy { get() },
                 tradingService = get(),
                 interestService = get(),
-                dynamicAssetsService = get(),
                 remoteLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
@@ -204,6 +202,13 @@ val coincoreModule = module {
             )
         }
 
+        scoped {
+            Erc20DataManagerImpl(
+                ethDataManager = get(),
+                historyCallCache = get(),
+            )
+        }.bind(Erc20DataManager::class)
+
         factory {
             TransferQuotesEngine(quotesProvider = get())
         }
@@ -234,12 +239,6 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
-            dominantL1Assets = setOf(
-                CryptoCurrency.BTC,
-                CryptoCurrency.BCH,
-                CryptoCurrency.ETHER,
-                CryptoCurrency.XLM
-            ),
             discoveryService = get(),
             l2sDynamicAssetRepository = get(),
             coinNetworksStore = get()
@@ -248,20 +247,12 @@ val coincoreModule = module {
 
     single {
         NonCustodialL2sDynamicAssetRepository(
-            discoveryService = get(),
-            l2Store = get(),
             coinNetworksStore = get()
         )
     }.bind(EvmNetworksService::class)
 
     single {
         CoinNetworksStore(
-            discoveryService = get()
-        )
-    }
-
-    single {
-        NonCustodialL2sDynamicAssetStore(
             discoveryService = get()
         )
     }

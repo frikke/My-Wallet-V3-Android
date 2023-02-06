@@ -12,7 +12,6 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -43,7 +42,6 @@ internal class BchAsset internal constructor(
     private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(),
     NonCustodialSupport,
-    StandardL1Asset,
     MultipleWalletsAsset {
 
     override val currency: AssetInfo

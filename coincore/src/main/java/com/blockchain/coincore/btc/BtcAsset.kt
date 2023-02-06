@@ -10,7 +10,6 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
@@ -35,9 +34,8 @@ internal class BtcAsset(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
-    private val addressResolver: IdentityAddressResolver
+    private val addressResolver: IdentityAddressResolver,
 ) : CryptoAssetBase(),
-    StandardL1Asset,
     MultipleWalletsAsset {
 
     override val currency: AssetInfo
@@ -92,7 +90,7 @@ internal class BtcAsset(
             }?.let {
                 val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
                 if (amountString.isNotEmpty()) {
-                    CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                    CryptoValue.fromMajor(currency, amountString.toBigDecimal())
                 } else {
                     null
                 }

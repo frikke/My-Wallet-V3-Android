@@ -1,7 +1,7 @@
 package info.blockchain.wallet.bip44
 
 import com.blockchain.domain.wallet.CoinType
-import com.blockchain.domain.wallet.NetworkType
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.bip44.HDWalletFactory.Language
 import info.blockchain.wallet.payload.data.Derivation
 import java.security.SecureRandom

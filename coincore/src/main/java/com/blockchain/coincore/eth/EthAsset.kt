@@ -9,7 +9,6 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
@@ -33,7 +32,6 @@ internal class EthAsset(
     private val labels: DefaultLabels,
     private val addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(),
-    StandardL1Asset,
     NonCustodialSupport {
     override val currency: AssetInfo
         get() = CryptoCurrency.ETHER

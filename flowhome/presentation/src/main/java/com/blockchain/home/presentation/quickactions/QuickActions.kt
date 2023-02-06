@@ -98,6 +98,7 @@ private fun QuickActionsScreen(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
+            .padding(vertical = AppTheme.dimensions.smallSpacing)
             .fillMaxWidth()
     ) {
         quickActionItems.forEachIndexed { index, quickAction ->
@@ -145,18 +146,19 @@ private fun QuickActionsScreen(
             ) {
                 Image(
                     modifier = Modifier
-                        .padding(top = 2.dp, bottom = 2.dp)
                         .alpha(
                             if (quickAction.enabled) 1f else .6f
                         ),
                     imageResource = quickAction.icon
                 )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
                 Text(
                     text = stringResource(id = quickAction.title),
                     style = AppTheme.typography.caption1,
                     color = AppTheme.colors.muted,
                     modifier = Modifier
-                        .padding(bottom = 2.dp)
                         .alpha(
                             if (quickAction.enabled) 1f else .6f
                         )

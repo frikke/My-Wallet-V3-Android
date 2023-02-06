@@ -22,7 +22,7 @@ import java.math.BigInteger
 // This doesn't cache anything at this time, since it makes a call for a single
 // asset. We can review this, when we look at activity caching in detail
 
-internal class Erc20HistoryCallCache(
+class Erc20HistoryCallCache(
     private val ethDataManager: EthDataManager,
     private val erc20Service: NonCustodialErc20Service,
     private val evmService: NonCustodialEvmService,

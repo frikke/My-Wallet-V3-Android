@@ -14,6 +14,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.utils.unsafeLazy
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -70,7 +71,6 @@ internal object AddressError : ReceiveDetailIntent() {
 }
 
 class ReceiveDetailModel(
-    private val interactor: ReceiveDetailInteractor,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
     initialState: ReceiveDetailState,
     uiScheduler: Scheduler,
@@ -95,8 +95,8 @@ class ReceiveDetailModel(
                         process(SetNetworkName(account.l1Network.shortName))
                     }
                     is CustodialTradingAccount -> { // Trading Accounts
-                        account.currency.l1chainTicker?.let {
-                            getNetworkNameForTradingAccount(it)
+                        account.currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
+                            process(SetNetworkName(it.shortName))
                         }
                     }
                 }
@@ -106,18 +106,6 @@ class ReceiveDetailModel(
             is SetNetworkName,
             is AddressError -> null
         }
-
-    private fun getNetworkNameForTradingAccount(currency: String): Disposable =
-        interactor.getEvmNetworkForCurrency(currency)
-            .trackProgress(activityIndicator)
-            .subscribeBy(
-                onSuccess = {
-                    process(SetNetworkName(it.name))
-                },
-                onError = {
-                    Timber.e("Unable to fetch network name for currency: $currency + error: ${it.message}")
-                }
-            )
 
     private fun handleInit(account: CryptoAccount): Disposable =
         account.receiveAddress

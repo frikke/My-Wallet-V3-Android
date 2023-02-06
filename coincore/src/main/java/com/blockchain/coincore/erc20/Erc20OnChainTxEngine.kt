@@ -16,10 +16,15 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.asSingle
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.utils.then
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -29,6 +34,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigDecimal
 import java.math.BigInteger
+import org.koin.core.component.inject
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
 
@@ -44,8 +50,11 @@ class Erc20OnChainTxEngine(
     resolvedAddress
 ) {
 
+    private val assetCatalogue: AssetCatalogue by inject()
+    private val unifiedBalancesService: UnifiedBalancesService by scopedInject()
+
     override fun doInitialiseTx(): Single<PendingTx> =
-        l1Asset.map { l1Asset ->
+        Single.just(
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 totalBalance = Money.zero(sourceAsset),
@@ -59,7 +68,7 @@ class Erc20OnChainTxEngine(
                 ),
                 selectedFiat = userFiat
             )
-        }
+        )
 
     private fun buildConfirmationTotal(pendingTx: PendingTx): TxConfirmationValue.Total {
         val fiatAmount = pendingTx.amount.toUserFiat(exchangeRates) as FiatValue
@@ -96,17 +105,14 @@ class Erc20OnChainTxEngine(
         )
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
-        Singles.zip(
-            feeOptions(),
-            l1Asset
-        )
-            .map { (feeOptions, asset) ->
+        feeOptions()
+            .map { feeOptions ->
                 val gasLimitContract = feeOptions.gasLimitContract
                 mapOf(
-                    FeeLevel.None to CryptoValue.zero(asset),
-                    FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, feeOptions.regularFee, asset),
-                    FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, asset),
-                    FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, asset)
+                    FeeLevel.None to CryptoValue.zero(l1Asset),
+                    FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, feeOptions.regularFee, l1Asset),
+                    FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, l1Asset),
+                    FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, l1Asset)
                 )
             }
 
@@ -132,7 +138,7 @@ class Erc20OnChainTxEngine(
 
     private fun feeOptions(): Single<FeeOptions> =
         feeManager.getErc20FeeOptions(
-            sourceAssetInfo.l1chainTicker!!,
+            coinNetwork.networkTicker,
             sourceAssetInfo.l2identifier
         )
             .singleOrError()
@@ -143,9 +149,8 @@ class Erc20OnChainTxEngine(
         return Single.zip(
             sourceAccount.balanceRx().firstOrError(),
             absoluteFees(),
-            l1Asset
-        ) { balance, feesForLevels, asset ->
-            val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(asset)
+        ) { balance, feesForLevels ->
+            val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(l1Asset)
 
             pendingTx.copy(
                 amount = amount,
@@ -182,7 +187,7 @@ class Erc20OnChainTxEngine(
 
         return erc20DataManager.isContractAddress(
             address = tgt.address,
-            l1Chain = tgt.asset.l1chainTicker
+            l1Chain = coinNetwork.networkTicker
         )
             .map { isContract ->
                 if (isContract || tgt !is Erc20Address) {
@@ -212,13 +217,19 @@ class Erc20OnChainTxEngine(
                 }
             }.ignoreElement()
 
+    private val l1AssetBalance: Single<CryptoValue>
+        get() = unifiedBalancesService.balances().asSingle().map { balances ->
+            balances.firstOrNull { it.currency.networkTicker == coinNetwork.nativeAssetTicker }?.let {
+                CryptoValue(l1Asset, it.balance.toBigInteger())
+            } ?: CryptoValue.zero(l1Asset)
+        }
+
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
-            erc20DataManager.getL1TokenBalance(sourceAssetInfo),
+            l1AssetBalance,
             absoluteFees(),
-            l1Asset
-        ) { balance, feeLevels, asset ->
-            val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(asset)
+        ) { balance, feeLevels ->
+            val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(l1Asset)
 
             if (fee > balance) {
                 throw TxValidationFailure(ValidationState.INSUFFICIENT_GAS)
@@ -241,6 +252,9 @@ class Erc20OnChainTxEngine(
                 }
             }
 
+    private val coinNetwork: CoinNetwork
+        get() = sourceAssetInfo.coinNetwork!!
+
     override fun doExecute(
         pendingTx: PendingTx,
         secondPassword: String
@@ -250,13 +264,13 @@ class Erc20OnChainTxEngine(
                 erc20DataManager.signErc20Transaction(
                     it,
                     secondPassword,
-                    sourceAssetInfo.l1chainTicker ?: throw TransactionError.ExecutionFailed
+                    coinNetwork.networkTicker
                 )
             }
             .flatMap {
                 erc20DataManager.pushErc20Transaction(
                     it,
-                    sourceAssetInfo.l1chainTicker ?: throw TransactionError.ExecutionFailed
+                    coinNetwork.networkTicker
                 )
             }
             .flatMap { hash ->
@@ -294,8 +308,11 @@ class Erc20OnChainTxEngine(
             }
     }
 
-    private val l1Asset: Single<AssetInfo> by lazy {
-        erc20DataManager.getL1AssetFor(sourceAsset as AssetInfo)
+    private val l1Asset: AssetInfo by lazy {
+        assetCatalogue.assetInfoFromNetworkTicker(
+            (sourceAsset as AssetInfo)
+                .coinNetwork!!.nativeAssetTicker
+        )!!
     }
 
     private fun FeeOptions.gasPrice(feeLevel: FeeLevel): BigInteger =

@@ -4,9 +4,9 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradingAccount
-import com.blockchain.core.chains.erc20.isErc20
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
+import info.blockchain.balance.isLayer2Token
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Single
 
@@ -45,7 +45,7 @@ class HotWalletService(
     }
 
     private fun getAssetNetworkTicker(currency: Currency) =
-        if (currency.isErc20()) {
+        if (currency.isLayer2Token) {
             CryptoCurrency.ETHER.networkTicker
         } else {
             currency.networkTicker

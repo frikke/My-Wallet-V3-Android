@@ -1,7 +1,7 @@
 package com.blockchain.coincore.eth
 
-import com.blockchain.core.chains.EvmNetwork
+import info.blockchain.balance.CoinNetwork
 
 interface L2NonCustodialAccount {
-    val l1Network: EvmNetwork
+    val l1Network: CoinNetwork
 }

@@ -1,8 +1,8 @@
 package com.blockchain.coincore
 
 import com.blockchain.coincore.impl.txEngine.PricedQuote
-import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
@@ -10,7 +10,7 @@ data class FeeInfo(
     val feeAmount: Money,
     val fiatAmount: Money,
     val asset: Currency,
-    val l1EvmNetwork: EvmNetwork? = null
+    val l1EvmNetwork: CoinNetwork? = null
 )
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {

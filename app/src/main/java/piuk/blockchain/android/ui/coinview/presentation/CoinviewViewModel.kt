@@ -37,6 +37,7 @@ import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -146,9 +147,9 @@ class CoinviewViewModel(
                 CoinviewAssetState(
                     asset = asset.currency,
                     l1Network = if (walletMode == WalletMode.NON_CUSTODIAL) {
-                        asset.currency.coinNetwork?.let {
+                        asset.currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
                             CoinViewNetwork(
-                                logo = assetCatalogue.fromNetworkTicker(it.nativeAsset)?.logo.orEmpty(),
+                                logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
                                 name = it.shortName,
                             )
                         }
