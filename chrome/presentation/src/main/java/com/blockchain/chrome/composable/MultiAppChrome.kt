@@ -111,7 +111,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
-    startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     showAppRating: () -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
@@ -141,7 +141,7 @@ fun MultiAppChrome(
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is MultiAppNavigationEvent.PhraseRecovery -> startDefiOnboarding(it.walletActivationRequired)
+                is MultiAppNavigationEvent.PhraseRecovery -> startPhraseRecovery(it.walletOnboardingRequired)
                 is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }
@@ -185,6 +185,9 @@ fun MultiAppChrome(
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
+            startPhraseRecovery = { onboardingRequired ->
+                startPhraseRecovery(onboardingRequired)
+            },
             openExternalUrl = openExternalUrl,
             openNftHelp = openNftHelp,
             nftNavigation = nftNavigation
@@ -217,6 +220,7 @@ fun MultiAppChromeScreen(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     nftNavigation: NftNavigation,
@@ -719,6 +723,7 @@ fun MultiAppChromeScreen(
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
+                    startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
                     nftNavigation = nftNavigation

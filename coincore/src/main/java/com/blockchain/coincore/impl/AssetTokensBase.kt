@@ -447,8 +447,3 @@ internal class ActiveAccountList {
         return activeList[assetFilter]!!.toList()
     }
 }
-
-/**
- * This interface is implemented by all the Local Standard L1s that our app contains their logic+sdk
- */
-interface StandardL1Asset

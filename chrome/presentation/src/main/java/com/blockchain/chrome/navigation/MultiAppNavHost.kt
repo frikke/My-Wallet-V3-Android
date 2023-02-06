@@ -38,7 +38,7 @@ import org.koin.androidx.compose.get
 fun MultiAppNavHost(
     prefs: SuperAppMvpPrefs = get(),
     walletModePrefs: WalletModePrefs = get(),
-    startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     pricesNavigation: PricesNavigation,
@@ -69,7 +69,7 @@ fun MultiAppNavHost(
             // main chrome
             chrome(
                 navController = navController,
-                startDefiOnboarding = startDefiOnboarding,
+                startPhraseRecovery = startPhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
@@ -102,7 +102,7 @@ fun MultiAppNavHost(
 
 private fun NavGraphBuilder.chrome(
     navController: NavHostController,
-    startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -120,7 +120,7 @@ private fun NavGraphBuilder.chrome(
                     listOf(NavArgument(key = ARG_WALLET_MODE, value = walletMode))
                 )
             },
-            startDefiOnboarding = startDefiOnboarding,
+            startPhraseRecovery = startPhraseRecovery,
             assetActionsNavigation = assetActionsNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,

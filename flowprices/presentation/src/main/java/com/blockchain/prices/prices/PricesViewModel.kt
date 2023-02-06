@@ -24,6 +24,7 @@ import info.blockchain.balance.CryptoCurrency.BTC
 import info.blockchain.balance.CryptoCurrency.ETHER
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Job
@@ -112,7 +113,7 @@ class PricesViewModel(
             asset = assetInfo,
             name = assetInfo.name,
             ticker = assetInfo.displayTicker,
-            network = assetInfo.coinNetwork?.shortName,
+            network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName,
             logo = assetInfo.logo,
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {

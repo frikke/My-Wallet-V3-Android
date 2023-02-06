@@ -53,7 +53,7 @@ class XlmDataManager internal constructor(
     val publicKey: Single<String>
         get() = defaultAccount().map { account ->
             account.pubKey ?: throw IllegalStateException("Missing public key")
-        }
+        }.ensureUrlUpdated()
 
     private val xlmProxyUrl = xlmHorizonUrlFetcher
         .xlmHorizonUrl(xlmHorizonDefUrl)
@@ -96,7 +96,7 @@ class XlmDataManager internal constructor(
                         Single.just(it)
                     }
                 }
-        }
+        }.ensureUrlUpdated()
 
     fun dryRunSendFunds(
         sendDetails: SendDetails,
@@ -109,7 +109,7 @@ class XlmDataManager internal constructor(
                 memoMapper.mapMemo(sendDetails.memo),
                 sendDetails.fee
             ).mapToSendFundsResult(sendDetails).just().ensureUrlUpdated()
-        }
+        }.ensureUrlUpdated()
 
     fun isAddressValid(address: String): Boolean =
         try {

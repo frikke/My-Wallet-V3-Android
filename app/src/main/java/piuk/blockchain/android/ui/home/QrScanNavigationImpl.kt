@@ -199,7 +199,7 @@ class QrScanNavigationImpl(
                         val networkInfo = NetworkInfo(
                             networkTicker = network.networkTicker,
                             name = network.name,
-                            chainId = network.chainId,
+                            chainId = network.chainId!!,
                             logo = assetCatalogue.assetInfoFromNetworkTicker(network.networkTicker)?.logo
                         )
                         activity!!.showBottomSheet(

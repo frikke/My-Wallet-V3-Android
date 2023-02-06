@@ -12,7 +12,6 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.TransactionsStore
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.koin.scopedInject
@@ -23,6 +22,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityS
 import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Single
 
 class OnChainSellTxEngine(
@@ -105,7 +105,7 @@ class OnChainSellTxEngine(
         }
 
     override fun feeInSourceCurrency(pendingTx: PendingTx): Money =
-        if (sourceAsset.isErc20()) Money.zero(sourceAsset)
+        if (sourceAsset.isLayer2Token) Money.zero(sourceAsset)
         else pendingTx.feeAmount
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =

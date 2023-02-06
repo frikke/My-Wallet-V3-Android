@@ -5,18 +5,18 @@ import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
+import com.blockchain.api.assetdiscovery.data.DynamicCurrencyList
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.coinnetworks.data.CoinNetworkDto
 import com.blockchain.api.coinnetworks.data.CoinTypeDto
-import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.NetworkType
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -58,7 +58,10 @@ data class DynamicAsset(
     val chainIdentifier: String? = null,
     @SerialName("explorerUrl")
     val explorerUrl: String? = null
-)
+) {
+    fun hasNonCustodialSupport(): Boolean =
+        products.any { it == DynamicAssetProducts.DynamicSelfCustody || it == DynamicAssetProducts.PrivateKey }
+}
 
 data class DetailedAssetInformation(
     val description: String,
@@ -79,11 +82,28 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun getEthErc20s(): Single<DynamicAssetList> =
-        api.getErc20Currencies()
-            .map { dto ->
-                dto.currencies.mapNotNull { it.toDynamicAsset(listOf(CryptoCurrency.ETHER.networkTicker)) }
+    fun getErc20s(supportedNetworks: List<CoinNetwork>): Single<DynamicAssetList> =
+        Single.zip(
+            api.getEthErc20s().onErrorReturn {
+                DynamicCurrencyList(
+                    emptyList()
+                )
+            },
+            api.getOtherErc20s().onErrorReturn {
+                DynamicCurrencyList(
+                    emptyList()
+                )
+            }.map {
+                it.currencies.filter { currency ->
+                    (currency.coinType as? Erc20Asset)?.parentChain in
+                        supportedNetworks.map { network -> network.networkTicker }
+                }
             }
+        ) { eth, other ->
+            (eth.currencies + other).toSet()
+        }.map { dto ->
+            dto.mapNotNull { it.toDynamicAsset() }
+        }
 
     fun getCustodialAssets(): Single<DynamicAssetList> =
         api.getCustodialCurrencies()
@@ -91,7 +111,7 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL1Coins(): Outcome<Exception, DynamicAssetList> =
+    fun getL1Coins(): Single<DynamicAssetList> =
         api.getL1Coins()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
@@ -108,25 +128,11 @@ class AssetDiscoveryApiService internal constructor(
             response.types.filter { it.type != NetworkType.NOT_SUPPORTED }
         }
 
-    suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
-        api.getL2CurrenciesForL1()
-            .flatMap { dto ->
-                try {
-                    Outcome.Success(dto.currencies.mapNotNull { it.toDynamicAsset(evmTickers) })
-                } catch (ex: Exception) {
-                    Outcome.Failure(ex)
-                }
-            }
-
     suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
         api.getAssetInfo(assetTicker)
 
-    // TODO(dtverdota): these methods for mapping DynamicCurrency to DynamicAsset needs to be extracted
-    // to respect single responsibility and local reasoning
-    private fun DynamicCurrency.toDynamicAsset(evmNetworks: List<String> = emptyList()): DynamicAsset? =
+    private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
-            coinType is Erc20Asset &&
-                !evmNetworks.contains(coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -136,7 +142,6 @@ class AssetDiscoveryApiService internal constructor(
                 isFiat = coinType is FiatAsset,
                 precision = precision,
                 products = if (networkSymbol == "STX" || networkSymbol == "SOL") {
-                    // TODO(dtverdota): Remove once added on BE
                     makeProductSet(products).plus(DynamicAssetProducts.DynamicSelfCustody)
                 } else {
                     makeProductSet(products)
@@ -144,11 +149,7 @@ class AssetDiscoveryApiService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (evmNetworks.contains(coinType.parentChain)) {
-                        ERC20_CONFIRMATIONS
-                    } else {
-                        throw IllegalStateException("Unknown parent chain")
-                    }
+                    is Erc20Asset -> ERC20_CONFIRMATIONS
                     is CoinAsset -> coinType.minConfirmations
                     is CeloTokenAsset -> CELO_CONFIRMATIONS
                     else -> 0

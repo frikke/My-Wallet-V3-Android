@@ -1,10 +1,11 @@
 package com.blockchain.coincore.selfcustody
 
+import com.blockchain.api.selfcustody.BuildTxResponse
 import com.blockchain.api.selfcustody.PreImage
+import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.api.selfcustody.SignatureAlgorithm
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -12,9 +13,11 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.coincore.xlm.STATE_MEMO
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.logging.Logger
@@ -30,9 +33,21 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
-import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
+
+private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
+    this.copy(
+        engineState = engineState.copyAndPut(STATE_MEMO, memo)
+    )
+
+private val PendingTx.memo: String?
+    get() {
+        val memo = (this.engineState[STATE_MEMO] as? TxConfirmationValue.Memo)
+        return memo?.let {
+            return memo.text ?: memo.id.toString()
+        }
+    }
 
 class DynamicOnChanTxEngine(
     private val nonCustodialService: NonCustodialService,
@@ -49,29 +64,31 @@ class DynamicOnChanTxEngine(
         get() = listOf()
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> {
-        return createTransaction(pendingTx)
-            .map { response ->
-                val estimatedFee = Money.fromMinor(sourceAsset, response.summary.absoluteFeeEstimate.toBigInteger())
-                pendingTx.copy(
-                    txConfirmations = listOfNotNull(
-                        TxConfirmationValue.From(sourceAccount, sourceAsset),
-                        TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
-                        TxConfirmationValue.CompoundNetworkFee(
-                            sendingFeeInfo = if (!estimatedFee.isZero) {
-                                FeeInfo(
-                                    feeAmount = estimatedFee,
-                                    fiatAmount = estimatedFee.toUserFiat(exchangeRates),
-                                    asset = sourceAsset
-                                )
-                            } else null,
-                            feeLevel = pendingTx.feeSelection.selectedLevel
-                        ),
-                        buildConfirmationTotal(pendingTx)
-                    ),
-                    engineState = pendingTx.engineState.plus(
-                        mapOf(PREIMAGES to response.preImages, RAWTX to response.rawTx)
-                    )
+        return Single.just(
+            pendingTx.copy(
+                txConfirmations = listOfNotNull(
+                    TxConfirmationValue.From(sourceAccount, sourceAsset),
+                    TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
+                    buildConfirmationTotal(pendingTx),
+                    if ((sourceAsset as? AssetInfo)?.coinNetwork?.isMemoSupported == true) {
+                        val memo = (txTarget as? CryptoAddress)?.memo
+                        TxConfirmationValue.Memo(
+                            text = memo,
+                            id = null
+                        )
+                    } else null
                 )
+
+            )
+        )
+    }
+
+    override fun doOptionUpdateRequest(pendingTx: PendingTx, newConfirmation: TxConfirmationValue): Single<PendingTx> {
+        return super.doOptionUpdateRequest(pendingTx, newConfirmation)
+            .map { tx ->
+                (newConfirmation as? TxConfirmationValue.Memo)?.let {
+                    tx.setMemo(newConfirmation)
+                } ?: tx
             }
     }
 
@@ -116,16 +133,44 @@ class DynamicOnChanTxEngine(
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
         validateAmounts(pendingTx)
             .then { validateSufficientFunds(pendingTx) }
+            .then { validateOptions(pendingTx) }
             .updateTxValidity(pendingTx)
 
-    override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        rxSingleOutcome {
-            val txSignatures = signTransaction(pendingTx)
+    private fun getMemoOption(pendingTx: PendingTx) =
+        pendingTx.memo
+
+    private fun validateOptions(pendingTx: PendingTx): Completable =
+        Completable.fromCallable {
+            if (!isMemoValid(getMemoOption(pendingTx))) {
+                throw TxValidationFailure(ValidationState.OPTION_INVALID)
+            }
+        }
+
+    private fun isMemoValid(memoConfirmation: String?): Boolean {
+        return if (memoConfirmation.isNullOrBlank()) {
+            true
+        } else {
+            when (sourceAsset.networkTicker) {
+                "STX" -> memoConfirmation.length in 1..34
+                else -> memoConfirmation.length in 1..28
+            }
+        }
+    }
+
+    private fun signAndPushTx(buildTxResponse: BuildTxResponse): Single<PushTxResponse> {
+        val txSignatures = signTransaction(buildTxResponse)
+        return rxSingleOutcome {
             nonCustodialService.pushTransaction(
                 currency = sourceAsset.networkTicker,
-                rawTx = pendingTx.engineState[RAWTX] as? JsonObject ?: throw TransactionError.ExecutionFailed,
+                rawTx = buildTxResponse.rawTx,
                 signatures = txSignatures
             )
+        }
+    }
+
+    override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
+        createTransaction(pendingTx).flatMap {
+            signAndPushTx(it)
         }
             .onErrorResumeNext {
                 Logger.e(it)
@@ -135,14 +180,13 @@ class DynamicOnChanTxEngine(
                 Single.just(TxResult.HashedTxResult(it.txId, pendingTx.amount))
             }
 
-    private fun signTransaction(pendingTx: PendingTx): List<TransactionSignature> {
+    private fun signTransaction(buildTxResponse: BuildTxResponse): List<TransactionSignature> {
         val signingKey = (sourceAccount as? DynamicNonCustodialAccount)?.getSigningKey()?.toECKey()
             ?: throw IllegalStateException("Source account is not DynamicNonCustodialAccount")
-        return (pendingTx.engineState[PREIMAGES] as? List<PreImage>)?.map { unsignedPreImage ->
+        return buildTxResponse.preImages.map { unsignedPreImage ->
             when (unsignedPreImage.signatureAlgorithm) {
                 SignatureAlgorithm.SECP256K1 -> {
                     val signature = getSignature(unsignedPreImage, signingKey)
-
                     TransactionSignature(
                         preImage = unsignedPreImage.rawPreImage,
                         signingKey = unsignedPreImage.signingKey,
@@ -152,7 +196,7 @@ class DynamicOnChanTxEngine(
                 }
                 else -> throw TransactionError.ExecutionFailed
             }
-        } ?: throw TransactionError.ExecutionFailed
+        }
     }
 
     private fun getSignature(unsignedPreImage: PreImage, signingKey: ECKey): String {
@@ -185,7 +229,7 @@ class DynamicOnChanTxEngine(
                     MAX_AMOUNT
                 },
                 fee = NORMAL_FEE,
-                memo = targetAddress.memo ?: "",
+                memo = pendingTx.memo ?: targetAddress.memo ?: "",
                 feeCurrency = feeCurrency.networkTicker
             )
         }
@@ -219,10 +263,8 @@ class DynamicOnChanTxEngine(
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular, FeeLevel.Priority)
-        private const val PREIMAGES = "PREIMAGES"
         private const val NORMAL_FEE = "NORMAL"
         private const val MAX_AMOUNT = "MAX"
         private const val TX_TYPE_PAYMENT = "PAYMENT"
-        private const val RAWTX = "RAWTX"
     }
 }

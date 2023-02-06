@@ -53,7 +53,7 @@ class QuickActionsRepository(
         }
 
     private fun allActionsForBrokerage(freshnessStrategy: FreshnessStrategy): Flow<List<StateAwareAction>> {
-        val featuresFlow = userFeaturePermissionService.getAccessForFeatures(
+        val featuresDataResourceFlow = userFeaturePermissionService.getAccessForFeatures(
             Feature.Sell,
             Feature.Buy,
             Feature.Swap,
@@ -62,12 +62,6 @@ class QuickActionsRepository(
             Feature.DepositCrypto,
             freshnessStrategy = freshnessStrategy
         ).filterNot { it is DataResource.Loading }
-            .onErrorReturn { false }
-            .map {
-                (it as? DataResource.Data<Map<Feature, FeatureAccess>>)?.data ?: throw IllegalStateException(
-                    "Data should be returned"
-                )
-            }
 
         val balanceFlow =
             totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy)
@@ -95,9 +89,10 @@ class QuickActionsRepository(
 
         return combine(
             balanceFlow,
-            featuresFlow,
+            featuresDataResourceFlow,
             hasFiatBalance
-        ) { balanceIsPositive, features, fiatBalanceIsPositive ->
+        ) { balanceIsPositive, featuresDataResource, fiatBalanceIsPositive ->
+            val features = (featuresDataResource as? DataResource.Data)?.data ?: emptyMap()
             listOf(
                 StateAwareAction(
                     action = AssetAction.Buy,

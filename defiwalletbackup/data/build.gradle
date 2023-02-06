@@ -17,6 +17,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':wallet')
     implementation project(':core')
+    implementation project(':blockchainApi')
 
     // RxJava
     implementation Libraries.rxjava3Coroutines

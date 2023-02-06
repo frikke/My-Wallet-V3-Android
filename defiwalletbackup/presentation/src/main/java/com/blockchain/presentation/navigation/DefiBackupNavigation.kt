@@ -8,6 +8,6 @@ import androidx.compose.runtime.Stable
 interface DefiBackupNavigation {
     fun startBackup(
         launcher: ActivityResultLauncher<Intent>,
-        walletActivationRequired: Boolean
+        onboardingRequired: Boolean
     )
 }

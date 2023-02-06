@@ -10,7 +10,6 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
-import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.preferences.WalletStatusPrefs
@@ -18,6 +17,7 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
 import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable

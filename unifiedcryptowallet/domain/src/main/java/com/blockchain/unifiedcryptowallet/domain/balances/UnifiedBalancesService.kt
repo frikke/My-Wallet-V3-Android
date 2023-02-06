@@ -3,8 +3,8 @@ package com.blockchain.unifiedcryptowallet.domain.balances
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money

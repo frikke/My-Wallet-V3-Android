@@ -9,9 +9,9 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isLayer2Token
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
 import piuk.blockchain.android.urllinks.CHECKOUT_PRICE_EXPLANATION
@@ -260,7 +260,7 @@ class NetworkFormatter(
             ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),
-            if (property.asset.isErc20()) {
+            if (property.asset.isLayer2Token) {
                 ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(R.string.swap_erc_20_tooltip),
                     R.string.common_linked_learn_more, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
@@ -330,8 +330,8 @@ class CompoundNetworkFeeFormatter(
         receivingFeeInfo: FeeInfo
     ): SpannableStringBuilder? =
         when {
-            !sendingFeeInfo.asset.isErc20() &&
-                !receivingFeeInfo.asset.isErc20() -> {
+            !sendingFeeInfo.asset.isLayer2Token &&
+                !receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_dual_fee_note, sendingFeeInfo.asset.name,
@@ -340,8 +340,8 @@ class CompoundNetworkFeeFormatter(
                     R.string.checkout_fee_link, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
                 )
             }
-            sendingFeeInfo.asset.isErc20() &&
-                !receivingFeeInfo.asset.isErc20() -> {
+            sendingFeeInfo.asset.isLayer2Token &&
+                !receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_one_not_fee_note,
@@ -352,8 +352,8 @@ class CompoundNetworkFeeFormatter(
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )
             }
-            !sendingFeeInfo.asset.isErc20() &&
-                receivingFeeInfo.asset.isErc20() -> {
+            !sendingFeeInfo.asset.isLayer2Token &&
+                receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_one_not_fee_note,
@@ -364,8 +364,8 @@ class CompoundNetworkFeeFormatter(
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )
             }
-            sendingFeeInfo.asset.isErc20() &&
-                receivingFeeInfo.asset.isErc20() -> {
+            sendingFeeInfo.asset.isLayer2Token &&
+                receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_both_erc_20_fee_note,
@@ -385,7 +385,7 @@ class CompoundNetworkFeeFormatter(
         ignoreErc20LinkedNote: Boolean
     ): SpannableStringBuilder =
         when {
-            !item.asset.isErc20() || ignoreErc20LinkedNote -> {
+            !item.asset.isLayer2Token || ignoreErc20LinkedNote -> {
                 val networkName = item.l1EvmNetwork?.name ?: item.asset.name
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(

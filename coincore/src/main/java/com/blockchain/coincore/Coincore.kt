@@ -17,7 +17,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.domain.wallet.CoinNetwork
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
@@ -29,6 +28,7 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -422,7 +422,7 @@ internal class NetworkAccountsRepository(
             is Outcome.Failure -> return emptyList()
             is Outcome.Success -> {
                 coins.value.mapNotNull {
-                    val currency = assetCatalogue.fromNetworkTicker(it.currency) ?: return@mapNotNull null
+                    val currency = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker) ?: return@mapNotNull null
                     coincore[currency].accountGroup(AssetFilter.NonCustodial)
                         .map { group -> group.accounts.filterIsInstance<NetworkWallet>() }.switchIfEmpty(
                             Single.just(

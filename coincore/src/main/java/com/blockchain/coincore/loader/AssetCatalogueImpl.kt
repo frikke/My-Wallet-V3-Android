@@ -48,7 +48,7 @@ class AssetCatalogueImpl internal constructor(
         l1chain: String,
         contractAddress: String
     ): AssetInfo? = fullAssetLookup.get().values.filterIsInstance<AssetInfo>().firstOrNull { asset ->
-        asset.l1chainTicker == l1chain &&
+        asset.coinNetwork?.networkTicker == l1chain &&
             asset.l2identifier?.equals(contractAddress, ignoreCase = true) == true
     }
 
@@ -70,12 +70,5 @@ class AssetCatalogueImpl internal constructor(
         get() = fullAssetLookup.get().values.filterIsInstance<FiatCurrency>().toList()
 
     override fun supportedL2Assets(chain: AssetInfo): List<AssetInfo> =
-        supportedCryptoAssets.filter { it.l1chainTicker == chain.networkTicker }
-
-    override fun availableL1Assets(): Single<List<AssetInfo>> = assetsService.availableL1Assets()
-
-    override fun allEvmAssets(): Single<List<AssetInfo>> = assetsService.allEvmAssets()
-
-    // Returns the list of EvmNetworks from the coin networks service including Ethereum
-    fun allEvmNetworks() = assetsService.allEvmNetworks()
+        supportedCryptoAssets.filter { it.coinNetwork?.networkTicker == chain.networkTicker }
 }
