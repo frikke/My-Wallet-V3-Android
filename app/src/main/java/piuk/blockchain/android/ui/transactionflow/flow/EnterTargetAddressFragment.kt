@@ -231,7 +231,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 model.process(TransactionIntent.DismissSendToDomainBanner(DOMAIN_ALERT_DISMISS_KEY))
                 gone()
             }
-            isBordered = true
+            isBordered = false
             visibleIf { customiser.shouldShowSendToDomainBanner(state) }
         }
     }
