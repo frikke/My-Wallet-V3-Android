@@ -1,5 +1,6 @@
 package com.blockchain.domain.wallet
 
+import info.blockchain.balance.NetworkType
 import kotlinx.serialization.Serializable
 
 @Serializable

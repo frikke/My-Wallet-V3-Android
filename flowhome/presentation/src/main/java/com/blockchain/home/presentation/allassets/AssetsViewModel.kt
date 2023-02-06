@@ -42,6 +42,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -153,7 +154,7 @@ class AssetsViewModel(
                 asset = account.currency as AssetInfo,
                 icon = listOfNotNull(
                     account.currency.logo,
-                    (account.currency as? AssetInfo)?.coinNetwork?.nativeAsset?.let {
+                    (account.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker?.let {
                         assetCatalogue.fromNetworkTicker(it)?.logo
                     }
                 ),

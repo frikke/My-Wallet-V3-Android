@@ -13,9 +13,9 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.presentation.getResolvedColor
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isLayer2Token
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemFeeCheckoutCompoundExpandableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -105,7 +105,7 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
     }
 
     private fun getFeeLabel(item: FeeInfo) =
-        if (item.asset.isErc20()) {
+        if (item.asset.isLayer2Token) {
             val network = item.l1EvmNetwork?.networkTicker ?: CryptoCurrency.ETHER.displayTicker
             context.getString(
                 R.string.checkout_item_erc20_network_fee,

@@ -164,7 +164,7 @@ internal class NonCustodialRepository(
         )
 
     override fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo =
-        asset.l1chainTicker?.let { ticker ->
+        asset.coinNetwork?.nativeAssetTicker?.let { ticker ->
             (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo) ?: asset
         } ?: asset
 

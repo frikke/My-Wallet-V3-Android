@@ -4,11 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.utils.awaitOutcome
+import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -84,11 +84,11 @@ class SelectNetworkViewModel(
         )
     }
 
-    private fun EvmNetwork.toNetworkInfo() =
+    private fun CoinNetwork.toNetworkInfo() =
         NetworkInfo(
-            networkTicker = nativeAsset,
+            networkTicker = nativeAssetTicker,
             name = name,
-            chainId = chainId
+            chainId = chainId!!
         )
 
     private fun List<NetworkInfo>.findByChainId(chainId: Int) =

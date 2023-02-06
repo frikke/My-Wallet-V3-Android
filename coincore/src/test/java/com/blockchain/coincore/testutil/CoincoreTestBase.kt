@@ -10,6 +10,7 @@ import com.blockchain.store.Store
 import com.blockchain.testutils.rxInit
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
@@ -50,7 +51,6 @@ open class CoincoreTestBase {
 
     private val mockedRemoteLogger: RemoteLogger = mock()
     private val balancesStore: Store<BalancesResponse> = mock()
-    protected val unifiedBalancesService: UnifiedBalancesService = mockk()
 
     private val userFiatToUserFiat = ExchangeRate(
         from = TEST_USER_FIAT,
@@ -69,6 +69,9 @@ open class CoincoreTestBase {
         on { getLastFiatToUserFiatRate(TEST_API_FIAT) }.thenReturn(apiFiatToUserFiat)
     }
 
+    protected val unifiedBalancesService: UnifiedBalancesService = mockk()
+    protected val assetCatalogue: AssetCatalogue = mock()
+
     protected open fun initMocks() {
         injectMocks(
             module {
@@ -77,6 +80,10 @@ open class CoincoreTestBase {
                         currencyPrefs
                     }
                 }
+                factory {
+                    assetCatalogue
+                }.bind(AssetCatalogue::class)
+
                 factory {
                     mockedRemoteLogger
                 }.bind(RemoteLogger::class)

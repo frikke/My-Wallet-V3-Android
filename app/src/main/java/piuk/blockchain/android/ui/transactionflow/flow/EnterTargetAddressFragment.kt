@@ -28,6 +28,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -193,7 +194,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             titleFrom.title = customiser.selectTargetSourceLabel(state)
             titleTo.title = customiser.selectTargetDestinationLabel(state)
             warningMessage.apply {
-                (state.sendingAsset as? AssetInfo)?.coinNetwork?.let {
+                (state.sendingAsset as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.let {
                     visible()
                     text = customiser.selectTargetAddressInputWarning(
                         state.action,

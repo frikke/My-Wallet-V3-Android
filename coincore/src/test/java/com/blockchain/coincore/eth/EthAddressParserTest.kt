@@ -4,7 +4,6 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -20,9 +19,8 @@ import org.junit.Test
 @Suppress("LocalVariableName", "SimplifyBooleanWithConstants")
 class EthAddressParserTest : CoincoreTestBase() {
     private val ethDataManager: EthDataManager = mock()
-    private val l1BalanceStore: L1BalanceStore = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val assetCatalogue: Lazy<AssetCatalogue> = mock()
+    private val lazyAssetCatalogue: Lazy<AssetCatalogue> = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
@@ -33,7 +31,7 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val subject = EthAsset(
         ethDataManager = ethDataManager,
         feeDataManager = feeDataManager,
-        assetCatalogue = assetCatalogue,
+        assetCatalogue = lazyAssetCatalogue,
         walletPrefs = walletPrefs,
         notificationUpdater = notificationUpdater,
         labels = labels,

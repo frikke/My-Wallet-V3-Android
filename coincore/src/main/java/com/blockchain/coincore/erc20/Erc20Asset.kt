@@ -8,9 +8,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.koin.scopedInject
@@ -19,8 +17,10 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -38,18 +38,21 @@ internal class Erc20Asset(
     private val erc20address
         get() = erc20DataManager.accountHash
 
+    private val coinNetwork: CoinNetwork
+        get() = currency.coinNetwork!!
+
     private val evmNetworksService: EvmNetworksService by scopedInject()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
         if (AssetCategory.NON_CUSTODIAL !in currency.categories) return Single.just(emptyList())
         return evmNetworksService.allEvmNetworks().map { networks ->
-            networks.firstOrNull { network -> network.networkTicker == currency.l1chainTicker }?.let {
+            networks.firstOrNull { network -> network.networkTicker == coinNetwork.networkTicker }?.let {
                 listOf(getNonCustodialAccount(it))
             } ?: emptyList()
         }
     }
 
-    private fun getNonCustodialAccount(evmNetwork: EvmNetwork): Erc20NonCustodialAccount =
+    private fun getNonCustodialAccount(evmNetwork: CoinNetwork): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
             currency,
             erc20DataManager,
@@ -74,7 +77,7 @@ internal class Erc20Asset(
                     if (isValid) {
                         erc20DataManager.isContractAddress(
                             address = address,
-                            l1Chain = currency.l1chainTicker
+                            l1Chain = coinNetwork.networkTicker
                         )
                             .flatMapMaybe { isContract ->
                                 Maybe.just(
@@ -130,7 +133,7 @@ internal class Erc20Asset(
 
         return erc20DataManager.isContractAddress(
             address = addressSegment,
-            l1Chain = currency.l1chainTicker
+            l1Chain = coinNetwork.networkTicker
         )
             .flatMapMaybe { isContract ->
                 Maybe.just(
@@ -163,6 +166,6 @@ internal class Erc20Address(
     val isContract: Boolean = false,
 ) : CryptoAddress {
     init {
-        require(asset.isErc20())
+        require(asset.isLayer2Token)
     }
 }

@@ -172,7 +172,7 @@ class TradingToOnChainTxEngine(
                     if (isNoteSupported) {
                         TxConfirmationValue.Description()
                     } else null,
-                    if ((sourceAccount as SingleAccount).isMemoSupported) {
+                    if (sourceAssetInfo.coinNetwork?.isMemoSupported == true) {
                         val memo = (txTarget as? CryptoAddress)?.memo
                         TxConfirmationValue.Memo(
                             text = memo,

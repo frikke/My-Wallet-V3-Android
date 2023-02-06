@@ -40,6 +40,7 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.isLayer2Token
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -828,10 +829,14 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.INVALID_PASSWORD -> resources.getString(
                 R.string.send_enter_invalid_password
             )
-            TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
-                R.string.send_enter_insufficient_gas,
-                state.sendingAsset.asAssetInfoOrThrow().l1chainTicker ?: state.sendingAsset.displayTicker
-            )
+            TransactionErrorState.NOT_ENOUGH_GAS -> {
+                val gasTicker = state.sendingAsset.asAssetInfoOrThrow()
+                    .takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker ?: state.sendingAsset.displayTicker
+                return resources.getString(
+                    R.string.send_enter_insufficient_gas,
+                    gasTicker
+                )
+            }
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
             TransactionErrorState.BELOW_MIN_LIMIT -> {
                 val fiatRate = state.fiatRate ?: return ""
@@ -1470,7 +1475,7 @@ class TransactionFlowCustomiserImpl(
                 resources.getString(
                     R.string.send_select_wallet_warning_sheet_desc,
                     state.sendingAsset.displayTicker,
-                    state.selectedTarget.l1Network.name
+                    state.selectedTarget.l1Network.shortName
                 )
             } else {
                 ""

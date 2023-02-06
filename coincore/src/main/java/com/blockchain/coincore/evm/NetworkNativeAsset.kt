@@ -7,30 +7,28 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
-internal class L1EvmAsset(
+internal class NetworkNativeAsset(
     override val currency: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
     private val labels: DefaultLabels,
     private val walletPreferences: WalletStatusPrefs,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
-    private val evmNetwork: EvmNetwork
-) : CryptoAssetBase(),
-    StandardL1Asset {
+    private val coinNetwork: CoinNetwork
+) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
 
@@ -40,10 +38,10 @@ internal class L1EvmAsset(
         Single.just(loadNonCustodialAccount())
 
     private fun loadNonCustodialAccount(): SingleAccountList {
-        return listOf(getNonCustodialAccount(evmNetwork))
+        return listOf(getNonCustodialAccount(coinNetwork))
     }
 
-    private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
+    private fun getNonCustodialAccount(evmNetwork: CoinNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(
             asset = currency,
             erc20DataManager = erc20DataManager,
@@ -66,7 +64,7 @@ internal class L1EvmAsset(
                 if (isValid) {
                     erc20DataManager.isContractAddress(
                         address = normalisedAddress,
-                        l1Chain = evmNetwork.networkTicker
+                        l1Chain = coinNetwork.networkTicker
                     )
                         .flatMapMaybe { isContract ->
                             Maybe.just(

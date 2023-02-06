@@ -7,7 +7,7 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.l1chain
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Single
 
 data class TrendingPair(
@@ -60,7 +60,10 @@ internal class SwapTrendingPairsProvider(
 
     private fun makeRequiredAssetSet() =
         DEFAULT_SWAP_PAIRS.map { pair ->
-            val l1chain = pair.first.l1chain(assetCatalogue)
+            val l1chain =
+                pair.first.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker?.let {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)
+                }
             listOf(pair.first, pair.second, l1chain)
         }.flatten()
             .filterNotNull()

@@ -1,6 +1,5 @@
 package com.blockchain.walletconnect.data
 
-import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
@@ -8,6 +7,7 @@ import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletInfo
+import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
@@ -38,7 +38,7 @@ class WalletConnectMetadataRepository(
                         dAppInfo = DAppInfo(
                             peerId = dapp.dAppInfo.peerId,
                             peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
-                            chainId = dapp.dAppInfo.chainId ?: EthDataManager.ethChain.chainId
+                            chainId = dapp.dAppInfo.chainId ?: ETH_CHAIN_ID
                         ),
                         walletInfo = WalletInfo(
                             clientId = dapp.walletInfo.clientId,

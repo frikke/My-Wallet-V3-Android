@@ -494,7 +494,7 @@ class PayloadManager(
         }
     }
 
-    fun addImportedAddressFromKey(
+    private fun addImportedAddressFromKey(
         key: SigningKey,
         secondPassword: String?
     ): Single<ImportedAddress> {
@@ -559,27 +559,6 @@ class PayloadManager(
                 decryptedPrivateKey!!, importedAddress.address
             )
         )
-    }
-
-    private fun accountTotalBalance(
-        balanceHashMap: HashMap<String, Balance>,
-        legacyXpub: String,
-        segwitXpub: String
-    ): Balance? {
-        var totalBalance: Balance? = null
-        if (balanceHashMap.containsKey(legacyXpub)) {
-            totalBalance = balanceHashMap[legacyXpub]
-        }
-        if (balanceHashMap.containsKey(segwitXpub)) {
-            if (totalBalance != null) {
-                totalBalance.finalBalance = totalBalance.finalBalance.add(balanceHashMap[segwitXpub]!!.finalBalance)
-                totalBalance.totalReceived = totalBalance.totalReceived.add(balanceHashMap[segwitXpub]!!.totalReceived)
-                totalBalance.txCount = totalBalance.txCount + balanceHashMap[segwitXpub]!!.txCount
-            } else {
-                totalBalance = balanceHashMap[segwitXpub]
-            }
-        }
-        return totalBalance
     }
 
     /**

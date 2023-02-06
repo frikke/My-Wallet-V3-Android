@@ -1323,7 +1323,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Envie %1$s ou mais.</string>
     <string name="send_enter_invalid_password">A palavra-passe é incorreta.</string>
     <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Tente novamente.</string>
-    <string name="send_enter_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
+    <string name="send_enter_insufficient_gas">Não tem %1$s suficiente para processar esta transação.</string>
     <string name="send_select_a_wallet_title">ou selecione uma carteira</string>
     <string name="send_select_a_wallet_warning">Envie apenas %1$s para carteiras na rede ( %2$s ).\n <annotation link="send_network_options"> Saiba mais </annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s ( %2$s ) é um token que pode estar disponível em várias redes. Certifique-se de que conhece a rede do endereço da carteira para a qual está a enviar antes de efetuar o envio.</string>

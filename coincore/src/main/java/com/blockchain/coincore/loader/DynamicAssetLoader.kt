@@ -7,15 +7,13 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
-import com.blockchain.coincore.evm.L1EvmAsset
+import com.blockchain.coincore.evm.NetworkNativeAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
@@ -24,7 +22,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -33,16 +30,16 @@ import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.utils.filterListItemIsInstance
 import com.blockchain.utils.mapList
-import com.blockchain.utils.thenSingle
 import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isDelegatedNonCustodial
+import info.blockchain.balance.isLayer2Token
+import info.blockchain.balance.isNetworkNativeAsset
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -67,7 +64,6 @@ internal class DynamicAssetLoader(
     private val walletPreferences: WalletStatusPrefs,
     private val tradingService: TradingService,
     private val interestService: InterestService,
-    private val dynamicAssetsService: DynamicAssetsService,
     private val labels: DefaultLabels,
     private val custodialWalletManager: CustodialWalletManager,
     private val remoteLogger: RemoteLogger,
@@ -84,17 +80,14 @@ internal class DynamicAssetLoader(
     override operator fun get(asset: Currency): Asset =
         assetMap[asset] ?: attemptLoadAsset(asset)
 
-    private fun attemptLoadAsset(currency: Currency): Asset =
-        when {
-            currency.isErc20() -> loadErc20Asset(currency)
-            (currency as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(currency)
-            (currency as? AssetInfo)?.isDelegatedNonCustodial == true -> loadSelfCustodialAsset(currency)
-            currency is FiatCurrency -> FiatAsset(currency)
-            else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
-        }.also {
-            check(currency !in assetMap.keys) { "Asset already loaded ${currency.networkTicker}" }
-            assetMap[currency] = it
-        }
+    private fun attemptLoadAsset(currency: Currency): Asset {
+        return currency.loadAsset()?.let {
+            it.also {
+                check(it.currency !in assetMap.keys) { "Asset already loaded ${currency.networkTicker}" }
+                assetMap[currency] = it
+            }
+        } ?: throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
+    }
 
     /*
     * This methods responsibility is discover and persist the available assets that the application uses
@@ -110,33 +103,9 @@ internal class DynamicAssetLoader(
     override fun initAndPreload(): Completable {
         return assetCatalogue.initialise()
             .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
-            .flatMap { supportedAssets ->
-                initNonCustodialAssets(nonCustodialAssets).thenSingle {
-                    loadEvmAssets(allAssets = supportedAssets).map { evms ->
-                        val erc20AndCustodial = loadErc20AndCustodialAssets(allAssets = supportedAssets)
-                        assetMap.apply {
-                            putAll(
-                                nonCustodialAssets.associateBy { it.currency }
-                            )
-                            putAll(
-                                evms.associateBy { it.currency }
-                            )
-                            putAll(
-                                erc20AndCustodial.filter { asset ->
-                                    asset.currency.networkTicker !in
-                                        (
-                                            nonCustodialAssets.map { it.currency.networkTicker } +
-                                                evms.map { it.currency.networkTicker }
-                                            )
-                                }.filter { it.currency.isCustodial }
-                                    .associateBy { it.currency }
-                            )
-                        }
-                        evms + erc20AndCustodial
-                    }
-                }
-            }
-            .doOnSuccess { assetList ->
+            .map { currencies ->
+                currencies.mapNotNull { it.loadAsset() }
+            }.doOnSuccess { assetList ->
                 assetList.map { it.currency.networkTicker }.let { ids ->
                     check(
                         ids.size == ids.toSet().size
@@ -147,26 +116,36 @@ internal class DynamicAssetLoader(
                     }
                 }
             }
-            .doOnError {
-                Logger.e("init failed $it")
-                remoteLogger.logException(it)
-            }
-            .ignoreElement()
-    }
-
-    private fun loadEvmAssets(allAssets: Set<Currency>): Single<List<CryptoAsset>> {
-        return dynamicAssetsService.allEvmNetworks().map { evmNetworks ->
-            allAssets.filterIsInstance<AssetInfo>()
-                .filter {
-                    it.networkTicker !in nonCustodialAssets.map { standardAssets ->
-                        standardAssets.currency.networkTicker
+            .flatMapCompletable { supportedAssets ->
+                initNonCustodialAssets(supportedAssets).doOnComplete {
+                    assetMap.apply {
+                        putAll(supportedAssets.associateBy { it.currency })
                     }
                 }
-                .filter { it.networkTicker in evmNetworks.map { evm -> evm.nativeAsset } && it.isNonCustodial }
-                .map { asset ->
-                    loadEvmAsset(asset, evmNetworks.first { it.nativeAsset == asset.networkTicker })
-                }
+            }
+    }
+
+    private fun Currency.loadAsset(): Asset? {
+        val dominantAsset = nonCustodialAssets.firstOrNull { it.currency.networkTicker == networkTicker }
+        if (dominantAsset != null) {
+            return dominantAsset
         }
+        if ((this as? AssetInfo)?.isDelegatedNonCustodial == true) return loadSelfCustodialAsset(this)
+        if ((this as? AssetInfo)?.isNonCustodial == true) return loadNonCustodialAsset(this)
+        if ((this as? AssetInfo)?.isCustodialOnly == true) return DynamicOnlyTradingAsset(
+            currency = this,
+            addressValidation = defaultCustodialAddressValidation
+        )
+        if (this is FiatCurrency) return FiatAsset(
+            this
+        )
+        return null
+    }
+
+    private fun loadNonCustodialAsset(assetInfo: AssetInfo): Asset? {
+        if (assetInfo.isNetworkNativeAsset()) return loadNetworkNativeAsset(assetInfo)
+        if (assetInfo.isLayer2Token) return loadErc20Asset(assetInfo)
+        return null
     }
 
     /*
@@ -174,7 +153,7 @@ internal class DynamicAssetLoader(
     * metadata initialisation.
     * We need to make sure ETH is initialised before we request the supported erc20s
     * */
-    private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
+    private fun initNonCustodialAssets(assetList: List<Asset>): Completable =
         assetList.filterIsInstance<NonCustodialSupport>().map {
             Single.defer { it.initToken().toSingle { } }.doOnError {
                 remoteLogger.logException(
@@ -185,25 +164,15 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
-        allAssets.mapNotNull { currency ->
-            when {
-                currency.isErc20() -> loadErc20Asset(currency)
-                currency is AssetInfo && currency.isCustodialOnly -> loadCustodialOnlyAsset(currency)
-                currency is FiatCurrency -> FiatAsset(currency)
-                else -> null
-            }
-        }
-
-    private fun loadEvmAsset(currency: AssetInfo, network: EvmNetwork): CryptoAsset {
-        return L1EvmAsset(
+    private fun loadNetworkNativeAsset(currency: AssetInfo): CryptoAsset {
+        return NetworkNativeAsset(
             currency = currency,
             erc20DataManager = erc20DataManager,
             walletPreferences = walletPreferences,
             labels = labels,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
-            evmNetwork = network
+            coinNetwork = currency.coinNetwork!!
         )
     }
 
@@ -298,7 +267,7 @@ internal class DynamicAssetLoader(
 
     private fun loadErc20Asset(assetInfo: Currency): CryptoAsset {
         require(assetInfo is AssetInfo)
-        require(assetInfo.isErc20())
+        require(assetInfo.isLayer2Token)
         return Erc20Asset(
             currency = assetInfo,
             erc20DataManager = erc20DataManager,

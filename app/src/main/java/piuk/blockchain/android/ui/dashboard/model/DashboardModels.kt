@@ -8,6 +8,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.TOTAL_BALANCE_INDEX
 
@@ -60,7 +61,7 @@ sealed interface DashboardAsset : DashboardItem {
         get() = DashboardItem.DASHBOARD_CRYPTO_ASSETS
 
     override val id: String
-        get() = javaClass.toString() + currency.networkTicker + (currency as? AssetInfo)?.l1chainTicker.orEmpty()
+        get() = javaClass.toString() + currency.networkTicker + (currency as? AssetInfo)?.coinNetwork?.name.orEmpty()
 
     // TODO(aromano): once FF is removed we can move this back into a dynamic var
     fun fiatBalance(useDisplayBalance: Boolean): Money? = if (useDisplayBalance) {
@@ -76,7 +77,7 @@ data class DefiAsset(
     override val hasBalanceError: Boolean = false,
     override val isFetchingBalance: Boolean = false,
     override val currentRate: ExchangeRate? = null,
-    override val shouldAssetShow: Boolean = currency.l1chainTicker == null
+    override val shouldAssetShow: Boolean = !currency.isLayer2Token
 ) : DashboardAsset {
     override val totalDisplayBalanceFFEnabled: Boolean = false
     override val assetDisplayBalanceFFEnabled: Boolean = false
@@ -85,7 +86,7 @@ data class DefiAsset(
         this.copy(accountBalance = accountBalance, hasBalanceError = false, isFetchingBalance = false)
 
     override fun shouldAssetShow(shouldAssetShow: Boolean): DashboardAsset =
-        this.copy(shouldAssetShow = shouldAssetShow || currency.l1chainTicker == null)
+        this.copy(shouldAssetShow = shouldAssetShow || !currency.isLayer2Token)
 
     override fun toErrorState(): DashboardAsset = this.copy(
         hasBalanceError = true,

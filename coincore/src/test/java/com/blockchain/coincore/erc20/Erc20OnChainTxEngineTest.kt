@@ -11,10 +11,13 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -22,25 +25,24 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
+import io.mockk.coEvery
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
 @Suppress("UnnecessaryVariable")
 class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
-    private val erc20DataManager: Erc20DataManager = mock {
-        on { getL1AssetFor(any()) }.thenReturn(Single.just(FEE_ASSET))
-    }
-
+    private val erc20DataManager: Erc20DataManager = mock()
     private val ethFeeOptions: FeeOptions = mock()
 
     private val feeManager: FeeDataManager = mock {
@@ -50,17 +52,37 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
 
-    private val subject = Erc20OnChainTxEngine(
-        erc20DataManager = erc20DataManager,
-        feeManager = feeManager,
-        requireSecondPassword = false,
-        walletPreferences = walletPreferences,
-        resolvedAddress = mock()
-    )
+    private lateinit var subject: Erc20OnChainTxEngine
 
     @Before
     fun setup() {
         initMocks()
+        subject = Erc20OnChainTxEngine(
+            erc20DataManager = erc20DataManager,
+            feeManager = feeManager,
+            requireSecondPassword = false,
+            walletPreferences = walletPreferences,
+            resolvedAddress = mock()
+        )
+        coEvery {
+            (unifiedBalancesService.balances(anyOrNull(), any()))
+        }.returns(
+            flowOf(
+                DataResource.Data(
+                    listOf(
+                        NetworkBalance(
+                            currency = CryptoCurrency.ETHER,
+                            balance = Money.fromMinor(CryptoCurrency.ETHER, 11111.toBigInteger()),
+                            unconfirmedBalance = Money.fromMinor(CryptoCurrency.ETHER, 11111.toBigInteger()),
+                            exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER),
+                        )
+                    )
+                )
+            )
+        )
+        whenever(assetCatalogue.assetInfoFromNetworkTicker("ETH")).thenReturn(
+            CryptoCurrency.ETHER
+        )
     }
 
     @Test
@@ -159,7 +181,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
                 it.amount == CryptoValue.zero(ASSET) &&
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
-                    it.feeAmount == CryptoValue.zero(FEE_ASSET) &&
+                    it.feeAmount == CryptoValue.zero(CryptoCurrency.ETHER) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.txConfirmations.isEmpty() &&
                     it.limits == null &&
@@ -173,7 +195,6 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
         verify(walletPreferences).getFeeTypeForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -233,11 +254,10 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balanceRx()
-        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions("ETH", CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
         verify(ethFeeOptions, times(2)).priorityFee
-        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -295,11 +315,10 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balanceRx()
-        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions("ETH", CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
         verify(ethFeeOptions, times(2)).priorityFee
-        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -376,12 +395,11 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balanceRx()
-        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions("ETH", CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions, times(2)).priorityFee
         verify(ethFeeOptions).regularFee
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
-        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -429,8 +447,6 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             -1
         ).test()
 
-        verify(erc20DataManager).getL1AssetFor(ASSET)
-
         noMoreInteractions(sourceAccount, txTarget)
     }
 
@@ -476,8 +492,6 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             FeeLevel.Custom,
             100
         ).test()
-
-        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -584,6 +598,10 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
     companion object {
         private const val CONTRACT_ADDRESS = "0x123456545654656"
+        val coinNetwork: CoinNetwork = mock {
+            on { networkTicker }.thenReturn("ETH")
+            on { nativeAssetTicker }.thenReturn("ETH")
+        }
 
         @Suppress("ClassName")
         private object DUMMY_ERC20 : CryptoCurrency(
@@ -592,7 +610,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l1chainTicker = ETHER.networkTicker,
+            coinNetwork = coinNetwork,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456",
@@ -602,7 +620,6 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         private val ASSET = DUMMY_ERC20
         private val WRONG_ASSET = CryptoCurrency.BTC
-        private val FEE_ASSET = CryptoCurrency.ETHER
         private const val TARGET_ADDRESS = "VALID_PAX_ADDRESS"
         private const val GAS_LIMIT = 3000L
         private const val GAS_LIMIT_CONTRACT = 5000L

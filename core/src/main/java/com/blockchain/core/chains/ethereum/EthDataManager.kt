@@ -2,8 +2,6 @@ package com.blockchain.core.chains.ethereum
 
 import com.blockchain.api.ethereum.evm.FeeLevel
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
 import com.blockchain.core.payload.PayloadDataManager
@@ -20,7 +18,8 @@ import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.isLayer2Token
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.ethereum.Erc20TokenData
@@ -67,7 +66,7 @@ class EthDataManager(
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
-    val supportedNetworks: Single<List<EvmNetwork>>
+    val supportedNetworks: Single<List<CoinNetwork>>
         get() = evmNetworksService.allEvmNetworks()
 
     /**
@@ -205,12 +204,12 @@ class EthDataManager(
         }.applySchedulers()
     }
 
-    internal fun updateErc20TransactionNotes(
+    fun updateErc20TransactionNotes(
         asset: AssetInfo,
         hash: String,
         note: String
     ): Completable {
-        require(asset.isErc20())
+        require(asset.isLayer2Token)
 
         return Completable.defer {
             getErc20TokenData(asset)?.let {
@@ -414,7 +413,6 @@ class EthDataManager(
         }
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
-        require(asset.isErc20())
         require(asset.l2identifier != null)
         val name = asset.networkTicker.lowercase()
 
@@ -433,14 +431,5 @@ class EthDataManager(
         const val ETH_CHAIN_ID: Int = 1
         private const val DEFAULT_MIN_FEE = 23L
         private const val DEFAULT_MAX_FEE = 26L
-        val ethChain: EvmNetwork = EvmNetwork(
-            networkTicker = CryptoCurrency.ETHER.networkTicker,
-            name = CryptoCurrency.ETHER.name,
-            shortName = CryptoCurrency.ETHER.name,
-            chainId = ETH_CHAIN_ID,
-            nativeAsset = CryptoCurrency.ETHER.networkTicker,
-            nodeUrl = EthUrls.ETH_NODES,
-            explorerUrl = CryptoCurrency.ETHER.txExplorerUrlBase ?: ""
-        )
     }
 }

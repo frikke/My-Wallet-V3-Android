@@ -3,7 +3,6 @@ package com.blockchain.walletconnect.data
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
-import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
@@ -21,6 +20,7 @@ import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.blockchain.walletconnect.domain.toAnalyticsMethod
+import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.trustwallet.walletconnect.WCClient
 import com.trustwallet.walletconnect.WS_CLOSE_NORMAL
 import com.trustwallet.walletconnect.models.WCPeerMeta
@@ -128,7 +128,7 @@ class WalletConnectService(
             )
             // Example: wc:@1?bridge=https://x.bridge.walletconnect.org&key=
             val chainId = url.split(EVM_CHAIN_ID_DELIMITER).lastOrNull()?.firstOrNull()?.toString()?.toInt()
-                ?: EthDataManager.ethChain.chainId
+                ?: ETH_CHAIN_ID
             val peerId = UUID.randomUUID().toString()
 
             wcClient.onSessionRequest = { _, peerMeta ->
