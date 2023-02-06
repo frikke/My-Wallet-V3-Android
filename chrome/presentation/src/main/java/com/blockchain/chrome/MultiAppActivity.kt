@@ -169,7 +169,7 @@ class MultiAppActivity :
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
-                startDefiOnboarding = { walletActivationRequired -> handleDefiOnboarding(walletActivationRequired) },
+                startPhraseRecovery = { onboardingRequired -> handlePhraseRecovery(onboardingRequired) },
                 assetActionsNavigation = assetActionsNavigation,
                 showAppRating = { showAppRating() },
                 settingsNavigation = settingsNavigation,
@@ -212,10 +212,10 @@ class MultiAppActivity :
         }
     }
 
-    private fun handleDefiOnboarding(walletActivationRequired: Boolean) {
+    private fun handlePhraseRecovery(onboardingRequired: Boolean) {
         defiBackupNavigation.startBackup(
             launcher = activityResultDefiOnboarding,
-            walletActivationRequired = walletActivationRequired
+            onboardingRequired = onboardingRequired
         )
     }
 

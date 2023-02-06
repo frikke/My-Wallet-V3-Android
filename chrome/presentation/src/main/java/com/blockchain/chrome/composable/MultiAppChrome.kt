@@ -110,7 +110,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
-    startDefiOnboarding: (walletActivationRequired: Boolean) -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
     showAppRating: () -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
@@ -137,7 +137,7 @@ fun MultiAppChrome(
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is MultiAppNavigationEvent.PhraseRecovery -> startDefiOnboarding(it.walletActivationRequired)
+                is MultiAppNavigationEvent.PhraseRecovery -> startPhraseRecovery(it.walletOnboardingRequired)
                 is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }
@@ -180,6 +180,9 @@ fun MultiAppChrome(
             supportNavigation = supportNavigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
+            },
+            startPhraseRecovery = { onboardingRequired ->
+                startPhraseRecovery(onboardingRequired)
             }
         )
     }
@@ -209,7 +212,8 @@ fun MultiAppChromeScreen(
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
-    onBalanceRevealed: () -> Unit
+    onBalanceRevealed: () -> Unit,
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
@@ -709,6 +713,7 @@ fun MultiAppChromeScreen(
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
+                    startPhraseRecovery = startPhraseRecovery
                 )
             }
         }

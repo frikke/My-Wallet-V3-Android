@@ -41,10 +41,8 @@ fun BalanceScreen(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                vertical = AppTheme.dimensions.smallSpacing
-            ),
+            .padding(vertical = AppTheme.dimensions.tinySpacing)
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

@@ -19,6 +19,7 @@ dependencies {
     implementation project(':componentlib')
     implementation Libraries.rxjava3Coroutines
     implementation project(':defiwalletbackup:presentation')
+    implementation project(':defiwalletbackup:domain')
     implementation project(':flowhome:presentation')
     implementation project(':flowprices:presentation')
     implementation project(':earn:presentation')

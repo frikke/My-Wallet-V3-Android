@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow.custom
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import com.blockchain.componentlib.basic.ImageResource
@@ -41,6 +42,7 @@ fun ViewStyle.TextStyle.textDecoration(): TextDecoration {
     }
 }
 
+@Stable
 sealed interface StackedIcon {
     data class SmallTag(
         val main: ImageResource,

@@ -4,15 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.chrome.composable.bottomNavigationItems
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.preferences.WalletModePrefs
-import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
@@ -28,8 +27,7 @@ import piuk.blockchain.android.rating.domain.service.AppRatingService
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
-    private val payloadManager: PayloadDataManager,
-    private val walletStatusPrefs: WalletStatusPrefs,
+    private val backupPhraseService: BackupPhraseService,
     private val walletModePrefs: WalletModePrefs,
     private val appRatingService: AppRatingService
 ) : MviViewModel<
@@ -68,15 +66,21 @@ class MultiAppViewModel(
                         updateState {
                             it.copy(walletModes = availableModes)
                         }
-                    }
-                }
 
-                viewModelScope.launch {
-                    // collect wallet mode changes rather than manually change it when user switches modes
-                    // as there are cases where it will change automatically
-                    walletModeService.walletMode.collectLatest { walletMode ->
-                        updateState {
-                            it.copy(selectedWalletMode = walletMode)
+                        if (availableModes.size == 1) {
+                            walletModeService.updateEnabledWalletMode(availableModes.first())
+
+                            updateState {
+                                it.copy(selectedWalletMode = availableModes.first())
+                            }
+                        } else {
+                            // collect wallet mode changes rather than manually change it when user switches modes
+                            // as there are cases where it will change automatically
+                            walletModeService.walletMode.collectLatest { walletMode ->
+                                updateState {
+                                    it.copy(selectedWalletMode = walletMode)
+                                }
+                            }
                         }
                     }
                 }
@@ -85,10 +89,10 @@ class MultiAppViewModel(
             }
 
             is MultiAppIntents.WalletModeChangeRequested -> {
-                if (shouldBackupPhraseForMode(intent.walletMode)) {
+                if (backupPhraseService.shouldBackupPhraseForMode(intent.walletMode)) {
                     navigate(
                         MultiAppNavigationEvent.PhraseRecovery(
-                            walletActivationRequired = shouldOnboardWalletForMode(intent.walletMode)
+                            walletOnboardingRequired = shouldOnboardWalletForMode(intent.walletMode)
                         )
                     )
                 } else {
@@ -148,17 +152,6 @@ class MultiAppViewModel(
         }
     }
 
-    private fun shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
-        return when (walletMode) {
-            WalletMode.NON_CUSTODIAL -> {
-                payloadManager.isBackedUp.not() && walletStatusPrefs.isWalletBackUpSkipped.not()
-            }
-            else -> {
-                false
-            }
-        }
-    }
-
     private fun shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
         val isWalletEligibleForActivation = when (walletMode) {
             WalletMode.NON_CUSTODIAL -> {
@@ -169,7 +162,7 @@ class MultiAppViewModel(
             }
         }
         return isWalletEligibleForActivation &&
-            shouldBackupPhraseForMode(walletMode) &&
+            backupPhraseService.shouldBackupPhraseForMode(walletMode) &&
             !walletModePrefs.userDefaultedToPKW
     }
 }

@@ -37,8 +37,8 @@ fun CustomStackedIcon(
         )
         is StackedIcon.SingleIcon -> AsyncMediaItem(
             modifier = Modifier
-                .size(AppTheme.dimensions.standardSpacing)
-                .background(color = AppTheme.colors.light, shape = CircleShape)
+                .size(size)
+                .background(color = iconBackground, shape = CircleShape)
                 .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
             imageResource = icon.icon,
             onErrorDrawable = R.drawable.coins_on
