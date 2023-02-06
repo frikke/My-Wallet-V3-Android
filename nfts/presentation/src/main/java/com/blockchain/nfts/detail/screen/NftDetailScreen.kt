@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -40,10 +42,16 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.expandables.ExpandableItemBordered
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icon.SmallTagIcon
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.sheets.SheetNub
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.UltraLight
@@ -61,8 +69,6 @@ import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
-
-private const val COLUMN_COUNT = 2
 
 @Composable
 fun NftDetail(
@@ -111,12 +117,6 @@ fun NftDetailScreen(
                 nftAsset = it,
                 onExternalViewClick = { onExternalViewClick(it) }
             )
-        } ?: kotlin.run {
-            Text(
-                text = nftAsset::class.java.toString(),
-                style = AppTheme.typography.title2,
-                color = AppTheme.colors.title
-            )
         }
     }
 }
@@ -127,31 +127,39 @@ fun NftDetailDataScreen(
     onExternalViewClick: () -> Unit
 ) {
 
-    LazyVerticalGrid(
+    LazyColumn(
         modifier = Modifier.fillMaxWidth(),
-        columns = GridCells.Fixed(count = COLUMN_COUNT),
         contentPadding = PaddingValues(
             start = AppTheme.dimensions.smallSpacing,
             top = AppTheme.dimensions.verySmallSpacing,
             end = AppTheme.dimensions.smallSpacing,
             bottom = AppTheme.dimensions.standardSpacing
-        ),
-        verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-        horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+        )
     ) {
-        item(span = { GridItemSpan(COLUMN_COUNT) }) {
+        item {
             NftBasicInfo(
                 nftAsset = nftAsset,
                 onExternalViewClick = onExternalViewClick
             )
         }
 
-        items(
-            items = nftAsset.traits,
-            itemContent = { trait ->
+        if (nftAsset.traits.isNotEmpty()) {
+            item {
+                Text(
+                    text = stringResource(R.string.nft_properties),
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.body
+                )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            }
+
+            roundedCornersItems(
+                items = nftAsset.traits,
+            ) { trait ->
                 NftTrait(trait)
             }
-        )
+        }
     }
 }
 
@@ -163,18 +171,18 @@ fun NftBasicInfo(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Card(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(elevation = 16.dp),
             elevation = 0.dp,
-            backgroundColor = Color.White,
-            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            color = Color.White,
+            shape = AppTheme.shapes.large
         ) {
             AsyncMediaItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)),
+                    .clip(AppTheme.shapes.large),
                 url = nftAsset.imageUrl,
                 fallbackUrlType = UrlType.GIF,
                 contentScale = ContentScale.FillWidth,
@@ -185,7 +193,7 @@ fun NftBasicInfo(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-        MinimalButton(
+        TertiaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.nft_cta_view),
             icon = ImageResource.Local(
@@ -204,9 +212,13 @@ fun NftBasicInfo(
             color = AppTheme.colors.title
         )
 
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
         NftCreator(creator = nftAsset.creator)
 
-        ExpandableItemBordered(
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+
+        ExpandableItem(
             title = stringResource(R.string.nft_description),
             text = nftAsset.description,
             numLinesVisible = 2,
@@ -214,45 +226,36 @@ fun NftBasicInfo(
             textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
     }
 }
 
 @Composable
 fun NftCreator(creator: NftCreator) {
-    val verifiedIconPadding = 2.5.dp
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = AppTheme.dimensions.smallSpacing),
+            .background(AppTheme.colors.background, AppTheme.shapes.large)
+            .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier.size(
-                AppTheme.dimensions.hugeSpacing + verifiedIconPadding // 2.5 extra to account for verified icon
-            )
-        ) {
-            Image(
-                imageResource = ImageResource.Remote(
-                    url = creator.imageUrl,
-                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
-                    size = 40.dp
+        CustomStackedIcon(
+            icon = if (true) {
+                StackedIcon.SmallTag(
+                    main = ImageResource.Remote(creator.imageUrl),
+                    tag = ImageResource.Local(R.drawable.ic_verified)
                 )
-            )
+            } else {
+                StackedIcon.SingleIcon(ImageResource.Remote(creator.imageUrl))
+            },
+            iconBackground = AppTheme.colors.background,
+            size = AppTheme.dimensions.standardSpacing,
+            iconShape = AppTheme.shapes.medium
+        )
 
-            if (creator.isVerified) {
-                Image(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd),
-                    imageResource = ImageResource.Local(R.drawable.ic_verified)
-                )
-            }
-        }
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-        Column(modifier = Modifier.padding(bottom = verifiedIconPadding)) { // 2.5 extra to account for verified icon
+        Column {
             Text(
                 text = creator.name,
                 style = AppTheme.typography.paragraph2,
@@ -264,7 +267,7 @@ fun NftCreator(creator: NftCreator) {
             Text(
                 text = stringResource(R.string.nft_creator),
                 style = AppTheme.typography.caption1,
-                color = Grey700
+                color = AppTheme.colors.body
             )
         }
     }
@@ -275,36 +278,21 @@ fun NftTrait(trait: NftTrait) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = UltraLight,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
-            )
-            .border(
-                width = AppTheme.dimensions.borderSmall,
-                color = AppTheme.colors.medium,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
-            )
-            .padding(
-                start = AppTheme.dimensions.tinySpacing,
-                end = AppTheme.dimensions.tinySpacing,
-                top = AppTheme.dimensions.tinySpacing,
-                bottom = AppTheme.dimensions.smallSpacing,
-            )
+            .background(color = AppTheme.colors.background)
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Text(
             text = trait.name,
-            style = AppTheme.typography.caption1,
-            color = AppTheme.colors.primaryMuted
+            style = AppTheme.typography.paragraph2,
+            color = AppTheme.colors.title
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
         Text(
             text = trait.value,
-            style = AppTheme.typography.paragraph1,
-            color = AppTheme.colors.primary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            style = AppTheme.typography.caption1,
+            color = AppTheme.colors.body
         )
     }
 }
@@ -313,7 +301,7 @@ fun NftTrait(trait: NftTrait) {
 // PREVIEWS
 // ///////////////
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
 @Composable
 fun PreviewNftCollectionScreen_Data() {
     NftDetailScreen(
@@ -331,7 +319,12 @@ fun PreviewNftCollectionScreen_Data() {
                     name = "Kyotoangels",
                     isVerified = true
                 ),
-                traits = listOf()
+                traits = listOf(
+                    NftTrait("name", "value"),
+                    NftTrait("name", "value"),
+                    NftTrait("name", "value"),
+                    NftTrait("name", "value"),
+                )
             )
         ),
         {}

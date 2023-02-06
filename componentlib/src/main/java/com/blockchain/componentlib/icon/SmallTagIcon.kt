@@ -2,14 +2,17 @@ package com.blockchain.componentlib.icon
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,7 +27,8 @@ fun SmallTagIcon(
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background,
-    mainIconSize: Dp = 24.dp
+    mainIconSize: Dp = 24.dp,
+    mainIconShape: Shape = CircleShape
 ) {
     val borderSize = mainIconSize.div(12f)
     val tagIconSize = mainIconSize.div(2)
@@ -35,12 +39,11 @@ fun SmallTagIcon(
             .size(mainIconSize + tagIconSize - overlap + borderSize)
     ) {
 
-        Box(
+        Surface(
             modifier = Modifier
-                .size(mainIconSize)
-                .background(color = iconBackground, shape = CircleShape)
-                .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            contentAlignment = Alignment.Center
+                .size(mainIconSize),
+            shape = mainIconShape,
+            color = iconBackground
         ) {
             AsyncMediaItem(
                 imageResource = icon.main

@@ -53,18 +53,6 @@ fun AssetInfo(
 }
 
 @Composable
-fun AssetInfoLoading() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
-            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-    ) {
-        ShimmerLoadingTableRow(showIconLoader = true)
-    }
-}
-
-@Composable
 fun AssetInfoData(
     analytics: Analytics = get(),
     data: CoinviewAssetInfoState.Data,
@@ -76,41 +64,13 @@ fun AssetInfoData(
             .fillMaxWidth()
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-                .padding(AppTheme.dimensions.smallSpacing)
-        ) {
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = stringResource(R.string.coinview_about_asset, data.assetName),
-                style = AppTheme.typography.body2,
-                color = AppTheme.colors.title,
-            )
-
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-            data.description?.let { description ->
-                ExpandableItem(
-                    text = description,
-                    numLinesVisible = 6,
-                    textButtonToExpand = stringResource(R.string.coinview_expandable_button),
-                    textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
-                )
-            } ?: kotlin.run {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = AppTheme.dimensions.smallestSpacing),
-                    text = stringResource(R.string.coinview_no_asset_description),
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.body,
-                )
-            }
-        }
+        ExpandableItem(
+            title = stringResource(R.string.coinview_about_asset, data.assetName),
+            text = data.description ?: stringResource(R.string.coinview_no_asset_description),
+            numLinesVisible = 6,
+            textButtonToExpand = stringResource(R.string.coinview_expandable_button),
+            textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+        )
 
         data.website?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
