@@ -127,7 +127,7 @@ class NftCollectionViewModelTest {
             }
         }
     }
-//todo next pr
+// todo next pr
 //    @Test
 //    fun `WHEN ShowDetail is called, THEN ShowDetail nav should be called`() = runTest {
 //        val nftId = "nftId"
