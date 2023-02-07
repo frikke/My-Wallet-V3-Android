@@ -12,6 +12,7 @@ import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import io.reactivex.rxjava3.core.Maybe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 
@@ -20,7 +21,7 @@ interface NonCustodialService {
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<Outcome<Exception, List<String>>>
 
-    suspend fun getCoinTypeFor(currency: Currency): CoinType?
+    fun getCoinTypeFor(currency: Currency): Maybe<CoinType>
 
     suspend fun subscribe(currency: String, label: String, addresses: List<String>): Outcome<Exception, Boolean>
 

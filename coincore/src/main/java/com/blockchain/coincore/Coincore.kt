@@ -427,7 +427,7 @@ internal class NetworkAccountsRepository(
                             Single.just(
                                 emptyList()
                             )
-                        ).await()
+                        ).onErrorReturn { emptyList() }.await()
                 }.flatten()
             }
         }

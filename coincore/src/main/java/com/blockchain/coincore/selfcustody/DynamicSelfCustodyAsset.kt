@@ -13,7 +13,6 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 
 internal class DynamicSelfCustodyAsset(
     override val currency: AssetInfo,
@@ -25,22 +24,25 @@ internal class DynamicSelfCustodyAsset(
 ) : CryptoAssetBase() {
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        rxSingle {
-            selfCustodyService.getCoinTypeFor(currency)?.let { coinType ->
-                listOf(
-                    DynamicNonCustodialAccount(
-                        payloadManager,
-                        currency,
-                        coinType,
-                        addressResolver,
-                        selfCustodyService,
-                        exchangeRates,
-                        labels.getDefaultNonCustodialWalletLabel(),
-                        walletPreferences
-                    )
+        selfCustodyService.getCoinTypeFor(currency).map {
+            listOf(
+                DynamicNonCustodialAccount(
+                    payloadManager,
+                    currency,
+                    it,
+                    addressResolver,
+                    selfCustodyService,
+                    exchangeRates,
+                    labels.getDefaultNonCustodialWalletLabel(),
+                    walletPreferences
                 )
-            } ?: listOf()
-        }
+            )
+        }.onErrorReturn {
+            emptyList()
+        }.switchIfEmpty(Single.just(emptyList()))
+            .map {
+                it as SingleAccountList
+            }
 
     private val addressRegex: Regex? by unsafeLazy {
         addressValidation?.toRegex()
