@@ -53,6 +53,7 @@ class NabuUserIdentity(
             Feature.DepositFiat,
             Feature.DepositInterest,
             Feature.DepositStaking,
+            Feature.CustodialAccounts,
             Feature.WithdrawFiat -> userAccessForFeature(feature, freshnessStrategy).map { it is FeatureAccess.Granted }
         }
     }
@@ -67,6 +68,7 @@ class NabuUserIdentity(
             }
             is Feature.Interest,
             Feature.Buy,
+            Feature.CustodialAccounts,
             Feature.DepositCrypto,
             Feature.Swap,
             Feature.DepositFiat,
@@ -183,6 +185,13 @@ class NabuUserIdentity(
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
                         EligibleProduct.DEPOSIT_STAKING, freshnessStrategy
+                    )
+                }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.CustodialAccounts ->
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.USE_CUSTODIAL_ACCOUNTS, freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)

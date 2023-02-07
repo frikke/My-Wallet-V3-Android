@@ -11,10 +11,14 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.doOnData
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.mapList
+import com.blockchain.data.onErrorReturn
 import com.blockchain.data.updateDataWith
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
@@ -29,6 +33,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -38,6 +43,7 @@ import kotlinx.coroutines.rx3.await
 class PricesViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val coincore: Coincore,
+    private val userFeaturePermissionService: UserFeaturePermissionService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val simpleBuyService: SimpleBuyService,
     private val watchlistService: WatchlistService,
@@ -181,13 +187,19 @@ class PricesViewModel(
     }
 
     private fun loadFilters() {
-        // atm same filters for both modes
-        updateState {
-            it.copy(
-                filters = listOf(
-                    PricesFilter.All, PricesFilter.Favorites, PricesFilter.Tradable
-                )
-            )
+        viewModelScope.launch {
+            userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts)
+                .onErrorReturn { true }.doOnData { canTrade ->
+                    updateState {
+                        it.copy(
+                            filters = listOfNotNull(
+                                PricesFilter.All,
+                                PricesFilter.Favorites,
+                                if (canTrade) PricesFilter.Tradable else null
+                            )
+                        )
+                    }
+                }.collect()
         }
     }
 

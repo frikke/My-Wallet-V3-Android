@@ -113,9 +113,7 @@ sealed class CustodialEmptyCardIntent : Intent<CustodialEmptyCardModelState> {
     object LoadEmptyStateConfig : CustodialEmptyCardIntent()
 }
 
-class CustodialEmptyCardViewState(
-    /*val totalSteps: Int,
-    val completedSteps: Int,*/
+data class CustodialEmptyCardViewState(
     val steps: List<CompletableDashboardOnboardingStep>,
     val amounts: List<Money>,
     val userCanBuy: Boolean,

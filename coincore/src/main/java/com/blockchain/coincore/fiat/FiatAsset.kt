@@ -16,6 +16,9 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
+import com.blockchain.store.asSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -24,6 +27,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -31,6 +35,7 @@ class FiatAsset(
     override val currency: Currency
 ) : Asset, KoinComponent {
     private val exchangeRates: ExchangeRatesDataManager by inject()
+    private val userFeaturePermissionService: UserFeaturePermissionService by scopedInject()
     private val bankService: BankService by scopedInject()
     private val simpBuyService: SimpleBuyService by scopedInject()
     private val tradingService: TradingService by scopedInject()
@@ -44,17 +49,25 @@ class FiatAsset(
         when (filter) {
             AssetFilter.All,
             AssetFilter.Custodial,
-            AssetFilter.Trading -> Maybe.just(
-                FiatAccountGroup(
-                    label = labels.getDefaultTradingWalletLabel(),
-                    accounts = listOf(custodialAccount)
-                )
-            )
+            AssetFilter.Trading -> loadCustodialAccount()
             AssetFilter.NonCustodial,
             AssetFilter.Staking,
             AssetFilter.Interest,
             AssetFilter.ActiveRewards -> Maybe.empty() // Only support single accounts
         }
+
+    private fun loadCustodialAccount(): Maybe<AccountGroup> {
+        return userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts).asSingle().flatMapMaybe {
+            if (it) {
+                Maybe.just(
+                    FiatAccountGroup(
+                        label = labels.getDefaultTradingWalletLabel(),
+                        accounts = listOf(custodialAccount)
+                    )
+                )
+            } else Maybe.empty()
+        }
+    }
 
     val custodialAccount: FiatAccount by lazy {
         require(currency is FiatCurrency)

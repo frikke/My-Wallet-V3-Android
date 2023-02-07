@@ -15,7 +15,8 @@ import info.blockchain.balance.FiatCurrency
 @Stable
 interface FiatActionsNavigation {
     fun wireTransferDetail(
-        account: FiatAccount
+        account: FiatAccount,
+        accountIsFunded: Boolean
     )
 
     fun depositQuestionnaire(

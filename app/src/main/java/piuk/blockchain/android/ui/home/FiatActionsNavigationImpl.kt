@@ -28,9 +28,9 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 class FiatActionsNavigationImpl(
     private val activity: BlockchainActivity?,
 ) : FiatActionsNavigation {
-    override fun wireTransferDetail(account: FiatAccount) {
+    override fun wireTransferDetail(account: FiatAccount, accountIsFunded: Boolean) {
         activity?.showBottomSheet(
-            WireTransferAccountDetailsBottomSheet.newInstance(account)
+            WireTransferAccountDetailsBottomSheet.newInstance(account, accountIsFunded)
         )
     }
 

@@ -18,8 +18,6 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
@@ -29,12 +27,12 @@ import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asSingle
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.mapData
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
@@ -46,8 +44,6 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -68,11 +64,11 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val remoteLogger: RemoteLogger by inject()
     private val walletModeService: WalletModeService by scopedInject()
     protected val identity: UserIdentity by scopedInject()
+    private val userFeaturePermissionService: UserFeaturePermissionService by scopedInject()
     private val kycService: KycService by scopedInject()
     private val stakingService: StakingService by scopedInject()
     private val activeRewardsService: ActiveRewardsService by scopedInject()
     private val activeRewardsEnabledFlag: FeatureFlag by inject(activeRewardsAccountFeatureFlag)
-
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList()
     }
@@ -127,10 +123,10 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 ),
                 loadCustodialAccounts(),
                 loadInterestAccounts(),
-                loadStakingAccounts().asSingle(),
-                loadActiveRewardsAccounts().asSingle(),
-            ) { nonCustodial, trading, interest, staking, active ->
-                nonCustodial + trading + interest + staking + active
+                loadStakingAccounts(),
+                loadActiveRewardsAccounts()
+            ) { nonCustodial, trading, interest, staking, activeRewards ->
+                nonCustodial + trading + interest + staking + activeRewards
             }.doOnError {
                 val errorMsg = "Error loading accounts for ${currency.networkTicker}"
                 Logger.e("$errorMsg: $it")
@@ -145,10 +141,10 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     Single.zip(
                         loadCustodialAccounts(),
                         loadInterestAccounts(),
-                        loadStakingAccounts().asSingle(),
-                        loadActiveRewardsAccounts().asSingle(),
-                    ) { trading, interest, staking, active ->
-                        trading + interest + staking + active
+                        loadStakingAccounts(),
+                        loadActiveRewardsAccounts()
+                    ) { trading, interest, staking, activeRewards ->
+                        trading + interest + staking + activeRewards
                     }.doOnError {
                         val errorMsg = "Error loading accounts for ${currency.networkTicker}"
                         Logger.e("$errorMsg: $it")
@@ -156,21 +152,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     }
                 else Single.just(emptyList())
             }
-            AssetFilter.Interest -> if (currency.isCustodial) {
-                loadInterestAccounts()
-            } else {
-                Single.just(emptyList())
-            }
-            AssetFilter.Staking -> if (currency.isCustodial) {
-                loadStakingAccounts().asSingle()
-            } else {
-                Single.just(emptyList())
-            }
-            AssetFilter.ActiveRewards -> if (currency.isCustodial) {
-                loadActiveRewardsAccounts().asSingle()
-            } else {
-                Single.just(emptyList())
-            }
+            AssetFilter.Interest -> loadInterestAccounts()
+            AssetFilter.Staking -> loadStakingAccounts()
+            AssetFilter.ActiveRewards -> loadActiveRewardsAccounts()
         }
     }
 
@@ -187,9 +171,15 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         activeAccounts.setForceRefresh()
     }
 
-    private fun loadCustodialAccounts(): Single<SingleAccountList> =
-        if (currency.isCustodial) {
-            Single.just(
+    private val custodialAccountsAccess =
+        userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts).asSingle()
+
+    private fun loadCustodialAccounts(): Single<SingleAccountList> {
+        if (currency.isCustodial.not()) {
+            return Single.just(emptyList())
+        }
+        return custodialAccountsAccess.map {
+            if (it) {
                 listOf(
                     CustodialTradingAccount(
                         currency = currency,
@@ -202,16 +192,19 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         walletModeService = walletModeService
                     )
                 )
-            )
-        } else {
-            Single.just(emptyList())
+            } else emptyList()
         }
+    }
 
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
 
-    private fun loadInterestAccounts(): Single<SingleAccountList> =
-        interestService.isAssetAvailableForInterest(currency)
-            .map {
+    private fun loadInterestAccounts(): Single<SingleAccountList> {
+        if (currency.isCustodial.not()) {
+            return Single.just(emptyList())
+        }
+        return custodialAccountsAccess.flatMap { hasCustodialAccess ->
+            if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
+            interestService.isAssetAvailableForInterest(currency).map {
                 if (it) {
                     listOf(
                         CustodialInterestAccount(
@@ -225,25 +218,54 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             internalAccountLabel = labels.getDefaultTradingWalletLabel()
                         )
                     )
-                } else {
-                    emptyList()
-                }
+                } else emptyList()
             }
+        }
+    }
 
-    private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
-        flow {
-            emitAll(
-                stakingService.getAvailabilityForAsset(
-                    currency,
-                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-                ).filterNotLoading()
-                    .mapData {
-                        if (it) {
+    private fun loadStakingAccounts(): Single<SingleAccountList> {
+        if (currency.isCustodial.not()) {
+            return Single.just(emptyList())
+        }
+        return custodialAccountsAccess.flatMap { hasCustodialAccess ->
+            if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
+            stakingService.getAvailabilityForAsset(currency).asSingle().map {
+                if (it) {
+                    listOf(
+                        CustodialStakingAccount(
+                            currency = currency,
+                            label = labels.getDefaultStakingWalletLabel(),
+                            stakingService = stakingService,
+                            exchangeRates = exchangeRates,
+                            internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                            identity = identity,
+                            kycService = kycService,
+                            custodialWalletManager = custodialManager
+                        )
+                    )
+                } else emptyList()
+            }
+        }
+    }
+
+    private fun loadActiveRewardsAccounts(): Single<SingleAccountList> {
+        if (currency.isCustodial.not()) {
+            return Single.just(emptyList())
+        }
+
+        return activeRewardsEnabledFlag.enabled.flatMap {
+            if (!it)
+                return@flatMap Single.just(emptyList())
+            custodialAccountsAccess.flatMap { hasCustodialAccess ->
+                if (!hasCustodialAccess) Single.just(emptyList())
+                else
+                    activeRewardsService.getAvailabilityForAsset(currency).asSingle().map { avaialble ->
+                        if (avaialble) {
                             listOf(
-                                CustodialStakingAccount(
+                                CustodialActiveRewardsAccount(
                                     currency = currency,
-                                    label = labels.getDefaultStakingWalletLabel(),
-                                    stakingService = stakingService,
+                                    label = labels.getDefaultActiveRewardsWalletLabel(),
+                                    activeRewardsService = activeRewardsService,
                                     exchangeRates = exchangeRates,
                                     internalAccountLabel = labels.getDefaultTradingWalletLabel(),
                                     identity = identity,
@@ -251,45 +273,11 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                                     custodialWalletManager = custodialManager
                                 )
                             )
-                        } else {
-                            emptyList()
-                        }
+                        } else emptyList()
                     }
-            )
-        }
-
-    private fun loadActiveRewardsAccounts(): Flow<DataResource<SingleAccountList>> =
-        flow {
-            val arEnabled = activeRewardsEnabledFlag.coEnabled()
-            if (!arEnabled) {
-                emit(DataResource.Data(emptyList()))
-            } else {
-                emitAll(
-                    activeRewardsService.getAvailabilityForAsset(
-                        currency,
-                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-                    ).filterNotLoading()
-                        .mapData {
-                            if (it) {
-                                listOf(
-                                    CustodialActiveRewardsAccount(
-                                        currency = currency,
-                                        label = labels.getDefaultActiveRewardsWalletLabel(),
-                                        activeRewardsService = activeRewardsService,
-                                        exchangeRates = exchangeRates,
-                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                                        identity = identity,
-                                        kycService = kycService,
-                                        custodialWalletManager = custodialManager
-                                    )
-                                )
-                            } else {
-                                emptyList()
-                            }
-                        }
-                )
             }
         }
+    }
 
     final override fun interestRate(): Single<Double> =
         interestService.isAssetAvailableForInterest(currency)

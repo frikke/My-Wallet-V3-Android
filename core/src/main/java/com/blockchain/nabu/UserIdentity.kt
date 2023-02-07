@@ -60,6 +60,7 @@ sealed class Feature {
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
     object DepositStaking : Feature()
+    object CustodialAccounts : Feature()
 }
 
 data class BasicProfileInfo(

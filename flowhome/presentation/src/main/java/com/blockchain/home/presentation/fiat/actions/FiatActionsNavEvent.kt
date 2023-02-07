@@ -17,7 +17,8 @@ sealed interface FiatActionsNavEvent {
     ) : FiatActionsNavEvent
 
     data class WireTransferAccountDetails(
-        val account: FiatAccount
+        val account: FiatAccount,
+        val accountIsFunded: Boolean
     ) : FiatActionsNavEvent
 
     data class DepositQuestionnaire(

@@ -14,6 +14,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Single
+import org.junit.Before
 import org.junit.Test
 
 @Suppress("LocalVariableName", "SimplifyBooleanWithConstants")
@@ -28,16 +29,22 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val formatUtils: FormatUtilities = mock()
     private val addressResolver: EthHotWalletAddressResolver = mock()
 
-    private val subject = EthAsset(
-        ethDataManager = ethDataManager,
-        feeDataManager = feeDataManager,
-        assetCatalogue = lazyAssetCatalogue,
-        walletPrefs = walletPrefs,
-        notificationUpdater = notificationUpdater,
-        labels = labels,
-        formatUtils = formatUtils,
-        addressResolver = addressResolver
-    )
+    private lateinit var subject: EthAsset
+
+    @Before
+    fun setup() {
+        initMocks()
+        subject = EthAsset(
+            ethDataManager = ethDataManager,
+            feeDataManager = feeDataManager,
+            assetCatalogue = lazyAssetCatalogue,
+            walletPrefs = walletPrefs,
+            notificationUpdater = notificationUpdater,
+            labels = labels,
+            formatUtils = formatUtils,
+            addressResolver = addressResolver
+        )
+    }
 
     @Test
     fun `raw address is parsed OK`() {

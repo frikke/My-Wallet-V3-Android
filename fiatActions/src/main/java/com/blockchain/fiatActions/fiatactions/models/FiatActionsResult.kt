@@ -22,6 +22,7 @@ sealed interface FiatActionsResult : NavigationEvent {
 
     data class WireTransferAccountDetails(
         override val account: FiatAccount,
+        val accountIsFunded: Boolean,
         override val action: AssetAction
     ) : FiatActionsResult
 

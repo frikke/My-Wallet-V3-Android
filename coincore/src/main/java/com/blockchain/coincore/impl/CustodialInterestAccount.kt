@@ -114,9 +114,6 @@ class CustodialInterestAccount(
                         displayedStates.contains(it.state)
                 }
             }
-            .doOnNext {
-                setHasTransactions(it.isNotEmpty())
-            }
     }
 
     private fun interestActivityToSummary(asset: AssetInfo, activity: EarnRewardsActivity): ActivitySummaryItem =
@@ -143,9 +140,6 @@ class CustodialInterestAccount(
         tradeItems: List<TradeActivitySummaryItem>,
         activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> = activity
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val isDefault: Boolean = false // Default is, presently, only ever a non-custodial account.
 

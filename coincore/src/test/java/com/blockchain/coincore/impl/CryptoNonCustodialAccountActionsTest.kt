@@ -453,7 +453,7 @@ private class NonCustodialTestAccount(
     override val isDefault: Boolean,
     override val exchangeRates: ExchangeRatesDataManager,
     override val addressResolver: AddressResolver,
-    override val isFunded: Boolean,
+    val isFunded: Boolean,
     currency: AssetInfo,
 ) : CryptoNonCustodialAccount(currency) {
     override val index: Int

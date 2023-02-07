@@ -7,10 +7,8 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
@@ -186,38 +184,39 @@ class MainInteractor internal constructor(
                 }
             }
         } else {
-            coincore.walletsWithAction(action = action).map { accountsForAction ->
-                accountsForAction.filter { account ->
-                    account.currency.networkTicker == networkTicker
-                }
-            }.map { sameAssetAccounts ->
+            Single.just(LaunchFlowForAccount.NoAccount)
+            /*  coincore.walletsWithAction(action = action).map { accountsForAction ->
+                  accountsForAction.filter { account ->
+                      account.currency.networkTicker == networkTicker
+                  }
+              }.map { sameAssetAccounts ->
 
-                val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
-                    .firstOrNull { tradingAccount ->
-                        tradingAccount.isFunded
-                    }
+                  val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
+                      .firstOrNull { tradingAccount ->
+                          tradingAccount.isFunded
+                      }
 
-                when {
-                    eligibleTradingAccount != null -> {
-                        return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
-                    }
-                    else -> {
-                        val eligibleNonCustodialAccount =
-                            sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
-                                .firstOrNull { ncAccount ->
-                                    ncAccount.isFunded
-                                }
-                        when {
-                            eligibleNonCustodialAccount != null -> {
-                                return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
-                            }
-                            else -> {
-                                return@map LaunchFlowForAccount.NoAccount
-                            }
-                        }
-                    }
-                }
-            }
+                  when {
+                      eligibleTradingAccount != null -> {
+                          return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
+                      }
+                      else -> {
+                          val eligibleNonCustodialAccount =
+                              sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
+                                  .firstOrNull { ncAccount ->
+                                      ncAccount.isFunded
+                                  }
+                          when {
+                              eligibleNonCustodialAccount != null -> {
+                                  return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
+                              }
+                              else -> {
+                                  return@map LaunchFlowForAccount.NoAccount
+                              }
+                          }
+                      }
+                  }
+              }*/
         }
 
     fun selectRewardsAccountForAsset(cryptoTicker: String): Single<LaunchFlowForAccount> =

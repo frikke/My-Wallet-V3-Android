@@ -449,7 +449,8 @@ class MultiAppActivity :
                     }
                     is FiatActionsNavEvent.WireTransferAccountDetails -> {
                         fiatActionsNavigation.wireTransferDetail(
-                            account = it.account
+                            account = it.account,
+                            accountIsFunded = it.accountIsFunded
                         )
                     }
                     is FiatActionsNavEvent.BankLinkFlow -> {

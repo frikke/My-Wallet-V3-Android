@@ -17,7 +17,6 @@ import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
-import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 
@@ -70,8 +69,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
                     it.pending == balance.pendingDeposit &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assert(subject.isFunded)
     }
 
     @Test
@@ -98,8 +95,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
                 it.total == balance.totalBalance &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assertFalse(subject.isFunded)
     }
 
     @Test

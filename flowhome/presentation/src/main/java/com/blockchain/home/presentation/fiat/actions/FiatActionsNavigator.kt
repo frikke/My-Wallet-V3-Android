@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class FiatActionsNavigator(
@@ -60,7 +61,8 @@ class FiatActionsNavigator(
                     is FiatActionsResult.WireTransferAccountDetails -> {
                         navigate(
                             FiatActionsNavEvent.WireTransferAccountDetails(
-                                account = result.account
+                                account = result.account,
+                                accountIsFunded = result.accountIsFunded
                             )
                         )
                     }
@@ -118,12 +120,16 @@ class FiatActionsNavigator(
 
             FiatActionRequest.WireTransferAccountDetails -> {
                 check(account != null) { "account undefined" }
-
-                navigate(
-                    FiatActionsNavEvent.WireTransferAccountDetails(
-                        account = account!!
-                    )
-                )
+                scope.launch {
+                    account!!.balance().take(1).collectLatest {
+                        navigate(
+                            FiatActionsNavEvent.WireTransferAccountDetails(
+                                account = account!!,
+                                accountIsFunded = it.total.isPositive
+                            )
+                        )
+                    }
+                }
             }
         }
     }

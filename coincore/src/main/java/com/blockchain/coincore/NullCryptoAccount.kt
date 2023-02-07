@@ -45,10 +45,6 @@ class NullCryptoAccount(
         return Single.just(ActionState.Unavailable)
     }
 
-    override val isFunded: Boolean = false
-
-    override val hasTransactions: Boolean = false
-
     override fun requireSecondPassword(): Single<Boolean> = Single.just(false)
 
     override fun matches(other: CryptoAccount): Boolean =
@@ -83,9 +79,6 @@ object NullFiatAccount : FiatAccount {
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
         return Single.just(ActionState.Unavailable)
     }
-
-    override val isFunded: Boolean = false
-    override val hasTransactions: Boolean = false
 
     override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
 }

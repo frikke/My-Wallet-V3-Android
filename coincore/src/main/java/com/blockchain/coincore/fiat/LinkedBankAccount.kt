@@ -74,12 +74,6 @@ class LinkedBankAccount(
         return Single.just(ActionState.Unavailable)
     }
 
-    override val isFunded: Boolean
-        get() = false
-
-    override val hasTransactions: Boolean
-        get() = false
-
     override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
 
     fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)

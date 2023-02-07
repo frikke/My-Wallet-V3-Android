@@ -23,7 +23,6 @@ import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 
 class Erc20NonCustodialAccount(
     asset: AssetInfo,
@@ -37,11 +36,6 @@ class Erc20NonCustodialAccount(
     override val addressResolver: AddressResolver,
     override val l1Network: CoinNetwork
 ) : L2NonCustodialAccount, CryptoNonCustodialAccount(asset) {
-
-    private val hasFunds = AtomicBoolean(false)
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val isDefault: Boolean = true // Only one account, so always default
 
@@ -63,8 +57,6 @@ class Erc20NonCustodialAccount(
                     )
                 )
             else Observable.error(it)
-        }.doOnNext {
-            hasFunds.set(it.total.isPositive)
         }
     }
 

@@ -36,7 +36,6 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 
 class CustodialActiveRewardsAccount(
     override val currency: AssetInfo,
@@ -50,8 +49,6 @@ class CustodialActiveRewardsAccount(
 ) : CryptoAccountBase(), EarnRewardsAccount.Active {
 
     override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet()) // Not used by this class
-
-    private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = rxSingleOutcome { activeRewardsService.getAccountAddress(currency) }.map { address ->
@@ -102,7 +99,7 @@ class CustodialActiveRewardsAccount(
                 dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
-        }.doOnNext { hasFunds.set(it.total.isPositive) }
+        }
 
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
         activeRewardsService.getActivity(
@@ -116,9 +113,6 @@ class CustodialActiveRewardsAccount(
                 }.filter {
                     it is CustodialActiveRewardsActivitySummaryItem && displayedStates.contains(it.state)
                 }
-            }
-            .doOnNext {
-                setHasTransactions(it.isNotEmpty())
             }
 
     private fun activeRewardsActivityToSummary(asset: AssetInfo, activity: EarnRewardsActivity): ActivitySummaryItem =
@@ -146,9 +140,6 @@ class CustodialActiveRewardsAccount(
         activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> = activity
 
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
     override val isDefault: Boolean = false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
@@ -170,7 +161,8 @@ class CustodialActiveRewardsAccount(
                             is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                             else -> ActionState.Available
                         },
-                        // TODO(EARN): using the wrong Deposit, there's no ActiveRewardsDeposit, nor StackingWithdraw, should this all just be EarnDeposit/Withdraw?
+                        // TODO(EARN): using the wrong Deposit, there's no ActiveRewardsDeposit, nor StackingWithdraw,
+                        //  should this all just be EarnDeposit/Withdraw?
                         AssetAction.StakingDeposit
                     ),
                     StateAwareAction(

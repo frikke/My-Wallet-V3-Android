@@ -6,7 +6,6 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
@@ -19,7 +18,6 @@ import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import io.mockk.coEvery
 import io.reactivex.rxjava3.core.Observable
-import junit.framework.Assert.assertFalse
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +28,6 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
-    private val custodialWalletManager: CustodialWalletManager = mock()
     private val refreshTrigger: AccountRefreshTrigger = mock()
 
     private val xpubs = (XPubs(listOf(XPub(ACCOUNT_XPUB, XPub.Format.LEGACY))))
@@ -89,8 +86,6 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
                     it.pending.isZero &&
                     it.exchangeRate == BTC_TO_USER_RATE
             }
-
-        assert(subject.isFunded)
     }
 
     @Test
@@ -118,8 +113,6 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
                     it.pending.isZero &&
                     it.exchangeRate == BTC_TO_USER_RATE
             }
-
-        assertFalse(subject.isFunded)
     }
 
     companion object {

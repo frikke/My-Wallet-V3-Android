@@ -50,7 +50,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -66,14 +65,12 @@ class CustodialTradingAccount(
 ) : CryptoAccountBase(), TradingAccount {
 
     override val baseActions: Single<Set<AssetAction>>
-        get() = walletModeService.walletModeSingle.map {
-            when (it) {
+        get() = walletModeService.walletModeSingle.map { wMode ->
+            when (wMode) {
                 WalletMode.NON_CUSTODIAL -> emptySet()
                 WalletMode.CUSTODIAL -> defaultCustodialActions
             }
         }
-
-    private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
@@ -116,7 +113,6 @@ class CustodialTradingAccount(
             ),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
-            setHasTransactions(balance.hasTransactions)
             AccountBalance(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
@@ -124,7 +120,7 @@ class CustodialTradingAccount(
                 dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
-        }.doOnNext { hasFunds.set(it.total.isPositive) }
+        }
 
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return custodialWalletManager.getAllOrdersFor(freshnessStrategy, currency)
@@ -137,14 +133,10 @@ class CustodialTradingAccount(
             }.map {
                 it.filterActivityStates()
             }
-            .doOnNext { setHasTransactions(it.isNotEmpty()) }
             .onErrorReturn {
                 emptyList()
             }
     }
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val isDefault: Boolean =
         false // Default is, presently, only ever a non-custodial account.
