@@ -164,12 +164,15 @@ enum class TxSourceState {
     NOT_SUPPORTED
 }
 
-interface InterestAccount
 interface TradingAccount
 interface NonCustodialAccount
 interface BankAccount
 interface ExchangeAccount
-interface StakingAccount
+sealed interface EarnRewardsAccount {
+    interface Active : EarnRewardsAccount
+    interface Staking : EarnRewardsAccount
+    interface Interest : EarnRewardsAccount
+}
 
 typealias SingleAccountList = List<SingleAccount>
 

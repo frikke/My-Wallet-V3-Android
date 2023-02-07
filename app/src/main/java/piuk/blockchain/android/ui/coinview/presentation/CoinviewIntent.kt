@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -154,6 +154,6 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
         }
     }
 
-    data class LaunchStakingDepositFlow(val account: StakingAccount) : CoinviewIntent
-    data class LaunchStakingActivity(val account: StakingAccount) : CoinviewIntent
+    data class LaunchStakingDepositFlow(val account: EarnRewardsAccount.Staking) : CoinviewIntent
+    data class LaunchStakingActivity(val account: EarnRewardsAccount.Staking) : CoinviewIntent
 }

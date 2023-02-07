@@ -9,9 +9,8 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
@@ -329,7 +328,7 @@ class TxProcessorFactory(
                     )
                 )
             )
-        is InterestAccount ->
+        is EarnRewardsAccount.Interest ->
             Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -343,7 +342,7 @@ class TxProcessorFactory(
                     )
                 )
             )
-        is StakingAccount ->
+        is EarnRewardsAccount.Staking ->
             Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -357,6 +356,7 @@ class TxProcessorFactory(
                     )
                 )
             )
+        // TODO(EARN): Missing Active
         is FiatAccount ->
             Single.just(
                 TransactionProcessor(

@@ -580,7 +580,6 @@ class LiveCustodialWalletManager(
             hash = hash,
             amount = amount.toBigInteger().toString(),
             product = product.toRequestString()
-
         )
 
     override fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable =

@@ -1,8 +1,8 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.ExchangeAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradingAccount
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -33,7 +33,7 @@ class HotWalletService(
         isSwap: Boolean
     ): Product {
         return when (target) {
-            is InterestAccount -> Product.REWARDS
+            is EarnRewardsAccount.Interest -> Product.REWARDS
             is TradingAccount -> if (isSwap) {
                 Product.SWAP
             } else {

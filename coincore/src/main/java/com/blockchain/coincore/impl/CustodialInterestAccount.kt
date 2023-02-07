@@ -7,7 +7,7 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
@@ -18,8 +18,8 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.earn.domain.models.interest.InterestActivity
-import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.EarnRewardsActivity
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
@@ -41,11 +41,11 @@ class CustodialInterestAccount(
     override val label: String,
     private val internalAccountLabel: String,
     private val interestService: InterestService,
-    private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
     private val identity: UserIdentity,
     private val kycService: KycService,
-) : CryptoAccountBase(), InterestAccount {
+    private val custodialWalletManager: CustodialWalletManager,
+) : CryptoAccountBase(), EarnRewardsAccount.Interest {
 
     override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet()) // Not used by this class
 
@@ -108,7 +108,7 @@ class CustodialInterestAccount(
             .onErrorResumeNext { Observable.just(emptyList()) }
             .map { interestActivity ->
                 interestActivity.map {
-                    interestActivityToSummary(asset = currency, interestActivity = it)
+                    interestActivityToSummary(asset = currency, activity = it)
                 }.filter {
                     it is CustodialInterestActivitySummaryItem &&
                         displayedStates.contains(it.state)
@@ -119,23 +119,23 @@ class CustodialInterestAccount(
             }
     }
 
-    private fun interestActivityToSummary(asset: AssetInfo, interestActivity: InterestActivity): ActivitySummaryItem =
+    private fun interestActivityToSummary(asset: AssetInfo, activity: EarnRewardsActivity): ActivitySummaryItem =
         CustodialInterestActivitySummaryItem(
             exchangeRates = exchangeRates,
             currency = asset,
-            txId = interestActivity.id,
-            timeStampMs = interestActivity.insertedAt.time,
-            value = interestActivity.value,
+            txId = activity.id,
+            timeStampMs = activity.insertedAt.time,
+            value = activity.value,
             account = this,
-            state = interestActivity.state,
-            type = interestActivity.type,
-            confirmations = interestActivity.extraAttributes?.confirmations ?: 0,
-            accountRef = interestActivity.extraAttributes?.address
-                ?: interestActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
+            state = activity.state,
+            type = activity.type,
+            confirmations = activity.extraAttributes?.confirmations ?: 0,
+            accountRef = activity.extraAttributes?.address
+                ?: activity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = interestActivity.extraAttributes?.address ?: "",
-            fiatValue = interestActivity.fiatValue
+            recipientAddress = activity.extraAttributes?.address ?: "",
+            fiatValue = activity.fiatValue
         )
 
     // No swaps on interest accounts, so just return the activity list unmodified
@@ -187,11 +187,11 @@ class CustodialInterestAccount(
 
     companion object {
         private val displayedStates = setOf(
-            InterestState.COMPLETE,
-            InterestState.PROCESSING,
-            InterestState.PENDING,
-            InterestState.MANUAL_REVIEW,
-            InterestState.FAILED
+            EarnRewardsState.COMPLETE,
+            EarnRewardsState.PROCESSING,
+            EarnRewardsState.PENDING,
+            EarnRewardsState.MANUAL_REVIEW,
+            EarnRewardsState.FAILED
         )
     }
 }

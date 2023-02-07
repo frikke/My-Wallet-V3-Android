@@ -25,8 +25,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.earn.domain.models.interest.InterestState
-import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
@@ -161,7 +160,10 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             if (newState.transactionType == TransactionSummary.TransactionType.DEPOSIT) {
                 showConfirmationUi(newState.confirmations, newState.totalConfirmations)
             }
-        } else if (newState.interestState == InterestState.FAILED || newState.stakingState == StakingState.FAILED) {
+        } else if (
+            newState.interestState == EarnRewardsState.FAILED ||
+            newState.stakingState == EarnRewardsState.FAILED
+        ) {
             showFailedPill()
         } else {
             showCompletePill()
@@ -173,17 +175,17 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             when {
                 newState.interestState != null -> {
                     when (newState.interestState) {
-                        InterestState.PENDING -> R.string.activity_details_label_pending
-                        InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-                        InterestState.PROCESSING -> R.string.activity_details_label_processing
+                        EarnRewardsState.PENDING -> R.string.activity_details_label_pending
+                        EarnRewardsState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        EarnRewardsState.PROCESSING -> R.string.activity_details_label_processing
                         else -> R.string.empty
                     }
                 }
                 newState.stakingState != null -> {
                     when (newState.stakingState) {
-                        StakingState.PENDING -> R.string.activity_details_label_pending
-                        StakingState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-                        StakingState.PROCESSING -> R.string.activity_details_label_processing
+                        EarnRewardsState.PENDING -> R.string.activity_details_label_pending
+                        EarnRewardsState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        EarnRewardsState.PROCESSING -> R.string.activity_details_label_processing
                         else -> R.string.empty
                     }
                 }

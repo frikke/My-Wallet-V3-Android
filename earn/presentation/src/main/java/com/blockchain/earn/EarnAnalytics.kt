@@ -5,7 +5,7 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import info.blockchain.balance.Money
@@ -132,7 +132,7 @@ enum class TxFlowAnalyticsAccountType {
             when (account) {
                 is TradingAccount,
                 is BankAccount -> TRADING
-                is InterestAccount -> SAVINGS
+                is EarnRewardsAccount.Interest -> SAVINGS
                 else -> USERKEY
             }
 

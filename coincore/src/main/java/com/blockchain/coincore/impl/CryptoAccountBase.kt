@@ -510,21 +510,17 @@ class CryptoAccountCustodialGroup(
 ) : SameCurrencyAccountGroup {
 
     init {
-        require(accounts.size in 1..3)
+        require(accounts.size in 1..4)
         require(
-            accounts.map {
+            accounts.all {
                 it is CustodialTradingAccount ||
                     it is CustodialInterestAccount ||
-                    it is CustodialStakingAccount
-            }.all { it }
+                    it is CustodialStakingAccount ||
+                    it is CustodialActiveRewardsAccount
+            }
         )
-        if (accounts.size == 3) {
-            require(
-                accounts[0].currency == accounts[1].currency &&
-                    accounts[0].currency == accounts[2].currency &&
-                    accounts[1].currency == accounts[2].currency
-            )
-        }
+        val allAccountsHaveSameCurrency = accounts.map { it.currency }.distinct().size == 1
+        require(allAccountsHaveSameCurrency)
     }
 
     override val currency: Currency

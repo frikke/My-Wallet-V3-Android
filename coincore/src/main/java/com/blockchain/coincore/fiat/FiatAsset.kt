@@ -52,7 +52,8 @@ class FiatAsset(
             )
             AssetFilter.NonCustodial,
             AssetFilter.Staking,
-            AssetFilter.Interest -> Maybe.empty() // Only support single accounts
+            AssetFilter.Interest,
+            AssetFilter.ActiveRewards -> Maybe.empty() // Only support single accounts
         }
 
     val custodialAccount: FiatAccount by lazy {

@@ -15,7 +15,7 @@ import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
@@ -391,10 +391,10 @@ class MultiAppActivity :
         openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.StakingDeposit,
             target = account as TransactionTarget

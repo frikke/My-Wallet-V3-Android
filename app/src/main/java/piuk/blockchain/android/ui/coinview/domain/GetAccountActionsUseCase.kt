@@ -12,6 +12,7 @@ import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isActiveRewardsAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
@@ -47,6 +48,16 @@ data class GetAccountActionsUseCase(
                             actions
                         }
                     }
+                    account.isActiveRewardsAccount() -> {
+                        if (actions.none { it.action == AssetAction.StakingDeposit }) {
+                            // TODO(EARN): Wrong Action
+                            // TODO(EARN): sub to EarnDeposit?
+                            actions + StateAwareAction(ActionState.Available, AssetAction.StakingDeposit)
+                        } else {
+                            actions
+                        }
+                    }
+                    // TODO(EARN): Why are these shennenigans of removing actions and adding on the above cases here?
                     else -> actions.minus {
                         it.action == AssetAction.InterestDeposit || it.action == AssetAction.StakingDeposit
                     }
@@ -73,6 +84,7 @@ data class GetAccountActionsUseCase(
             is CoinviewAccount.Custodial.Staking -> {
                 Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
             }
+            is CoinviewAccount.Custodial.ActiveRewards -> Pair(true) { }
             is CoinviewAccount.PrivateKey -> {
                 Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
             }

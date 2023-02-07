@@ -252,9 +252,8 @@ class Coincore internal constructor(
                 .map {
                     it.filterIsInstance<CryptoAccount>()
                         .filterNot { account ->
-                            account is InterestAccount ||
-                                account is ExchangeAccount ||
-                                account is StakingAccount
+                            account is EarnRewardsAccount ||
+                                account is ExchangeAccount
                         }
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->

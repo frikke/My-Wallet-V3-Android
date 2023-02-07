@@ -1,6 +1,8 @@
 package com.blockchain.data
 
+import com.blockchain.utils.combineMore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 /**
@@ -103,6 +105,69 @@ fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow
     }
 }
 
+fun <T1, T2, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    transform: (T1, T2) -> R,
+): Flow<DataResource<R>> = combine(flow1, flow2) { t1, t2 ->
+    combineDataResources(t1, t2, transform)
+}
+
+fun <T1, T2, T3, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    flow3: Flow<DataResource<T3>>,
+    transform: (T1, T2, T3) -> R,
+): Flow<DataResource<R>> = combine(flow1, flow2, flow3) { t1, t2, t3 ->
+    combineDataResources(t1, t2, t3, transform)
+}
+
+fun <T1, T2, T3, T4, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    flow3: Flow<DataResource<T3>>,
+    flow4: Flow<DataResource<T4>>,
+    transform: (T1, T2, T3, T4) -> R,
+): Flow<DataResource<R>> = combine(flow1, flow2, flow3, flow4) { t1, t2, t3, t4 ->
+    combineDataResources(t1, t2, t3, t4, transform)
+}
+
+fun <T1, T2, T3, T4, T5, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    flow3: Flow<DataResource<T3>>,
+    flow4: Flow<DataResource<T4>>,
+    flow5: Flow<DataResource<T5>>,
+    transform: (T1, T2, T3, T4, T5) -> R,
+): Flow<DataResource<R>> = combine(flow1, flow2, flow3, flow4, flow5) { t1, t2, t3, t4, t5 ->
+    combineDataResources(t1, t2, t3, t4, t5, transform)
+}
+
+fun <T1, T2, T3, T4, T5, T6, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    flow3: Flow<DataResource<T3>>,
+    flow4: Flow<DataResource<T4>>,
+    flow5: Flow<DataResource<T5>>,
+    flow6: Flow<DataResource<T6>>,
+    transform: (T1, T2, T3, T4, T5, T6) -> R,
+): Flow<DataResource<R>> = combineMore(flow1, flow2, flow3, flow4, flow5, flow6) { t1, t2, t3, t4, t5, t6 ->
+    combineDataResources(t1, t2, t3, t4, t5, t6, transform)
+}
+
+fun <T1, T2, T3, T4, T5, T6, T7, R> combineDataResourceFlows(
+    flow1: Flow<DataResource<T1>>,
+    flow2: Flow<DataResource<T2>>,
+    flow3: Flow<DataResource<T3>>,
+    flow4: Flow<DataResource<T4>>,
+    flow5: Flow<DataResource<T5>>,
+    flow6: Flow<DataResource<T6>>,
+    flow7: Flow<DataResource<T7>>,
+    transform: (T1, T2, T3, T4, T5, T6, T7) -> R,
+): Flow<DataResource<R>> = combineMore(flow1, flow2, flow3, flow4, flow5, flow6, flow7) { t1, t2, t3, t4, t5, t6, t7 ->
+    combineDataResources(t1, t2, t3, t4, t5, t6, t7, transform)
+}
+
 fun <T1, T2, R> combineDataResources(
     r1: DataResource<T1>,
     r2: DataResource<T2>,
@@ -187,6 +252,62 @@ fun <T1, T2, T3, T4, T5, R> combineDataResources(
             r5 as DataResource.Data
 
             DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data, r5.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, T4, T5, T6, R> combineDataResources(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    r5: DataResource<T5>,
+    r6: DataResource<T6>,
+    transform: (T1, T2, T3, T4, T5, T6) -> R
+): DataResource<R> {
+    val results = listOf(r1, r2, r3, r4, r5, r6)
+
+    return when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+            r5 as DataResource.Data
+            r6 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data, r5.data, r6.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, T4, T5, T6, T7, R> combineDataResources(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    r5: DataResource<T5>,
+    r6: DataResource<T6>,
+    r7: DataResource<T7>,
+    transform: (T1, T2, T3, T4, T5, T6, T7) -> R
+): DataResource<R> {
+    val results = listOf(r1, r2, r3, r4, r5, r6, r7)
+
+    return when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+            r5 as DataResource.Data
+            r6 as DataResource.Data
+            r7 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data, r5.data, r6.data, r7.data))
         }
     }
 }

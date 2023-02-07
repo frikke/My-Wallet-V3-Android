@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -156,7 +156,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     newState.availableTargets.filterIsInstance<SingleAccount>().map {
                         AccountListViewItem(
                             account = it,
-                            showRewardsUpsell = it is InterestAccount,
+                            showRewardsUpsell = it is EarnRewardsAccount.Interest,
                             emphasiseNameOverCurrency = newState.action == AssetAction.Send
                         )
                     }
@@ -280,7 +280,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                             AccountListViewItem(
                                 account = it,
                                 emphasiseNameOverCurrency = state.action == AssetAction.Send,
-                                showRewardsUpsell = it is InterestAccount
+                                showRewardsUpsell = it is EarnRewardsAccount.Interest
                             )
                         }
                     ),

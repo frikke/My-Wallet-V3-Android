@@ -1,9 +1,8 @@
 package com.blockchain.earn.dashboard.viewmodel
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
-import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
@@ -21,10 +20,10 @@ data class EarnDashboardModelState(
 
 data class CombinedEarnData(
     val stakingBalancesWithFiat: Map<AssetInfo, StakingBalancesWithFiat>,
-    val stakingEligibility: Map<AssetInfo, StakingEligibility>,
+    val stakingEligibility: Map<AssetInfo, EarnRewardsEligibility>,
     val stakingRates: Map<AssetInfo, Double>,
     val interestBalancesWithFiat: Map<AssetInfo, InterestBalancesWithFiat>,
-    val interestEligibility: Map<AssetInfo, InterestEligibility>,
+    val interestEligibility: Map<AssetInfo, EarnRewardsEligibility>,
     val interestRates: Map<AssetInfo, Double>,
     val interestFeatureAccess: FeatureAccess,
     val stakingFeatureAccess: FeatureAccess

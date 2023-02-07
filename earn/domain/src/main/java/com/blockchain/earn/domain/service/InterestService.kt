@@ -3,9 +3,9 @@ package com.blockchain.earn.domain.service
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
+import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestActivity
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.models.interest.InterestLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -66,7 +66,7 @@ interface InterestService {
 
     /**
      * Returns all assets that can earn rewards
-     * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
+     * This list doesn't mean that all assets are eligible, some can be [EarnRewardsEligibility.Ineligible]
      *
      * @see [getEligibilityForAssetsLegacy]
      */
@@ -74,7 +74,7 @@ interface InterestService {
 
     /**
      * Returns all assets that can earn rewards
-     * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
+     * This list doesn't mean that all assets are eligible, some can be [EarnRewardsEligibility.Ineligible]
      *
      * @see [getEligibilityForAssetsLegacy]
      */
@@ -82,43 +82,43 @@ interface InterestService {
 
     /**
      * Returns if an [asset] can earn rewards
-     * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
+     * True doesn't mean the asset is eligible, it can be [EarnRewardsEligibility.Ineligible]
      */
     fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean>
 
     /**
      * Returns if an [asset] can earn rewards
-     * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
+     * True doesn't mean the asset is eligible, it can be [EarnRewardsEligibility.Ineligible]
      */
     fun isAssetAvailableForInterestFlow(
         asset: AssetInfo
     ): Flow<DataResource<Boolean>>
 
     /**
-     * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
+     * Returns a map composed of each [AssetInfo] with its [EarnRewardsEligibility]
      */
     @Deprecated("use flow getEligibilityForAssets")
-    fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, InterestEligibility>>
+    fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, EarnRewardsEligibility>>
 
     /**
-     * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
+     * Returns a map composed of each [AssetInfo] with its [EarnRewardsEligibility]
      */
     fun getEligibilityForAssets(
         refreshStrategy: FreshnessStrategy = defFreshness
-    ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>>
+    ): Flow<DataResource<Map<AssetInfo, EarnRewardsEligibility>>>
 
     /**
-     * Returns [InterestEligibility] for [asset]
+     * Returns [EarnRewardsEligibility] for [asset]
      */
-    fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility>
+    fun getEligibilityForAsset(asset: AssetInfo): Single<EarnRewardsEligibility>
 
     /**
-     * Returns [InterestEligibility] for [asset]
+     * Returns [EarnRewardsEligibility] for [asset]
      */
     fun getEligibilityForAssetFlow(
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy = defFreshness
-    ): Flow<DataResource<InterestEligibility>>
+    ): Flow<DataResource<EarnRewardsEligibility>>
 
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestLimits]
@@ -171,7 +171,7 @@ interface InterestService {
     /**
      * Returns a list of transactions for [asset]
      */
-    fun getActivity(asset: AssetInfo): Single<List<InterestActivity>>
+    fun getActivity(asset: AssetInfo): Single<List<EarnRewardsActivity>>
 
     /**
      * Returns a list of transactions for [asset]
@@ -179,7 +179,7 @@ interface InterestService {
     fun getActivityFlow(
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy = defFreshness
-    ): Flow<DataResource<List<InterestActivity>>>
+    ): Flow<DataResource<List<EarnRewardsActivity>>>
 
     /**
      * Executes interest withdrawal of [asset]:[amount] to [address]

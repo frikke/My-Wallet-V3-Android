@@ -135,7 +135,8 @@ val coincoreModule = module {
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
                 stakingService = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                activeRewardsService = get(),
             )
         }.bind(AssetLoader::class)
 

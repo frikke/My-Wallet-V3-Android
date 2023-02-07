@@ -20,8 +20,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
@@ -1194,11 +1194,11 @@ class MainActivity :
         )
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
-        // TODO(dserrano) - STAKING - not yet implemented
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
+        // TODO(EARN) - STAKING - not yet implemented
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         model.process(
             MainIntent.SelectStakingAccountForAction(account, AssetAction.StakingDeposit)
         )

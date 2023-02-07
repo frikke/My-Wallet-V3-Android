@@ -4,8 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -129,11 +128,11 @@ class EarnViewModel(
                     val account = it.accounts.first()
                     when (intent.earnAsset.type) {
                         EarnType.STAKING -> {
-                            require(account is StakingAccount)
+                            require(account is EarnRewardsAccount.Staking)
                             EarnNavEvent.Staking(account as CryptoAccount)
                         }
                         EarnType.INTEREST -> {
-                            require(account is InterestAccount)
+                            require(account is EarnRewardsAccount.Interest)
                             EarnNavEvent.Interest(account as CryptoAccount)
                         }
                     }

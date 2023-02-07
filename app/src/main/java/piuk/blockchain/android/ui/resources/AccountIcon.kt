@@ -5,10 +5,9 @@ import androidx.annotation.DrawableRes
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatAccountGroup
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
@@ -54,9 +53,10 @@ class AccountIcon(
         @DrawableRes get() = when (account) {
             is CryptoNonCustodialAccount -> R.drawable.ic_non_custodial_account_indicator
             is FiatAccount -> null
-            is InterestAccount -> R.drawable.ic_interest_account_indicator
             is TradingAccount -> R.drawable.ic_custodial_account_indicator
-            is StakingAccount -> R.drawable.ic_staking_account_indicator
+            is EarnRewardsAccount.Interest -> R.drawable.ic_interest_account_indicator
+            is EarnRewardsAccount.Staking -> R.drawable.ic_staking_account_indicator
+            is EarnRewardsAccount.Active -> R.drawable.ic_staking_account_indicator // TODO(EARN): icon
             is CryptoExchangeAccount -> R.drawable.ic_exchange_indicator
             else -> null
         }

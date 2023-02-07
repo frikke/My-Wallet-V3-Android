@@ -16,7 +16,8 @@ val coinviewDomainModule = module {
                 interestService = get(),
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get(),
-                stakingService = get()
+                stakingService = get(),
+                activeRewardsService = get()
             )
         }
 

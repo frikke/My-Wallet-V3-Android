@@ -56,6 +56,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
 import com.blockchain.earn.dashboard.viewmodel.DashboardState
@@ -64,7 +65,6 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardIntent
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardListFilter
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
-import com.blockchain.earn.dashboard.viewmodel.EarnEligibility
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
@@ -333,7 +333,7 @@ private fun DiscoverScreen(
                         Column {
                             BalanceTableRow(
                                 modifier = Modifier.alpha(
-                                    if (item.eligibility !is EarnEligibility.Eligible) {
+                                    if (item.eligibility !is EarnRewardsEligibility.Eligible) {
                                         0.5f
                                     } else {
                                         1f

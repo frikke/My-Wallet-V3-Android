@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.interest
 
-import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestEligibilityDto
+import com.blockchain.api.earn.EarnRewardsEligibilityDto
+import com.blockchain.api.earn.passive.InterestApiService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -13,7 +13,7 @@ import kotlinx.serialization.builtins.serializer
 
 class InterestEligibilityStore(
     private val interestApiService: InterestApiService
-) : Store<Map<String, InterestEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<Map<String, EarnRewardsEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -23,7 +23,7 @@ class InterestEligibilityStore(
         ),
         dataSerializer = MapSerializer(
             keySerializer = String.serializer(),
-            valueSerializer = InterestEligibilityDto.serializer()
+            valueSerializer = EarnRewardsEligibilityDto.serializer()
         ),
         mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),

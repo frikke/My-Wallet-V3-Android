@@ -2,6 +2,7 @@ package com.blockchain.commonarch.presentation.base
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -165,7 +166,13 @@ abstract class BlockchainActivity : ToolBarActivity() {
                 with(window) {
                     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                     statusBarColor = ContextCompat.getColor(this@BlockchainActivity, android.R.color.transparent)
-                    setBackgroundDrawable(ContextCompat.getDrawable(this@BlockchainActivity, it))
+
+                    val rectangle = Rect()
+                    decorView.getWindowVisibleDisplayFrame(rectangle)
+
+                    val backgroundDrawable = ContextCompat.getDrawable(this@BlockchainActivity, it)
+                    backgroundDrawable?.setBounds(0, 0, rectangle.right, rectangle.bottom)
+                    setBackgroundDrawable(backgroundDrawable)
                 }
             }
         }

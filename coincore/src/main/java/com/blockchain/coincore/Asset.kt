@@ -22,7 +22,8 @@ enum class AssetFilter {
     Trading,
     Interest,
     Staking,
-    Custodial // Trading + Interest + Staking (Accounts held by Blockchain.com)
+    ActiveRewards,
+    Custodial // Trading + Interest + Staking + ActiveRewards (Accounts held by Blockchain.com)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =
@@ -149,6 +150,7 @@ interface CryptoAsset : Asset {
     override val currency: AssetInfo
     fun interestRate(): Single<Double>
     fun stakingRate(): Single<Double>
+    fun activeRewardsRate(): Single<Double>
 }
 
 interface MultipleWalletsAsset {

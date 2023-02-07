@@ -3,17 +3,17 @@ package com.blockchain.earn.staking.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
+import com.blockchain.earn.domain.models.EarnRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
-import com.blockchain.earn.domain.models.staking.StakingRates
 import com.blockchain.earn.domain.service.StakingService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -82,7 +82,7 @@ class StakingSummaryViewModel(
         }
         combine(
             coincore[currency].accountGroup(AssetFilter.Staking).toObservable().map {
-                it.accounts.first() as StakingAccount
+                it.accounts.first() as EarnRewardsAccount.Staking
             }.asFlow(),
             stakingService.getBalanceForAsset(currency),
             stakingService.getLimitsForAsset(currency as AssetInfo),
@@ -110,7 +110,7 @@ class StakingSummaryViewModel(
                             stakingCommission = rates.commission,
                             frequency = limits.rewardsFrequency,
                             isWithdrawable = !limits.withdrawalsDisabled,
-                            canDeposit = stakingEligibility is StakingEligibility.Eligible
+                            canDeposit = eligibility is EarnRewardsEligibility.Eligible
                         )
                     }
                 }
@@ -129,9 +129,9 @@ data class StakingSummaryArgs(
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class StakingSummaryData(
-    val account: StakingAccount,
+    val account: EarnRewardsAccount.Staking,
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
-    val rates: StakingRates,
-    val stakingEligibility: StakingEligibility
+    val rates: EarnRewardsRates,
+    val eligibility: EarnRewardsEligibility,
 )

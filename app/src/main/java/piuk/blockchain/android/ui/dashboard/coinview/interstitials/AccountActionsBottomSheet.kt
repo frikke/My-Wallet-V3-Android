@@ -23,9 +23,8 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
@@ -76,6 +75,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     private val balanceCrypto by lazy { arguments?.getSerializable(BALANCE_CRYPTO) as Money }
     private val interestRate: Double by lazy { arguments?.getDouble(INTEREST_RATE) ?: 0.0 }
     private val stakingRate: Double by lazy { arguments?.getDouble(STAKING_RATE) ?: 0.0 }
+    private val activeRewardsRate: Double by lazy { arguments?.getDouble(ACTIVE_REWARDS_RATE) ?: 0.0 }
 
     interface Host {
         fun navigateToAction(
@@ -127,15 +127,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             primaryText = balanceFiat.toStringWithSymbol(),
                             secondaryText = balanceCrypto.toStringWithSymbol(),
                             endTag = when (selectedAccount) {
-                                is InterestAccount -> {
+                                is EarnRewardsAccount.Interest -> {
                                     TagViewState(
                                         getString(R.string.actions_sheet_percentage_rate, interestRate.toString()),
                                         TagType.Success()
                                     )
                                 }
-                                is StakingAccount -> {
+                                is EarnRewardsAccount.Staking -> {
                                     TagViewState(
                                         getString(R.string.actions_sheet_percentage_rate, stakingRate.toString()),
+                                        TagType.Success()
+                                    )
+                                }
+                                is EarnRewardsAccount.Active -> {
+                                    TagViewState(
+                                        getString(R.string.actions_sheet_percentage_rate, activeRewardsRate.toString()),
                                         TagType.Success()
                                     )
                                 }
@@ -172,11 +178,16 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 id = R.drawable.ic_custodial_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
-            is InterestAccount -> ImageResource.Local(
+            is EarnRewardsAccount.Interest -> ImageResource.Local(
                 id = R.drawable.ic_rewards_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
-            is StakingAccount -> ImageResource.Local(
+            is EarnRewardsAccount.Staking -> ImageResource.Local(
+                id = R.drawable.ic_staking_explainer,
+                colorFilter = ColorFilter.tint(color)
+            )
+            // TODO(EARN): Check if correct icon
+            is EarnRewardsAccount.Active -> ImageResource.Local(
                 id = R.drawable.ic_staking_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
@@ -410,25 +421,33 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     ): AssetActionItem {
         val title = getString(
             when (selectedAccount) {
-                is InterestAccount -> R.string.dashboard_asset_actions_summary_title_1
-                is StakingAccount -> R.string.dashboard_asset_actions_summary_staking_title
+                is EarnRewardsAccount.Interest -> R.string.dashboard_asset_actions_summary_title_1
+                is EarnRewardsAccount.Staking -> R.string.dashboard_asset_actions_summary_staking_title
+                is EarnRewardsAccount.Active -> R.string.dashboard_asset_actions_summary_active_rewards_title
                 else -> R.string.empty
             }
         )
         val description =
             when (selectedAccount) {
-                is InterestAccount -> getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker)
-                is StakingAccount -> getString(
+                is EarnRewardsAccount.Interest -> getString(
+                    R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker
+                )
+                is EarnRewardsAccount.Staking -> getString(
                     R.string.dashboard_asset_actions_summary_staking_dsc, asset.displayTicker
+                )
+                is EarnRewardsAccount.Active -> getString(
+                    R.string.dashboard_asset_actions_summary_active_rewards_dsc, asset.displayTicker
                 )
                 else -> getString(R.string.empty)
             }
 
         val icon =
             when (selectedAccount) {
-                is InterestAccount -> R.drawable.ic_tx_interest
-                // TODO(dserrano) - STAKING - is this icon the one we want?
-                is StakingAccount -> R.drawable.ic_tx_interest
+                is EarnRewardsAccount.Interest -> R.drawable.ic_tx_interest
+                // TODO(EARN) - STAKING - is this icon the one we want?
+                is EarnRewardsAccount.Staking -> R.drawable.ic_tx_interest
+                // TODO(EARN) - ACTIVE REWARDS - is this icon the one we want?
+                is EarnRewardsAccount.Active -> R.drawable.ic_tx_interest
                 else -> R.drawable.ic_tx_sent
             }
 
@@ -464,7 +483,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 accountType = when (selectedAccount) {
                     is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
                     is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
-                    is InterestAccount -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+                    is EarnRewardsAccount.Interest -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
                     else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
                 }
             )
@@ -508,6 +527,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         private const val BALANCE_CRYPTO = "balance_crypto"
         private const val INTEREST_RATE = "interest_rate"
         private const val STAKING_RATE = "staking_rate"
+        private const val ACTIVE_REWARDS_RATE = "ACTIVE_REWARDS_RATE"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
@@ -515,6 +535,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             balanceCrypto: Money,
             interestRate: Double,
             stakingRate: Double,
+            activeRewardsRate: Double,
             stateAwareActions: Array<StateAwareAction>
         ): AccountActionsBottomSheet {
             return AccountActionsBottomSheet().apply {
@@ -524,6 +545,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     putSerializable(BALANCE_CRYPTO, balanceCrypto)
                     putDouble(INTEREST_RATE, interestRate)
                     putDouble(STAKING_RATE, stakingRate)
+                    putDouble(ACTIVE_REWARDS_RATE, activeRewardsRate)
                     putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                 }
             }

@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -34,8 +34,8 @@ class StakingSummaryBottomSheet :
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchStakingWithdrawal(account: StakingAccount)
-        fun launchStakingDeposit(account: StakingAccount)
+        fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking)
+        fun launchStakingDeposit(account: EarnRewardsAccount.Staking)
         fun showStakingLoadingError(error: StakingError)
     }
 
@@ -112,8 +112,8 @@ fun StakingSummaryScreen(
     viewModel: StakingSummaryViewModel,
     onClosePressed: () -> Unit,
     onLoadError: (StakingError) -> Unit,
-    onWithdrawPressed: (currency: StakingAccount) -> Unit,
-    onDepositPressed: (currency: StakingAccount) -> Unit,
+    onWithdrawPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
+    onDepositPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current

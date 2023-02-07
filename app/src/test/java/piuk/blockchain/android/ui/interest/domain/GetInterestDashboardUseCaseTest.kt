@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.interest.domain
 import app.cash.turbine.test
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.testutils.USD
 import info.blockchain.balance.AssetInfo
@@ -36,8 +36,8 @@ class GetInterestDashboardUseCaseTest {
     private val dataResourceBalanceEth = MutableSharedFlow<DataResource<InterestAccountBalance>>()
     private val dataResourceInterestRateBtc = MutableSharedFlow<DataResource<Double>>()
     private val dataResourceInterestRateEth = MutableSharedFlow<DataResource<Double>>()
-    private val dataResourceEligibilityBtc = MutableSharedFlow<DataResource<InterestEligibility>>()
-    private val dataResourceEligibilityEth = MutableSharedFlow<DataResource<InterestEligibility>>()
+    private val dataResourceEligibilityBtc = MutableSharedFlow<DataResource<EarnRewardsEligibility>>()
+    private val dataResourceEligibilityEth = MutableSharedFlow<DataResource<EarnRewardsEligibility>>()
     private val dataResourceExchangeRateBtc = MutableSharedFlow<DataResource<ExchangeRate>>()
     private val dataResourceExchangeRateEth = MutableSharedFlow<DataResource<ExchangeRate>>()
 
@@ -60,8 +60,8 @@ class GetInterestDashboardUseCaseTest {
     private val interestRateBtc: Double = 1.0
     private val interestRateEth: Double = 1.0
 
-    private val eligibilityBtc = InterestEligibility.Eligible
-    private val eligibilityEth = InterestEligibility.Ineligible.REGION
+    private val eligibilityBtc = EarnRewardsEligibility.Eligible
+    private val eligibilityEth = EarnRewardsEligibility.Ineligible.REGION
 
     @Before
     fun setUp() {

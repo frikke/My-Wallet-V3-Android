@@ -1,5 +1,9 @@
 package com.blockchain.earn.data.koin
 
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsEligibilityStore
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsLimitsStore
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsRatesStore
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -10,10 +14,13 @@ import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
+import com.blockchain.earn.data.repository.ActiveRewardsRepository
 import com.blockchain.earn.data.repository.InterestRepository
 import com.blockchain.earn.data.repository.StakingRepository
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingBalanceStore
@@ -23,6 +30,45 @@ import org.koin.dsl.module
 
 val earnDataModule = module {
     scope(payloadScopeQualifier) {
+        scoped {
+            ActiveRewardsRatesStore(
+                activeRewardsApiService = get()
+            )
+        }
+
+        scoped {
+            ActiveRewardsBalanceStore(
+                activeRewardsApiService = get()
+            )
+        }
+
+        scoped {
+            ActiveRewardsEligibilityStore(
+                activeRewardsApiService = get()
+            )
+        }
+
+        scoped {
+            ActiveRewardsLimitsStore(
+                activeRewardsApiService = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped<ActiveRewardsService> {
+            ActiveRewardsRepository(
+                activeRewardsRateStore = get(),
+                activeRewardsEligibilityStore = get(),
+                activeRewardsBalanceStore = get(),
+                assetCatalogue = get(),
+                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
+                paymentTransactionHistoryStore = get(),
+                activeRewardsLimitsStore = get(),
+                currencyPrefs = get(),
+                activeRewardsApi = get(),
+                historicRateFetcher = get()
+            )
+        }
 
         scoped {
             StakingRatesStore(

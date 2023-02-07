@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.walletmode.WalletMode
@@ -34,7 +34,7 @@ class SellIntroAnnouncement(
         return Single.zip(
             identity.isEligibleFor(Feature.Sell),
             coincore.allWallets().map { acg ->
-                acg.accounts.filterNot { it is InterestAccount || it is FiatAccount }
+                acg.accounts.filterNot { it is EarnRewardsAccount || it is FiatAccount }
             }.map { list ->
                 list.any {
                     it.isFunded

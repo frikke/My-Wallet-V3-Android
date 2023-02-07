@@ -9,8 +9,7 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.earn.domain.models.interest.InterestState
-import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -79,7 +78,7 @@ class ActivityDetailsModelTest {
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
-        state = InterestState.COMPLETE,
+        state = EarnRewardsState.COMPLETE,
         account = NullCryptoAccount(),
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
@@ -94,7 +93,7 @@ class ActivityDetailsModelTest {
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
-        state = StakingState.COMPLETE,
+        state = EarnRewardsState.COMPLETE,
         account = NullCryptoAccount(),
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,

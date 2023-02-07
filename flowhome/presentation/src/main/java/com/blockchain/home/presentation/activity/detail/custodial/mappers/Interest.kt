@@ -7,7 +7,7 @@ import com.blockchain.componentlib.icons.Minus
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
@@ -27,7 +27,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 
 internal fun CustodialInterestActivitySummaryItem.iconDetail(): ImageResource {
     return when (state) {
-        InterestState.COMPLETE -> when (type) {
+        EarnRewardsState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
             TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
             TransactionSummary.TransactionType.WITHDRAW -> Icons.Filled.Minus
@@ -162,28 +162,28 @@ internal fun CustodialInterestActivitySummaryItem.detailItems(
 
 private fun CustodialInterestActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
-        InterestState.COMPLETE,
-        InterestState.REFUNDED,
-        InterestState.UNKNOWN,
-        InterestState.CLEARED -> R.string.activity_details_label_complete
-        InterestState.PROCESSING -> R.string.activity_details_label_pending
-        InterestState.PENDING -> R.string.activity_details_label_processing
-        InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-        InterestState.REJECTED,
-        InterestState.FAILED -> R.string.activity_details_label_failed
+        EarnRewardsState.COMPLETE,
+        EarnRewardsState.REFUNDED,
+        EarnRewardsState.UNKNOWN,
+        EarnRewardsState.CLEARED -> R.string.activity_details_label_complete
+        EarnRewardsState.PROCESSING -> R.string.activity_details_label_pending
+        EarnRewardsState.PENDING -> R.string.activity_details_label_processing
+        EarnRewardsState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+        EarnRewardsState.REJECTED,
+        EarnRewardsState.FAILED -> R.string.activity_details_label_failed
     }
 )
 
 private fun CustodialInterestActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
-    InterestState.REFUNDED,
-    InterestState.COMPLETE,
-    InterestState.UNKNOWN,
-    InterestState.CLEARED -> ActivityTagStyle.Success
-    InterestState.PROCESSING,
-    InterestState.PENDING,
-    InterestState.MANUAL_REVIEW -> ActivityTagStyle.Info
-    InterestState.REJECTED,
-    InterestState.FAILED -> ActivityTagStyle.Error
+    EarnRewardsState.REFUNDED,
+    EarnRewardsState.COMPLETE,
+    EarnRewardsState.UNKNOWN,
+    EarnRewardsState.CLEARED -> ActivityTagStyle.Success
+    EarnRewardsState.PROCESSING,
+    EarnRewardsState.PENDING,
+    EarnRewardsState.MANUAL_REVIEW -> ActivityTagStyle.Info
+    EarnRewardsState.REJECTED,
+    EarnRewardsState.FAILED -> ActivityTagStyle.Error
 }
 
 private fun CustodialInterestActivitySummaryItem.pendingConfirmations(): TextValue? = when {

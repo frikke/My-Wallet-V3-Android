@@ -4,10 +4,9 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -16,10 +15,11 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.combineDataResources
+import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
-import com.blockchain.earn.domain.models.staking.StakingRates
+import com.blockchain.earn.domain.models.EarnRewardsRates
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.preferences.CurrencyPrefs
@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEmpty
@@ -53,7 +52,8 @@ class LoadAssetAccountsUseCase(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val interestService: InterestService,
     private val currencyPrefs: CurrencyPrefs,
-    private val stakingService: StakingService
+    private val stakingService: StakingService,
+    private val activeRewardsService: ActiveRewardsService
 ) {
     suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
 
@@ -64,100 +64,96 @@ class LoadAssetAccountsUseCase(
             .await()
             .run { extractAccountDetails(this) }
 
-        val interestFlow = interestService.isAssetAvailableForInterestFlow(asset.currency).flatMapData {
-            if (it) {
+        val interestFlow = interestService.isAssetAvailableForInterestFlow(asset.currency).flatMapData { available ->
+            if (available) {
                 interestService.getInterestRateFlow(
                     asset.currency,
                     FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
                 )
-            } else
-                flow {
-                    emit(DataResource.Data(0.toDouble()))
-                }
+            } else {
+                flowOf(DataResource.Data(0.0))
+            }
         }
 
         val stakingFlow =
             stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
-                if (available) {
-                    stakingService.getRatesForAsset(asset.currency)
-                } else
-                    flow {
-                        emit(DataResource.Data(StakingRates(0.0, 0.0)))
-                    }
+                if (available) stakingService.getRatesForAsset(asset.currency)
+                else flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0)))
+            }
+
+        val activeRewardsFlow =
+            activeRewardsService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
+                if (available) activeRewardsService.getRatesForAsset(asset.currency)
+                else flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0)))
             }
 
         return walletModeService.walletMode.flatMapLatest { wMode ->
-            combine(
-                accountsFlow,
-                exchangeRatesDataManager.exchangeRateToUserFiatFlow(
-                    asset.currency
-                ),
+            combineDataResourceFlows(
+                accountsFlow.map { DataResource.Data(it) },
+                exchangeRatesDataManager.exchangeRateToUserFiatFlow(asset.currency),
                 if (wMode == WalletMode.CUSTODIAL) interestFlow else
                     flowOf(DataResource.Data(0.toDouble())),
                 if (wMode == WalletMode.CUSTODIAL) stakingFlow else
-                    flowOf(DataResource.Data(StakingRates(0.0, 0.0)))
-            ) { accounts, price, interestRate, stakingRate ->
+                    flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0))),
+                if (wMode == WalletMode.CUSTODIAL) activeRewardsFlow else
+                    flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0))),
+            ) { accounts, price, interestRate, stakingRate, activeRewardsRate, ->
                 // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
                 // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
-                combineDataResources(
-                    price,
-                    interestRate,
-                    stakingRate
-                ) { pricesData, interestRateData, stakingRateData ->
-                    val isTradeableAsset = accounts.any {
-                        it.account is NonCustodialAccount || it.account is CustodialTradingAccount
-                    }
+                val isTradeableAsset = accounts.any {
+                    it.account is NonCustodialAccount || it.account is CustodialTradingAccount
+                }
 
-                    if (isTradeableAsset) {
-                        val accountsList = mapAccounts(
-                            walletMode = wMode,
-                            accounts = accounts,
-                            exchangeRate = pricesData,
-                            interestRate = interestRateData,
-                            stakingRate = stakingRateData.rate
-                        )
+                if (isTradeableAsset) {
+                    val accountsList = mapAccounts(
+                        walletMode = wMode,
+                        accounts = accounts,
+                        exchangeRate = price,
+                        interestRate = interestRate,
+                        stakingRate = stakingRate.rate,
+                        activeRewardsRate = activeRewardsRate.rate,
+                    )
 
-                        var totalCryptoMoneyAll = Money.zero(asset.currency)
-                        val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
-                        var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
+                    var totalCryptoMoneyAll = Money.zero(asset.currency)
+                    val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
+                    var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
 
-                        accountsList.accounts.forEach { account ->
-                            totalCryptoBalance[account.filter] =
-                                (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(
-                                    (account.cryptoBalance as? DataResource.Data<Money>)?.data
-                                        ?: Money.zero(asset.currency)
-                                )
-                            totalCryptoMoneyAll = totalCryptoMoneyAll.plus(
+                    accountsList.accounts.forEach { account ->
+                        totalCryptoBalance[account.filter] =
+                            (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(
                                 (account.cryptoBalance as? DataResource.Data<Money>)?.data
                                     ?: Money.zero(asset.currency)
                             )
-                            totalFiatBalance = totalFiatBalance.plus(
-                                (account.fiatBalance as? DataResource.Data<Money>)?.data ?: Money.zero(
-                                    currencyPrefs.selectedFiatCurrency
-                                )
-                            )
-                        }
-
-                        totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
-
-                        CoinviewAssetDetail.Tradeable(
-                            accounts = accountsList,
-                            totalBalance = CoinviewAssetTotalBalance(
-                                totalCryptoBalance = totalCryptoBalance,
-                                totalFiatBalance = totalFiatBalance
-                            ),
+                        totalCryptoMoneyAll = totalCryptoMoneyAll.plus(
+                            (account.cryptoBalance as? DataResource.Data<Money>)?.data
+                                ?: Money.zero(asset.currency)
                         )
-                    } else {
-                        CoinviewAssetDetail.NonTradeable(
-                            totalBalance = CoinviewAssetTotalBalance(
-                                totalCryptoBalance = hashMapOf(
-                                    AssetFilter.All to CryptoValue.zero(asset.currency)
-                                ),
-                                totalFiatBalance = FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+                        totalFiatBalance = totalFiatBalance.plus(
+                            (account.fiatBalance as? DataResource.Data<Money>)?.data ?: Money.zero(
+                                currencyPrefs.selectedFiatCurrency
                             )
                         )
                     }
+
+                    totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
+
+                    CoinviewAssetDetail.Tradeable(
+                        accounts = accountsList,
+                        totalBalance = CoinviewAssetTotalBalance(
+                            totalCryptoBalance = totalCryptoBalance,
+                            totalFiatBalance = totalFiatBalance
+                        ),
+                    )
+                } else {
+                    CoinviewAssetDetail.NonTradeable(
+                        totalBalance = CoinviewAssetTotalBalance(
+                            totalCryptoBalance = hashMapOf(
+                                AssetFilter.All to CryptoValue.zero(asset.currency)
+                            ),
+                            totalFiatBalance = FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+                        )
+                    )
                 }
             }
         }
@@ -201,7 +197,8 @@ class LoadAssetAccountsUseCase(
         accounts: List<CoinviewAccountDetail>,
         exchangeRate: ExchangeRate,
         interestRate: Double = Double.NaN,
-        stakingRate: Double = Double.NaN
+        stakingRate: Double = Double.NaN,
+        activeRewardsRate: Double = Double.NaN
     ): CoinviewAccounts {
 
         val sortedAccounts =
@@ -228,7 +225,7 @@ class LoadAssetAccountsUseCase(
                                 },
                             )
                         }
-                        is InterestAccount -> {
+                        is EarnRewardsAccount.Interest -> {
                             CoinviewAccount.Custodial.Interest(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
@@ -239,7 +236,7 @@ class LoadAssetAccountsUseCase(
                                 interestRate = interestRate
                             )
                         }
-                        is StakingAccount -> {
+                        is EarnRewardsAccount.Staking -> {
                             CoinviewAccount.Custodial.Staking(
                                 isEnabled = it.isAvailable,
                                 account = it.account,
@@ -248,6 +245,17 @@ class LoadAssetAccountsUseCase(
                                     exchangeRate.convert(balance)
                                 },
                                 stakingRate = stakingRate
+                            )
+                        }
+                        is EarnRewardsAccount.Active -> {
+                            CoinviewAccount.Custodial.ActiveRewards(
+                                isEnabled = it.isAvailable,
+                                account = it.account,
+                                cryptoBalance = it.balance,
+                                fiatBalance = it.balance.map {
+                                    exchangeRate.convert(it)
+                                },
+                                activeRewardsRate = activeRewardsRate
                             )
                         }
 

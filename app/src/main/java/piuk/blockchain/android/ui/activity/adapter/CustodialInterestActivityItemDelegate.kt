@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import com.blockchain.earn.domain.models.interest.InterestState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
@@ -90,7 +90,7 @@ private class CustodialInterestActivityItemViewHolder(
         }
     }
 
-    private fun setTextColours(txStatus: InterestState) {
+    private fun setTextColours(txStatus: EarnRewardsState) {
         with(binding) {
             if (txStatus.isCompleted()) {
                 txType.setTextColor(context.getResolvedColor(R.color.black))
@@ -107,16 +107,16 @@ private class CustodialInterestActivityItemViewHolder(
     }
 }
 
-private fun InterestState.isPending(): Boolean =
-    this == InterestState.PENDING ||
-        this == InterestState.PROCESSING ||
-        this == InterestState.MANUAL_REVIEW
+private fun EarnRewardsState.isPending(): Boolean =
+    this == EarnRewardsState.PENDING ||
+        this == EarnRewardsState.PROCESSING ||
+        this == EarnRewardsState.MANUAL_REVIEW
 
-private fun InterestState.hasFailed(): Boolean =
-    this == InterestState.FAILED
+private fun EarnRewardsState.hasFailed(): Boolean =
+    this == EarnRewardsState.FAILED
 
-private fun InterestState.isCompleted(): Boolean =
-    this == InterestState.COMPLETE
+private fun EarnRewardsState.isCompleted(): Boolean =
+    this == EarnRewardsState.COMPLETE
 
 private fun ImageView.setIcon(txPending: Boolean, type: TransactionSummary.TransactionType) =
     setImageResource(
@@ -158,14 +158,14 @@ private fun TextView.setTxLabel(
 
 private fun TextView.setTxStatus(tx: CustodialInterestActivitySummaryItem) {
     text = when (tx.state) {
-        InterestState.COMPLETE -> Date(tx.timeStampMs).toFormattedDate()
-        InterestState.FAILED -> context.getString(R.string.activity_state_failed)
-        InterestState.CLEARED -> context.getString(R.string.activity_state_cleared)
-        InterestState.REFUNDED -> context.getString(R.string.activity_state_refunded)
-        InterestState.PENDING -> context.getString(R.string.activity_state_pending)
-        InterestState.PROCESSING -> context.getString(R.string.activity_state_pending)
-        InterestState.MANUAL_REVIEW -> context.getString(R.string.activity_state_pending)
-        InterestState.REJECTED -> context.getString(R.string.activity_state_rejected)
-        InterestState.UNKNOWN -> context.getString(R.string.activity_state_unknown)
+        EarnRewardsState.COMPLETE -> Date(tx.timeStampMs).toFormattedDate()
+        EarnRewardsState.FAILED -> context.getString(R.string.activity_state_failed)
+        EarnRewardsState.CLEARED -> context.getString(R.string.activity_state_cleared)
+        EarnRewardsState.REFUNDED -> context.getString(R.string.activity_state_refunded)
+        EarnRewardsState.PENDING -> context.getString(R.string.activity_state_pending)
+        EarnRewardsState.PROCESSING -> context.getString(R.string.activity_state_pending)
+        EarnRewardsState.MANUAL_REVIEW -> context.getString(R.string.activity_state_pending)
+        EarnRewardsState.REJECTED -> context.getString(R.string.activity_state_rejected)
+        EarnRewardsState.UNKNOWN -> context.getString(R.string.activity_state_unknown)
     }
 }

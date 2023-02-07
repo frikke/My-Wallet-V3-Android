@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -45,8 +45,8 @@ class EarnDashboardFragment :
     interface Host {
         fun goToInterestDeposit(toAccount: BlockchainAccount)
         fun goToInterestWithdraw(fromAccount: BlockchainAccount)
-        fun launchStakingWithdrawal(account: StakingAccount)
-        fun launchStakingDeposit(account: StakingAccount)
+        fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking)
+        fun launchStakingDeposit(account: EarnRewardsAccount.Staking)
         fun startKycClicked()
         fun launchReceive(cryptoTicker: String?)
         fun launchBuySell(viewType: BuySellViewType, asset: AssetInfo?, reload: Boolean)
@@ -148,11 +148,11 @@ class EarnDashboardFragment :
         requireContext().openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
         host.launchStakingWithdrawal(account)
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         host.launchStakingDeposit(account)
     }
 

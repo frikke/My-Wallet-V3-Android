@@ -8,8 +8,7 @@ import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.domain.trade.model.RecurringBuyState
-import com.blockchain.earn.domain.models.interest.InterestState
-import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
@@ -86,8 +85,8 @@ enum class DescriptionState {
 }
 
 data class ActivityDetailState(
-    val interestState: InterestState? = null,
-    val stakingState: StakingState? = null,
+    val interestState: EarnRewardsState? = null,
+    val stakingState: EarnRewardsState? = null,
     val transactionType: TransactionSummary.TransactionType? = null,
     val amount: Money? = null,
     val isPending: Boolean = false,

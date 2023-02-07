@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
@@ -193,6 +194,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "ff_sardine",
                 "Enable Sardine"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(activeRewardsAccountFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_active_rewards_account",
+                "Enable Active Rewards Account"
             )
         )
     }.bind(FeatureFlag::class)

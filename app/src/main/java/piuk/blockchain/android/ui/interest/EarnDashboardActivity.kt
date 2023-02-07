@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -103,10 +103,10 @@ class EarnDashboardActivity :
         )
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.StakingDeposit,
             target = account as TransactionTarget

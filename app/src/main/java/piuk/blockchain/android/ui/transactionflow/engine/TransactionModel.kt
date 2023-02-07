@@ -5,8 +5,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
@@ -174,7 +174,7 @@ data class TransactionState(
     override val sourceAccountType: AssetCategory
         get() = when (sendingAccount) {
             is TradingAccount -> AssetCategory.CUSTODIAL
-            is InterestAccount -> AssetCategory.CUSTODIAL
+            is EarnRewardsAccount.Interest -> AssetCategory.CUSTODIAL
             is CryptoNonCustodialAccount -> AssetCategory.NON_CUSTODIAL
             else -> throw IllegalStateException("$sendingAccount not supported")
         }
@@ -661,27 +661,36 @@ class TransactionModel(
                 }.toMaybe()
         AssetAction.InterestDeposit -> interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
         AssetAction.Send ->
-            if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is InterestAccount)) {
+            if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is EarnRewardsAccount)) {
                 interactor.userAccessForFeature(Feature.DepositCrypto)
                     .flatMap { access ->
                         when {
-                            access is FeatureAccess.Granted && target is InterestAccount ->
+                            access !is FeatureAccess.Granted -> Single.just(access)
+                            target is EarnRewardsAccount.Interest ->
                                 interactor.userAccessForFeature(Feature.DepositInterest)
+                            target is EarnRewardsAccount.Staking ->
+                                interactor.userAccessForFeature(Feature.DepositStaking)
+                            target is EarnRewardsAccount.Active ->
+                                interactor.userAccessForFeature(Feature.DepositStaking) // TODO(EARN):  eligibility
                             else -> Single.just(access)
                         }
                     }.toMaybe()
-            } else if (sourceAccount is TradingAccount && target is InterestAccount) {
-                interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
+            } else if (sourceAccount is TradingAccount && target is EarnRewardsAccount) {
+                when (target) {
+                    is EarnRewardsAccount.Interest -> interactor.userAccessForFeature(Feature.DepositInterest)
+                    is EarnRewardsAccount.Staking -> interactor.userAccessForFeature(Feature.DepositStaking)
+                    // TODO(EARN):  eligibility
+                    is EarnRewardsAccount.Active -> interactor.userAccessForFeature(Feature.DepositStaking)
+                }.toMaybe()
             } else {
                 Maybe.empty()
             }
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
-        AssetAction.StakingDeposit -> interactor.checkShouldShowInterstitial(
+        AssetAction.StakingDeposit -> interactor.checkShouldShowStakingInterstitial(
             sourceAccount = sourceAccount,
             asset = (target as CryptoAccount).currency,
-            feature = Feature.DepositStaking
         ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,

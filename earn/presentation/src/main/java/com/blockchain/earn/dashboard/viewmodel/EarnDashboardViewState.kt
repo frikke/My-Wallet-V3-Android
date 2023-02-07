@@ -1,6 +1,7 @@
 package com.blockchain.earn.dashboard.viewmodel
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import info.blockchain.balance.Money
 
 data class EarnDashboardViewState(
@@ -29,7 +30,7 @@ data class EarnAsset(
     val assetName: String,
     val iconUrl: String,
     val rate: Double,
-    val eligibility: EarnEligibility,
+    val eligibility: EarnRewardsEligibility,
     val balanceCrypto: Money,
     val balanceFiat: Money,
     val type: EarnType
@@ -38,17 +39,6 @@ data class EarnAsset(
 sealed class EarnType {
     object Staking : EarnType()
     object Passive : EarnType()
-}
-
-sealed class EarnEligibility {
-    object Eligible : EarnEligibility()
-    data class NotEligible(val reason: EarnIneligibleReason) : EarnEligibility()
-}
-
-enum class EarnIneligibleReason {
-    REGION,
-    KYC_TIER,
-    OTHER
 }
 
 enum class EarnDashboardListFilter {
