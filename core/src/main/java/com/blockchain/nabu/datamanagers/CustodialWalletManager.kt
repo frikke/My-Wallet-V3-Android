@@ -2,8 +2,6 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
@@ -13,16 +11,18 @@ import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.domain.transactions.CustodialTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -521,24 +521,6 @@ data class TransferQuote(
     val staticFee: Money,
     val sampleDepositAddress: String
 )
-
-data class CurrencyPair(val source: Currency, val destination: Currency) {
-
-    val rawValue: String
-        get() = listOf(source.networkTicker, destination.networkTicker).joinToString("-")
-
-    companion object {
-        fun fromRawPair(
-            rawValue: String,
-            assetCatalogue: AssetCatalogue
-        ): CurrencyPair? {
-            val parts = rawValue.split("-")
-            val source: Currency = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
-            val destination: Currency = assetCatalogue.fromNetworkTicker(parts[1]) ?: return null
-            return CurrencyPair(source, destination)
-        }
-    }
-}
 
 data class PriceTier(
     val volume: Money,

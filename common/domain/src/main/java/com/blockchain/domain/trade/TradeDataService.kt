@@ -1,17 +1,17 @@
-package piuk.blockchain.android.domain.repositories
+package com.blockchain.domain.trade
 
-import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.trade.model.RecurringBuy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.android.data.QuotePrice
 
 interface TradeDataService {
 

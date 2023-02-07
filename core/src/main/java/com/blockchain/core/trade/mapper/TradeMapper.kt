@@ -2,16 +2,19 @@ package piuk.blockchain.android.data
 
 import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.NextPaymentRecurringBuyResponse
+import com.blockchain.api.trade.data.QuoteResponse
 import com.blockchain.api.trade.data.RecurringBuyResponse
-import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyFrequency
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import java.util.Date
 
@@ -52,3 +55,46 @@ private fun String.toRecurringBuyStateDomain() =
         RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
         else -> throw IllegalStateException("Unsupported recurring state")
     }
+
+private fun String.toPaymentMethodType(): PaymentMethodType = when (this) {
+    QuoteResponse.PAYMENT_CARD -> PaymentMethodType.PAYMENT_CARD
+    QuoteResponse.FUNDS -> PaymentMethodType.FUNDS
+    QuoteResponse.BANK_TRANSFER -> PaymentMethodType.BANK_TRANSFER
+    QuoteResponse.BANK_ACCOUNT -> PaymentMethodType.BANK_ACCOUNT
+    else -> PaymentMethodType.UNKNOWN
+}
+
+fun QuoteResponse.toDomain(assetCatalogue: AssetCatalogue): QuotePrice {
+    val currencyPair = CurrencyPair.fromRawPair(
+        rawValue = currencyPair,
+        assetCatalogue = assetCatalogue
+    )
+    require(currencyPair != null) { "CurrencyPair in GetQuote is null" }
+    return QuotePrice(
+        currencyPair = currencyPair,
+        amount = Money.fromMinor(
+            currency = currencyPair.source,
+            value = amount.toBigInteger()
+        ),
+        price = Money.fromMinor(
+            currency = currencyPair.destination,
+            value = price.toBigInteger()
+        ),
+        resultAmount = Money.fromMinor(
+            currency = currencyPair.destination,
+            value = resultAmount.toBigInteger()
+        ),
+        dynamicFee = Money.fromMinor(
+            currency = currencyPair.source,
+            value = dynamicFee.toBigInteger()
+        ),
+        networkFee = networkFee?.let {
+            Money.fromMinor(
+                currency = currencyPair.source,
+                value = it.toBigInteger()
+            )
+        },
+        paymentMethod = paymentMethod.toPaymentMethodType(),
+        orderProfileName = orderProfileName
+    )
+}

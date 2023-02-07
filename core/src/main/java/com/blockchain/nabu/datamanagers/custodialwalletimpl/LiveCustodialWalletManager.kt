@@ -8,8 +8,8 @@ import com.blockchain.core.buy.data.toBuySellOrder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
+import com.blockchain.core.trade.GetRecurringBuysStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
@@ -19,6 +19,8 @@ import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
@@ -27,7 +29,6 @@ import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CryptoTransaction
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -73,6 +74,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -96,7 +98,8 @@ class LiveCustodialWalletManager(
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val recurringBuyService: RecurringBuyService
+    private val recurringBuyService: RecurringBuyService,
+    private val getRecurringBuysStore: GetRecurringBuysStore,
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -118,7 +121,13 @@ class LiveCustodialWalletManager(
     ): Single<RecurringBuyOrder> =
         nabuService.createRecurringBuyOrder(
             recurringBuyRequestBody
-        ).map { response -> response.toRecurringBuyOrder() }
+        ).map { response ->
+            response.toRecurringBuyOrder().also {
+                if (it.state == RecurringBuyState.ACTIVE) {
+                    getRecurringBuysStore.markAsStale(GetRecurringBuysStore.Key(response.destinationCurrency))
+                }
+            }
+        }
 
     override fun createWithdrawOrder(amount: Money, bankId: String): Completable =
         nabuService.createWithdrawOrder(

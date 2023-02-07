@@ -4,10 +4,10 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.RecurringBuyFrequency
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.earn.domain.models.interest.InterestState
 import com.blockchain.earn.domain.models.staking.StakingState
 import com.blockchain.enviroment.EnvironmentConfig

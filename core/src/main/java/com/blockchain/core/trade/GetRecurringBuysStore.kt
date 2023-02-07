@@ -1,4 +1,4 @@
-package piuk.blockchain.android.data
+package com.blockchain.core.trade
 
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.trade.data.RecurringBuyResponse

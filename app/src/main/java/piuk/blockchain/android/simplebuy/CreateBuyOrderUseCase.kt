@@ -4,11 +4,10 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BuyOrderAndQuote
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
@@ -19,6 +18,7 @@ import com.blockchain.outcome.getOrNull
 import com.blockchain.utils.thenSingle
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

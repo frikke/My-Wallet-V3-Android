@@ -15,8 +15,6 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
@@ -28,6 +26,8 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
+import com.blockchain.domain.trade.model.RecurringBuyFrequency
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
@@ -39,7 +39,6 @@ import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.network.PollResult
@@ -48,6 +47,7 @@ import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -64,6 +64,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.rating.domain.service.AppRatingService
+import piuk.blockchain.android.simplebuy.BuyQuote.Companion.toFiat
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import retrofit2.HttpException
@@ -128,7 +129,7 @@ class SimpleBuyModel(
                             SimpleBuyIntent.UpdateQuotePrice(
                                 amountInCrypto = it.resultAmount as CryptoValue,
                                 dynamicFee = it.dynamicFee,
-                                fiatPrice = it.fiatPrice
+                                fiatPrice = it.price.toFiat(it.currencyPair.source)
                             )
                         )
                     },

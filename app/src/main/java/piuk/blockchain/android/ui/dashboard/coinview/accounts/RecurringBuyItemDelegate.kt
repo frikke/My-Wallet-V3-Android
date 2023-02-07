@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
+import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.utils.toFormattedDateWithoutYear
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyBinding
