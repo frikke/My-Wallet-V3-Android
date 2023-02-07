@@ -101,6 +101,10 @@ class QrScanNavigationImpl(
         }
     }
 
+    override fun unregister() {
+        resultLauncher?.unregister()
+    }
+
     private suspend fun launchTxFlowWithTarget(target: CryptoTarget) {
         try {
             val sourceAccount = qrScanResultProcessor.selectSourceAccount(activity!!, target).awaitSingle()

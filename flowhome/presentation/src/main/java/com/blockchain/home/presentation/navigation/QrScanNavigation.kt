@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.navigation
 
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
+import com.blockchain.navigation.ActivityResultNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
 import kotlinx.parcelize.Parcelize
@@ -43,7 +44,7 @@ sealed interface WCSessionIntent {
 }
 
 @Stable
-interface QrScanNavigation {
+interface QrScanNavigation : ActivityResultNavigation {
     fun launchQrScan()
     fun processQrResult(decodedData: String)
     fun updateWalletConnectSession(wcIntent: WCSessionIntent)

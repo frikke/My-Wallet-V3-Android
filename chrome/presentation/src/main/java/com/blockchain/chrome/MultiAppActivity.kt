@@ -116,53 +116,59 @@ class MultiAppActivity :
         )
     }
 
-    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val qrScanNavigation: QrScanNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val settingsNavigation: SettingsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val fiatActionsNavigation: FiatActionsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val supportNavigation: SupportNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val transactionFlowNavigation: TransactionFlowNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val authNavigation: AuthNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
+    private lateinit var assetActionsNavigation: AssetActionsNavigation
+    private lateinit var qrScanNavigation: QrScanNavigation
+    private lateinit var settingsNavigation: SettingsNavigation
+    private lateinit var fiatActionsNavigation: FiatActionsNavigation
+    private lateinit var supportNavigation: SupportNavigation
+    private lateinit var transactionFlowNavigation: TransactionFlowNavigation
+    private lateinit var authNavigation: AuthNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        assetActionsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        qrScanNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        settingsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+        fiatActionsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        supportNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+        transactionFlowNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        authNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
 
         setContent {
             val systemUiController = rememberSystemUiController()
@@ -543,6 +549,13 @@ class MultiAppActivity :
                 networkInfo
             )
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        assetActionsNavigation.unregister()
+        qrScanNavigation.unregister()
+        settingsNavigation.unregister()
     }
 
     override fun onSelectNetworkClicked(session: WalletConnectSession) {

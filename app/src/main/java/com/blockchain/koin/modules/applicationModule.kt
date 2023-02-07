@@ -265,35 +265,35 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: BlockchainActivity) -> DefiBackupNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> DefiBackupNavigationImpl(activity = activity) }.apply {
             bind(DefiBackupNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
             bind(PricesNavigation::class)
             bind(AssetActionsNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
             bind(SettingsNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> WalletLinkAndOpenBankingNavImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> WalletLinkAndOpenBankingNavImpl(activity = activity) }.apply {
             bind(WalletLinkAndOpenBankingNavigation::class)
         }
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             FiatActionsNavigationImpl(activity = activity)
         }.bind(FiatActionsNavigation::class)
 
-        scoped { (activity: AppCompatActivity) ->
+        factory { (activity: AppCompatActivity) ->
             TransactionFlowNavigationImpl(activity = activity)
         }.bind(TransactionFlowNavigation::class)
 
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             AuthNavigationImpl(activity = activity, credentialsWiper = get())
         }.bind(AuthNavigation::class)
 
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             QrScanNavigationImpl(
                 activity = activity,
                 qrScanResultProcessor = payloadScope.get(),
@@ -302,11 +302,11 @@ val applicationModule = module {
                 assetService = get(),
                 assetCatalogue = get()
             )
-        }.bind(
-            QrScanNavigation::class
-        )
+        }.apply {
+            bind(QrScanNavigation::class)
+        }
 
-        scoped { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
             bind(SupportNavigation::class)
         }
 
