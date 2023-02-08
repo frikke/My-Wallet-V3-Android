@@ -70,7 +70,6 @@ import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
