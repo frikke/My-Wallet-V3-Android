@@ -17,6 +17,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
@@ -288,7 +290,7 @@ class SellIntroFragment :
             customEmptyState.apply {
                 title = R.string.account_restricted
                 descriptionText = reason.message
-                icon = R.drawable.ic_wallet_intro_image
+                icon = Icons.Filled.User.id
                 ctaText = R.string.common_learn_more
                 ctaAction = action
                 visible()

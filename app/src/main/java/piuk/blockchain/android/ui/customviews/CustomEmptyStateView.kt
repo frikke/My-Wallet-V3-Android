@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -25,7 +27,7 @@ class CustomEmptyStateView @JvmOverloads constructor(
     var description: Int by mutableStateOf(R.string.common_empty_details)
     var descriptionText: String? by mutableStateOf(null)
     @get:DrawableRes
-    var icon: Int by mutableStateOf(R.drawable.ic_wallet_intro_image)
+    var icon: Int by mutableStateOf(Icons.Filled.User.id)
     @get:StringRes
     var secondaryText: Int? by mutableStateOf(null)
     var secondaryAction: (() -> Unit)? by mutableStateOf(null)

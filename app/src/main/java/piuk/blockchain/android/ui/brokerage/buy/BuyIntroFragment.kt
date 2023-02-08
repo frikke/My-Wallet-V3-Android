@@ -16,6 +16,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.home.presentation.navigation.HomeLaunch.KYC_STARTED
 import com.blockchain.koin.buyOrder
 import com.blockchain.nabu.BlockedReason
@@ -219,7 +221,7 @@ class BuyIntroFragment : ViewPagerFragment() {
             reason = reason,
             title = R.string.account_restricted,
             description = reason.message ?: getString(R.string.feature_not_available),
-            icon = R.drawable.ic_wallet_intro_image,
+            icon = Icons.Filled.User.id,
             ctaText = R.string.contact_support
         )
     }
@@ -228,7 +230,7 @@ class BuyIntroFragment : ViewPagerFragment() {
         buyViewState = BuyViewState.ShowEmptyState(
             reason = reason,
             title = R.string.account_restricted,
-            icon = R.drawable.ic_wallet_intro_image,
+            icon = Icons.Filled.User.id,
             ctaText = R.string.common_learn_more,
             description = reason.message
         )

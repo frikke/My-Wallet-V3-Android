@@ -19,6 +19,9 @@ import com.blockchain.coincore.TrendingPairsProvider
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Network
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -282,7 +285,7 @@ class SwapFragment :
             } else {
                 getString(R.string.feature_not_available)
             }
-            icon = R.drawable.ic_wallet_intro_image
+            icon = Icons.Filled.User.id
             ctaText = R.string.contact_support
             ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
             visible()
@@ -302,7 +305,7 @@ class SwapFragment :
         binding.swapError.apply {
             title = R.string.account_restricted
             descriptionText = reason.message
-            icon = R.drawable.ic_wallet_intro_image
+            icon = Icons.Filled.User.id
             ctaText = R.string.common_learn_more
             ctaAction = action
             visible()
@@ -392,11 +395,12 @@ class SwapFragment :
     }
 
     private fun showErrorUi() {
+        Icons.Filled.User
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
             title = R.string.common_empty_title
             description = R.string.common_empty_details
-            icon = R.drawable.ic_wallet_intro_image
+            icon = Icons.Filled.Network.id
             ctaText = R.string.common_empty_cta
             ctaAction = { loadSwapOrKyc(true) }
             visible()
