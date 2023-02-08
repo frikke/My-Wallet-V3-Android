@@ -3293,7 +3293,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bottom_nav_prices">Prices</string>
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
-    <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="bottom_nav_earn">Earn</string>
     <string name="defi_wallet_name" translatable="false">DeFi Wallet</string>
     <string name="error_loading_balance">Some balances failed to load</string>
@@ -3322,14 +3321,13 @@ If you want to know more about our verification process visit our <annotation li
     <string name="intro_swipe_hint">Swipe to continue -></string>
 
     <!-- NFT -->
-    <string name="nft_coming_soon_title">Coming soon!</string>
-    <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
-    <string name="nft_empty_title">You Don’t Have Any NFTs</string>
-    <string name="nft_empty_description">Send from any wallet, or buy from a marketplace!</string>
+    <string name="nft_empty_title">Add NFTs to your DeFi Wallet</string>
+    <string name="nft_empty_description">Transfer from any wallet, \nor buy from a marketplace!</string>
     <string name="nft_cta_buy">Buy NFTs</string>
     <string name="nft_help">How does this work?</string>
     <string name="nft_cta_shop">Shop on Opensea</string>
     <string name="nft_cta_view">View on Opensea</string>
+    <string name="nft_collectibles">Your Collectibles</string>
     <string name="nft_creator">Creator</string>
     <string name="nft_description">Description</string>
     <string name="nft_help_title">How does this work?</string>

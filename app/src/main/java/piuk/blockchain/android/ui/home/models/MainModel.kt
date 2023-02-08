@@ -107,7 +107,6 @@ class MainModel(
                 listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
-                    NavigationItem.Nfts,
                     NavigationItem.Activity
                 )
             }

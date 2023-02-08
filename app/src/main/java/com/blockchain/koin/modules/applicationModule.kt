@@ -65,6 +65,7 @@ import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
@@ -157,6 +158,7 @@ import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.DefiBackupNavigationImpl
 import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
+import piuk.blockchain.android.ui.home.NftNavigationImpl
 import piuk.blockchain.android.ui.home.QrScanNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.SupportNavigationImpl
@@ -308,6 +310,10 @@ val applicationModule = module {
 
         factory { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
             bind(SupportNavigation::class)
+        }
+
+        scoped { (activity: BlockchainActivity) -> NftNavigationImpl(activity = activity) }.apply {
+            bind(NftNavigation::class)
         }
 
         scoped {

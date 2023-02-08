@@ -177,6 +177,7 @@ fun PaginatedLazyColumn(
 fun PaginatedLazyVerticalGrid(
     columns: GridCells,
     modifier: Modifier = Modifier,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     reverseLayout: Boolean = false,
     verticalArrangement: Arrangement.Vertical =
@@ -189,7 +190,6 @@ fun PaginatedLazyVerticalGrid(
     content: LazyGridScope.() -> Unit
 ) {
 
-    val lazyGridState = rememberLazyGridState()
     val scrollState = rememberScrollState(gridState = lazyGridState, offset = loadNextPageItemOffset)
 
     if (scrollState.shouldGetNextPage) {

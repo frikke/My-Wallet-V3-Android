@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface NftService {
     suspend fun getNftCollectionForAddress(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale),
         address: String,
         pageKey: String?
     ): Flow<DataResource<NftAssetsPage>>

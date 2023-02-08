@@ -75,6 +75,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
@@ -123,6 +124,9 @@ fun MultiAppChrome(
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -183,7 +187,10 @@ fun MultiAppChrome(
             },
             startPhraseRecovery = { onboardingRequired ->
                 startPhraseRecovery(onboardingRequired)
-            }
+            },
+            openExternalUrl = openExternalUrl,
+            openNftHelp = openNftHelp,
+            nftNavigation = nftNavigation
         )
     }
 }
@@ -213,7 +220,10 @@ fun MultiAppChromeScreen(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit
+    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit,
+    nftNavigation: NftNavigation,
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
 
@@ -713,7 +723,10 @@ fun MultiAppChromeScreen(
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
-                    startPhraseRecovery = startPhraseRecovery
+                    startPhraseRecovery = startPhraseRecovery,
+                    openExternalUrl = openExternalUrl,
+                    openNftHelp = openNftHelp,
+                    nftNavigation = nftNavigation
                 )
             }
         }

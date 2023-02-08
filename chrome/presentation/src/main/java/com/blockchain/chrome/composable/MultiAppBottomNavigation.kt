@@ -52,7 +52,6 @@ fun MultiAppBottomNavigation(
                     modifier = Modifier.clickable {
                         onSelected(item)
                         navControllerProvider().navigate(item.route) {
-
                             navControllerProvider().graph.startDestinationRoute?.let { screen_route ->
                                 popUpTo(screen_route) {
                                     saveState = true
@@ -96,7 +95,8 @@ fun PreviewMultiAppBottomNavigation() {
     MultiAppBottomNavigation(
         navigationItems = listOf(
             ChromeBottomNavigationItem.Home,
-            ChromeBottomNavigationItem.Prices
+            ChromeBottomNavigationItem.Prices,
+            ChromeBottomNavigationItem.Nft
         ).toImmutableList(),
         navControllerProvider = { navController },
         onSelected = {}

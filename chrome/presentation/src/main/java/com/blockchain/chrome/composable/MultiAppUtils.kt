@@ -29,5 +29,6 @@ fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when 
     WalletMode.NON_CUSTODIAL -> listOf(
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
+        ChromeBottomNavigationItem.Nft,
     )
 }

@@ -235,6 +235,5 @@ sealed class NavigationItem(val route: String, val icon: Int, val title: Int) {
     object Prices : NavigationItem("prices", R.drawable.ic_bottom_nav_prices, R.string.bottom_nav_prices)
     object BuyAndSell : NavigationItem("buy_and_sell", R.drawable.ic_bottom_nav_buy, R.string.bottom_nav_buy_and_sell)
     object Activity : NavigationItem("activity", R.drawable.ic_bottom_nav_activity, R.string.bottom_nav_activity)
-    object Nfts : NavigationItem("nfts", R.drawable.ic_bottom_nav_nfts, R.string.bottom_nav_nfts)
     object Earn : NavigationItem("earn", R.drawable.ic_bottom_nav_earn, R.string.bottom_nav_earn)
 }

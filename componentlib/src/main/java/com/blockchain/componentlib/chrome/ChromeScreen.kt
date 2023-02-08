@@ -1,12 +1,12 @@
 package com.blockchain.componentlib.chrome
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -16,42 +16,29 @@ import com.blockchain.componentlib.basic.ImageResource.None.shape
 import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.swiperefresh.SwipeRefreshState
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun ChromeScreen(
     modifier: Modifier,
-    updateScrollInfo: (ListStateInfo) -> Unit,
     isPullToRefreshEnabled: Boolean,
-    listState: LazyListState,
+    isRefreshing: Boolean,
+    swipeRefreshState: SwipeRefreshState,
     content: @Composable (shouldTriggerRefresh: Boolean) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
 ) {
 
-    var isRefreshing by remember { mutableStateOf(false) }
-
-    /**
-     * is mainly used to determine the pull to refresh state
-     */
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
     val scope = rememberCoroutineScope()
-    updateScrollInfo(
-        extractStatesInfo(listState, swipeRefreshState)
-    )
 
     SwipeRefreshWithoutOverscroll(
         state = swipeRefreshState,
         swipeEnabled = isPullToRefreshEnabled,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
                 refreshStarted()
                 delay(2000)
-                isRefreshing = false
                 refreshComplete()
             }
         },
@@ -78,21 +65,46 @@ data class ListStateInfo(
 @Composable
 fun extractStatesInfo(
     listState: LazyListState,
-    swipeRefreshState: SwipeRefreshState?
+    swipeRefreshState: SwipeRefreshState
+): ListStateInfo {
+    return extractStatesInfo(
+        isFirstItemVisibleProvider = { listState.firstVisibleItemIndex == 0 },
+        isFirstVisibleItemOffsetZeroProvider = { listState.firstVisibleItemScrollOffset == 0 },
+        isSwipeInProgressProvider = { swipeRefreshState.isSwipeInProgress }
+    )
+}
+
+@Composable
+fun extractStatesInfo(
+    lazyGridState: LazyGridState,
+    swipeRefreshState: SwipeRefreshState
+): ListStateInfo {
+    return extractStatesInfo(
+        isFirstItemVisibleProvider = { lazyGridState.firstVisibleItemIndex == 0 },
+        isFirstVisibleItemOffsetZeroProvider = { lazyGridState.firstVisibleItemScrollOffset == 0 },
+        isSwipeInProgressProvider = { swipeRefreshState.isSwipeInProgress }
+    )
+}
+
+@Composable
+private fun extractStatesInfo(
+    isFirstItemVisibleProvider: () -> Boolean,
+    isFirstVisibleItemOffsetZeroProvider: () -> Boolean,
+    isSwipeInProgressProvider: () -> Boolean,
 ): ListStateInfo {
     val isFirstItemVisible by remember {
         derivedStateOf {
-            listState.firstVisibleItemIndex == 0
+            isFirstItemVisibleProvider()
         }
     }
     val isFirstVisibleItemOffsetZero by remember {
         derivedStateOf {
-            listState.firstVisibleItemScrollOffset == 0
+            isFirstVisibleItemOffsetZeroProvider()
         }
     }
     val isSwipeInProgress by remember {
         derivedStateOf {
-            swipeRefreshState?.isSwipeInProgress ?: false
+            isSwipeInProgressProvider()
         }
     }
 
