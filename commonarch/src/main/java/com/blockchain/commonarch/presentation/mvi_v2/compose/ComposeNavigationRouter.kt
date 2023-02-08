@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.mvi_v2.compose
 
+import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.ColumnScope
@@ -261,3 +262,7 @@ fun rememberBottomSheetNavigator(
 data class NavArgument(val key: String, val value: Any)
 
 fun String.wrappedArg() = "{$this}"
+
+fun Bundle.getComposeArgument(key: String) = getString(key)?.let {
+    if (it == key.wrappedArg()) null else it
+}

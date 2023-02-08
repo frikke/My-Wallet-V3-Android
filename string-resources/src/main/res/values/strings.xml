@@ -3343,6 +3343,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="nft_help_instructions_4_description">This will be an option after selecting Login or Connect Wallet</string>
     <string name="nft_help_instructions_5_title">Once purchased, NFTs will show up here</string>
     <string name="nft_help_instructions_5_description">Access your NFTs from your Blockchain Wallet</string>
+    <string name="nft_properties">Properties</string>
 
     <!---->
     <string name="shortcuts">Shortcuts</string>

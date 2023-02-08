@@ -1,12 +1,13 @@
 package com.blockchain.componentlib.icon
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.R
@@ -21,28 +22,42 @@ fun CustomStackedIcon(
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background,
     size: Dp = AppTheme.dimensions.standardSpacing,
+    iconShape: Shape = CircleShape
 ) {
     when (icon) {
-        is StackedIcon.OverlappingPair -> OverlapIcon(
-            icon = icon,
-            iconSize = size * 0.75f,
-            iconBackground = iconBackground,
-            borderColor = borderColor
-        )
-        is StackedIcon.SmallTag -> SmallTagIcon(
-            icon = icon,
-            mainIconSize = size,
-            iconBackground = iconBackground,
-            borderColor = borderColor
-        )
-        is StackedIcon.SingleIcon -> AsyncMediaItem(
-            modifier = Modifier
-                .size(size)
-                .background(color = iconBackground, shape = CircleShape)
-                .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = icon.icon,
-            onErrorDrawable = R.drawable.coins_on
-        )
+        is StackedIcon.OverlappingPair -> {
+            OverlapIcon(
+                icon = icon,
+                iconSize = size * 0.75f,
+                iconBackground = iconBackground,
+                borderColor = borderColor
+            )
+        }
+        is StackedIcon.SmallTag -> {
+            SmallTagIcon(
+                icon = icon,
+                mainIconSize = size,
+                iconBackground = iconBackground,
+                borderColor = borderColor,
+                mainIconShape = iconShape
+            )
+        }
+        is StackedIcon.SingleIcon -> {
+            Surface(
+                modifier = Modifier
+                    .size(size),
+                shape = iconShape,
+                color = iconBackground
+            ) {
+                AsyncMediaItem(
+                    modifier = Modifier
+                        .size(size)
+                        .background(iconBackground),
+                    imageResource = icon.icon,
+                    onErrorDrawable = R.drawable.coins_on
+                )
+            }
+        }
         StackedIcon.None -> {
             // n/a
         }

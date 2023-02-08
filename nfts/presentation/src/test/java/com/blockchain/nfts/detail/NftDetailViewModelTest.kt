@@ -38,15 +38,14 @@ class NftDetailViewModelTest {
     private val tokenId = "tokenId"
     private val address = "address"
 
-    private val nftDetailNavArgs = NftDetailNavArgs(
-        nftId = "nftId",
-        pageKey = "pageKey",
-        address = "address"
-    )
-
     @Before
     fun setUp() {
-        viewModel = NftDetailViewModel(nftService)
+        viewModel = NftDetailViewModel(
+            nftId = "nftId",
+            pageKey = "pageKey",
+            address = "address",
+            nftService = nftService
+        )
 
         every { asset.contract } returns contract
         every { asset.tokenId } returns tokenId
@@ -59,9 +58,9 @@ class NftDetailViewModelTest {
 
         coEvery { nftService.getNftAsset(any(), any(), any(), any()) } returns dataResource
 
-        viewModel.viewState.test {
-            viewModel.viewCreated(nftDetailNavArgs)
+        viewModel.onIntent(NftDetailIntent.LoadData)
 
+        viewModel.viewState.test {
             // first loading - should be loading
             dataResource.emit(DataResource.Loading)
             awaitItem().run {

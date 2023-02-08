@@ -63,7 +63,6 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
 import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.SettingsDestination
-import com.blockchain.nfts.NftHost
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -71,7 +70,6 @@ import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -161,7 +159,6 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
-    NftHost,
     InterestSummarySheet.Host,
     NavigationRouter<PricesNavigationEvent>,
     EarnDashboardFragment.Host {
@@ -1406,10 +1403,6 @@ class MainActivity :
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)
             .show()
-    }
-
-    override fun openExternalUrl(url: String) {
-        openUrl(url)
     }
 
     override fun route(navigationEvent: PricesNavigationEvent) {

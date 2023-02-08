@@ -127,17 +127,17 @@ class NftCollectionViewModelTest {
             }
         }
     }
-// todo next pr
-//    @Test
-//    fun `WHEN ShowDetail is called, THEN ShowDetail nav should be called`() = runTest {
-//        val nftId = "nftId"
-//        viewModel.onIntent(NftCollectionIntent.LoadData())
-//
-//        viewModel.navigationEventFlow.test {
-//            viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId, nextPageKey))
-//            awaitItem().run {
-//                assertEquals(NftCollectionNavigationEvent.ShowDetail(nftId, nextPageKey, address), this)
-//            }
-//        }
-//    }
+
+    @Test
+    fun `WHEN ShowDetail is called, THEN ShowDetail nav should be called`() = runTest {
+        val nftId = "nftId"
+        viewModel.onIntent(NftCollectionIntent.LoadData())
+
+        viewModel.navigationEventFlow.test {
+            viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId, nextPageKey))
+            awaitItem().run {
+                assertEquals(NftCollectionNavigationEvent.ShowDetail(nftId, nextPageKey, address), this)
+            }
+        }
+    }
 }
