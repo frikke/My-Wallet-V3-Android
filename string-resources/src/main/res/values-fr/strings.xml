@@ -1045,13 +1045,13 @@
     <string name="order_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
     <string name="order_error_subtitle_rb">Ne vous inquiétez pas. Votre argent est en sécurité. Votre achat %1$s récurrent de %2$s n\'a pas pu être enregistré. Veuillez réessayer ou contacter notre Équipe d\'assistance pour obtenir de l\'aide.</string>
     <string name="card_expiry_date">Exp : %1s</string>
-    <string name="card_buying">Achat de %1s</string>
+    <string name="card_buying">Achat de %1$s de %2$s</string>
     <string name="card_in_progress">%1s Achat en cours</string>
     <string name="we_will_notify_order_complete">Nous vous informerons lorsque votre commande sera terminée.</string>
     <string name="bank_transfer_in_progress_title">%1$s Achat initié</string>
     <string name="bank_transfer_in_progress_blurb">Nous sommes en train de terminer votre achat maintenant. Attendez-vous à ce que les fonds soient retirés de votre banque par %1$s. Vérifiez l\'état de votre commande à tout moment dans le moment Activité.</string>
     <string name="bank_transfer_in_progress_ob_blurb">Votre commande est en cours de traitement. Vous pouvez fermer cet écran en toute sécurité pendant que nous mettons à jour la commande en arrière-plan.</string>
-    <string name="completing_card_buy_1">Votre commande %1$s de %2$s est en cours de traitement.</string>
+    <string name="completing_card_buy_1">Votre achat %1$s est en cours de traitement.</string>
     <string name="completing_card_buy_rb">Votre achat %1$s de %2$s sur %3$s a été configuré.</string>
     <string name="completing_card_buy">Nous finalisons maintenant votre achat.</string>
     <string name="card_purchased">%1s Acheté</string>

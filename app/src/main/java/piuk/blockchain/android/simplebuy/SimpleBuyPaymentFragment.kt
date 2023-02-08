@@ -753,11 +753,14 @@ class SimpleBuyPaymentFragment :
             }
             newState.isLoading && newState.orderValue != null -> {
                 binding.transactionProgressView.showTxInProgress(
-                    getString(R.string.card_buying, newState.orderValue.formatOrSymbolForZero()),
                     getString(
-                        R.string.completing_card_buy_1,
+                        R.string.card_buying,
                         newState.order.amount?.toStringWithSymbol(),
                         newState.selectedCryptoAsset?.displayTicker
+                    ),
+                    getString(
+                        R.string.completing_card_buy_1,
+                        newState.selectedCryptoAsset?.name
                     ) + appendRecurringBuyInfo(
                         order = newState.order,
                         selectedCryptoAsset = newState.selectedCryptoAsset,
@@ -787,8 +790,7 @@ class SimpleBuyPaymentFragment :
                             } ?: (
                                 getString(
                                     R.string.completing_card_buy_1,
-                                    newState.order.amount?.toStringWithSymbol(),
-                                    newState.selectedCryptoAsset?.displayTicker
+                                    newState.selectedCryptoAsset?.name
                                 ) + appendRecurringBuyInfo(
                                     order = newState.order,
                                     selectedCryptoAsset = newState.selectedCryptoAsset,
