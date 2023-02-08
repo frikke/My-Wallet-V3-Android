@@ -20,7 +20,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
@@ -76,7 +76,7 @@ private class XlmMemoItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             if (item.isRequired) showExchangeInfo()
 

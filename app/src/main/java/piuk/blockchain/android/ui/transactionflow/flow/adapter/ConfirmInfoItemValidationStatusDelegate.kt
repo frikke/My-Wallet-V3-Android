@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.asAssetInfoOrThrow
 import info.blockchain.balance.isLayer2Token
@@ -53,7 +53,7 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
             }
 
             with(binding) {
-                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
                 errorMsg.text = item.toText(context)
             }
         }

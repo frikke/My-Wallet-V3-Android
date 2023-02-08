@@ -7,18 +7,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -41,10 +38,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private var accountBalance: Money? = null
     private var isEnabled: Boolean? = null
-    private var interestRate: Double? = null
-    private var displayedAccount: SingleAccount = NullCryptoAccount()
 
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
@@ -63,38 +57,33 @@ class AccountInfoCrypto @JvmOverloads constructor(
         onAccountClicked: (SingleAccount) -> Unit,
         cellDecorator: CellDecorator,
     ) {
-        val accountsAreTheSame = displayedAccount.isTheSameWith(item.account)
-        updateAccountDetails(item, accountsAreTheSame, onAccountClicked, cellDecorator)
+        updateAccountDetails(item, onAccountClicked, cellDecorator)
 
-        if (item.showRewardsUpsell) setInterestAccountDetails(item.account, accountsAreTheSame)
+        if (item.showRewardsUpsell) setInterestAccountDetails(item.account)
 
         with(binding.assetWithAccount) {
             updateIcon(item.account)
             visible()
         }
-        displayedAccount = item.account
     }
 
     private fun setInterestAccountDetails(
         account: SingleAccount,
-        accountsAreTheSame: Boolean
     ) {
         with(binding) {
             compositeDisposable += (coincore[account.currency] as CryptoAsset)
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
-                .doOnSuccess {
-                    interestRate = it
-                }.startWithValueIfCondition(value = interestRate, condition = accountsAreTheSame)
                 .subscribeBy(
-                    onNext = {
+                    onSuccess = {
                         assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_rewards, it)
+                        assetSubtitle.visible()
                     },
                     onError = {
                         assetSubtitle.text = resources.getString(
                             R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
+                        assetSubtitle.visible()
                         Timber.e("AssetActions error loading Interest rate: $it")
                     }
                 )
@@ -103,42 +92,29 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     private fun updateAccountDetails(
         item: AccountListViewItem,
-        accountsAreTheSame: Boolean,
         onAccountClicked: (SingleAccount) -> Unit,
         cellDecorator: CellDecorator,
     ) {
-
         with(binding) {
             val account = item.account
-
             root.contentDescription = "${item.title} ${item.subTitle}"
-
             assetTitle.text = item.title
             if (item.account !is CustodialTradingAccount) {
-                assetSubtitle.text = item.subTitle
+                assetSubtitle.apply {
+                    text = item.subTitle
+                    visible()
+                }
             } else {
-                assetSubtitle.text = ""
+                assetSubtitle.gone()
             }
 
-            compositeDisposable += account.balanceRx().firstOrError().map { it.total }
-                .doOnSuccess {
-                    accountBalance = it
-                }.startWithValueIfCondition(
-                    value = accountBalance,
-                    alternativeValue = Money.zero(account.currency),
-                    condition = accountsAreTheSame
-                )
+            compositeDisposable += account.balanceRx().map { it.total }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    walletBalanceCrypto.text = ""
-                    walletBalanceFiat.text = ""
-                }
                 .subscribeBy(
                     onNext = { accountBalance ->
                         walletBalanceCrypto.text = accountBalance.toStringWithSymbol()
                         walletBalanceFiat.text =
                             accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
-
                         root.contentDescription = "${item.title} ${item.subTitle}: " +
                             "${context.getString(R.string.accessibility_balance)} " +
                             "${walletBalanceFiat.text} ${walletBalanceCrypto.text}"
@@ -170,14 +146,14 @@ class AccountInfoCrypto @JvmOverloads constructor(
             compositeDisposable += cellDecorator.isEnabled()
                 .doOnSuccess {
                     isEnabled = it
-                }.startWithValueIfCondition(value = isEnabled, condition = accountsAreTheSame)
+                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
                     setOnClickListener {
                     }
                 }
                 .subscribeBy(
-                    onNext = { isEnabled ->
+                    onSuccess = { isEnabled ->
                         if (isEnabled) {
                             setOnClickListener {
                                 onAccountClicked(account)
@@ -214,21 +190,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
         binding.root.visibleIf { isVisible }
     }
 }
-
-private fun <T> Single<T>.startWithValueIfCondition(
-    value: T?,
-    alternativeValue: T? = null,
-    condition: Boolean
-): Observable<T> =
-    if (!condition)
-        this.toObservable()
-    else {
-        when {
-            value != null -> this.toObservable().startWithItem(value)
-            alternativeValue != null -> this.toObservable().startWithItem(alternativeValue)
-            else -> this.toObservable()
-        }
-    }
 
 class AccountListViewItem(
     val account: SingleAccount,

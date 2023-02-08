@@ -347,7 +347,7 @@ fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
     }
 }
 
-fun View.updateItemBackgroundForSuperApp(isFirstItemInList: Boolean, isLastItemInList: Boolean) {
+fun View.updateItemBackground(isFirstItemInList: Boolean, isLastItemInList: Boolean) {
     background = ContextCompat.getDrawable(
         context,
         when {
@@ -372,7 +372,7 @@ fun View.updateItemBackgroundForSuperApp(isFirstItemInList: Boolean, isLastItemI
     )
 }
 
-fun View.updateSelectableItemBackgroundForSuperApp(
+fun View.updateSelectableItemBackground(
     isFirstItemInList: Boolean,
     isLastItemInList: Boolean,
     isSelected: Boolean
@@ -400,6 +400,6 @@ fun View.updateSelectableItemBackgroundForSuperApp(
             end = resources.getDimensionPixelOffset(R.dimen.small_spacing)
         )
     } else {
-        updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+        updateItemBackground(isFirstItemInList, isLastItemInList)
     }
 }

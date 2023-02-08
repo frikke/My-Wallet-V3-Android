@@ -18,8 +18,8 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
-import com.blockchain.componentlib.viewextensions.updateSelectableItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
+import com.blockchain.componentlib.viewextensions.updateSelectableItemBackground
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.extensions.replace
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
@@ -175,14 +175,10 @@ class AccountList @JvmOverloads constructor(
                 val newSelected = selectableItems.first { it.item.account == selectedAccount }
                 if (currentSelected != null) {
                     val newItem = currentSelected.copy(isSelected = false)
-                    items = items.replace(currentSelected, newItem).also {
-                        notifyItemChanged(items.indexOf(newItem))
-                    }
+                    items = items.replace(currentSelected, newItem)
                 }
                 val newItem = newSelected.copy(isSelected = true)
-                items = items.replace(newSelected, newItem).also {
-                    notifyItemChanged(items.indexOf(newItem))
-                }
+                items = items.replace(newSelected, newItem)
             } else {
                 // if list is empty, we're in a race condition between loading and selecting, so store value and check
                 // it once items loaded
@@ -236,11 +232,6 @@ private class AccountsDelegateAdapter(
                 DiffUtil.calculateDiff(AccountsDiffUtil(this.items, value))
             field = value
             diffResult.dispatchUpdatesTo(this)
-
-            // need to update first and last item if shape needs to update for superapp
-            // see CryptoSingleAccountViewHolder.bind
-            notifyItemChanged(0)
-            notifyItemChanged(value.lastIndex)
         }
 
     init {
@@ -339,11 +330,11 @@ private class CryptoSingleAccountViewHolder(
         with(binding) {
 
             if (showSelectionStatus) {
-                cryptoAccount.updateSelectableItemBackgroundForSuperApp(
+                cryptoAccount.updateSelectableItemBackground(
                     isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
                 )
             } else {
-                cryptoAccount.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                cryptoAccount.updateItemBackground(isFirstItemInList, isLastItemInList)
             }
 
             cryptoAccount.updateItem(
@@ -399,11 +390,11 @@ private class FiatAccountViewHolder(
     ) {
         with(binding) {
             if (showSelectionStatus) {
-                fiatContainer.updateSelectableItemBackgroundForSuperApp(
+                fiatContainer.updateSelectableItemBackground(
                     isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
                 )
             } else {
-                fiatContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                fiatContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
             }
             fiatContainer.alpha = 1f
             fiatAccount.updateAccount(
@@ -462,14 +453,14 @@ private class BankAccountViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            bankContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            bankContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             if (showSelectionStatus) {
-                bankContainer.updateSelectableItemBackgroundForSuperApp(
+                bankContainer.updateSelectableItemBackground(
                     isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
                 )
             } else {
-                bankContainer.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                bankContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
             }
             bankContainer.alpha = 1f
             bankAccount.updateAccount(
@@ -512,7 +503,7 @@ private class AddNewBankAccountViewHolder(
 ) : RecyclerView.ViewHolder(binding.root), DisposableViewHolder {
 
     fun bind(onAddNewBankAccountButtonClick: () -> Unit, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
-        binding.root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+        binding.root.updateItemBackground(isFirstItemInList, isLastItemInList)
         with(binding.addNewBankAccountButton) {
             buttonState = ButtonState.Enabled
             text = context.getString(R.string.add_new_bank_account)

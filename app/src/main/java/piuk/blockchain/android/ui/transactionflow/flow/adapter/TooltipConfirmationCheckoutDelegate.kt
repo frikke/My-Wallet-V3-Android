@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.databinding.ItemCheckoutClickableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
@@ -50,7 +50,7 @@ private class TooltipConfirmationCheckoutItemViewHolder(
     ) {
         mapper.map(item).let {
             with(binding) {
-                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
                 clickableItemLabel.text = it[ConfirmationPropertyKey.LABEL] as String
                 clickableItemTitle.text = it[ConfirmationPropertyKey.TITLE] as String

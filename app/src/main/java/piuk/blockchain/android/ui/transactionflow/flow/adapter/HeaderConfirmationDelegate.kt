@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.bumptech.glide.Glide
 import piuk.blockchain.android.databinding.ItemWalletConnectCheckoutHeaderBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -37,7 +37,7 @@ private class ItemWalletConnectHeaderViewHolder(private val binding: ItemWalletC
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             Glide.with(context).load(item.dAppLogo).into(icon)
             name.text = item.dAppName

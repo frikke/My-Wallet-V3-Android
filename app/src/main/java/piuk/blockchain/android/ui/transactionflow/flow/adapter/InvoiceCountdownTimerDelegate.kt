@@ -6,7 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.presentation.getResolvedColor
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
@@ -44,7 +44,7 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
             isLastItemInList: Boolean
         ) {
             with(binding) {
-                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
                 confirmationItemLabel.setText(R.string.bitpay_remaining_time)
                 updateCountdownElements(item.timeRemainingSecs)

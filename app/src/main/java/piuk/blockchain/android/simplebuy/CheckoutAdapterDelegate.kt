@@ -9,7 +9,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -164,7 +164,7 @@ private class SimpleCheckoutItemViewHolder(
 
     fun bind(item: SimpleBuyCheckoutItem.SimpleCheckoutItem, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             simpleItemTitle.text = item.title
             simpleItemLabel.text = item.label
@@ -219,7 +219,7 @@ private class ComplexCheckoutItemItemViewHolder(
 
     fun bind(item: SimpleBuyCheckoutItem.ComplexCheckoutItem, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             complexItemLabel.text = item.label
             complexItemTitle.text = item.title
@@ -258,7 +258,7 @@ private class ToggleCheckoutItemItemViewHolder(
         onToggleChanged: (Boolean) -> Unit
     ) {
         with(binding) {
-            toggleParent.updateItemBackgroundForSuperApp(
+            toggleParent.updateItemBackground(
                 isFirstItemInList = true,
                 isLastItemInList = true
             )
@@ -310,7 +310,7 @@ private class ClickableCheckoutItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             clickableItemTitle.text = item.title
             clickableItemLabel.text = item.label
@@ -356,7 +356,7 @@ private class ReadMoreDisclaimerCheckoutItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             infoText.text = item.text
             ctaButton.apply {
@@ -408,7 +408,7 @@ private class ExpandableCheckoutItemViewHolder(
         isLastItemInList: Boolean,
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             expandableItemLabel.text = item.label
             expandableItemTitle.text = item.title

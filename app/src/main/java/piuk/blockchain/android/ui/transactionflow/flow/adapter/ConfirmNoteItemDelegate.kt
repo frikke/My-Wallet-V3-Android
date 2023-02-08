@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.databinding.ItemSendConfirmNoteBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.activity.detail.adapter.MAX_NOTE_LENGTH
@@ -65,7 +65,7 @@ private class NoteItemViewHolder(private val binding: ItemSendConfirmNoteBinding
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
             confirmDetailsNoteInput.setText(item.text, TextView.BufferType.EDITABLE)
         }
     }

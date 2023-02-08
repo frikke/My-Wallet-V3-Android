@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -47,7 +47,7 @@ private class SimpleConfirmationCheckoutItemViewHolder(
     ) {
         mapper.map(item).let {
             with(binding) {
-                root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
                 simpleItemLabel.text = it[ConfirmationPropertyKey.LABEL] as String
                 simpleItemTitle.text = it[ConfirmationPropertyKey.TITLE] as String

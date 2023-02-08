@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementCheckboxBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -56,7 +56,7 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
         )
 
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             confirmDetailsCheckboxText.apply {
                 text = StringUtils.getStringWithMappedAnnotations(

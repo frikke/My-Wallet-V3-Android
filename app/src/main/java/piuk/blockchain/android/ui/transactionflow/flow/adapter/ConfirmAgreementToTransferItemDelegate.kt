@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
 import com.blockchain.coincore.toFiat
-import com.blockchain.componentlib.viewextensions.updateItemBackgroundForSuperApp
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -66,7 +66,7 @@ private class AgreementTextItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackgroundForSuperApp(isFirstItemInList, isLastItemInList)
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
             item.data?.let { data ->
                 val text = when (data) {
