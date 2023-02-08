@@ -91,7 +91,7 @@ fun CustomEmptyState(
         PrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = AppTheme.dimensions.smallSpacing),
             text = stringResource(ctaText),
             onClick = ctaAction
         )
@@ -99,7 +99,7 @@ fun CustomEmptyState(
             MinimalButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = AppTheme.dimensions.smallSpacing),
                 text = stringResource(secondaryText),
                 onClick = secondaryAction
             )
