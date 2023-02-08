@@ -63,7 +63,6 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.SETTINGS_EDIT
 import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
 import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.SettingsDestination
-import com.blockchain.nfts.NftHost
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -161,7 +160,6 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
-    NftHost,
     InterestSummarySheet.Host,
     NavigationRouter<PricesNavigationEvent>,
     EarnDashboardFragment.Host {
@@ -1406,10 +1404,6 @@ class MainActivity :
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)
             .show()
-    }
-
-    override fun openExternalUrl(url: String) {
-        openUrl(url)
     }
 
     override fun route(navigationEvent: PricesNavigationEvent) {

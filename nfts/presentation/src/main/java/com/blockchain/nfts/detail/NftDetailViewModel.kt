@@ -62,7 +62,7 @@ class NftDetailViewModel(
                     )
                 }
 
-                if(dataResource is DataResource.Error) dataResource.error.printStackTrace()
+                if (dataResource is DataResource.Error) dataResource.error.printStackTrace()
             }
         }
     }
