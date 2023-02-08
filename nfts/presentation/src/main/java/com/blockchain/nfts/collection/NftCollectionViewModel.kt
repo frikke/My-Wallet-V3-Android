@@ -135,7 +135,7 @@ class NftCollectionViewModel(
         forceRefresh: Boolean
     ) {
         viewModelScope.launch {
-            val address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC" // account.receiveAddress.await().address
+            val address = account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
                     shouldGetFresh = forceRefresh,
