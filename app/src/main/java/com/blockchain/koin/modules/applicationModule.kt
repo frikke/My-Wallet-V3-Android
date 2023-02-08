@@ -18,12 +18,15 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
+import com.blockchain.core.trade.GetRecurringBuysStore
+import com.blockchain.core.trade.TradeDataRepository
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.deeplinking.processor.DeeplinkService
 import com.blockchain.domain.buy.CancelOrderService
 import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
+import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
@@ -91,8 +94,6 @@ import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.cvv.SecurityCodeViewModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
-import piuk.blockchain.android.data.GetRecurringBuysStore
-import piuk.blockchain.android.data.TradeDataRepository
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsDataRepositoryImpl
@@ -103,7 +104,6 @@ import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
@@ -267,35 +267,35 @@ val applicationModule = module {
             BankPartnerCallbackProviderImpl()
         }.bind(BankPartnerCallbackProvider::class)
 
-        scoped { (activity: BlockchainActivity) -> DefiBackupNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> DefiBackupNavigationImpl(activity = activity) }.apply {
             bind(DefiBackupNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
             bind(PricesNavigation::class)
             bind(AssetActionsNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> SettingsNavigationImpl(activity = activity) }.apply {
             bind(SettingsNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> WalletLinkAndOpenBankingNavImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> WalletLinkAndOpenBankingNavImpl(activity = activity) }.apply {
             bind(WalletLinkAndOpenBankingNavigation::class)
         }
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             FiatActionsNavigationImpl(activity = activity)
         }.bind(FiatActionsNavigation::class)
 
-        scoped { (activity: AppCompatActivity) ->
+        factory { (activity: AppCompatActivity) ->
             TransactionFlowNavigationImpl(activity = activity)
         }.bind(TransactionFlowNavigation::class)
 
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             AuthNavigationImpl(activity = activity, credentialsWiper = get())
         }.bind(AuthNavigation::class)
 
-        scoped { (activity: BlockchainActivity) ->
+        factory { (activity: BlockchainActivity) ->
             QrScanNavigationImpl(
                 activity = activity,
                 qrScanResultProcessor = payloadScope.get(),
@@ -304,11 +304,11 @@ val applicationModule = module {
                 assetService = get(),
                 assetCatalogue = get()
             )
-        }.bind(
-            QrScanNavigation::class
-        )
+        }.apply {
+            bind(QrScanNavigation::class)
+        }
 
-        scoped { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
+        factory { (activity: BlockchainActivity) -> SupportNavigationImpl(activity = activity) }.apply {
             bind(SupportNavigation::class)
         }
 

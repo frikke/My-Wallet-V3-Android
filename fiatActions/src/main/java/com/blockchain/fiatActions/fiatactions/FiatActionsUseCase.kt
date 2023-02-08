@@ -269,7 +269,9 @@ class FiatActionsUseCase(
                     if (isArgentinian && action == AssetAction.FiatWithdraw) {
                         Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
                     } else {
-                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                        targetAccount.balanceRx().firstOrError().map {
+                            FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount, it.total.isPositive)
+                        }
                     }
                 }
             }
@@ -350,6 +352,7 @@ class FiatActionsUseCase(
                 FiatActionsResult.WireTransferAccountDetails(
                     account = fiatAccount,
                     action = action,
+                    accountIsFunded = fiatTxRequestResult.accountIsFunded
                 )
             }
             is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {

@@ -1,5 +1,6 @@
 package com.blockchain.earn.domain.models.staking
 
+import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import info.blockchain.balance.Money
 
 data class StakingLimits(
@@ -9,10 +10,3 @@ data class StakingLimits(
     val withdrawalsDisabled: Boolean,
     val rewardsFrequency: EarnRewardsFrequency
 )
-
-enum class EarnRewardsFrequency {
-    Daily,
-    Weekly,
-    Monthly,
-    Unknown
-}

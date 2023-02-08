@@ -13,7 +13,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.Search
-import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -119,7 +119,7 @@ private val list = listOf(
             totalInterest = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
             totalBalance = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
             rate = 2.3,
-            eligibility = InterestEligibility.Eligible,
+            eligibility = EarnRewardsEligibility.Eligible,
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal())
         )
     ),
@@ -133,7 +133,7 @@ private val list = listOf(
             totalInterest = Money.fromMajor(CryptoCurrency.XLM, 0.toBigDecimal()),
             totalBalance = Money.fromMajor(CryptoCurrency.XLM, 0.toBigDecimal()),
             rate = 4.3,
-            eligibility = InterestEligibility.Ineligible.KYC_TIER,
+            eligibility = EarnRewardsEligibility.Ineligible.KYC_TIER,
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 0.toBigDecimal())
         )
     )

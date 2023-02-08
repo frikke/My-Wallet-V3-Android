@@ -378,10 +378,6 @@ private val previewBlockchainAccount = object : SingleAccount {
         error("preview")
     }
 
-    override val isFunded: Boolean
-        get() = error("preview")
-    override val hasTransactions: Boolean
-        get() = error("preview")
     override val receiveAddress: Single<ReceiveAddress>
         get() = error("preview")
     override val stateAwareActions: Single<Set<StateAwareAction>>

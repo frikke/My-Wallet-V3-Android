@@ -11,6 +11,7 @@ val pricesPresentationModule = module {
             PricesViewModel(
                 currencyPrefs = get(),
                 coincore = get(),
+                userFeaturePermissionService = get(),
                 exchangeRatesDataManager = get(),
                 simpleBuyService = get(),
                 watchlistService = get(),

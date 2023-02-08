@@ -9,8 +9,8 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
@@ -104,7 +104,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
         list: ActivitySummaryList,
     ): List<ActivitySummaryItem> {
         val interestWalletActivity = list.filter {
-            it.account is InterestAccount && it is CustodialInterestActivitySummaryItem
+            it.account is EarnRewardsAccount.Interest && it is CustodialInterestActivitySummaryItem
         }
         val activityList = list.toMutableList()
 

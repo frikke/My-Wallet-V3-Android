@@ -35,8 +35,7 @@ suspend fun <T> Flow<DataResource<T>>.firstOutcome(): Outcome<Exception, T> =
 fun <T : Any> Flow<DataResource<T>>.asSingle(
     dispatcher: CoroutineDispatcher = Schedulers.io().asCoroutineDispatcher()
 ): Single<T> = rxSingle(dispatcher) {
-    val first = this@asSingle.filterNot { it is DataResource.Loading }.first()
-    when (first) {
+    when (val first = this@asSingle.filterNot { it is DataResource.Loading }.first()) {
         is DataResource.Data -> first.data
         is DataResource.Error -> throw first.error
         is DataResource.Loading -> throw IllegalStateException("Should data or error")

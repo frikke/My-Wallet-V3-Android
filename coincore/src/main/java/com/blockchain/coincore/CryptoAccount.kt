@@ -129,10 +129,6 @@ interface BlockchainAccount {
         freshnessStrategy: FreshnessStrategy = defFreshness
     ): Observable<ActivitySummaryList>
 
-    val isFunded: Boolean
-
-    val hasTransactions: Boolean
-
     val receiveAddress: Single<ReceiveAddress>
 
     fun requireSecondPassword(): Single<Boolean> = Single.just(false)
@@ -164,12 +160,15 @@ enum class TxSourceState {
     NOT_SUPPORTED
 }
 
-interface InterestAccount
 interface TradingAccount
 interface NonCustodialAccount
 interface BankAccount
 interface ExchangeAccount
-interface StakingAccount
+sealed interface EarnRewardsAccount {
+    interface Active : EarnRewardsAccount
+    interface Staking : EarnRewardsAccount
+    interface Interest : EarnRewardsAccount
+}
 
 typealias SingleAccountList = List<SingleAccount>
 
@@ -218,15 +217,6 @@ interface AccountGroup : BlockchainAccount {
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = throw IllegalStateException("ReceiveAddress is not supported")
-
-    /**
-     * TODO remove those from the interface of account
-     */
-    override val isFunded: Boolean
-        get() = true
-
-    override val hasTransactions: Boolean
-        get() = true
 
     private fun allActivities(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return if (accounts.isEmpty())

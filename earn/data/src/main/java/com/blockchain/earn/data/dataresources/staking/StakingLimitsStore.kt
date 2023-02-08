@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.staking
 
-import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.staking.data.StakingLimitsMapDto
+import com.blockchain.api.earn.staking.StakingApiService
+import com.blockchain.api.earn.staking.data.StakingLimitsMapDto
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store

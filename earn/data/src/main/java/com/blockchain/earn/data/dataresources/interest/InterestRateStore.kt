@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.interest
 
-import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestRateDto
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.passive.data.InterestRateDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness

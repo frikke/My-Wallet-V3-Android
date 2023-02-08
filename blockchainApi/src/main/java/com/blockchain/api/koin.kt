@@ -20,14 +20,18 @@ import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
+import com.blockchain.api.earn.active.ActiveRewardsApi
+import com.blockchain.api.earn.active.ActiveRewardsApiService
+import com.blockchain.api.earn.passive.InterestApiInterface
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.staking.StakingApi
+import com.blockchain.api.earn.staking.StakingApiService
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.experiments.ExperimentsApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.fraud.FraudApi
-import com.blockchain.api.interest.InterestApiInterface
-import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.kyc.KycApiInterface
 import com.blockchain.api.kyc.KycApiService
 import com.blockchain.api.kyc.ProveApi
@@ -75,8 +79,6 @@ import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistApiService
-import com.blockchain.api.staking.StakingApi
-import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
@@ -454,6 +456,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(StakingApi::class.java)
         StakingApiService(
             stakingApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ActiveRewardsApi::class.java)
+        ActiveRewardsApiService(
+            activeRewardsApi = api
         )
     }
 

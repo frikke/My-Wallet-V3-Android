@@ -1,7 +1,7 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.PriceTier
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import java.math.RoundingMode

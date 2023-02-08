@@ -3,9 +3,9 @@ package com.blockchain.coincore.impl.txEngine.interest
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
@@ -40,7 +40,7 @@ class InterestWithdrawOnChainTxEngine(
         get() = sourceAccount.balanceRx().firstOrError().map { it.withdrawable }
 
     override fun assertInputsValid() {
-        check(sourceAccount is InterestAccount)
+        check(sourceAccount is EarnRewardsAccount.Interest)
         check(txTarget is CryptoAccount)
         check(txTarget is NonCustodialAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)

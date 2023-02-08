@@ -1,10 +1,10 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.coincore.impl.PricesInterpolator
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.Observables

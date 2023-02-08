@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialActiveRewardsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -28,6 +29,7 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
     private fun StateAwareAction.sortingValue(): Int = when (accountForActions) {
         is CustodialTradingAccount,
         is CustodialInterestAccount,
+        is CustodialActiveRewardsAccount,
         is CustodialStakingAccount -> this.action.tradingAccountsOrdering()
         is CryptoNonCustodialAccount -> this.action.nonCustodialAccountOrdering()
         else -> throw IllegalStateException(

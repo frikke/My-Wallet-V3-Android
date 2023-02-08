@@ -20,6 +20,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount,
         val interestRate: Double,
         val stakingRate: Double,
+        val activeRewardsRate: Double,
         val fiatBalance: Money,
         val cryptoBalance: Money,
         val actions: List<StateAwareAction>

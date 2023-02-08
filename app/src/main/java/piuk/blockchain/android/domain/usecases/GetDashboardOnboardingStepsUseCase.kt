@@ -10,13 +10,13 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class GetDashboardOnboardingStepsUseCase(
     private val dashboardPrefs: DashboardPrefs,

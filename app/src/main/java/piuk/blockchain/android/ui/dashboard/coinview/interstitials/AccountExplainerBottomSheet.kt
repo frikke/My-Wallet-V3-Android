@@ -9,9 +9,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
@@ -113,7 +112,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     buttonText = getString(R.string.common_i_understand)
                 )
             }
-            is InterestAccount -> {
+            is EarnRewardsAccount.Interest -> {
                 AccountExplainerDetails(
                     title = getString(R.string.explainer_rewards_title),
                     description = getString(R.string.explainer_rewards_description, interestRate.toString()),
@@ -121,7 +120,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     buttonText = getString(R.string.common_i_understand)
                 )
             }
-            is StakingAccount -> {
+            is EarnRewardsAccount.Staking -> {
                 AccountExplainerDetails(
                     title = getString(R.string.explainer_staking_title),
                     description = getString(R.string.explainer_staking_description, stakingRate.toString()),
@@ -129,6 +128,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     buttonText = getString(R.string.common_i_understand)
                 )
             }
+            // TODO(EARN): Should we have ActiveRewards explainer?
             else -> AccountExplainerDetails()
         }
 
@@ -164,8 +164,9 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         when (selectedAccount) {
             is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
             is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
-            is InterestAccount -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
-            is StakingAccount -> CoinViewAnalytics.Companion.AccountType.STAKING_ACCOUNT
+            is EarnRewardsAccount.Interest -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+            is EarnRewardsAccount.Staking -> CoinViewAnalytics.Companion.AccountType.STAKING_ACCOUNT
+            // TODO(EARN): analytics active rewards?
             else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
         }
 

@@ -3,9 +3,7 @@ package com.blockchain.coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.transactions.CustodialTransactionState
-import com.blockchain.earn.domain.models.interest.InterestState
-import com.blockchain.earn.domain.models.staking.StakingState
-import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
@@ -17,6 +15,7 @@ import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -134,7 +133,7 @@ data class CustodialInterestActivitySummaryItem(
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
-    override val state: InterestState,
+    override val state: EarnRewardsState,
     val type: TransactionSummary.TransactionType,
     val confirmations: Int,
     val accountRef: String,
@@ -142,12 +141,12 @@ data class CustodialInterestActivitySummaryItem(
     val fiatValue: Money?
 ) : CustodialTransaction {
     fun isPending(): Boolean =
-        state == InterestState.PENDING ||
-            state == InterestState.PROCESSING ||
-            state == InterestState.MANUAL_REVIEW
+        state == EarnRewardsState.PENDING ||
+            state == EarnRewardsState.PROCESSING ||
+            state == EarnRewardsState.MANUAL_REVIEW
 
     override val stateIsFinalised: Boolean
-        get() = state > InterestState.MANUAL_REVIEW
+        get() = state > EarnRewardsState.MANUAL_REVIEW
 }
 
 data class CustodialStakingActivitySummaryItem(
@@ -157,7 +156,7 @@ data class CustodialStakingActivitySummaryItem(
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
-    override val state: StakingState,
+    override val state: EarnRewardsState,
     val type: TransactionSummary.TransactionType,
     val confirmations: Int,
     val accountRef: String,
@@ -165,12 +164,35 @@ data class CustodialStakingActivitySummaryItem(
     val fiatValue: Money?
 ) : CustodialTransaction {
     fun isPending(): Boolean =
-        state == StakingState.PENDING ||
-            state == StakingState.PROCESSING ||
-            state == StakingState.MANUAL_REVIEW
+        state == EarnRewardsState.PENDING ||
+            state == EarnRewardsState.PROCESSING ||
+            state == EarnRewardsState.MANUAL_REVIEW
 
     override val stateIsFinalised: Boolean
-        get() = state > StakingState.MANUAL_REVIEW
+        get() = state > EarnRewardsState.MANUAL_REVIEW
+}
+
+data class CustodialActiveRewardsActivitySummaryItem(
+    override val exchangeRates: ExchangeRatesDataManager,
+    override val currency: AssetInfo,
+    override val txId: String,
+    override val timeStampMs: Long,
+    override val value: Money,
+    override val account: CryptoAccount,
+    override val state: EarnRewardsState,
+    val type: TransactionSummary.TransactionType,
+    val confirmations: Int,
+    val accountRef: String,
+    val recipientAddress: String,
+    val fiatValue: Money?
+) : CustodialTransaction {
+    fun isPending(): Boolean =
+        state == EarnRewardsState.PENDING ||
+            state == EarnRewardsState.PROCESSING ||
+            state == EarnRewardsState.MANUAL_REVIEW
+
+    override val stateIsFinalised: Boolean
+        get() = state > EarnRewardsState.MANUAL_REVIEW
 }
 
 data class CustodialTradingActivitySummaryItem(

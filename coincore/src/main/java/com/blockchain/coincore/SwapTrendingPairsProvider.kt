@@ -31,7 +31,7 @@ internal class SwapTrendingPairsProvider(
             coincore.activeWalletsInModeRx(walletMode, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
                 .map { it.accounts }.map {
                     it.filterIsInstance<CryptoAccount>()
-                        .filterNot { account -> account is InterestAccount }
+                        .filterNot { account -> account is EarnRewardsAccount }
                         .filter { account ->
                             account
                             when (walletMode) {

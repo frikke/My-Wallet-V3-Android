@@ -24,7 +24,7 @@ class SendToDomainAnnouncement(
         }
 
         return coincore.allWallets()
-            .map { it.accounts.any { a -> a.isFunded } }
+            .flatMap { it.balanceRx().firstOrError() }.map { it.total.isPositive }
     }
 
     override val associatedWalletModes: List<WalletMode>

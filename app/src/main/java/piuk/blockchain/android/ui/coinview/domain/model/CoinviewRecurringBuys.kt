@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.coinview.domain.model
 
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuy
 
 data class CoinviewRecurringBuys(
     val data: List<RecurringBuy>,

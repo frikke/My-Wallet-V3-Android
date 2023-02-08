@@ -11,7 +11,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -99,7 +99,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy { accounts ->
-                    if (accounts.isNotEmpty() && accounts.any { it is InterestAccount }) {
+                    if (accounts.isNotEmpty() && accounts.any { it is EarnRewardsAccount.Interest }) {
                         interestDetailsDepositCta.alpha = 0f
                         interestDetailsDepositCta.visible()
                         interestDetailsDepositCta.animate().alpha(1f).start()

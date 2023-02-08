@@ -429,7 +429,7 @@ class PortfolioFragment :
                 )
                 is DashboardNavigationAction.LinkOrDeposit -> {
                     navigationAction.fiatAccount?.let {
-                        WireTransferAccountDetailsBottomSheet.newInstance(it)
+                        WireTransferAccountDetailsBottomSheet.newInstance(it, false)
                     } ?: WireTransferAccountDetailsBottomSheet.newInstance()
                 }
                 is DashboardNavigationAction.PaymentMethods -> {

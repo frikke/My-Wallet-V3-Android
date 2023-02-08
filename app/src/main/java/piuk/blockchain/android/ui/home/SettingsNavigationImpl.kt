@@ -39,6 +39,10 @@ class SettingsNavigationImpl(private val activity: BlockchainActivity?) : Settin
         activity!!.startActivity(SupportCentreActivity.newIntent(activity))
     }
 
+    override fun unregister() {
+        settingsResultContract?.unregister()
+    }
+
     private fun startSettingsAction(action: SettingsActivity.Companion.SettingsAction) {
         when (action) {
             SettingsActivity.Companion.SettingsAction.Addresses ->

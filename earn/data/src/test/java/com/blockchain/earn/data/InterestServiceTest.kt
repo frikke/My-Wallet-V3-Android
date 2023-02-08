@@ -1,7 +1,7 @@
 package com.blockchain.earn.data
 
-import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource

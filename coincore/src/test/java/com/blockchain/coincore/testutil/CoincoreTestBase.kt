@@ -3,12 +3,17 @@ package com.blockchain.coincore.testutil
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Store
 import com.blockchain.testutils.rxInit
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -16,6 +21,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -45,6 +51,10 @@ open class CoincoreTestBase {
 
     protected val currencyPrefs: CurrencyPrefs = mock {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
+    }
+
+    private val userFeaturePermissionService: UserFeaturePermissionService = mock {
+        on { isEligibleFor(eq(Feature.CustodialAccounts), any()) }.thenReturn(flowOf(DataResource.Data(true)))
     }
 
     private val tradingService: TradingService = mock()
@@ -83,6 +93,10 @@ open class CoincoreTestBase {
                 factory {
                     assetCatalogue
                 }.bind(AssetCatalogue::class)
+
+                factory {
+                    userFeaturePermissionService
+                }.bind(UserFeaturePermissionService::class)
 
                 factory {
                     mockedRemoteLogger

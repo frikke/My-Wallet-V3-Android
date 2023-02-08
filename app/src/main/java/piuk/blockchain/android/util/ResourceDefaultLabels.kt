@@ -55,6 +55,9 @@ internal class ResourceDefaultLabels(
     override fun getDefaultStakingWalletLabel(): String =
         resources.getString(R.string.default_label_staking_wallet)
 
+    override fun getDefaultActiveRewardsWalletLabel(): String =
+        resources.getString(R.string.default_label_active_rewards_wallet)
+
     override fun getDefaultCustodialGroupLabel(): String =
         resources.getString(R.string.default_label_custodial_wallets)
 

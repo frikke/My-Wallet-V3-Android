@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.presentation.getResolvedColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.asAssetInfoOrThrow
 import java.util.Date

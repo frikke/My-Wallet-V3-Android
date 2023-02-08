@@ -7,8 +7,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
-import com.blockchain.core.recurringbuy.domain.RecurringBuyFrequency
+import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView

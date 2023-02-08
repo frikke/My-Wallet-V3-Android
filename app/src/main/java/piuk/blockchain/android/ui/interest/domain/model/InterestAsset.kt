@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.interest.domain.model
 
-import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
@@ -13,6 +13,6 @@ data class AssetInterestDetail(
     val totalInterest: Money,
     val totalBalance: Money,
     val rate: Double,
-    val eligibility: InterestEligibility,
+    val eligibility: EarnRewardsEligibility,
     val totalBalanceFiat: Money
 )

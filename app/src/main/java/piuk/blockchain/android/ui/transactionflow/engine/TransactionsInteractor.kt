@@ -6,17 +6,16 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
@@ -42,7 +41,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
@@ -56,6 +54,7 @@ import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
@@ -205,9 +204,8 @@ class TransactionInteractor(
                 .map {
                     it.filterIsInstance<CryptoAccount>()
                         .filterNot { account ->
-                            account is InterestAccount ||
-                                account is ExchangeAccount ||
-                                account is StakingAccount
+                            account is EarnRewardsAccount ||
+                                account is ExchangeAccount
                         }
                         .filterNot { account -> account.currency.networkTicker == sourceAccount.currency.networkTicker }
                         .filter { cryptoAccount ->
@@ -246,7 +244,7 @@ class TransactionInteractor(
                 }
             }
             AssetAction.InterestDeposit -> {
-                require(targetAccount is InterestAccount)
+                require(targetAccount is EarnRewardsAccount.Interest)
                 require(targetAccount is CryptoAccount)
                 coincore.walletsWithAction(
                     action = action,
@@ -261,7 +259,7 @@ class TransactionInteractor(
                 }
             }
             AssetAction.StakingDeposit -> {
-                require(targetAccount is StakingAccount)
+                require(targetAccount is EarnRewardsAccount.Staking)
                 require(targetAccount is CryptoAccount)
                 coincore.walletsWithAction(
                     action = action,
@@ -446,10 +444,9 @@ class TransactionInteractor(
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> =
         identity.userAccessForFeature(feature)
 
-    fun checkShouldShowInterstitial(
+    fun checkShouldShowStakingInterstitial(
         sourceAccount: BlockchainAccount,
         asset: AssetInfo,
-        feature: Feature
     ): Single<FeatureAccess> =
         if (sourceAccount !is NullCryptoAccount) {
             Single.just(FeatureAccess.Granted())
@@ -466,7 +463,7 @@ class TransactionInteractor(
                         } else FeatureAccess.Granted()
                     }
                 } else {
-                    identity.userAccessForFeature(feature)
+                    identity.userAccessForFeature(Feature.DepositStaking)
                 }
             }
         }

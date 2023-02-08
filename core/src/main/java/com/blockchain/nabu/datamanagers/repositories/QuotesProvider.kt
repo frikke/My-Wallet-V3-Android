@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.PriceTier
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferQuote
@@ -8,6 +7,7 @@ import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import java.util.Date
 

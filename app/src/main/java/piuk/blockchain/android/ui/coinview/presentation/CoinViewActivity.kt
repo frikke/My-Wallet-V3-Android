@@ -7,7 +7,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -139,6 +139,7 @@ class CoinViewActivity :
                     cvAccount = navigationEvent.cvAccount,
                     interestRate = navigationEvent.interestRate,
                     stakingRate = navigationEvent.stakingRate,
+                    activeRewardsRate = navigationEvent.activeRewardsRate,
                     actions = navigationEvent.actions,
                     balanceCrypto = navigationEvent.cryptoBalance,
                     fiatBalance = navigationEvent.fiatBalance,
@@ -328,6 +329,7 @@ class CoinViewActivity :
         cvAccount: CoinviewAccount,
         interestRate: Double,
         stakingRate: Double,
+        activeRewardsRate: Double,
         fiatBalance: Money,
         balanceCrypto: Money,
         actions: List<StateAwareAction>
@@ -339,6 +341,7 @@ class CoinViewActivity :
                 balanceCrypto = balanceCrypto,
                 interestRate = interestRate,
                 stakingRate = stakingRate,
+                activeRewardsRate = activeRewardsRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )
@@ -439,11 +442,11 @@ class CoinViewActivity :
         openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
-        // TODO(dserrano) - STAKING - not yet implemented
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
+        // TODO(EARN) - STAKING - not yet implemented
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(account))
     }
 

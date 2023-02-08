@@ -13,28 +13,35 @@ sealed class FiatTransactionRequestResult {
         val linkBankTransfer: LinkBankTransfer,
         val action: AssetAction
     ) : FiatTransactionRequestResult()
+
     class LaunchDepositFlow(
         val preselectedBankAccount: LinkedBankAccount,
         val action: AssetAction,
         val targetAccount: TransactionTarget
     ) : FiatTransactionRequestResult()
+
     class LaunchPaymentMethodChooser(val paymentMethodForAction: LinkablePaymentMethodsForAction) :
         FiatTransactionRequestResult()
 
-    class LaunchDepositDetailsSheet(val targetAccount: FiatAccount) : FiatTransactionRequestResult()
+    class LaunchDepositDetailsSheet(val targetAccount: FiatAccount, val accountIsFunded: Boolean) :
+        FiatTransactionRequestResult()
+
     data class LaunchDepositFlowWithMultipleAccounts(
         val action: AssetAction,
         val targetAccount: TransactionTarget
     ) : FiatTransactionRequestResult()
+
     class LaunchWithdrawalFlow(
         val preselectedBankAccount: LinkedBankAccount,
         val action: AssetAction,
         val sourceAccount: FiatAccount
     ) : FiatTransactionRequestResult()
+
     data class LaunchWithdrawalFlowWithMultipleAccounts(
         val action: AssetAction,
         val sourceAccount: FiatAccount
     ) : FiatTransactionRequestResult()
+
     data class LaunchAliasWithdrawal(val targetAccount: FiatAccount) : FiatTransactionRequestResult()
     object NotSupportedPartner : FiatTransactionRequestResult()
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()

@@ -23,11 +23,11 @@ import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
@@ -61,8 +61,12 @@ internal class NonCustodialRepository(
             }
     }
 
-    override suspend fun getCoinTypeFor(currency: Currency): CoinType? {
-        return supportedCoins.await()[currency.networkTicker]
+    override fun getCoinTypeFor(currency: Currency): Maybe<CoinType> {
+        return supportedCoins.flatMapMaybe {
+            it[currency.networkTicker]?.let { type ->
+                Maybe.just(type)
+            } ?: Maybe.empty()
+        }
     }
 
     override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<Outcome<Exception, List<String>>> {

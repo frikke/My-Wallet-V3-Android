@@ -226,11 +226,11 @@ class WireTransferAccountDetailsBottomSheet :
         private const val FIAT_CURRENCY = "FIAT_CURRENCY_KEY"
         private const val IS_FOR_LINK = "IS_FOR_LINK"
 
-        fun newInstance(fiatAccount: FiatAccount) =
+        fun newInstance(fiatAccount: FiatAccount, isForLink: Boolean) =
             WireTransferAccountDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putSerializable(FIAT_CURRENCY, fiatAccount.currency as FiatCurrency)
-                    putBoolean(IS_FOR_LINK, !fiatAccount.isFunded)
+                    putSerializable(FIAT_CURRENCY, fiatAccount.currency)
+                    putBoolean(IS_FOR_LINK, isForLink)
                 }
             }
 

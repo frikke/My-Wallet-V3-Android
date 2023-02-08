@@ -6,10 +6,10 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.nabu.datamanagers.BuyOrderList
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.FiatTransaction
 import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow

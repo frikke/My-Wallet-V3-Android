@@ -61,6 +61,16 @@ sealed interface CoinviewAccount {
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Staking
         }
+
+        data class ActiveRewards(
+            override val isEnabled: Boolean,
+            override val account: BlockchainAccount,
+            override val cryptoBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money>,
+            val activeRewardsRate: Double
+        ) : Custodial {
+            override val filter: AssetFilter = AssetFilter.ActiveRewards
+        }
     }
 
     /**
@@ -86,6 +96,10 @@ fun CoinviewAccount.isInterestAccount(): Boolean {
 
 fun CoinviewAccount.isStakingAccount(): Boolean {
     return this is CoinviewAccount.Custodial.Staking
+}
+
+fun CoinviewAccount.isActiveRewardsAccount(): Boolean {
+    return this is CoinviewAccount.Custodial.ActiveRewards
 }
 
 fun CoinviewAccount.isPrivateKeyAccount(): Boolean {

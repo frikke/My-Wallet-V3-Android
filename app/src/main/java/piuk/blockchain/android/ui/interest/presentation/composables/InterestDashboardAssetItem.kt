@@ -27,7 +27,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.earn.domain.models.interest.InterestEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -74,7 +74,7 @@ fun InterestDashboardAssetItem(
                     else -> R.string.rewards_dashboard_item_action_earn
                 }
             ),
-            enabled = (isKycGold && (assetInterestDetail?.eligibility is InterestEligibility.Eligible)) ||
+            enabled = (isKycGold && (assetInterestDetail?.eligibility is EarnRewardsEligibility.Eligible)) ||
                 assetInterestDetail?.totalBalance?.isPositive == true,
             onClick = {
                 if (assetInterestDetail != null)
@@ -82,13 +82,13 @@ fun InterestDashboardAssetItem(
             }
         )
 
-        if (assetInterestDetail == null || (assetInterestDetail.eligibility is InterestEligibility.Ineligible)) {
+        if (assetInterestDetail == null || (assetInterestDetail.eligibility is EarnRewardsEligibility.Ineligible)) {
             Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             InterestExplainer(
                 stringResource(
                     when (assetInterestDetail?.eligibility) {
-                        InterestEligibility.Ineligible.REGION -> R.string.rewards_item_issue_region
-                        InterestEligibility.Ineligible.KYC_TIER -> R.string.rewards_item_issue_kyc
+                        EarnRewardsEligibility.Ineligible.REGION -> R.string.rewards_item_issue_region
+                        EarnRewardsEligibility.Ineligible.KYC_TIER -> R.string.rewards_item_issue_kyc
                         else -> R.string.rewards_item_issue_other
                     }
                 )
@@ -219,7 +219,7 @@ private fun PreviewAssetInterestItemEligible() {
             totalInterest = Money.fromMajor(CryptoCurrency.BTC, 1.toBigDecimal()),
             totalBalance = Money.fromMajor(CryptoCurrency.BTC, 123.toBigDecimal()),
             rate = 12.34,
-            eligibility = InterestEligibility.Eligible,
+            eligibility = EarnRewardsEligibility.Eligible,
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 3.toBigDecimal())
         ),
         isKycGold = true
@@ -235,7 +235,7 @@ private fun PreviewAssetInterestItemIneligible() {
             totalInterest = Money.fromMajor(CryptoCurrency.BTC, 1.toBigDecimal()),
             totalBalance = Money.fromMajor(CryptoCurrency.BTC, 123.toBigDecimal()),
             rate = 12.34,
-            eligibility = InterestEligibility.Ineligible.KYC_TIER,
+            eligibility = EarnRewardsEligibility.Ineligible.KYC_TIER,
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 3.toBigDecimal())
         ),
         isKycGold = true

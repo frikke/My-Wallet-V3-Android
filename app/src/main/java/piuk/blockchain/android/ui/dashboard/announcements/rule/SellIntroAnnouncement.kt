@@ -3,9 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
@@ -30,19 +27,22 @@ class SellIntroAnnouncement(
         if (dismissEntry.isDismissed) {
             return Single.just(false)
         }
-
-        return Single.zip(
-            identity.isEligibleFor(Feature.Sell),
-            coincore.allWallets().map { acg ->
-                acg.accounts.filterNot { it is InterestAccount || it is FiatAccount }
-            }.map { list ->
-                list.any {
+        return Single.just(false)
+        /**
+         * Todo uncomment once and if this gets integrated again
+         */
+        /* return Single.zip(
+             identity.isEligibleFor(Feature.Sell),
+             coincore.allWallets().map { acg ->
+                 acg.accounts.filterNot { it is InterestAccount || it is FiatAccount }
+             }.map { list ->
+                 *//*list.any {
                     it.isFunded
-                }
+                }*//*
             }
         ) { eligible, fundedAccount ->
             eligible && fundedAccount
-        }
+        }*/
     }
 
     override val associatedWalletModes: List<WalletMode>

@@ -6,13 +6,18 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.rxInit
 import com.blockchain.wallet.DefaultLabels
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import exchange.ExchangeLinking
@@ -26,7 +31,9 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import org.bitcoinj.crypto.BIP38PrivateKey.BadPassphraseException
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.dsl.module
@@ -47,19 +54,26 @@ class BtcAssetTest : KoinTest {
     private val feeDataManager: FeeDataManager = mock()
     private val walletPreferences: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
-
-    private val subject = BtcAsset(
-        payloadManager = payloadManager,
-        sendDataManager = sendDataManager,
-        feeDataManager = feeDataManager,
-        notificationUpdater = notificationUpdater,
-        walletPreferences = walletPreferences,
-        addressResolver = mock()
-    )
+    private val userFeaturePermissionService: UserFeaturePermissionService = mock {
+        on { isEligibleFor(eq(Feature.CustodialAccounts), any()) }.thenReturn(flowOf(DataResource.Data(true)))
+    }
+    private lateinit var subject: BtcAsset
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {
         modules(mockAssetDependenciesModule)
+    }
+
+    @Before
+    fun setup() {
+        subject = BtcAsset(
+            payloadManager = payloadManager,
+            sendDataManager = sendDataManager,
+            feeDataManager = feeDataManager,
+            notificationUpdater = notificationUpdater,
+            walletPreferences = walletPreferences,
+            addressResolver = mock()
+        )
     }
 
     @Test
@@ -299,36 +313,40 @@ class BtcAssetTest : KoinTest {
         private const val KEY_PASSWORD = "SuperSecurePassword"
         private const val IMPORTED_ADDRESS = "aeoiawfohiawiawiohawdfoihawdhioadwfohiafwoih"
     }
-}
 
-private val mockAssetDependenciesModule = module {
-    factory {
-        mock<ExchangeRatesDataManager>()
-    }
-    factory {
-        mock<CustodialWalletManager>()
-    }
+    private val mockAssetDependenciesModule = module {
+        factory {
+            mock<ExchangeRatesDataManager>()
+        }
+        factory {
+            mock<CustodialWalletManager>()
+        }
 
-    factory {
-        mock<TradingService>()
-    }
+        factory {
+            userFeaturePermissionService
+        }
 
-    factory {
-        mock<InterestService>()
-    }
+        factory {
+            mock<TradingService>()
+        }
 
-    factory {
-        mock<ExchangeLinking>()
-    }
-    factory {
-        mock<DefaultLabels>()
-    }
+        factory {
+            mock<InterestService>()
+        }
 
-    factory {
-        mock<RemoteLogger>()
-    }
+        factory {
+            mock<ExchangeLinking>()
+        }
+        factory {
+            mock<DefaultLabels>()
+        }
 
-    factory {
-        mock<UserIdentity>()
+        factory {
+            mock<RemoteLogger>()
+        }
+
+        factory {
+            mock<UserIdentity>()
+        }
     }
 }

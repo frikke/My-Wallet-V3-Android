@@ -7,9 +7,9 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
@@ -158,7 +158,7 @@ class TxFlowAnalytics(
                     (account as LinkedBankAccount).type
                 )
             )
-            AssetAction.Send -> if (account is InterestAccount) {
+            AssetAction.Send -> if (account is EarnRewardsAccount.Interest) {
                 analytics.logEvent(
                     EarnAnalytics.InterestDepositClicked(
                         currency = state.sendingAsset.networkTicker,
@@ -760,7 +760,7 @@ private fun AssetAction.shouldLogInputSwitch(): Boolean =
 
 fun SingleAccount.toCategory() =
     when (this) {
-        is InterestAccount -> WALLET_TYPE_INTEREST
+        is EarnRewardsAccount.Interest -> WALLET_TYPE_INTEREST
         is TradingAccount -> WALLET_TYPE_CUSTODIAL
         is NonCustodialAccount -> WALLET_TYPE_NON_CUSTODIAL
         is BankAccount -> WALLET_TYPE_BANK
@@ -770,7 +770,7 @@ fun SingleAccount.toCategory() =
 fun TransactionTarget.toCategory(): String =
     when (this) {
         is CryptoAddress -> WALLET_TYPE_EXTERNAL
-        is InterestAccount -> WALLET_TYPE_INTEREST
+        is EarnRewardsAccount.Interest -> WALLET_TYPE_INTEREST
         is TradingAccount -> WALLET_TYPE_CUSTODIAL
         is NonCustodialAccount -> WALLET_TYPE_NON_CUSTODIAL
         is BankAccount -> WALLET_TYPE_BANK

@@ -28,7 +28,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ComposeColors
@@ -52,7 +52,7 @@ import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
 import com.blockchain.earn.dashboard.typeName
 import com.blockchain.earn.dashboard.viewmodel.EarnType
-import com.blockchain.earn.domain.models.staking.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 
@@ -65,8 +65,8 @@ private sealed class InfoSnackbarState {
 @Composable
 fun StakingSummarySheet(
     state: StakingSummaryViewState,
-    onWithdrawPressed: (currency: StakingAccount) -> Unit,
-    onDepositPressed: (currency: StakingAccount) -> Unit,
+    onWithdrawPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
+    onDepositPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onClosePressed: () -> Unit,
 ) {

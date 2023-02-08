@@ -5,11 +5,12 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.navigation.ActivityResultNavigation
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 
 @Stable
-interface AssetActionsNavigation {
+interface AssetActionsNavigation : ActivityResultNavigation {
     fun navigate(assetAction: AssetAction)
     fun receive(currency: String)
     fun buyCrypto(
@@ -19,6 +20,7 @@ interface AssetActionsNavigation {
         launchLinkCard: Boolean = false,
         launchNewPaymentMethodSelection: Boolean = false,
     )
+
     fun buyWithPreselectedMethod(paymentMethodId: String?)
 
     fun earnRewards()

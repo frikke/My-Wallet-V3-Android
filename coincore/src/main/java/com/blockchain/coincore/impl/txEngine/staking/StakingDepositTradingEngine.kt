@@ -2,10 +2,10 @@ package com.blockchain.coincore.impl.txEngine.staking
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
@@ -43,7 +43,7 @@ class StakingDepositTradingEngine(
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
-        check(txTarget is StakingAccount)
+        check(txTarget is EarnRewardsAccount.Staking)
         check(txTarget is CryptoAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)
     }

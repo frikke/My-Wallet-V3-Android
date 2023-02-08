@@ -20,7 +20,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
-import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 
@@ -73,8 +72,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
                     it.pending == balance.pending &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assert(subject.isFunded)
     }
 
     @Test
@@ -101,8 +98,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
                     it.pending == balance.pending &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assertFalse(subject.isFunded)
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
@@ -12,7 +12,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 
 @DrawableRes internal fun CustodialStakingActivitySummaryItem.iconSummary(): Int {
     return when (state) {
-        StakingState.COMPLETE -> when (type) {
+        EarnRewardsState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
             TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards
             TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
@@ -39,38 +39,38 @@ internal fun CustodialStakingActivitySummaryItem.leadingTitle(): ActivityStackVi
 
 internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStackView {
     val color: ActivityTextColor = when (state) {
-        StakingState.REJECTED,
-        StakingState.REFUNDED -> ActivityTextColor.Warning
-        StakingState.FAILED -> ActivityTextColor.Error
+        EarnRewardsState.REJECTED,
+        EarnRewardsState.REFUNDED -> ActivityTextColor.Warning
+        EarnRewardsState.FAILED -> ActivityTextColor.Error
         else -> ActivityTextColor.Muted
     }
 
     return ActivityStackView.Text(
         value = when (state) {
-            StakingState.COMPLETE -> TextValue.StringValue(date.toFormattedDate())
-            StakingState.PENDING,
-            StakingState.PROCESSING,
-            StakingState.MANUAL_REVIEW -> TextValue.IntResValue(R.string.activity_state_pending)
-            StakingState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
-            StakingState.CLEARED -> TextValue.IntResValue(R.string.activity_state_cleared)
-            StakingState.REFUNDED -> TextValue.IntResValue(R.string.activity_state_refunded)
-            StakingState.REJECTED -> TextValue.IntResValue(R.string.activity_state_rejected)
-            StakingState.UNKNOWN -> TextValue.IntResValue(R.string.activity_state_unknown)
+            EarnRewardsState.COMPLETE -> TextValue.StringValue(date.toFormattedDate())
+            EarnRewardsState.PENDING,
+            EarnRewardsState.PROCESSING,
+            EarnRewardsState.MANUAL_REVIEW -> TextValue.IntResValue(R.string.activity_state_pending)
+            EarnRewardsState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
+            EarnRewardsState.CLEARED -> TextValue.IntResValue(R.string.activity_state_cleared)
+            EarnRewardsState.REFUNDED -> TextValue.IntResValue(R.string.activity_state_refunded)
+            EarnRewardsState.REJECTED -> TextValue.IntResValue(R.string.activity_state_rejected)
+            EarnRewardsState.UNKNOWN -> TextValue.IntResValue(R.string.activity_state_unknown)
         },
         style = basicSubtitleStyle.copy(color = color)
     )
 }
 
 private fun CustodialStakingActivitySummaryItem.trailingStrikethrough() = when (state) {
-    StakingState.REFUNDED,
-    StakingState.REJECTED,
-    StakingState.FAILED -> true
+    EarnRewardsState.REFUNDED,
+    EarnRewardsState.REJECTED,
+    EarnRewardsState.FAILED -> true
     else -> false
 }
 
 internal fun CustodialStakingActivitySummaryItem.trailingTitle(): ActivityStackView {
     val color: ActivityTextColor = when (state) {
-        StakingState.COMPLETE -> ActivityTextColor.Title
+        EarnRewardsState.COMPLETE -> ActivityTextColor.Title
         else -> ActivityTextColor.Muted
     }
 

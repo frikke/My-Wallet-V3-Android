@@ -50,15 +50,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
-
-internal const val transactionFetchCount = 50
-internal const val transactionFetchOffset = 0
 
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
@@ -66,12 +62,6 @@ abstract class CryptoAccountBase : CryptoAccount {
     protected val defFreshness = FreshnessStrategy.Cached(
         RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
     )
-    final override var hasTransactions: Boolean = true
-        private set
-
-    protected fun setHasTransactions(hasTransactions: Boolean) {
-        this.hasTransactions = hasTransactions
-    }
 
     protected abstract val directions: Set<TransferDirection>
 
@@ -184,7 +174,6 @@ abstract class CryptoAccountBase : CryptoAccount {
         get() = emptySet()
 
     override val isDefault: Boolean = false
-    override val isFunded: Boolean = false
 
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return Observable.just(emptyList())
@@ -215,11 +204,6 @@ abstract class CryptoNonCustodialAccount(
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return Observable.just(emptyList())
     }
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
-    private val hasFunds = AtomicBoolean(false)
 
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadDataManager: PayloadDataManager by scopedInject()
@@ -263,7 +247,7 @@ abstract class CryptoNonCustodialAccount(
                 withdrawable = it.balance,
                 dashboardDisplay = it.balance,
             )
-        }.doOnNext { hasFunds.set(it.total.isPositive) }
+        }
     }
 
     protected abstract val addressResolver: AddressResolver
@@ -342,7 +326,6 @@ abstract class CryptoNonCustodialAccount(
 
     private fun AssetAction.eligibility(): Single<StateAwareAction> {
         val hasAnyBalance = balanceRx().firstOrError().map { it.total.isPositive }.onErrorReturn { false }
-
         val isActive = !isArchived
 
         return when (this) {
@@ -510,21 +493,17 @@ class CryptoAccountCustodialGroup(
 ) : SameCurrencyAccountGroup {
 
     init {
-        require(accounts.size in 1..3)
+        require(accounts.size in 1..4)
         require(
-            accounts.map {
+            accounts.all {
                 it is CustodialTradingAccount ||
                     it is CustodialInterestAccount ||
-                    it is CustodialStakingAccount
-            }.all { it }
+                    it is CustodialStakingAccount ||
+                    it is CustodialActiveRewardsAccount
+            }
         )
-        if (accounts.size == 3) {
-            require(
-                accounts[0].currency == accounts[1].currency &&
-                    accounts[0].currency == accounts[2].currency &&
-                    accounts[1].currency == accounts[2].currency
-            )
-        }
+        val allAccountsHaveSameCurrency = accounts.map { it.currency }.distinct().size == 1
+        require(allAccountsHaveSameCurrency)
     }
 
     override val currency: Currency
@@ -557,11 +536,4 @@ class CryptoAccountNonCustodialGroup(
                     .toSet()
             }
         }
-
-    // if _any_ of the accounts have transactions
-    override val hasTransactions: Boolean
-        get() = accounts.map { it.hasTransactions }.any { it }
-
-    // Are any of the accounts funded
-    override val isFunded: Boolean = accounts.map { it.isFunded }.any { it }
 }

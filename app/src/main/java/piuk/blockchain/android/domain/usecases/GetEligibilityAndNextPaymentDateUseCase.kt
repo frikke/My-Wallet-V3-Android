@@ -1,9 +1,9 @@
 package piuk.blockchain.android.domain.usecases
 
-import com.blockchain.core.recurringbuy.domain.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class GetEligibilityAndNextPaymentDateUseCase(
     private val tradeDataService: TradeDataService

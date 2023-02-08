@@ -13,9 +13,8 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.doOnData
-import com.blockchain.domain.eligibility.model.StakingEligibility
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
@@ -106,11 +105,11 @@ class EarnDashboardViewModel(
             }
             is EarnDashboardIntent.DiscoverItemSelected -> {
                 when (intent.earnAsset.eligibility) {
-                    EarnEligibility.Eligible -> showAcquireOrSummaryForEarnType(
+                    EarnRewardsEligibility.Eligible -> showAcquireOrSummaryForEarnType(
                         earnType = intent.earnAsset.type,
                         assetTicker = intent.earnAsset.assetTicker
                     )
-                    is EarnEligibility.NotEligible -> navigate(
+                    is EarnRewardsEligibility.Ineligible -> navigate(
                         EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type)
                     )
                 }
@@ -348,13 +347,13 @@ class EarnDashboardViewModel(
     private fun AssetInfo.createStakingAsset(
         stakingBalancesWithFiat: StakingBalancesWithFiat,
         stakingRate: Double?,
-        eligibility: StakingEligibility
+        eligibility: EarnRewardsEligibility
     ) = EarnAsset(
         assetTicker = networkTicker,
         assetName = name,
         iconUrl = logo,
         rate = stakingRate ?: 0.0,
-        eligibility = eligibility.toEarnEligibility(),
+        eligibility = eligibility,
         balanceCrypto = stakingBalancesWithFiat.stakingCryptoBalances.totalBalance,
         balanceFiat = stakingBalancesWithFiat.stakingTotalFiat,
         type = EarnType.Staking
@@ -363,13 +362,13 @@ class EarnDashboardViewModel(
     private fun AssetInfo.createPassiveAsset(
         interestBalancesWithFiat: InterestBalancesWithFiat,
         passiveRate: Double?,
-        eligibility: InterestEligibility
+        eligibility: EarnRewardsEligibility
     ) = EarnAsset(
         assetTicker = networkTicker,
         assetName = name,
         iconUrl = logo,
         rate = passiveRate ?: 0.0,
-        eligibility = eligibility.toEarnEligibility(),
+        eligibility = eligibility,
         balanceCrypto = interestBalancesWithFiat.interestCryptoBalances.totalBalance,
         balanceFiat = interestBalancesWithFiat.interestTotalFiat,
         type = EarnType.Passive
@@ -390,7 +389,8 @@ class EarnDashboardViewModel(
 
     private fun List<EarnAsset>.sortByRate(): List<EarnAsset> =
         this.sortedWith(
-            compareByDescending<EarnAsset> { it.eligibility is EarnEligibility.Eligible }.thenByDescending { it.rate }
+            compareByDescending<EarnAsset> { it.eligibility is EarnRewardsEligibility.Eligible }
+                .thenByDescending { it.rate }
         )
 
     private fun List<EarnAsset>.sortByBalance(): List<EarnAsset> =
@@ -482,10 +482,10 @@ class EarnDashboardViewModel(
             ) { data ->
                 CombinedEarnData(
                     stakingBalancesWithFiat = data[0] as Map<AssetInfo, StakingBalancesWithFiat>,
-                    stakingEligibility = data[1] as Map<AssetInfo, StakingEligibility>,
+                    stakingEligibility = data[1] as Map<AssetInfo, EarnRewardsEligibility>,
                     stakingRates = data[2] as Map<AssetInfo, Double>,
                     interestBalancesWithFiat = data[3] as Map<AssetInfo, InterestBalancesWithFiat>,
-                    interestEligibility = data[4] as Map<AssetInfo, InterestEligibility>,
+                    interestEligibility = data[4] as Map<AssetInfo, EarnRewardsEligibility>,
                     interestRates = data[5] as Map<AssetInfo, Double>,
                     interestFeatureAccess = accessMap[Feature.DepositInterest]!!,
                     stakingFeatureAccess = accessMap[Feature.DepositStaking]!!
@@ -517,28 +517,4 @@ class EarnDashboardViewModel(
             }
         }
     }
-
-    private fun StakingEligibility.toEarnEligibility(): EarnEligibility =
-        if (this is StakingEligibility.Eligible) {
-            EarnEligibility.Eligible
-        } else {
-            when (this as StakingEligibility.Ineligible) {
-                StakingEligibility.Ineligible.REGION -> EarnEligibility.NotEligible(EarnIneligibleReason.REGION)
-                StakingEligibility.Ineligible.KYC_TIER -> EarnEligibility.NotEligible(EarnIneligibleReason.KYC_TIER)
-                StakingEligibility.Ineligible.OTHER -> EarnEligibility.NotEligible(EarnIneligibleReason.OTHER)
-                StakingEligibility.Ineligible.NONE -> EarnEligibility.NotEligible(EarnIneligibleReason.OTHER)
-            }
-        }
-
-    private fun InterestEligibility.toEarnEligibility(): EarnEligibility =
-        if (this is InterestEligibility.Eligible) {
-            EarnEligibility.Eligible
-        } else {
-            when (this as InterestEligibility.Ineligible) {
-                InterestEligibility.Ineligible.REGION -> EarnEligibility.NotEligible(EarnIneligibleReason.REGION)
-                InterestEligibility.Ineligible.KYC_TIER -> EarnEligibility.NotEligible(EarnIneligibleReason.KYC_TIER)
-                InterestEligibility.Ineligible.OTHER -> EarnEligibility.NotEligible(EarnIneligibleReason.OTHER)
-                InterestEligibility.Ineligible.NONE -> EarnEligibility.NotEligible(EarnIneligibleReason.OTHER)
-            }
-        }
 }

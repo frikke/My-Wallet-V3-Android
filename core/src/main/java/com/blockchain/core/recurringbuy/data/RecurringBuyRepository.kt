@@ -1,11 +1,11 @@
 package com.blockchain.core.recurringbuy.data
 
 import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
 import com.blockchain.store.mapData
 import com.blockchain.utils.toException

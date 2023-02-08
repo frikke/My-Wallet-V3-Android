@@ -8,7 +8,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuy
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 

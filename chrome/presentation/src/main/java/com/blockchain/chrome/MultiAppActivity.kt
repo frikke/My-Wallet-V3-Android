@@ -15,7 +15,7 @@ import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
@@ -117,47 +117,13 @@ class MultiAppActivity :
         )
     }
 
-    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val qrScanNavigation: QrScanNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val settingsNavigation: SettingsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val fiatActionsNavigation: FiatActionsNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val supportNavigation: SupportNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val transactionFlowNavigation: TransactionFlowNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val authNavigation: AuthNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
+    private lateinit var assetActionsNavigation: AssetActionsNavigation
+    private lateinit var qrScanNavigation: QrScanNavigation
+    private lateinit var settingsNavigation: SettingsNavigation
+    private lateinit var fiatActionsNavigation: FiatActionsNavigation
+    private lateinit var supportNavigation: SupportNavigation
+    private lateinit var transactionFlowNavigation: TransactionFlowNavigation
+    private lateinit var authNavigation: AuthNavigation
 
     private val nftNavigation: NftNavigation = payloadScope.get {
         parametersOf(
@@ -170,6 +136,46 @@ class MultiAppActivity :
         handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        assetActionsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        qrScanNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        settingsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+        fiatActionsNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        supportNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+        transactionFlowNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
+
+        authNavigation = payloadScope.get {
+            parametersOf(
+                this
+            )
+        }
 
         setContent {
             val systemUiController = rememberSystemUiController()
@@ -394,10 +400,10 @@ class MultiAppActivity :
         openUrl(url)
     }
 
-    override fun launchStakingWithdrawal(account: StakingAccount) {
+    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
     }
 
-    override fun launchStakingDeposit(account: StakingAccount) {
+    override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.StakingDeposit,
             target = account as TransactionTarget
@@ -452,7 +458,8 @@ class MultiAppActivity :
                     }
                     is FiatActionsNavEvent.WireTransferAccountDetails -> {
                         fiatActionsNavigation.wireTransferDetail(
-                            account = it.account
+                            account = it.account,
+                            accountIsFunded = it.accountIsFunded
                         )
                     }
                     is FiatActionsNavEvent.BankLinkFlow -> {
@@ -552,6 +559,13 @@ class MultiAppActivity :
                 networkInfo
             )
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        assetActionsNavigation.unregister()
+        qrScanNavigation.unregister()
+        settingsNavigation.unregister()
     }
 
     override fun onSelectNetworkClicked(session: WalletConnectSession) {

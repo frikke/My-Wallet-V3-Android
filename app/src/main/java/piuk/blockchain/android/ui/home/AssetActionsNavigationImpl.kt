@@ -37,6 +37,10 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
             }
         }
 
+    override fun unregister() {
+        actionsResultContract?.unregister()
+    }
+
     private val activityResultDashboardOnboarding =
         activity?.registerForActivityResult(DashboardOnboardingActivity.BlockchainActivityResultContract()) { result ->
             when (result) {

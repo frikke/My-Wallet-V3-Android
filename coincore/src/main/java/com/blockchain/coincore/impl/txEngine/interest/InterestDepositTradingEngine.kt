@@ -2,9 +2,9 @@ package com.blockchain.coincore.impl.txEngine.interest
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxConfirmationValue
@@ -37,7 +37,7 @@ class InterestDepositTradingEngine(
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
-        check(txTarget is InterestAccount)
+        check(txTarget is EarnRewardsAccount.Interest)
         check(txTarget is CryptoAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)
     }

@@ -50,6 +50,7 @@ internal class UserFeaturePermissionRepository(
             Feature.DepositFiat,
             Feature.DepositInterest,
             Feature.DepositStaking,
+            Feature.CustodialAccounts,
             Feature.WithdrawFiat -> {
                 getAccessForFeature(feature, freshnessStrategy).mapData { it is FeatureAccess.Granted }
             }
@@ -130,7 +131,6 @@ internal class UserFeaturePermissionRepository(
                 )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
-
             Feature.DepositStaking -> {
                 eligibilityService.getProductEligibility(
                     EligibleProduct.DEPOSIT_STAKING,
@@ -138,12 +138,14 @@ internal class UserFeaturePermissionRepository(
                 )
                     .mapData(ProductEligibility::toFeatureAccess)
             }
-
+            Feature.CustodialAccounts -> {
+                eligibilityService.getProductEligibility(EligibleProduct.USE_CUSTODIAL_ACCOUNTS, freshnessStrategy)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
             Feature.WithdrawFiat -> {
                 eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT, freshnessStrategy)
                     .mapData(ProductEligibility::toFeatureAccess)
             }
-
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> {

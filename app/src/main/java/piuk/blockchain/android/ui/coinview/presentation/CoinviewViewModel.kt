@@ -16,7 +16,6 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.recurringbuy.domain.RecurringBuyState
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
@@ -26,6 +25,7 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
+import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
@@ -280,6 +280,8 @@ class CoinviewViewModel(
                                                     makeAvailableInterestAccount(cvAccount, asset)
                                                 is CoinviewAccount.Custodial.Staking ->
                                                     makeAvailableStakingAccount(cvAccount, asset)
+                                                is CoinviewAccount.Custodial.ActiveRewards ->
+                                                    makeAvailableActiveRewardsAccount(cvAccount, asset)
                                                 is CoinviewAccount.PrivateKey ->
                                                     makeAvailablePrivateKeyAccount(cvAccount, account, asset)
                                             }
@@ -292,6 +294,8 @@ class CoinviewViewModel(
                                                     makeUnavailableInterestAccount(cvAccount)
                                                 is CoinviewAccount.Custodial.Staking ->
                                                     makeUnavailableStakingAccount(cvAccount)
+                                                is CoinviewAccount.Custodial.ActiveRewards ->
+                                                    makeUnavailableActiveRewardsAccount(cvAccount)
                                                 is CoinviewAccount.PrivateKey ->
                                                     makeUnavailablePrivateKeyAccount(cvAccount, account)
                                             }
@@ -327,6 +331,17 @@ class CoinviewViewModel(
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
             logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
+        )
+
+    private fun makeUnavailableActiveRewardsAccount(cvAccount: CoinviewAccount.Custodial.ActiveRewards) =
+        Unavailable(
+            cvAccount = cvAccount,
+            title = labels.getDefaultActiveRewardsWalletLabel(),
+            subtitle = TextValue.IntResValue(
+                R.string.coinview_interest_no_balance,
+                listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
+            ),
+            logo = LogoSource.Resource(R.drawable.ic_active_rewards_account_indicator)
         )
 
     private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
@@ -380,6 +395,22 @@ class CoinviewViewModel(
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableActiveRewardsAccount(
+        cvAccount: CoinviewAccount.Custodial.ActiveRewards,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultActiveRewardsWalletLabel(),
+        subtitle = TextValue.IntResValue(
+            R.string.coinview_interest_with_balance,
+            listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
+        ),
+        cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        logo = LogoSource.Resource(R.drawable.ic_active_rewards_account_indicator),
         assetColor = asset.currency.colour
     )
 
@@ -703,6 +734,7 @@ class CoinviewViewModel(
                         cvAccount = cvAccount,
                         interestRate = cvAccount.interestRate(),
                         stakingRate = cvAccount.stakingRate(),
+                        activeRewardsRate = cvAccount.activeRewardsRate(),
                         actions = intent.actions,
                         cryptoBalance = balance.data,
                         fiatBalance = fiatBalance.data,
@@ -1078,6 +1110,7 @@ class CoinviewViewModel(
                                     cvAccount = account,
                                     interestRate = account.interestRate(),
                                     stakingRate = account.stakingRate(),
+                                    activeRewardsRate = account.activeRewardsRate(),
                                     actions = actions,
                                     cryptoBalance = (account.cryptoBalance as DataResource.Data).data,
                                     fiatBalance = (account.fiatBalance as DataResource.Data).data
@@ -1114,6 +1147,18 @@ class CoinviewViewModel(
             }
             else -> {
                 noStakingRate
+            }
+        }
+    }
+
+    private fun CoinviewAccount.activeRewardsRate(): Double {
+        val noActiveRewardsRate = 0.0
+        return when (this) {
+            is CoinviewAccount.Custodial.ActiveRewards -> {
+                activeRewardsRate
+            }
+            else -> {
+                noActiveRewardsRate
             }
         }
     }

@@ -5,8 +5,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -190,7 +190,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         )
 
         whenever(interestService.getEligibilityForAsset(TEST_ASSET)).thenReturn(
-            Single.just(InterestEligibility.Eligible)
+            Single.just(EarnRewardsEligibility.Eligible)
         )
         whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))

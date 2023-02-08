@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.core.recurringbuy.domain.RecurringBuy
+import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler

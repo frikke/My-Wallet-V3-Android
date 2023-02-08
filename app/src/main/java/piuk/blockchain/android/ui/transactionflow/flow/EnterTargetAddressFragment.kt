@@ -11,13 +11,14 @@ import android.widget.TextView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.home.presentation.navigation.QrExpected
@@ -89,8 +90,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
         }
 
-        configureSwitch()
-
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
 
@@ -125,8 +124,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 showDomainCardAlert(newState)
             }
 
-            if (newState.canSwitchBetweenAccountType.not()) {
-                hideAccountTypeSwitch()
+            if (newState.canSwitchBetweenAccountType && accountTypeSwitcher.isVisible().not()) {
+                showAccountTypeSwitch()
             }
 
             updateList(newState)
@@ -157,7 +156,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     newState.availableTargets.filterIsInstance<SingleAccount>().map {
                         AccountListViewItem(
                             account = it,
-                            showRewardsUpsell = it is InterestAccount,
+                            showRewardsUpsell = it is EarnRewardsAccount.Interest,
                             emphasiseNameOverCurrency = newState.action == AssetAction.Send
                         )
                     }
@@ -167,7 +166,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
-    private fun configureSwitch() {
+    private fun showAccountTypeSwitch() {
         with(binding) {
             accountTypeSwitcher.apply {
                 tabs = listOf(
@@ -183,10 +182,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
 
         model.process(TransactionIntent.SwitchAccountType(showTrading = false))
-    }
-
-    private fun hideAccountTypeSwitch() {
-        binding.accountTypeSwitcher.visibility = View.GONE
     }
 
     private fun setupLabels(state: TransactionState) {
@@ -285,7 +280,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                             AccountListViewItem(
                                 account = it,
                                 emphasiseNameOverCurrency = state.action == AssetAction.Send,
-                                showRewardsUpsell = it is InterestAccount
+                                showRewardsUpsell = it is EarnRewardsAccount.Interest
                             )
                         }
                     ),

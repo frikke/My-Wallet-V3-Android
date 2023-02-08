@@ -20,6 +20,7 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.onErrorReturn
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.logging.RemoteLogger
@@ -74,6 +75,7 @@ internal class DynamicAssetLoader(
     private val selfCustodyService: NonCustodialService,
     private val stakingService: StakingService,
     private val currencyPrefs: CurrencyPrefs,
+    private val activeRewardsService: ActiveRewardsService,
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -223,6 +225,10 @@ internal class DynamicAssetLoader(
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
+        val activeActiveRewardsFlow = activeRewardsService.getActiveAssets()
+            .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
+
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats(freshnessStrategy = freshnessStrategy)
             .mapList { FiatAsset(currency = it) }
             .catch { emit(emptyList()) }
@@ -231,8 +237,9 @@ internal class DynamicAssetLoader(
             activeTradingFlow,
             activeInterestFlow,
             supportedFiatsFlow,
-            activeStakingFlow
-        ) { activeTrading, activeInterest, supportedFiats, activeStaking ->
+            activeStakingFlow,
+            activeActiveRewardsFlow,
+        ) { activeTrading, activeInterest, supportedFiats, activeStaking, activeActive ->
             activeTrading +
                 activeInterest.filter {
                     it.currency.networkTicker !in
@@ -242,6 +249,12 @@ internal class DynamicAssetLoader(
                     it.currency.networkTicker !in
                         activeTrading.map { active -> active.currency.networkTicker }
                             .plus(activeInterest.map { active -> active.currency.networkTicker })
+                } +
+                activeActive.filter {
+                    it.currency.networkTicker !in
+                        activeTrading.map { active -> active.currency.networkTicker }
+                            .plus(activeInterest.map { active -> active.currency.networkTicker })
+                            .plus(activeStaking.map { active -> active.currency.networkTicker })
                 } +
                 supportedFiats
         }

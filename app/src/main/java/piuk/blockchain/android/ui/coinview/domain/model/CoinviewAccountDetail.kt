@@ -1,9 +1,8 @@
 package piuk.blockchain.android.ui.coinview.domain.model
 
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
@@ -22,8 +21,9 @@ class CoinviewAccountDetail(
             account is NonCustodialAccount && account.isDefault -> 0
             account is NonCustodialAccount -> 1
             account is TradingAccount -> 2
-            account is InterestAccount -> 3
-            account is StakingAccount -> 4
+            account is EarnRewardsAccount.Interest -> 3
+            account is EarnRewardsAccount.Staking -> 4
+            account is EarnRewardsAccount.Active -> 5
             else -> Int.MAX_VALUE
         }
     }

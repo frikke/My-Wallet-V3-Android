@@ -18,7 +18,6 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -33,9 +32,8 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onEach
 
-/*internal*/ class FiatCustodialAccount internal constructor(
+class FiatCustodialAccount internal constructor(
     override val label: String,
     override val currency: FiatCurrency,
     override val isDefault: Boolean = false,
@@ -63,32 +61,26 @@ import kotlinx.coroutines.flow.onEach
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override var hasTransactions: Boolean = false
-        private set
-
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return simpleBuyService.getFiatTransactions(
             freshnessStrategy = freshnessStrategy,
             fiatCurrency = currency,
             product = Product.BUY
-        )
-            .onEach {
-                setHasTransactions(it.dataOrElse(emptyList()).isEmpty().not())
-            }.mapData {
-                it.map { fiatTransaction ->
-                    FiatActivitySummaryItem(
-                        currency = currency,
-                        exchangeRates = exchangeRates,
-                        txId = fiatTransaction.id,
-                        timeStampMs = fiatTransaction.date.time,
-                        value = fiatTransaction.amount,
-                        account = this,
-                        state = fiatTransaction.state,
-                        type = fiatTransaction.type,
-                        paymentMethodId = fiatTransaction.paymentId
-                    )
-                }
-            }.asObservable()
+        ).mapData {
+            it.map { fiatTransaction ->
+                FiatActivitySummaryItem(
+                    currency = currency,
+                    exchangeRates = exchangeRates,
+                    txId = fiatTransaction.id,
+                    timeStampMs = fiatTransaction.date.time,
+                    value = fiatTransaction.amount,
+                    account = this,
+                    state = fiatTransaction.state,
+                    type = fiatTransaction.type,
+                    paymentMethodId = fiatTransaction.paymentId
+                )
+            }
+        }.asObservable()
     }
 
     override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
@@ -125,13 +117,6 @@ import kotlinx.coroutines.flow.onEach
         }
     }
 
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
-    private fun setHasTransactions(hasTransactions: Boolean) {
-        this.hasTransactions = hasTransactions
-    }
-
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("Send to fiat not supported"))
 
@@ -157,13 +142,6 @@ class FiatAccountGroup(
                 t.filterIsInstance<StateAwareAction>().toSet()
             }
         }
-
-    // if _any_ of the accounts have transactions
-    override val hasTransactions: Boolean
-        get() = accounts.map { it.hasTransactions }.any { it }
-
-    // Are any of the accounts funded
-    override val isFunded: Boolean = accounts.map { it.isFunded }.any { it }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("No receive addresses for All Fiat accounts"))
