@@ -52,7 +52,7 @@ class NftDetailViewModel(
     private fun loadNftAsset(nftId: String, pageKey: String?, address: String) {
         viewModelScope.launch {
             nftService.getNftAsset(
-                address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC"/*address*/,
+                address = address,
                 nftId = nftId,
                 pageKey = pageKey
             ).collectLatest { dataResource ->
