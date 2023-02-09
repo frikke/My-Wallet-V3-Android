@@ -35,7 +35,7 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
     items: List<T>,
     key: ((item: T) -> Any)? = null,
     dividerColor: Color? = BackgroundMuted,
-    paddingValues: PaddingValues = PaddingValues(horizontal = 16.dp),
+    paddingValues: PaddingValues,
     content: @Composable (T) -> Unit,
 ) {
     items(
@@ -88,7 +88,7 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
 
 fun LazyListScope.paddedItem(
     key: Any? = null,
-    paddingValues: PaddingValues = PaddingValues(horizontal = 16.dp),
+    paddingValues: PaddingValues,
     content: @Composable () -> Unit,
 ) {
     item(

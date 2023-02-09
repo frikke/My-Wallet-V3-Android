@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.dashboard.composable
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -59,12 +61,18 @@ fun LazyListScope.homeActivityScreen(
     (activityState.activity as? DataResource.Data)?.data?.get(TransactionGroup.Combined)?.takeIf { activity ->
         activity.isNotEmpty()
     }?.let { activities ->
-        paddedItem {
+        paddedItem(
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             HomeActivityHeader(openActivity = openActivity)
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
-        paddedRoundedCornersItems(items = activities, key = { it.id }) {
+        paddedRoundedCornersItems(
+            items = activities,
+            key = { it.id },
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             ActivityComponentItem(
                 component = it,
                 onClick = { clickAction ->

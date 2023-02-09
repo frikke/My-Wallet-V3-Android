@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -228,7 +229,9 @@ fun HomeScreen(
         }
 
         quickActionsState.actions.let {
-            paddedItem {
+            paddedItem(
+                paddingValues = PaddingValues(horizontal = 16.dp)
+            ) {
                 QuickActions(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
@@ -246,7 +249,9 @@ fun HomeScreen(
             }
         }
 
-        paddedItem {
+        paddedItem(
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             Announcements(
                 announcements = announcementsState.announcements,
                 onClick = { announcement ->
@@ -313,7 +318,9 @@ fun HomeScreen(
 
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
             (it as? ReferralInfo.Data)?.let {
-                paddedItem {
+                paddedItem(
+                    paddingValues = PaddingValues(horizontal = 16.dp)
+                ) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     ReferralComponent(
                         openReferral = openReferral,
@@ -323,7 +330,9 @@ fun HomeScreen(
             }
         }
 
-        paddedItem {
+        paddedItem(
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             HelpAndSupport(
                 openSupportCenter = { supportNavigation.launchSupportCenter() }
             )

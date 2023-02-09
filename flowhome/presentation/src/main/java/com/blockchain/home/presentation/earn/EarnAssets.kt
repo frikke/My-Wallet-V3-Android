@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.earn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,7 +83,9 @@ internal fun LazyListScope.homeEarnAssets(
     if (earnState == EarnViewState.None) {
         return
     }
-    paddedItem {
+    paddedItem(
+        paddingValues = PaddingValues(horizontal = 16.dp)
+    ) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
         HomeEarnHeader(hasAssets = earnState is EarnViewState.Assets) {
             assetActionsNavigation.earnRewards()
@@ -91,12 +94,18 @@ internal fun LazyListScope.homeEarnAssets(
     }
     when (earnState) {
         EarnViewState.NoAssetsInvested ->
-            paddedItem { NoAssetsInvested { assetActionsNavigation.earnRewards() } }
+            paddedItem(
+                paddingValues = PaddingValues(horizontal = 16.dp)
+            ) {
+                NoAssetsInvested { assetActionsNavigation.earnRewards() }
+            }
         is EarnViewState.Assets -> {
             val mAssets = earnState.assets
-            paddedRoundedCornersItems(items = mAssets.toList(), key = {
-                it.type.hashCode() + it.currency.networkTicker.hashCode()
-            }) { asset ->
+            paddedRoundedCornersItems(
+                items = mAssets.toList(),
+                key = { it.type.hashCode() + it.currency.networkTicker.hashCode() },
+                paddingValues = PaddingValues(horizontal = 16.dp)
+            ) { asset ->
                 BalanceTableRow(
                     titleStart = buildAnnotatedString {
                         append(asset.currency.name)
