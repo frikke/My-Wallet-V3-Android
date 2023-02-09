@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
@@ -35,7 +37,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
                     CustomEmptyState(
                         title = R.string.account_restricted,
                         descriptionText = descriptionText,
-                        icon = R.drawable.ic_wallet_intro_image,
+                        icon = Icons.Filled.User.id,
                         ctaText = R.string.common_learn_more,
                         ctaAction = {
                             actionUrl?.let {
