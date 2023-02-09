@@ -37,6 +37,8 @@ fun SearchPickerItemScreen(
     onItemClicked: (PickerItem) -> Unit,
 ) {
     var searchInput by remember { mutableStateOf("") }
+
+    @Suppress("RememberReturnType")
     val filteredItems: List<PickerItem> = remember(searchInput) {
         items.filter { item ->
             item.label.contains(searchInput, ignoreCase = true)

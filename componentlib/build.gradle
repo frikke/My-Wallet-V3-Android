@@ -61,6 +61,7 @@ dependencies {
     implementation Libraries.accompanistSwipeRefresh
     implementation Libraries.accompanistPager
     implementation Libraries.accompanistPagerIndicators
+    implementation Libraries.composeLandScapist
 
     implementation Libraries.kotlinImmutableCollections
 

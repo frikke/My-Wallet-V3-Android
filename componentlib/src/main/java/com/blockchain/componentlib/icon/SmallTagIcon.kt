@@ -29,8 +29,8 @@ fun SmallTagIcon(
     mainIconSize: Dp = 24.dp,
     mainIconShape: Shape = CircleShape
 ) {
-    val borderSize = mainIconSize.div(12f)
-    val tagIconSize = mainIconSize.div(2)
+    val borderSize = mainIconSize.div(25f)
+    val tagIconSize = mainIconSize.div(1.6f)
     val overlap = mainIconSize.times(.4f)
 
     Box(

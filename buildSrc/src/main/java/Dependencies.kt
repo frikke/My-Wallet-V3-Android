@@ -82,7 +82,7 @@ object Versions {
     const val rxBinding = "4.0.0"
     const val rxReplayShare = "3.0.0"
     const val rxRelay = "3.0.0"
-    const val glide = "4.13.1"
+    const val glide = "4.14.2"
 
     // Utils, BTC, Ethereum
     const val bitcoinj = "0.16"
@@ -112,6 +112,7 @@ object Versions {
     const val compose = "1.2.0"
     const val composeShowkase = "1.1.1"
     const val coil = "2.2.2"
+    const val landscapist = "2.1.3"
     const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.2.0"
@@ -340,6 +341,7 @@ object Libraries {
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
     const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"
+    const val composeLandScapist = "com.github.skydoves:landscapist-glide:${Versions.landscapist}"
     const val composeLottie = "com.airbnb.android:lottie-compose:${Versions.lottieVersion}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"

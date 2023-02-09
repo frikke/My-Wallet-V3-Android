@@ -21,14 +21,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.chrome.isScrollable
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
-import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.button.TagButtonRow
 import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
@@ -183,11 +182,7 @@ fun ColumnScope.PricesScreenData(
                     value = cryptoAsset.currentPrice,
                     valueChange = cryptoAsset.delta,
                     contentStart = {
-                        CustomStackedIcon(
-                            icon = StackedIcon.SingleIcon(
-                                icon = ImageResource.Remote(cryptoAsset.logo)
-                            )
-                        )
+                        Image(imageResource = ImageResource.Remote(cryptoAsset.logo))
                     },
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )

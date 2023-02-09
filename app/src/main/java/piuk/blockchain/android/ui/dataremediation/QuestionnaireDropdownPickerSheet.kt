@@ -144,6 +144,7 @@ private fun Screen(
 ) {
     var stateSearchInput by remember { mutableStateOf("") }
 
+    @Suppress("RememberReturnType")
     val stateVisibleChoices: List<FlatNode.Selection> = remember(choices, stateSearchInput) {
         choices.filter { node ->
             node.text.contains(stateSearchInput, ignoreCase = true)

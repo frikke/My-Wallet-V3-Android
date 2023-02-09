@@ -17,7 +17,6 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import coil.imageLoader
-import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -29,6 +28,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.glide.GlideImage
 
 @ExperimentalCoilApi
 @Composable
@@ -69,22 +70,15 @@ fun AsyncMediaItem(
         }
         UrlType.JPG.name,
         UrlType.PNG.name -> {
-            val imageRequest = ImageRequest.Builder(context)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .data(url)
-                .placeholder(onLoadingPlaceholder)
-                .error(onErrorDrawable)
-                .crossfade(true)
-                .build()
-
-            context.imageLoader.enqueue(imageRequest)
-
-            AsyncImage(
-                model = imageRequest,
+            GlideImage(
+                imageModel = {
+                    url
+                },
                 modifier = modifier,
-                contentDescription = contentDescription,
-                contentScale = contentScale
+                imageOptions = ImageOptions(
+                    contentScale = contentScale,
+                    contentDescription = contentDescription
+                )
             )
         }
         UrlType.SVG.name,

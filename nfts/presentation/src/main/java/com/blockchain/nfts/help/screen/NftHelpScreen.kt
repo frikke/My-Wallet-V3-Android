@@ -107,6 +107,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
 
 @Composable
 fun Instructions() {
+    @Suppress("RememberReturnType")
     val instructions = remember {
         listOf(
             Instruction(

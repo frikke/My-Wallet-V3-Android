@@ -31,7 +31,7 @@ fun SparkLine(
     // Assumption : Crypto rates are never negative
     val maxRate by remember(historicalRates) {
         mutableStateOf(
-            historicalRates.maxByOrNull(SparkLineHistoricalRate::rate) ?: return
+            historicalRates.maxByOrNull(SparkLineHistoricalRate::rate)
         )
     }
 
@@ -43,7 +43,11 @@ fun SparkLine(
         val width = this.size.width
         val interval = width / historicalRates.size
         var currentX = interval
-        val rateScalerValue = height / maxRate.rate.toFloat()
+
+        val rateScalerValue = maxRate?.rate?.toFloat()?.let {
+            height / it
+        } ?: return@Canvas
+
         val gradient = Brush.horizontalGradient(
             colors = listOf(Color.Transparent, strokeColor),
             startX = 0.0f,

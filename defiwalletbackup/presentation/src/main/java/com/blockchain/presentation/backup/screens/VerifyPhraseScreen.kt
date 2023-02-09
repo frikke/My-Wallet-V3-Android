@@ -87,6 +87,7 @@ fun VerifyPhraseScreen(
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
     // map to selectable word -> offers selection setting
+    @Suppress("RememberReturnType")
     val selectableMnemonic = remember {
         mnemonic.mapIndexed { index, word ->
             SelectableMnemonicWord(
