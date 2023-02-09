@@ -1044,13 +1044,13 @@
     <string name="order_error_subtitle">Não se preocupe. O seu dinheiro está seguro. Tente novamente ou entre em contacto com a nossa equipa de Apoio ao Cliente para obter ajuda.</string>
     <string name="order_error_subtitle_rb">Não se preocupe. O seu dinheiro está seguro. Falha ao guardar a sua conta recorrente de %1$s de %2$s. Tente novamente ou entre em contacto com a nossa equipa de apoio técnico para obter ajuda.</string>
     <string name="card_expiry_date">Exp: %1s</string>
-    <string name="card_buying">A comprar %1s</string>
+    <string name="card_buying">A comprar %1$s de %2$s</string>
     <string name="card_in_progress">%1s Compra em curso</string>
     <string name="we_will_notify_order_complete">Notificaremos você quando o seu pedido for concluído.</string>
     <string name="bank_transfer_in_progress_title">%1$s Compra Iniciada</string>
     <string name="bank_transfer_in_progress_blurb">Estamos a completar a sua compra agora. Espere que o dinheiro seja levantado do seu banco até %1$s. Verifique o estado do seu pedido a qualquer momento em Atividade.</string>
     <string name="bank_transfer_in_progress_ob_blurb">A sua encomenda está a ser processada. Pode fechar esta janela em segurança enquanto atualizamos a encomenda em segundo plano.</string>
-    <string name="completing_card_buy_1">O seu pedido %1$s de %2$s está a ser processado.</string>
+    <string name="completing_card_buy_1">Sua compra de %1$s está sendo processada.</string>
     <string name="completing_card_buy_rb">Sua compra de %1$s de %2$s de %3$s foi configurada.</string>
     <string name="completing_card_buy">Estamos a concluir sua compra agora.</string>
     <string name="card_purchased">%1s Comprado</string>

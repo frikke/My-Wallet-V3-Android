@@ -1046,13 +1046,13 @@
     <string name="order_error_subtitle">Не беспокойтесь. Ваши деньги в безопасности. Попробуйте еще раз или обратитесь за помощью в нашу службу поддержки.</string>
     <string name="order_error_subtitle_rb">Не беспокойтесь. Ваши деньги в безопасности. Не удалось сохранить вашу %1$s повторяющуюся покупку %2$s. Пожалуйста, попробуйте еще раз или обратитесь за помощью в нашу службу поддержки.</string>
     <string name="card_expiry_date">Срок действия: %1s</string>
-    <string name="card_buying">Покупка %1s</string>
+    <string name="card_buying">Покупка %1$s в %2$s</string>
     <string name="card_in_progress">Покупка %1s выполняется</string>
     <string name="we_will_notify_order_complete">Мы сообщим вам, когда ваш ордер будет выполнен.</string>
     <string name="bank_transfer_in_progress_title">%1$s покупка началась</string>
     <string name="bank_transfer_in_progress_blurb">Сейчас мы завершаем вашу покупку. Ожидайте, что средства будут выведены из вашего банка до %1$s. Проверьте статус вашего ордера в любое время в «Активности».</string>
     <string name="bank_transfer_in_progress_ob_blurb">Ваш ордер обрабатывается. Вы можете безопасно закрыть этот экран, пока мы обновляем ордер в фоновом режиме.</string>
-    <string name="completing_card_buy_1">Ваш ордер %1$s из %2$s обрабатывается.</string>
+    <string name="completing_card_buy_1">Ваша покупка %1$s обрабатывается.</string>
     <string name="completing_card_buy_rb">Ваша %1$s покупка %2$s %3$s настроена.</string>
     <string name="completing_card_buy">Сейчас мы завершаем вашу покупку.</string>
     <string name="card_purchased">Куплено %1s</string>
