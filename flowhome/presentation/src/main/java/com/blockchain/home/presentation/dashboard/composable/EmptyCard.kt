@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.lazy.LazyListScope
 import com.blockchain.coincore.AssetAction
+import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
@@ -17,7 +18,7 @@ fun LazyListScope.emptyCard(
     val state = dashboardState(assetsViewState, actiityViewState)
 
     if (state == DashboardState.EMPTY) {
-        item {
+        paddedItem {
             when (walletMode) {
                 WalletMode.CUSTODIAL -> CustodialEmptyStateCards(
                     assetActionsNavigation = assetActionsNavigation

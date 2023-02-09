@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
+import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.theme.AppTheme
@@ -102,14 +105,14 @@ internal fun LazyListScope.homeAssets(
     fundsLocksOnClick: (FundsLocks) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
-    item {
+    paddedItem {
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
         HomeAssetsHeader(openCryptoAssets)
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
 
     locks?.let {
-        item {
+        paddedItem {
             FundLocksData(
                 total = locks.onHoldTotalAmount,
                 onClick = { fundsLocksOnClick(it) }
@@ -118,7 +121,7 @@ internal fun LazyListScope.homeAssets(
         }
     }
 
-    roundedCornersItems(items = data.filterIsInstance<CustodialAssetState>(), key = { state ->
+    paddedRoundedCornersItems(items = data.filterIsInstance<CustodialAssetState>(), key = { state ->
         state.asset.networkTicker
     }) {
         BalanceWithPriceChange(
@@ -126,7 +129,7 @@ internal fun LazyListScope.homeAssets(
             onAssetClick = assetOnClick
         )
     }
-    roundedCornersItems(items = data.filterIsInstance<NonCustodialAssetState>(), key = { state ->
+    paddedRoundedCornersItems(items = data.filterIsInstance<NonCustodialAssetState>(), key = { state ->
         state.asset.networkTicker
     }) {
         BalanceWithFiatAndCryptoBalance(
@@ -145,7 +148,7 @@ internal fun LazyListScope.homeAssets(
         Spacer(modifier = Modifier.size(fiatSpacer))
     }
 
-    roundedCornersItems(items = data.filterIsInstance<FiatAssetState>(), key = { state ->
+    paddedRoundedCornersItems(items = data.filterIsInstance<FiatAssetState>(), key = { state ->
         state.account.currency.networkTicker
     }) {
         BalanceChangeTableRow(

@@ -128,16 +128,10 @@ fun NftCollectionScreen(
     onHelpClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = AppTheme.dimensions.smallSpacing)
-        ) {
-            MenuOptionsScreen(
-                openSettings = openSettings,
-                launchQrScanner = launchQrScanner
-            )
-        }
+        MenuOptionsScreen(
+            openSettings = openSettings,
+            launchQrScanner = launchQrScanner
+        )
 
         when (nftCollection) {
             DataResource.Loading -> {

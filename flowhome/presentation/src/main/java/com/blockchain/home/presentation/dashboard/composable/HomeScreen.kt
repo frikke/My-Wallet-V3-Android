@@ -2,9 +2,11 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -26,6 +28,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
+import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -187,7 +190,6 @@ fun HomeScreen(
     }
 
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
         state = listState,
         modifier = Modifier
             .fillMaxSize()
@@ -229,7 +231,7 @@ fun HomeScreen(
         }
 
         quickActionsState.actions.let {
-            item {
+            paddedItem {
                 QuickActions(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
@@ -247,7 +249,7 @@ fun HomeScreen(
             }
         }
 
-        item {
+        paddedItem {
             Announcements(
                 announcements = announcementsState.announcements,
                 onClick = { announcement ->
@@ -314,7 +316,7 @@ fun HomeScreen(
 
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
             (it as? ReferralInfo.Data)?.let {
-                item {
+                paddedItem {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     ReferralComponent(
                         openReferral = openReferral,
@@ -324,7 +326,7 @@ fun HomeScreen(
             }
         }
 
-        item {
+        paddedItem {
             HelpAndSupport(
                 openSupportCenter = { supportNavigation.launchSupportCenter() }
             )

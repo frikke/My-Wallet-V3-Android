@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
@@ -58,12 +60,12 @@ fun LazyListScope.homeActivityScreen(
     (activityState.activity as? DataResource.Data)?.data?.get(TransactionGroup.Combined)?.takeIf { activity ->
         activity.isNotEmpty()
     }?.let { activities ->
-        item {
+        paddedItem {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             HomeActivityHeader(openActivity = openActivity)
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
-        roundedCornersItems(items = activities, key = { it.id }) {
+        paddedRoundedCornersItems(items = activities, key = { it.id }) {
             ActivityComponentItem(
                 component = it,
                 onClick = { clickAction ->

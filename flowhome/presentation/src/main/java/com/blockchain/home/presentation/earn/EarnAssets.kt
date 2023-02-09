@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.TableRow
@@ -81,7 +83,7 @@ internal fun LazyListScope.homeEarnAssets(
     if (earnState == EarnViewState.None) {
         return
     }
-    item {
+    paddedItem {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
         HomeEarnHeader(hasAssets = earnState is EarnViewState.Assets) {
             assetActionsNavigation.earnRewards()
@@ -90,10 +92,10 @@ internal fun LazyListScope.homeEarnAssets(
     }
     when (earnState) {
         EarnViewState.NoAssetsInvested ->
-            item { NoAssetsInvested { assetActionsNavigation.earnRewards() } }
+            paddedItem { NoAssetsInvested { assetActionsNavigation.earnRewards() } }
         is EarnViewState.Assets -> {
             val mAssets = earnState.assets
-            roundedCornersItems(items = mAssets.toList(), key = {
+            paddedRoundedCornersItems(items = mAssets.toList(), key = {
                 it.type.hashCode() + it.currency.networkTicker.hashCode()
             }) { asset ->
                 BalanceTableRow(
