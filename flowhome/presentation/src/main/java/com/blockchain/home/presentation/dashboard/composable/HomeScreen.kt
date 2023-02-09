@@ -26,6 +26,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
+import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -187,7 +188,6 @@ fun HomeScreen(
     }
 
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
         state = listState,
         modifier = Modifier
             .fillMaxSize()
@@ -229,7 +229,9 @@ fun HomeScreen(
         }
 
         quickActionsState.actions.let {
-            item {
+            paddedItem(
+                paddingValues = PaddingValues(horizontal = 16.dp)
+            ) {
                 QuickActions(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
@@ -247,7 +249,9 @@ fun HomeScreen(
             }
         }
 
-        item {
+        paddedItem(
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             Announcements(
                 announcements = announcementsState.announcements,
                 onClick = { announcement ->
@@ -314,7 +318,9 @@ fun HomeScreen(
 
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
             (it as? ReferralInfo.Data)?.let {
-                item {
+                paddedItem(
+                    paddingValues = PaddingValues(horizontal = 16.dp)
+                ) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
                     ReferralComponent(
                         openReferral = openReferral,
@@ -324,7 +330,9 @@ fun HomeScreen(
             }
         }
 
-        item {
+        paddedItem(
+            paddingValues = PaddingValues(horizontal = 16.dp)
+        ) {
             HelpAndSupport(
                 openSupportCenter = { supportNavigation.launchSupportCenter() }
             )
