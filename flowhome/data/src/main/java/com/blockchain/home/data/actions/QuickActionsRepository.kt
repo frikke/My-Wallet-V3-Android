@@ -150,6 +150,7 @@ class QuickActionsRepository(
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.Sign,
+            AssetAction.ActiveRewardsDeposit,
             AssetAction.StakingDeposit -> false
         }
 

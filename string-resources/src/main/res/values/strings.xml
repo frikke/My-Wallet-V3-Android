@@ -832,6 +832,7 @@
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
     <string name="dashboard_asset_actions_add_dsc">Add %1$s to your Rewards Account</string>
     <string name="dashboard_asset_actions_add_staking_dsc">Add %1$s to your Staking Account</string>
+    <string name="dashboard_asset_actions_add_active_dsc">Add %1$s to your Active Rewards Account</string>
     <string name="dashboard_asset_actions_add_title">Add</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Blockchain.com Account</string>
@@ -1770,6 +1771,10 @@ If you want to know more about our verification process visit our <annotation li
         <item quantity="many">days</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7">&#160;before generating rewards.</string>
+    <string name="active_rewards_confirmation_bonding_period_1">I agree to transfer</string>
+    <string name="active_rewards_confirmation_bonding_period_2">&#160;%1$s&#160;</string>
+    <string name="active_rewards_confirmation_bonding_period_3">to my Active Rewards Account.</string>
+    <string name="active_rewards_confirmation_bonding_period_4">&#160;I understand that price movements may result in a reduction of my %1$s balance, and that my transfer will be placed in next week\'s strategy.</string>
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="staking_confirmation_progress_title">Staking %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
@@ -2992,6 +2997,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
     <string name="explainer_staking_title">Staking Account</string>
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
+    <string name="explainer_active_rewards_title">Active Rewards Account</string>
+    <string name="explainer_active_rewards_description">Your Active Rewards Account allows you to earn up to %1$s%% annually by forecasting the price of crypto.</string>
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rate">Rate: %s%%</string>

@@ -114,7 +114,8 @@ fun AssetAction.eventName() = when (this) {
     AssetAction.InterestDeposit,
     AssetAction.InterestWithdraw,
     AssetAction.Sign,
-    AssetAction.StakingDeposit -> null
+    AssetAction.StakingDeposit,
+    AssetAction.ActiveRewardsDeposit -> null
 }
 
 private fun DashboardState.stateName() = when (this) {

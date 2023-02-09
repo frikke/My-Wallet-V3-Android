@@ -359,6 +359,11 @@ abstract class CryptoNonCustodialAccount(
                     .flatMap {
                         stakingDepositEligibility(isActive && it)
                     }
+            AssetAction.ActiveRewardsDeposit ->
+                hasAnyBalance
+                    .flatMap {
+                        activeRewardsDepositEligibility(isActive && it)
+                    }
             AssetAction.ViewStatement,
             AssetAction.Buy,
             AssetAction.FiatWithdraw,
@@ -427,6 +432,31 @@ abstract class CryptoNonCustodialAccount(
                     else -> ActionState.Available
                 },
                 AssetAction.StakingDeposit
+            )
+        }
+    }
+
+    private fun activeRewardsDepositEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto, defFreshness)
+        val activeRewardsDepositEligibility = identity.userAccessForFeature(Feature.DepositActiveRewards, defFreshness)
+
+        return Single.zip(
+            depositCryptoEligibility,
+            activeRewardsDepositEligibility
+        ) { depositCryptoEligible, activeRewardsDepositEligible ->
+            StateAwareAction(
+                when {
+                    depositCryptoEligible is FeatureAccess.Blocked ->
+                        depositCryptoEligible.toActionState()
+
+                    activeRewardsDepositEligible is FeatureAccess.Blocked ->
+                        activeRewardsDepositEligible.toActionState()
+
+                    !activeAndFunded -> ActionState.LockedForBalance
+
+                    else -> ActionState.Available
+                },
+                AssetAction.ActiveRewardsDeposit
             )
         }
     }

@@ -49,6 +49,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
     private val stakingRate by lazy { arguments?.getDouble(STAKING_RATE) as Double }
+    private val activeRewardsRate by lazy { arguments?.getDouble(ACTIVE_REWARDS_RATE) as Double }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
@@ -128,7 +129,16 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     buttonText = getString(R.string.common_i_understand)
                 )
             }
-            // TODO(EARN): Should we have ActiveRewards explainer?
+            is EarnRewardsAccount.Active -> {
+                AccountExplainerDetails(
+                    title = getString(R.string.explainer_active_rewards_title),
+                    description = getString(
+                        R.string.explainer_active_rewards_description, activeRewardsRate.toString()
+                    ),
+                    icon = R.drawable.ic_active_rewards_explainer,
+                    buttonText = getString(R.string.common_i_understand)
+                )
+            }
             else -> AccountExplainerDetails()
         }
 
@@ -182,6 +192,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         private const val NETWORK_TICKER = "network_ticker"
         private const val INTEREST_RATE = "interest_rate"
         private const val STAKING_RATE = "staking_rate"
+        private const val ACTIVE_REWARDS_RATE = "active_rewards_rate"
         private const val STATE_AWARE_ACTIONS = "state_aware_actions"
 
         fun newInstance(
@@ -189,6 +200,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
             networkTicker: String,
             interestRate: Double,
             stakingRate: Double,
+            activeRewardsRate: Double,
             stateAwareActions: Array<StateAwareAction>,
         ): AccountExplainerBottomSheet {
             return AccountExplainerBottomSheet().apply {
@@ -197,6 +209,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     putString(NETWORK_TICKER, networkTicker)
                     putDouble(INTEREST_RATE, interestRate)
                     putDouble(STAKING_RATE, stakingRate)
+                    putDouble(ACTIVE_REWARDS_RATE, activeRewardsRate)
                     putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                 }
             }

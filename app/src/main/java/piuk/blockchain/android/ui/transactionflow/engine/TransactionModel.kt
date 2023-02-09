@@ -688,9 +688,10 @@ class TransactionModel(
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
-        AssetAction.StakingDeposit -> interactor.checkShouldShowStakingInterstitial(
+        AssetAction.StakingDeposit,
+        AssetAction.ActiveRewardsDeposit -> interactor.checkShouldShowRewardsInterstitial(
             sourceAccount = sourceAccount,
-            asset = (target as CryptoAccount).currency,
+            asset = (target as CryptoAccount).currency
         ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,

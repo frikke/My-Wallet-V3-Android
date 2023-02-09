@@ -1100,6 +1100,7 @@ class CoinviewViewModel(
                                     networkTicker = asset.currency.networkTicker,
                                     interestRate = account.interestRate(),
                                     stakingRate = account.stakingRate(),
+                                    activeRewardsRate = account.activeRewardsRate(),
                                     actions = actions
                                 )
                             )
@@ -1219,6 +1220,7 @@ class CoinviewViewModel(
                     account.isStakingAccount() -> {
                         CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount = account)
                     }
+                    // TODO(labreu): Add active rewards statement
                     else -> throw IllegalStateException("ViewStatement is not supported for account $account")
                 }
             )
@@ -1237,6 +1239,12 @@ class CoinviewViewModel(
 
             AssetAction.StakingDeposit -> navigate(
                 CoinviewNavigationEvent.NavigateToStakingDeposit(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.ActiveRewardsDeposit -> navigate(
+                CoinviewNavigationEvent.NavigateToActiveRewardsDeposit(
                     cvAccount = account
                 )
             )

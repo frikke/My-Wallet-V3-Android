@@ -49,17 +49,17 @@ data class GetAccountActionsUseCase(
                         }
                     }
                     account.isActiveRewardsAccount() -> {
-                        if (actions.none { it.action == AssetAction.StakingDeposit }) {
-                            // TODO(EARN): Wrong Action
-                            // TODO(EARN): sub to EarnDeposit?
-                            actions + StateAwareAction(ActionState.Available, AssetAction.StakingDeposit)
+                        if (actions.none { it.action == AssetAction.ActiveRewardsDeposit }) {
+                            actions + StateAwareAction(ActionState.Available, AssetAction.ActiveRewardsDeposit)
                         } else {
                             actions
                         }
                     }
                     // TODO(EARN): Why are these shennenigans of removing actions and adding on the above cases here?
                     else -> actions.minus {
-                        it.action == AssetAction.InterestDeposit || it.action == AssetAction.StakingDeposit
+                        it.action == AssetAction.InterestDeposit ||
+                            it.action == AssetAction.StakingDeposit ||
+                            it.action == AssetAction.ActiveRewardsDeposit
                     }
                 }.minus { it.action == AssetAction.ViewActivity }.sortedWith(assetActionsComparator)
 
@@ -73,21 +73,19 @@ data class GetAccountActionsUseCase(
     /**
      * @return Pair<isIntroSeen: Boolean, markAsSeen: () -> Unit>
      */
-    fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> {
-        return when (account) {
-            is CoinviewAccount.Custodial.Interest -> {
-                Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
-            }
-            is CoinviewAccount.Custodial.Trading -> {
-                Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
-            }
-            is CoinviewAccount.Custodial.Staking -> {
-                Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
-            }
-            is CoinviewAccount.Custodial.ActiveRewards -> Pair(true) { }
-            is CoinviewAccount.PrivateKey -> {
-                Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
+    fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> =
+        with(dashboardPrefs) {
+            when (account) {
+                is CoinviewAccount.Custodial.Interest ->
+                    Pair(isCustodialIntroSeen) { isCustodialIntroSeen = true }
+                is CoinviewAccount.Custodial.Trading ->
+                    Pair(isRewardsIntroSeen) { isRewardsIntroSeen = true }
+                is CoinviewAccount.Custodial.Staking ->
+                    Pair(isStakingIntroSeen) { isStakingIntroSeen = true }
+                is CoinviewAccount.Custodial.ActiveRewards ->
+                    Pair(isActiveRewardsIntroSeen) { isActiveRewardsIntroSeen = true }
+                is CoinviewAccount.PrivateKey ->
+                    Pair(isPrivateKeyIntroSeen) { isPrivateKeyIntroSeen = true }
             }
         }
-    }
 }

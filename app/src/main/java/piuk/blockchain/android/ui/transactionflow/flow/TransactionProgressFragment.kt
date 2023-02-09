@@ -379,6 +379,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
                 AssetAction.StakingDeposit,
+                AssetAction.ActiveRewardsDeposit,
                 AssetAction.FiatDeposit -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
                 AssetAction.Receive -> R.string.common_receive

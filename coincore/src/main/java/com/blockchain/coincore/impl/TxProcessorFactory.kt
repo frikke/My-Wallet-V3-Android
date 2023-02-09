@@ -22,6 +22,8 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositOnChainTxEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositTradingEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
@@ -44,6 +46,8 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -76,7 +80,9 @@ class TxProcessorFactory(
     private val swapTransactionsStore: SwapTransactionsStore,
     private val plaidFeatureFlag: FeatureFlag,
     private val stakingBalanceStore: FlushableDataSource,
-    private val stakingService: StakingService
+    private val stakingService: StakingService,
+    private val activeRewardsBalanceStore: ActiveRewardsBalanceStore,
+    private val activeRewardsService: ActiveRewardsService
 ) {
     fun createProcessor(
         source: BlockchainAccount,
@@ -256,6 +262,21 @@ class TxProcessorFactory(
                             )
                         )
                     }
+            is CustodialActiveRewardsAccount ->
+                target.receiveAddress
+                    .map {
+                        TransactionProcessor(
+                            exchangeRates = exchangeRates,
+                            sourceAccount = source,
+                            txTarget = it,
+                            engine = ActiveRewardsDepositOnChainTxEngine(
+                                activeRewardsBalanceStore = activeRewardsBalanceStore,
+                                activeRewardsService = activeRewardsService,
+                                walletManager = walletManager,
+                                onChainEngine = engine
+                            )
+                        )
+                    }
             is CryptoAddress -> Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -356,7 +377,20 @@ class TxProcessorFactory(
                     )
                 )
             )
-        // TODO(EARN): Missing Active
+        is EarnRewardsAccount.Active ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = ActiveRewardsDepositTradingEngine(
+                        activeRewardsBalanceStore = activeRewardsBalanceStore,
+                        activeRewardsService = activeRewardsService,
+                        tradingStore = tradingStore,
+                        walletManager = walletManager
+                    )
+                )
+            )
         is FiatAccount ->
             Single.just(
                 TransactionProcessor(

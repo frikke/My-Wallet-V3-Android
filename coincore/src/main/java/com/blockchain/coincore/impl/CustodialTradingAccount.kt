@@ -172,6 +172,8 @@ class CustodialTradingAccount(
             AssetAction.Sell -> balanceRx().firstOrError().flatMap { sellEligibility(it) }
             AssetAction.Buy -> buyEligibility()
             AssetAction.StakingDeposit -> balanceRx().firstOrError().flatMap { stakingDepositEligibility(it) }
+            AssetAction.ActiveRewardsDeposit -> balanceRx().firstOrError()
+                .flatMap { activeRewardsDepositEligibility(it) }
             AssetAction.ViewStatement,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
@@ -271,6 +273,18 @@ class CustodialTradingAccount(
                     else -> ActionState.Available
                 },
                 AssetAction.StakingDeposit
+            )
+        }
+
+    private fun activeRewardsDepositEligibility(balance: AccountBalance): Single<StateAwareAction> =
+        identity.userAccessForFeature(Feature.DepositActiveRewards, defFreshness).map { access ->
+            StateAwareAction(
+                when {
+                    access is FeatureAccess.Blocked -> access.toActionState()
+                    balance.total.isPositive.not() -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.ActiveRewardsDeposit
             )
         }
 

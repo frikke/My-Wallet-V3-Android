@@ -6,5 +6,6 @@ interface DashboardPrefs {
     var isPrivateKeyIntroSeen: Boolean
     var isRewardsIntroSeen: Boolean
     var isStakingIntroSeen: Boolean
+    var isActiveRewardsIntroSeen: Boolean
     var remainingSendsWithoutBackup: Int
 }

@@ -83,6 +83,13 @@ private class AgreementTextItemViewHolder(
                         selectedCurrency,
                         context.resources
                     )
+
+                    is TransferData.ActiveRewards -> activeRewardsText(
+                        data,
+                        exchangeRates,
+                        selectedCurrency,
+                        context.resources
+                    )
                 }
 
                 confirmDetailsCheckboxText.setText(
@@ -154,6 +161,41 @@ private class AgreementTextItemViewHolder(
                 } else 0 + fundsSubject.length + bondingInBold.length + daysInBold.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
+        return sb
+    }
+
+    private fun activeRewardsText(
+        data: TransferData.ActiveRewards,
+        exchangeRates: ExchangeRates,
+        selectedCurrency: FiatCurrency,
+        resources: Resources
+    ): SpannableStringBuilder {
+        val agree = resources.getString(R.string.active_rewards_confirmation_bonding_period_1)
+        val amountInFiat =
+            data.amount.toFiat(selectedCurrency, exchangeRates).toStringWithSymbol()
+        val amountInBold =
+            resources.getString(
+                R.string.active_rewards_confirmation_bonding_period_2,
+                amountInFiat
+            )
+        val account = resources.getString(R.string.active_rewards_confirmation_bonding_period_3)
+        val balanceChange = resources.getString(
+            R.string.active_rewards_confirmation_bonding_period_4,
+            data.amount.currency.displayTicker
+        )
+        val sb = SpannableStringBuilder().run {
+            append(agree)
+            append(amountInBold)
+            append(account)
+            append(balanceChange)
+        }
+
+        sb.setSpan(
+            StyleSpan(BOLD), agree.length,
+            agree.length + amountInBold.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
         return sb
     }
 

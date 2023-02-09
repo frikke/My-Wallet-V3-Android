@@ -130,6 +130,7 @@ class CoinViewActivity :
                     networkTicker = navigationEvent.networkTicker,
                     interestRate = navigationEvent.interestRate,
                     stakingRate = navigationEvent.stakingRate,
+                    activeRewardsRate = navigationEvent.activeRewardsRate,
                     actions = navigationEvent.actions
                 )
             }
@@ -304,6 +305,16 @@ class CoinViewActivity :
                     )
                 )
             }
+
+            is CoinviewNavigationEvent.NavigateToActiveRewardsDeposit -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.ActiveRewardsDeposit,
+                        target = navigationEvent.cvAccount.account as TransactionTarget
+                    )
+                )
+            }
         }
     }
 
@@ -312,6 +323,7 @@ class CoinViewActivity :
         networkTicker: String,
         interestRate: Double,
         stakingRate: Double,
+        activeRewardsRate: Double,
         actions: List<StateAwareAction>
     ) {
         showBottomSheet(
@@ -320,6 +332,7 @@ class CoinViewActivity :
                 networkTicker = networkTicker,
                 interestRate = interestRate,
                 stakingRate = stakingRate,
+                activeRewardsRate = activeRewardsRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )

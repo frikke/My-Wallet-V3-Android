@@ -299,7 +299,8 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
         AssetAction.InterestDeposit,
         AssetAction.InterestWithdraw,
         AssetAction.Sign,
-        AssetAction.StakingDeposit -> throw IllegalStateException(
+        AssetAction.StakingDeposit,
+        AssetAction.ActiveRewardsDeposit -> throw IllegalStateException(
             "Action ${this.action} not supported for more menu"
         )
     }

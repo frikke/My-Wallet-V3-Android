@@ -114,6 +114,16 @@ sealed class EarnAnalytics(
         ),
         origin = origin
     )
+    class ActiveRewardsDepositClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.ACTIVE_REWARDS_DEPOSIT_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
 
     companion object {
         private const val CURRENCY = "currency"

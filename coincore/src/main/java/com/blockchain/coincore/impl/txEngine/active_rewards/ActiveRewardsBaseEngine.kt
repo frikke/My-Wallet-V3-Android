@@ -1,31 +1,27 @@
-package com.blockchain.coincore.impl.txEngine.interest
+package com.blockchain.coincore.impl.txEngine.active_rewards
 
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
-import com.blockchain.earn.domain.models.interest.InterestLimits
-import com.blockchain.earn.domain.models.staking.StakingLimits
-import com.blockchain.earn.domain.service.InterestService
-import com.blockchain.koin.scopedInject
+import com.blockchain.coincore.impl.txEngine.interest.TransferData
+import com.blockchain.earn.domain.models.active.ActiveRewardsLimits
+import com.blockchain.earn.domain.service.ActiveRewardsService
+import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 
-abstract class InterestBaseEngine(
-    private val interestService: InterestService
+private val PendingTx.arLimits: ActiveRewardsLimits
+    get() = (this.engineState[AR_LIMITS] as ActiveRewardsLimits)
+
+abstract class ActiveRewardsBaseEngine(
+    private val activeRewardsService: ActiveRewardsService
 ) : TxEngine() {
 
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
-
-    override fun ensureSourceBalanceFreshness() {
-        interestService.markBalancesAsStale()
-    }
-
-    protected val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
 
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
@@ -41,15 +37,15 @@ abstract class InterestBaseEngine(
             )
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation(
-                    confirmation = TxConfirmation.AGREEMENT_INTEREST_TRANSFER,
-                    data = TransferData.Interest(pendingTx.amount),
+                    confirmation = TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER,
+                    data = TransferData.ActiveRewards(pendingTx.amount),
                     value = agreementChecked
                 )
             )
 
-    protected fun getLimits(): Single<Pair<AssetInfo, InterestLimits>> =
-        interestService.getLimitsForAsset(sourceAssetInfo).map { interestLimits ->
-            Pair(sourceAssetInfo, interestLimits)
+    protected fun getLimits(): Single<Pair<AssetInfo, ActiveRewardsLimits>> =
+        activeRewardsService.getLimitsForAsset(sourceAssetInfo).asSingle().map { arLimits ->
+            Pair(sourceAssetInfo, arLimits)
         }
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
@@ -64,18 +60,12 @@ abstract class InterestBaseEngine(
         )?.value ?: false
 
     private fun getAgreementOptionValue(pendingTx: PendingTx): Boolean =
-        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<TransferData>>(
-            TxConfirmation.AGREEMENT_INTEREST_TRANSFER
+        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Money>>(
+            TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER
         )?.value ?: false
 
     protected fun TxConfirmation.isInterestAgreement(): Boolean = this in setOf(
         TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
-        TxConfirmation.AGREEMENT_INTEREST_TRANSFER
+        TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER
     )
-}
-
-sealed class TransferData {
-    class Interest(val amount: Money) : TransferData()
-    class Staking(val amount: Money, val stakingLimits: StakingLimits) : TransferData()
-    class ActiveRewards(val amount: Money) : TransferData()
 }

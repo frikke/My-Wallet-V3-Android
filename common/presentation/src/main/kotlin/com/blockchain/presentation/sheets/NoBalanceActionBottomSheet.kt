@@ -150,7 +150,8 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
                 icon = R.drawable.ic_tx_withdraw
             }
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> {
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> {
                 actionName = getString(R.string.common_transfer)
                 icon = R.drawable.ic_tx_interest
             }
@@ -169,7 +170,8 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
         }
         val sheetSubtitle = when (assetAction) {
             AssetAction.StakingDeposit,
-            AssetAction.InterestDeposit -> getString(R.string.no_balance_sheet_earn_subtitle, assetTicker)
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> getString(R.string.no_balance_sheet_earn_subtitle, assetTicker)
             else -> getString(R.string.coinview_no_balance_sheet_subtitle, assetTicker, accountLabel, actionName)
         }
 

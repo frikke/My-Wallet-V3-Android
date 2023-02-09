@@ -273,6 +273,22 @@ class TransactionInteractor(
                     }
                 }
             }
+            AssetAction.ActiveRewardsDeposit -> {
+                require(targetAccount is EarnRewardsAccount.Active)
+                require(targetAccount is CryptoAccount)
+                coincore.walletsWithAction(
+                    action = action,
+                    filter = AssetFilter.All,
+                    tickers = setOf(targetAccount.currency),
+                    sorter = defaultAccountsSorting.sorter()
+                ).map {
+                    it.filter { acc ->
+                        acc is CryptoAccount &&
+                            acc.currency == targetAccount.currency &&
+                            acc != targetAccount
+                    }
+                }
+            }
             AssetAction.FiatDeposit -> {
                 linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
@@ -444,14 +460,14 @@ class TransactionInteractor(
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> =
         identity.userAccessForFeature(feature)
 
-    fun checkShouldShowStakingInterstitial(
+    fun checkShouldShowRewardsInterstitial(
         sourceAccount: BlockchainAccount,
         asset: AssetInfo,
     ): Single<FeatureAccess> =
-        if (sourceAccount !is NullCryptoAccount) {
-            Single.just(FeatureAccess.Granted())
-        } else {
-            stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
+        when (sourceAccount) {
+            // TODO (labreu): this always grants access for now
+            !is NullCryptoAccount -> Single.just(FeatureAccess.Granted())
+            is EarnRewardsAccount.Staking -> stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
                 if (limits.withdrawalsDisabled) {
                     stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
                         if (accountBalance.totalBalance.isZero) {
@@ -466,6 +482,11 @@ class TransactionInteractor(
                     identity.userAccessForFeature(Feature.DepositStaking)
                 }
             }
+            is EarnRewardsAccount.Active -> {
+                // TODO (labreu): do same eligibility check as above but for active rewards
+                Single.just(FeatureAccess.Granted())
+            }
+            else -> Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible("")))
         }
 
     fun updateStakingExplainerAcknowledged(networkTicker: String) {}

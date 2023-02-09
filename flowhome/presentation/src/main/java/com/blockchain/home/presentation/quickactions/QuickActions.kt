@@ -122,7 +122,8 @@ private fun QuickActionsScreen(
                                         AssetAction.InterestDeposit,
                                         AssetAction.InterestWithdraw,
                                         AssetAction.Sign,
-                                        AssetAction.StakingDeposit -> {
+                                        AssetAction.StakingDeposit,
+                                        AssetAction.ActiveRewardsDeposit -> {
                                         }
                                     }
                                     is QuickAction.More -> moreOnClick()

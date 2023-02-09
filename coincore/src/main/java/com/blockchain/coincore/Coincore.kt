@@ -174,7 +174,8 @@ class Coincore internal constructor(
                 it.accounts
             }
             AssetAction.StakingDeposit,
-            AssetAction.InterestDeposit -> allActiveWallets().firstOrError().map {
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> allActiveWallets().firstOrError().map {
                 it.accounts
             }
             AssetAction.ViewActivity,

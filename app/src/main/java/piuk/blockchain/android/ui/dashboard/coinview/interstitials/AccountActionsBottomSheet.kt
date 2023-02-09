@@ -186,9 +186,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 id = R.drawable.ic_staking_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
-            // TODO(EARN): Check if correct icon
             is EarnRewardsAccount.Active -> ImageResource.Local(
-                id = R.drawable.ic_staking_explainer,
+                id = R.drawable.ic_active_rewards_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
             else -> ImageResource.None
@@ -408,6 +407,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.StakingDeposit)
             }
+            AssetAction.ActiveRewardsDeposit -> AssetActionItem(
+                title = getString(R.string.dashboard_asset_actions_add_title),
+                icon = Icons.Receive.id,
+                description = getString(R.string.dashboard_asset_actions_add_active_dsc, asset.displayTicker),
+                asset = asset,
+                action = stateAwareAction
+            ) {
+                analytics.logEvent(
+                    EarnAnalytics.ActiveRewardsDepositClicked(
+                        currency = asset.networkTicker,
+                        origin = LaunchOrigin.CURRENCY_PAGE
+                    )
+                )
+                processAction(AssetAction.ActiveRewardsDeposit)
+            }
             AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
             AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
@@ -444,9 +458,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         val icon =
             when (selectedAccount) {
                 is EarnRewardsAccount.Interest -> R.drawable.ic_tx_interest
-                // TODO(EARN) - STAKING - is this icon the one we want?
                 is EarnRewardsAccount.Staking -> R.drawable.ic_tx_interest
-                // TODO(EARN) - ACTIVE REWARDS - is this icon the one we want?
                 is EarnRewardsAccount.Active -> R.drawable.ic_tx_interest
                 else -> R.drawable.ic_tx_sent
             }
@@ -484,6 +496,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
                     is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
                     is EarnRewardsAccount.Interest -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+                    // TODO(labreu): missing events for staking/active rewards
                     else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
                 }
             )
@@ -527,7 +540,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         private const val BALANCE_CRYPTO = "balance_crypto"
         private const val INTEREST_RATE = "interest_rate"
         private const val STAKING_RATE = "staking_rate"
-        private const val ACTIVE_REWARDS_RATE = "ACTIVE_REWARDS_RATE"
+        private const val ACTIVE_REWARDS_RATE = "active_rewards_rate"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,

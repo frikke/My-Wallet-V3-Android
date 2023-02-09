@@ -44,6 +44,9 @@ class TransactionFlowIntentMapper(
             AssetAction.StakingDeposit -> {
                 handleStakingDeposit(passwordRequired)
             }
+            AssetAction.ActiveRewardsDeposit -> {
+                handleActiveRewardsDeposit(passwordRequired)
+            }
             AssetAction.Receive,
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -80,6 +83,25 @@ class TransactionFlowIntentMapper(
         }
 
     private fun handleStakingDeposit(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() &&
+                target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                action,
+                sourceAccount,
+                target,
+                passwordRequired
+            )
+            target.isDefinedTarget() -> TransactionIntent.InitialiseWithTargetAndNoSource(
+                action = action,
+                target = target,
+                passwordRequired = passwordRequired
+            )
+            else -> throw IllegalStateException(
+                "Calling staking deposit without source and target is not supported"
+            )
+        }
+
+    private fun handleActiveRewardsDeposit(passwordRequired: Boolean) =
         when {
             sourceAccount.isDefinedCryptoAccount() &&
                 target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAndTargetAccount(

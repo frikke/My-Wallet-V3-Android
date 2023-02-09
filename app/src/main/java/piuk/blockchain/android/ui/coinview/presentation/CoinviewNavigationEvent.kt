@@ -13,6 +13,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val networkTicker: String,
         val interestRate: Double,
         val stakingRate: Double,
+        val activeRewardsRate: Double,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 
@@ -69,6 +70,10 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToStakingDeposit(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToActiveRewardsDeposit(
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 

@@ -161,16 +161,11 @@ class CustodialActiveRewardsAccount(
                             is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                             else -> ActionState.Available
                         },
-                        // TODO(EARN): using the wrong Deposit, there's no ActiveRewardsDeposit, nor StackingWithdraw,
-                        //  should this all just be EarnDeposit/Withdraw?
-                        AssetAction.StakingDeposit
+                        AssetAction.ActiveRewardsDeposit
                     ),
                     StateAwareAction(
-                        if (balance.total.isPositive) {
-                            ActionState.Available
-                        } else {
-                            ActionState.LockedForBalance
-                        },
+                        // TODO(labreu): withdraw from active rewards is not available yet
+                        ActionState.LockedDueToAvailability,
                         AssetAction.InterestWithdraw
                     ),
                     StateAwareAction(ActionState.Available, AssetAction.ViewStatement),

@@ -20,6 +20,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialActiveRewardsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
@@ -91,7 +92,8 @@ class TransactionFlowCustomiserImpl(
         return when (state.action) {
             AssetAction.Send -> R.drawable.ic_tx_sent
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> R.drawable.ic_tx_deposit_arrow
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> R.drawable.ic_tx_deposit_arrow
             AssetAction.FiatDeposit -> R.drawable.ic_tx_deposit_w_green_bkgd
             AssetAction.Swap -> R.drawable.ic_swap_light_blue
             AssetAction.Sell -> R.drawable.ic_tx_sell
@@ -171,7 +173,8 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Send -> resources.getString(R.string.common_send)
             AssetAction.Sell -> resources.getString(R.string.common_sell)
-            AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
             AssetAction.Swap -> resources.getString(R.string.common_swap_to)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_cash_out)
@@ -231,7 +234,8 @@ class TransactionFlowCustomiserImpl(
                 state.sendingAsset.displayTicker,
                 (state.selectedTarget as CryptoAccount).currency.displayTicker
             )
-            AssetAction.InterestDeposit -> resources.getString(
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(
                 R.string.tx_title_add_with_ticker,
                 state.sendingAsset.displayTicker
             )
@@ -262,7 +266,8 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Send -> resources.getString(R.string.send_enter_amount_max)
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> resources.getString(R.string.send_enter_amount_deposit_max)
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.send_enter_amount_deposit_max)
             AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max)
             AssetAction.Sell -> resources.getString(R.string.sell_enter_amount_max)
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_enter_amount_max)
@@ -324,6 +329,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.Sell,
             AssetAction.Swap,
@@ -349,7 +355,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
             AssetAction.FiatDeposit -> resources.getString(R.string.tx_enter_amount_deposit_cta)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -393,7 +400,8 @@ class TransactionFlowCustomiserImpl(
                 R.string.common_parametrised_confirm, resources.getString(R.string.common_swap)
             )
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> resources.getString(
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(
                 R.string.common_parametrised_confirm,
                 resources.getString(
                     R.string.common_transfer
@@ -418,8 +426,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
             AssetAction.Buy,
-            AssetAction.Receive,
-            -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+            AssetAction.Receive -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
 
     override fun confirmCtaText(state: TransactionState): String {
@@ -428,7 +435,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_cta_button)
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_cta_button)
             AssetAction.Sign -> resources.getString(R.string.common_sign)
-            AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
             AssetAction.StakingDeposit -> resources.getString(R.string.send_confirmation_stake_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.FiatWithdraw,
@@ -440,8 +448,9 @@ class TransactionFlowCustomiserImpl(
     override fun confirmListItemTitle(assetAction: AssetAction): String {
         return when (assetAction) {
             AssetAction.Send -> resources.getString(R.string.common_send)
-            AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
-            AssetAction.StakingDeposit -> resources.getString(R.string.common_transfer)
+            AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_withdraw)
@@ -527,7 +536,8 @@ class TransactionFlowCustomiserImpl(
                     state.amount.toStringWithSymbol(), receivingAmount.toStringWithSymbol()
                 )
             }
-            AssetAction.InterestDeposit -> resources.getString(
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(
                 R.string.send_confirmation_progress_title,
                 amount
             )
@@ -559,7 +569,8 @@ class TransactionFlowCustomiserImpl(
         return when (state.action) {
             AssetAction.Send -> resources.getString(R.string.send_progress_sending_subtitle)
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> resources.getString(
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(
                 R.string.send_confirmation_progress_message,
                 state.sendingAsset.displayTicker
             )
@@ -600,7 +611,8 @@ class TransactionFlowCustomiserImpl(
                 }
             }
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> {
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> {
                 if (state.sendingAccount is NonCustodialAccount) {
                     resources.getString(R.string.transfer_confirmation_awaiting_success_title)
                 } else {
@@ -624,6 +636,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send,
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit,
             AssetAction.Sell -> {
                 if (state.sendingAccount is NonCustodialAccount) {
                     R.drawable.ic_pending_clock
@@ -663,7 +676,8 @@ class TransactionFlowCustomiserImpl(
                 }
             }
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> {
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> {
                 if (state.sendingAccount is NonCustodialAccount) {
                     resources.getString(
                         R.string.transfer_confirmation_awaiting_success_message, state.sendingAsset.name
@@ -748,7 +762,8 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.common_swap_from)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
-            AssetAction.InterestDeposit -> resources.getString(R.string.select_interest_deposit_source_title)
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.select_interest_deposit_source_title)
             AssetAction.StakingDeposit -> resources.getString(R.string.select_staking_deposit_source_title)
             else -> resources.getString(R.string.select_a_wallet)
         }
@@ -880,7 +895,8 @@ class TransactionFlowCustomiserImpl(
                     state.sendingAsset.displayTicker
                 )
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit ->
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit ->
                 resources.getString(
                     R.string.rewards_enter_amount_error_insufficient_funds_for_fees,
                     state.sendingAsset.displayTicker
@@ -897,8 +913,9 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send,
             AssetAction.Swap,
             AssetAction.Sell,
-            AssetAction.InterestDeposit -> true
-            AssetAction.StakingDeposit -> true
+            AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> true
             else -> false
         }
 
@@ -911,7 +928,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send,
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
-            AssetAction.StakingDeposit -> BalanceAndFeeView(ctx).also { frame.addView(it) }
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Sell,
             AssetAction.Swap -> QuickFillRowView(ctx).also {
                 frame.addView(it)
@@ -1267,14 +1285,14 @@ class TransactionFlowCustomiserImpl(
             when (action) {
                 AssetAction.Send -> R.string.common_send
                 AssetAction.FiatWithdraw,
-                AssetAction.InterestWithdraw,
-                -> R.string.common_withdraw
+                AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
                 AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
                 AssetAction.StakingDeposit,
-                AssetAction.FiatDeposit -> R.string.common_deposit
+                AssetAction.FiatDeposit,
+                AssetAction.ActiveRewardsDeposit -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
                 AssetAction.Receive -> R.string.common_receive
                 AssetAction.ViewStatement -> R.string.common_summary
@@ -1405,7 +1423,7 @@ class TransactionFlowCustomiserImpl(
 
     override fun shouldShowSourceAccountWalletsSwitch(action: AssetAction): Boolean =
         action in listOf(
-            AssetAction.StakingDeposit, AssetAction.InterestDeposit
+            AssetAction.StakingDeposit, AssetAction.InterestDeposit, AssetAction.ActiveRewardsDeposit
         )
 
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
@@ -1414,7 +1432,11 @@ class TransactionFlowCustomiserImpl(
             TransactionStep.ENTER_AMOUNT -> {
                 if (state.sendingAccount is LinkedBankAccount ||
                     (state.selectedTarget is CustodialInterestAccount && state.action == AssetAction.InterestDeposit) ||
-                    (state.selectedTarget is CustodialStakingAccount && state.action == AssetAction.StakingDeposit)
+                    (state.selectedTarget is CustodialStakingAccount && state.action == AssetAction.StakingDeposit) ||
+                    (
+                        state.selectedTarget is CustodialActiveRewardsAccount &&
+                            state.action == AssetAction.ActiveRewardsDeposit
+                        )
                 ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {
