@@ -83,7 +83,6 @@ fun DeFiOnboardingScreen(
         onDispose { }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()

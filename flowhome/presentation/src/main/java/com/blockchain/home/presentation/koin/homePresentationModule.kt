@@ -65,10 +65,10 @@ val homePresentationModule = module {
         }
 
         viewModel { (
-                        homeVm: AssetsViewModel,
-                        pkwActivityViewModel: PrivateKeyActivityViewModel,
-                        custodialActivityViewModel: CustodialActivityViewModel
-                    ) ->
+            homeVm: AssetsViewModel,
+            pkwActivityViewModel: PrivateKeyActivityViewModel,
+            custodialActivityViewModel: CustodialActivityViewModel
+        ) ->
             EmptyScreenViewModel(
                 homeAssetsViewModel = homeVm,
                 walletModeService = get(),
