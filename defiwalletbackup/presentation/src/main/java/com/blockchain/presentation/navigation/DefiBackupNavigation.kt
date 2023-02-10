@@ -6,8 +6,7 @@ import androidx.compose.runtime.Stable
 
 @Stable
 interface DefiBackupNavigation {
-    fun startBackup(
-        launcher: ActivityResultLauncher<Intent>,
-        onboardingRequired: Boolean
+    fun startPhraseRecovery(
+        launcher: ActivityResultLauncher<Intent>
     )
 }

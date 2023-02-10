@@ -1,4 +1,4 @@
-package com.blockchain.presentation.onboarding.screens
+package com.blockchain.home.presentation.defionboarding.composable
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -40,37 +40,50 @@ import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.circleAround
-import com.blockchain.presentation.R
-import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
-import com.blockchain.presentation.onboarding.OnboardingAnalyticsEvents
-import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
+import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.defionboarding.DeFiOnboardingViewModel
+import com.blockchain.home.presentation.defionboarding.OnboardingAnalyticsEvents
+import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun DeFiOnboardingIntro(
+fun DeFiOnboarding(
     analytics: Analytics = get(),
-    viewModel: DeFiOnboardingViewModel
+    viewModel: DeFiOnboardingViewModel = getViewModel(scope = payloadScope),
+    showCloseIcon: Boolean,
+    closeOnClick: () -> Unit,
+    enableDeFiOnClick: () -> Unit
 ) {
     DisposableEffect(Unit) {
+        viewModel.markAsSeen()
         analytics.logEvent(OnboardingAnalyticsEvents.OnboardingViewed)
         onDispose { }
     }
 
-    DeFiOnboardingIntroScreen(
-        closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = false)) },
+    DeFiOnboardingScreen(
+        showCloseIcon = showCloseIcon,
+        closeOnClick = closeOnClick,
         enableDeFiOnClick = {
-            viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet)
             analytics.logEvent(OnboardingAnalyticsEvents.OnboardingContinueClicked)
+            enableDeFiOnClick()
         }
     )
 }
 
 @Composable
-fun DeFiOnboardingIntroScreen(
+fun DeFiOnboardingScreen(
+    showCloseIcon: Boolean,
     closeOnClick: () -> Unit,
     enableDeFiOnClick: () -> Unit
 ) {
+    DisposableEffect(Unit) {
+
+        onDispose { }
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,13 +91,13 @@ fun DeFiOnboardingIntroScreen(
     ) {
         NavigationBar(
             title = stringResource(R.string.defi_wallet_name),
-            endNavigationBarButtons = listOf(
+            endNavigationBarButtons = listOfNotNull(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close_circle,
                     color = null,
                     contentDescription = R.string.accessibility_close,
                     onIconClick = closeOnClick
-                )
+                ).takeIf { showCloseIcon }
             ),
             mutedBackground = false,
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL)
@@ -235,9 +248,12 @@ data class DeFiProperty(@StringRes val title: Int, @StringRes val subtitle: Int)
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDeFiOnboardingIntroScreen() {
+fun PreviewDeFiOnboardingScreen() {
     AppTheme {
-        DeFiOnboardingIntroScreen({}, {})
+        DeFiOnboardingScreen(
+            showCloseIcon = true,
+            closeOnClick = {}, enableDeFiOnClick = {}
+        )
     }
 }
 

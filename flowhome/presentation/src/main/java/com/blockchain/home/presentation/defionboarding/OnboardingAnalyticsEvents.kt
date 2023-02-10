@@ -1,4 +1,4 @@
-package com.blockchain.presentation.onboarding
+package com.blockchain.home.presentation.defionboarding
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames

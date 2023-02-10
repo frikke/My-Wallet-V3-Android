@@ -303,6 +303,10 @@ class PrefsUtil(
         get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
         set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
 
+    override var hasSeenDefiOnboarding: Boolean
+        get() = getValue(HAS_SEEN_DEFI_ONBOARDING, false)
+        set(value) = setValue(HAS_SEEN_DEFI_ONBOARDING, value)
+
     override val isWalletFunded: Boolean
         get() = getValue(WALLET_FUNDED_KEY, false)
 
@@ -809,6 +813,7 @@ class PrefsUtil(
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val IS_WALLET_BACKUP_SKIPPED = "IS_WALLET_BACKUP_SKIPPED"
+        private const val HAS_SEEN_DEFI_ONBOARDING = "HAS_SEEN_DEFI_ONBOARDING"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"

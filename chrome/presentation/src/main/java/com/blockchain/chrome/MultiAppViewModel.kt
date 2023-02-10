@@ -10,8 +10,8 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.preferences.WalletModePrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
@@ -21,14 +21,13 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
     private val walletModeBalanceService: WalletModeBalanceService,
-    private val backupPhraseService: BackupPhraseService,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val walletModePrefs: WalletModePrefs,
     private val appRatingService: AppRatingService
 ) : MviViewModel<
@@ -89,15 +88,11 @@ class MultiAppViewModel(
                 loadBalance()
             }
 
-            is MultiAppIntents.WalletModeChangeRequested -> {
-                if (backupPhraseService.shouldBackupPhraseForMode(intent.walletMode)) {
-                    navigate(
-                        MultiAppNavigationEvent.PhraseRecovery(
-                            walletOnboardingRequired = shouldOnboardWalletForMode(intent.walletMode)
-                        )
-                    )
-                } else {
-                    walletModeService.updateEnabledWalletMode(intent.walletMode)
+            is MultiAppIntents.WalletModeSelected -> {
+                walletModeService.updateEnabledWalletMode(intent.walletMode)
+
+                if (intent.walletMode == WalletMode.NON_CUSTODIAL && shouldOnboardWalletForMode(intent.walletMode)) {
+                    navigate(MultiAppNavigationEvent.DefiOnboarding)
                 }
             }
 
@@ -163,7 +158,7 @@ class MultiAppViewModel(
             }
         }
         return isWalletEligibleForActivation &&
-            backupPhraseService.shouldBackupPhraseForMode(walletMode) &&
+            !walletStatusPrefs.hasSeenDefiOnboarding &&
             !walletModePrefs.userDefaultedToPKW
     }
 }

@@ -182,7 +182,7 @@ class MultiAppActivity :
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
-                startPhraseRecovery = { onboardingRequired -> handlePhraseRecovery(onboardingRequired) },
+                startPhraseRecovery = { handlePhraseRecovery() },
                 assetActionsNavigation = assetActionsNavigation,
                 showAppRating = { showAppRating() },
                 settingsNavigation = settingsNavigation,
@@ -227,10 +227,9 @@ class MultiAppActivity :
         }
     }
 
-    private fun handlePhraseRecovery(onboardingRequired: Boolean) {
-        defiBackupNavigation.startBackup(
-            launcher = activityResultDefiOnboarding,
-            onboardingRequired = onboardingRequired
+    private fun handlePhraseRecovery() {
+        defiBackupNavigation.startPhraseRecovery(
+            launcher = activityResultDefiOnboarding
         )
     }
 
