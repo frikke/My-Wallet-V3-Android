@@ -10,8 +10,8 @@ import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
-import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboarding
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
+import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboarding
 import com.blockchain.home.presentation.onboarding.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
