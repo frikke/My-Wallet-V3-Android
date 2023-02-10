@@ -78,11 +78,6 @@ fun DeFiOnboardingScreen(
     closeOnClick: () -> Unit,
     enableDeFiOnClick: () -> Unit
 ) {
-    DisposableEffect(Unit) {
-
-        onDispose { }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
