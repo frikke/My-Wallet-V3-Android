@@ -35,7 +35,8 @@ fun NavGraphBuilder.homeGraph(
     }
 
     composable(navigationEvent = HomeDestination.DefiOnboarding) { backStackEntry ->
-        val isFromModeSwitch = backStackEntry.arguments?.getComposeArgument(ARG_IS_FROM_MODE_SWITCH).toBoolean()
+        val isFromModeSwitch = backStackEntry.arguments?.getComposeArgument(ARG_IS_FROM_MODE_SWITCH)
+            ?.toBoolean() ?: false
 
         ChromeSingleScreen(backgroundColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL)) {
             DeFiOnboarding(

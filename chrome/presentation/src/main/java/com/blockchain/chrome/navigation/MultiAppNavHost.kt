@@ -72,22 +72,20 @@ fun MultiAppNavHost(
                 !superAppMvpPrefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW -> {
                     // has not seen wallets intro && was not defaulted to defi
                     popupRoute = HomeDestination.Introduction.route
-                    HomeDestination.Introduction.route
+                    HomeDestination.Introduction
                 }
 
                 !walletStatusPrefs.hasSeenDefiOnboarding && walletModePrefs.userDefaultedToPKW -> {
                     // was defaulted to defi && has not seen defi onboarding
                     popupRoute = HomeDestination.DefiOnboarding.route
-                    HomeDestination.DefiOnboarding.routeWithArgs(
-                        listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, false))
-                    )
+                    HomeDestination.DefiOnboarding
                 }
 
                 else -> {
                     popupRoute = null
-                    ChromeDestination.Main.route
+                    ChromeDestination.Main
                 }
-            }
+            }.route
         ) {
             // main chrome
             chrome(

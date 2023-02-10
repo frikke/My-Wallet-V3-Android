@@ -182,15 +182,15 @@ class MultiAppActivity :
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
-                startPhraseRecovery = { handlePhraseRecovery() },
+                startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
-                showAppRating = { showAppRating() },
+                showAppRating = ::showAppRating,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
-                openExternalUrl = { url -> openExternalUrl(url) }
+                openExternalUrl = ::openExternalUrl
             )
         }
         subscribeForSecurityChannelLogin()
