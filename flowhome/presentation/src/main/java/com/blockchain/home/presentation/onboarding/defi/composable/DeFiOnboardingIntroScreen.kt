@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.onboarding.defionboarding.composable
+package com.blockchain.home.presentation.onboarding.defi.composable
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -41,8 +41,8 @@ import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.circleAround
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.onboarding.defionboarding.DeFiOnboardingViewModel
-import com.blockchain.home.presentation.onboarding.defionboarding.OnboardingAnalyticsEvents
+import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
+import com.blockchain.home.presentation.onboarding.defi.OnboardingAnalyticsEvents
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
