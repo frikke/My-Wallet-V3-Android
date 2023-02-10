@@ -24,8 +24,6 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
-import com.blockchain.koin.sardineFeatureFlag
-import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.superAppMvpFeatureFlag
 import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
@@ -176,24 +174,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
                 "Enable SuperApp"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(sessionIdFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_x_session_id",
-                "Send X-Session-ID Header"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(sardineFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_sardine",
-                "Enable Sardine"
             )
         )
     }.bind(FeatureFlag::class)

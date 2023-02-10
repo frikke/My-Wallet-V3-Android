@@ -4,7 +4,6 @@ import android.app.Application
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.services.FraudRemoteService
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.fold
 import com.sardine.ai.mdisdk.MobileIntelligence
 import com.sardine.ai.mdisdk.MobileIntelligence.SubmitResponse
@@ -30,9 +29,7 @@ internal class FraudRepository(
     private val fraudService: FraudRemoteService,
     private val sessionInfo: SessionInfo,
     private val fraudFlows: FraudFlows,
-    private val environmentConfig: EnvironmentConfig,
-    private val sessionIdFeatureFlag: FeatureFlag,
-    private val sardineFeatureFlag: FeatureFlag
+    private val environmentConfig: EnvironmentConfig
 ) : FraudService {
 
     private val currentFlow = AtomicReference<FraudFlow?>(null)
@@ -41,79 +38,71 @@ internal class FraudRepository(
         sessionInfo.clearSessionId()
 
         coroutineScope.launch(dispatcher) {
-            if (sessionIdFeatureFlag.coEnabled()) {
-                sessionInfo.setSessionId(UUID.randomUUID().toString())
-                withContext(Dispatchers.Main) {
-                    onSessionIdGenerated?.invoke()
-                }
+            sessionInfo.setSessionId(UUID.randomUUID().toString())
+            withContext(Dispatchers.Main) {
+                onSessionIdGenerated?.invoke()
             }
         }
     }
 
     override fun updateUnauthenticatedUserFlows() {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                fraudService.getFraudFlows()
-                    .fold(
-                        onSuccess = { response ->
-                            fraudFlows.clearUnauthenticatedUserFlows()
-                            fraudFlows.addUnauthenticatedUserFlows(
-                                response.flows?.mapNotNull { it.name.toFraudFlow() }?.toSet() ?: emptySet()
-                            )
-                        },
-                        onFailure = {
-                            fraudFlows.clearUnauthenticatedUserFlows()
-                        }
-                    )
-            }
+            fraudService.getUnauthenticatedFraudFlows()
+                .fold(
+                    onSuccess = { response ->
+                        fraudFlows.clearUnauthenticatedUserFlows()
+                        fraudFlows.addUnauthenticatedUserFlows(
+                            response.flows?.mapNotNull { it.name.toFraudFlow() }?.toSet() ?: emptySet()
+                        )
+                    },
+                    onFailure = {
+                        fraudFlows.clearUnauthenticatedUserFlows()
+                    }
+                )
         }
     }
 
     override fun updateAuthenticatedUserFlows() {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                fraudService.getFraudFlows()
-                    .fold(
-                        onSuccess = { response ->
-                            fraudFlows.clearAuthenticatedUserFlows()
-                            fraudFlows.addAuthenticatedUserFlows(
-                                response.flows?.mapNotNull { it.name.toFraudFlow() }?.toSet() ?: emptySet()
-                            )
-                        },
-                        onFailure = {
-                            fraudFlows.clearAuthenticatedUserFlows()
-                        }
-                    )
-            }
+            fraudService.getFraudFlows()
+                .fold(
+                    onSuccess = { response ->
+                        fraudFlows.clearAuthenticatedUserFlows()
+                        fraudFlows.addAuthenticatedUserFlows(
+                            response.flows?.mapNotNull { it.name.toFraudFlow() }?.toSet() ?: emptySet()
+                        )
+                    },
+                    onFailure = {
+                        fraudFlows.clearAuthenticatedUserFlows()
+                    }
+                )
         }
     }
 
     override fun initMobileIntelligence(application: Any, clientId: String) {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                withContext(Dispatchers.Main) {
-                    if (application is Application) {
-                        val sessionId = sessionInfo.getSessionId() ?: UUID.randomUUID().toString()
+            withContext(Dispatchers.Main) {
+                if (application is Application) {
+                    val sessionId = sessionInfo.getSessionId() ?: UUID.randomUUID().toString()
 
-                        val option: Options = Options.Builder()
-                            .setClientID(clientId)
-                            .enableBehaviorBiometrics(true)
-                            .enableClipboardTracking(true)
-                            .apply {
-                                if (environmentConfig.isRunningInDebugMode()) {
-                                    setEnvironment(Options.ENV_SANDBOX)
-                                } else {
-                                    setEnvironment(Options.ENV_PRODUCTION)
-                                }
+                    val option: Options = Options.Builder()
+                        .setClientID(clientId)
+                        .enableBehaviorBiometrics(true)
+                        .enableClipboardTracking(true)
+                        .apply {
+                            if (environmentConfig.isRunningInDebugMode()) {
+                                setEnvironment(Options.ENV_SANDBOX)
+                            } else {
+                                setEnvironment(Options.ENV_PRODUCTION)
                             }
-                            .setFlow("STARTUP")
-                            .setSessionKey(sessionId.hash())
-                            .setShouldAutoSubmitOnInit(true)
-                            .build()
-                        MobileIntelligence.init(application, option)
-                    } else {
-                        throw IllegalStateException("Unable to init Sardine. No application provided.")
-                    }
+                        }
+                        .setFlow("STARTUP")
+                        .setSessionKey(sessionId.hash())
+                        .setShouldAutoSubmitOnInit(true)
+                        .build()
+                    MobileIntelligence.init(application, option)
+                } else {
+                    throw IllegalStateException("Unable to init Sardine. No application provided.")
                 }
             }
         }
@@ -121,21 +110,19 @@ internal class FraudRepository(
 
     override fun trackFlow(flow: FraudFlow) {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                withContext(Dispatchers.Main) {
-                    if (fraudFlows.getAllFlows().contains(flow)) {
-                        currentFlow.set(flow)
-                        Timber.i("Start tracking fraud flow: ${flow.name}.")
-                        val options: UpdateOptions = UpdateOptions.Builder()
-                            .setFlow(flow.name)
-                            .apply {
-                                sessionInfo.getSessionId()?.let { sessionKey -> setSessionKey(sessionKey.hash()) }
-                                sessionInfo.getUserId()?.let { userId -> setUserId(userId.hash()) }
-                            }
-                            .build()
+            withContext(Dispatchers.Main) {
+                if (fraudFlows.getAllFlows().contains(flow)) {
+                    currentFlow.set(flow)
+                    Timber.i("Start tracking fraud flow: ${flow.name}.")
+                    val options: UpdateOptions = UpdateOptions.Builder()
+                        .setFlow(flow.name)
+                        .apply {
+                            sessionInfo.getSessionId()?.let { sessionKey -> setSessionKey(sessionKey.hash()) }
+                            sessionInfo.getUserId()?.let { userId -> setUserId(userId.hash()) }
+                        }
+                        .build()
 
-                        MobileIntelligence.updateOptions(options, onDataSubmittedCallback(flow))
-                    }
+                    MobileIntelligence.updateOptions(options, onDataSubmittedCallback(flow))
                 }
             }
         }
@@ -143,20 +130,16 @@ internal class FraudRepository(
 
     override fun endFlow(flow: FraudFlow?, onDataSubmitted: (() -> Unit)?) {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                withContext(Dispatchers.Main) {
-                    submitData(flow, onDataSubmitted)
-                }
+            withContext(Dispatchers.Main) {
+                submitData(flow, onDataSubmitted)
             }
         }
     }
 
     override fun endFlows(vararg flows: FraudFlow) {
         coroutineScope.launch(dispatcher) {
-            if (sardineFeatureFlag.coEnabled()) {
-                withContext(Dispatchers.Main) {
-                    flows.forEach { submitData(it) }
-                }
+            withContext(Dispatchers.Main) {
+                flows.forEach { submitData(it) }
             }
         }
     }

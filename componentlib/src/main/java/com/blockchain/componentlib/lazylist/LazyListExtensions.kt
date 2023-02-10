@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.lazylist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,7 +43,10 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
         items = items,
         key = key,
     ) {
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+        ) {
             when {
                 items.size == 1 -> Card(
                     backgroundColor = AppTheme.colors.background,
@@ -52,7 +56,6 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
                     content(it)
                 }
                 it == items.first() -> Card(
-                    modifier = Modifier.padding(bottom = 1.dp),
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(
                         topStart = AppTheme.dimensions.mediumSpacing,
@@ -66,6 +69,7 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
                     }
                 }
                 it == items.last() -> Card(
+                    modifier = Modifier.padding(top = 1.dp),
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(
                         bottomEnd = AppTheme.dimensions.mediumSpacing,

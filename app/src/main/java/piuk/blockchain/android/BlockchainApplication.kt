@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
 import androidx.appcompat.app.AppCompatDelegate
@@ -165,27 +164,25 @@ open class BlockchainApplication : Application() {
     }
 
     private fun initNotifications() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            // Create the NotificationChannel
-            val channel2FA = NotificationChannel(
-                "notifications_2fa",
-                getString(R.string.notification_2fa_summary),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply { description = getString(R.string.notification_2fa_description) }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Create the NotificationChannel
+        val channel2FA = NotificationChannel(
+            "notifications_2fa",
+            getString(R.string.notification_2fa_summary),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply { description = getString(R.string.notification_2fa_description) }
 
-            // We create two channels, since the user may want to opt out of
-            // payments notifications in the settings, and we don't need the
-            // high importance flag on those.
-            val channelPayments = NotificationChannel(
-                "notifications_payments",
-                getString(R.string.notification_payments_summary),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = getString(R.string.notification_payments_description) }
-            // TODO do we want some custom vibration pattern?
-            notificationManager.createNotificationChannel(channel2FA)
-            notificationManager.createNotificationChannel(channelPayments)
-        }
+        // We create two channels, since the user may want to opt out of
+        // payments notifications in the settings, and we don't need the
+        // high importance flag on those.
+        val channelPayments = NotificationChannel(
+            "notifications_payments",
+            getString(R.string.notification_payments_summary),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply { description = getString(R.string.notification_payments_description) }
+        // TODO do we want some custom vibration pattern?
+        notificationManager.createNotificationChannel(channel2FA)
+        notificationManager.createNotificationChannel(channelPayments)
     }
 
     private fun initRemoteLogger() {
