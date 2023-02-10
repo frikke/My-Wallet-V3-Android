@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.chrome.isScrollable
@@ -175,9 +174,7 @@ fun ColumnScope.PricesScreenData(
                     networkTag = cryptoAsset.network,
                     value = cryptoAsset.currentPrice,
                     valueChange = cryptoAsset.delta,
-                    contentStart = {
-                        Image(imageResource = ImageResource.Remote(cryptoAsset.logo))
-                    },
+                    imageResource = ImageResource.Remote(cryptoAsset.logo),
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
                 if (cryptoPrices.last() != cryptoAsset) {

@@ -10,10 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
@@ -21,6 +24,31 @@ import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 
 @Composable
 fun NonCustodialAssetBalanceTableRow(
+    title: String,
+    subtitle: String = "",
+    valueCrypto: String,
+    valueFiat: String,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    onClick: () -> Unit
+) {
+    NonCustodialAssetBalanceTableRow(
+        title = title,
+        subtitle = subtitle,
+        valueCrypto = valueCrypto,
+        valueFiat = valueFiat,
+        contentStart = {
+            CustomStackedIcon(
+                icon = icon,
+                size = defaultIconSize
+            )
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun NonCustodialAssetBalanceTableRow(
     title: String,
     subtitle: String = "",
     valueCrypto: String,
