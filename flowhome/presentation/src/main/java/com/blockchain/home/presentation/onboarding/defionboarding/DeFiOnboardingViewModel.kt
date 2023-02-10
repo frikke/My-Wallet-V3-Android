@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.defionboarding
+package com.blockchain.home.presentation.onboarding.defionboarding
 
 import androidx.lifecycle.ViewModel
 import com.blockchain.preferences.WalletStatusPrefs
