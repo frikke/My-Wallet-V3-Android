@@ -111,7 +111,8 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    showDefiOnboarding: () -> Unit,
+    startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     openCryptoAssets: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
@@ -142,7 +143,7 @@ fun MultiAppChrome(
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is MultiAppNavigationEvent.PhraseRecovery -> startPhraseRecovery(it.walletOnboardingRequired)
+                is MultiAppNavigationEvent.DefiOnboarding -> showDefiOnboarding()
                 is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }
@@ -169,7 +170,7 @@ fun MultiAppChrome(
             shouldRevealBalance = viewState.shouldRevealBalance,
             bottomNavigationItems = bottomNavigationItems.toImmutableList(),
             onModeSelected = { walletMode ->
-                viewModel.onIntent(MultiAppIntents.WalletModeChangeRequested(walletMode))
+                viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
             openCryptoAssets = openCryptoAssets,
@@ -186,8 +187,8 @@ fun MultiAppChrome(
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
-            startPhraseRecovery = { onboardingRequired ->
-                startPhraseRecovery(onboardingRequired)
+            startPhraseRecovery = {
+                startPhraseRecovery()
             },
             openExternalUrl = openExternalUrl,
             openNftHelp = openNftHelp,
@@ -222,7 +223,7 @@ fun MultiAppChromeScreen(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,

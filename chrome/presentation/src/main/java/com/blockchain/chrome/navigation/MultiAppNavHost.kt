@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheet
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
+import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
@@ -30,6 +31,7 @@ import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.nfts.navigation.nftGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -39,9 +41,10 @@ import org.koin.androidx.compose.get
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppNavHost(
-    prefs: SuperAppMvpPrefs = get(),
+    superAppMvpPrefs: SuperAppMvpPrefs = get(),
     walletModePrefs: WalletModePrefs = get(),
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    walletStatusPrefs: WalletStatusPrefs = get(),
+    startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     pricesNavigation: PricesNavigation,
@@ -61,12 +64,27 @@ fun MultiAppNavHost(
             bottomEnd = CornerSize(0.dp)
         )
     ) {
+        val popupRoute: String?
+
         NavHost(
             navController = navController,
-            startDestination = if (!prefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW) {
-                HomeDestination.Introduction
-            } else {
-                ChromeDestination.Main
+            startDestination = when {
+                !superAppMvpPrefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW -> {
+                    // has not seen wallets intro && was not defaulted to defi
+                    popupRoute = HomeDestination.Introduction.route
+                    HomeDestination.Introduction
+                }
+
+                !walletStatusPrefs.hasSeenDefiOnboarding && walletModePrefs.userDefaultedToPKW -> {
+                    // was defaulted to defi && has not seen defi onboarding
+                    popupRoute = HomeDestination.DefiOnboarding.route
+                    HomeDestination.DefiOnboarding
+                }
+
+                else -> {
+                    popupRoute = null
+                    ChromeDestination.Main
+                }
             }.route
         ) {
             // main chrome
@@ -87,7 +105,9 @@ fun MultiAppNavHost(
             homeGraph(
                 launchApp = {
                     navController.navigate(ChromeDestination.Main) {
-                        popUpTo(HomeDestination.Introduction.route) {
+                        check(popupRoute != null)
+
+                        popUpTo(popupRoute) {
                             inclusive = true
                         }
                     }
@@ -105,7 +125,7 @@ fun MultiAppNavHost(
 
 private fun NavGraphBuilder.chrome(
     navController: NavHostController,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     settingsNavigation: SettingsNavigation,
@@ -124,6 +144,12 @@ private fun NavGraphBuilder.chrome(
                 )
             },
             startPhraseRecovery = startPhraseRecovery,
+            showDefiOnboarding = {
+                navController.navigate(
+                    destination = HomeDestination.DefiOnboarding,
+                    args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
+                )
+            },
             assetActionsNavigation = assetActionsNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
@@ -137,8 +163,8 @@ private fun NavGraphBuilder.chrome(
             },
             openActivityDetail = { txId: String, walletMode: WalletMode ->
                 navController.navigate(
-                    HomeDestination.ActivityDetail,
-                    listOf(
+                    destination = HomeDestination.ActivityDetail,
+                    args = listOf(
                         NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
                         NavArgument(key = ARG_WALLET_MODE, value = walletMode)
                     )

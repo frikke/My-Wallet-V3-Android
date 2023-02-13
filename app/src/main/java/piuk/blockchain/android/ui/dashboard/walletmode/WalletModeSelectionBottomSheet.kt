@@ -27,7 +27,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.backup.BackupPhraseActivity
-import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,11 +123,7 @@ class WalletModeSelectionBottomSheet :
 
     private fun launchPhraseRecovery(onboardingRequired: Boolean) {
         onDeFiOnboardingResult.launch(
-            if (onboardingRequired) {
-                DeFiOnboardingActivity.newIntent(context = requireContext())
-            } else {
-                BackupPhraseActivity.newIntent(context = requireContext())
-            }
+            BackupPhraseActivity.newIntent(context = requireContext())
         )
     }
 

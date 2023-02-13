@@ -6,11 +6,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
 const val ARG_FIAT_TICKER = "fiatTicker"
 const val ARG_ACTIVITY_TX_ID = "activityTxId"
 const val ARG_WALLET_MODE = "walletMode"
+const val ARG_IS_FROM_MODE_SWITCH = "isFromModeSwitch"
 
 sealed class HomeDestination(
     override val route: String
 ) : ComposeNavigationDestination {
     object Introduction : HomeDestination("Introduction/${ARG_WALLET_MODE.wrappedArg()}")
+    object DefiOnboarding : HomeDestination("DefiOnboarding/${ARG_IS_FROM_MODE_SWITCH.wrappedArg()}")
     object CryptoAssets : HomeDestination("AllAssets")
     object Activity : HomeDestination("Activity")
 

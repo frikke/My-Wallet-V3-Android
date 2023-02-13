@@ -11,7 +11,8 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
-import com.blockchain.home.presentation.introduction.IntroScreensViewModel
+import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
+import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.payloadScopeQualifier
@@ -25,6 +26,10 @@ val homePresentationModule = module {
     }
 
     scope(payloadScopeQualifier) {
+        viewModel {
+            DeFiOnboardingViewModel(walletStatusPrefs = get())
+        }
+
         viewModel {
             AnnouncementsViewModel(
                 walletModeService = get(),

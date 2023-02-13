@@ -5,6 +5,6 @@ import com.blockchain.walletmode.WalletMode
 
 sealed interface MultiAppIntents : Intent<MultiAppModelState> {
     object LoadData : MultiAppIntents
-    data class WalletModeChangeRequested(val walletMode: WalletMode) : MultiAppIntents
+    data class WalletModeSelected(val walletMode: WalletMode) : MultiAppIntents
     object BalanceRevealed : MultiAppIntents
 }
