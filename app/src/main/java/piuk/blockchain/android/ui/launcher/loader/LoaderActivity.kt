@@ -177,7 +177,6 @@ class LoaderActivity :
             homeActivityLauncher.newIntent(
                 context = this,
                 intentData = mainData,
-                shouldLaunchUiTour = shouldLaunchUiTour,
                 shouldBeNewTask = true
             )
         )

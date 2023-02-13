@@ -4,7 +4,6 @@
     <string name="deposit_enter_amount_limit_title">Лимит</string>
     <string name="no_fees_title">Без комиссий</string>
     <string name="create_wallet_email_hint">your@email.com</string>
-    <string name="activity_details_title_bought">Куплено</string>
     <string name="fund_recovery_failed_title">Не удалось восстановить средства</string>
     <string name="rewards_summary_accrued">Начисленные вознаграждения в этом месяце</string>
     <string name="rewards_item_issue_other">В настоящее время недоступно, повторите попытку позже</string>
@@ -29,9 +28,6 @@
     <string name="account_exchange_connect_title">Подключиться к Exchange</string>
     <string name="card">Карта</string>
     <string name="easy_bank_transfer">Легкий банковский перевод</string>
-    <string name="ui_tour_prices_title">Откройте для себя новые монеты</string>
-    <string name="ui_tour_buyer_handhold_title">Подготовьтесь к покупке</string>
-    <string name="ui_tour_buyer_handhold_subtitle">Добавьте карту или привяжите банк, чтобы начать покупать криптовалюту за считанные секунды.</string>
     <string name="allow_camera_access">Разрешить доступ к камере</string>
     <string name="web_access">Получите доступ к своему Wallet в интернете</string>
     <string name="connect_to_dapps">Подключиться к Dapps</string>
@@ -47,7 +43,6 @@
     <string name="title_cardCreateBankDeclined">Не удалось добавить карту</string>
     <string name="fund_your_card_purchases">Финансируйте покупки по карте</string>
     <string name="recent_transactions">Недавние транзакции</string>
-    <string name="use_your_card_or_cash">Используйте наличные деньги или карту</string>
     <string name="bc_card_transaction_created">Создано</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">Информация защищена 256-битным шифрованием</string>
     <string name="common_send">Отправить</string>
@@ -118,10 +113,6 @@
     <string name="backup_wallet_title">Восстановление секретного закрытого ключа</string>
     <string name="action_settings">Настройки</string>
     <string name="please_wait">Подождите</string>
-    <string name="toolbar_cmd_home">Главная</string>
-    <string name="toolbar_cmd_activity">Активность</string>
-    <string name="toolbar_cmd_swap">Обменять</string>
-    <string name="toolbar_cmd_transfer">Перевод</string>
     <string name="polite_no">Нет, спасибо</string>
     <string name="done">Готово</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
@@ -471,7 +462,6 @@
     <string name="tx_title_rewards">Получено %s Rewards</string>
     <string name="tx_title_add_with_ticker">Добавить %s</string>
     <string name="tx_title_added">Добавлено %s</string>
-    <string name="transaction_detail_coinbase">Нет затрат (недавно сгенерированная криптовалюта)</string>
     <string name="security_centre_email_check">Проверить электронную почту</string>
     <string name="backup_subtitle">Секретная фраза для восстановления закрытого ключа</string>
     <string name="backup_instructions_1">В сфере криптовалют, когда у вас есть закрытые ключи, вы контролируете средства в своем DeFi Wallet. Недостаток заключается в том, что ЛЮБОЙ человек, у которого есть ваши закрытые ключи, может контролировать ваш DeFi Wallet.</string>
@@ -871,7 +861,6 @@
     <string name="tour_step_three_title">Запрос</string>
     <string name="tour_step_three_body">Чтобы получать криптовалюту на свой кошелек, получите уникальный адрес для каждой криптовалюты, которым вы можете поделиться с отправителем.</string>
     <string name="tour_step_three_btn">Далее</string>
-    <string name="dashboard_total_balance">Итоговый баланс</string>
     <string name="asset_card_rate_period">24 часа</string>
     <string name="upgrading_wallet">Обновление Кошелька</string>
     <string-array name="mnemonic_word_requests">
@@ -1073,11 +1062,8 @@
     <string name="billing_address_state">Штат</string>
     <string name="currency_not_supported_title">Данная валюта не поддерживается</string>
     <string name="currency_not_supported_1">В настоящее время мы не поддерживаем покупку криптовалют с %1s</string>
-    <string name="activity_no_activity_title">У вас отсутствует активность</string>
-    <string name="activity_no_activity_text">Здесь будут отображены все ваши транзакции.</string>
     <string name="activity_custodial_pending_value">Банковский перевод</string>
     <string name="checkout_bank_transfer_label">Банковский перевод</string>
-    <string name="activity_loading_error">Не удалось загрузить журнал активности. Пожалуйста, попробуйте позже.</string>
     <string name="card_issuer_always_rejects_title">Покупка криптовалюты не поддерживается</string>
     <string name="card_issuer_always_rejects_desc">Эта карта не позволяет выполнять криптовалютные транзакции. Попробуйте другую.</string>
     <string name="card_issuer_sometimes_rejects_title">Покупка криптовалюты часто отклоняется</string>
@@ -1093,29 +1079,16 @@
     <string name="activity_details_historic_transferred">Значение при переводе</string>
     <string name="activity_details_to">Кому</string>
     <string name="activity_details_from">От</string>
-    <string name="activity_details_action">Просмотреть в Blockchain Explorer</string>
     <string name="activity_details_cancel_action">Отменить Покупку</string>
-    <string name="activity_detail_description_action">Добавить описание</string>
-    <string name="activity_detail_description_label">Описание</string>
     <string name="activity_details_label_pending">В ожидании</string>
     <string name="activity_details_label_manual_review">Ручная проверка</string>
     <string name="activity_details_label_processing">Идет обработка</string>
     <string name="activity_details_label_complete">Завершено</string>
     <string name="activity_details_label_failed">Не удалось</string>
-    <string name="activity_details_title_transferred">Перевод</string>
-    <string name="activity_details_title_received_1">Получено</string>
-    <string name="activity_details_title_sent_1">Отправлено</string>
-    <string name="activity_details_title_sold">Продано</string>
-    <string name="activity_details_title_swapped">Выполнен своп</string>
-    <string name="activity_details_title_deposit">Перевод</string>
-    <string name="activity_details_title_rewards_earned">Заработанные вознаграждения</string>
-    <string name="activity_details_title_recurring_buy">Повторяющаяся покупка</string>
-    <string name="activity_details_title_withdraw">Вывод</string>
     <string name="activity_details_label_confirming">Подтверждение</string>
     <string name="activity_details_label_cancelled">Отменена</string>
     <string name="activity_details_label_waiting_on_funds">Ожидание средств</string>
     <string name="activity_details_label_confirmations">%1$d из %2$d\nподтверждений</string>
-    <string name="activity_details_title_fee">Комиссия Gas</string>
     <string name="activity_details_transaction_fee">Gas за</string>
     <string name="activity_details_exchange_rate">Обменный курс</string>
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
@@ -1128,8 +1101,6 @@
     <string name="activity_details_swap_for">За</string>
     <string name="activity_details_view_bank_transfer_details">Просмотреть данные банковского перевода</string>
     <string name="activity_details_buy_again">Купить еще раз</string>
-    <string name="activity_details_description_updated">Описание обновлено</string>
-    <string name="activity_details_description_not_updated">Ошибка обновления описания</string>
     <string name="activity_details_transaction_fee_send">Отправка %1$s</string>
     <string name="activity_details_transaction_fee_unknown">Неизвестно</string>
     <string name="activity_details_payment_load_fail">Не удалось загрузить сведения о платеже</string>
@@ -1918,12 +1889,7 @@
     <string name="activity_details_label_btn_cash">Добавить наличные</string>
     <string name="recurring_buy_short_error">Не удалось</string>
     <string name="recurring_buy_insufficient_funds_short_error">Ошибка. Недостаточный баланс</string>
-    <string name="recurring_buy_insufficient_funds_error_1">Баланс вашего способа оплаты слишком мал. Пожалуйста, добавьте наличных сейчас.</string>
-    <string name="recurring_buy_internal_server_error">При покупке произошла ошибка. Мы повторим попытку в ближайшее время.</string>
-    <string name="recurring_buy_final_attempt_error">При покупке произошла ошибка. <annotation link="contact_support_link">Обратитесь в службу поддержки</annotation> для получения дополнительной информации.</string>
-    <string name="recurring_buy_beneficiary_error">Ваш платежный инструмент не активен. Выберите другое средство для оплаты.</string>
     <string name="recurring_buy_limits_exceed_error">С вашей учетной записи было выполнено слишком много торговых операций. <annotation link="contact_support_link">Обратитесь в службу поддержки</annotation> для получения дополнительной информации.</string>
-    <string name="recurring_buy_generic_error">При покупке произошла ошибка. <annotation link="contact_support_link">Обратитесь в службу поддержки</annotation> для получения дополнительной информации.</string>
     <string name="fee_calculated_at_checkout">Рассчитывается при оформлении заказа</string>
     <string name="recurring_buy_on_boarding_header">Установите простые автоматические повторяющиеся покупки на каждый день, неделю или месяц. Воспользуйтесь возможностями усреднения долларовой стоимости.</string>
     <string name="recurring_buy_set_up_title">Настроить повторяющиеся покупки</string>
@@ -1941,11 +1907,7 @@
     <string name="zendesk_subject_option4">Не удалось восстановить мой Кошелек</string>
     <string name="loading_prices">Загрузка цен</string>
     <string name="syncing_account">Синхронизация аккаунта</string>
-    <string name="empty_portfolio_title">Добро пожаловать на Blockchain.com!</string>
-    <string name="empty_portfolio_description">Все ваши криптовалютные балансы будут отображаться здесь сразу после покупки или получения.</string>
     <string name="search_coins_hint">Искать монеты</string>
-    <string name="prices_error_title">Не удалось загрузить цены активов</string>
-    <string name="prices_error_desc">При загрузке цен активов произошла ошибка.\nПроверьте подключение к Интернету и повторите попытку или обратитесь в службу поддержки, если проблема не будет устранена.</string>
     <string name="search_wallets_hint">Поиск кошельков Wallet и криптовалют</string>
     <string name="search_results">%s результатов</string>
     <string name="receive_details_address_label">Адрес Кошелька</string>
@@ -1968,10 +1930,6 @@
     <string name="funds_locked_warning">В целях безопасности ваши средства будут удерживаться в течение %s. Мы сообщим вам, как только средства станут доступны.</string>
     <string name="funds_locked_warning_days">%s день</string>
     <string name="reference_id_required">Идентификационный номер (обязательно)</string>
-    <string name="action_sheet_swap_description">Обменять на другую криптовалюту</string>
-    <string name="action_sheet_send_description">Отправить на любой Wallet</string>
-    <string name="action_sheet_receive_description">Скопировать свои адреса и QR-коды</string>
-    <string name="action_sheet_rewards_description">Зарабатывайте Rewards за криптовалюту</string>
     <string name="action_sheet_deposit_description">Внесите наличные со своего банка</string>
     <string name="action_sheet_withdraw_description">Обналичивание в вашем банке</string>
     <string name="main_toolbar_home">Главная</string>
@@ -2214,13 +2172,6 @@
         <item quantity="many">%d подключенных приложений</item>
         <item quantity="other">%d подключенных приложений</item>
     </plurals>
-    <string name="ui_tour_buy_and_sell_title">Покупка и продажа</string>
-    <string name="ui_tour_middle_button_title">Мгновенная торговля</string>
-    <string name="ui_tour_activity_title">Просмотреть все транзакции</string>
-    <string name="ui_tour_buy_and_sell_subtitle">Используйте свою карту или привяжите свой банк, чтобы купить криптовалюту за считанные секунды. Быстро, легко и безопасно.</string>
-    <string name="ui_tour_prices_subtitle">Отслеживайте текущую цену более 1200 монет и находите новые для добавления в свой кошелек.</string>
-    <string name="ui_tour_middle_button_subtitle">Если вы хотите быстро обменять средства или отправить их другу — мы всегда готовы помочь!</string>
-    <string name="ui_tour_activity_subtitle">Всегда будьте в курсе того, что и когда вы купили, продали или обменяли, а также по какой цене.</string>
     <string name="pin_title_create">Выберите PIN-код для Wallet.</string>
     <string name="pin_subtitle">Он будет использоваться для резервного копирования данных биометрической разблокировки.</string>
     <string name="pin_title_confirm">Подтвердите свой PIN-код.</string>
@@ -2407,8 +2358,6 @@
     <string name="verify_phrase_incorrect_button">Сбросить слова</string>
     <string name="backup_success_title">Резервное копирование успешно выполнено!</string>
     <string name="backup_success_description">Храните фразу восстановления в безопасном месте и никому ее не сообщайте.</string>
-    <string name="defi_onboarding_enable_wallet_title">Включите, чтобы начать</string>
-    <string name="defi_onboarding_enable_wallet_description">Подключайтесь к приложениям web3, собирайте NFT и обменивайте на DEX.</string>
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
     <string name="defi_onboarding_intro_title">Представляем %1$s</string>
     <string name="defi_onboarding_intro_description">Исследуйте все Web3 и DeFi в одном месте</string>
@@ -2542,7 +2491,6 @@
     <string name="bc_card_dashboard_legal_disclaimer">Эта карта Visa® Blockchain.com выпущена Pathward, NA, членом FDIC, в соответствии с лицензией Visa USA Inc. Карта Visa Blockchain.com может использоваться везде, где принимаются дебетовые карты Visa.</string>
     <string name="bc_card_transaction_refund_title">Возвращено %1$s</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">В настоящее время торговля для баланса более 10 000 евро не разрешена из-за санкций регулирующих органов. Тем не менее, вы все еще можете удерживать или снимать средства.</string>
-    <string name="accessibility_action_menu">Меню действий</string>
     <string name="accessibility_back">Назад</string>
     <string name="accessibility_qr_code_scanner">Сканер QR-кода</string>
     <string name="accessibility_user_settings">Пользовательские настройки</string>
@@ -2555,10 +2503,6 @@
     <string name="accessibility_price_not_available">Цена недоступна</string>
     <string name="accessibility_balance">Остаток</string>
     <string name="accessibility_total_balance">Итоговый баланс</string>
-    <string name="bottom_nav_home">Главная</string>
-    <string name="bottom_nav_prices">Цены</string>
-    <string name="bottom_nav_buy_and_sell">Покупка и продажа</string>
-    <string name="bottom_nav_activity">Активность</string>
     <string name="simple_buy_quote_message">Новое предложение в %s</string>
     <string name="defi_current_balance">Текущий баланс</string>
     <string name="default_label_all_non_custodial_wallets">Все</string>
@@ -2576,16 +2520,10 @@
     <string name="educational_wallet_mode_trading_description">Используйте карту или банковский счет для покупки криптовалюты. Зарабатывайте вознаграждения, заставляя свою криптовалюту работать.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Владелец – Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Начать</string>
-    <string name="shortcuts">Ярлыки</string>
-    <string name="exchange_your_crypto">Обменяйте свою криптовалюту</string>
-    <string name="transfer_to_another_wallet">Перевод на другой кошелек</string>
-    <string name="top_up_trading_account">Пополните свой счет Blockchain.com.</string>
     <string name="receive_to_your_wallet">Получите на свой кошелек</string>
-    <string name="rewards_to_your_cryptos">Зарабатывайте Rewards за криптовалюту</string>
     <string name="buy_crypto">Купить криптовалюту</string>
     <string name="defi_buy_not_supported">В настоящее время мы не поддерживаем покупку криптовалюты в ваш Private Key Wallet. Вы можете купить криптовалюту со своего Trading Account и отправить на свой Private Key Wallet.</string>
     <string name="go_to_trading">Перейти к Trading Account</string>
-    <string name="fiat_to_cash">Конвертируйте свою криптовалюту в наличные</string>
     <string name="address_verification_my_address_is_not_here">Моего адреса здесь нет</string>
     <string name="address_verification_home_address">Домашний адрес</string>
     <string name="address_verification_apt_suite">Квартира и т.п.</string>
@@ -2696,7 +2634,6 @@
     <string name="tx_title_stake_earned">Получено %s</string>
     <string name="tx_title_stake_withdrawn">%s Снято со стейкинга</string>
     <string name="tx_title_staked">Поставлено в стейкинг %s</string>
-    <string name="activity_details_loading_error">Не удалось загрузить сведения об этой транзакции. Повторите попытку позже</string>
     <string name="select_target_source_no_search_results">Нет кошельков или криптовалют, соответствующих вашему запросу</string>
     <string name="buy_search">Поиск криптовалют</string>
     <string name="search_empty">Нет криптовалют, соответствующих вашему запросу</string>
@@ -2765,7 +2702,6 @@
     <string name="bc_card_order_processed">Обработано</string>
     <string name="send_address_title">Отправить адрес</string>
     <string name="receive_network_warning">Получать только %1$s в сети %2$s</string>
-    <string name="error_loading_balance">Некоторые остатки не удалось загрузить</string>
     <string name="available_to_trade_checkout">Доступно для торговли (прибл.)</string>
     <string name="available_to_withdraw_checkout">Доступно для вывода и отправки (прибл.)</string>
     <string name="deposit_terms_immediately">Незамедлительно</string>
@@ -2794,7 +2730,6 @@
     <string name="blockchain_card_waitlist_announcement_action">Присоединиться к списку ожидания</string>
     <string name="country_selection_suggested">Предлагаемый</string>
     <string name="main_toolbar_earn">Заработать</string>
-    <string name="bottom_nav_earn">Заработать</string>
     <string name="legal_entity_copyright">© %1$d Blockchain.com. Все права защищены.</string>
     <string name="common_stake">Стейк</string>
     <string name="tx_title_stake_with_ticker">Внести %s в стейк</string>
@@ -2878,8 +2813,6 @@
     <string name="put_your_crypto_to_work">Пустите вашу криптовалюту в дело</string>
     <string name="show_pkw_accounts">Показать DeFi Wallets</string>
     <string name="actions_sheet_percentage_rate">Ставка: %s%%</string>
-    <string name="ui_tour_earn_title">Зарабатывайте Rewards</string>
-    <string name="ui_tour_earn_subtitle">Заставьте свою криптовалюту работать, пассивно инвестируя, защищая свои избранные сети и многое другое.</string>
     <string name="staking_asset">В стейке %1s</string>
     <string name="earn_rate_apy">%1$s%% годовых</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s подтверждений</string>

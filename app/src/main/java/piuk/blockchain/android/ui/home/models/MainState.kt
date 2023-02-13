@@ -7,9 +7,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -25,8 +23,6 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultUnknownLink(),
-    val currentTab: NavigationItem = NavigationItem.Home,
-    val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode? = null,
     val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable),
     val isEarnOnNavEnabled: Boolean = false
@@ -34,15 +30,10 @@ data class MainState(
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()
-    object LaunchSwap : ViewToLaunch()
     object LaunchTwoFaSetup : ViewToLaunch()
     object LaunchVerifyEmail : ViewToLaunch()
     object LaunchSetupBiometricLogin : ViewToLaunch()
     class LaunchInterestDashboard(val origin: LaunchOrigin) : ViewToLaunch()
-    object LaunchReceive : ViewToLaunch()
-    object LaunchSend : ViewToLaunch()
-    class LaunchBuySell(val type: BuySellViewType, val asset: AssetInfo?) : ViewToLaunch()
-    class LaunchAssetAction(val action: AssetAction, val account: BlockchainAccount?) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
     class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
     class DisplayAlertDialog(@StringRes val dialogTitle: Int, @StringRes val dialogMessage: Int) : ViewToLaunch()

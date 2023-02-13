@@ -229,7 +229,6 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
             homeActivityLauncher.newIntent(
                 this@CowboysFlowActivity,
                 null,
-                shouldLaunchUiTour = false,
                 shouldBeNewTask = true
             )
         )

@@ -61,7 +61,6 @@ import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.rating.data.appRatingDataModule
 import piuk.blockchain.android.rating.presentaion.appRatingPresentationModule
-import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
 import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
 import piuk.blockchain.android.ui.coinview.domain.coinviewDomainModule
@@ -81,7 +80,6 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
-import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.redesignSettingsModule
@@ -106,7 +104,6 @@ object KoinStarter {
                 listOf(
                     versionsModule,
                     featureFlagsModule,
-                    activitiesModule,
                     apiInterceptorsModule,
                     apiModule,
                     blockchainApiModule,
@@ -169,7 +166,6 @@ object KoinStarter {
                     referralPresentationModule,
                     appRatingDataModule, appRatingPresentationModule,
                     backupPhraseDataModule, backupPhrasePresentationModule,
-                    pricesPresentationModule,
                     bankAliasLinkPresentationModule,
                     fraudDataModule,
                     tokenizerModule,

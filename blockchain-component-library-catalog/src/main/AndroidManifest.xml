@@ -97,12 +97,6 @@
             android:name=".abstract_compose_view.ColorsActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.BottomNavigationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.NavigationActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.TextInputActivity"
             android:exported="false" />
         <activity

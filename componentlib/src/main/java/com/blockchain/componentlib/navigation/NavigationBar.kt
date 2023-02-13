@@ -3,10 +3,8 @@ package com.blockchain.componentlib.navigation
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -18,18 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -47,7 +41,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
@@ -72,15 +65,6 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         val onIconClick: () -> Unit,
     ) : NavigationBarButton(onIconClick)
 
-    data class DropdownIndicator(
-        val dropDownClicked: () -> Unit,
-        val text: String,
-        val isHighlighted: Boolean,
-        val rightIcon: Int,
-        val contentDescription: String,
-        val color: Color = Grey000,
-    ) : NavigationBarButton(dropDownClicked)
-
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
         NavigationBarButton(onTextClick)
 
@@ -95,7 +79,6 @@ fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
-    dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
     NavigationBar(
@@ -109,7 +92,7 @@ fun NavigationBar(
                 onIconClick = onClick,
                 contentDescription = R.string.accessibility_back
             )
-        } ?: dropDownIndicator,
+        },
         endNavigationBarButtons = navigationBarButtons
     )
 }
@@ -121,7 +104,6 @@ private fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
-    dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
     navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
     NavigationBar(
@@ -135,7 +117,7 @@ private fun NavigationBar(
                 onIconClick = onClick,
                 contentDescription = R.string.accessibility_back
             )
-        } ?: dropDownIndicator,
+        },
         endNavigationBarButtons = navigationBarButtons
     )
 }
@@ -230,9 +212,6 @@ private fun NavigationBar(
                     is NavigationBarButton.IconResource -> {
                         StartButtonResource(button = button)
                     }
-                    is NavigationBarButton.DropdownIndicator -> {
-                        DropDown(button)
-                    }
                     is NavigationBarButton.Text,
                     is NavigationBarButton.TextWithColorInt -> {
                     }
@@ -292,7 +271,6 @@ private fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
-                        is NavigationBarButton.DropdownIndicator -> {}
                     }
                 }
             }
@@ -342,84 +320,6 @@ fun RowScope.StartButtonResource(button: NavigationBarButton.IconResource) {
         com.blockchain.componentlib.basic.Image(imageResource = button.image)
     }
     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
-}
-
-@Composable
-fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) {
-
-    var isHighlighted by remember { mutableStateOf(dropdownIndicator.isHighlighted) }
-
-    Box(
-        modifier = Modifier
-            .wrapContentWidth()
-            .align(CenterVertically)
-    ) {
-        Row(
-            modifier = Modifier
-                .clickable {
-                    isHighlighted = false
-                    dropdownIndicator.onClick.invoke()
-                }
-                .background(
-                    dropdownIndicator.color,
-                    RoundedCornerShape(dimensionResource(id = R.dimen.medium_spacing))
-                )
-                .padding(
-                    start = 0.dp,
-                    top = 8.dp,
-                    bottom = 8.dp
-                )
-        ) {
-            Image(
-                painter = painterResource(id = dropdownIndicator.rightIcon),
-                contentDescription = dropdownIndicator.contentDescription,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.tiny_spacing)
-                    )
-            )
-            Text(
-                text = dropdownIndicator.text,
-                style = AppTheme.typography.body1,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.tiny_spacing),
-                        end = dimensionResource(id = R.dimen.tiny_spacing)
-                    )
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_down),
-                contentDescription = "IconArrowDown",
-                modifier = Modifier
-                    .padding(
-                        end = dimensionResource(id = R.dimen.tiny_spacing)
-                    )
-            )
-        }
-        if (isHighlighted) {
-            DropDownHighLightIndicator(modifier = Modifier.align(TopEnd))
-        }
-    }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
-}
-
-@Composable
-fun DropDownHighLightIndicator(modifier: Modifier) {
-    Canvas(
-        modifier = modifier
-            .border(
-                2.dp,
-                Color.White,
-                shape = CircleShape
-            )
-            .size(12.dp),
-        onDraw = {
-            drawCircle(
-                color = Color(0xFFDE0082),
-                radius = 5.dp.toPx()
-            )
-        }
-    )
 }
 
 @Preview(showBackground = true)
@@ -501,14 +401,13 @@ fun NavigationBarPreview2() {
                 tag = ImageResource.Local(R.drawable.ic_close_circle)
             ),
             onBackButtonClick = {},
-            dropDownIndicator = null,
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy,
+                    drawable = R.drawable.ic_close_circle,
                     contentDescription = R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy,
+                    drawable = R.drawable.ic_close_circle,
                     contentDescription = R.string.accessibility_back
                 ) {}
             )
@@ -525,20 +424,13 @@ fun NavigationBarPreviewDropDown() {
             mutedBg = true,
             title = "Test",
             onBackButtonClick = null,
-            dropDownIndicator = NavigationBarButton.DropdownIndicator(
-                dropDownClicked = {},
-                text = "Portfolio",
-                rightIcon = R.drawable.ic_bottom_nav_home,
-                isHighlighted = true,
-                contentDescription = "123",
-            ),
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy,
+                    drawable = R.drawable.ic_close_circle,
                     contentDescription = R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy,
+                    drawable = R.drawable.ic_close_circle,
                     contentDescription = R.string.accessibility_back
                 ) {}
             )
@@ -555,7 +447,6 @@ fun NavigationBarPreview3() {
             mutedBg = true,
             title = "Test",
             onBackButtonClick = {},
-            dropDownIndicator = null,
             navigationBarButtons = listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"
