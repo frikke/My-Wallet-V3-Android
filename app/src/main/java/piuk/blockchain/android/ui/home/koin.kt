@@ -8,13 +8,8 @@ import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionViewModel
-import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
-import piuk.blockchain.android.ui.home.models.ActionsSheetModel
-import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -60,31 +55,6 @@ val mainModule = module {
                 coincore = get(),
                 walletModeService = get(),
                 earnOnNavBarFlag = get(earnTabFeatureFlag)
-            )
-        }
-
-        factory {
-            ActionsSheetModel(
-                initialState = ActionsSheetState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                environmentConfig = get(),
-                remoteLogger = get()
-            )
-        }
-
-        factory {
-            ActionsSheetInteractor(
-                userIdentity = get()
-            )
-        }
-        viewModel {
-            WalletModeSelectionViewModel(
-                walletModeService = get(),
-                payloadManager = get(),
-                walletModeBalanceService = get(),
-                walletStatusPrefs = get(),
-                walletModePrefs = get()
             )
         }
 

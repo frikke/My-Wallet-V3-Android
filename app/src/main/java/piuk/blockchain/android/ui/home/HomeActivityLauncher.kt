@@ -9,7 +9,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.HomeLaunch.INTENT_FROM_NOTIFICATION
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
-import com.blockchain.home.presentation.navigation.HomeLaunch.START_UI_TOUR_KEY
 import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 
 class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
@@ -66,7 +65,6 @@ class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
     fun newIntent(
         context: Context,
         intentData: String?,
-        shouldLaunchUiTour: Boolean,
         shouldBeNewTask: Boolean,
     ): Intent = Intent(context, homeActivity).apply {
         if (intentData != null) {
@@ -76,6 +74,5 @@ class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
         if (shouldBeNewTask) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
     }
 }

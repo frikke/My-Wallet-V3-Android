@@ -325,10 +325,6 @@ enum class AnalyticsNames(val eventName: String) {
     NOTIFICATION_SECURITY_ALERTS_SET_UP("Security Alerts Set Up"),
     NOTIFICATION_WALLET_ACTIVITY_SET_UP("Wallet Activity Set Up"),
     NOTIFICATION_STATUS_CHANGE_ERROR("Status Change Error"),
-    UI_TOUR_VIEWED("UI Tour Viewed"),
-    UI_TOUR_CTA_CLICKED("UI Tour CTA Clicked"),
-    UI_TOUR_PROGRESS_CLICKED("UI Tour Progress Clicked"),
-    UI_TOUR_DISMISSED("UI Tour Progress Dismissed"),
     WALLET_ACTIVITY_VIEWED("Wallet Activity Viewed"),
 
     WALLET_FAB_VIEWED("Wallet FAB Viewed"),
@@ -359,11 +355,7 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
     COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),
     COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked"),
-    MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
-    MVP_SWITCHED_TO_TRADING("Switched to Trading"),
-    MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
     ENABLE_DEFI_CLICKED("Enable DeFi Clicked"),
-    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading"),
 
     // superapp
     SUPERAPP_MODE_CUSTODIAL_CLICKED("BCDC Account App Mode Clicked"),

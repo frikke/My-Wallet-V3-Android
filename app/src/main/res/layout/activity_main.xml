@@ -21,25 +21,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintTop_toBottomOf="@id/main_toolbar" />
 
     <!--The bottom navigation panel -->
-    <com.blockchain.componentlib.navigation.BottomNavigationBarView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:background="?android:attr/windowBackground"
-        app:itemIconTint="@color/bottom_nav_states"
-        app:itemTextColor="@color/bottom_nav_states"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/menu_nav_bottom" />
-
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/progress"
         android:layout_width="@dimen/animated_loader_view"
@@ -56,12 +40,5 @@
         app:lottie_loop="true"
         app:lottie_repeatMode="restart"
         tools:visibility="visible" />
-
-    <piuk.blockchain.android.ui.home.ui_tour.UiTourView
-        android:id="@+id/ui_tour"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

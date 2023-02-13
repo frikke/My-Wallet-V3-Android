@@ -4,7 +4,6 @@
     <string name="deposit_enter_amount_limit_title">Límite</string>
     <string name="no_fees_title">Sin comisiones</string>
     <string name="create_wallet_email_hint">su@correo.com</string>
-    <string name="activity_details_title_bought">Comprado</string>
     <string name="fund_recovery_failed_title">Error en la recuperación de fondos</string>
     <string name="rewards_summary_accrued">Recompensas acumuladas este mes</string>
     <string name="rewards_item_issue_other">Actualmente no disponible. Vuelva a comprobarlo más tarde.</string>
@@ -29,9 +28,6 @@
     <string name="account_exchange_connect_title">Conectarse a Exchange</string>
     <string name="card">Tarjeta</string>
     <string name="easy_bank_transfer">Transferencia bancaria sencilla</string>
-    <string name="ui_tour_prices_title">Descubra nuevas monedas</string>
-    <string name="ui_tour_buyer_handhold_title">Prepárese para comprar</string>
-    <string name="ui_tour_buyer_handhold_subtitle">Añada una tarjeta o vincule un banco para comenzar a comprar criptomonedas en segundos.</string>
     <string name="allow_camera_access">Permitir acceso a la cámara</string>
     <string name="web_access">Acceda a su Wallet en la web</string>
     <string name="connect_to_dapps">Conectar a Dapps</string>
@@ -47,7 +43,6 @@
     <string name="title_cardCreateBankDeclined">No se pudo agregar la tarjeta</string>
     <string name="fund_your_card_purchases">Financie sus compras con tarjeta</string>
     <string name="recent_transactions">Transacciones recientes</string>
-    <string name="use_your_card_or_cash">Use su efectivo o tarjeta</string>
     <string name="bc_card_transaction_created">Creado</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">Información protegida con encriptación de 256 bits</string>
     <string name="common_send">Enviar</string>
@@ -118,10 +113,6 @@
     <string name="backup_wallet_title">Recuperación de clave privada secreta</string>
     <string name="action_settings">Ajustes</string>
     <string name="please_wait">Espera</string>
-    <string name="toolbar_cmd_home">Inicio</string>
-    <string name="toolbar_cmd_activity">Actividad</string>
-    <string name="toolbar_cmd_swap">Swap</string>
-    <string name="toolbar_cmd_transfer">Transferir</string>
     <string name="polite_no">No, gracias</string>
     <string name="done">Hecho</string>
     <string name="copied_to_clipboard">Copiado al portapapeles</string>
@@ -471,7 +462,6 @@
     <string name="tx_title_rewards">%s Recompensas ganadas</string>
     <string name="tx_title_add_with_ticker">Añadir %s</string>
     <string name="tx_title_added">Se han añadido %s</string>
-    <string name="transaction_detail_coinbase">No hay entradas (monedas recién generadas)</string>
     <string name="security_centre_email_check">Revisar correo electrónico</string>
     <string name="backup_subtitle">Frase secreta de recuperación de la clave privada</string>
     <string name="backup_instructions_1">En cuanto a las criptomonedas, cuando sus claves son privadas, tiene el control de los fondos en su DeFi Wallet. Por lo tanto, tenga en cuenta que CUALQUIER persona que tenga sus claves privadas podrá controlar su DeFi Wallet.</string>
@@ -869,7 +859,6 @@
     <string name="tour_step_three_title">Solicitud</string>
     <string name="tour_step_three_body">Para recibir criptomonedas en su monedero, obtenga aquí para cada criptomoneda una dirección única que puede compartir con el remitente.</string>
     <string name="tour_step_three_btn">Siguiente</string>
-    <string name="dashboard_total_balance">Saldo total</string>
     <string name="asset_card_rate_period">24 horas</string>
     <string name="upgrading_wallet">Actualizando la cartera</string>
     <string-array name="mnemonic_word_requests">
@@ -1071,11 +1060,8 @@
     <string name="billing_address_state">Provincia</string>
     <string name="currency_not_supported_title">Su moneda no es compatible</string>
     <string name="currency_not_supported_1">Actualmente no admitimos la compra de criptomonedas con %1s</string>
-    <string name="activity_no_activity_title">No tiene actividad</string>
-    <string name="activity_no_activity_text">Todas sus transacciones aparecerán aquí.</string>
     <string name="activity_custodial_pending_value">Transferencia bancaria</string>
     <string name="checkout_bank_transfer_label">Transferencia bancaria</string>
-    <string name="activity_loading_error">No se pudo cargar la actividad. Vuelve a intentarlo más tarde.</string>
     <string name="card_issuer_always_rejects_title">No se admite la compra de criptomonedas</string>
     <string name="card_issuer_always_rejects_desc">Esta tarjeta no permite transacciones de criptomonedas. Pruebe con otra tarjeta.</string>
     <string name="card_issuer_sometimes_rejects_title">A menudo se rechaza la compra de criptomonedas</string>
@@ -1091,29 +1077,16 @@
     <string name="activity_details_historic_transferred">Valor cuando se transfiere</string>
     <string name="activity_details_to">A</string>
     <string name="activity_details_from">De</string>
-    <string name="activity_details_action">Ver en Blockchain Explorer</string>
     <string name="activity_details_cancel_action">Cancelar compra</string>
-    <string name="activity_detail_description_action">Agregar una descripción</string>
-    <string name="activity_detail_description_label">Descripción</string>
     <string name="activity_details_label_pending">Pendiente</string>
     <string name="activity_details_label_manual_review">Revisión del manual</string>
     <string name="activity_details_label_processing">Procesando</string>
     <string name="activity_details_label_complete">Completada</string>
     <string name="activity_details_label_failed">Error</string>
-    <string name="activity_details_title_transferred">Transferir</string>
-    <string name="activity_details_title_received_1">Recibido</string>
-    <string name="activity_details_title_sent_1">Enviada</string>
-    <string name="activity_details_title_sold">Vendida</string>
-    <string name="activity_details_title_swapped">Cambiado</string>
-    <string name="activity_details_title_deposit">Transferir</string>
-    <string name="activity_details_title_rewards_earned">Recompensas ganadas</string>
-    <string name="activity_details_title_recurring_buy">Compra periódica</string>
-    <string name="activity_details_title_withdraw">Retirada</string>
     <string name="activity_details_label_confirming">Confirmando</string>
     <string name="activity_details_label_cancelled">Cancelada</string>
     <string name="activity_details_label_waiting_on_funds">Esperando fondos</string>
     <string name="activity_details_label_confirmations">%1$d de %2$d \n Confirmaciones</string>
-    <string name="activity_details_title_fee">Comisión de gas</string>
     <string name="activity_details_transaction_fee">Gas para</string>
     <string name="activity_details_exchange_rate">Tipo de cambio</string>
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
@@ -1126,8 +1099,6 @@
     <string name="activity_details_swap_for">Por</string>
     <string name="activity_details_view_bank_transfer_details">Ver detalles de transferencia bancaria</string>
     <string name="activity_details_buy_again">Compra otra vez</string>
-    <string name="activity_details_description_updated">Se actualizó la descripción</string>
-    <string name="activity_details_description_not_updated">No se pudo actualizar la descripción</string>
     <string name="activity_details_transaction_fee_send">Enviando %1$s</string>
     <string name="activity_details_transaction_fee_unknown">Desconocido</string>
     <string name="activity_details_payment_load_fail">No se pudieron cargar los detalles de la tarjeta</string>
@@ -1916,12 +1887,7 @@
     <string name="activity_details_label_btn_cash">Añadir efectivo</string>
     <string name="recurring_buy_short_error">Error</string>
     <string name="recurring_buy_insufficient_funds_short_error">Error. Saldo bajo.</string>
-    <string name="recurring_buy_insufficient_funds_error_1">El saldo de su método de pago es demasiado bajo. Añada más efectivo ahora.</string>
-    <string name="recurring_buy_internal_server_error">Se ha producido un error con su compra. En breve, lo volveremos a intentar.</string>
-    <string name="recurring_buy_final_attempt_error">Se ha producido un error en su compra. Para más información, <annotation link="contact_support_link">póngase en contacto con el equipo de asistencia</annotation>.</string>
-    <string name="recurring_buy_beneficiary_error">Su método de pago seleccionado no está activo. Use otro.</string>
     <string name="recurring_buy_limits_exceed_error">Su cuenta ha superado los límites de operaciones. Para obtener más información, <annotation link="contact_support_link">contacte con el equipo de asistencia</annotation>.</string>
-    <string name="recurring_buy_generic_error">Se ha producido un error en su compra. Para más información, <annotation link="contact_support_link">póngase en contacto con el equipo de asistencia</annotation>.</string>
     <string name="fee_calculated_at_checkout">Calculado al pagar</string>
     <string name="recurring_buy_on_boarding_header">Establezca una compra periódica sencilla y automática todos los días, semanas o meses. Aproveche las ventajas del coste medio de dólares.</string>
     <string name="recurring_buy_set_up_title">Configurar una compra periódica</string>
@@ -1939,11 +1905,7 @@
     <string name="zendesk_subject_option4">Error en la recuperación de Mi monedero</string>
     <string name="loading_prices">Cargando precios</string>
     <string name="syncing_account">Cuenta de sincronización</string>
-    <string name="empty_portfolio_title">¡Le damos la bienvenida a Blockchain.com!</string>
-    <string name="empty_portfolio_description">Todos tus saldos aparecerán aquí cuando compres o recibas criptomonedas.</string>
     <string name="search_coins_hint">Buscar Monedas</string>
-    <string name="prices_error_title">No se pueden cargar los precios de los activos</string>
-    <string name="prices_error_desc">Se ha producido un error al cargar los precios de los activos.\nVerifique su conexión a Internet y vuelva a intentarlo o póngase en contacto con el servicio de asistencia técnica si el problema persiste.</string>
     <string name="search_wallets_hint">Buscar Wallets y criptomonedas</string>
     <string name="search_results">%s Resultados</string>
     <string name="receive_details_address_label">Dirección de billetera</string>
@@ -1966,10 +1928,6 @@
     <string name="funds_locked_warning">Por razones de seguridad, se aplicará un período de retención de %s días a tus fondos. Te informaremos cuando tus fondos vuelvan a estar disponibles.</string>
     <string name="funds_locked_warning_days">%s día</string>
     <string name="reference_id_required">ID de referencia (obligatorio)</string>
-    <string name="action_sheet_swap_description">Intercambiar por otra criptomoneda</string>
-    <string name="action_sheet_send_description">Enviar a cualquier Wallet</string>
-    <string name="action_sheet_receive_description">Copie sus direcciones y códigos QR</string>
-    <string name="action_sheet_rewards_description">Obtener recompensas con sus criptomonedas</string>
     <string name="action_sheet_deposit_description">Añadir efectivo desde su banco</string>
     <string name="action_sheet_withdraw_description">Enviar efectivo a su banco</string>
     <string name="main_toolbar_home">Inicio</string>
@@ -2210,13 +2168,6 @@
         <item quantity="one">%d aplicación conectada</item>
         <item quantity="other">%d aplicaciones conectadas</item>
     </plurals>
-    <string name="ui_tour_buy_and_sell_title">Comprar y vender</string>
-    <string name="ui_tour_middle_button_title">Comercio al instante</string>
-    <string name="ui_tour_activity_title">Ver todas las transacciones</string>
-    <string name="ui_tour_buy_and_sell_subtitle">Use su tarjeta o vincule su banco para comprar criptomonedas en segundos. Rápido, fácil y seguro.</string>
-    <string name="ui_tour_prices_subtitle">Realice un seguimiento del precio en tiempo real de más de 1200 monedas y encuentre otras nuevas para añadirlas a su cartera.</string>
-    <string name="ui_tour_middle_button_subtitle">Tanto si quiere intercambiar criptomonedas rápidamente como enviárselas a un amigo, ¡puede utilizar nuestros servicios!</string>
-    <string name="ui_tour_activity_subtitle">Podrá saber exactamente cuándo compró, vendió o intercambió y a qué precio.</string>
     <string name="pin_title_create">Elige un PIN de Wallet.</string>
     <string name="pin_subtitle">Esta información se utilizará para la copia de seguridad de desbloqueo biométrico.</string>
     <string name="pin_title_confirm">Confirma tu PIN.</string>
@@ -2403,8 +2354,6 @@
     <string name="verify_phrase_incorrect_button">Restablecer palabras</string>
     <string name="backup_success_title">¡Copia de seguridad completada correctamente!</string>
     <string name="backup_success_description">Recuerda guardar tu frase de recuperación en un lugar seguro y no nunca compartirla con nadie.</string>
-    <string name="defi_onboarding_enable_wallet_title">Habilitar para empezar</string>
-    <string name="defi_onboarding_enable_wallet_description">Conéctate a aplicaciones web3, recopila NFT e intercambia DEX.</string>
     <string name="defi_onboarding_nav_title">Wallet DeFi</string>
     <string name="defi_onboarding_intro_title">Presentación de %1$s</string>
     <string name="defi_onboarding_intro_description">Explora todo Web3 y DeFi en un solo lugar</string>
@@ -2538,7 +2487,6 @@
     <string name="bc_card_dashboard_legal_disclaimer">Esta tarjeta Visa® de Blockchain.com es emitida por Pathward, NA, miembro de la FDIC, conforme a una licencia de Visa USA Inc. La tarjeta Visa de Blockchain.com se puede usar en todos los lugares donde se acepten tarjetas de débito Visa.</string>
     <string name="bc_card_transaction_refund_title">Reembolso por %1$s</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">Actualmente no se permite negociar con saldos superiores a 10.000 € por sanciones regulatorias. Sin embargo, todavía puede mantener o retirar.</string>
-    <string name="accessibility_action_menu">Menú de acciones</string>
     <string name="accessibility_back">Volver</string>
     <string name="accessibility_qr_code_scanner">Escáner de código QR</string>
     <string name="accessibility_user_settings">Ajustes de usuario</string>
@@ -2551,10 +2499,6 @@
     <string name="accessibility_price_not_available">Precio no disponible</string>
     <string name="accessibility_balance">Saldo</string>
     <string name="accessibility_total_balance">Saldo total</string>
-    <string name="bottom_nav_home">Inicio</string>
-    <string name="bottom_nav_prices">Precios</string>
-    <string name="bottom_nav_buy_and_sell">Comprar y vender</string>
-    <string name="bottom_nav_activity">Actividad</string>
     <string name="simple_buy_quote_message">Nueva cotización en %s</string>
     <string name="defi_current_balance">Saldo actual</string>
     <string name="default_label_all_non_custodial_wallets">Todas</string>
@@ -2572,16 +2516,10 @@
     <string name="educational_wallet_mode_trading_description">Utilice una tarjeta o cuenta bancaria para comprar criptomonedas. Ponga a trabajar sus criptomonedas y obtenga recompensas.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Mantenido por Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Empezar</string>
-    <string name="shortcuts">Accesos directos</string>
-    <string name="exchange_your_crypto">Intercambie sus criptomonedas</string>
-    <string name="transfer_to_another_wallet">Transferir a otra billetera</string>
-    <string name="top_up_trading_account">Recargue su cuenta de Blockchain.com.</string>
     <string name="receive_to_your_wallet">Recibir en su monedero</string>
-    <string name="rewards_to_your_cryptos">Obtener recompensas con sus criptomonedas</string>
     <string name="buy_crypto">Comprar criptomonedas</string>
     <string name="defi_buy_not_supported">No admitimos la compra de criptomonedas en su Private Key Wallet en este momento. Puede comprar desde su Trading Account y enviarlas a su Private Key Wallet.</string>
     <string name="go_to_trading">Ir a la Trading Account</string>
-    <string name="fiat_to_cash">Convierta sus criptomonedas en efectivo</string>
     <string name="address_verification_my_address_is_not_here">Mi dirección no está aquí</string>
     <string name="address_verification_home_address">Dirección de casa</string>
     <string name="address_verification_apt_suite">Apto, Suite, Etc.</string>
@@ -2692,7 +2630,6 @@
     <string name="tx_title_stake_earned">%s ganado</string>
     <string name="tx_title_stake_withdrawn">%s sin asignar</string>
     <string name="tx_title_staked">%s asignado</string>
-    <string name="activity_details_loading_error">Se ha producido un problema al cargar los detalles de esta transacción. Vuelva a intentarlo</string>
     <string name="select_target_source_no_search_results">No se han encontrado Wallets o criptomonedas que coincidan con su búsqueda</string>
     <string name="buy_search">Buscar criptomonedas</string>
     <string name="search_empty">No se han encontrado criptomonedas que coincidan con su búsqueda</string>
@@ -2761,7 +2698,6 @@
     <string name="bc_card_order_processed">Procesado</string>
     <string name="send_address_title">Enviar dirección</string>
     <string name="receive_network_warning">Solo recibe %1$s en la red %2$s</string>
-    <string name="error_loading_balance">No se han podido cargar algunos saldos</string>
     <string name="available_to_trade_checkout">Disponible para operar (est.)</string>
     <string name="available_to_withdraw_checkout">Disponible para retirar o enviar (est.)</string>
     <string name="deposit_terms_immediately">De inmediato</string>
@@ -2790,7 +2726,6 @@
     <string name="blockchain_card_waitlist_announcement_action">Únase a la lista de espera</string>
     <string name="country_selection_suggested">Sugirió</string>
     <string name="main_toolbar_earn">Ganar</string>
-    <string name="bottom_nav_earn">Ganar</string>
     <string name="legal_entity_copyright">© %1$d Blockchain.com. Todos los derechos reservados.</string>
     <string name="common_stake">Asignar</string>
     <string name="tx_title_stake_with_ticker">Asignar %s</string>
@@ -2872,8 +2807,6 @@
     <string name="put_your_crypto_to_work">Ponga su criptomoneda a trabajar</string>
     <string name="show_pkw_accounts">Mostrar DeFi Wallets</string>
     <string name="actions_sheet_percentage_rate">Tasa: %s%%</string>
-    <string name="ui_tour_earn_title">Obtener Rewards</string>
-    <string name="ui_tour_earn_subtitle">Ponga sus criptomonedas a trabajar invirtiendo de forma pasiva, asegurando sus redes favoritas y mucho más.</string>
     <string name="staking_asset">%1s asignado</string>
     <string name="earn_rate_apy">%1$s%% APY</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s confirmaciones</string>

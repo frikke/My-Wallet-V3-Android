@@ -107,12 +107,6 @@
     <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
-    <string name="toolbar_cmd_home">Home</string>
-    <string name="toolbar_cmd_activity">Activity</string>
-
-    <string name="toolbar_cmd_swap">Swap</string>
-    <string name="toolbar_cmd_transfer">Transfer</string>
-
     <string name="polite_no">No thanks</string>
 
     <string name="done">Done</string>
@@ -338,8 +332,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
-    <string name="brokerage_wallet_name" translatable="false">Accounts</string>
-    <string name="brokerage_wallet_name_superapp" translatable="false">Account</string>
+    <string name="brokerage_wallet_name" translatable="false">Account</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -674,9 +667,6 @@
     <string name="tx_title_stake_earned">%s Earned</string>
     <string name="tx_title_stake_withdrawn">%s Unstaked</string>
     <string name="tx_title_staked">Staked %s</string>
-
-    <!-- TRANSACTION DETAILS -->
-    <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
 
     <!-- SECURITY CENTRE -->
     <string name="security_centre_email_check">Check email</string>
@@ -1290,7 +1280,6 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="tour_step_three_btn">Next</string>
 
-    <string name="dashboard_total_balance">Total Balance</string>
     <string name="asset_card_rate_period">24hrs</string>
     <string name="upgrading_wallet">Upgrading Wallet</string>
 
@@ -1522,12 +1511,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="billing_address_state">State</string>
     <string name="currency_not_supported_title">Your Currency is Not Supported</string>
     <string name="currency_not_supported_1">Currently we don’t support buying crypto with %1s</string>
-    <string name="activity_no_activity_title">You Have No Activity</string>
-    <string name="activity_no_activity_text">All your transactions will show up here.</string>
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
-    <string name="activity_loading_error">Failed to load activity, please try again later</string>
-    <string name="activity_details_loading_error">There was an issue loading the details of this transaction. Please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
     <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
     <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>
@@ -1547,33 +1532,19 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_to">To</string>
     <string name="activity_details_from">From</string>
     <string name="empty" translatable="false" />
-    <string name="activity_details_action">View on Blockchain Explorer</string>
     <string name="activity_details_cancel_action">Cancel Buy</string>
-    <string name="activity_detail_description_action">Add a description</string>
-    <string name="activity_detail_description_label">Description</string>
     <string name="activity_details_label_pending">Pending</string>
     <string name="activity_details_label_manual_review">Manual Review</string>
     <string name="activity_details_label_processing">Processing</string>
     <string name="activity_details_label_complete">Completed</string>
     <string name="activity_details_label_failed">Failed</string>
-    <string name="activity_details_title_transferred">Transfer</string>
-    <string name="activity_details_title_received_1">Received</string>
-    <string name="activity_details_title_sent_1">Sent</string>
-    <string name="activity_details_title_bought">Bought</string>
     <string name="activity_details_title_purchase">Purchase</string>
-    <string name="activity_details_title_sold">Sold</string>
     <string name="activity_details_title_sale">Sale</string>
-    <string name="activity_details_title_swapped">Swapped</string>
-    <string name="activity_details_title_deposit">Transfer</string>
-    <string name="activity_details_title_rewards_earned">Rewards Earned</string>
-    <string name="activity_details_title_recurring_buy">Recurring Buy</string>
-    <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
     <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s confirmations</string>
-    <string name="activity_details_title_fee">Gas Fee</string>
     <string name="activity_details_transaction_fee">Gas for</string>
     <string name="activity_details_exchange_rate">Exchange Rate</string>
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
@@ -1586,8 +1557,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_swap_for">For</string>
     <string name="activity_details_view_bank_transfer_details">View Bank Transfer Details</string>
     <string name="activity_details_buy_again">Buy Again</string>
-    <string name="activity_details_description_updated">Description updated</string>
-    <string name="activity_details_description_not_updated">Description failed to update</string>
     <string name="activity_details_transaction_fee_send">Sending %1$s</string>
     <string name="activity_details_transaction_fee_unknown">Unknown</string>
     <string name="activity_details_payment_load_fail">Couldn’t load payment details</string>
@@ -2481,12 +2450,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
-    <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
-    <string name="recurring_buy_internal_server_error">There has been an error with your purchase. We will retry shortly.</string>
-    <string name="recurring_buy_final_attempt_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
-    <string name="recurring_buy_beneficiary_error">Your selected payment method is not active. Please use another.</string>
     <string name="recurring_buy_limits_exceed_error">Your account has exceeded its trading limits. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
-    <string name="recurring_buy_generic_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="fee_calculated_at_checkout">Calculated at checkout</string>
     <string name="recurring_buy_on_boarding_header">Set an easy, automatic Recurring Buy for every day, week or month. Tap into the power of Dollar Cost Averaging.</string>
     <string name="recurring_buy_set_up_title">Set Up a Recurring Buy</string>
@@ -2509,14 +2473,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="loading_prices">Loading Prices</string>
     <string name="syncing_account">Syncing Account</string>
 
-    <!-- Portfolio Screen -->
-    <string name="empty_portfolio_title">Welcome to Blockchain.com!</string>
-    <string name="empty_portfolio_description">All your crypto balances will show up here once you buy or receive.</string>
-
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>
-    <string name="prices_error_title">Can’t load Assets Prices</string>
-    <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
     <string name="prices_filter_all">All</string>
     <string name="prices_filter_favorites">Favorites</string>
     <string name="prices_filter_tradable">Tradable</string>
@@ -2558,10 +2516,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="reference_id_required">Reference ID (Required)</string>
 
     <!-- Actions bottom sheet -->
-    <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
-    <string name="action_sheet_send_description">Send to Any Wallet</string>
-    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes</string>
-    <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
     <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
     <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>
 
@@ -2861,21 +2815,6 @@ If you want to know more about our verification process visit our <annotation li
         <item quantity="other">%d Connected Apps</item>
     </plurals>
 
-    <!-- Ui Tour -->
-    <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>
-    <string name="ui_tour_prices_title">Discover New Coins</string>
-    <string name="ui_tour_middle_button_title">Instantly Trade</string>
-    <string name="ui_tour_activity_title">See All Transactions</string>
-    <string name="ui_tour_earn_title">Earn Rewards</string>
-    <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
-
-    <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
-    <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
-    <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
-    <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
-    <string name="ui_tour_earn_subtitle">Put your crypto to work by passively investing, securing your favourite networks and more.</string>
-    <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
-
     <!-- Pin screen -->
     <string name="pin_title_create">Choose a Wallet PIN.</string>
     <string name="pin_subtitle">This will be used for Biometric Unlock Backup.</string>
@@ -3109,9 +3048,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="backup_success_title">DeFi Wallet back up successful!</string>
     <string name="backup_success_description">Remember to keep your recovery phrase stored in a safe location and to never share it with anyone.</string>
 
-    <string name="defi_onboarding_enable_wallet_title">Enable to get started</string>
-    <string name="defi_onboarding_enable_wallet_description">Connect to web3 apps, collect NFTs, and swap on DEXs.</string>
-
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
     <string name="defi_onboarding_intro_title">Introducing your non-custodial \n%1$s</string>
@@ -3280,7 +3216,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
 
     <!-- Accessibility -->
-    <string name="accessibility_action_menu">Action Menu</string>
     <string name="accessibility_back">Back</string>
     <string name="accessibility_qr_code_scanner">QR Code Scanner</string>
     <string name="accessibility_user_settings">User Settings</string>
@@ -3296,13 +3231,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="accessibility_filter">Filter</string>
 
     <!-- Bottom Nav Items -->
-    <string name="bottom_nav_home">Home</string>
-    <string name="bottom_nav_prices">Prices</string>
-    <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
-    <string name="bottom_nav_activity">Activity</string>
-    <string name="bottom_nav_earn">Earn</string>
     <string name="defi_wallet_name" translatable="false">DeFi Wallet</string>
-    <string name="error_loading_balance">Some balances failed to load</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
@@ -3353,16 +3282,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="nft_properties">Properties</string>
 
     <!---->
-    <string name="shortcuts">Shortcuts</string>
-    <string name="exchange_your_crypto">Exchange your crypto</string>
-    <string name="transfer_to_another_wallet">Transfer to another wallet</string>
     <string name="transfer_to_other_wallets">Transfer crypto to other wallets</string>
-    <string name="top_up_trading_account">Top up in your Blockchain.com Account.</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
-    <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
     <string name="buy_crypto">Buy Crypto</string>
-    <string name="use_your_card_or_cash">Use Your Cash or Card</string>
-    <string name="fiat_to_cash">Convert Your Crypto to Cash</string>
 
     <!-- Address Verification -->
     <string name="address_verification_my_address_is_not_here">My address is not here</string>

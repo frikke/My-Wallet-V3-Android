@@ -24,7 +24,6 @@ import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
-import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel

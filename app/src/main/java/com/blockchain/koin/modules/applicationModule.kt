@@ -152,7 +152,6 @@ import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
-import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.AssetActionsNavigationImpl
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.DefiBackupNavigationImpl
@@ -384,10 +383,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 nabuUserDataManager = get(),
             )
-        }
-
-        viewModel {
-            ActionsSheetViewModel(userIdentity = get())
         }
 
         viewModel {

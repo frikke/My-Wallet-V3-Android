@@ -37,10 +37,9 @@ fun NavigationBarPreview_TitleBack() {
                 onBackButtonClick = {
                     Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
                 },
-                dropDownIndicator = null,
                 navigationBarButtons = listOf(
                     NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_bottom_nav_buy,
+                        drawable = R.drawable.ic_close_circle,
                         contentDescription = R.string.accessibility_back
                     ) {
                         Toast.makeText(context, "First Icon Clicked", Toast.LENGTH_SHORT).show()
@@ -69,7 +68,6 @@ fun NavigationBarPreview3() {
                 onBackButtonClick = {
                     Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
                 },
-                dropDownIndicator = null,
                 navigationBarButtons = listOf(
                     NavigationBarButton.Text(
                         text = "Cancel"
