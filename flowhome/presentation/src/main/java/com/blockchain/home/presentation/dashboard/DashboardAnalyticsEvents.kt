@@ -76,7 +76,7 @@ sealed class DashboardAnalyticsEvents(
         val currency: String,
         val product: String
     ) : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EARN_MANAGE_CLICKED.eventName,
+        event = AnalyticsNames.SUPERAPP_EARN_ASSET_CLICKED.eventName,
         params = mapOf(
             CURRENCY to currency,
             EARN_PRODUCT to product

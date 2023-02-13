@@ -641,8 +641,3 @@ fun EarnLoadError(onRefresh: () -> Unit) {
         }
     )
 }
-
-fun EarnType.typeName() = when (this) {
-    EarnType.Passive -> "SAVINGS"
-    EarnType.Staking -> "STAKING"
-}
