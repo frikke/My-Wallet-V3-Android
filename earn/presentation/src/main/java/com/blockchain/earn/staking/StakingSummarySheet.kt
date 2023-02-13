@@ -50,7 +50,6 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
-import com.blockchain.earn.dashboard.typeName
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -237,7 +236,7 @@ fun StakingSummarySheet(
                         state.balanceCrypto?.let {
                             EarnAnalytics.WithdrawClicked(
                                 currency = it.currency.networkTicker,
-                                product = EarnType.Staking.typeName()
+                                product = EarnType.Staking
                             )
                         }
                     },
@@ -262,7 +261,7 @@ fun StakingSummarySheet(
                         state.balanceCrypto?.let {
                             EarnAnalytics.AddClicked(
                                 currency = it.currency.networkTicker,
-                                product = EarnType.Staking.typeName()
+                                product = EarnType.Staking
                             )
                         }
                     },

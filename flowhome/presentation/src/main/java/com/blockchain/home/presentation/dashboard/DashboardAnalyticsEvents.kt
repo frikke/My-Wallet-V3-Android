@@ -4,6 +4,7 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.AssetAction
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
+import com.blockchain.home.presentation.earn.EarnType
 import com.blockchain.walletmode.WalletMode
 
 sealed class DashboardAnalyticsEvents(
@@ -74,12 +75,12 @@ sealed class DashboardAnalyticsEvents(
 
     data class EarnAssetClicked(
         val currency: String,
-        val product: String
+        val product: EarnType
     ) : DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_EARN_ASSET_CLICKED.eventName,
         params = mapOf(
             CURRENCY to currency,
-            EARN_PRODUCT to product
+            EARN_PRODUCT to product.name
         )
     )
 
@@ -122,4 +123,9 @@ private fun DashboardState.stateName() = when (this) {
     DashboardState.EMPTY -> "EMPTY_STATE"
     DashboardState.NON_EMPTY -> "NON_EMPTY_STATE"
     DashboardState.UNKNOWN -> null
+}
+
+private fun EarnType.typeName() = when (this) {
+    EarnType.INTEREST -> "SAVINGS"
+    EarnType.STAKING -> "STAKING"
 }
