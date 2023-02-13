@@ -26,11 +26,10 @@ sealed class EarnAnalytics(
     object DiscoverClicked : EarnAnalytics(AnalyticsNames.SUPERAPP_EARN_DISCOVER_CLICKED.eventName)
 
     data class LearnMoreClicked(
-        val currency: String,
         val product: EarnType
     ) : EarnAnalytics(
         event = AnalyticsNames.SUPERAPP_EARN_LEARN_MORE_CLICKED.eventName,
-        params = mapOf(CURRENCY to currency, EARN_PRODUCT to product.typeName())
+        params = mapOf(EARN_PRODUCT to product.typeName())
     )
 
     data class AddClicked(
