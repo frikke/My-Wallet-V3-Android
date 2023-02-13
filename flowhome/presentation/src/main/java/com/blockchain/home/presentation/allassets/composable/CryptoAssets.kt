@@ -36,7 +36,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
-import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Filter
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -256,23 +255,18 @@ fun BalanceWithFiatAndCryptoBalance(
         subtitle = cryptoAsset.asset.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
         valueCrypto = cryptoAsset.balance.map { it.toStringWithSymbol() }.dataOrElse(""),
         valueFiat = cryptoAsset.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        contentStart = {
-            CustomStackedIcon(
-                icon = if (cryptoAsset.icon.size == 2) {
-                    StackedIcon.SmallTag(
-                        main = ImageResource.Remote(
-                            cryptoAsset.icon[0]
-                        ),
-                        tag = ImageResource.Remote(
-                            cryptoAsset.icon[1]
-                        )
-                    )
-                } else {
-                    StackedIcon.SingleIcon(
-                        icon = ImageResource.Remote(cryptoAsset.icon[0])
-                    )
-                },
-                size = 24.dp
+        icon = if (cryptoAsset.icon.size == 2) {
+            StackedIcon.SmallTag(
+                main = ImageResource.Remote(
+                    cryptoAsset.icon[0]
+                ),
+                tag = ImageResource.Remote(
+                    cryptoAsset.icon[1]
+                )
+            )
+        } else {
+            StackedIcon.SingleIcon(
+                icon = ImageResource.Remote(cryptoAsset.icon[0])
             )
         },
         onClick = { onAssetClick(cryptoAsset.asset) }
@@ -290,23 +284,18 @@ fun BalanceWithPriceChange(
             it.toStringWithSymbol()
         },
         valueChange = cryptoAsset.change,
-        contentStart = {
-            CustomStackedIcon(
-                icon = if (cryptoAsset.icon.size == 2) {
-                    StackedIcon.SmallTag(
-                        main = ImageResource.Remote(
-                            cryptoAsset.icon[0]
-                        ),
-                        tag = ImageResource.Remote(
-                            cryptoAsset.icon[1]
-                        )
-                    )
-                } else {
-                    StackedIcon.SingleIcon(
-                        icon = ImageResource.Remote(cryptoAsset.icon[0])
-                    )
-                },
-                size = 24.dp
+        icon = if (cryptoAsset.icon.size == 2) {
+            StackedIcon.SmallTag(
+                main = ImageResource.Remote(
+                    cryptoAsset.icon[0]
+                ),
+                tag = ImageResource.Remote(
+                    cryptoAsset.icon[1]
+                )
+            )
+        } else {
+            StackedIcon.SingleIcon(
+                icon = ImageResource.Remote(cryptoAsset.icon[0])
             )
         },
         onClick = { onAssetClick(cryptoAsset.asset) }

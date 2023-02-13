@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -165,15 +164,7 @@ internal fun LazyListScope.homeAssets(
             value = it.balance.map { money ->
                 money.toStringWithSymbol()
             },
-            contentStart = {
-                Image(
-                    imageResource = ImageResource.Remote(it.icon[0]),
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(dimensionResource(R.dimen.standard_spacing)),
-                    defaultShape = CircleShape
-                )
-            },
+            imageResource = ImageResource.Remote(it.icon[0]),
             onClick = {
                 openFiatActionDetail(it.account.currency.networkTicker)
             }

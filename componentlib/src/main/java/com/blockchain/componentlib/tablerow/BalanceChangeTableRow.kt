@@ -26,9 +26,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -41,6 +44,60 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun BalanceChangeTableRow(
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    imageResource: ImageResource = ImageResource.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        icon = if (imageResource is ImageResource.None) {
+            StackedIcon.None
+        } else {
+            StackedIcon.SingleIcon(imageResource)
+        },
+        defaultIconSize = defaultIconSize,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun BalanceChangeTableRow(
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        contentStart = {
+            CustomStackedIcon(
+                icon = icon,
+                size = defaultIconSize
+            )
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun BalanceChangeTableRow(
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
