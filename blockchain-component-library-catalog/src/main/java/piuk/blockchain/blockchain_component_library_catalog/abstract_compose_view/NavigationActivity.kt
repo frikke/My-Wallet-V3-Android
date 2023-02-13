@@ -19,7 +19,7 @@ class NavigationActivity : AppCompatActivity() {
             title = "Activity"
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_home,
+                    drawable = R.drawable.ic_bottom_nav_activity,
                     contentDescription = R.string.accessibility_back
                 ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
@@ -56,7 +56,7 @@ class NavigationActivity : AppCompatActivity() {
             }
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_home,
+                    drawable = R.drawable.ic_bottom_nav_prices,
                     contentDescription = R.string.accessibility_back
                 ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()

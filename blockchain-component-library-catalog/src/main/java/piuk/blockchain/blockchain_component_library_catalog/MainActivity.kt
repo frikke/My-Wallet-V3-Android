@@ -9,7 +9,6 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AsyncMediaActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardAlertActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ChartsActivity
@@ -87,9 +86,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.dividers).setOnClickListener {
             startActivity(Intent(this@MainActivity, DividerActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.bottom_navigation).setOnClickListener {
-            startActivity(Intent(this@MainActivity, BottomNavigationActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.top_navigation).setOnClickListener {
             startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
