@@ -1780,7 +1780,6 @@
     <string name="login_google_email_not_found">Courriel introuvable</string>
     <string name="login_google_sign_in_failed">Échec de la connexion Google</string>
     <string name="verify_device_title">Vérifiez l\'appareil</string>
-    <string name="verify_device_desc">Nous avons envoyé un courriel de vérification à %s. Veuillez cliquer sur le lien dans le courriel pour continuer.</string>
     <string name="verify_device_resend_blocked">Veuillez attendre 30 secondes avant de demander un nouveau courriel</string>
     <string name="verify_device_email_resent">Nouveau courriel envoyé</string>
     <string name="open_email_cta">Ouvrir l\'application de messagerie</string>

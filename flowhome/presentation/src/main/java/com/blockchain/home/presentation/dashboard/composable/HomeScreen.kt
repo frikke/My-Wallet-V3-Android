@@ -82,6 +82,7 @@ fun HomeScreen(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
+    openSwapDexOption: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit
@@ -229,6 +230,7 @@ fun HomeScreen(
         }
 
         quickActionsState.actions.let {
+            val wMode = walletMode ?: return@let
             paddedItem(
                 paddingValues = PaddingValues(horizontal = 16.dp)
             ) {
@@ -236,12 +238,12 @@ fun HomeScreen(
                     quickActionItems = it,
                     assetActionsNavigation = assetActionsNavigation,
                     quickActionsViewModel = quickActionsViewModel,
+                    openDexSwapOptions = openSwapDexOption,
                     dashboardState = dashboardState(
                         assetsViewState,
-                        when (walletMode) {
+                        when (wMode) {
                             WalletMode.CUSTODIAL -> custodialActivityState
                             WalletMode.NON_CUSTODIAL -> pkwActivityState
-                            else -> null
                         }
                     ),
                     openMoreQuickActions = openMoreQuickActions,

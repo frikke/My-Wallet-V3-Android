@@ -40,8 +40,8 @@ include ':app',
         ':flowhome:presentation', ':flowhome:domain', ':flowhome:data',
         ':flowprices:presentation',
         ':chrome:presentation', ':chrome:common',
-        ':earn:data',':earn:domain',':earn:presentation',
+        ':earn:data', ':earn:domain', ':earn:presentation',
         ':fraud:data', ':fraud:domain', ':fraud:sardine',
         ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
         ':membership:data', ':membership:domain', ':membership:presentation',
-        ':fiatActions'
+        ':fiatActions', ':dex:presentation'

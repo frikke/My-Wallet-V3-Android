@@ -15,6 +15,7 @@ import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboardin
 import com.blockchain.home.presentation.onboarding.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.referral.composable.ReferralCode
+import com.blockchain.home.presentation.swapdexoption.SwapDexOptionScreen
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
@@ -84,6 +85,14 @@ fun NavGraphBuilder.homeGraph(
     composable(navigationEvent = HomeDestination.Referral) {
         ChromeSingleScreen {
             ReferralCode(
+                onBackPressed = onBackPressed
+            )
+        }
+    }
+
+    bottomSheet(navigationEvent = HomeDestination.SwapDexOptions) {
+        ChromeBottomSheet {
+            SwapDexOptionScreen(
                 onBackPressed = onBackPressed
             )
         }

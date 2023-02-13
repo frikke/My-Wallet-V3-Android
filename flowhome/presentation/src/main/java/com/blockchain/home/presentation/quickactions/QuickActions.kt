@@ -9,14 +9,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
@@ -40,6 +45,8 @@ import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.eventName
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
 val maxQuickActionsOnScreen: Int
@@ -61,26 +68,45 @@ fun QuickActions(
     assetActionsNavigation: AssetActionsNavigation,
     quickActionsViewModel: QuickActionsViewModel,
     dashboardState: DashboardState,
+    openDexSwapOptions: () -> Unit,
     openMoreQuickActions: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                scope.launch {
+                    quickActionsViewModel.navigationEventFlow.collectLatest {
+                        when (it) {
+                            QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
+                            QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
+                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
+                            QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
+                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
+                            QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
+                                QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
+                            )
+                            QuickActionsNavEvent.FiatWithdraw -> quickActionsViewModel.onIntent(
+                                QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
+                            )
+                            QuickActionsNavEvent.More -> openMoreQuickActions()
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     QuickActionsScreen(
         analytics = analytics,
         quickActionItems = quickActionItems,
         dashboardState = dashboardState,
-        buyOnClick = { action ->
-            assetActionsNavigation.navigate(action)
-        },
-        fiatDepositOnClick = {
-            quickActionsViewModel.onIntent(
-                QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
-            )
-        },
-        fiatWithdrawOnClick = {
-            quickActionsViewModel.onIntent(
-                QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
-            )
-        },
-        moreOnClick = openMoreQuickActions,
+        onActionClicked = { quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it)) }
     )
 }
 
@@ -89,10 +115,7 @@ private fun QuickActionsScreen(
     analytics: Analytics = get(),
     quickActionItems: List<QuickActionItem>,
     dashboardState: DashboardState,
-    buyOnClick: (AssetAction) -> Unit,
-    fiatDepositOnClick: () -> Unit,
-    fiatWithdrawOnClick: () -> Unit,
-    moreOnClick: () -> Unit
+    onActionClicked: (QuickActionItem) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -108,27 +131,8 @@ private fun QuickActionsScreen(
                     .then(
                         if (quickAction.enabled) {
                             Modifier.clickableWithIndication {
-                                when (quickAction.action) {
-                                    is QuickAction.TxAction -> when (val action = quickAction.action.assetAction) {
-                                        AssetAction.Send,
-                                        AssetAction.Swap,
-                                        AssetAction.Sell,
-                                        AssetAction.Receive,
-                                        AssetAction.Buy -> buyOnClick(action)
-                                        AssetAction.FiatDeposit -> fiatDepositOnClick()
-                                        AssetAction.FiatWithdraw -> fiatWithdrawOnClick()
-                                        AssetAction.ViewActivity,
-                                        AssetAction.ViewStatement,
-                                        AssetAction.InterestDeposit,
-                                        AssetAction.InterestWithdraw,
-                                        AssetAction.Sign,
-                                        AssetAction.StakingDeposit,
-                                        AssetAction.ActiveRewardsDeposit -> {
-                                        }
-                                    }
-                                    is QuickAction.More -> moreOnClick()
-                                }
 
+                                onActionClicked(quickAction)
                                 (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
                                     assetAction.eventName()?.let {
                                         analytics.logEvent(
@@ -221,6 +225,6 @@ fun PreviewQuickActionsScreen() {
             )
         ),
         dashboardState = DashboardState.NON_EMPTY,
-        buyOnClick = {}, fiatDepositOnClick = {}, fiatWithdrawOnClick = {}, moreOnClick = {}
+        onActionClicked = {}
     )
 }

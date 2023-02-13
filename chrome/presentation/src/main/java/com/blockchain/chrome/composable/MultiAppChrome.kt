@@ -123,6 +123,7 @@ fun MultiAppChrome(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
+    openSwapDexOption: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
@@ -177,6 +178,7 @@ fun MultiAppChrome(
             openActivity = openActivity,
             openActivityDetail = openActivityDetail,
             openReferral = openReferral,
+            openSwapDexOption = openSwapDexOption,
             openFiatActionDetail = openFiatActionDetail,
             openMoreQuickActions = openMoreQuickActions,
             assetActionsNavigation = assetActionsNavigation,
@@ -220,6 +222,7 @@ fun MultiAppChromeScreen(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
+    openSwapDexOption: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
@@ -259,13 +262,6 @@ fun MultiAppChromeScreen(
         )
         animateSnap = false
         toolbarState.isAutoScrolling = false
-    }
-
-    fun updateOffsetScoped(targetValue: Float, delay: Long = 0L) {
-        coroutineScopeSnaps.launch {
-            delay(delay)
-            updateOffset(targetValue)
-        }
     }
 
     fun updateOffsetNoAnimation(targetValue: Float) {
@@ -494,19 +490,6 @@ fun MultiAppChromeScreen(
     // //////////////////////////////////////////////
     // show and hide balance on first launch
     var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
-    fun showAndHideBalanceOnFirstLaunch() {
-        coroutineScopeSnaps.launch {
-            if (balance is DataResource.Data && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
-                hideBalanceAfterInitialValue = true
-
-                updateOffset(0F)
-
-                delay(2000L)
-
-                updateOffset(toolbarState.halfCollapsedOffset)
-            }
-        }
-    }
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
@@ -720,6 +703,7 @@ fun MultiAppChromeScreen(
                     openActivity = openActivity,
                     openActivityDetail = openActivityDetail,
                     openReferral = openReferral,
+                    openSwapDexOption = openSwapDexOption,
                     openMoreQuickActions = openMoreQuickActions,
                     openFiatActionDetail = openFiatActionDetail,
                     assetActionsNavigation = assetActionsNavigation,

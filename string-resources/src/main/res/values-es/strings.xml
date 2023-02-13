@@ -1170,7 +1170,7 @@
     <string name="withdrawal_amount">%1$s retirada</string>
     <string name="withdrawing_amount">Retirando %1$s</string>
     <string name="withdrawing_amount_message">Estamos completando su retirada en este momento.</string>
-    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1-3 días hábiles.</string>
+    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1–3 días hábiles.</string>
     <string name="send_enter_amount_from">De: %1$s</string>
     <string name="send_enter_amount_to">Para: %1$s</string>
     <string name="send_enter_amount_title">Enviar %1$s</string>
@@ -1779,7 +1779,6 @@
     <string name="login_google_email_not_found">No hemos encontrado el correo electrónico</string>
     <string name="login_google_sign_in_failed">Error al iniciar sesión con Google</string>
     <string name="verify_device_title">Verificar dispositivo</string>
-    <string name="verify_device_desc">Enviamos un correo electrónico de verificación a: %s . Haga clic en el enlace del correo electrónico para continuar.</string>
     <string name="verify_device_resend_blocked">Espera 30 segundos antes de solicitar otro correo electrónico</string>
     <string name="verify_device_email_resent">Nuevo correo electrónico enviado</string>
     <string name="open_email_cta">Abrir aplicación de correo electrónico</string>

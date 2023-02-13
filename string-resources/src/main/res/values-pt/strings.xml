@@ -1779,7 +1779,6 @@
     <string name="login_google_email_not_found">E-mail não encontrado</string>
     <string name="login_google_sign_in_failed">Falha do início de sessão no Google</string>
     <string name="verify_device_title">Verificar o dispositivo</string>
-    <string name="verify_device_desc">Enviámos um e-mail de verificação para %s.  Clique na ligação do e-mail para continuar.</string>
     <string name="verify_device_resend_blocked">Por favor aguarde 30 segundos antes de solicitar um novo e-mail</string>
     <string name="verify_device_email_resent">Novo E-mail Enviado</string>
     <string name="open_email_cta">Abrir Aplicação de E-mail</string>

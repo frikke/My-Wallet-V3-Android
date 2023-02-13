@@ -1781,7 +1781,6 @@
     <string name="login_google_email_not_found">Электронная почта не найдена</string>
     <string name="login_google_sign_in_failed">Ошибка входа в Google</string>
     <string name="verify_device_title">Проверить устройство</string>
-    <string name="verify_device_desc">Если у вас есть зарегистрированный с этим адресом электронной почты аккаунт, вы получите электронное письмо со ссылкой для подтверждения вашего устройства.</string>
     <string name="verify_device_resend_blocked">Перед запросом нового письма, пожалуйста, подождите 30 секунд</string>
     <string name="verify_device_email_resent">Отправлено новое электронное письмо</string>
     <string name="open_email_cta">Открыть приложение электронной почты</string>

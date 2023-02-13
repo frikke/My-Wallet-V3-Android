@@ -16,17 +16,20 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
@@ -35,6 +38,7 @@ class QuickActionsViewModel(
     private val walletModeService: WalletModeService,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val coincore: Coincore,
+    private val dexFeatureFlag: FeatureFlag,
     private val quickActionsService: QuickActionsService,
     private val fiatActions: FiatActionsUseCase
 ) : MviViewModel<
@@ -90,7 +94,13 @@ class QuickActionsViewModel(
                     it.copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
 
-                walletModeService.walletMode.flatMapLatest { wMode ->
+                walletModeService.walletMode.onEach { wMode ->
+                    updateState {
+                        it.copy(
+                            walletMode = wMode
+                        )
+                    }
+                }.flatMapLatest { wMode ->
                     quickActionsService.availableQuickActionsForWalletMode(wMode)
                         .map { actions ->
                             actions to wMode
@@ -124,6 +134,36 @@ class QuickActionsViewModel(
                     }
                 }
             }
+            is QuickActionsIntent.ActionClicked -> {
+                navigate(intent.action.navigationEvent())
+            }
+        }
+    }
+
+    private suspend fun QuickActionItem.navigationEvent(): QuickActionsNavEvent {
+        check(modelState.walletMode != null)
+        val assetAction = (action as? QuickAction.TxAction)?.assetAction ?: return QuickActionsNavEvent.More
+        return when (assetAction) {
+            AssetAction.Send -> QuickActionsNavEvent.Send
+            AssetAction.Swap -> {
+                if (dexFeatureFlag.coEnabled() && modelState.walletMode == WalletMode.NON_CUSTODIAL) {
+                    QuickActionsNavEvent.DexOrSwapOption
+                } else {
+                    QuickActionsNavEvent.Swap
+                }
+            }
+            AssetAction.Sell -> QuickActionsNavEvent.Sell
+            AssetAction.Buy -> QuickActionsNavEvent.Buy
+            AssetAction.FiatWithdraw -> QuickActionsNavEvent.FiatWithdraw
+            AssetAction.Receive -> QuickActionsNavEvent.Receive
+            AssetAction.FiatDeposit -> QuickActionsNavEvent.FiatDeposit
+            AssetAction.InterestDeposit,
+            AssetAction.InterestWithdraw,
+            AssetAction.ViewActivity,
+            AssetAction.Sign,
+            AssetAction.ViewStatement,
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> throw IllegalStateException("Action not supported")
         }
     }
 
@@ -179,20 +219,10 @@ class QuickActionsViewModel(
                                     shouldLaunchBankLinkTransfer = false,
                                     shouldSkipQuestionnaire = false
                                 )
-                            } else {
-                                //                                updateState { it.copy(actionError = FiatActionError.WithdrawalInProgress) }
-                                //                                startDismissErrorTimeout()
                             }
                         }
                     }
                     is DataResource.Error -> {
-                        //                        updateState {
-                        //                            it.copy(
-                        //                                withdrawChecksLoading = false,
-                        //                                actionError = FiatActionError.Unknown
-                        //                            )
-                        //                        }
-                        //                        startDismissErrorTimeout()
                     }
                 }
             }
@@ -309,6 +339,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
 data class QuickActionsModelState(
     val quickActions: List<StateAwareAction> = emptyList(),
     val maxQuickActionsOnScreen: Int? = null,
+    val walletMode: WalletMode? = null,
     val lastFreshDataTime: Long = 0,
 ) : ModelState
 
@@ -334,6 +365,8 @@ sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
         }
     }
 
+    data class ActionClicked(val action: QuickActionItem) : QuickActionsIntent
+
     data class FiatAction(
         val action: AssetAction,
     ) : QuickActionsIntent
@@ -350,5 +383,5 @@ data class QuickActionsViewState(
 ) : ViewState
 
 enum class QuickActionsNavEvent : NavigationEvent {
-    Buy, Sell, Receive, Send, Swap
+    Buy, Sell, Receive, Send, Swap, DexOrSwapOption, More, FiatDeposit, FiatWithdraw
 }

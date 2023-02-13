@@ -3491,6 +3491,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="cash_out_bank">Cash out to your bank</string>
     <string name="buy_different_crypto">Buy a different crypto</string>
 
+    <string name="select_an_option">Select an option</string>
+    <string name="choose_how_to_swap">Choose how you\'d like to swap</string>
+    <string name="bcdc_swap">Blockchain.com Swap</string>
+    <string name="cross_chain_limited_tokens">Cross-chain, limited token pairs</string>
+    <string name="dex_swap">DEX Swap</string>
+    <string name="single_chain_eth_tokens">Single-chain, thousands of tokens on Ethereum</string>
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
 

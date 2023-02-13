@@ -10,6 +10,7 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
@@ -84,6 +85,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_bind",
                 "Enable BIND For LatAm Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(dexFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_dex",
+                "Dex"
             )
         )
     }.bind(FeatureFlag::class)

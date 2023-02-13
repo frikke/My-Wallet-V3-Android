@@ -51,6 +51,7 @@ fun MultiAppBottomNavigationHost(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
+    openSwapDexOption: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
@@ -116,6 +117,7 @@ fun MultiAppBottomNavigationHost(
                         openActivity = openActivity,
                         openActivityDetail = openActivityDetail,
                         openReferral = openReferral,
+                        openSwapDexOption = openSwapDexOption,
                         openFiatActionDetail = openFiatActionDetail,
                         openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery

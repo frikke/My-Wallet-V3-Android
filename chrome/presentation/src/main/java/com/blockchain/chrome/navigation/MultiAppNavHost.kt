@@ -173,6 +173,9 @@ private fun NavGraphBuilder.chrome(
             openReferral = {
                 navController.navigate(HomeDestination.Referral)
             },
+            openSwapDexOption = {
+                navController.navigate(HomeDestination.SwapDexOptions)
+            },
             openFiatActionDetail = { fiatTicker: String ->
                 navController.navigate(
                     HomeDestination.FiatActionDetail,
