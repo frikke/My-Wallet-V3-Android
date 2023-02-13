@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.introduction.composable
+package com.blockchain.home.presentation.onboarding.introduction.composable
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -32,7 +32,7 @@ import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.introduction.IntroScreensViewModel
+import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.pager.ExperimentalPagerApi

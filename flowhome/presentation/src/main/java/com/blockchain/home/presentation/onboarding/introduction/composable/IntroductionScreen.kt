@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.introduction.composable
+package com.blockchain.home.presentation.onboarding.introduction.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

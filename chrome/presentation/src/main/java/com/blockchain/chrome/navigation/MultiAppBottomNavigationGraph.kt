@@ -53,7 +53,7 @@ fun MultiAppBottomNavigationHost(
     openReferral: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit,
+    startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,

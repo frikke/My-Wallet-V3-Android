@@ -181,9 +181,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.blockchain.presentation.onboarding.DeFiOnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name="com.blockchain.presentation.backup.BackupPhraseActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity

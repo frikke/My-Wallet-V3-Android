@@ -182,15 +182,15 @@ class MultiAppActivity :
             systemUiController.setStatusBarColor(Color.Transparent)
 
             MultiAppNavHost(
-                startPhraseRecovery = { onboardingRequired -> handlePhraseRecovery(onboardingRequired) },
+                startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
-                showAppRating = { showAppRating() },
+                showAppRating = ::showAppRating,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
-                openExternalUrl = { url -> openExternalUrl(url) }
+                openExternalUrl = ::openExternalUrl
             )
         }
         subscribeForSecurityChannelLogin()
@@ -227,10 +227,9 @@ class MultiAppActivity :
         }
     }
 
-    private fun handlePhraseRecovery(onboardingRequired: Boolean) {
-        defiBackupNavigation.startBackup(
-            launcher = activityResultDefiOnboarding,
-            onboardingRequired = onboardingRequired
+    private fun handlePhraseRecovery() {
+        defiBackupNavigation.startPhraseRecovery(
+            launcher = activityResultDefiOnboarding
         )
     }
 

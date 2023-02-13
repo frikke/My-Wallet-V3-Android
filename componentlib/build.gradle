@@ -61,7 +61,9 @@ dependencies {
     implementation Libraries.accompanistSwipeRefresh
     implementation Libraries.accompanistPager
     implementation Libraries.accompanistPagerIndicators
-    implementation Libraries.composeLandScapist
+    implementation (Libraries.composeLandScapist) {
+        exclude group: 'androidx.compose.foundation'
+    }
 
     implementation Libraries.kotlinImmutableCollections
 

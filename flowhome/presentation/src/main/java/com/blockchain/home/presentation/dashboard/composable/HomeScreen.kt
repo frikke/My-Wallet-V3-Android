@@ -84,7 +84,7 @@ fun HomeScreen(
     openReferral: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
-    startPhraseRecovery: (onboardingRequired: Boolean) -> Unit
+    startPhraseRecovery: () -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -256,7 +256,7 @@ fun HomeScreen(
                 announcements = announcementsState.announcements,
                 onClick = { announcement ->
                     when (announcement.type) {
-                        AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery(false)
+                        AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
                     }
                 }
             )
