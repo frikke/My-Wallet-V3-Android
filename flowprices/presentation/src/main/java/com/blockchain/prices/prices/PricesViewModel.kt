@@ -1,14 +1,10 @@
 package com.blockchain.prices.prices
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.tablerow.ValueChange
-import com.blockchain.core.buy.domain.SimpleBuyService
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
@@ -22,27 +18,15 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.store.mapData
-import com.blockchain.store.mapListData
 import com.blockchain.utils.CurrentTimeProvider
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency.BTC
-import info.blockchain.balance.CryptoCurrency.ETHER
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
-import kotlin.math.absoluteValue
 
 class PricesViewModel(
     private val currencyPrefs: CurrencyPrefs,
@@ -137,7 +121,7 @@ class PricesViewModel(
         when (intent) {
             is PricesIntents.LoadData -> {
                 loadFilters()
-                loadData(refresh = false)
+                loadData()
             }
 
             is PricesIntents.FilterSearch -> {
@@ -157,12 +141,12 @@ class PricesViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
-                loadData(refresh = true)
+                loadData()
             }
         }
     }
 
-    private fun loadData(refresh: Boolean) {
+    private fun loadData() {
         pricesJob?.cancel()
         pricesJob = viewModelScope.launch {
             pricesService.allAssets()

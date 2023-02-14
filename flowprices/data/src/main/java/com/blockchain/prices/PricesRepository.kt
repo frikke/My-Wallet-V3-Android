@@ -6,13 +6,13 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.extensions.minus
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.store.filterListData
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
 import info.blockchain.balance.AssetInfo
@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
-import kotlin.math.absoluteValue
 
 class PricesRepository(
     private val coincore: Coincore,
@@ -32,12 +31,16 @@ class PricesRepository(
     private val simpleBuyService: SimpleBuyService,
     private val watchlistService: WatchlistService
 ) : PricesService {
-    override fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
-            .mapListData { it.source.networkTicker }
+    override fun allAssets(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<AssetPriceInfo>>> {
+        val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies(
+            freshnessStrategy = freshnessStrategy
+        ).mapListData { it.source.networkTicker }
 
-        val watchlistFlow = watchlistService.getWatchlist()
-            .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
+        val watchlistFlow = watchlistService.getWatchlist(
+            freshnessStrategy = freshnessStrategy
+        ).mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
 
         val pricesFlow = loadAssetsAndPrices()
 
@@ -56,12 +59,6 @@ class PricesRepository(
                     )
                 }
         }.distinctUntilChanged()
-    }
-
-    override fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        return allAssets().filterListData {
-            it.isTradable
-        }
     }
 
     private fun loadAssetsAndPrices(): Flow<DataResource<Map<AssetInfo, DataResource<Prices24HrWithDelta>>>> {
@@ -124,18 +121,6 @@ class PricesRepository(
             }.subscribeOn(Schedulers.io()).onErrorReturn {
                 DataResource.Error(Exception())
             }
-    }
-
-    override fun topMovers(): Flow<DataResource<List<AssetPriceInfo>>> {
-        return tradableAssets().mapData { list ->
-            list.filter { it.price is DataResource.Data }
-                .sortedWith(
-                    compareByDescending { asset ->
-                        asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
-                    }
-                )
-                .take(4)
-        }
     }
 
     companion object {

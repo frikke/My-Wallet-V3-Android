@@ -66,7 +66,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
-import com.blockchain.prices.prices.composable.TopMovers
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest

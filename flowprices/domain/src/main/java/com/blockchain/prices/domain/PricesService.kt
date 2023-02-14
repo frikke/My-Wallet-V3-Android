@@ -1,10 +1,12 @@
 package com.blockchain.prices.domain
 
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import kotlinx.coroutines.flow.Flow
 
 interface PricesService {
-    fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>>
-    fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>>
-    fun topMovers(): Flow<DataResource<List<AssetPriceInfo>>>
+    fun allAssets(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+    ): Flow<DataResource<List<AssetPriceInfo>>>
 }

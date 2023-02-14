@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
@@ -28,8 +27,6 @@ import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.map
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.presentation.allassets.CustodialAssetState

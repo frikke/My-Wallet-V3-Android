@@ -1,7 +1,6 @@
 package com.blockchain.prices.prices
 
 import androidx.annotation.StringRes
-import androidx.compose.runtime.Stable
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
@@ -23,7 +22,7 @@ data class PriceItemViewState(
     val logo: String,
     val delta: DataResource<ValueChange>,
     val currentPrice: DataResource<String>
-){
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
