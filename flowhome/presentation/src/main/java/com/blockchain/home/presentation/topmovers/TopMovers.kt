@@ -14,9 +14,11 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.composable.TopMoversScreen
+import info.blockchain.balance.AssetInfo
 
 internal fun LazyListScope.topMovers(
     data: DataResource<List<PriceItemViewState>>,
+    assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let {
         paddedItem(
@@ -33,7 +35,8 @@ internal fun LazyListScope.topMovers(
 
         item {
             TopMoversScreen(
-                data = data
+                data = data,
+                assetOnClick = assetOnClick
             )
         }
     }

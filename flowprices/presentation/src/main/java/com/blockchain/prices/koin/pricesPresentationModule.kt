@@ -11,7 +11,7 @@ val pricesPresentationModule = module {
             PricesViewModel(
                 currencyPrefs = get(),
                 userFeaturePermissionService = get(),
-                pricesService = get()
+                pricesService = get(),
             )
         }
     }

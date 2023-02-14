@@ -312,7 +312,10 @@ fun HomeScreen(
 
         // top movers
         topMovers(
-            pricesViewState.topMovers
+            data = pricesViewState.topMovers,
+            assetOnClick = { asset ->
+                assetActionsNavigation.coinview(asset)
+            },
         )
 
         earnViewState.let { earnState ->

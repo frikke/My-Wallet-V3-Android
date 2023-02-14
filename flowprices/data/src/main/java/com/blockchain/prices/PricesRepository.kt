@@ -6,15 +6,15 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
-import com.blockchain.extensions.minus
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
+import com.blockchain.utils.toFlowDataResource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
@@ -23,24 +23,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 
 class PricesRepository(
     private val coincore: Coincore,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val simpleBuyService: SimpleBuyService,
-    private val watchlistService: WatchlistService
+    private val watchlistService: WatchlistService,
+    private val remoteConfigService: RemoteConfigService
 ) : PricesService {
-    override fun allAssets(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<AssetPriceInfo>>> {
-        val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies(
-            freshnessStrategy = freshnessStrategy
-        ).mapListData { it.source.networkTicker }
+    override fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
+        val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+            .mapListData { it.source.networkTicker }
 
-        val watchlistFlow = watchlistService.getWatchlist(
-            freshnessStrategy = freshnessStrategy
-        ).mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
+        val watchlistFlow = watchlistService.getWatchlist()
+            .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
 
         val pricesFlow = loadAssetsAndPrices()
 
@@ -123,7 +121,18 @@ class PricesRepository(
             }
     }
 
+    override fun topMoversCount(): Flow<Int> {
+        return remoteConfigService.getRawJson(TOP_MOVERS_COUNT_KEY)
+            .toFlowDataResource()
+            .map {
+                it.map { it.toIntOrNull() ?: TOP_MOVERS_DEFAULT_COUNT }
+                    .dataOrElse(TOP_MOVERS_DEFAULT_COUNT)
+            }
+    }
+
     companion object {
         private val defaultWatchlist = listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER)
+        private const val TOP_MOVERS_COUNT_KEY = "prices_top_movers_count"
+        private const val TOP_MOVERS_DEFAULT_COUNT = 4
     }
 }

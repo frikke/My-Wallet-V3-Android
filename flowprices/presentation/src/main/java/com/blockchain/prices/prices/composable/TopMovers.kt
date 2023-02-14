@@ -19,11 +19,13 @@ import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
+import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun TopMovers(
-    viewModel: PricesViewModel = getViewModel(scope = payloadScope)
+    viewModel: PricesViewModel = getViewModel(scope = payloadScope),
+    assetOnClick: (AssetInfo) -> Unit
 ) {
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -33,13 +35,15 @@ fun TopMovers(
     }
 
     TopMoversScreen(
-        data = viewState.topMovers
+        data = viewState.topMovers,
+        assetOnClick = assetOnClick
     )
 }
 
 @Composable
 fun TopMoversScreen(
     data: DataResource<List<PriceItemViewState>>,
+    assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let { topMovers ->
         LazyRow(
@@ -53,7 +57,7 @@ fun TopMoversScreen(
                     price = assetPrice.currentPrice,
                     valueChange = assetPrice.delta,
                     imageResource = ImageResource.Remote(assetPrice.logo),
-                    onClick = {}
+                    onClick = { assetOnClick(assetPrice.asset) }
                 )
             }
         }

@@ -41,6 +41,8 @@ class PricesViewModel(
 ) {
 
     private var pricesJob: Job? = null
+    private var topMoversCountJob: Job? = null
+    private var filtersJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -122,6 +124,7 @@ class PricesViewModel(
             is PricesIntents.LoadData -> {
                 loadFilters()
                 loadData()
+                loadTopMoversCount()
             }
 
             is PricesIntents.FilterSearch -> {
@@ -140,7 +143,6 @@ class PricesViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-
                 loadData()
             }
         }
@@ -161,7 +163,8 @@ class PricesViewModel(
     }
 
     private fun loadFilters() {
-        viewModelScope.launch {
+        filtersJob?.cancel()
+        filtersJob = viewModelScope.launch {
             userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts)
                 .onErrorReturn { true }.doOnData { canTrade ->
                     updateState {
@@ -174,6 +177,20 @@ class PricesViewModel(
                         )
                     }
                 }.collect()
+        }
+    }
+
+    private fun loadTopMoversCount() {
+        topMoversCountJob?.cancel()
+        topMoversCountJob = viewModelScope.launch {
+            pricesService.topMoversCount()
+                .collectLatest { count ->
+                    updateState {
+                        it.copy(
+                            topMoversCount = count
+                        )
+                    }
+                }
         }
     }
 }

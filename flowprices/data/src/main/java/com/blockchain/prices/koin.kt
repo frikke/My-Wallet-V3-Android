@@ -12,7 +12,8 @@ val pricesDataModule = module {
                 coincore = get(),
                 exchangeRatesDataManager = get(),
                 simpleBuyService = get(),
-                watchlistService = get()
+                watchlistService = get(),
+                remoteConfigService = get()
             )
         }.bind(PricesService::class)
     }
