@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.topmovers
+package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +16,7 @@ import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.composable.TopMoversScreen
 import info.blockchain.balance.AssetInfo
 
-internal fun LazyListScope.topMovers(
+internal fun LazyListScope.homeTopMovers(
     data: DataResource<List<PriceItemViewState>>,
     assetOnClick: (AssetInfo) -> Unit,
 ) {

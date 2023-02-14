@@ -61,7 +61,6 @@ import com.blockchain.home.presentation.quickactions.maxQuickActionsOnScreen
 import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
-import com.blockchain.home.presentation.topmovers.topMovers
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesViewModel
@@ -311,7 +310,7 @@ fun HomeScreen(
         }
 
         // top movers
-        topMovers(
+        homeTopMovers(
             data = pricesViewState.topMovers,
             assetOnClick = { asset ->
                 assetActionsNavigation.coinview(asset)
