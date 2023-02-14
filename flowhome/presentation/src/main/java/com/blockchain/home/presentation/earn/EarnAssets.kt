@@ -4,9 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -34,46 +32,16 @@ import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import org.koin.androidx.compose.get
-
-@Composable
-internal fun HomeEarnHeader(
-    analytics: Analytics = get(),
-    hasAssets: Boolean,
-    earnRewards: () -> Unit
-) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.common_earn),
-            style = AppTheme.typography.body2,
-            color = Grey700
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        if (hasAssets) {
-            Text(
-                modifier = Modifier.clickableNoEffect {
-                    earnRewards()
-                    analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
-                },
-                text = stringResource(R.string.manage),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.primary,
-            )
-        }
-    }
-}
 
 internal fun LazyListScope.homeEarnAssets(
     earnState: EarnViewState,
@@ -86,10 +54,16 @@ internal fun LazyListScope.homeEarnAssets(
     paddedItem(
         paddingValues = PaddingValues(horizontal = 16.dp)
     ) {
+        val analytics: Analytics = get()
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-        HomeEarnHeader(hasAssets = earnState is EarnViewState.Assets) {
-            assetActionsNavigation.earnRewards()
-        }
+        TableRowHeader(
+            title = stringResource(R.string.common_earn),
+            actionTitle = stringResource(R.string.manage).takeIf { earnState is EarnViewState.Assets },
+            actionOnClick = {
+                assetActionsNavigation.earnRewards()
+                analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
+            }.takeIf { earnState is EarnViewState.Assets }
+        )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
     when (earnState) {

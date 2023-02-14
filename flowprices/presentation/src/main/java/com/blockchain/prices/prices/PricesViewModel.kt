@@ -20,6 +20,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
@@ -38,16 +39,14 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
+import kotlin.math.absoluteValue
 
 class PricesViewModel(
     private val currencyPrefs: CurrencyPrefs,
-    private val coincore: Coincore,
     private val userFeaturePermissionService: UserFeaturePermissionService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val simpleBuyService: SimpleBuyService,
-    private val watchlistService: WatchlistService,
     private val pricesService: PricesService,
 ) : MviViewModel<PricesIntents,
     PricesViewState,
@@ -66,25 +65,21 @@ class PricesViewModel(
             availableFilters = state.filters,
             selectedFilter = state.filterBy,
             data = state.data
-                .filter { assetPriceInfo ->
+                .filter { asset ->
                     state.filterTerm.isEmpty() ||
-                        assetPriceInfo.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
-                        assetPriceInfo.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
+                        asset.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
+                        asset.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
                 }
-                .filter { assetPriceInfo ->
+                .filter { asset ->
                     when (state.filterBy) {
                         PricesFilter.All -> {
                             true
                         }
                         PricesFilter.Tradable -> {
-                            state.tradableCurrencies.map { tradable ->
-                                assetPriceInfo.assetInfo.networkTicker in tradable
-                            }.dataOrElse(false)
+                            asset.isTradable
                         }
                         PricesFilter.Favorites -> {
-                            state.watchlist.map { watchlist ->
-                                assetPriceInfo.assetInfo.networkTicker in watchlist
-                            }.dataOrElse(false)
+                            asset.isInWatchlist
                         }
                     }
                 }
@@ -93,18 +88,14 @@ class PricesViewModel(
                      * sorted by: watchlist - asset index - is tradable - marketcap
                      */
                     list.sortedWith(
-                        compareByDescending<AssetPriceInfo> {
-                            state.watchlist.map { watchlist ->
-                                it.assetInfo.networkTicker in watchlist
-                            }.dataOrElse(false)
-                        }.thenByDescending {
-                            it.assetInfo.index
-                        }.thenByDescending {
-                            state.tradableCurrencies.map { tradable ->
-                                it.assetInfo.networkTicker in tradable
-                            }.dataOrElse(false)
-                        }.thenByDescending {
-                            it.price.map { price -> price.marketCap }.dataOrElse(null)
+                        compareByDescending<AssetPriceInfo> { asset ->
+                            asset.isInWatchlist
+                        }.thenByDescending { asset ->
+                            asset.assetInfo.index
+                        }.thenByDescending { asset ->
+                            asset.isTradable
+                        }.thenByDescending { asset ->
+                            asset.price.map { price -> price.marketCap }.dataOrElse(null)
                         }.thenBy {
                             it.assetInfo.name
                         }
@@ -112,7 +103,19 @@ class PricesViewModel(
                 }
                 .mapList {
                     it.toPriceItemViewModel()
-                }
+                },
+            topMovers = state.data.map { list ->
+                list.filter { it.price is DataResource.Data && it.isTradable }
+                    .sortedWith(
+                        compareByDescending { asset ->
+                            asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+                        }
+                    )
+                    .take(state.topMoversCount)
+                    .map {
+                        it.toPriceItemViewModel()
+                    }
+            }
         )
     }
 
@@ -134,7 +137,7 @@ class PricesViewModel(
         when (intent) {
             is PricesIntents.LoadData -> {
                 loadFilters()
-                loadData()
+                loadData(refresh = false)
             }
 
             is PricesIntents.FilterSearch -> {
@@ -154,37 +157,22 @@ class PricesViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
-                onIntent(PricesIntents.LoadData(forceRefresh = true))
+                loadData(refresh = true)
             }
         }
     }
 
-    private fun loadData() {
+    private fun loadData(refresh: Boolean) {
         pricesJob?.cancel()
         pricesJob = viewModelScope.launch {
-            val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
-                .mapListData { it.source.networkTicker }
-
-            val watchlistFlow = watchlistService.getWatchlist()
-                .mapData { (it ).distinct() }.mapListData { it.networkTicker }
-
-            val pricesFlow = loadAssetsAndPrices()
-
-            combine(
-                tradableCurrenciesFlow,
-                watchlistFlow,
-                pricesFlow
-            ) { tradableCurrencies, watchlist, prices ->
-                Triple(tradableCurrencies, watchlist, prices)
-            }.collectLatest { (tradableCurrencies, watchlist, prices) ->
-                updateState {
-                    modelState.copy(
-                        tradableCurrencies = it.tradableCurrencies.updateDataWith(tradableCurrencies),
-                        watchlist = it.watchlist.updateDataWith(watchlist),
-                        data = it.data.updateDataWith(prices)
-                    )
+            pricesService.allAssets()
+                .collectLatest { prices ->
+                    updateState {
+                        modelState.copy(
+                            data = it.data.updateDataWith(prices)
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -203,68 +191,6 @@ class PricesViewModel(
                     }
                 }.collect()
         }
-    }
-
-    private suspend fun loadAssetsAndPrices(): Flow<DataResource<List<AssetPriceInfo>>> {
-        // todo(othman) have to check why flow is behaving strange - for now keeping rx
-
-        //        return coincore.availableCryptoAssetsFlow().flatMapData {
-        //            val assetPriceInfoList = it.map { assetInfo ->
-        //                exchangeRatesDataManager
-        //                    .getPricesWith24hDelta(
-        //                        assetInfo,
-        //                        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-        //                    )
-        //                    .filterNotLoading()
-        //                    .map { priceDataResource ->
-        //                        AssetPriceInfo(
-        //                            price = priceDataResource,
-        //                            assetInfo = assetInfo
-        //                        )
-        //                    }
-        //
-        //            }
-        //
-        //            combine(assetPriceInfoList) {
-        //                println("---------- combine ${it.size} ${it.count { it.price is DataResource.Loading }}")
-        //
-        //                it.toList()
-        //            }.map {
-        //                //                if (it.any { it.price is DataResource.Loading }) {
-        //                //                    DataResource.Loading
-        //                //                } else {
-        //                DataResource.Data(it)
-        //                //                }
-        //
-        //            }
-        //        }
-        return flowOf(
-            coincore.availableCryptoAssets()
-                .flatMap { assets ->
-                    Single.concat(
-                        assets.map { fetchAssetPrice(it) }
-                    ).toList()
-                }
-                .map {
-                    DataResource.Data(it)
-                }
-                .await()
-        )
-    }
-
-    private fun fetchAssetPrice(assetInfo: AssetInfo): Single<AssetPriceInfo> {
-        return exchangeRatesDataManager.getPricesWith24hDeltaLegacy(assetInfo).firstOrError()
-            .map { prices24HrWithDelta ->
-                AssetPriceInfo(
-                    price = DataResource.Data(prices24HrWithDelta),
-                    assetInfo = assetInfo
-                )
-            }.subscribeOn(Schedulers.io()).onErrorReturn {
-                AssetPriceInfo(
-                    price = DataResource.Error(Exception()),
-                    assetInfo = assetInfo
-                )
-            }
     }
 }
 

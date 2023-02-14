@@ -25,6 +25,7 @@ import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
@@ -39,24 +40,6 @@ import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndC
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-
-@Composable
-fun HomeAssetsHeader(openCryptoAssets: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.ma_home_assets_title),
-            style = AppTheme.typography.body2,
-            color = Grey700
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            modifier = Modifier.clickableNoEffect(openCryptoAssets),
-            text = stringResource(R.string.see_all),
-            style = AppTheme.typography.paragraph2,
-            color = AppTheme.colors.primary,
-        )
-    }
-}
 
 @Composable
 fun FundLocksData(
@@ -107,7 +90,11 @@ internal fun LazyListScope.homeAssets(
         paddingValues = PaddingValues(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
-        HomeAssetsHeader(openCryptoAssets)
+        TableRowHeader(
+            title = stringResource(R.string.ma_home_assets_title),
+            actionTitle = stringResource(R.string.see_all),
+            actionOnClick = openCryptoAssets
+        )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
 

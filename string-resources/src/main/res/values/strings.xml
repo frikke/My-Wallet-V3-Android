@@ -3500,4 +3500,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
 
+    <string name="prices_top_movers">Top Movers</string>
+
 </resources>

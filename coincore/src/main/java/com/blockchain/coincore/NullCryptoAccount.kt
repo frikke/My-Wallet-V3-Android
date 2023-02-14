@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.flowOf
 
-object NullCryptoAddress : CryptoAddress {
+class NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
     override val label: String = ""
     override val address = ""

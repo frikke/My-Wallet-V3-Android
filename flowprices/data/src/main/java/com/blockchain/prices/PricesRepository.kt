@@ -1,7 +1,6 @@
 package com.blockchain.prices
 
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -10,6 +9,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
+import com.blockchain.extensions.minus
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
 import com.blockchain.store.filterListData
@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
+import kotlin.math.absoluteValue
 
 class PricesRepository(
     private val coincore: Coincore,
@@ -100,10 +101,13 @@ class PricesRepository(
             coincore.availableCryptoAssets()
                 .flatMap { assets ->
                     Single.concat(
-                        assets.map { fetchAssetPrice(it) }
-                    ).toMap {
-                        asset
-                    }
+                        assets.map { asset ->
+                            fetchAssetPrice(asset).map { asset to it }
+                        }
+                    ).toMap(
+                        /* keySelector = */ { (asset, _) -> asset },
+                        /* valueSelector = */ { (_, price) -> price }
+                    )
                 }
                 .map {
                     DataResource.Data(it)
@@ -120,6 +124,18 @@ class PricesRepository(
             }.subscribeOn(Schedulers.io()).onErrorReturn {
                 DataResource.Error(Exception())
             }
+    }
+
+    override fun topMovers(): Flow<DataResource<List<AssetPriceInfo>>> {
+        return tradableAssets().mapData { list ->
+            list.filter { it.price is DataResource.Data }
+                .sortedWith(
+                    compareByDescending { asset ->
+                        asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+                    }
+                )
+                .take(4)
+        }
     }
 
     companion object {

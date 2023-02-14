@@ -56,7 +56,7 @@ fun Prices(
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PricesIntents.LoadData())
+        viewModel.onIntent(PricesIntents.LoadData)
         onDispose { }
     }
 
