@@ -5,7 +5,6 @@ import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
-import com.blockchain.api.assetdiscovery.data.DynamicCurrencyList
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
@@ -15,7 +14,6 @@ import com.blockchain.api.coinnetworks.data.CoinTypeDto
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.NetworkType
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
@@ -82,27 +80,14 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun getErc20s(supportedNetworks: List<CoinNetwork>): Single<DynamicAssetList> =
-        Single.zip(
-            api.getEthErc20s().onErrorReturn {
-                DynamicCurrencyList(
-                    emptyList()
-                )
-            },
-            api.getOtherErc20s().onErrorReturn {
-                DynamicCurrencyList(
-                    emptyList()
-                )
-            }.map {
-                it.currencies.filter { currency ->
-                    (currency.coinType as? Erc20Asset)?.parentChain in
-                        supportedNetworks.map { network -> network.networkTicker }
-                }
-            }
-        ) { eth, other ->
-            (eth.currencies + other).toSet()
-        }.map { dto ->
-            dto.mapNotNull { it.toDynamicAsset() }
+    fun getEthErc20s(): Single<DynamicAssetList> =
+        api.getEthErc20s().map { dto ->
+            dto.currencies.mapNotNull { it.toDynamicAsset() }
+        }
+
+    fun getOtherNetworksErc20s(): Single<DynamicAssetList> =
+        api.getOtherErc20s().map { dto ->
+            dto.currencies.mapNotNull { it.toDynamicAsset() }
         }
 
     fun getCustodialAssets(): Single<DynamicAssetList> =

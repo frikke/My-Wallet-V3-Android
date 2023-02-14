@@ -1,12 +1,10 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.outcome.map
 import com.blockchain.store.asSingle
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetInfo
@@ -15,19 +13,22 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 class UniversalDynamicAssetRepository(
-    private val discoveryService: AssetDiscoveryApiService,
     private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository,
-    private val coinNetworksStore: CoinNetworksStore
+    private val coinNetworksStore: CoinNetworksStore,
+    private val otherErc20sStore: OtherNetworksErc20sStore,
+    private val ethErc20sStore: EthErc20sStore,
+    private val l1CoinsStore: L1CoinsStore,
+    private val custodialAssetsStore: CustodialAssetsStore,
 ) : DynamicAssetsService {
     override fun availableCryptoAssets(): Single<List<AssetInfo>> {
         return allNetworks().asSingle().flatMap { networks ->
             nativeAssetsForNetworks(networks)
                 .flatMap { nativeAssets ->
-                    discoveryService.getErc20s(networks).map { erc20s ->
+                    allErc20sForNetworks(networks).map { erc20s ->
                         nativeAssets + erc20s
                     }
                 }.flatMap { nativeAndErc20s ->
-                    discoveryService.getCustodialAssets().map { custodialAssets ->
+                    custodialAssetsStore.stream(freshnessStrategy).asSingle().map { custodialAssets ->
                         nativeAndErc20s.plusOrMerge(custodialAssets)
                     }
                 }.map { cryptoAssets ->
@@ -41,8 +42,26 @@ class UniversalDynamicAssetRepository(
         }
     }
 
+    private val freshnessStrategy = FreshnessStrategy.Cached(refreshStrategy = RefreshStrategy.RefreshIfStale)
+
+    private fun allErc20sForNetworks(supportedNetworks: List<CoinNetwork>): Single<Set<DynamicAsset>> {
+        return Single.zip(
+            ethErc20sStore.stream(freshnessStrategy).asSingle(),
+            otherErc20sStore.stream(freshnessStrategy).asSingle().map {
+                it.filter { currency ->
+                    (
+                        currency.parentChain in
+                            supportedNetworks.map { network -> network.networkTicker }
+                        )
+                }
+            }
+        ) { eth, other ->
+            (eth + other).toSet()
+        }
+    }
+
     private fun nativeAssetsForNetworks(networks: List<CoinNetwork>): Single<List<DynamicAsset>> {
-        return discoveryService.getL1Coins().map {
+        return l1CoinsStore.stream(freshnessStrategy).asSingle().map {
             it.filter { dynamicAsset ->
                 dynamicAsset.networkTicker in networks.map { network -> network.nativeAssetTicker }
             }.map { asset ->
