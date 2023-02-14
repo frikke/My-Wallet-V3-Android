@@ -42,6 +42,7 @@ import com.blockchain.payments.googlepay.googlePayPresentationModule
 import com.blockchain.payments.vgs.tokenizerModule
 import com.blockchain.presentation.commonPresentationModule
 import com.blockchain.presentation.koin.backupPhrasePresentationModule
+import com.blockchain.prices.pricesDataModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
@@ -172,6 +173,7 @@ object KoinStarter {
                     nftDataModule, nftPresentationModule,
                     multiAppModule,
                     earnDataModule, earnPresentationModule,
+                    pricesDataModule,
                     proveModule,
                 )
             )

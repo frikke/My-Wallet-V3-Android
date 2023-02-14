@@ -1,0 +1,25 @@
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+
+dependencies {
+    implementation project(':common:interface')
+    implementation project(':flowprices:domain')
+    implementation project(':store:core')
+    implementation project(':coincore')
+    implementation project(':core')
+//    implementation project(':unifiedcryptowallet:domain')
+//    implementation project(':flowhome:domain')
+//    implementation project(':store:caches:inmemory')
+
+//    // koin
+//    implementation Libraries.koin
+//    implementation Libraries.rxjava3Coroutines
+
+    // rx
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxjava3Coroutines
+
+//    // ktx json
+//    implementation Libraries.kotlinJson
+}

@@ -20,6 +20,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.prices.domain.PricesService
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
 import com.blockchain.utils.CurrentTimeProvider
@@ -47,6 +48,7 @@ class PricesViewModel(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val simpleBuyService: SimpleBuyService,
     private val watchlistService: WatchlistService,
+    private val pricesService: PricesService,
 ) : MviViewModel<PricesIntents,
     PricesViewState,
     PricesModelState,
@@ -164,7 +166,7 @@ class PricesViewModel(
                 .mapListData { it.source.networkTicker }
 
             val watchlistFlow = watchlistService.getWatchlist()
-                .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
+                .mapData { (it ).distinct() }.mapListData { it.networkTicker }
 
             val pricesFlow = loadAssetsAndPrices()
 
@@ -263,10 +265,6 @@ class PricesViewModel(
                     assetInfo = assetInfo
                 )
             }
-    }
-
-    companion object {
-        val defaultWatchlist = listOf(BTC, ETHER)
     }
 }
 
