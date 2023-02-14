@@ -466,7 +466,7 @@ private fun LearningCarousel(
                             text = stringResource(R.string.common_learn_more),
                             onClick = {
                                 onLearnMoreClicked(it.learnMoreUrl)
-                                analytics.logEvent(EarnAnalytics.LearnMoreClicked(product = it.type.typeName()))
+                                analytics.logEvent(EarnAnalytics.LearnMoreClicked(product = it.type))
                             },
                             isTransparent = false
                         )
@@ -640,9 +640,4 @@ fun EarnLoadError(onRefresh: () -> Unit) {
             }
         }
     )
-}
-
-fun EarnType.typeName() = when (this) {
-    EarnType.Passive -> "SAVINGS"
-    EarnType.Staking -> "STAKING"
 }

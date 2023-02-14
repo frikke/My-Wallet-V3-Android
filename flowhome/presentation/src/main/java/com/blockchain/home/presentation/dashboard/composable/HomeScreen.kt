@@ -161,7 +161,7 @@ fun HomeScreen(
                     analytics.logEvent(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,
-                            product = EarnType.INTEREST.typeName()
+                            product = EarnType.INTEREST
                         )
                     )
                 }
@@ -170,7 +170,7 @@ fun HomeScreen(
                     analytics.logEvent(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,
-                            product = EarnType.STAKING.typeName()
+                            product = EarnType.STAKING
                         )
                     )
                 }
