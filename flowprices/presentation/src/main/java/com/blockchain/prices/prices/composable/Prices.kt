@@ -163,12 +163,12 @@ fun ColumnScope.PricesScreenData(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        items(
+        roundedCornersItems(
             items = cryptoPrices,
             key = {
                 it.asset.networkTicker
             },
-            itemContent = { cryptoAsset ->
+            content = { cryptoAsset ->
                 BalanceChangeTableRow(
                     name = cryptoAsset.name,
                     subtitle = cryptoAsset.ticker,
@@ -184,34 +184,12 @@ fun ColumnScope.PricesScreenData(
             }
         )
 
-        /*
-            If the list is scrollable we need to add a spacer to the bottom to ensure the last item is not obscured by
-            the bottom nav FAB.
-            In order to keep the rounded corners at the bottom we add a box with a rounded corner shape first and
-            finally a spacer with the same background color as the outer layout
-        */
-
         item {
-            if (listState.isScrollable()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(AppTheme.dimensions.mediumSpacing)
-                        .clip(
-                            RoundedCornerShape(
-                                bottomEnd = AppTheme.dimensions.mediumSpacing,
-                                bottomStart = AppTheme.dimensions.mediumSpacing
-                            )
-                        )
-                        .background(AppTheme.colors.background)
-                )
-
-                Spacer(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .background(Color(0XFFF1F2F7))
-                )
-            }
+            Spacer(
+                modifier = Modifier
+                    .size(90.dp)
+                    .background(Color(0XFFF1F2F7))
+            )
         }
     }
 }
