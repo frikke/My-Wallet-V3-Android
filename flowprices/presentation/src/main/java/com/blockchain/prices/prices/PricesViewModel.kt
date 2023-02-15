@@ -22,6 +22,7 @@ import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -48,7 +49,7 @@ class PricesViewModel(
 
     override fun reduce(state: PricesModelState): PricesViewState {
         return PricesViewState(
-            availableFilters = state.filters,
+            availableFilters = state.filters.toImmutableList(),
             selectedFilter = state.filterBy,
             data = state.data
                 .filter { asset ->
@@ -89,6 +90,9 @@ class PricesViewModel(
                 }
                 .mapList {
                     it.toPriceItemViewModel()
+                }
+                .map {
+                     it.toImmutableList()
                 },
             topMovers = state.data.map { list ->
                 list.filter { it.price is DataResource.Data && it.isTradable }
@@ -101,6 +105,7 @@ class PricesViewModel(
                     .map {
                         it.toPriceItemViewModel()
                     }
+                    .toImmutableList()
             }
         )
     }

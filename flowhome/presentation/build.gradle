@@ -54,6 +54,8 @@ dependencies {
     implementation Libraries.rxjava3Coroutines
     implementation Libraries.lifecycleViewModelExtensions
 
+    implementation Libraries.kotlinImmutableCollections
+
     // koin
     implementation Libraries.koinAndroid
     implementation Libraries.koinCompose

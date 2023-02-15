@@ -115,5 +115,12 @@ private fun extractStatesInfo(
     )
 }
 
-val LazyListState.isScrollable: Boolean
-    get() = layoutInfo.visibleItemsInfo.size < layoutInfo.totalItemsCount
+@Composable
+fun LazyListState.isScrollable() : Boolean{
+    val value by remember {
+        derivedStateOf {
+            layoutInfo.visibleItemsInfo.size < layoutInfo.totalItemsCount
+        }
+    }
+    return value
+}

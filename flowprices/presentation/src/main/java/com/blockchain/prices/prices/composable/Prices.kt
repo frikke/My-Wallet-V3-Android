@@ -42,6 +42,8 @@ import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.nameRes
 import info.blockchain.balance.AssetInfo
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -93,9 +95,9 @@ fun Prices(
 
 @Composable
 fun PricesScreen(
-    filters: List<PricesFilter>,
+    filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
-    data: DataResource<List<PriceItemViewState>>,
+    data: DataResource<ImmutableList<PriceItemViewState>>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
@@ -132,9 +134,9 @@ fun PricesScreen(
 
 @Composable
 fun ColumnScope.PricesScreenData(
-    filters: List<PricesFilter>,
+    filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
-    cryptoPrices: List<PriceItemViewState>,
+    cryptoPrices: ImmutableList<PriceItemViewState>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
@@ -149,7 +151,7 @@ fun ColumnScope.PricesScreenData(
 
     TagButtonRow(
         selected = selectedFilter,
-        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) },
+        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
         onClick = { filter -> onFilterSelected(filter) }
     )
 
@@ -162,7 +164,6 @@ fun ColumnScope.PricesScreenData(
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
         items(
-
             items = cryptoPrices,
             key = {
                 it.asset.networkTicker
@@ -189,8 +190,9 @@ fun ColumnScope.PricesScreenData(
             In order to keep the rounded corners at the bottom we add a box with a rounded corner shape first and
             finally a spacer with the same background color as the outer layout
         */
-        if (listState.isScrollable) {
-            item {
+
+        item {
+            if (listState.isScrollable()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
