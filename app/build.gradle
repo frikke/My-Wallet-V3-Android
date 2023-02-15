@@ -413,6 +413,7 @@ dependencies {
 
     implementation project(':flowprices:presentation')
     implementation project(':flowprices:data')
+    implementation project(':flowprices:domain')
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
@@ -481,6 +482,7 @@ dependencies {
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi
 
+    implementation Libraries.kotlinImmutableCollections
     implementation Libraries.kotlinJson
     implementation Libraries.json
 

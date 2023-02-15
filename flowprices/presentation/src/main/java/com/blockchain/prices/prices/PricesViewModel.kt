@@ -89,7 +89,7 @@ class PricesViewModel(
                     )
                 }
                 .mapList {
-                    it.toPriceItemViewModel()
+                    it.toPriceItemViewState()
                 }
                 .map {
                      it.toImmutableList()
@@ -103,14 +103,14 @@ class PricesViewModel(
                     )
                     .take(state.topMoversCount)
                     .map {
-                        it.toPriceItemViewModel()
+                        it.toPriceItemViewState()
                     }
                     .toImmutableList()
             }
         )
     }
 
-    private fun AssetPriceInfo.toPriceItemViewModel(): PriceItemViewState {
+    private fun AssetPriceInfo.toPriceItemViewState(): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
             name = assetInfo.name,

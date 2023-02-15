@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
@@ -82,7 +83,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                             )
                         }
                     },
-                    onListItemClicked = { item -> onItemClick(item) },
+                    onListItemClicked = { asset -> onItemClick(asset) },
                     onEmptyStateClicked = { reason ->
                         when (reason) {
                             is BlockedReason.Sanctions.RussiaEU5 -> requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5)
@@ -104,6 +105,11 @@ class BuyIntroFragment : ViewPagerFragment() {
                     startKycClicked = {
                         KycNavHostActivity.startForResult(this@BuyIntroFragment, CampaignType.SimpleBuy, KYC_STARTED)
                     },
+                    toggleLoading = {
+                        (activity as? BlockchainActivity)?.run {
+                            if(it) showLoading() else hideLoading()
+                        }
+                    }
                 )
             }
         }
@@ -187,7 +193,7 @@ class BuyIntroFragment : ViewPagerFragment() {
         }
     }
 
-    private fun onItemClick(item: BuyCryptoItem) {
+    private fun onItemClick(asset: AssetInfo) {
         compositeDisposable += userIdentity.userAccessForFeature(Feature.Buy).subscribeBy { accessState ->
             val blockedReason = (accessState as? FeatureAccess.Blocked)?.reason
             if (blockedReason is BlockedReason.TooManyInFlightTransactions) {
@@ -196,7 +202,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         activity as Context,
-                        item.asset,
+                        asset,
                         launchFromNavigationBar = true,
                         launchKycResume = false
                     )

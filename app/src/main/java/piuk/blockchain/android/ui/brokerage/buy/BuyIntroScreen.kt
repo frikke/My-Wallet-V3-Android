@@ -2,7 +2,9 @@ package piuk.blockchain.android.ui.brokerage.buy
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,13 +39,26 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.data.DataResource
+import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
+import com.blockchain.prices.prices.PricesIntents
+import com.blockchain.prices.prices.PricesViewModel
+import com.blockchain.prices.prices.PricesViewState
+import com.blockchain.prices.prices.composable.TopMovers
+import com.blockchain.prices.prices.composable.TopMoversScreen
+import info.blockchain.balance.AssetInfo
+import org.koin.androidx.compose.getViewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.CustomEmptyStateView
 import piuk.blockchain.android.ui.dashboard.asPercentString
@@ -51,62 +67,89 @@ import piuk.blockchain.android.ui.dashboard.asPercentString
 fun BuyIntroScreen(
     buyViewState: BuyViewState,
     onSearchValueUpdated: (String) -> Unit,
-    onListItemClicked: (BuyCryptoItem) -> Unit,
+    onListItemClicked: (AssetInfo) -> Unit,
     onEmptyStateClicked: (BlockedReason) -> Unit,
     onErrorRetryClicked: () -> Unit,
     onErrorContactSupportClicked: () -> Unit,
     startKycClicked: () -> Unit,
+    toggleLoading: (Boolean) -> Unit
 ) {
+    val pricesViewModel: PricesViewModel = getViewModel(scope = payloadScope)
+    val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
+    DisposableEffect(key1 = pricesViewModel) {
+        pricesViewModel.onIntent(PricesIntents.LoadData)
+        onDispose { }
+    }
+
     when (buyViewState) {
         BuyViewState.Loading -> {}
         is BuyViewState.ShowAssetList -> {
-            val listItems = buyViewState.list
-            val listState = rememberLazyListState()
+            when (pricesViewState.topMovers) {
+                DataResource.Loading -> {
+                    toggleLoading(true)
+                }
+                is DataResource.Error,
+                is DataResource.Data -> {
+                    toggleLoading(false)
 
-            Column(
-                modifier = Modifier
-                    .background(AppTheme.colors.light)
-                    .padding(AppTheme.dimensions.smallSpacing)
-            ) {
-                var searchedText by remember { mutableStateOf("") }
+                    val listItems = buyViewState.list
+                    val listState = rememberLazyListState()
 
-                NonCancelableOutlinedSearch(
-                    placeholder = stringResource(R.string.search_coins_hint),
-                    onValueChange = {
-                        searchedText = it
-                        onSearchValueUpdated(it)
-                    }
-                )
-
-                SmallVerticalSpacer()
-
-                if (searchedText.isNotEmpty() && listItems.isEmpty()) {
-                    SimpleText(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.assets_no_result),
-                        style = ComposeTypographies.Body1,
-                        color = ComposeColors.Body,
-                        gravity = ComposeGravities.Centre
-                    )
-                } else {
-                    Card(
-                        backgroundColor = AppTheme.colors.background,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                        elevation = 0.dp
+                    Column(
+                        modifier = Modifier
+                            .background(AppTheme.colors.light)
                     ) {
-                        LazyColumn(
-                            state = listState
-                        ) {
-                            items(
-                                listItems,
-                                key = {
-                                    it.asset.networkTicker
+                        var searchedText by remember { mutableStateOf("") }
+
+                        CancelableOutlinedSearch(
+                            modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing),
+                            placeholder = stringResource(R.string.search_coins_hint),
+                            onValueChange = {
+                                searchedText = it
+                                onSearchValueUpdated(it)
+                            }
+                        )
+
+                        SmallVerticalSpacer()
+
+                        if (searchedText.isNotEmpty() && listItems.isEmpty()) {
+                            SimpleText(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(R.string.assets_no_result),
+                                style = ComposeTypographies.Body1,
+                                color = ComposeColors.Body,
+                                gravity = ComposeGravities.Centre
+                            )
+                        } else {
+                            LazyColumn(
+                                state = listState
+                            ) {
+                                item {
+                                    TopMoversScreen(
+                                        data = pricesViewState.topMovers,
+                                        assetOnClick = { asset ->
+                                            onListItemClicked(asset)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
                                 }
-                            ) { item ->
-                                BuyItem(
-                                    buyItem = item,
-                                    onClick = { onListItemClicked(item) }
-                                )
+
+                                paddedRoundedCornersItems(
+                                    items = listItems,
+                                    key = {
+                                        it.asset.networkTicker
+                                    },
+                                    paddingValues = PaddingValues(horizontal = 16.dp)
+                                ) { item ->
+                                    BuyItem(
+                                        buyItem = item,
+                                        onClick = { onListItemClicked(item.asset) }
+                                    )
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                                }
                             }
                         }
                     }
