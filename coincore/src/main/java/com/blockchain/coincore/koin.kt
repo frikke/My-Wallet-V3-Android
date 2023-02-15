@@ -14,9 +14,13 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.CoinNetworksStore
+import com.blockchain.coincore.loader.CustodialAssetsStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
+import com.blockchain.coincore.loader.EthErc20sStore
+import com.blockchain.coincore.loader.L1CoinsStore
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
+import com.blockchain.coincore.loader.OtherNetworksErc20sStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
@@ -242,9 +246,12 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
-            discoveryService = get(),
+            coinNetworksStore = get(),
+            otherErc20sStore = get(),
+            ethErc20sStore = get(),
+            l1CoinsStore = get(),
             l2sDynamicAssetRepository = get(),
-            coinNetworksStore = get()
+            custodialAssetsStore = get(),
         )
     }.bind(DynamicAssetsService::class)
 
@@ -256,6 +263,30 @@ val coincoreModule = module {
 
     single {
         CoinNetworksStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        L1CoinsStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        CustodialAssetsStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        EthErc20sStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        OtherNetworksErc20sStore(
             discoveryService = get()
         )
     }

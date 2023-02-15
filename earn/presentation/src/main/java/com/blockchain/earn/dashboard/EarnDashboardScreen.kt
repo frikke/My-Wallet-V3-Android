@@ -21,6 +21,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,17 +67,26 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardListFilter
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
 import com.blockchain.earn.dashboard.viewmodel.EarnType
+import com.blockchain.earn.onboarding.EarnOnboardingProductPage
+import com.blockchain.earn.onboarding.EarnProductOnboarding
+import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
 import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EarnDashboardScreen(
-    viewModel: EarnDashboardViewModel
+    viewModel: EarnDashboardViewModel = getViewModel(scope = payloadScope)
 ) {
     val viewState: EarnDashboardViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(EarnDashboardIntent.LoadEarn)
+        onDispose { }
+    }
 
     Box(
         modifier = Modifier
@@ -113,6 +123,9 @@ fun EarnDashboardScreen(
             },
             startKycClicked = {
                 viewModel.onIntent(EarnDashboardIntent.StartKycClicked)
+            },
+            onFinishOnboarding = {
+                viewModel.onIntent(EarnDashboardIntent.FinishOnboarding)
             }
         )
     }
@@ -132,34 +145,51 @@ fun EarnDashboard(
     discoverTabQueryBy: String,
     carouselLearnMoreClicked: (String) -> Unit,
     startKycClicked: () -> Unit,
+    onFinishOnboarding: () -> Unit
 ) {
-    when (val s = state.dashboardState) {
-        DashboardState.Loading -> EarnDashboardLoading()
-        DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
-        is DashboardState.ShowError -> EarnLoadError(onRefreshData)
-        is DashboardState.EarningAndDiscover -> EarningAndDiscover(
-            state = s,
-            earningTabFilterBy = state.earningTabFilterBy,
-            earningTabFilterAction = earningTabFilterAction,
-            earningTabQueryFilter = earningTabQueryFilter,
-            discoverTabFilterBy = state.discoverTabFilterBy,
-            discoverTabFilterAction = discoverTabFilterAction,
-            discoverTabQueryFilter = discoverTabQueryFilter,
-            onEarningItemClicked = onEarningItemClicked,
-            onDiscoverItemClicked = onDiscoverItemClicked,
-            earningTabQueryBy = earningTabQueryBy,
-            discoverTabQueryBy = discoverTabQueryBy,
-            carouselLearnMoreClicked = carouselLearnMoreClicked
-        )
-        is DashboardState.OnlyDiscover -> DiscoverScreen(
-            queryFilter = discoverTabQueryFilter,
-            filterAction = discoverTabFilterAction,
-            filterBy = state.discoverTabFilterBy,
-            discoverAssetList = s.discover.toImmutableList(),
-            onItemClicked = onDiscoverItemClicked,
-            discoverTabQueryBy = discoverTabQueryBy,
-            carouselLearnMoreClicked = carouselLearnMoreClicked
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = AppTheme.colors.backgroundMuted)
+    ) {
+        when (val s = state.dashboardState) {
+            DashboardState.Loading -> EarnDashboardLoading()
+            DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
+            is DashboardState.ShowIntro -> EarnProductOnboarding(
+                onboardingPages = listOf(EarnOnboardingProductPage.Intro) + s.earnProductsAvailable.map { earnType ->
+                    when (earnType) {
+                        EarnType.Passive -> EarnOnboardingProductPage.Interest
+                        EarnType.Staking -> EarnOnboardingProductPage.Staking
+                        EarnType.Active -> EarnOnboardingProductPage.ActiveRewards
+                    }
+                },
+                onFinishOnboarding = onFinishOnboarding
+            )
+            is DashboardState.ShowError -> EarnLoadError(onRefreshData)
+            is DashboardState.EarningAndDiscover -> EarningAndDiscover(
+                state = s,
+                earningTabFilterBy = state.earningTabFilterBy,
+                earningTabFilterAction = earningTabFilterAction,
+                earningTabQueryFilter = earningTabQueryFilter,
+                discoverTabFilterBy = state.discoverTabFilterBy,
+                discoverTabFilterAction = discoverTabFilterAction,
+                discoverTabQueryFilter = discoverTabQueryFilter,
+                onEarningItemClicked = onEarningItemClicked,
+                onDiscoverItemClicked = onDiscoverItemClicked,
+                earningTabQueryBy = earningTabQueryBy,
+                discoverTabQueryBy = discoverTabQueryBy,
+                carouselLearnMoreClicked = carouselLearnMoreClicked
+            )
+            is DashboardState.OnlyDiscover -> DiscoverScreen(
+                queryFilter = discoverTabQueryFilter,
+                filterAction = discoverTabFilterAction,
+                filterBy = state.discoverTabFilterBy,
+                discoverAssetList = s.discover.toImmutableList(),
+                onItemClicked = onDiscoverItemClicked,
+                discoverTabQueryBy = discoverTabQueryBy,
+                carouselLearnMoreClicked = carouselLearnMoreClicked
+            )
+        }
     }
 }
 
@@ -356,6 +386,9 @@ private fun DiscoverScreen(
                                             )
                                             EarnType.Staking -> stringResource(
                                                 id = R.string.earn_rewards_label_staking
+                                            )
+                                            EarnType.Active -> stringResource(
+                                                id = R.string.earn_rewards_label_active
                                             )
                                         },
                                         TagType.Default()
@@ -569,6 +602,7 @@ private fun EarningScreen(
                                         when (asset.type) {
                                             EarnType.Passive -> stringResource(id = R.string.earn_rewards_label_passive)
                                             EarnType.Staking -> stringResource(id = R.string.earn_rewards_label_staking)
+                                            EarnType.Active -> stringResource(id = R.string.earn_rewards_label_active)
                                         },
                                         TagType.Default()
                                     )
@@ -595,7 +629,8 @@ private fun EarnDashboardListFilter.title(): Int =
     when (this) {
         EarnDashboardListFilter.All -> R.string.earn_dashboard_filter_all
         EarnDashboardListFilter.Staking -> R.string.earn_dashboard_filter_staking
-        EarnDashboardListFilter.Rewards -> R.string.earn_dashboard_filter_rewards
+        EarnDashboardListFilter.Interest -> R.string.earn_dashboard_filter_interest
+        EarnDashboardListFilter.Active -> R.string.earn_dashboard_filter_active
     }
 
 private enum class SelectedTab(val index: Int) {

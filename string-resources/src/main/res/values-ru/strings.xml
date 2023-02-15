@@ -2788,7 +2788,7 @@
     <string name="to_get_started_buy_your_first_btc">Чтобы начать, купите свой первый BTC.</string>
     <string name="earn_dashboard_filter_all">Все</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Пассивные</string>
+    <string name="earn_dashboard_filter_interest">Пассивные</string>
     <string name="staking_dashboard_search">Поиск койнов</string>
     <string name="earn_rewards_label_passive">Пассивные вознаграждения</string>
     <string name="earn_rewards_label_staking">Вознаграждения за стейкинг</string>

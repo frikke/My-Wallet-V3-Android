@@ -20,6 +20,7 @@ sealed class EarnDashboardError {
 sealed class DashboardState {
     object Loading : DashboardState()
     object ShowKyc : DashboardState()
+    data class ShowIntro(val earnProductsAvailable: List<EarnType>) : DashboardState()
     data class ShowError(val error: EarnDashboardError) : DashboardState()
     data class OnlyDiscover(val discover: List<EarnAsset>) : DashboardState()
     data class EarningAndDiscover(val earning: List<EarnAsset>, val discover: List<EarnAsset>) : DashboardState()
@@ -39,10 +40,12 @@ data class EarnAsset(
 sealed class EarnType {
     object Staking : EarnType()
     object Passive : EarnType()
+    object Active : EarnType()
 }
 
 enum class EarnDashboardListFilter {
     All,
+    Interest,
     Staking,
-    Rewards
+    Active
 }

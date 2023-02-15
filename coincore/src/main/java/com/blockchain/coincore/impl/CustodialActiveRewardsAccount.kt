@@ -148,8 +148,7 @@ class CustodialActiveRewardsAccount(
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            // TODO(EARN): wrong Feature
-            identity.userAccessForFeature(Feature.DepositStaking),
+            identity.userAccessForFeature(Feature.DepositActiveRewards),
             balanceRx(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).firstOrError()
         ) { tier, depositInterestEligibility, balance ->
             return@zip when (tier) {

@@ -25,6 +25,8 @@ dependencies {
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
 
     // Rx
     implementation Libraries.rxJava

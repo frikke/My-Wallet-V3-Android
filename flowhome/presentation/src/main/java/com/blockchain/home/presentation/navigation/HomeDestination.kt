@@ -24,4 +24,5 @@ sealed class HomeDestination(
     object SwapDexOptions : HomeDestination("SwapDexOptions")
     object FiatActionDetail : HomeDestination("FiatActionDetail/${ARG_FIAT_TICKER.wrappedArg()}")
     object MoreQuickActions : HomeDestination("MoreQuickActions")
+    object EarnDashboard : HomeDestination("EarnDashboard")
 }

@@ -1,5 +1,8 @@
 package info.blockchain.balance
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CoinNetwork(
     val explorerUrl: String,
     val nativeAssetTicker: String,
@@ -11,7 +14,7 @@ data class CoinNetwork(
     val nodeUrls: List<String>,
     val feeCurrencies: List<String>,
     val isMemoSupported: Boolean
-) {
+) : java.io.Serializable {
     val nodeUrl: String
         get() = nodeUrls.first()
 }

@@ -4,20 +4,25 @@ import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.api.services.DynamicAsset
+import com.blockchain.core.custodial.data.store.FiatAssetsStore
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.outcome.map
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 internal class DynamicAssetsDataManagerImpl(
-    private val discoveryService: AssetDiscoveryApiService
+    private val discoveryService: AssetDiscoveryApiService,
+    private val fiatAssetsStore: FiatAssetsStore,
 ) : DynamicAssetsDataManager {
 
     override fun availableFiatAssets(): Single<FiatAssetList> =
-        discoveryService.getFiatAssets()
+        fiatAssetsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle()
             .map { list -> list.map { it.toFiatCurrency() } }
 
     override fun getAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation> =

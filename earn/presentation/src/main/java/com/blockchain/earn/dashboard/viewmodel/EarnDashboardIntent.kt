@@ -16,4 +16,5 @@ sealed interface EarnDashboardIntent : Intent<EarnDashboardModelState> {
     class OnNavigateToAction(val action: AssetAction, val assetInfo: AssetInfo) : EarnDashboardIntent
     object LoadEarn : EarnDashboardIntent
     object LoadSilently : EarnDashboardIntent
+    object FinishOnboarding : EarnDashboardIntent
 }

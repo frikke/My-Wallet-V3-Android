@@ -39,6 +39,7 @@ import com.blockchain.core.connectivity.SSLPinningObservable
 import com.blockchain.core.connectivity.SSLPinningSubject
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.data.TradingRepository
+import com.blockchain.core.custodial.data.store.FiatAssetsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.dataremediation.DataRemediationRepository
@@ -132,6 +133,12 @@ val coreModule = module {
     single {
         EthLastTxCache(
             ethAccountApi = get()
+        )
+    }
+
+    single {
+        FiatAssetsStore(
+            discoveryService = get()
         )
     }
 
@@ -562,6 +569,7 @@ val coreModule = module {
     single {
         DynamicAssetsDataManagerImpl(
             discoveryService = get(),
+            fiatAssetsStore = get(),
         )
     }.bind(DynamicAssetsDataManager::class)
 

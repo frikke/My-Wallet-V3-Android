@@ -124,8 +124,3 @@ private fun DashboardState.stateName() = when (this) {
     DashboardState.NON_EMPTY -> "NON_EMPTY_STATE"
     DashboardState.UNKNOWN -> null
 }
-
-private fun EarnType.typeName() = when (this) {
-    EarnType.INTEREST -> "SAVINGS"
-    EarnType.STAKING -> "STAKING"
-}

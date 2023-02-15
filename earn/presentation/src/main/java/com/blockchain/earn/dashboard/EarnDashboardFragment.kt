@@ -65,7 +65,6 @@ class EarnDashboardFragment :
         return ComposeView(requireContext()).apply {
             setContent {
                 bindViewModel(viewModel, this@EarnDashboardFragment, ModelConfigArgs.NoArgs)
-
                 EarnDashboardScreen(viewModel)
             }
         }
@@ -94,6 +93,7 @@ class EarnDashboardFragment :
                     when (navigationEvent.earnType) {
                         EarnType.Passive -> getString(R.string.earn_rewards_label_passive)
                         EarnType.Staking -> getString(R.string.earn_rewards_label_staking)
+                        EarnType.Active -> getString(R.string.earn_rewards_label_active)
                     }
                 )
             )

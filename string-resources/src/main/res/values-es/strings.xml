@@ -2782,7 +2782,7 @@
     <string name="to_get_started_buy_your_first_btc">Para empezar, compre su primer BTC.</string>
     <string name="earn_dashboard_filter_all">Todas</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Passive</string>
+    <string name="earn_dashboard_filter_interest">Passive</string>
     <string name="staking_dashboard_search">Buscar monedas</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
