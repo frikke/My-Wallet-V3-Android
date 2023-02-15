@@ -60,6 +60,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistor
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
+import piuk.blockchain.android.ui.coinview.domain.model.isActiveRewardsAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.CoinviewAccountState.Available
@@ -1220,7 +1221,13 @@ class CoinviewViewModel(
                     account.isStakingAccount() -> {
                         CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount = account)
                     }
-                    // TODO(labreu): Add active rewards statement
+                    account.isActiveRewardsAccount() -> {
+                        // TODO(labreu): Add active rewards statement
+                        /*CoinviewNavigationEvent.NavigateToActiveRewardsStatement(
+                            cvAccount = account
+                        )*/
+                        return
+                    }
                     else -> throw IllegalStateException("ViewStatement is not supported for account $account")
                 }
             )

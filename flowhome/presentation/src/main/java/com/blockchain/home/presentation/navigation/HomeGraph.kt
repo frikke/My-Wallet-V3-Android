@@ -23,7 +23,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 fun NavGraphBuilder.homeGraph(
     launchApp: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
 ) {
     composable(navigationEvent = HomeDestination.Introduction) { backStackEntry ->
         val walletMode = backStackEntry.arguments?.getString(ARG_WALLET_MODE)?.run {
@@ -112,6 +112,5 @@ fun NavGraphBuilder.homeGraph(
             assetActionsNavigation = assetActionsNavigation
         )
     }
-
     // add other composable screens here
 }

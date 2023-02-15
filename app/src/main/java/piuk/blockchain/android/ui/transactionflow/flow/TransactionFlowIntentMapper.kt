@@ -116,7 +116,7 @@ class TransactionFlowIntentMapper(
                 passwordRequired = passwordRequired
             )
             else -> throw IllegalStateException(
-                "Calling staking deposit without source and target is not supported"
+                "Calling active rewards deposit without source and target is not supported"
             )
         }
 

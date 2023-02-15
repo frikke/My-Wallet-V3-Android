@@ -123,6 +123,7 @@ internal fun LazyListScope.homeEarnAssets(
                             when (asset.type) {
                                 EarnType.INTEREST -> stringResource(id = R.string.earn_rewards_label_passive)
                                 EarnType.STAKING -> stringResource(id = R.string.earn_rewards_label_staking)
+                                EarnType.ACTIVE -> stringResource(id = R.string.earn_rewards_label_active)
                             },
                             TagType.Default()
                         )

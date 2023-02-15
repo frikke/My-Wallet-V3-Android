@@ -163,4 +163,5 @@ enum class TxFlowAnalyticsAccountType {
 private fun EarnType.typeName() = when (this) {
     EarnType.Passive -> "SAVINGS"
     EarnType.Staking -> "STAKING"
+    EarnType.Active -> "ACTIVE"
 }

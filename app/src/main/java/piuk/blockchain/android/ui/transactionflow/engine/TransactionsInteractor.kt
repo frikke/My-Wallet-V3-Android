@@ -283,9 +283,8 @@ class TransactionInteractor(
                     sorter = defaultAccountsSorting.sorter()
                 ).map {
                     it.filter { acc ->
-                        acc is CryptoAccount &&
-                            acc.currency == targetAccount.currency &&
-                            acc != targetAccount
+                        acc is CustodialTradingAccount ||
+                            (acc is NonCustodialAccount && showPkwOnTradingMode)
                     }
                 }
             }

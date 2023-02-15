@@ -129,7 +129,8 @@ val homePresentationModule = module {
                 stakingService = get(),
                 exchangeRates = get(),
                 coincore = get(),
-                interestService = get()
+                interestService = get(),
+                activeRewardsService = get(),
             )
         }
 

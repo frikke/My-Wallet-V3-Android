@@ -190,6 +190,7 @@
     <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
+    <string name="chrome_navigation_earn">Earn</string>
 
     <!-- Value Props -->
     <string name="landing_value_prop_one">Instantly Buy, Sell and Swap Crypto.</string>
@@ -3422,7 +3423,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Passive</string>
+    <string name="earn_dashboard_filter_interest">Passive</string>
+    <string name="earn_dashboard_filter_active">Active</string>
     <string name="staking_dashboard_search">Search coins</string>
     <string name="earning_dashboard_no_results">😞 No results</string>
     <string name="earning_dashboard_empty_filter">You have not added any funds into these Rewards yet</string>
@@ -3432,6 +3434,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
     <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
+    <string name="earn_rewards_label_active">Active Rewards</string>
     <string name="earn_dashboard_tab_earning">Earning</string>
     <string name="earn_dashboard_tab_discover">Discover</string>
     <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
@@ -3499,5 +3502,15 @@ If you want to know more about our verification process visit our <annotation li
     <string name="single_chain_eth_tokens">Single-chain, thousands of tokens on Ethereum</string>
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
+    <string name="earn_onboarding_intro_title">Earn</string>
+    <string name="earn_onboarding_intro_subtitle">Get the most out of your crypto.\nDeposit and earn up to 10%.</string>
+    <string name="earn_onboarding_passive_title">Passive Rewards</string>
+    <string name="earn_onboarding_passive_subtitle">Get paid every month, just for holding.</string>
+    <string name="earn_onboarding_staking_title">Staking Rewards</string>
+    <string name="earn_onboarding_staking_subtitle">Earn crypto for securing your favorite blockchain networks.</string>
+    <string name="earn_onboarding_active_title">Active Rewards</string>
+    <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
+    <string name="earn_onboarding_cta">Start earning</string>
+
 
 </resources>

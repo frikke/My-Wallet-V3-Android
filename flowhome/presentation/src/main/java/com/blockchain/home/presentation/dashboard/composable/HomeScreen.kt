@@ -153,6 +153,7 @@ fun HomeScreen(
         earnViewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
 
+    // TODO (labreu) this should be done inside homeEarnAssets
     LaunchedEffect(key1 = earnViewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
@@ -171,6 +172,16 @@ fun HomeScreen(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,
                             product = EarnType.STAKING
+                        )
+                    )
+                }
+                is EarnNavEvent.ActiveRewards -> {
+                    // TODO: labreu: there's no active rewards summary yet
+                    // assetActionsNavigation.activeRewardsSummary(it.account)
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.EarnAssetClicked(
+                            currency = it.account.currency.networkTicker,
+                            product = EarnType.ACTIVE
                         )
                     )
                 }
@@ -348,8 +359,3 @@ fun HomeScreen(
 
 private const val MAX_ASSET_COUNT = 7
 private const val MAX_ACTIVITY_COUNT = 5
-
-fun EarnType.typeName() = when (this) {
-    EarnType.INTEREST -> "SAVINGS"
-    EarnType.STAKING -> "STAKING"
-}

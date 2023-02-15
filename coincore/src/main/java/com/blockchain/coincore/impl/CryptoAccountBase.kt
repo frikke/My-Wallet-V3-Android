@@ -506,7 +506,8 @@ class CryptoAccountCustodialSingleGroup(
         require(
             accounts[0] is CustodialInterestAccount ||
                 accounts[0] is CustodialTradingAccount ||
-                accounts[0] is CustodialStakingAccount
+                accounts[0] is CustodialStakingAccount ||
+                accounts[0] is CustodialActiveRewardsAccount
         )
     }
 
