@@ -1,16 +1,15 @@
 package com.blockchain.prices.prices.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -23,10 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
-import com.blockchain.componentlib.chrome.isScrollable
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tag.button.TagButtonRow
 import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
@@ -79,6 +81,7 @@ fun Prices(
             filters = viewState.availableFilters,
             selectedFilter = viewState.selectedFilter,
             data = viewState.data,
+            topMovers = viewState.topMovers,
             listState = listState,
             onSearchTermEntered = { term ->
                 viewModel.onIntent(PricesIntents.FilterSearch(term = term))
@@ -98,28 +101,29 @@ fun PricesScreen(
     filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
     data: DataResource<ImmutableList<PriceItemViewState>>,
+    topMovers: DataResource<ImmutableList<PriceItemViewState>>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = AppTheme.dimensions.smallSpacing, end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.smallSpacing
-            )
+        modifier = Modifier.fillMaxWidth()
     ) {
         when (data) {
             DataResource.Loading -> {
-                ShimmerLoadingCard()
+                ShimmerLoadingCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AppTheme.dimensions.smallSpacing)
+                )
             }
             is DataResource.Data -> {
                 PricesScreenData(
                     filters = filters,
                     selectedFilter = selectedFilter,
                     cryptoPrices = data.data,
+                    topMovers = topMovers,
                     listState = listState,
                     onSearchTermEntered = onSearchTermEntered,
                     onFilterSelected = onFilterSelected,
@@ -137,23 +141,31 @@ fun ColumnScope.PricesScreenData(
     filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
     cryptoPrices: ImmutableList<PriceItemViewState>,
+    topMovers: DataResource<ImmutableList<PriceItemViewState>>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
     onAssetClick: (AssetInfo) -> Unit
 ) {
-    CancelableOutlinedSearch(
-        onValueChange = onSearchTermEntered,
-        placeholder = stringResource(R.string.search)
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.smallSpacing)
+    ) {
+        CancelableOutlinedSearch(
+            onValueChange = onSearchTermEntered,
+            placeholder = stringResource(R.string.search)
+        )
 
-    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-    TagButtonRow(
-        selected = selectedFilter,
-        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
-        onClick = { filter -> onFilterSelected(filter) }
-    )
+        TagButtonRow(
+            selected = selectedFilter,
+            values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
+            onClick = { filter -> onFilterSelected(filter) }
+        )
+
+    }
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
@@ -163,11 +175,31 @@ fun ColumnScope.PricesScreenData(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        roundedCornersItems(
+        (topMovers as? DataResource.Data)?.data?.let {
+            paddedItem(
+                paddingValues = PaddingValues(horizontal = 16.dp)
+            ) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                TableRowHeader(title = stringResource(R.string.prices_top_movers))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            }
+
+            item {
+                TopMoversScreen(
+                    data = topMovers,
+                    assetOnClick = { }
+                )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+            }
+        }
+
+        paddedRoundedCornersItems(
             items = cryptoPrices,
             key = {
                 it.asset.networkTicker
             },
+            paddingValues = PaddingValues(horizontal = 16.dp),
             content = { cryptoAsset ->
                 BalanceChangeTableRow(
                     name = cryptoAsset.name,
@@ -187,7 +219,7 @@ fun ColumnScope.PricesScreenData(
         item {
             Spacer(
                 modifier = Modifier
-                    .size(90.dp)
+                    .size(100.dp)
                     .background(Color(0XFFF1F2F7))
             )
         }

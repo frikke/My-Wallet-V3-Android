@@ -46,19 +46,21 @@ fun TopMoversScreen(
     assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let { topMovers ->
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
-        ) {
-            items(topMovers) { assetPrice ->
-                BalanceChangeSmallCard(
-                    name = assetPrice.name,
-                    price = assetPrice.currentPrice,
-                    valueChange = assetPrice.delta,
-                    imageResource = ImageResource.Remote(assetPrice.logo),
-                    onClick = { assetOnClick(assetPrice.asset) }
-                )
+        if (topMovers.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+            ) {
+                items(topMovers) { assetPrice ->
+                    BalanceChangeSmallCard(
+                        name = assetPrice.name,
+                        price = assetPrice.currentPrice,
+                        valueChange = assetPrice.delta,
+                        imageResource = ImageResource.Remote(assetPrice.logo),
+                        onClick = { assetOnClick(assetPrice.asset) }
+                    )
+                }
             }
         }
     }
