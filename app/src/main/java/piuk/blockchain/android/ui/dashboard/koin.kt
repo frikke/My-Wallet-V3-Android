@@ -28,7 +28,6 @@ import piuk.blockchain.android.ui.dashboard.model.ShouldAssetShowUseCase
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
 import piuk.blockchain.android.ui.transfer.SellAccountsSorting
 import piuk.blockchain.android.ui.transfer.SwapSourceAccountsSorting
@@ -128,17 +127,6 @@ val dashboardModule = module {
                 coincore = get(),
             )
         }.bind(AccountsSorting::class)
-
-        factory(buyOrder) {
-            BuyListAccountSorting(
-                assetListOrderingFF = get(assetOrderingFeatureFlag),
-                coincore = get(),
-                exchangeRatesDataManager = get(),
-                watchlistDataManager = get(),
-                momentLogger = get(),
-                currencyPrefs = get()
-            )
-        }
 
         factory { params ->
             DashboardOnboardingModel(

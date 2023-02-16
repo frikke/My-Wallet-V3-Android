@@ -1,6 +1,8 @@
 package com.blockchain.data
 
 import com.blockchain.utils.combineMore
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -345,3 +347,7 @@ fun <T> DataResource<T>.dataOrElse(default: T): T {
 
 fun <T> T.toDataResource() = DataResource.Data(this)
 fun <T : Exception> T.toDataResource() = DataResource.Error(this)
+
+fun <T> DataResource<List<T>>.toImmutableList(): DataResource<ImmutableList<T>>{
+    return map { it.toImmutableList() }
+}

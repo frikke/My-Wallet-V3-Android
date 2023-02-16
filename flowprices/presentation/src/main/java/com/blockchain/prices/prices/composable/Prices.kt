@@ -25,7 +25,6 @@ import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
-import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
@@ -34,12 +33,15 @@ import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.data.map
+import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.R
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesFilter
 import com.blockchain.prices.prices.PricesIntents
+import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.nameRes
@@ -60,7 +62,11 @@ fun Prices(
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PricesIntents.LoadData)
+        viewModel.onIntent(
+            PricesIntents.LoadData(
+                strategy = PricesLoadStrategy.All
+            )
+        )
         onDispose { }
     }
 
@@ -78,10 +84,10 @@ fun Prices(
         )
 
         PricesScreen(
-            filters = viewState.availableFilters,
+            filters = viewState.availableFilters.toImmutableList(),
             selectedFilter = viewState.selectedFilter,
-            data = viewState.data,
-            topMovers = viewState.topMovers,
+            data = viewState.allAssets.toImmutableList(),
+            topMovers = viewState.topMovers.toImmutableList(),
             listState = listState,
             onSearchTermEntered = { term ->
                 viewModel.onIntent(PricesIntents.FilterSearch(term = term))

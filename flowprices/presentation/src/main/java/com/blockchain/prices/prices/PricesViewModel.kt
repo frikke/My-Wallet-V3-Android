@@ -22,7 +22,6 @@ import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -43,13 +42,14 @@ class PricesViewModel(
 
     private var pricesJob: Job? = null
     private var topMoversCountJob: Job? = null
+    private var mostPopularJob: Job? = null
     private var filtersJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: PricesModelState): PricesViewState {
         return PricesViewState(
-            availableFilters = state.filters.toImmutableList(),
+            availableFilters = state.filters,
             selectedFilter = state.filterBy,
             data = state.data
                 .filter { asset ->
@@ -92,7 +92,10 @@ class PricesViewModel(
                     it.toPriceItemViewState()
                 }
                 .map {
-                     it.toImmutableList()
+                    it.groupBy {
+                        if (it.ticker in state.mostPopularTickers) PricesOutputGroup.MostPopular
+                        else PricesOutputGroup.Others
+                    }
                 },
             topMovers = state.data.map { list ->
                 list.filter { it.price is DataResource.Data && it.isTradable }
@@ -105,7 +108,6 @@ class PricesViewModel(
                     .map {
                         it.toPriceItemViewState()
                     }
-                    .toImmutableList()
             }
         )
     }
@@ -127,9 +129,14 @@ class PricesViewModel(
     override suspend fun handleIntent(modelState: PricesModelState, intent: PricesIntents) {
         when (intent) {
             is PricesIntents.LoadData -> {
+                updateState {
+                    it.copy(loadStrategy = intent.strategy)
+                }
+
                 loadFilters()
-                loadData()
+                loadData(intent.strategy)
                 loadTopMoversCount()
+                loadMostPopularTickers()
             }
 
             is PricesIntents.FilterSearch -> {
@@ -148,22 +155,26 @@ class PricesViewModel(
                 updateState {
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                loadData()
+                loadData(strategy = modelState.loadStrategy)
             }
         }
     }
 
-    private fun loadData() {
+    private fun loadData(strategy: PricesLoadStrategy) {
         pricesJob?.cancel()
         pricesJob = viewModelScope.launch {
-            pricesService.allAssets()
-                .collectLatest { prices ->
-                    updateState {
-                        modelState.copy(
-                            data = it.data.updateDataWith(prices)
-                        )
-                    }
+            val assetsFlow = when (strategy) {
+                is PricesLoadStrategy.All -> pricesService.allAssets()
+                is PricesLoadStrategy.TradableOnly -> pricesService.tradableAssets()
+            }
+
+            assetsFlow.collectLatest { prices ->
+                updateState {
+                    modelState.copy(
+                        data = it.data.updateDataWith(prices)
+                    )
                 }
+            }
         }
     }
 
@@ -193,6 +204,20 @@ class PricesViewModel(
                     updateState {
                         it.copy(
                             topMoversCount = count
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadMostPopularTickers() {
+        mostPopularJob?.cancel()
+        mostPopularJob = viewModelScope.launch {
+            pricesService.mostPopularTickers()
+                .collectLatest { mostPopularTickers ->
+                    updateState {
+                        it.copy(
+                            mostPopularTickers = mostPopularTickers
                         )
                     }
                 }
