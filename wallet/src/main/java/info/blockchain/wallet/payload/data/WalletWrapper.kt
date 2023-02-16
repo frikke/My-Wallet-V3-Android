@@ -39,7 +39,6 @@ data class WalletWrapper(
         return jsonBuilder.encodeToString(this)
     }
 
-    @Throws(UnsupportedVersionException::class)
     private fun validateVersion() {
         if (version > SUPPORTED_VERSION) {
             throw UnsupportedVersionException(version.toString() + "")
@@ -57,7 +56,7 @@ data class WalletWrapper(
         try {
             return Wallet.fromJson(decryptedPayload, version)
         } catch (e: JSONException) {
-            throw DecryptionException("Decryption failed.")
+            throw DecryptionException(e)
         }
     }
 

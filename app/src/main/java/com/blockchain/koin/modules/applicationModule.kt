@@ -54,7 +54,6 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -752,7 +751,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 xlmDataManager = get(),
                 ethDataManager = get(),
-                homeActivityLauncher = get()
             )
         }
 
@@ -963,9 +961,7 @@ val applicationModule = module {
     }
 
     single {
-        HomeActivityLauncher(
-            featureFlag = get(superappFeatureFlag)
-        )
+        HomeActivityLauncher()
     }
 
     factory {
