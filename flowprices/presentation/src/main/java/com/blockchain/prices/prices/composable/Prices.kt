@@ -185,7 +185,7 @@ fun ColumnScope.PricesScreenData(
             item {
                 TopMoversScreen(
                     data = topMovers,
-                    assetOnClick = { }
+                    assetOnClick = { onAssetClick(it) }
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
