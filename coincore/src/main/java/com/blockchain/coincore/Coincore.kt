@@ -35,6 +35,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.exceptions.CompositeException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -91,7 +92,13 @@ class Coincore internal constructor(
                 remoteLogger.logEvent("Coincore initialisation complete!")
             }
             .doOnError {
-                remoteLogger.logEvent("Coincore initialisation failed! $it")
+                (it as? CompositeException)?.let { compositeException ->
+                    compositeException.exceptions.forEach { exception ->
+                        remoteLogger.logEvent("Coincore initialisation failed! $exception")
+                    }
+                } ?: run {
+                    remoteLogger.logEvent("Coincore initialisation failed! $it")
+                }
             }
 
     /**
@@ -314,7 +321,7 @@ class Coincore internal constructor(
             .flatMapSingle { account ->
                 account.receiveAddress
                     .map { it as CryptoAddress }
-                    .onErrorReturn { NullCryptoAddress() }
+                    .onErrorReturn { NullCryptoAddress }
                     .map { cryptoAccount ->
                         when {
                             cryptoAccount.address.equals(address, true) -> account

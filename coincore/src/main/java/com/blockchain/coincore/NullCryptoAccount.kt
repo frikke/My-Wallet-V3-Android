@@ -9,11 +9,18 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.flowOf
 
-class NullCryptoAddress : CryptoAddress {
-    override val asset: AssetInfo = CryptoCurrency.BTC
-    override val label: String = ""
-    override val address = ""
-    override val isDomain: Boolean = false
+object NullCryptoAddress : CryptoAddress {
+    override val asset: AssetInfo
+        get() = error("unavailable for NullCryptoAddress")
+
+    override val label: String
+        get() = error("unavailable for NullCryptoAddress")
+
+    override val address
+        get() = error("unavailable for NullCryptoAddress")
+
+    override val isDomain: Boolean
+        get() = error("unavailable for NullCryptoAddress")
 }
 
 // Stub invalid accounts; use as an initialisers to avoid nulls.

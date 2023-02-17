@@ -76,9 +76,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     protected fun accounts(filter: AssetFilter): Single<SingleAccountList> {
         return activeAccounts.fetchAccountList(assetFilter = filter, loader = { f ->
             loadAccounts(f)
-        }).flatMap {
-            updateLabelsIfNeeded(it).toSingle { it }
-        }
+        })
     }
 
     private fun updateLabelsIfNeeded(list: SingleAccountList): Completable =

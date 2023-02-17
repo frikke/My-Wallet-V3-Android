@@ -11,18 +11,18 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
 import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 
 class DynamicNonCustodialAccount(
@@ -40,17 +40,19 @@ class DynamicNonCustodialAccount(
         ?: throw IllegalStateException("Unsupported Coin Configuration!")
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = rxSingle { getReceiveAddress() }
+        get() = rxSingleOutcome { getReceiveAddress() }
 
     private suspend fun getReceiveAddress() = nonCustodialService.getAddresses(listOf(currency.networkTicker))
-        .getOrThrow().find {
-            it.pubKey == xpubAddress && it.default
-        }?.let { nonCustodialDerivedAddress ->
-            DynamicNonCustodialAddress(
-                address = nonCustodialDerivedAddress.address,
-                asset = currency
-            )
-        } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
+        .map {
+            it.find {
+                it.pubKey == xpubAddress && it.default
+            }?.let { nonCustodialDerivedAddress ->
+                DynamicNonCustodialAddress(
+                    address = nonCustodialDerivedAddress.address,
+                    asset = currency
+                )
+            } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
+        }
 
     override val isArchived: Boolean = false
 

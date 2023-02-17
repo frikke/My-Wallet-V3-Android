@@ -70,12 +70,6 @@ fun <E, R> Outcome<E, R>.getOrElse(onFailure: (E) -> R): R =
         is Outcome.Failure -> onFailure(failure)
     }
 
-fun <E, R> Outcome<E, R>.getOrThrow(): R =
-    when (this) {
-        is Outcome.Success -> value
-        is Outcome.Failure -> throw (failure as? Exception ?: Exception())
-    }
-
 fun <E, T> List<Outcome<E, T>>.anyError() = any { it is Outcome.Failure }
 fun <E, T> List<Outcome<E, T>>.getFirstError() = (first { it is Outcome.Failure } as Outcome.Failure)
 
