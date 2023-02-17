@@ -1,7 +1,6 @@
 package com.blockchain.prices.prices.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
-import com.blockchain.componentlib.chrome.isScrollable
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tag.button.TagButtonRow
@@ -42,6 +41,8 @@ import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.nameRes
 import info.blockchain.balance.AssetInfo
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -93,9 +94,9 @@ fun Prices(
 
 @Composable
 fun PricesScreen(
-    filters: List<PricesFilter>,
+    filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
-    data: DataResource<List<PriceItemViewState>>,
+    data: DataResource<ImmutableList<PriceItemViewState>>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
@@ -132,9 +133,9 @@ fun PricesScreen(
 
 @Composable
 fun ColumnScope.PricesScreenData(
-    filters: List<PricesFilter>,
+    filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
-    cryptoPrices: List<PriceItemViewState>,
+    cryptoPrices: ImmutableList<PriceItemViewState>,
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
@@ -149,7 +150,7 @@ fun ColumnScope.PricesScreenData(
 
     TagButtonRow(
         selected = selectedFilter,
-        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) },
+        values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
         onClick = { filter -> onFilterSelected(filter) }
     )
 
@@ -161,13 +162,12 @@ fun ColumnScope.PricesScreenData(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        items(
-
+        roundedCornersItems(
             items = cryptoPrices,
             key = {
                 it.asset.networkTicker
             },
-            itemContent = { cryptoAsset ->
+            content = { cryptoAsset ->
                 BalanceChangeTableRow(
                     name = cryptoAsset.name,
                     subtitle = cryptoAsset.ticker,
@@ -183,33 +183,12 @@ fun ColumnScope.PricesScreenData(
             }
         )
 
-        /*
-            If the list is scrollable we need to add a spacer to the bottom to ensure the last item is not obscured by
-            the bottom nav FAB.
-            In order to keep the rounded corners at the bottom we add a box with a rounded corner shape first and
-            finally a spacer with the same background color as the outer layout
-        */
-        if (listState.isScrollable) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(AppTheme.dimensions.mediumSpacing)
-                        .clip(
-                            RoundedCornerShape(
-                                bottomEnd = AppTheme.dimensions.mediumSpacing,
-                                bottomStart = AppTheme.dimensions.mediumSpacing
-                            )
-                        )
-                        .background(AppTheme.colors.background)
-                )
-
-                Spacer(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .background(Color(0XFFF1F2F7))
-                )
-            }
+        item {
+            Spacer(
+                modifier = Modifier
+                    .size(90.dp)
+                    .background(Color(0XFFF1F2F7))
+            )
         }
     }
 }

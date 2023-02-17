@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.theme.AppTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 data class TagButtonValue<T>(
     val obj: T,
@@ -22,7 +24,7 @@ data class TagButtonValue<T>(
 fun <T> TagButtonRow(
     modifier: Modifier = Modifier,
     selected: T,
-    values: List<TagButtonValue<T>>,
+    values: ImmutableList<TagButtonValue<T>>,
     spaceBetween: Dp = AppTheme.dimensions.tinySpacing,
     onClick: (T) -> Unit
 ) {
@@ -48,7 +50,7 @@ fun PreviewTagButtonRow() {
     var selected by remember { mutableStateOf("one") }
     TagButtonRow(
         selected = selected,
-        values = listOf("one", "two", "three").map { TagButtonValue(it, it) },
+        values = listOf("one", "two", "three").map { TagButtonValue(it, it) }.toImmutableList(),
         onClick = { selected = it }
     )
 }

@@ -15,9 +15,10 @@ import com.blockchain.home.presentation.R
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.composable.TopMoversScreen
 import info.blockchain.balance.AssetInfo
+import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.homeTopMovers(
-    data: DataResource<List<PriceItemViewState>>,
+    data: DataResource<ImmutableList<PriceItemViewState>>,
     assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let {

@@ -6,12 +6,13 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import com.blockchain.prices.R
 import info.blockchain.balance.AssetInfo
+import kotlinx.collections.immutable.ImmutableList
 
 data class PricesViewState(
     val selectedFilter: PricesFilter,
-    val availableFilters: List<PricesFilter>,
-    val data: DataResource<List<PriceItemViewState>>,
-    val topMovers: DataResource<List<PriceItemViewState>>
+    val availableFilters: ImmutableList<PricesFilter>,
+    val data: DataResource<ImmutableList<PriceItemViewState>>,
+    val topMovers: DataResource<ImmutableList<PriceItemViewState>>
 ) : ViewState
 
 data class PriceItemViewState(
