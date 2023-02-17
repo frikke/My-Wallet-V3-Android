@@ -314,7 +314,7 @@ class Coincore internal constructor(
             .flatMapSingle { account ->
                 account.receiveAddress
                     .map { it as CryptoAddress }
-                    .onErrorReturn { NullCryptoAddress() }
+                    .onErrorReturn { NullCryptoAddress }
                     .map { cryptoAccount ->
                         when {
                             cryptoAccount.address.equals(address, true) -> account
