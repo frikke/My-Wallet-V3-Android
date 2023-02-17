@@ -22,8 +22,8 @@ import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.absoluteValue
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -92,7 +92,7 @@ class PricesViewModel(
                     it.toPriceItemViewModel()
                 }
                 .map {
-                     it.toImmutableList()
+                    it.toImmutableList()
                 },
             topMovers = state.data.map { list ->
                 list.filter { it.price is DataResource.Data && it.isTradable }
