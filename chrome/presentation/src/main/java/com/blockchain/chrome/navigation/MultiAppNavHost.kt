@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
@@ -52,6 +53,7 @@ fun MultiAppNavHost(
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
     openExternalUrl: (url: String) -> Unit
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
@@ -98,7 +100,8 @@ fun MultiAppNavHost(
                 supportNavigation = supportNavigation,
                 showAppRating = showAppRating,
                 openExternalUrl = openExternalUrl,
-                nftNavigation = nftNavigation
+                nftNavigation = nftNavigation,
+                earnNavigation = earnNavigation
             )
 
             // home screens
@@ -133,6 +136,7 @@ private fun NavGraphBuilder.chrome(
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
     openExternalUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
@@ -200,7 +204,8 @@ private fun NavGraphBuilder.chrome(
                     )
                 )
             },
-            nftNavigation = nftNavigation
+            nftNavigation = nftNavigation,
+            earnNavigation = earnNavigation
         )
     }
 }

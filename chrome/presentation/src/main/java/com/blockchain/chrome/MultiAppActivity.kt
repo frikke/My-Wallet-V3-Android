@@ -28,6 +28,7 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.fiatActions.BankLinkingHost
@@ -53,6 +54,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.navigation.DefiBackupNavigation
+import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -63,6 +65,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.collectLatest
@@ -86,6 +89,7 @@ class MultiAppActivity :
     WCApproveSessionBottomSheet.Host,
     KycBenefitsSheetHost,
     SelectNetworkBottomSheet.Host,
+    NoBalanceActionBottomSheet.Host,
     KoinScopeComponent {
 
     override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
@@ -117,7 +121,12 @@ class MultiAppActivity :
         )
     }
 
-    private lateinit var assetActionsNavigation: AssetActionsNavigation
+    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private lateinit var qrScanNavigation: QrScanNavigation
     private lateinit var settingsNavigation: SettingsNavigation
     private lateinit var fiatActionsNavigation: FiatActionsNavigation
@@ -131,17 +140,18 @@ class MultiAppActivity :
         )
     }
 
+    private val earnNavigation: EarnNavigation = payloadScope.get {
+        parametersOf(
+            this,
+            assetActionsNavigation
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        assetActionsNavigation = payloadScope.get {
-            parametersOf(
-                this
-            )
-        }
 
         qrScanNavigation = payloadScope.get {
             parametersOf(
@@ -190,6 +200,7 @@ class MultiAppActivity :
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
+                earnNavigation = earnNavigation,
                 openExternalUrl = ::openExternalUrl
             )
         }
@@ -577,6 +588,17 @@ class MultiAppActivity :
 
     override fun onSessionRejected(session: WalletConnectSession) {
         qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
+    }
+
+    override fun navigateToAction(action: AssetAction, selectedAccount: BlockchainAccount, assetInfo: AssetInfo) {
+        when (action) {
+            AssetAction.Buy -> assetActionsNavigation.buyCrypto(
+                currency = assetInfo,
+                amount = null
+            )
+            AssetAction.Receive -> assetActionsNavigation.receive(assetInfo.networkTicker)
+            else -> throw IllegalStateException("Earn dashboard: ${intent.action} not valid for navigation")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

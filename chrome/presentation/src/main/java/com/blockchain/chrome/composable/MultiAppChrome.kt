@@ -69,6 +69,7 @@ import com.blockchain.chrome.toolbar.ScrollState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
@@ -130,6 +131,7 @@ fun MultiAppChrome(
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -195,7 +197,8 @@ fun MultiAppChrome(
             openExternalUrl = openExternalUrl,
             openNftHelp = openNftHelp,
             openNftDetail = openNftDetail,
-            nftNavigation = nftNavigation
+            nftNavigation = nftNavigation,
+            earnNavigation = earnNavigation
         )
     }
 }
@@ -231,10 +234,24 @@ fun MultiAppChromeScreen(
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
+    val navController = rememberNavController()
 
     var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
+
+    LaunchedEffect(selectedNavigationItem) {
+        navController.navigate(selectedNavigationItem.route) {
+            navController.graph.startDestinationRoute?.let { screen_route ->
+                popUpTo(screen_route) {
+                    saveState = true
+                }
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     // //////////////////////////////////////////////
     // snap header views depending on scroll position
@@ -510,7 +527,6 @@ fun MultiAppChromeScreen(
     )
     // //////////////////////////////////////////////
 
-    val navController = rememberNavController()
     // this container has the following format
     // -> Space for the toolbar
     // -> collapsable header
@@ -715,7 +731,12 @@ fun MultiAppChromeScreen(
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
                     openNftDetail = openNftDetail,
-                    nftNavigation = nftNavigation
+                    nftNavigation = nftNavigation,
+                    earnNavigation = earnNavigation,
+                    openEarnDashboard = {
+                        selectedNavigationItem = ChromeBottomNavigationItem.Earn
+                        verifyHeaderPositionForNewScreen = true
+                    }
                 )
             }
         }
@@ -738,14 +759,15 @@ fun MultiAppChromeScreen(
                 },
             navControllerProvider = { navController },
             navigationItems = currentBottomNavigationItems.toImmutableList(),
-        ) {
-            if (isRefreshing) {
-                stopRefresh()
-            } else {
-                selectedNavigationItem = it
-                verifyHeaderPositionForNewScreen = true
+            onSelected = {
+                if (isRefreshing) {
+                    stopRefresh()
+                } else {
+                    selectedNavigationItem = it
+                    verifyHeaderPositionForNewScreen = true
+                }
             }
-        }
+        )
 
         // we have to reserve spaces for the statusbar and nav bar because the screen can draw on them
         // so we can have custom gradient status bar

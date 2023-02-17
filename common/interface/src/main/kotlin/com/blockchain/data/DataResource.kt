@@ -342,6 +342,3 @@ fun <T> DataResource<T>.dataOrElse(default: T): T {
         is DataResource.Data -> this.data
     }
 }
-
-fun <T> T.toDataResource() = DataResource.Data(this)
-fun <T : Exception> T.toDataResource() = DataResource.Error(this)

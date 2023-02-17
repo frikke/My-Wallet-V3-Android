@@ -8,7 +8,8 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.toDataResource
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.flatMapData
@@ -45,36 +46,38 @@ internal class UnifiedBalancesRepository(
             val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
                 it.publicKey()
             }
-            subscribe(pubKeys)
-            emitAll(
-                unifiedBalancesStore.stream(
-                    freshnessStrategy
-                )
-                    .mapData { response ->
-                        response.balances.filter {
-                            if (wallet == null) true
-                            else it.currency == wallet.currency.networkTicker &&
-                                it.account.index == wallet.index
-                        }.mapNotNull {
-                            if (it.price == null) return@mapNotNull null
-                            val cc = assetCatalogue.fromNetworkTicker(it.currency)
-                            NetworkBalance(
-                                currency = cc ?: return@mapNotNull null,
-                                balance = it.balance?.amount?.let { amount ->
-                                    Money.fromMinor(cc, amount)
-                                } ?: return@mapNotNull null,
-                                unconfirmedBalance = it.pending?.amount?.let { amount ->
-                                    Money.fromMinor(cc, amount)
-                                } ?: return@mapNotNull null,
-                                exchangeRate = ExchangeRate(
-                                    from = cc,
-                                    to = currencyPrefs.selectedFiatCurrency,
-                                    rate = it.price
-                                )
-                            )
-                        }
-                    }
-            )
+            when (val subscribeResult = subscribe(pubKeys)) {
+                is Outcome.Failure -> emit(subscribeResult.toDataResource())
+                is Outcome.Success -> {
+                    emitAll(
+                        unifiedBalancesStore.stream(freshnessStrategy)
+                            .mapData { response ->
+                                response.balances.filter {
+                                    if (wallet == null) true
+                                    else it.currency == wallet.currency.networkTicker &&
+                                        it.account.index == wallet.index
+                                }.mapNotNull {
+                                    if (it.price == null) return@mapNotNull null
+                                    val cc = assetCatalogue.fromNetworkTicker(it.currency)
+                                    NetworkBalance(
+                                        currency = cc ?: return@mapNotNull null,
+                                        balance = it.balance?.amount?.let { amount ->
+                                            Money.fromMinor(cc, amount)
+                                        } ?: return@mapNotNull null,
+                                        unconfirmedBalance = it.pending?.amount?.let { amount ->
+                                            Money.fromMinor(cc, amount)
+                                        } ?: return@mapNotNull null,
+                                        exchangeRate = ExchangeRate(
+                                            from = cc,
+                                            to = currencyPrefs.selectedFiatCurrency,
+                                            rate = it.price
+                                        )
+                                    )
+                                }
+                            }
+                    )
+                }
+            }
         }
     }
 
@@ -97,8 +100,9 @@ internal class UnifiedBalancesRepository(
         }
     }
 
-    private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkWallet, List<PublicKey>>): CommonResponse {
-
+    private suspend fun subscribe(
+        networkAccountsPubKeys: Map<NetworkWallet, List<PublicKey>>
+    ): Outcome<Exception, CommonResponse> {
         val subscriptions = networkAccountsPubKeys.keys.map {
             check(networkAccountsPubKeys[it] != null)
             SubscriptionInfo(
@@ -119,8 +123,6 @@ internal class UnifiedBalancesRepository(
         return unifiedBalancesSubscribeStore.stream(
             FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 .withKey(subscriptions)
-        )
-            .firstOutcome()
-            .getOrThrow()
+        ).firstOutcome()
     }
 }

@@ -22,7 +22,7 @@ import timber.log.Timber
 
 data class ReceiveDetailState(
     val account: CryptoAccount = NullCryptoAccount(),
-    val cryptoAddress: CryptoAddress = NullCryptoAddress(),
+    val cryptoAddress: CryptoAddress = NullCryptoAddress,
     val networkName: String? = null,
     val qrUri: String? = null
 ) : MviState {
@@ -38,7 +38,7 @@ internal class InitWithAccount(
     override fun reduce(oldState: ReceiveDetailState): ReceiveDetailState {
         return oldState.copy(
             account = cryptoAccount,
-            cryptoAddress = NullCryptoAddress(),
+            cryptoAddress = NullCryptoAddress,
             qrUri = null
         )
     }

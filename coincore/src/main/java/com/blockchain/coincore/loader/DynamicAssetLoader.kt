@@ -156,11 +156,11 @@ internal class DynamicAssetLoader(
     * We need to make sure ETH is initialised before we request the supported erc20s
     * */
     private fun initNonCustodialAssets(assetList: List<Asset>): Completable =
-        assetList.filterIsInstance<NonCustodialSupport>().map {
-            Single.defer { it.initToken().toSingle { } }.doOnError {
+        assetList.filterIsInstance<NonCustodialSupport>().map { asset ->
+            Single.defer { asset.initToken().toSingle { } }.doOnError {
                 remoteLogger.logException(
                     CoincoreInitFailure(
-                        "Failed init: ${(it as CryptoAsset).currency.networkTicker}", it
+                        "Failed init: ${(asset as CryptoAsset).currency.networkTicker}", it
                     )
                 )
             }

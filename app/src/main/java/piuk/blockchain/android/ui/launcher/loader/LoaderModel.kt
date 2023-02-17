@@ -11,6 +11,7 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.exceptions.CompositeException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
@@ -150,7 +151,14 @@ class LoaderModel(
     }
 
     private fun logException(throwable: Throwable) {
-        remoteLogger.logEvent("Startup exception: ${throwable.message}")
-        remoteLogger.logException(throwable)
+        (throwable as? CompositeException)?.let { compositeException ->
+            compositeException.exceptions.forEach {
+                remoteLogger.logEvent("Startup exception Composite Exception: ${it.message}")
+                remoteLogger.logException(it)
+            }
+        } ?: run {
+            remoteLogger.logEvent("Startup exception: ${throwable.message}")
+            remoteLogger.logException(throwable)
+        }
     }
 }

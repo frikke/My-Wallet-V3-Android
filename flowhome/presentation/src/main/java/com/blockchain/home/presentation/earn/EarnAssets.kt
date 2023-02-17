@@ -40,13 +40,12 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import org.koin.androidx.compose.get
 
 internal fun LazyListScope.homeEarnAssets(
     earnState: EarnViewState,
-    assetActionsNavigation: AssetActionsNavigation,
-    earnViewModel: EarnViewModel
+    earnViewModel: EarnViewModel,
+    openEarnDashboard: () -> Unit,
 ) {
     if (earnState == EarnViewState.None) {
         return
@@ -60,7 +59,7 @@ internal fun LazyListScope.homeEarnAssets(
             title = stringResource(R.string.common_earn),
             actionTitle = stringResource(R.string.manage).takeIf { earnState is EarnViewState.Assets },
             actionOnClick = {
-                assetActionsNavigation.earnRewards()
+                openEarnDashboard()
                 analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
             }.takeIf { earnState is EarnViewState.Assets }
         )
@@ -71,7 +70,7 @@ internal fun LazyListScope.homeEarnAssets(
             paddedItem(
                 paddingValues = PaddingValues(horizontal = 16.dp)
             ) {
-                NoAssetsInvested { assetActionsNavigation.earnRewards() }
+                NoAssetsInvested(openEarnDashboard = openEarnDashboard)
             }
         is EarnViewState.Assets -> {
             val mAssets = earnState.assets
@@ -130,7 +129,7 @@ private fun Double.withoutTrailingZerosIfWhole(): Any {
 @Composable
 fun NoAssetsInvested(
     analytics: Analytics = get(),
-    earn: () -> Unit = {}
+    openEarnDashboard: () -> Unit = {}
 ) {
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -188,7 +187,7 @@ fun NoAssetsInvested(
                         )
                     },
                     onClick = {
-                        earn()
+                        openEarnDashboard()
                         analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked)
                     },
                     shape = CircleShape,
