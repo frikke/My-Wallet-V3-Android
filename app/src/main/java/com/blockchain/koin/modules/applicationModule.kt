@@ -27,6 +27,7 @@ import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
@@ -54,7 +55,6 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -163,6 +163,7 @@ import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.SupportNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
+import piuk.blockchain.android.ui.interest.EarnNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -313,6 +314,15 @@ val applicationModule = module {
 
         scoped { (activity: BlockchainActivity) -> NftNavigationImpl(activity = activity) }.apply {
             bind(NftNavigation::class)
+        }
+
+        scoped { (activity: BlockchainActivity, assetActionsNavigation: AssetActionsNavigation) ->
+            EarnNavigationImpl(
+                activity = activity,
+                assetActionsNavigation = assetActionsNavigation
+            )
+        }.apply {
+            bind(EarnNavigation::class)
         }
 
         scoped {
@@ -752,7 +762,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 xlmDataManager = get(),
                 ethDataManager = get(),
-                homeActivityLauncher = get()
             )
         }
 
@@ -963,9 +972,7 @@ val applicationModule = module {
     }
 
     single {
-        HomeActivityLauncher(
-            featureFlag = get(superappFeatureFlag)
-        )
+        HomeActivityLauncher()
     }
 
     factory {

@@ -92,7 +92,8 @@ fun HomeScreen(
     openSwapDexOption: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
-    startPhraseRecovery: () -> Unit
+    startPhraseRecovery: () -> Unit,
+    openEarnDashboard: () -> Unit,
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -164,7 +165,7 @@ fun HomeScreen(
         earnViewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
 
-    // TODO (labreu) this should be done inside homeEarnAssets
+    // TODO (labreu) this should be done inside homeEarnAssets but it's not a composable
     LaunchedEffect(key1 = earnViewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
@@ -178,7 +179,7 @@ fun HomeScreen(
                     )
                 }
                 is EarnNavEvent.Staking -> {
-                    assetActionsNavigation.stakingSummary(it.account.currency)
+                    assetActionsNavigation.stakingSummary(it.account.currency.networkTicker)
                     analytics.logEvent(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,
@@ -333,7 +334,7 @@ fun HomeScreen(
         )
 
         earnViewState.let { earnState ->
-            homeEarnAssets(earnState, assetActionsNavigation, earnViewModel)
+            homeEarnAssets(earnState = earnState, earnViewModel = earnViewModel, openEarnDashboard = openEarnDashboard)
         }
 
         walletMode?.let {

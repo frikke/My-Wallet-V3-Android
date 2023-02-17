@@ -345,9 +345,6 @@ fun <T> DataResource<T>.dataOrElse(default: T): T {
     }
 }
 
-fun <T> T.toDataResource() = DataResource.Data(this)
-fun <T : Exception> T.toDataResource() = DataResource.Error(this)
-
 fun <T> DataResource<List<T>>.toImmutableList(): DataResource<ImmutableList<T>>{
     return map { it.toImmutableList() }
 }

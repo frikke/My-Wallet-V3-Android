@@ -2,7 +2,6 @@ package info.blockchain.wallet.payload.data
 
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.DecryptionException
-import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
 import java.io.IOException
 import java.lang.Exception
@@ -40,19 +39,13 @@ data class WalletWrapper(
         return jsonBuilder.encodeToString(this)
     }
 
-    @Throws(UnsupportedVersionException::class)
     private fun validateVersion() {
         if (version > SUPPORTED_VERSION) {
             throw UnsupportedVersionException(version.toString() + "")
         }
     }
 
-    @Throws(
-        UnsupportedVersionException::class,
-        IOException::class,
-        DecryptionException::class,
-        HDWalletException::class
-    ) fun decryptPayload(password: String?): Wallet {
+    fun decryptPayload(password: String?): Wallet {
         validateVersion()
         val decryptedPayload: String = try {
             AESUtil.decrypt(payload, password, pbkdf2Iterations)
@@ -63,7 +56,7 @@ data class WalletWrapper(
         try {
             return Wallet.fromJson(decryptedPayload, version)
         } catch (e: JSONException) {
-            throw DecryptionException("Decryption failed.")
+            throw DecryptionException(e)
         }
     }
 

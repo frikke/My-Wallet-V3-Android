@@ -7,7 +7,6 @@ import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.navigation.ActivityResultNavigation
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 
 @Stable
 interface AssetActionsNavigation : ActivityResultNavigation {
@@ -22,14 +21,12 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     )
 
     fun buyWithPreselectedMethod(paymentMethodId: String?)
-
-    fun earnRewards()
     fun settings()
     fun fundsLocksDetail(fundsLocks: FundsLocks)
     fun coinview(asset: AssetInfo)
     fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
     fun interestSummary(account: CryptoAccount)
-    fun stakingSummary(currency: Currency)
+    fun stakingSummary(networkTicker: String)
     fun startKyc()
 }

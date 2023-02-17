@@ -514,6 +514,8 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.common_send)
             AssetAction.Swap -> resources.getString(R.string.common_swap)
             AssetAction.InterestDeposit,
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit,
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)

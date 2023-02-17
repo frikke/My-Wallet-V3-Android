@@ -13,12 +13,10 @@ import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
-import piuk.blockchain.android.ui.interest.EarnDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
@@ -104,14 +102,6 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         )
     }
 
-    override fun earnRewards() {
-        activity!!.startActivity(
-            EarnDashboardActivity.newInstance(
-                activity
-            )
-        )
-    }
-
     override fun settings() {
         activity?.startActivity(SettingsActivity.newIntent(activity))
     }
@@ -120,8 +110,8 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         activity?.showBottomSheet(InterestSummarySheet.newInstance(account))
     }
 
-    override fun stakingSummary(currency: Currency) {
-        activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(currency.networkTicker))
+    override fun stakingSummary(networkTicker: String) {
+        activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(networkTicker))
     }
 
     override fun fundsLocksDetail(fundsLocks: FundsLocks) {

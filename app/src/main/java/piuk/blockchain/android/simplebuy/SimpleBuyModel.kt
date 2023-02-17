@@ -42,8 +42,9 @@ import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.network.PollResult
-import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.getOrElse
 import com.blockchain.payments.core.CardAcquirer
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -222,7 +223,7 @@ class SimpleBuyModel(
 
             is SimpleBuyIntent.ListenToOrderCreation -> createBuyOrderUseCase.buyOrderAndQuote.firstOrError()
                 .trackProgress(activityIndicator)
-                .map { it.getOrThrow() }
+                .flatMap { rxSingleOutcome { it } }
                 .subscribeBy(
                     onSuccess = {
                         process(SimpleBuyIntent.OrderCreated(buyOrder = it.buyOrder, quote = it.quote))
@@ -232,7 +233,7 @@ class SimpleBuyModel(
 
             is SimpleBuyIntent.ListenToQuotesUpdate -> {
                 createBuyOrderUseCase.buyOrderAndQuote
-                    .map { it.getOrThrow() }
+                    .map { it.getOrElse { throw (it as? Exception ?: Exception()) } }
                     .subscribeBy(
                         onNext = {
                             process(SimpleBuyIntent.OrderCreated(buyOrder = it.buyOrder, quote = it.quote))

@@ -5,23 +5,14 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.deeplinking.navigation.Destination
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.HomeLaunch.INTENT_FROM_NOTIFICATION
 import com.blockchain.home.presentation.navigation.HomeLaunch.LAUNCH_AUTH_FLOW
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 
-class HomeActivityLauncher(private val featureFlag: FeatureFlag) {
+class HomeActivityLauncher {
 
-    private var homeActivity: Class<*> = MainActivity::class.java
-
-    suspend fun updateHomeActivity() {
-        val isSuperAppEnabled = featureFlag.coEnabled()
-        homeActivity = if (isSuperAppEnabled)
-            MultiAppActivity::class.java
-        else
-            MainActivity::class.java
-    }
+    private val homeActivity: Class<*> = MultiAppActivity::class.java
 
     fun newIntent(
         context: Context,

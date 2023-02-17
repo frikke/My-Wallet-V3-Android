@@ -170,7 +170,6 @@ fun ColumnScope.PricesScreenData(
             values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
             onClick = { filter -> onFilterSelected(filter) }
         )
-
     }
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -193,7 +192,7 @@ fun ColumnScope.PricesScreenData(
             item {
                 TopMoversScreen(
                     data = topMovers,
-                    assetOnClick = { }
+                    assetOnClick = { onAssetClick(it) }
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))

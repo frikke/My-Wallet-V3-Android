@@ -7,6 +7,7 @@ dependencies {
     implementation project(':chrome:common')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':common:presentation')
     implementation project(':commonarch')
     implementation project(':balance')
     implementation project(':deeplinking')
