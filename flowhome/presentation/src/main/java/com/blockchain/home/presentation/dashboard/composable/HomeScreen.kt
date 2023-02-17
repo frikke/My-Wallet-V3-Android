@@ -62,6 +62,9 @@ import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
 import com.blockchain.koin.payloadScope
+import com.blockchain.prices.prices.PricesIntents
+import com.blockchain.prices.prices.PricesViewModel
+import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest
@@ -96,6 +99,9 @@ fun HomeScreen(
 
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
+
+    val pricesViewModel: PricesViewModel = getViewModel(scope = payloadScope)
+    val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
 
     val earnViewModel: EarnViewModel = getViewModel(scope = payloadScope)
     val earnViewState: EarnViewState by earnViewModel.viewState.collectAsStateLifecycleAware()
@@ -134,6 +140,7 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
+                pricesViewModel.onIntent(PricesIntents.LoadData)
                 earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
                 referralViewModel.onIntent(ReferralIntent.LoadData())
@@ -192,6 +199,7 @@ fun HomeScreen(
     LaunchedEffect(key1 = isSwipingToRefresh) {
         if (isSwipingToRefresh) {
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
+            pricesViewModel.onIntent(PricesIntents.Refresh)
             earnViewModel.onIntent(EarnIntent.Refresh)
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
@@ -311,6 +319,14 @@ fun HomeScreen(
                 }
             )
         }
+
+        // top movers
+        homeTopMovers(
+            data = pricesViewState.topMovers,
+            assetOnClick = { asset ->
+                assetActionsNavigation.coinview(asset)
+            },
+        )
 
         earnViewState.let { earnState ->
             homeEarnAssets(earnState, assetActionsNavigation, earnViewModel)

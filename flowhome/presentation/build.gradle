@@ -44,6 +44,7 @@ dependencies {
     implementation project(':walletconnect')
     implementation project(':defiwalletbackup:domain')
     implementation project(':earn:presentation')
+    implementation project(':flowprices:presentation')
     implementation Libraries.composelifecycle
     // android
     implementation Libraries.design

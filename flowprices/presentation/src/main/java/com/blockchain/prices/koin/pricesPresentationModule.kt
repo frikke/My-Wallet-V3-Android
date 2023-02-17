@@ -10,11 +10,8 @@ val pricesPresentationModule = module {
         viewModel {
             PricesViewModel(
                 currencyPrefs = get(),
-                coincore = get(),
                 userFeaturePermissionService = get(),
-                exchangeRatesDataManager = get(),
-                simpleBuyService = get(),
-                watchlistService = get(),
+                pricesService = get(),
             )
         }
     }

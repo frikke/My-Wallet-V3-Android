@@ -5,21 +5,16 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import info.blockchain.balance.Currency
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface WatchlistService {
     fun getWatchlist(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
-            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-        )
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<List<Currency>>>
 
     fun isAssetInWatchlist(
         asset: Currency,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
-            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
-        )
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Boolean>>
 
     suspend fun addToWatchlist(

@@ -90,6 +90,11 @@ fun <T, R> Flow<DataResource<List<T>>>.mapListData(mapper: (T) -> R): Flow<DataR
         }
     }
 
+fun <T> Flow<DataResource<Iterable<T>>>.filterListData(predicate: (T) -> Boolean): Flow<DataResource<List<T>>> =
+    mapData {
+        it.filter(predicate)
+    }
+
 fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
     filterNot { it is DataResource.Loading }
         .map {

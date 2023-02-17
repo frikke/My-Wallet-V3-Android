@@ -412,6 +412,7 @@ dependencies {
     implementation project(':flowhome:data')
 
     implementation project(':flowprices:presentation')
+    implementation project(':flowprices:data')
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
