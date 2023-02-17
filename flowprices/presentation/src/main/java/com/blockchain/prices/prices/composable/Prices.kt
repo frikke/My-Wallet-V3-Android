@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tag.button.TagButtonRow
