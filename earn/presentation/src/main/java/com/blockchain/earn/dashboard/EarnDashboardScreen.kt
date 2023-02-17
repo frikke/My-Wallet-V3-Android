@@ -22,6 +22,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,10 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -67,11 +71,13 @@ import com.blockchain.earn.dashboard.viewmodel.EarnDashboardListFilter
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewState
 import com.blockchain.earn.dashboard.viewmodel.EarnType
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.onboarding.EarnOnboardingProductPage
 import com.blockchain.earn.onboarding.EarnProductOnboarding
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
+import kotlinx.coroutines.flow.collectLatest
 import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
 import org.koin.androidx.compose.get
@@ -79,13 +85,26 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EarnDashboardScreen(
-    viewModel: EarnDashboardViewModel = getViewModel(scope = payloadScope)
+    viewModel: EarnDashboardViewModel = getViewModel(scope = payloadScope),
+    earnNavigation: EarnNavigation
 ) {
     val viewState: EarnDashboardViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(EarnDashboardIntent.LoadEarn)
         onDispose { }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            earnNavigation.route(it)
+        }
     }
 
     Box(
@@ -396,7 +415,9 @@ private fun DiscoverScreen(
                                 ),
                                 isInlineTags = true,
                                 endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
-                                onClick = { onItemClicked(item) },
+                                onClick = {
+                                    onItemClicked(item)
+                                },
                             )
 
                             if (index < discoverAssetList.lastIndex) {

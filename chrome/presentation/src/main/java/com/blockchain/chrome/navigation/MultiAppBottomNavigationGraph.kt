@@ -18,6 +18,8 @@ import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.componentlib.chrome.extractStatesInfo
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.earn.dashboard.EarnDashboardScreen
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
@@ -59,6 +61,8 @@ fun MultiAppBottomNavigationHost(
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
+    openEarnDashboard: () -> Unit,
 ) {
 
     val walletMode by get<WalletModeService>(scope = payloadScope)
@@ -120,7 +124,8 @@ fun MultiAppBottomNavigationHost(
                         openSwapDexOption = openSwapDexOption,
                         openFiatActionDetail = openFiatActionDetail,
                         openMoreQuickActions = openMoreQuickActions,
-                        startPhraseRecovery = startPhraseRecovery
+                        startPhraseRecovery = startPhraseRecovery,
+                        openEarnDashboard = openEarnDashboard,
                     )
                 },
                 refreshStarted = {
@@ -199,6 +204,37 @@ fun MultiAppBottomNavigationHost(
                         openNftDetail = openNftDetail,
                         nftNavigation = nftNavigation
                     )
+                },
+                refreshStarted = {
+                    isRefreshing = true
+                    refreshStarted()
+                },
+                refreshComplete = {
+                    refreshComplete()
+                    isRefreshing = false
+                }
+            )
+        }
+
+        composable(ChromeBottomNavigationItem.Earn.route) {
+            val listState = rememberLazyListState()
+            var isRefreshing by remember { mutableStateOf(false) }
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+            updateScrollInfo(
+                Pair(
+                    ChromeBottomNavigationItem.Earn,
+                    extractStatesInfo(listState, swipeRefreshState)
+                )
+            )
+
+            ChromeScreen(
+                modifier = modifier,
+                isPullToRefreshEnabled = enableRefresh,
+                isRefreshing = isRefreshing,
+                swipeRefreshState = swipeRefreshState,
+                content = { shouldTriggerRefresh ->
+                    EarnDashboardScreen(earnNavigation = earnNavigation)
                 },
                 refreshStarted = {
                     isRefreshing = true

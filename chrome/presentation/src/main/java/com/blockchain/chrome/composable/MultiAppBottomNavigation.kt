@@ -51,15 +51,6 @@ fun MultiAppBottomNavigation(
                 Column(
                     modifier = Modifier.clickable {
                         onSelected(item)
-                        navControllerProvider().navigate(item.route) {
-                            navControllerProvider().graph.startDestinationRoute?.let { screen_route ->
-                                popUpTo(screen_route) {
-                                    saveState = true
-                                }
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
                     },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
