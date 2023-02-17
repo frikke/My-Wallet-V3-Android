@@ -27,6 +27,7 @@ import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
@@ -162,6 +163,7 @@ import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.SupportNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
+import piuk.blockchain.android.ui.interest.EarnNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -312,6 +314,15 @@ val applicationModule = module {
 
         scoped { (activity: BlockchainActivity) -> NftNavigationImpl(activity = activity) }.apply {
             bind(NftNavigation::class)
+        }
+
+        scoped { (activity: BlockchainActivity, assetActionsNavigation: AssetActionsNavigation) ->
+            EarnNavigationImpl(
+                activity = activity,
+                assetActionsNavigation = assetActionsNavigation
+            )
+        }.apply {
+            bind(EarnNavigation::class)
         }
 
         scoped {

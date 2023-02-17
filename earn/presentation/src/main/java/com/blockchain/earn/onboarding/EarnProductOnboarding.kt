@@ -1,15 +1,16 @@
 package com.blockchain.earn.onboarding
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -33,10 +34,16 @@ fun EarnProductOnboarding(
     onboardingPages: List<EarnOnboardingProductPage>,
     onFinishOnboarding: () -> Unit
 ) {
-    Box(
+
+    val configuration = LocalConfiguration.current
+    configuration.screenHeightDp
+
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(AppTheme.dimensions.smallSpacing)
+            .fillMaxWidth()
+            .height(configuration.screenHeightDp.dp)
+            .padding(AppTheme.dimensions.smallSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         val pagerState = rememberPagerState()
@@ -46,7 +53,7 @@ fun EarnProductOnboarding(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter),
+                .weight(1f),
             verticalAlignment = Alignment.Top
         ) { pageIndex ->
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -82,7 +89,9 @@ fun EarnProductOnboarding(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter)
+                // TODO(labreu): hardcoded to avoid overlap with bottom nav,
+                // this screen will become a bottomsheet in the future
+                .padding(bottom = 150.dp)
         ) {
             HorizontalPagerIndicator(
                 pagerState = pagerState,

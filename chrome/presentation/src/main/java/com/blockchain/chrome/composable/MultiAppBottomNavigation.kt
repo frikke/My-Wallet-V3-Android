@@ -53,15 +53,6 @@ fun MultiAppBottomNavigation(
                         modifier = Modifier
                             .clickableWithIndication {
                                 onSelected(item)
-                                navControllerProvider().navigate(item.route) {
-                                    navControllerProvider().graph.startDestinationRoute?.let { screen_route ->
-                                        popUpTo(screen_route) {
-                                            saveState = true
-                                        }
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
                             }
                             .padding(
                                 horizontal = AppTheme.dimensions.verySmallSpacing,
