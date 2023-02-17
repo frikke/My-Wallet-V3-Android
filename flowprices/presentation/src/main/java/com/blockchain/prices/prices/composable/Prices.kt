@@ -25,7 +25,6 @@ import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
-import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
@@ -164,7 +163,6 @@ fun ColumnScope.PricesScreenData(
             values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
             onClick = { filter -> onFilterSelected(filter) }
         )
-
     }
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
