@@ -21,12 +21,10 @@ data class PricesViewState(
 ) : ViewState {
     val mostPopularAndOtherAssets: DataResource<Map<PricesOutputGroup, List<PriceItemViewState>>>
         get() = data
+
     val allAssets: DataResource<List<PriceItemViewState>>
-        get() = combineDataResources(
-            data.map { it[PricesOutputGroup.MostPopular] ?: listOf() },
-            data.map { it[PricesOutputGroup.Others] ?: listOf() }
-        ) { mostPopular, other ->
-            (mostPopular + other)
+        get() = data.map {
+            (it[PricesOutputGroup.MostPopular] ?: listOf()) + (it[PricesOutputGroup.Others] ?: listOf())
         }
 }
 
