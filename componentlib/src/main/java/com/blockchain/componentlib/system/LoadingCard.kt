@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
@@ -14,6 +15,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun ShimmerLoadingCard(
+    modifier: Modifier = Modifier,
     itemCount: Int = 2,
     backgroundColor: Color = AppTheme.colors.background,
     shape: Shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
@@ -21,6 +23,7 @@ fun ShimmerLoadingCard(
     showEndBlocks: Boolean = true
 ) {
     Card(
+        modifier = modifier,
         backgroundColor = backgroundColor,
         shape = shape,
         elevation = elevation
