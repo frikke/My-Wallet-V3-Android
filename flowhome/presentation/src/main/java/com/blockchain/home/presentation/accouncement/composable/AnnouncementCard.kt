@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
@@ -58,17 +59,17 @@ fun Announcements(
 
 @Composable
 fun AnnouncementCard(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
     icon: StackedIcon,
+    elevation: Dp = AppTheme.dimensions.mediumElevation,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier
-            .padding(vertical = AppTheme.dimensions.smallSpacing)
-            .fillMaxWidth(),
+        modifier = modifier,
         color = AppTheme.colors.background,
-        elevation = AppTheme.dimensions.mediumElevation,
+        elevation = elevation,
         shape = AppTheme.shapes.large
     ) {
         Row(
