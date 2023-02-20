@@ -149,7 +149,6 @@ class MultiAppActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -190,7 +189,6 @@ class MultiAppActivity :
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
-
             MultiAppNavHost(
                 startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
@@ -204,6 +202,7 @@ class MultiAppActivity :
                 openExternalUrl = ::openExternalUrl
             )
         }
+        handleIntent(intent)
         subscribeForSecurityChannelLogin()
         handleFiatActionsNav()
         if (savedInstanceState == null) {

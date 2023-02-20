@@ -7,10 +7,8 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
-import org.koin.java.KoinJavaComponent
 
 @DrawableRes internal fun FiatActivitySummaryItem.iconSummary(): Int {
     return when (type) {
@@ -67,14 +65,12 @@ internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {
 }
 
 internal fun FiatActivitySummaryItem.trailingSubtitle(): ActivityStackView? {
-    return KoinJavaComponent.getKoin().get<CurrencyPrefs>().selectedFiatCurrency.let { selectedFiat ->
-        if (currency != selectedFiat) {
-            return ActivityStackView.Text(
-                value = TextValue.StringValue(fiatValue(selectedFiat).toStringWithSymbol()),
-                style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
-            )
-        } else {
-            null
-        }
+    return if (fiat != value) {
+        return ActivityStackView.Text(
+            value = TextValue.StringValue(fiat.toStringWithSymbol()),
+            style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
+        )
+    } else {
+        null
     }
 }

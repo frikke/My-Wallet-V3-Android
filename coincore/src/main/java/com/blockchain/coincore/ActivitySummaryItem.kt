@@ -40,6 +40,7 @@ class FiatActivitySummaryItem(
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
+    val fiat: Money,
     override val account: FiatAccount,
     val type: TransactionType,
     override val state: TransactionState,
@@ -62,9 +63,6 @@ interface ActivitySummaryItem : Comparable<ActivitySummaryItem> {
     val timeStampMs: Long
     val stateIsFinalised: Boolean
     val value: Money
-
-    fun fiatValue(selectedFiat: FiatCurrency): Money =
-        value.toFiat(selectedFiat, exchangeRates)
 
     val date: Calendar
         get() = Calendar.getInstance().apply { timeInMillis = timeStampMs }
