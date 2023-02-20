@@ -60,7 +60,8 @@ class BuySelectAssetFragment : ViewPagerFragment(), KoinScopeComponent {
                         }
                     },
                     startKycClicked = {
-                        KycNavHostActivity.startForResult(this@BuySelectAssetFragment, CampaignType.SimpleBuy,
+                        KycNavHostActivity.startForResult(
+                            this@BuySelectAssetFragment, CampaignType.SimpleBuy,
                             HomeLaunch.KYC_STARTED
                         )
                     }

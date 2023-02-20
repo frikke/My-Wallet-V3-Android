@@ -345,6 +345,6 @@ fun <T> DataResource<T>.dataOrElse(default: T): T {
     }
 }
 
-fun <T> DataResource<List<T>>.toImmutableList(): DataResource<ImmutableList<T>>{
+fun <T> DataResource<List<T>>.toImmutableList(): DataResource<ImmutableList<T>> {
     return map { it.toImmutableList() }
 }

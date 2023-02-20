@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.koin.assetOrderingFeatureFlag
-import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.exchangeWAPromptFeatureFlag

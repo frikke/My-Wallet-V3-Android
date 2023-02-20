@@ -14,13 +14,11 @@ import com.blockchain.componentlib.card.BalanceChangeSmallCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesLoadStrategy
-import com.blockchain.prices.prices.PricesOutputGroup
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import info.blockchain.balance.AssetInfo

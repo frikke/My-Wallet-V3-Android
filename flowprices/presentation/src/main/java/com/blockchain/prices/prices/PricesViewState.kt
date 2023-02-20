@@ -4,14 +4,9 @@ import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
-import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.prices.R
 import info.blockchain.balance.AssetInfo
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 
 data class PricesViewState(
     val selectedFilter: PricesFilter,

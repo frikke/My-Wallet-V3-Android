@@ -30,7 +30,6 @@ import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
