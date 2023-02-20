@@ -10,5 +10,3 @@ data class AssetPriceInfo(
     val isTradable: Boolean,
     val isInWatchlist: Boolean
 )
-
-object MostPopularTickers : ArrayList<String>()
