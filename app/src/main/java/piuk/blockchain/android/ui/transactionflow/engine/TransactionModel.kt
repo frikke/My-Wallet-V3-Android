@@ -691,7 +691,8 @@ class TransactionModel(
         AssetAction.StakingDeposit,
         AssetAction.ActiveRewardsDeposit -> interactor.checkShouldShowRewardsInterstitial(
             sourceAccount = sourceAccount,
-            asset = (target as CryptoAccount).currency
+            asset = (target as CryptoAccount).currency,
+            action = action
         ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,
