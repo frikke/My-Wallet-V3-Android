@@ -44,7 +44,6 @@ class AccountRecoveryActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.account_recover_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }

@@ -57,7 +57,6 @@ class LoaderActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
 
         updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = false)
 

@@ -52,7 +52,6 @@ class ReceiveDetailActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
 
         updateToolbar(
             toolbarTitle = getString(R.string.tx_title_receive, account?.currency?.displayTicker),

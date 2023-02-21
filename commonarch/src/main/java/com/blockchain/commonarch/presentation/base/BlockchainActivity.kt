@@ -179,18 +179,12 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     override fun setContentView(view: View) {
-        // Some activities are calling setContentView twice, once on specific activity onCreate and another on
-        // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
-        if (processDeathOccurredAndThisIsNotLauncherActivity && view.parent == null) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
             super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
             return
         }
 
         val view = if (BuildConfig.DEBUG) {
-            // Some activities are calling setContentView twice, once on specific activity onCreate and another on
-            // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
-            if (view.parent != null) return
-
             val wrapper = FrameLayout(this).apply {
                 val params =
                     ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -212,7 +206,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     override fun setContentView(view: View, params: ViewGroup.LayoutParams?) {
-        if (processDeathOccurredAndThisIsNotLauncherActivity && view.parent == null) {
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
             super.setContentView(createWrapperAndHideViewWithWhiteScrim(view))
         } else {
             super.setContentView(view, params)
@@ -220,8 +214,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     private fun createWrapperAndHideViewWithWhiteScrim(view: View): View {
-        // Some activities are calling setContentView twice, once on specific activity onCreate and another on
-        // MviActivity onCreate hence we skip 2nd setContentView, otherwise it would crash due to re adding the wrapper
         val wrapper = FrameLayout(this).apply {
             val params =
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
