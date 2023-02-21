@@ -40,6 +40,19 @@ sealed class DashboardAnalyticsEvents(
         params = state?.stateName()?.let { mapOf(DASHBOARD_STATE to it) } ?: emptyMap()
     )
 
+    data class TopMoverAssetClicked(
+        val ticker: String,
+        val percentageMove: Double,
+        val position: Int,
+    ) : DashboardAnalyticsEvents(
+        event = AnalyticsNames.TOP_MOVER_DASHBOARD_CLICKED.eventName,
+        params = mapOf(
+            CURRENCY to ticker,
+            PERCENTAGE_MOVE to percentageMove.toString(),
+            POSITION to position.toString()
+        )
+    )
+
     data class AssetsSeeAllClicked(val assetsCount: Int) : DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_ASSETS_SEE_ALL_CLICKED.eventName,
         params = mapOf(ASSETS_COUNT to assetsCount.toString())
@@ -99,6 +112,8 @@ sealed class DashboardAnalyticsEvents(
         private const val CURRENCY = "currency"
         private const val EARN_PRODUCT = "earn_product"
         private const val DASHBOARD_STATE = "dashboard_state"
+        private const val PERCENTAGE_MOVE = "percentage move"
+        private const val POSITION = "position"
     }
 }
 
