@@ -37,9 +37,8 @@ import com.blockchain.home.presentation.accouncement.AnnouncementType
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewState
+import com.blockchain.home.presentation.accouncement.composable.AnnouncementTbd
 import com.blockchain.home.presentation.accouncement.composable.Announcements
-import com.blockchain.home.presentation.accouncement.composable.tt.AnnouncementTbd
-import com.blockchain.home.presentation.accouncement.composable.tt.Announcements
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
