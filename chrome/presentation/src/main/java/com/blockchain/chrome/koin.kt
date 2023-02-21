@@ -1,5 +1,6 @@
 package com.blockchain.chrome
 
+import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -11,6 +12,7 @@ val multiAppModule = module {
                 walletModeService = get(),
                 walletModeBalanceService = get(),
                 walletStatusPrefs = get(),
+                dexFeatureFlag = get(dexFeatureFlag),
                 walletModePrefs = get(),
                 appRatingService = get()
             )

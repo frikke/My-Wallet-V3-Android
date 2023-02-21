@@ -190,6 +190,7 @@
     <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
+    <string name="chrome_navigation_dex">DEX</string>
     <string name="chrome_navigation_earn">Earn</string>
 
     <!-- Value Props -->
@@ -3511,7 +3512,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_onboarding_active_title">Active Rewards</string>
     <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
     <string name="earn_onboarding_cta">Start earning</string>
-
 
     <string name="prices_top_movers">Top Movers</string>
 

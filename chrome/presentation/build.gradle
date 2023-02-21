@@ -28,6 +28,7 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
     implementation project(':nfts:presentation')
+    implementation project(':dex:presentation')
 
     implementation project(':fiatActions')
     implementation Libraries.rxKotlin

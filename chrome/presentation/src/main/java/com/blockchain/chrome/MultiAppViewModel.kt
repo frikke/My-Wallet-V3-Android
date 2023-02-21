@@ -10,6 +10,7 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -29,6 +30,7 @@ class MultiAppViewModel(
     private val walletModeBalanceService: WalletModeBalanceService,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val walletModePrefs: WalletModePrefs,
+    private val dexFeatureFlag: FeatureFlag,
     private val appRatingService: AppRatingService
 ) : MviViewModel<
     MultiAppIntents,
@@ -54,7 +56,9 @@ class MultiAppViewModel(
             backgroundColors = state.selectedWalletMode?.backgroundColors(),
             totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },
             shouldRevealBalance = state.balanceRevealed.not(),
-            bottomNavigationItems = state.selectedWalletMode?.bottomNavigationItems()
+            bottomNavigationItems = state.selectedWalletMode?.bottomNavigationItems()?.filter {
+                it != ChromeBottomNavigationItem.Dex || state.dexEnabled
+            }
         )
     }
 
@@ -84,7 +88,7 @@ class MultiAppViewModel(
                         }
                     }
                 }
-
+                loadDex()
                 loadBalance()
             }
 
@@ -100,6 +104,15 @@ class MultiAppViewModel(
                 updateState {
                     it.copy(balanceRevealed = true)
                 }
+            }
+        }
+    }
+
+    private fun loadDex() {
+        viewModelScope.launch {
+            val dexEnabled = dexFeatureFlag.coEnabled()
+            updateState {
+                it.copy(dexEnabled = dexEnabled)
             }
         }
     }
