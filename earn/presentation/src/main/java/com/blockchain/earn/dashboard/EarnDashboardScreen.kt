@@ -604,6 +604,7 @@ private fun EarningScreen(
         } else {
             Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
                 LazyRoundedCornersColumnIndexed(
+                    modifier = Modifier.fillMaxSize(),
                     items = earningAssetList,
                     rowContent = { asset, index ->
                         Column {
