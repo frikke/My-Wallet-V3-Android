@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.accouncement.composable.tt
+package com.blockchain.home.presentation.accouncement.composable
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,7 +20,6 @@ import com.blockchain.componentlib.swipeable.swipeable
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Pink600
-import com.blockchain.home.presentation.accouncement.composable.AnnouncementCard
 import kotlinx.coroutines.launch
 
 data class AnnouncementTbd(
@@ -51,9 +49,9 @@ fun Announcements(
                 .fillMaxWidth()
                 .align(Alignment.Center)
         ) {
-            (announcements.map {
+            announcements.map {
                 it to rememberSwipeableState()
-            }).forEachIndexed { index, (announcement, state) ->
+            }.forEachIndexed { index, (announcement, state) ->
                 state.isSwipeEnabled = index == announcements.lastIndex
 
                 AnnouncementCard(

@@ -26,7 +26,7 @@ fun Modifier.swipeable(
         onSwipeComplete(this)
     }
 
-    if(state.isSwipeEnabled){
+    if (state.isSwipeEnabled) {
         coroutineScope {
             detectDragGestures(
                 onDragStart = {
