@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 
-const val ANIMATION_DURATION = 400
+private const val ANIMATION_DURATION = 400
 
 enum class Direction {
     Left, Right
@@ -27,7 +27,7 @@ fun rememberSwipeableState(): SwipeableState {
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
     return remember {
-        SwipeableState(screenWidth)
+        SwipeableState(maxWidth = screenWidth)
     }
 }
 
@@ -49,11 +49,10 @@ class SwipeableState(
         require(thresholdVsMaxWidth in 0F..1F)
     }
 
+    var isSwipeEnabled: Boolean by mutableStateOf(true)
+
     private val _offset = Animatable(Offset.withX(0f), Offset.VectorConverter)
     val offsetProvider = { _offset }
-
-    var swipedDirection: Direction? by mutableStateOf(null)
-        private set
 
     internal suspend fun reset() {
         _offset.animateTo(Offset.withX(0f), tween(ANIMATION_DURATION))
@@ -68,7 +67,6 @@ class SwipeableState(
             Direction.Left -> _offset.animateTo(Offset.withX(x = -endX), animationSpec)
             Direction.Right -> _offset.animateTo(Offset.withX(x = endX), animationSpec)
         }
-        this.swipedDirection = direction
     }
 
     internal suspend fun drag(x: Float) {
