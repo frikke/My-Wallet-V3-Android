@@ -9,6 +9,8 @@ data class ActiveRewardsAccountBalance(
     val pendingDeposit: Money,
     val pendingWithdrawal: Money,
     val totalRewards: Money,
+    val earningBalance: Money,
+    val bondingDeposits: Money
 ) {
     val availableBalance = totalBalance - lockedBalance
 
@@ -20,6 +22,8 @@ data class ActiveRewardsAccountBalance(
                 pendingDeposit = Money.zero(currency),
                 pendingWithdrawal = Money.zero(currency),
                 totalRewards = Money.zero(currency),
+                earningBalance = Money.zero(currency),
+                bondingDeposits = Money.zero(currency)
             )
     }
 }

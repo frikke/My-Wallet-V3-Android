@@ -184,8 +184,7 @@ fun HomeScreen(
                     )
                 }
                 is EarnNavEvent.ActiveRewards -> {
-                    // TODO: labreu: there's no active rewards summary yet
-                    // assetActionsNavigation.activeRewardsSummary(it.account)
+                    assetActionsNavigation.activeRewardsSummary(it.account.currency.networkTicker)
                     analytics.logEvent(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,

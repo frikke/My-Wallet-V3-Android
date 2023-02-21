@@ -2,9 +2,11 @@ package com.blockchain.coincore.impl.txEngine.active_rewards
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.selfcustody.BalancesResponse
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
@@ -14,6 +16,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.koin.scopedInject
@@ -51,6 +54,15 @@ class ActiveRewardsDepositOnChainTxEngine(
         // check(sourceAccount.asset == (txTarget as CryptoInterestAccount).asset)
         // check(txTarget is CryptoInterestAccount)
         // onChainEngine.assertInputsValid()
+    }
+
+    override fun doAfterOnStart(
+        sourceAccount: BlockchainAccount,
+        txTarget: TransactionTarget,
+        exchangeRates: ExchangeRatesDataManager,
+        refreshTrigger: RefreshTrigger
+    ) {
+        onChainEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
     }
 
     override fun ensureSourceBalanceFreshness() {

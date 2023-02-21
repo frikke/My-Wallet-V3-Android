@@ -18,7 +18,8 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
-import com.blockchain.earn.domain.models.EarnRewardsRates
+import com.blockchain.earn.domain.models.ActiveRewardsRates
+import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
@@ -78,13 +79,13 @@ class LoadAssetAccountsUseCase(
         val stakingFlow =
             stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
                 if (available) stakingService.getRatesForAsset(asset.currency)
-                else flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0)))
+                else flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0)))
             }
 
         val activeRewardsFlow =
             activeRewardsService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
                 if (available) activeRewardsService.getRatesForAsset(asset.currency)
-                else flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0)))
+                else flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
             }
 
         return walletModeService.walletMode.flatMapLatest { wMode ->
@@ -94,9 +95,9 @@ class LoadAssetAccountsUseCase(
                 if (wMode == WalletMode.CUSTODIAL) interestFlow else
                     flowOf(DataResource.Data(0.toDouble())),
                 if (wMode == WalletMode.CUSTODIAL) stakingFlow else
-                    flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0))),
+                    flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0))),
                 if (wMode == WalletMode.CUSTODIAL) activeRewardsFlow else
-                    flowOf(DataResource.Data(EarnRewardsRates(0.0, 0.0))),
+                    flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency)))),
             ) { accounts, price, interestRate, stakingRate, activeRewardsRate, ->
                 // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
                 // available accounts to see if we support custodial or PK balances as a guideline to asset support

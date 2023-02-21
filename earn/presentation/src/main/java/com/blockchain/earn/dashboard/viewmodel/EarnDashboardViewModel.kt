@@ -245,12 +245,9 @@ class EarnDashboardViewModel(
                     EarnType.Staking -> navigate(
                         EarnDashboardNavigationEvent.OpenStakingSummarySheet(currency.networkTicker)
                     )
-                    EarnType.Active -> {
-                        // TODO: Add active rewards summary sheet
-                        // navigate(
-                        //    EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet(currency.networkTicker)
-                        // )
-                    }
+                    EarnType.Active -> navigate(
+                        EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet(currency.networkTicker)
+                    )
                 }
             } else {
                 custodialWalletManager.isCurrencyAvailableForTrading(

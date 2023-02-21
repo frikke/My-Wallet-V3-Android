@@ -863,6 +863,9 @@ class CoinviewViewModel(
 
             is CoinviewIntent.LaunchStakingActivity ->
                 navigate(CoinviewNavigationEvent.NavigateToActivity(getStakingAccount(modelState.accounts)))
+
+            is CoinviewIntent.LaunchActiveRewardsDepositFlow ->
+                navigate(CoinviewNavigationEvent.NavigateToActiveRewardsDeposit(getStakingAccount(modelState.accounts)))
         }
     }
 
@@ -1219,14 +1222,14 @@ class CoinviewViewModel(
                         )
                     }
                     account.isStakingAccount() -> {
-                        CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount = account)
+                        CoinviewNavigationEvent.NavigateToStakingStatement(
+                            cvAccount = account
+                        )
                     }
                     account.isActiveRewardsAccount() -> {
-                        // TODO(labreu): Add active rewards statement
-                        /*CoinviewNavigationEvent.NavigateToActiveRewardsStatement(
+                        CoinviewNavigationEvent.NavigateToActiveRewardsStatement(
                             cvAccount = account
-                        )*/
-                        return
+                        )
                     }
                     else -> throw IllegalStateException("ViewStatement is not supported for account $account")
                 }

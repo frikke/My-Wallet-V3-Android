@@ -1,5 +1,6 @@
 package com.blockchain.earn.koin
 
+import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.koin.payloadScopeQualifier
@@ -13,6 +14,14 @@ val earnPresentationModule = module {
                 coincore = get(),
                 stakingService = get(),
                 exchangeRatesDataManager = get()
+            )
+        }
+
+        viewModel {
+            ActiveRewardsSummaryViewModel(
+                coincore = get(),
+                activeRewardsService = get(),
+                exchangeRatesDataManager = get(),
             )
         }
 

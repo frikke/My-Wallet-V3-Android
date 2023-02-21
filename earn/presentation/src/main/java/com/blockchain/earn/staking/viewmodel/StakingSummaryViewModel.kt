@@ -11,7 +11,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
-import com.blockchain.earn.domain.models.EarnRewardsRates
+import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
@@ -132,6 +132,6 @@ private data class StakingSummaryData(
     val account: EarnRewardsAccount.Staking,
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
-    val rates: EarnRewardsRates,
+    val rates: StakingRewardsRates,
     val eligibility: EarnRewardsEligibility,
 )

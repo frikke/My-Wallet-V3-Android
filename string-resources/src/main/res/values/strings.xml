@@ -3412,16 +3412,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_total_bonding">Bonding</string>
     <string name="staking_summary_rate">Current rate</string>
     <string name="staking_summary_rate_value">%1$s%%</string>
-    <string name="staking_summary_payment_frequency">Payment frequency</string>
-    <string name="staking_summary_payment_frequency_daily">Daily</string>
-    <string name="staking_summary_payment_frequency_weekly">Weekly</string>
-    <string name="staking_summary_payment_frequency_monthly">Monthly</string>
-    <string name="staking_summary_payment_frequency_unknown">Unknown</string>
-    <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
-    <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
+    <string name="earn_payment_frequency">Payment frequency</string>
+    <string name="earn_payment_frequency_daily">Daily</string>
+    <string name="earn_payment_frequency_weekly">Weekly</string>
+    <string name="earn_payment_frequency_monthly">Monthly</string>
+    <string name="earn_payment_frequency_unknown">Unknown</string>
+    <string name="earn_summary_sheet_error_unknown_asset">There was an error loading the Summary details for %1$s, please try again later</string>
+    <string name="earn_summary_sheet_error_other">There was an unexpected error loading the Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
     <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
-    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
+    <string name="earn_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_interest">Passive</string>
@@ -3442,6 +3442,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
     <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
     <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
+    <string name="active_rewards_summary_title">%1$s Active Rewards</string>
 
     <!-- Prove.com -->
     <string name="prove_phone_number">Phone number</string>
@@ -3514,5 +3515,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_onboarding_cta">Start earning</string>
 
     <string name="prices_top_movers">Top Movers</string>
+    <string name="earn_net_earnings">Net earnings</string>
+    <string name="earn_total_subscribed">Total subscribed</string>
+    <string name="earn_on_hold">On hold</string>
+    <string name="earn_annual_rate">Estimated annual rate</string>
+    <string name="earn_trigger_price">Trigger price</string>
+    <string name="common_important">Important</string>
+    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
 
 </resources>

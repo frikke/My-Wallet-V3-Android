@@ -8,6 +8,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
@@ -112,6 +113,10 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun stakingSummary(networkTicker: String) {
         activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(networkTicker))
+    }
+
+    override fun activeRewardsSummary(networkTicker: String) {
+        activity?.showBottomSheet(ActiveRewardsSummaryBottomSheet.newInstance(networkTicker))
     }
 
     override fun fundsLocksDetail(fundsLocks: FundsLocks) {

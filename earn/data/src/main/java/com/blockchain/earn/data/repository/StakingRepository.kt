@@ -16,7 +16,7 @@ import com.blockchain.earn.data.mapper.toEarnRewardsActivity
 import com.blockchain.earn.data.mapper.toIneligibilityReason
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsFrequency.Companion.toRewardsFrequency
-import com.blockchain.earn.domain.models.EarnRewardsRates
+import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
@@ -69,14 +69,14 @@ class StakingRepository(
     override fun getRatesForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<EarnRewardsRates>> =
+    ): Flow<DataResource<StakingRewardsRates>> =
         stakingRatesStore.stream(refreshStrategy).mapData { ratesMap ->
             ratesMap.rates[currency.networkTicker]?.let { rateData ->
-                EarnRewardsRates(
+                StakingRewardsRates(
                     rate = rateData.rate,
                     commission = rateData.commission
                 )
-            } ?: EarnRewardsRates(0.0, 0.0)
+            } ?: StakingRewardsRates(0.0, 0.0)
         }
 
     override fun getRatesForAllAssets(

@@ -17,12 +17,15 @@ data class ActiveRewardsBalanceDto(
     val totalRewards: String,
     @SerialName("pendingRewards")
     val pendingRewards: String,
-    // going through staking holding period - once payments processing is done
+    // going through holding period - once payments processing is done
     @SerialName("bondingDeposits")
     val bondingDeposits: String,
-    // going through staking holding period - once withdrawal request is processed on-chain
+    // going through holding period - once withdrawal request is processed on-chain
     @SerialName("unbondingWithdrawals")
     val unbondingWithdrawals: String,
+    // total subscribed balance that's earning rewards
+    @SerialName("earningBalance")
+    val earningBalance: String,
     @SerialName("locked")
     val lockedBalance: String
 )
