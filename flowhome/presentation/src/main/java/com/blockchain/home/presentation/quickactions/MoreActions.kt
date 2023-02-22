@@ -54,7 +54,11 @@ fun MoreActions(
             actions = actions,
             onActionClick = { action ->
                 when (action) {
-                    AssetAction.Send -> assetActionsNavigation.navigate(action)
+                    AssetAction.Send,
+                    AssetAction.Sell,
+                    AssetAction.Receive,
+                    AssetAction.Buy,
+                    AssetAction.Swap -> assetActionsNavigation.navigate(action)
                     AssetAction.FiatDeposit -> {
                         viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
                     }
