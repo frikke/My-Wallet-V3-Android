@@ -19,6 +19,7 @@ import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -51,6 +52,7 @@ class EarnDashboardViewModel(
     private val assetCatalogue: AssetCatalogue,
     private val custodialWalletManager: CustodialWalletManager,
     private val walletStatusPrefs: WalletStatusPrefs,
+    private val activeRewardsFeatureFlag: FeatureFlag,
 ) : MviViewModel<EarnDashboardIntent,
     EarnDashboardViewState,
     EarnDashboardModelState,
@@ -71,7 +73,8 @@ class EarnDashboardViewModel(
                 earningTabQueryBy = earningTabQueryBy,
                 discoverTabFilterBy = discoverTabFilterBy,
                 discoverTabQueryBy = discoverTabQueryBy,
-                hasSeenEarnIntro = hasSeenEarnIntro
+                hasSeenEarnIntro = hasSeenEarnIntro,
+                filterList = filterList,
             ),
             earningTabFilterBy = earningTabFilterBy,
             earningTabQueryBy = earningTabQueryBy,
@@ -151,6 +154,7 @@ class EarnDashboardViewModel(
         earningTabQueryBy: String,
         discoverTabFilterBy: EarnDashboardListFilter,
         discoverTabQueryBy: String,
+        filterList: List<EarnDashboardListFilter>,
         hasSeenEarnIntro: Boolean
     ): DashboardState =
         when {
@@ -159,7 +163,8 @@ class EarnDashboardViewModel(
                 earningTabQueryBy,
                 discoverTabFilterBy,
                 discoverTabQueryBy,
-                hasSeenEarnIntro
+                filterList,
+                hasSeenEarnIntro,
             )
             isLoading -> DashboardState.Loading
             error != EarnDashboardError.None -> DashboardState.ShowError(error)
@@ -168,6 +173,7 @@ class EarnDashboardViewModel(
                 earningTabQueryBy,
                 discoverTabFilterBy,
                 discoverTabQueryBy,
+                filterList,
                 hasSeenEarnIntro
             ) ?: DashboardState.Loading
         }
@@ -177,6 +183,7 @@ class EarnDashboardViewModel(
         earningTabQueryBy: String,
         discoverTabFilterBy: EarnDashboardListFilter,
         discoverTabQueryBy: String,
+        filterList: List<EarnDashboardListFilter>,
         hasSeenEarnIntro: Boolean
     ): DashboardState {
         val hasStakingBalance =
@@ -213,7 +220,8 @@ class EarnDashboardViewModel(
                 buildDiscoverList(
                     data = this,
                     discoverTabFilterBy = discoverTabFilterBy,
-                    discoverTabQueryBy = discoverTabQueryBy
+                    discoverTabQueryBy = discoverTabQueryBy,
+                    filterList = filterList
                 )
         } else {
             splitEarningAndDiscoverData(
@@ -221,7 +229,8 @@ class EarnDashboardViewModel(
                 earningTabFilterBy = earningTabFilterBy,
                 earningTabQueryBy = earningTabQueryBy,
                 discoverTabFilterBy = discoverTabFilterBy,
-                discoverTabQueryBy = discoverTabQueryBy
+                discoverTabQueryBy = discoverTabQueryBy,
+                filterList = filterList
             )
         }
     }
@@ -283,6 +292,7 @@ class EarnDashboardViewModel(
     private fun buildDiscoverList(
         data: CombinedEarnData,
         discoverTabFilterBy: EarnDashboardListFilter,
+        filterList: List<EarnDashboardListFilter>,
         discoverTabQueryBy: String
     ): DashboardState.OnlyDiscover {
         val discoverList = mutableListOf<EarnAsset>()
@@ -323,7 +333,8 @@ class EarnDashboardViewModel(
         }
 
         return DashboardState.OnlyDiscover(
-            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate()
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate(),
+            filterList = filterList
         )
     }
 
@@ -332,7 +343,8 @@ class EarnDashboardViewModel(
         earningTabFilterBy: EarnDashboardListFilter,
         earningTabQueryBy: String,
         discoverTabFilterBy: EarnDashboardListFilter,
-        discoverTabQueryBy: String
+        discoverTabQueryBy: String,
+        filterList: List<EarnDashboardListFilter>
     ): DashboardState.EarningAndDiscover {
         val earningList = mutableListOf<EarnAsset>()
         val discoverList = mutableListOf<EarnAsset>()
@@ -414,7 +426,8 @@ class EarnDashboardViewModel(
 
         return DashboardState.EarningAndDiscover(
             earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy).sortByBalance(),
-            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate()
+            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate(),
+            filterList = filterList
         )
     }
 
@@ -487,10 +500,22 @@ class EarnDashboardViewModel(
         this.sortedByDescending { it.balanceFiat }
 
     private suspend fun loadEarn() {
+
+        val activeRewardsEnabled = activeRewardsFeatureFlag.coEnabled()
+
         updateState {
             it.copy(
                 isLoading = true,
-                hasSeenEarnIntro = walletStatusPrefs.hasSeenEarnProductIntro
+                hasSeenEarnIntro = walletStatusPrefs.hasSeenEarnProductIntro,
+                filterList = listOf(
+                    EarnDashboardListFilter.All,
+                    EarnDashboardListFilter.Staking,
+                    EarnDashboardListFilter.Interest
+                ) + if (activeRewardsEnabled) {
+                    listOf(EarnDashboardListFilter.Active)
+                } else {
+                    emptyList()
+                }
             )
         }
 
@@ -563,29 +588,47 @@ class EarnDashboardViewModel(
             }
 
         val activeRewardsBalanceWithFiatFlow =
-            activeRewardsService.getBalanceForAllAssets().flatMapData { balancesMap ->
-                if (balancesMap.isEmpty()) {
-                    return@flatMapData flowOf(DataResource.Data(emptyMap()))
-                }
-                val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
-                    exchangeRatesDataManager.exchangeRateToUserFiatFlow(
-                        fromAsset = asset
-                    ).mapData { exchangeRate ->
-                        ActiveRewardsBalancesWithFiat(
-                            asset,
-                            balances,
-                            exchangeRate.convert(balances.totalBalance)
-                        )
+            if (activeRewardsFeatureFlag.coEnabled()) {
+                activeRewardsService.getBalanceForAllAssets().flatMapData { balancesMap ->
+                    if (balancesMap.isEmpty()) {
+                        return@flatMapData flowOf(DataResource.Data(emptyMap()))
                     }
-                }
+                    val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
+                        exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                            fromAsset = asset
+                        ).mapData { exchangeRate ->
+                            ActiveRewardsBalancesWithFiat(
+                                asset,
+                                balances,
+                                exchangeRate.convert(balances.totalBalance)
+                            )
+                        }
+                    }
 
-                combine(balancesWithFiatRates) { balancesResource ->
-                    combineDataResources(balancesResource.toList()) { balancesList ->
-                        balancesList.associateBy { balanceWithFiat ->
-                            balanceWithFiat.asset
+                    combine(balancesWithFiatRates) { balancesResource ->
+                        combineDataResources(balancesResource.toList()) { balancesList ->
+                            balancesList.associateBy { balanceWithFiat ->
+                                balanceWithFiat.asset
+                            }
                         }
                     }
                 }
+            } else {
+                flowOf(DataResource.Data(emptyMap()))
+            }
+
+        val activeRewardsEligibilityFlow =
+            if (activeRewardsFeatureFlag.coEnabled()) {
+                activeRewardsService.getEligibilityForAssets()
+            } else {
+                flowOf(DataResource.Data(emptyMap()))
+            }
+
+        val activeRewardsRatesFlow =
+            if (activeRewardsFeatureFlag.coEnabled()) {
+                activeRewardsService.getRatesForAllAssets()
+            } else {
+                flowOf(DataResource.Data(emptyMap()))
             }
 
         combine(
@@ -596,8 +639,8 @@ class EarnDashboardViewModel(
             interestService.getEligibilityForAssets(),
             interestService.getAllInterestRates(),
             activeRewardsBalanceWithFiatFlow,
-            activeRewardsService.getEligibilityForAssets(),
-            activeRewardsService.getRatesForAllAssets()
+            activeRewardsEligibilityFlow,
+            activeRewardsRatesFlow
         ) { listOfData ->
             require(listOfData.size == 9)
             combineDataResources(

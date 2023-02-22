@@ -22,6 +22,7 @@ import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.minus
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
@@ -38,6 +39,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -51,7 +53,8 @@ class EarnViewModel(
     private val activeRewardsService: ActiveRewardsService,
     private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val walletModeService: WalletModeService
+    private val walletModeService: WalletModeService,
+    private val activeRewardsFeatureFlag: FeatureFlag,
 ) :
     MviViewModel<
         EarnIntent, EarnViewState, EarnModelState, EarnNavEvent, ModelConfigArgs.NoArgs>(
@@ -103,9 +106,11 @@ class EarnViewModel(
                             loadEarnings(forceRefresh = intent.forceRefresh)
                         } else {
                             updateState { state ->
+                                val error = DataResource.Error(IllegalStateException("Not available in mode"))
                                 state.copy(
-                                    interestAssets = DataResource.Error(IllegalStateException("Not available in mode")),
-                                    stakingAssets = DataResource.Error(IllegalStateException("Not available in mode"))
+                                    interestAssets = error,
+                                    stakingAssets = error,
+                                    activeRewardsAssets = error
                                 )
                             }
                         }
@@ -233,42 +238,50 @@ class EarnViewModel(
                 }
             }
 
-        val activeRewards = activeRewardsService.getBalanceForAllAssets(
-            refreshStrategy =
-            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
-        ).mapData {
-            it.filterValues { asset -> asset.totalBalance.isPositive }
-        }.doOnData {
-            updateActiveRewardsAssetsIfNeeded(it.keys)
-        }.flatMapData { activeRewards ->
-            val prices = activeRewards.keys.map { asset ->
-                combine(
-                    exchangeRates.exchangeRateToUserFiatFlow(
-                        fromAsset = asset
-                    ),
-                    exchangeRates.exchangeRate(
-                        fromAsset = asset,
-                        toAsset = FiatCurrency.Dollars
-                    )
-                ) { exchangeRateUserFiatData, exchangeRateUsdData ->
-                    combineDataResources(
-                        exchangeRateUserFiatData, exchangeRateUsdData
-                    ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
-                }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
-                    EarnAsset(
-                        currency = asset,
-                        type = EarnType.ACTIVE,
-                        balance = activeRewards[asset]?.totalBalance?.let { exchangeRateUserFiat.convert(it) }
-                            ?: throw IllegalStateException("Missing asset balance"),
-                        usdBalance = activeRewards[asset]?.totalBalance?.let { exchangeRateUsd.convert(it) }
-                            ?: throw IllegalStateException("Missing asset balance")
-                    )
+        val activeRewards = if (activeRewardsFeatureFlag.coEnabled()) {
+            activeRewardsService.getBalanceForAllAssets(
+                refreshStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            ).mapData {
+                it.filterValues { asset -> asset.totalBalance.isPositive }
+            }.doOnData {
+                updateActiveRewardsAssetsIfNeeded(it.keys)
+            }.flatMapData { activeRewards ->
+                val prices = activeRewards.keys.map { asset ->
+                    combine(
+                        exchangeRates.exchangeRateToUserFiatFlow(
+                            fromAsset = asset
+                        ),
+                        exchangeRates.exchangeRate(
+                            fromAsset = asset,
+                            toAsset = FiatCurrency.Dollars
+                        )
+                    ) { exchangeRateUserFiatData, exchangeRateUsdData ->
+                        combineDataResources(
+                            exchangeRateUserFiatData, exchangeRateUsdData
+                        ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
+                    }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
+                        EarnAsset(
+                            currency = asset,
+                            type = EarnType.ACTIVE,
+                            balance = activeRewards[asset]?.totalBalance?.let { exchangeRateUserFiat.convert(it) }
+                                ?: throw IllegalStateException("Missing asset balance"),
+                            usdBalance = activeRewards[asset]?.totalBalance?.let { exchangeRateUsd.convert(it) }
+                                ?: throw IllegalStateException("Missing asset balance")
+                        )
+                    }
+                }
+
+                prices.merge().onEach { asset ->
+                    updateState { state ->
+                        state.addActiveRewardsAssetIfLoaded(asset)
+                    }
                 }
             }
-
-            prices.merge().onEach { asset ->
+        } else {
+            flow {
                 updateState { state ->
-                    state.addActiveRewardsAssetIfLoaded(asset)
+                    state.copy(activeRewardsAssets = DataResource.Data(emptySet()))
                 }
             }
         }
@@ -289,15 +302,32 @@ class EarnViewModel(
             }
         }
 
-        val activeRewardsRates = activeRewardsService.getRatesForAllAssets().doOnData { rates ->
-            updateState {
-                it.copy(
-                    activeRewardsRates = rates
-                )
+        val activeRewardsRates = if (activeRewardsFeatureFlag.coEnabled()) {
+            activeRewardsService.getRatesForAllAssets().doOnData { rates ->
+                updateState {
+                    it.copy(
+                        activeRewardsRates = rates
+                    )
+                }
+            }
+        } else {
+            flow {
+                updateState {
+                    it.copy(
+                        activeRewardsRates = emptyMap()
+                    )
+                }
             }
         }
 
-        merge(staking, interest, activeRewards, interestRates, stakingRates, activeRewardsRates).collect()
+        merge(
+            staking,
+            interest,
+            activeRewards,
+            interestRates,
+            stakingRates,
+            activeRewardsRates
+        ).collect()
     }
 
     private fun updateInterestAssetsIfNeeded(assets: Set<AssetInfo>) {

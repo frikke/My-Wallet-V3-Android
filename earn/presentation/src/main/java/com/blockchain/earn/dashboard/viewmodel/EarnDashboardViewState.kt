@@ -22,8 +22,15 @@ sealed class DashboardState {
     object ShowKyc : DashboardState()
     data class ShowIntro(val earnProductsAvailable: List<EarnType>) : DashboardState()
     data class ShowError(val error: EarnDashboardError) : DashboardState()
-    data class OnlyDiscover(val discover: List<EarnAsset>) : DashboardState()
-    data class EarningAndDiscover(val earning: List<EarnAsset>, val discover: List<EarnAsset>) : DashboardState()
+    data class OnlyDiscover(
+        val discover: List<EarnAsset>,
+        val filterList: List<EarnDashboardListFilter>
+    ) : DashboardState()
+    data class EarningAndDiscover(
+        val earning: List<EarnAsset>,
+        val discover: List<EarnAsset>,
+        val filterList: List<EarnDashboardListFilter>
+    ) : DashboardState()
 }
 
 data class EarnAsset(
