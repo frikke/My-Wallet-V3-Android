@@ -28,6 +28,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.ExchangePriceFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.FromPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.NetworkFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.PaymentMethodPropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.ProcessingFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ReadMoreDisclaimerPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SalePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SignEthMessagePropertyFormatter
@@ -162,6 +163,12 @@ val transactionModule = module {
 
     factory {
         TotalFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        ProcessingFeeFormatter(
             context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)

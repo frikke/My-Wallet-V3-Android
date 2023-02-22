@@ -11,7 +11,6 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -71,13 +70,15 @@ class BalanceAndFeeView @JvmOverloads constructor(
             }
 
             if (customiser.shouldNotDisplayNetworkFee(state)) {
-                networkFeeValue.text = context.getString(R.string.fee_calculated_at_checkout)
-                feeForFullAvailableValue.text = context.getString(R.string.fee_calculated_at_checkout)
+                feeForFullAvailableValue.gone()
+                feeForFullAvailableLabel.gone()
+                networkFeeLabel.gone()
+                networkFeeValue.gone()
+                networkFeeArrow.gone()
             } else {
                 state.pendingTx?.feeAmount?.let {
                     networkFeeValue.text = makeAmountString(it, state)
                 }
-
                 state.pendingTx?.feeForFullAvailable?.let {
                     feeForFullAvailableValue.text = makeAmountString(it, state)
                 }
@@ -130,7 +131,9 @@ class BalanceAndFeeView @JvmOverloads constructor(
 
             with(useMax) {
                 val amountIsZeroOrNoFees =
-                    !isPositiveAmount || !hasFees // in those cases there is room for the Max button
+                    !isPositiveAmount || !hasFees || customiser.shouldNotDisplayNetworkFee(
+                        state
+                    ) // in those cases there is room for the Max button
                 text = customiser.enterAmountMaxButton(state)
                 onClick = {
                     analytics.onMaxClicked(state)

@@ -33,6 +33,7 @@ class TxConfirmReadOnlyMapperCheckout(
                 formatters.first { it is ExchangePriceFormatter }.format(property)
             is TxConfirmationValue.NetworkFee -> formatters.first { it is NetworkFormatter }.format(property)
             is TxConfirmationValue.TransactionFee -> formatters.first { it is TransactionFeeFormatter }.format(property)
+            is TxConfirmationValue.ProcessingFee -> formatters.first { it is ProcessingFeeFormatter }.format(property)
             is TxConfirmationValue.Sale -> formatters.first { it is SalePropertyFormatter }.format(property)
             is TxConfirmationValue.Total -> formatters.first { it is TotalFormatter }.format(property)
             is TxConfirmationValue.Amount -> formatters.first { it is AmountFormatter }.format(property)
@@ -466,6 +467,18 @@ class TotalFormatter(private val context: Context) : TxOptionsFormatterCheckout 
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.totalWithFee.toStringWithSymbol(),
             ConfirmationPropertyKey.IS_IMPORTANT to true
+        )
+    }
+}
+
+class ProcessingFeeFormatter(private val context: Context) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.ProcessingFee)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.processing_fee),
+            ConfirmationPropertyKey.TITLE to "~${property.exchangeFee.toStringWithSymbol()}",
+            ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),
+            ConfirmationPropertyKey.IS_IMPORTANT to false
         )
     }
 }

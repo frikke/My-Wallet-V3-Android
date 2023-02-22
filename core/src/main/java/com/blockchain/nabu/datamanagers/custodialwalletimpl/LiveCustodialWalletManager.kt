@@ -72,7 +72,6 @@ import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
@@ -352,7 +351,7 @@ class LiveCustodialWalletManager(
     override fun deleteBuyOrder(orderId: String): Completable =
         nabuService.deleteBuyOrder(orderId)
 
-    override fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String> =
+    override fun transferFundsToWallet(amount: Money, fee: Money, walletAddress: String): Single<String> =
         nabuService.transferFunds(
             TransferRequest(
                 address = walletAddress,

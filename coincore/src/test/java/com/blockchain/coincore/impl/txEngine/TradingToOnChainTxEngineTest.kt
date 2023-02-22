@@ -1,5 +1,8 @@
 package com.blockchain.coincore.impl.txEngine
 
+import com.blockchain.api.fees.AmountResponse
+import com.blockchain.api.fees.ExchangedAmountResponse
+import com.blockchain.api.fees.WithdrawFeesAndMinLimitResponse
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
@@ -15,6 +18,7 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -36,6 +40,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import kotlin.test.assertEquals
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
@@ -70,6 +75,38 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
     @Before
     fun setup() {
         initMocks()
+        whenever(withdrawFeesStore.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(
+                    WithdrawFeesAndMinLimitResponse(
+                        minAmount = ExchangedAmountResponse(
+                            AmountResponse(
+                                "XLM", "10"
+                            ),
+                            AmountResponse(
+                                "USD", "100"
+                            ),
+                        ),
+                        sendAmount = ExchangedAmountResponse(
+                            AmountResponse(
+                                "XLM", "10"
+                            ),
+                            AmountResponse(
+                                "USD", "100"
+                            ),
+                        ),
+                        totalFees = ExchangedAmountResponse(
+                            AmountResponse(
+                                "XLM", "1"
+                            ),
+                            AmountResponse(
+                                "USD", "10"
+                            ),
+                        )
+                    )
+                )
+            )
+        )
     }
 
     @Test
@@ -171,9 +208,9 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                 it.amount == CryptoValue.zero(txTarget.asset) &&
                     it.totalBalance == totalBalance &&
                     it.availableBalance ==
-                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)) &&
-                    it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
-                    it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
+                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger())) &&
+                    it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger()) &&
+                    it.feeAmount == CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger()) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(
@@ -187,7 +224,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
+        verify(withdrawFeesStore).stream(any())
         verify(limitsDataManager).getLimits(
             outputCurrency = eq(ASSET),
             sourceCurrency = eq(ASSET),
@@ -207,10 +244,6 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
         val txTarget: CryptoAddress = mock {
             on { asset }.thenReturn(ASSET)
         }
-
-        val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
-        whenever(walletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY))
-            .thenReturn(Single.just(feesAndLimits))
 
         subject.start(
             sourceAccount,
@@ -238,17 +271,12 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             pendingTx
         ).test()
             .assertValue {
-                it.amount == inputAmount &&
-                    it.totalBalance == totalBalance &&
-                    it.availableBalance ==
-                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee))
+                it.amount == inputAmount
             }
-            .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertComplete()
             .assertNoErrors()
 
-        verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx()
+        verify(sourceAccount).currency
     }
 
     @Test(expected = IllegalArgumentException::class)

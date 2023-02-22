@@ -42,6 +42,7 @@ import com.blockchain.core.custodial.data.TradingRepository
 import com.blockchain.core.custodial.data.store.FiatAssetsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.fees.WithdrawFeesStore
 import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
@@ -133,6 +134,12 @@ val coreModule = module {
     single {
         EthLastTxCache(
             ethAccountApi = get()
+        )
+    }
+
+    single {
+        WithdrawFeesStore(
+            withdrawFeesService = get()
         )
     }
 

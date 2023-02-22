@@ -2,6 +2,7 @@ package com.blockchain.coincore.testutil
 
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.fees.WithdrawFeesStore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScopeQualifier
@@ -53,6 +54,8 @@ open class CoincoreTestBase {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
 
+    protected val withdrawFeesStore: WithdrawFeesStore = mock()
+
     private val userFeaturePermissionService: UserFeaturePermissionService = mock {
         on { isEligibleFor(eq(Feature.CustodialAccounts), any()) }.thenReturn(flowOf(DataResource.Data(true)))
     }
@@ -93,6 +96,8 @@ open class CoincoreTestBase {
                 factory {
                     assetCatalogue
                 }.bind(AssetCatalogue::class)
+
+                factory { withdrawFeesStore }
 
                 factory {
                     userFeaturePermissionService

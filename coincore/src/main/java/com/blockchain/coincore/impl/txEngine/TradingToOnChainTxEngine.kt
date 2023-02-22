@@ -3,9 +3,10 @@ package com.blockchain.coincore.impl.txEngine
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.api.fees.WithdrawFeesAndMinLimitResponse
+import com.blockchain.api.fees.WithdrawFeesAndMinRequest
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -16,20 +17,23 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
-import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
 import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.custodial.fees.WithdrawFeesStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.store.asSingle
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.then
 import info.blockchain.balance.AssetCategory
@@ -39,6 +43,7 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import org.koin.core.component.inject
 
 private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
     this.copy(
@@ -53,6 +58,8 @@ private val PendingTx.memo: String?
         }
     }
 
+private const val CRYPTO_TRANSFER_PAYMENT_METHOD = "CRYPTO_TRANSFER"
+
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
     private val tradingStore: TradingStore,
@@ -63,6 +70,7 @@ class TradingToOnChainTxEngine(
 ) : TxEngine() {
 
     private val transactionsStore: TransactionsStore by scopedInject()
+    private val withdrawFeesAndMinLimitStore: WithdrawFeesStore by inject()
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(tradingStore, transactionsStore)
@@ -79,30 +87,51 @@ class TradingToOnChainTxEngine(
 
     private val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
+    private val feesAndMinFreshness = FreshnessStrategy.Cached(refreshStrategy = RefreshStrategy.RefreshIfStale)
+
+    private val withdrawFeesAndMin: (WithdrawFeesAndMinRequest) -> Single<WithdrawFeesAndMinLimitResponse> = {
+        withdrawFeesAndMinLimitStore.stream(
+            request = feesAndMinFreshness.withKey(it)
+        ).asSingle()
+    }
+
+    private val minAmountAndMaxFeesRequest
+        get() = WithdrawFeesAndMinRequest(
+            currency = sourceAssetInfo.networkTicker,
+            fiatCurrency = userFiat.networkTicker,
+            amount = "0",
+            max = true,
+            paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
+        )
 
     override fun doInitialiseTx(): Single<PendingTx> {
-        val withdrawFeeAndMinLimit =
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY).cache()
+        val maxFeeAndMin = withdrawFeesAndMin(
+            minAmountAndMaxFeesRequest
+        )
         return Single.zip(
             sourceAccount.balanceRx().firstOrError(),
-            withdrawFeeAndMinLimit,
+            maxFeeAndMin,
             limitsDataManager.getLimits(
                 outputCurrency = sourceAsset,
                 sourceCurrency = sourceAsset,
                 targetCurrency = (txTarget as CryptoAddress).asset,
                 sourceAccountType = AssetCategory.CUSTODIAL,
                 targetAccountType = AssetCategory.NON_CUSTODIAL,
-                legacyLimits = withdrawFeeAndMinLimit.map { limits ->
+                legacyLimits = maxFeeAndMin.map { feeAndMin ->
                     object : LegacyLimits {
                         override val min: Money
-                            get() = Money.fromMinor(sourceAsset, limits.minLimit)
+                            get() = Money.fromMinor(
+                                sourceAsset,
+                                feeAndMin.minAmount.amount.value.toBigInteger()
+                            )
                         override val max: Money?
                             get() = null
                     }
                 }
             )
         ) { balance, cryptoFee, limits ->
-            val fees = Money.fromMinor(sourceAsset, cryptoFee.fee)
+            check(cryptoFee.totalFees.amount.currency == sourceAsset.networkTicker)
+            val fees = Money.fromMinor(sourceAsset, cryptoFee.totalFees.amount.value.toBigInteger())
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 totalBalance = balance.total,
@@ -116,21 +145,39 @@ class TradingToOnChainTxEngine(
         }
     }
 
+    private fun processingFeesAndSendAmount(amount: Money): Single<ProcessingFeeAndSendAmount> =
+        withdrawFeesAndMin(
+            WithdrawFeesAndMinRequest(
+                max = false,
+                amount = amount.toBigInteger().toString(),
+                fiatCurrency = userFiat.networkTicker,
+                currency = sourceAssetInfo.networkTicker,
+                paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
+            )
+        ).map {
+            check(userFiat.networkTicker == it.totalFees.fiat.currency)
+            check(sourceAsset.networkTicker == it.totalFees.amount.currency)
+            ProcessingFeeAndSendAmount(
+                fee = ProcessingFee(
+                    amount = Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()),
+                    exchange = Money.fromMinor(userFiat, it.totalFees.fiat.value.toBigInteger())
+                ),
+                sendAmount = SendAmount(
+                    amount = Money.fromMinor(sourceAsset, it.sendAmount.amount.value.toBigInteger()),
+                    exchange = Money.fromMinor(userFiat, it.sendAmount.fiat.value.toBigInteger()),
+                )
+            )
+        }
+
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return Single.zip(
-            sourceAccount.balanceRx().firstOrError(),
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY)
-        ) { balance, cryptoFeeAndMin ->
-            val fees = Money.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
+        return Single.just(
             pendingTx.copy(
-                amount = amount,
-                totalBalance = balance.total,
-                availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset))
+                amount = amount
             )
-        }
+        )
     }
 
     override fun doUpdateFeeLevel(
@@ -144,30 +191,25 @@ class TradingToOnChainTxEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        Single.just(
+        processingFeesAndSendAmount(pendingTx.amount).map { processingFeeAndSendAmount ->
             pendingTx.copy(
+                amount = processingFeeAndSendAmount.sendAmount.amount,
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
                     ),
-                    TxConfirmationValue.CompoundNetworkFee(
-                        receivingFeeInfo = if (!pendingTx.feeAmount.isZero) {
-                            FeeInfo(
-                                pendingTx.feeAmount,
-                                pendingTx.feeAmount.toUserFiat(exchangeRates),
-                                sourceAsset
-                            )
-                        } else null,
-                        feeLevel = pendingTx.feeSelection.selectedLevel,
-                        ignoreErc20LinkedNote = true
+                    TxConfirmationValue.ProcessingFee(
+                        feeAmount = processingFeeAndSendAmount.fee.amount,
+                        exchangeFee = processingFeeAndSendAmount.fee.exchange,
                     ),
                     TxConfirmationValue.Total(
-                        totalWithFee = (pendingTx.amount as CryptoValue).plus(
-                            pendingTx.feeAmount as CryptoValue
+                        totalWithFee = processingFeeAndSendAmount.sendAmount.amount.plus(
+                            processingFeeAndSendAmount.fee.amount
                         ),
-                        exchange = pendingTx.amount.toUserFiat(exchangeRates)
-                            .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
+                        exchange = processingFeeAndSendAmount.sendAmount.exchange.plus(
+                            processingFeeAndSendAmount.fee.exchange
+                        )
                     ),
                     if (isNoteSupported) {
                         TxConfirmationValue.Description()
@@ -181,7 +223,7 @@ class TradingToOnChainTxEngine(
                     } else null
                 )
             )
-        )
+        }
 
     override fun doOptionUpdateRequest(pendingTx: PendingTx, newConfirmation: TxConfirmationValue): Single<PendingTx> {
         return super.doOptionUpdateRequest(pendingTx, newConfirmation)
@@ -258,8 +300,8 @@ class TradingToOnChainTxEngine(
         } ?: targetAddress.address
 
         return walletManager.transferFundsToWallet(
-            amount = pendingTx.amount as CryptoValue,
-            fee = pendingTx.feeAmount as CryptoValue,
+            amount = pendingTx.amount,
+            fee = pendingTx.feeAmount,
             walletAddress = address
         ).updateTxValidation()
             .map {
@@ -286,3 +328,18 @@ private fun Single<String>.updateTxValidation(): Single<String> {
         }
     }
 }
+
+private data class ProcessingFeeAndSendAmount(
+    val fee: ProcessingFee,
+    val sendAmount: SendAmount
+)
+
+private data class ProcessingFee(
+    val amount: Money,
+    val exchange: Money
+)
+
+private data class SendAmount(
+    val amount: Money,
+    val exchange: Money
+)

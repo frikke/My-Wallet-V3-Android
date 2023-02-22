@@ -3515,6 +3515,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_onboarding_cta">Start earning</string>
 
     <string name="prices_top_movers">Top Movers</string>
+    <string name="processing_fee">Processing fee</string>
     <string name="earn_net_earnings">Net earnings</string>
     <string name="earn_total_subscribed">Total subscribed</string>
     <string name="earn_on_hold">On hold</string>

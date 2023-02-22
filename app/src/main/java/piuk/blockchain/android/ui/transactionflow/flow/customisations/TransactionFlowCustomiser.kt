@@ -23,6 +23,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialActiveRewardsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
@@ -338,8 +339,8 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean =
-        state.action == AssetAction.Swap &&
-            state.sendingAccount is NonCustodialAccount && state.selectedTarget is NonCustodialAccount
+        state.action == AssetAction.Send &&
+            state.sendingAccount is CustodialTradingAccount && state.selectedTarget is NonCustodialAccount
 
     override fun enterAmountGetNoBalanceMessage(state: TransactionState): String =
         when (state.action) {

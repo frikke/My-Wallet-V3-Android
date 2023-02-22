@@ -95,6 +95,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val feeAmount: Money
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
+    data class ProcessingFee(
+        val feeAmount: Money,
+        val exchangeFee: Money
+    ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
+
     data class CompoundNetworkFee(
         val sendingFeeInfo: FeeInfo? = null,
         val receivingFeeInfo: FeeInfo? = null,
