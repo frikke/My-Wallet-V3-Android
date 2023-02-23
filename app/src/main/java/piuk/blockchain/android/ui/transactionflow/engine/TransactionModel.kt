@@ -58,6 +58,7 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
+import kotlin.math.max
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
@@ -193,17 +194,16 @@ data class TransactionState(
 
     val maxSpendable: Money
         get() {
-            return pendingTx?.let {
-                val available = availableToAmountCurrency(it.availableBalance, amount)
-                val maxSpendableWithoutFees = Money.min(
-                    available,
-                    (it.limits?.max as? TxLimit.Limited)?.amount ?: available
-                )
-                if (it.feeAmount.currencyCode == maxSpendableWithoutFees.currencyCode) {
-                    maxSpendableWithoutFees.minus(it.feeAmount)
-                } else {
-                    maxSpendableWithoutFees
-                }
+            return pendingTx?.let { ptx ->
+                val available = availableToAmountCurrency(ptx.availableBalance, amount)
+                val maxAmount = (ptx.limits?.max as? TxLimit.Limited)?.amount ?: return available
+                return if (available <= maxAmount)
+                    available
+                else maxAmount - (
+                    ptx.feeAmount.takeIf {
+                        it.currencyCode == maxAmount.currencyCode
+                    } ?: Money.zero(maxAmount.currency)
+                    )
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 

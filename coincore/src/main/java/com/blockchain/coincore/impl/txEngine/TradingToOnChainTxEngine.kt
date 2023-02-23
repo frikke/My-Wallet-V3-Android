@@ -145,30 +145,6 @@ class TradingToOnChainTxEngine(
         }
     }
 
-    private fun processingFeesAndSendAmount(amount: Money): Single<ProcessingFeeAndSendAmount> =
-        withdrawFeesAndMin(
-            WithdrawFeesAndMinRequest(
-                max = false,
-                amount = amount.toBigInteger().toString(),
-                fiatCurrency = userFiat.networkTicker,
-                currency = sourceAssetInfo.networkTicker,
-                paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
-            )
-        ).map {
-            check(userFiat.networkTicker == it.totalFees.fiat.currency)
-            check(sourceAsset.networkTicker == it.totalFees.amount.currency)
-            ProcessingFeeAndSendAmount(
-                fee = ProcessingFee(
-                    amount = Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()),
-                    exchange = Money.fromMinor(userFiat, it.totalFees.fiat.value.toBigInteger())
-                ),
-                sendAmount = SendAmount(
-                    amount = Money.fromMinor(sourceAsset, it.sendAmount.amount.value.toBigInteger()),
-                    exchange = Money.fromMinor(userFiat, it.sendAmount.fiat.value.toBigInteger()),
-                )
-            )
-        }
-
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
@@ -191,24 +167,36 @@ class TradingToOnChainTxEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        processingFeesAndSendAmount(pendingTx.amount).map { processingFeeAndSendAmount ->
+        withdrawFeesAndMin(
+            WithdrawFeesAndMinRequest(
+                max = false,
+                amount = pendingTx.amount.toBigInteger().toString(),
+                fiatCurrency = userFiat.networkTicker,
+                currency = sourceAssetInfo.networkTicker,
+                paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
+            )
+        ).map { Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()) }.zipWith(
+            exchangeRates.exchangeRateToUserFiat(pendingTx.amount.currency).firstOrError()
+        ) { fee, exchangeRate ->
             pendingTx.copy(
-                amount = processingFeeAndSendAmount.sendAmount.amount,
+                feeAmount = fee,
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
                     ),
                     TxConfirmationValue.ProcessingFee(
-                        feeAmount = processingFeeAndSendAmount.fee.amount,
-                        exchangeFee = processingFeeAndSendAmount.fee.exchange,
+                        feeAmount = fee,
+                        exchangeFee = exchangeRate.convert(fee),
                     ),
                     TxConfirmationValue.Total(
-                        totalWithFee = processingFeeAndSendAmount.sendAmount.amount.plus(
-                            processingFeeAndSendAmount.fee.amount
+                        totalWithFee = pendingTx.amount.plus(
+                            fee
                         ),
-                        exchange = processingFeeAndSendAmount.sendAmount.exchange.plus(
-                            processingFeeAndSendAmount.fee.exchange
+                        exchange = exchangeRate.convert(
+                            pendingTx.amount.plus(
+                                fee
+                            )
                         )
                     ),
                     if (isNoteSupported) {
@@ -328,18 +316,3 @@ private fun Single<String>.updateTxValidation(): Single<String> {
         }
     }
 }
-
-private data class ProcessingFeeAndSendAmount(
-    val fee: ProcessingFee,
-    val sendAmount: SendAmount
-)
-
-private data class ProcessingFee(
-    val amount: Money,
-    val exchange: Money
-)
-
-private data class SendAmount(
-    val amount: Money,
-    val exchange: Money
-)
