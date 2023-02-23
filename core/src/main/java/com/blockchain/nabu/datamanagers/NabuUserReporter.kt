@@ -15,6 +15,7 @@ class AnalyticsNabuUserReporterImpl(
 ) : NabuUserReporter {
     override fun reportUserId(userId: String) {
         userAnalytics.logUserId(userId)
+        userAnalytics.logUserProperty(UserProperty(UserAnalytics.NABU_USER_ID, userId))
     }
 
     override fun reportUser(nabuUser: NabuUser) {

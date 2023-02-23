@@ -177,7 +177,7 @@ class SettingsFragment :
             }
 
             settingsDebug.apply {
-                visibleIf { environmentConfig.isRunningInDebugMode() || environmentConfig.isAlphaBuild() }
+                visibleIf { environmentConfig.isRunningInDebugMode() }
                 primaryText = getString(R.string.item_debug_menu)
                 onClick = {
                     navigator().goToFeatureFlags()
