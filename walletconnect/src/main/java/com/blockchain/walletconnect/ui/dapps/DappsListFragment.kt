@@ -141,28 +141,11 @@ class DappsListFragment :
                 }
             },
             content = {
-                val dapps = listOf(
-                    WalletConnectSession(
-                        url = "url",
-                        dAppInfo = DAppInfo(
-                            peerId = "",
-                            peerMeta = ClientMeta(
-                                description = "dzkdz",
-                                url = "dzklkdz",
-                                icons = listOf(),
-                                name = "dzdzdzdz"
-                            ),
-                            chainId = 0
-                        ),
-                        walletInfo = WalletInfo(clientId = "feo", sourcePlatform = "fzkpa")
-
-                    )
-                )
                 state?.let {
-                    if (dapps.isEmpty()) {
+                    if (it.connectedSessions.isEmpty()) {
                         NoDapps()
                     } else {
-                        DappsList(dapps) { session ->
+                        DappsList(it.connectedSessions) { session ->
                             currentBottomSheet = SessionBottomSheet.Disconnect(
                                 session = session,
                                 onDisconnectClick = {

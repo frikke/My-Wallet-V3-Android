@@ -210,7 +210,7 @@ fun MultiAppBottomNavigationHost(
                 updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
-                            ChromeBottomNavigationItem.Home,
+                            ChromeBottomNavigationItem.Earn,
                             listStateInfo
                         )
                     )
