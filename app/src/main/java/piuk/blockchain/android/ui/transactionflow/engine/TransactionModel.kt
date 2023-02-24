@@ -52,9 +52,11 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
@@ -797,16 +799,21 @@ class TransactionModel(
         process(TransactionIntent.AmountChanged(amount))
     }
 
-    private fun processAmountChanged(amount: Money): Disposable =
-        interactor.updateTransactionAmount(amount)
+    private val amountChangeDisposable = CompositeDisposable()
+
+    private fun processAmountChanged(amount: Money): Disposable {
+        amountChangeDisposable.clear()
+        return interactor.updateTransactionAmount(amount)
             .subscribeBy(
                 onError = {
                     Timber.e("!TRANSACTION!> Unable to get update available balance")
                     errorLogger.log(TxFlowLogError.BalanceFail(it))
                     process(TransactionIntent.FatalTransactionError(it))
                 }
-            )
-
+            ).also {
+                amountChangeDisposable += it
+            }
+    }
     private fun processSetFeeLevel(intent: TransactionIntent.SetFeeLevel): Disposable =
         interactor.updateTransactionFees(intent.feeLevel, intent.customFeeAmount)
             .subscribeBy(

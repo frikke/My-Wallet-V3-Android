@@ -123,6 +123,8 @@ data class PendingTx(
 
     internal fun isMaxLimitViolated() =
         limits?.isAmountOverMax(amount) ?: throw IllegalStateException("Limits are undefined")
+
+    fun hasFees(): Boolean = feeAmount.isPositive || feeForFullAvailable.isPositive
 }
 
 enum class TxConfirmation {

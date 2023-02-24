@@ -22,14 +22,12 @@ class WithdrawFeesService internal constructor(
 @Serializable
 data class WithdrawFeesAndMinLimitResponse(
     val minAmount: ExchangedAmountResponse,
-    val sendAmount: ExchangedAmountResponse,
     val totalFees: ExchangedAmountResponse,
 )
 
 @Serializable
 data class ExchangedAmountResponse(
-    val amount: AmountResponse,
-    val fiat: AmountResponse
+    val amount: AmountResponse
 )
 
 @Serializable

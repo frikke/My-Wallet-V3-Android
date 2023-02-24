@@ -82,25 +82,11 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                         minAmount = ExchangedAmountResponse(
                             AmountResponse(
                                 "XLM", "10"
-                            ),
-                            AmountResponse(
-                                "USD", "100"
-                            ),
-                        ),
-                        sendAmount = ExchangedAmountResponse(
-                            AmountResponse(
-                                "XLM", "10"
-                            ),
-                            AmountResponse(
-                                "USD", "100"
-                            ),
+                            )
                         ),
                         totalFees = ExchangedAmountResponse(
                             AmountResponse(
                                 "XLM", "1"
-                            ),
-                            AmountResponse(
-                                "USD", "10"
                             ),
                         )
                     )
@@ -210,7 +196,6 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance ==
                     actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger())) &&
                     it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger()) &&
-                    it.feeAmount == CryptoValue.fromMinor(txTarget.asset, 1.toBigInteger()) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(
@@ -258,7 +243,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                 CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)
             ),
             feeForFullAvailable = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
-            feeAmount = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
+            feeAmount = CryptoValue.zero(txTarget.asset),
             selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
@@ -275,8 +260,6 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertComplete()
             .assertNoErrors()
-
-        verify(sourceAccount).currency
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -18,5 +18,5 @@ class WithdrawFeesStore(private val withdrawFeesService: WithdrawFeesService) : 
             withdrawFeesService.withdrawFeesAndMinLimit(withdrawFeesAndMinRequest)
         }
     ),
-    mediator = FreshnessMediator(Freshness.ofMinutes(5))
+    mediator = FreshnessMediator(Freshness.ofSeconds(90))
 )

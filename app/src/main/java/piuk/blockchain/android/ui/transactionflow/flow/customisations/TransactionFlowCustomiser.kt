@@ -338,10 +338,13 @@ class TransactionFlowCustomiserImpl(
             else -> throw java.lang.IllegalStateException("Max network fee label not configured for ${state.action}")
         }
 
-    override fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean =
-        state.action == AssetAction.Send &&
-            state.sendingAccount is CustodialTradingAccount && state.selectedTarget is NonCustodialAccount
-
+    override fun shouldDisplayNetworkFee(state: TransactionState): Boolean =
+        !state.isCustodialWithdrawal() && state.pendingTx?.hasFees() == true
+    override fun shouldDisplayTotalBalance(state: TransactionState): Boolean =
+        !state.isCustodialWithdrawal() && state.amount.isPositive
+    private fun TransactionState.isCustodialWithdrawal(): Boolean =
+        action == AssetAction.Send && sendingAccount is CustodialTradingAccount &&
+            selectedTarget is NonCustodialAccount
     override fun enterAmountGetNoBalanceMessage(state: TransactionState): String =
         when (state.action) {
             AssetAction.Send -> resources.getString(R.string.enter_amount_not_enough_balance)
