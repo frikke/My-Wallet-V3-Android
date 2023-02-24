@@ -19,6 +19,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
@@ -29,6 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PricesViewModel(
+    private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val pricesService: PricesService,
@@ -46,6 +49,10 @@ class PricesViewModel(
     private var filtersJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
+
+    init {
+        loadWalletMode()
+    }
 
     override fun reduce(state: PricesModelState): PricesViewState {
         return PricesViewState(
@@ -97,17 +104,21 @@ class PricesViewModel(
                         else PricesOutputGroup.Others
                     }
                 },
-            topMovers = state.data.map { list ->
-                list.filter { it.price is DataResource.Data && it.isTradable }
-                    .sortedWith(
-                        compareByDescending { asset ->
-                            asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+            topMovers = if (state.walletMode?.isTopMoversSupported() == true) {
+                state.data.map { list ->
+                    list.filter { it.price is DataResource.Data && it.isTradable }
+                        .sortedWith(
+                            compareByDescending { asset ->
+                                asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+                            }
+                        )
+                        .take(state.topMoversCount)
+                        .map {
+                            it.toPriceItemViewState()
                         }
-                    )
-                    .take(state.topMoversCount)
-                    .map {
-                        it.toPriceItemViewState()
-                    }
+                }
+            } else {
+                DataResource.Data(emptyList())
             }
         )
     }
@@ -133,6 +144,7 @@ class PricesViewModel(
                     it.copy(loadStrategy = intent.strategy)
                 }
 
+                loadWalletMode()
                 loadFilters()
                 loadData(intent.strategy)
                 loadTopMoversCount()
@@ -156,6 +168,16 @@ class PricesViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 loadData(strategy = modelState.loadStrategy)
+            }
+        }
+    }
+
+    private fun loadWalletMode() {
+        viewModelScope.launch {
+            walletModeService.walletMode.collectLatest { walletMode ->
+                updateState {
+                    it.copy(walletMode = walletMode)
+                }
             }
         }
     }
@@ -223,6 +245,10 @@ class PricesViewModel(
                 }
         }
     }
+}
+
+private fun WalletMode.isTopMoversSupported(): Boolean {
+    return this == WalletMode.CUSTODIAL
 }
 
 private fun Money?.format(cryptoCurrency: Currency) =

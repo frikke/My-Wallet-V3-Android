@@ -3,7 +3,10 @@ package com.blockchain.prices.prices
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.tablerow.signedValue
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.flatMap
 import com.blockchain.data.map
 import com.blockchain.prices.R
 import info.blockchain.balance.AssetInfo
@@ -41,4 +44,16 @@ data class PriceItemViewState(
 
 enum class PricesOutputGroup {
     MostPopular, Others
+}
+
+/**
+ * (percentage,position) of [asset]
+ */
+fun DataResource<List<PriceItemViewState>>.percentAndPositionOf(
+    asset: AssetInfo
+): Pair<Double, Int>? {
+    return flatMap { list ->
+        val item = list.first { it.asset == asset }
+        item.delta.map { it.signedValue() to list.indexOf(item) + 1 }
+    }.dataOrElse(null)
 }

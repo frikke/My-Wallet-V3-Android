@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
@@ -33,21 +35,23 @@ import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.R
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.PriceItemViewState
+import com.blockchain.prices.prices.PricesAnalyticsEvents
 import com.blockchain.prices.prices.PricesFilter
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.nameRes
+import com.blockchain.prices.prices.percentAndPositionOf
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -144,6 +148,7 @@ fun PricesScreen(
 
 @Composable
 fun ColumnScope.PricesScreenData(
+    analytics: Analytics = get(),
     filters: ImmutableList<PricesFilter>,
     selectedFilter: PricesFilter,
     cryptoPrices: ImmutableList<PriceItemViewState>,
@@ -181,6 +186,8 @@ fun ColumnScope.PricesScreenData(
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
         (topMovers as? DataResource.Data)?.data?.let {
+            if (it.isEmpty()) return@let
+
             paddedItem(
                 paddingValues = PaddingValues(horizontal = 16.dp)
             ) {
@@ -192,7 +199,19 @@ fun ColumnScope.PricesScreenData(
             item {
                 TopMoversScreen(
                     data = topMovers,
-                    assetOnClick = { onAssetClick(it) }
+                    assetOnClick = {asset ->
+                        onAssetClick(asset)
+
+                        topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
+                            analytics.logEvent(
+                                PricesAnalyticsEvents.TopMoverAssetClicked(
+                                    ticker = asset.networkTicker,
+                                    percentageMove = percentageMove,
+                                    position = position
+                                )
+                            )
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))

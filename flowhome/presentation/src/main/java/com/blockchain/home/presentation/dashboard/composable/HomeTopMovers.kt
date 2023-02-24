@@ -22,6 +22,8 @@ internal fun LazyListScope.homeTopMovers(
     assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let {
+        if (it.isEmpty()) return
+        
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {
