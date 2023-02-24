@@ -5,9 +5,11 @@ import com.blockchain.data.DataResource
 import com.blockchain.prices.domain.AssetPriceInfo
 
 data class PricesModelState(
+    val loadStrategy: PricesLoadStrategy = PricesLoadStrategy.All,
     val filters: List<PricesFilter> = emptyList(),
     val data: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
     val topMoversCount: Int = 4,
+    val mostPopularTickers: List<String> = emptyList(),
     val filterTerm: String = "",
     val filterBy: PricesFilter = PricesFilter.All,
     val lastFreshDataTime: Long = 0
@@ -15,4 +17,9 @@ data class PricesModelState(
 
 enum class PricesFilter {
     All, Tradable, Favorites
+}
+
+sealed interface PricesLoadStrategy {
+    object All : PricesLoadStrategy
+    object TradableOnly : PricesLoadStrategy
 }

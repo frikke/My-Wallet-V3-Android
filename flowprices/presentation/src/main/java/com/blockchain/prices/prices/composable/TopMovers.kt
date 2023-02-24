@@ -14,12 +14,16 @@ import com.blockchain.componentlib.card.BalanceChangeSmallCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesIntents
+import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import info.blockchain.balance.AssetInfo
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -30,19 +34,23 @@ fun TopMovers(
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(PricesIntents.LoadData)
+        viewModel.onIntent(
+            PricesIntents.LoadData(
+                strategy = PricesLoadStrategy.TradableOnly
+            )
+        )
         onDispose { }
     }
 
     TopMoversScreen(
-        data = viewState.topMovers,
+        data = viewState.topMovers.toImmutableList(),
         assetOnClick = assetOnClick
     )
 }
 
 @Composable
 fun TopMoversScreen(
-    data: DataResource<List<PriceItemViewState>>,
+    data: DataResource<ImmutableList<PriceItemViewState>>,
     assetOnClick: (AssetInfo) -> Unit,
 ) {
     (data as? DataResource.Data)?.data?.let { topMovers ->

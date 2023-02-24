@@ -34,6 +34,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.flatMap
 import com.blockchain.data.map
+import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementType
@@ -67,10 +68,12 @@ import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PricesIntents
+import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -145,7 +148,7 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
-                pricesViewModel.onIntent(PricesIntents.LoadData)
+                pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
                 earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
                 referralViewModel.onIntent(ReferralIntent.LoadData())
@@ -326,7 +329,7 @@ fun HomeScreen(
 
         // top movers
         homeTopMovers(
-            data = pricesViewState.topMovers,
+            data = pricesViewState.topMovers.toImmutableList(),
             assetOnClick = { asset ->
                 assetActionsNavigation.coinview(asset)
 

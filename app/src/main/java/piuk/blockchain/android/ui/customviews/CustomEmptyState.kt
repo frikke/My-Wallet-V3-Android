@@ -62,6 +62,7 @@ fun CustomEmptyState(
                     Icons.Filled.Alert.withTint(AppTheme.colors.error)
                 ),
                 mainIconSize = 88.dp,
+                tagIconSize = 44.dp,
                 iconBackground = AppTheme.colors.background,
                 borderColor = AppTheme.colors.backgroundMuted
             )

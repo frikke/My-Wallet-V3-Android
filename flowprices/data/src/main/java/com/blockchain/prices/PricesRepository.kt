@@ -12,6 +12,7 @@ import com.blockchain.data.mapList
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
+import com.blockchain.store.filterListData
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
 import com.blockchain.utils.toFlowDataResource
@@ -121,8 +122,12 @@ class PricesRepository(
             }
     }
 
+    override fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
+        return allAssets().filterListData { it.isTradable }
+    }
+
     override fun topMoversCount(): Flow<Int> {
-        return remoteConfigService.getRawJson(TOP_MOVERS_COUNT_KEY)
+        return remoteConfigService.getRawJson(KEY_TOP_MOVERS_COUNT)
             .toFlowDataResource()
             .map {
                 it.map { it.toIntOrNull() ?: TOP_MOVERS_DEFAULT_COUNT }
@@ -130,9 +135,20 @@ class PricesRepository(
             }
     }
 
+    override fun mostPopularTickers(): Flow<List<String>> {
+        return remoteConfigService.getRawJson(KEY_MOST_POPULAR)
+            .toFlowDataResource()
+            .map {
+                it.map { it.split(MOST_POPULAR_SEPARATOR).map { it.trim() } }
+                    .dataOrElse(emptyList())
+            }
+    }
+
     companion object {
         private val defaultWatchlist = listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER)
-        private const val TOP_MOVERS_COUNT_KEY = "prices_top_movers_count"
+        private const val KEY_TOP_MOVERS_COUNT = "prices_top_movers_count"
+        private const val KEY_MOST_POPULAR = "prices_most_popular"
+        private const val MOST_POPULAR_SEPARATOR = ","
         private const val TOP_MOVERS_DEFAULT_COUNT = 4
     }
 }

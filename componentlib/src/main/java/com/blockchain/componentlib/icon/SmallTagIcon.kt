@@ -27,10 +27,11 @@ fun SmallTagIcon(
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background,
     mainIconSize: Dp = 24.dp,
+    tagIconSize: Dp? = null,
     mainIconShape: Shape = CircleShape
 ) {
     val borderSize = mainIconSize.div(25f)
-    val tagIconSize = mainIconSize.div(1.6f)
+    val tagIconSize = tagIconSize ?: mainIconSize.div(1.6f)
     val overlap = mainIconSize.times(.4f)
 
     Box(
@@ -44,9 +45,14 @@ fun SmallTagIcon(
             shape = mainIconShape,
             color = iconBackground
         ) {
-            AsyncMediaItem(
-                imageResource = icon.main
-            )
+            Box(
+                modifier = Modifier.matchParentSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncMediaItem(
+                    imageResource = icon.main
+                )
+            }
         }
 
         AsyncMediaItem(

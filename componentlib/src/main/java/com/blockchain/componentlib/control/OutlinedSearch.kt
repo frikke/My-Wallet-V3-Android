@@ -29,6 +29,7 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 private fun OutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
@@ -52,7 +53,10 @@ private fun OutlinedSearch(
         value = ""
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         OutlinedTextInput(
             modifier = Modifier.weight(1F),
             shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
@@ -101,12 +105,14 @@ private fun OutlinedSearch(
 
 @Composable
 fun NonCancelableOutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedSearch(
+        modifier = modifier,
         prePopulatedText = prePopulatedText,
         placeholder = placeholder,
         readOnly = readOnly,
@@ -117,12 +123,14 @@ fun NonCancelableOutlinedSearch(
 
 @Composable
 fun CancelableOutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
     onValueChange: (String) -> Unit = {}
 ) {
     OutlinedSearch(
+        modifier = modifier,
         prePopulatedText = prePopulatedText,
         placeholder = placeholder,
         readOnly = readOnly,

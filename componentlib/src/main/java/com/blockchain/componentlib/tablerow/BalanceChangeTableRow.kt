@@ -29,8 +29,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
@@ -51,6 +54,7 @@ fun BalanceChangeTableRow(
     valueChange: DataResource<ValueChange>? = null,
     imageResource: ImageResource = ImageResource.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
     onClick: () -> Unit
 ) {
     BalanceChangeTableRow(
@@ -65,6 +69,7 @@ fun BalanceChangeTableRow(
             StackedIcon.SingleIcon(imageResource)
         },
         defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
         onClick = onClick
     )
 }
@@ -78,22 +83,40 @@ fun BalanceChangeTableRow(
     valueChange: DataResource<ValueChange>? = null,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
     onClick: () -> Unit
 ) {
-    BalanceChangeTableRow(
-        name = name,
-        subtitle = subtitle,
-        networkTag = networkTag,
-        value = value,
-        valueChange = valueChange,
-        contentStart = {
-            CustomStackedIcon(
-                icon = icon,
-                size = defaultIconSize
-            )
-        },
-        onClick = onClick
-    )
+    if (withChevron) {
+        BalanceChangeTableRowWithChevron(
+            name = name,
+            subtitle = subtitle,
+            networkTag = networkTag,
+            value = value,
+            valueChange = valueChange,
+            contentStart = {
+                CustomStackedIcon(
+                    icon = icon,
+                    size = defaultIconSize
+                )
+            },
+            onClick = onClick
+        )
+    } else {
+        BalanceChangeTableRow(
+            name = name,
+            subtitle = subtitle,
+            networkTag = networkTag,
+            value = value,
+            valueChange = valueChange,
+            contentStart = {
+                CustomStackedIcon(
+                    icon = icon,
+                    size = defaultIconSize
+                )
+            },
+            onClick = onClick
+        )
+    }
 }
 
 @Composable
@@ -207,6 +230,117 @@ private fun BalanceChangeTableRow(
 }
 
 @Composable
+private fun BalanceChangeTableRowWithChevron(
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
+    onClick: () -> Unit
+) {
+
+    TableRow(
+        contentStart = contentStart,
+        content = {
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // name
+                Text(
+                    text = name,
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.title
+                )
+
+                // sub and network tag row
+                subtitle?.let {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = subtitle,
+                            style = AppTheme.typography.paragraph1,
+                            color = AppTheme.colors.muted
+                        )
+
+                        networkTag?.let {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                            // todo(othman) tags superapp styling
+                            DefaultTag(text = networkTag)
+                        }
+                    }
+                }
+
+                // price and change row
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when (value) {
+                        DataResource.Loading -> {
+                            ShimmerValue(
+                                modifier = Modifier
+                                    .width(70.dp)
+                                    .height(18.dp)
+                            )
+                        }
+
+                        is DataResource.Error -> {
+                            // todo
+                        }
+
+                        is DataResource.Data -> {
+                            Text(
+                                text = value.data,
+                                textAlign = TextAlign.End,
+                                style = AppTheme.typography.paragraph1,
+                                color = AppTheme.colors.title
+                            )
+                        }
+                    }
+
+                    valueChange?.let {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+                        when (valueChange) {
+                            DataResource.Loading -> {
+                                ShimmerValue(
+                                    modifier = Modifier
+                                        .width(50.dp)
+                                        .height(18.dp)
+                                )
+                            }
+
+                            is DataResource.Error -> {
+                                // todo
+                            }
+
+                            is DataResource.Data -> {
+                                Text(
+                                    text = "${valueChange.data.value}%",
+                                    style = AppTheme.typography.paragraph1,
+                                    textAlign = TextAlign.End,
+                                    color = valueChange.data.color
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        contentEnd = {
+            Image(imageResource = Icons.ChevronRight)
+        },
+        onContentClicked = onClick
+    )
+}
+
+@Composable
 fun ShimmerValue(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition()
     val translateAnim by transition.animateFloat(
@@ -278,12 +412,25 @@ fun PreviewBalanceChangeTableRow() {
                 subtitle = "BTC",
                 networkTag = "Bitcoin",
                 value = DataResource.Data("$1,000.00"),
-                contentStart = {
-                    ImageResource.Local(
-                        id = R.drawable.ic_blockchain,
-                    )
-                },
+                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 valueChange = DataResource.Data(ValueChange.Up(1.88)),
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewBalanceChangeTableRow_Chevron() {
+    AppTheme {
+        AppSurface {
+            BalanceChangeTableRow(
+                name = "Bitcoin",
+                value = DataResource.Data("$1,000.00"),
+                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
+                valueChange = DataResource.Data(ValueChange.Up(1.88)),
+                withChevron = true,
                 onClick = {}
             )
         }
@@ -298,11 +445,7 @@ fun PreviewBalanceChangeTableRow_Loading() {
             BalanceChangeTableRow(
                 name = "Bitcoin",
                 value = DataResource.Loading,
-                contentStart = {
-                    ImageResource.Local(
-                        id = R.drawable.ic_blockchain,
-                    )
-                },
+                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 valueChange = DataResource.Loading,
                 onClick = {}
             )

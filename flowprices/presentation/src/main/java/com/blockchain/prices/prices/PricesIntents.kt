@@ -5,7 +5,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 
 sealed interface PricesIntents : Intent<PricesModelState> {
-    object LoadData : PricesIntents {
+    data class LoadData(val strategy: PricesLoadStrategy) : PricesIntents {
         override fun isValidFor(modelState: PricesModelState): Boolean {
             return modelState.data !is DataResource.Data
         }

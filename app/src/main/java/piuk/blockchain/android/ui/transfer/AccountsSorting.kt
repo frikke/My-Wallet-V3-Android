@@ -2,26 +2,19 @@ package piuk.blockchain.android.ui.transfer
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountsSorter
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.user.Watchlist
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.brokerage.buy.PriceHistory
-import piuk.blockchain.android.ui.brokerage.buy.PricedAsset
 
 interface AccountsSorting {
     fun sorter(): AccountsSorter
@@ -192,98 +185,4 @@ class DefaultAccountsSorting(private val currencyPrefs: CurrencyPrefs) : Account
                 Single.just(list)
             }
     }
-}
-
-class BuyListAccountSorting(
-    private val assetListOrderingFF: FeatureFlag,
-    private val coincore: Coincore,
-    private val currencyPrefs: CurrencyPrefs,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val watchlistDataManager: WatchlistDataManager,
-    private val momentLogger: MomentLogger
-) {
-
-    fun sort(assets: List<AssetInfo>): Single<List<PricedAsset>> =
-        // we will used the FF to act as an A/B test between ordering assets and what comes from BE
-        assetListOrderingFF.enabled.flatMap { enabled ->
-            if (enabled) {
-                momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
-                val sortedList = getAssetListOrdering(assets)
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
-                }
-            } else {
-                momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
-                val sortedList = Observable.fromIterable(assets).flatMapMaybe { asset ->
-                    asset.getAssetPriceInformation()
-                }.toList()
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
-                }
-            }
-        }
-
-    private fun getAssetListOrdering(assets: List<AssetInfo>): Single<List<PricedAsset>> =
-        Single.zip(
-            Observable.fromIterable(assets).flatMapMaybe { asset ->
-                Maybe.zip(
-                    coincore[asset].accountGroup(AssetFilter.All).flatMap {
-                        it.balanceRx().firstOrError().toMaybe()
-                    }.onErrorReturn {
-                        AccountBalance.zero(
-                            asset,
-                            ExchangeRate.zeroRateExchangeRate(
-                                from = asset,
-                                to = currencyPrefs.selectedFiatCurrency
-                            )
-                        )
-                    },
-                    asset.getAssetPriceInformation(),
-                    // trading volumes are only returned in USD, so request them in that fiat here
-                    exchangeRatesDataManager.getCurrentAssetPrice(asset, FiatCurrency.Dollars)
-                        .toMaybe()
-                ) { accountBalance, pricedAsset, priceRecord ->
-                    PricedAsset.SortedAsset(
-                        asset = pricedAsset.asset,
-                        balance = pricedAsset.priceHistory.currentExchangeRate.convert(accountBalance.total),
-                        priceHistory = pricedAsset.priceHistory,
-                        tradingVolume = priceRecord.tradingVolume24h ?: 0.0
-                    )
-                }
-            }.toList(),
-            watchlistDataManager.getWatchlist().onErrorReturn { Watchlist(emptyMap()) },
-        ) { items, watchlist ->
-
-            val sortedAccountsInWatchlist = watchlist.assetMap.keys
-                .mapNotNull { currency ->
-                    items.find { it.asset == currency }
-                }.sortedWith(
-                    compareByDescending<PricedAsset.SortedAsset> {
-                        it.balance
-                    }.thenByDescending { it.tradingVolume }
-                )
-
-            val sortedAvailableAccounts = items.sortedWith(
-                compareByDescending<PricedAsset.SortedAsset> {
-                    it.balance
-                }.thenByDescending { it.tradingVolume }
-            )
-
-            val sortedFinalAccounts = sortedAccountsInWatchlist.toSet() + sortedAvailableAccounts.toSet()
-
-            return@zip sortedFinalAccounts.toList()
-        }
-
-    private fun AssetInfo.getAssetPriceInformation(): Maybe<PricedAsset.NonSortedAsset> =
-        coincore[this].getPricesWith24hDeltaLegacy().map { priceDelta ->
-            PricedAsset.NonSortedAsset(
-                asset = this,
-                priceHistory = PriceHistory(
-                    currentExchangeRate = priceDelta.currentRate,
-                    priceDelta = priceDelta.delta24h
-                )
-            )
-        }.toMaybe().onErrorResumeNext {
-            Maybe.empty()
-        }
 }
