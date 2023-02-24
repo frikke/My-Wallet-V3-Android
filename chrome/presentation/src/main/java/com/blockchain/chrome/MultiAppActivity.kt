@@ -27,6 +27,8 @@ import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
+import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
+import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
@@ -82,6 +84,7 @@ class MultiAppActivity :
     BlockchainActivity(),
     InterestSummarySheet.Host,
     StakingSummaryBottomSheet.Host,
+    ActiveRewardsSummaryBottomSheet.Host,
     QuestionnaireSheetHost,
     AuthNavigationHost,
     BankLinkingHost,
@@ -149,7 +152,6 @@ class MultiAppActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntent(intent)
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -190,7 +192,6 @@ class MultiAppActivity :
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
-
             MultiAppNavHost(
                 startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
@@ -204,6 +205,7 @@ class MultiAppActivity :
                 openExternalUrl = ::openExternalUrl
             )
         }
+        handleIntent(intent)
         subscribeForSecurityChannelLogin()
         handleFiatActionsNav()
         if (savedInstanceState == null) {
@@ -411,6 +413,7 @@ class MultiAppActivity :
     }
 
     override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
+        // TODO(EARN) - STAKING - not yet implemented
     }
 
     override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
@@ -425,10 +428,36 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is StakingError.UnknownAsset -> getString(
-                    R.string.staking_summary_sheet_error_unknown_asset, error.assetTicker
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
                 )
-                StakingError.Other -> getString(R.string.staking_summary_sheet_error_other)
+                StakingError.Other -> getString(R.string.earn_summary_sheet_error_other)
                 StakingError.None -> getString(R.string.empty)
+            },
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
+    }
+
+    override fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.ActiveRewardsDeposit,
+            target = account as TransactionTarget
+        )
+    }
+
+    override fun launchActiveRewardsWithdrawal(account: EarnRewardsAccount.Active) {
+        // TODO(EARN) - Active rewards - not yet implemented
+    }
+
+    override fun showActiveRewardsLoadingError(error: ActiveRewardsError) {
+        BlockchainSnackbar.make(
+            view = window.decorView.rootView,
+            message = when (error) {
+                is ActiveRewardsError.UnknownAsset -> getString(
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                )
+                ActiveRewardsError.Other -> getString(R.string.earn_summary_sheet_error_other)
+                ActiveRewardsError.None -> getString(R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error

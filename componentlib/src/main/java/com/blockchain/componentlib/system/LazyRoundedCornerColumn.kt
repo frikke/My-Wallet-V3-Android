@@ -7,15 +7,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun <T> LazyRoundedCornersColumn(items: List<T>, rowContent: @Composable (item: T) -> Unit) {
+fun <T> LazyRoundedCornersColumn(
+    modifier: Modifier = Modifier,
+    items: List<T>,
+    rowContent: @Composable (item: T) -> Unit
+) {
     LazyRoundedCornersColumnIndexed(
         items = items,
+        modifier = modifier,
         rowContent = { item, _ ->
             rowContent(item)
         }
@@ -23,11 +29,16 @@ fun <T> LazyRoundedCornersColumn(items: List<T>, rowContent: @Composable (item: 
 }
 
 @Composable
-fun <T> LazyRoundedCornersColumnIndexed(items: List<T>, rowContent: @Composable (item: T, index: Int) -> Unit) {
+fun <T> LazyRoundedCornersColumnIndexed(
+    modifier: Modifier = Modifier,
+    items: List<T>,
+    rowContent: @Composable (item: T, index: Int) -> Unit
+) {
     val listState = rememberLazyListState()
 
     LazyColumn(
-        state = listState
+        state = listState,
+        modifier = modifier
     ) {
         itemsIndexed(
             items = items,

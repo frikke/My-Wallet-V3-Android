@@ -160,6 +160,7 @@
 -keep public class info.blockchain.wallet.ethereum.data.** { *; }
 -keep public class info.blockchain.wallet.prices.data.** { *; }
 -keep public class com.blockchain.nabu.api.** { *; }
+-keep public class com.blockchain.api.fees.** { *; }
 -keepclassmembers class org.web3j.protocol.** { *; }
 -keepclassmembers class org.web3j.crypto.* { *; }
 -keep class * extends org.web3j.abi.TypeReference

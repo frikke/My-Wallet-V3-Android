@@ -15,6 +15,7 @@ import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
+import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import kotlinx.coroutines.CoroutineScope
@@ -131,6 +132,7 @@ val homePresentationModule = module {
                 coincore = get(),
                 interestService = get(),
                 activeRewardsService = get(),
+                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
             )
         }
 

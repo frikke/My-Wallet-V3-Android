@@ -31,5 +31,6 @@ fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when 
         ChromeBottomNavigationItem.Home,
         ChromeBottomNavigationItem.Prices,
         ChromeBottomNavigationItem.Nft,
+        ChromeBottomNavigationItem.Dex,
     )
 }

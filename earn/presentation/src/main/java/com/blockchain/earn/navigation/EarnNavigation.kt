@@ -14,6 +14,8 @@ interface EarnNavigation {
 
     fun openStakingSummarySheet(assetTicker: String)
 
+    fun openActiveRewardsSummarySheet(assetTicker: String)
+
     fun showBlockedAccessSheet(title: String, paragraph: String)
 
     fun openExternalUrl(url: String)

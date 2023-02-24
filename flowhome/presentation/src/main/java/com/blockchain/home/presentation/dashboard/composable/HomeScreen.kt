@@ -27,10 +27,14 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.tablerow.signedValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.flatMap
+import com.blockchain.data.map
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementType
@@ -187,8 +191,7 @@ fun HomeScreen(
                     )
                 }
                 is EarnNavEvent.ActiveRewards -> {
-                    // TODO: labreu: there's no active rewards summary yet
-                    // assetActionsNavigation.activeRewardsSummary(it.account)
+                    assetActionsNavigation.activeRewardsSummary(it.account.currency.networkTicker)
                     analytics.logEvent(
                         DashboardAnalyticsEvents.EarnAssetClicked(
                             currency = it.account.currency.networkTicker,
@@ -329,6 +332,19 @@ fun HomeScreen(
             data = pricesViewState.topMovers.toImmutableList(),
             assetOnClick = { asset ->
                 assetActionsNavigation.coinview(asset)
+
+                pricesViewState.topMovers.flatMap { list ->
+                    val item = list.first { it.asset == asset }
+                    item.delta.map { it.signedValue() to list.indexOf(item) + 1 }
+                }.dataOrElse(null)?.let { (percentageMove, position) ->
+                    analytics.logEvent(
+                        DashboardAnalyticsEvents.TopMoverAssetClicked(
+                            ticker = asset.networkTicker,
+                            percentageMove = percentageMove,
+                            position = position
+                        )
+                    )
+                }
             },
         )
 

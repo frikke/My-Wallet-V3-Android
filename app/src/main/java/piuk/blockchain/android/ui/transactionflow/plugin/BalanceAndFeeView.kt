@@ -11,7 +11,6 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -52,7 +51,7 @@ class BalanceAndFeeView @JvmOverloads constructor(
     override fun update(state: TransactionState) {
         check(::model.isInitialized) { "Control not initialised" }
 
-        updateMaxGroup(state)
+        updateMaxGroupAndFees(state)
         updateBalance(state)
     }
 
@@ -70,17 +69,13 @@ class BalanceAndFeeView @JvmOverloads constructor(
                 totalAvailableValue.text = makeAmountString(it, state)
             }
 
-            if (customiser.shouldNotDisplayNetworkFee(state)) {
-                networkFeeValue.text = context.getString(R.string.fee_calculated_at_checkout)
-                feeForFullAvailableValue.text = context.getString(R.string.fee_calculated_at_checkout)
-            } else {
-                state.pendingTx?.feeAmount?.let {
-                    networkFeeValue.text = makeAmountString(it, state)
-                }
-
-                state.pendingTx?.feeForFullAvailable?.let {
-                    feeForFullAvailableValue.text = makeAmountString(it, state)
-                }
+            totalAvailableValue.visibleIf {
+                state.pendingTx?.totalBalance != state.availableBalance &&
+                    customiser.shouldDisplayTotalBalance(state)
+            }
+            totalAvailableLabel.visibleIf {
+                state.pendingTx?.totalBalance != state.availableBalance &&
+                    customiser.shouldDisplayTotalBalance(state)
             }
         }
     }
@@ -113,31 +108,37 @@ class BalanceAndFeeView @JvmOverloads constructor(
             CurrencyType.CRYPTO -> value.toStringWithSymbol()
         }
 
-    private fun updateMaxGroup(state: TransactionState) =
+    private fun updateMaxGroupAndFees(state: TransactionState) =
         with(binding) {
             val isPositiveAmount = state.amount.isPositive
-            val hasFees = state.pendingTx?.feeAmount?.isPositive == true
-            val isTotalAvailable = state.pendingTx?.totalBalance == state.pendingTx?.availableBalance
-            val amountIsPositiveAndHasFees = isPositiveAmount && hasFees
+            val shouldDisplayFees = customiser.shouldDisplayNetworkFee(state)
+            val amountIsPositiveAndHasFees = isPositiveAmount && shouldDisplayFees
 
             networkFeeLabel.visibleIf { amountIsPositiveAndHasFees }
             networkFeeValue.visibleIf { amountIsPositiveAndHasFees }
             networkFeeArrow.visibleIf { amountIsPositiveAndHasFees }
             feeForFullAvailableLabel.visibleIf { amountIsPositiveAndHasFees }
             feeForFullAvailableValue.visibleIf { amountIsPositiveAndHasFees }
-            totalAvailableLabel.visibleIf { isPositiveAmount && !isTotalAvailable }
-            totalAvailableValue.visibleIf { isPositiveAmount && !isTotalAvailable }
+
+            state.pendingTx?.feeAmount?.let {
+                networkFeeValue.text = makeAmountString(it, state)
+            }
+            state.pendingTx?.feeForFullAvailable?.let {
+                feeForFullAvailableValue.text = makeAmountString(it, state)
+            }
 
             with(useMax) {
                 val amountIsZeroOrNoFees =
-                    !isPositiveAmount || !hasFees // in those cases there is room for the Max button
+                    !isPositiveAmount || !shouldDisplayFees // in those cases there is room for the Max button
                 text = customiser.enterAmountMaxButton(state)
                 onClick = {
                     analytics.onMaxClicked(state)
                     model.process(TransactionIntent.UseMaxSpendable)
                 }
                 isTransparent = false
-                visibleIf { amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState) }
+                visibleIf {
+                    amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState)
+                }
             }
         }
 }

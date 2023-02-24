@@ -54,14 +54,17 @@ class QuickActionsViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
     override fun reduce(state: QuickActionsModelState): QuickActionsViewState = state.run {
         state.maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
-            // leave space for More action
-            val maxQuickActions = maxQuickActionsOnScreen - 1
 
-            val quickActionItemsCount = maxQuickActions.coerceAtMost(
-                state.quickActions.filter { it.state == ActionState.Available }.size
-            )
+            val quickActionItemsCount = if (state.quickActions.size <= maxQuickActionsOnScreen) {
+                maxQuickActionsOnScreen
+            } else {
+                // (maxQuickActionsOnScreen - 1) to leave space for More action
+                (maxQuickActionsOnScreen - 1).coerceAtMost(
+                    state.quickActions.filter { it.state == ActionState.Available }.size
+                )
+            }
 
-            val quickActions = if (state.quickActions.size > quickActionItemsCount)
+            val quickActions = if (state.quickActions.size > quickActionItemsCount) {
                 state.quickActions.subList(0, quickActionItemsCount).map { it.toQuickActionItem() }.plus(
                     QuickActionItem(
                         title = R.string.common_more,
@@ -69,7 +72,9 @@ class QuickActionsViewModel(
                         enabled = true
                     )
                 )
-            else state.quickActions.map { it.toQuickActionItem() }
+            } else {
+                state.quickActions.map { it.toQuickActionItem() }
+            }
 
             val moreActions = if (state.quickActions.size > quickActionItemsCount) {
                 state.quickActions.subList(quickActionItemsCount, state.quickActions.size)

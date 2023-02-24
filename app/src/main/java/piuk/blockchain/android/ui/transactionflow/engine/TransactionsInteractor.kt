@@ -462,30 +462,30 @@ class TransactionInteractor(
     fun checkShouldShowRewardsInterstitial(
         sourceAccount: BlockchainAccount,
         asset: AssetInfo,
+        action: AssetAction
     ): Single<FeatureAccess> =
-        when (sourceAccount) {
-            // TODO (labreu): this always grants access for now
-            !is NullCryptoAccount -> Single.just(FeatureAccess.Granted())
-            is EarnRewardsAccount.Staking -> stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
-                if (limits.withdrawalsDisabled) {
-                    stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
-                        if (accountBalance.totalBalance.isZero) {
-                            FeatureAccess.Blocked(
-                                BlockedReason.ShouldAcknowledgeStakingWithdrawal(
-                                    assetIconUrl = asset.logo
+        if (sourceAccount !is NullCryptoAccount) {
+            Single.just(FeatureAccess.Granted())
+        } else {
+            when (action) {
+                AssetAction.StakingDeposit -> stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
+                    if (limits.withdrawalsDisabled) {
+                        stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                            if (accountBalance.totalBalance.isZero) {
+                                FeatureAccess.Blocked(
+                                    BlockedReason.ShouldAcknowledgeStakingWithdrawal(
+                                        assetIconUrl = asset.logo
+                                    )
                                 )
-                            )
-                        } else FeatureAccess.Granted()
+                            } else FeatureAccess.Granted()
+                        }
+                    } else {
+                        identity.userAccessForFeature(Feature.DepositStaking)
                     }
-                } else {
-                    identity.userAccessForFeature(Feature.DepositStaking)
                 }
+                // TODO (labreu): add active rewards interstitial
+                else -> Single.just(FeatureAccess.Granted())
             }
-            is EarnRewardsAccount.Active -> {
-                // TODO (labreu): do same eligibility check as above but for active rewards
-                Single.just(FeatureAccess.Granted())
-            }
-            else -> Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible("")))
         }
 
     fun updateStakingExplainerAcknowledged(networkTicker: String) {}

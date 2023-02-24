@@ -175,22 +175,22 @@ fun StakingSummarySheet(
 
                 BalanceTableRow(
                     titleStart = buildAnnotatedString {
-                        append(stringResource(id = R.string.staking_summary_payment_frequency))
+                        append(stringResource(id = R.string.earn_payment_frequency))
                     },
                     titleEnd = buildAnnotatedString {
                         append(
                             when (state.rewardsFrequency) {
                                 EarnRewardsFrequency.Daily -> stringResource(
-                                    R.string.staking_summary_payment_frequency_daily
+                                    R.string.earn_payment_frequency_daily
                                 )
                                 EarnRewardsFrequency.Weekly -> stringResource(
-                                    R.string.staking_summary_payment_frequency_weekly
+                                    R.string.earn_payment_frequency_weekly
                                 )
                                 EarnRewardsFrequency.Monthly -> stringResource(
-                                    R.string.staking_summary_payment_frequency_monthly
+                                    R.string.earn_payment_frequency_monthly
                                 )
                                 EarnRewardsFrequency.Unknown -> stringResource(
-                                    R.string.staking_summary_payment_frequency_unknown
+                                    R.string.earn_payment_frequency_unknown
                                 )
                             }
                         )
@@ -281,7 +281,7 @@ fun StakingSummarySheet(
                 is InfoSnackbarState.RateInfo -> {
                     SnackbarAlert(
                         message = stringResource(
-                            R.string.staking_summary_rate_explanation, state.commissionRate.toString()
+                            R.string.earn_rate_explanation, state.commissionRate.toString()
                         ),
                         actionLabel = stringResource(R.string.common_ok),
                         onActionClicked = {

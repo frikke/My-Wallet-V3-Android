@@ -14,9 +14,9 @@ import com.blockchain.earn.data.dataresources.active.ActiveRewardsLimitsStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsRatesStore
 import com.blockchain.earn.data.mapper.toEarnRewardsActivity
 import com.blockchain.earn.data.mapper.toIneligibilityReason
+import com.blockchain.earn.domain.models.ActiveRewardsRates
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsFrequency.Companion.toRewardsFrequency
-import com.blockchain.earn.domain.models.EarnRewardsRates
 import com.blockchain.earn.domain.models.active.ActiveRewardsAccountBalance
 import com.blockchain.earn.domain.models.active.ActiveRewardsLimits
 import com.blockchain.earn.domain.service.ActiveRewardsService
@@ -68,14 +68,18 @@ class ActiveRewardsRepository(
     override fun getRatesForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<EarnRewardsRates>> =
+    ): Flow<DataResource<ActiveRewardsRates>> =
         activeRewardsRateStore.stream(refreshStrategy).mapData { ratesMap ->
             ratesMap.rates[currency.networkTicker]?.let { rateData ->
-                EarnRewardsRates(
+                ActiveRewardsRates(
                     rate = rateData.rate,
-                    commission = rateData.commission
+                    commission = rateData.commission,
+                    triggerPrice = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        rateData.triggerPrice.toBigInteger()
+                    )
                 )
-            } ?: EarnRewardsRates(0.0, 0.0)
+            } ?: ActiveRewardsRates(0.0, 0.0, Money.zero(currency))
         }
 
     override fun getRatesForAllAssets(
@@ -255,7 +259,9 @@ class ActiveRewardsRepository(
             lockedBalance = Money.fromMinor(currency, lockedBalance.toBigInteger()),
             pendingDeposit = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
             pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
-            totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger())
+            totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger()),
+            earningBalance = Money.fromMinor(currency, earningBalance.toBigInteger()),
+            bondingDeposits = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
         )
 
     companion object {

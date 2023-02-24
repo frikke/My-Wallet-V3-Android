@@ -52,12 +52,15 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
+import kotlin.math.max
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
@@ -193,17 +196,16 @@ data class TransactionState(
 
     val maxSpendable: Money
         get() {
-            return pendingTx?.let {
-                val available = availableToAmountCurrency(it.availableBalance, amount)
-                val maxSpendableWithoutFees = Money.min(
-                    available,
-                    (it.limits?.max as? TxLimit.Limited)?.amount ?: available
-                )
-                if (it.feeAmount.currencyCode == maxSpendableWithoutFees.currencyCode) {
-                    maxSpendableWithoutFees.minus(it.feeAmount)
-                } else {
-                    maxSpendableWithoutFees
-                }
+            return pendingTx?.let { ptx ->
+                val available = availableToAmountCurrency(ptx.availableBalance, amount)
+                val maxAmount = (ptx.limits?.max as? TxLimit.Limited)?.amount ?: return available
+                return if (available <= maxAmount)
+                    available
+                else maxAmount - (
+                    ptx.feeAmount.takeIf {
+                        it.currencyCode == maxAmount.currencyCode
+                    } ?: Money.zero(maxAmount.currency)
+                    )
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
@@ -691,7 +693,8 @@ class TransactionModel(
         AssetAction.StakingDeposit,
         AssetAction.ActiveRewardsDeposit -> interactor.checkShouldShowRewardsInterstitial(
             sourceAccount = sourceAccount,
-            asset = (target as CryptoAccount).currency
+            asset = (target as CryptoAccount).currency,
+            action = action
         ).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,
@@ -796,16 +799,21 @@ class TransactionModel(
         process(TransactionIntent.AmountChanged(amount))
     }
 
-    private fun processAmountChanged(amount: Money): Disposable =
-        interactor.updateTransactionAmount(amount)
+    private val amountChangeDisposable = CompositeDisposable()
+
+    private fun processAmountChanged(amount: Money): Disposable {
+        amountChangeDisposable.clear()
+        return interactor.updateTransactionAmount(amount)
             .subscribeBy(
                 onError = {
                     Timber.e("!TRANSACTION!> Unable to get update available balance")
                     errorLogger.log(TxFlowLogError.BalanceFail(it))
                     process(TransactionIntent.FatalTransactionError(it))
                 }
-            )
-
+            ).also {
+                amountChangeDisposable += it
+            }
+    }
     private fun processSetFeeLevel(intent: TransactionIntent.SetFeeLevel): Disposable =
         interactor.updateTransactionFees(intent.feeLevel, intent.customFeeAmount)
             .subscribeBy(

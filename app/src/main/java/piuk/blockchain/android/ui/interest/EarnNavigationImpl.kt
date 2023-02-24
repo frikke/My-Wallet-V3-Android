@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.R
+import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.dashboard.EarnAccessBlockedBottomSheet
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnType
@@ -30,6 +31,9 @@ class EarnNavigationImpl(
                 account = navigationEvent.account
             )
             is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> openStakingSummarySheet(
+                assetTicker = navigationEvent.assetTicker
+            )
+            is EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet -> openActiveRewardsSummarySheet(
                 assetTicker = navigationEvent.assetTicker
             )
             is EarnDashboardNavigationEvent.OpenBlockedForRegionSheet -> {
@@ -67,6 +71,10 @@ class EarnNavigationImpl(
 
     override fun openStakingSummarySheet(assetTicker: String) {
         activity?.showBottomSheet(StakingSummaryBottomSheet.newInstance(assetTicker))
+    }
+
+    override fun openActiveRewardsSummarySheet(assetTicker: String) {
+        activity?.showBottomSheet(ActiveRewardsSummaryBottomSheet.newInstance(assetTicker))
     }
 
     override fun showBlockedAccessSheet(title: String, paragraph: String) {

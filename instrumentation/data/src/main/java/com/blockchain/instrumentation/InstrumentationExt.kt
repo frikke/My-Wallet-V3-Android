@@ -1,5 +1,6 @@
 package com.blockchain.instrumentation
 
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.Logger
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxMaybe
 import kotlinx.coroutines.rx3.rxSingle
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Example usage:
@@ -35,6 +38,12 @@ import kotlinx.coroutines.rx3.rxSingle
  * ```
  */
 suspend fun <T> instrument(vararg responses: Pair<String, T>, fallback: (suspend () -> T)? = null): T {
+    val environmentConfig = getKoinInstance<EnvironmentConfig>()
+    if (!environmentConfig.isRunningInDebugMode()) {
+        require(fallback != null)
+        return fallback()
+    }
+
     val stackTrace = Exception().stackTrace
     val previousCallSiteIndex = stackTrace.indexOfLast {
         it.toString().contains("com.blockchain.instrumentation.InstrumentationExt")
@@ -101,4 +110,10 @@ fun <T : Any> instrumentMaybe(
     }
     val pickedResponseSingle = rxMaybe { instrument(*responses, fallback = fallbackSuspend) }
     return pickedResponseSingle.flatMap { it }
+}
+
+private inline fun <reified T : Any> getKoinInstance(): T {
+    return object : KoinComponent {
+        val value: T by inject()
+    }.value
 }

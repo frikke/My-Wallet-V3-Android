@@ -1,9 +1,9 @@
-package com.example.presentation
+package com.dex.presentation
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun SwapDexOptionScreen() {
-    Text(text = "Swap options")
+fun DexIntroScreen() {
+    Text(text = "DexIntroScreen")
 }

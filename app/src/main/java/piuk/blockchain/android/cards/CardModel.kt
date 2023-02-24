@@ -9,14 +9,14 @@ import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.outcome.fold
 import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
@@ -75,24 +75,24 @@ class CardModel(
             )
 
     private fun checkTokenizer() =
-        vgsFeatureFlag.enabled.zipWith(
-            rxSingle(Schedulers.io().asCoroutineDispatcher()) { paymentsService.getCardTokenId() }
-        ).subscribeBy(
-            onSuccess = { (isVgsEnabled, cardTokenResponse) ->
-                cardTokenResponse.fold(
-                    onSuccess = { cardTokenResponse ->
-                        process(
-                            CardIntent.TokenizerLoaded(
-                                isVgsEnabled = isVgsEnabled,
-                                cardTokenId = cardTokenResponse.cardTokenId,
-                                vaultId = cardTokenResponse.vgsVaultId
-                            )
+        vgsFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) { paymentsService.getCardTokenId() }
+                    .map { response ->
+                        CardIntent.TokenizerLoaded(
+                            isVgsEnabled = true,
+                            cardTokenId = response.cardTokenId,
+                            vaultId = response.vgsVaultId
                         )
-                    },
-                    onFailure = {
-                        process(CardIntent.TokenizerLoaded(isVgsEnabled = isVgsEnabled))
+                    }.onErrorReturn {
+                        CardIntent.TokenizerLoaded(isVgsEnabled = true)
                     }
-                )
+            } else {
+                Single.just(CardIntent.TokenizerLoaded(isVgsEnabled = false))
+            }
+        }.subscribeBy(
+            onSuccess = { tokenizerLoadedIntent ->
+                process(tokenizerLoadedIntent)
             }
         )
 

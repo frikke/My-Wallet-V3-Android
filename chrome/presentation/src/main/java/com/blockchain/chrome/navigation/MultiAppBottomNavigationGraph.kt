@@ -32,6 +32,7 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.dex.presentation.DexIntroScreen
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.get
 
@@ -138,6 +139,38 @@ fun MultiAppBottomNavigationHost(
                 }
             )
         }
+
+        composable(ChromeBottomNavigationItem.Dex.route) {
+            val listState = rememberLazyListState()
+            var isRefreshing by remember { mutableStateOf(false) }
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+            updateScrollInfo(
+                Pair(
+                    ChromeBottomNavigationItem.Dex,
+                    extractStatesInfo(listState, swipeRefreshState)
+                )
+            )
+
+            ChromeScreen(
+                modifier = modifier,
+                isPullToRefreshEnabled = enableRefresh,
+                isRefreshing = isRefreshing,
+                swipeRefreshState = swipeRefreshState,
+                content = {
+                    DexIntroScreen()
+                },
+                refreshStarted = {
+                    isRefreshing = true
+                    refreshStarted()
+                },
+                refreshComplete = {
+                    refreshComplete()
+                    isRefreshing = false
+                }
+            )
+        }
+
         composable(ChromeBottomNavigationItem.Prices.route) {
             val listState = rememberLazyListState()
             var isRefreshing by remember { mutableStateOf(false) }

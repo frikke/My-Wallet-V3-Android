@@ -28,5 +28,6 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
     fun interestSummary(account: CryptoAccount)
     fun stakingSummary(networkTicker: String)
+    fun activeRewardsSummary(networkTicker: String)
     fun startKyc()
 }

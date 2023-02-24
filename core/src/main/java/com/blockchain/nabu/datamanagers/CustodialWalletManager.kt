@@ -20,7 +20,6 @@ import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
@@ -132,7 +131,7 @@ interface CustodialWalletManager {
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String>
+    fun transferFundsToWallet(amount: Money, fee: Money, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable

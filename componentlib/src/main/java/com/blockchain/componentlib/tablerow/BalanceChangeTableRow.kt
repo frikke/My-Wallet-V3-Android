@@ -394,6 +394,14 @@ sealed interface ValueChange {
     }
 }
 
+fun ValueChange.signedValue(): Double = value.absoluteValue.run {
+    when (this@signedValue) {
+        is ValueChange.None,
+        is ValueChange.Up -> unaryPlus()
+        is ValueChange.Down -> unaryMinus()
+    }
+}
+
 @Preview
 @Composable
 fun PreviewBalanceChangeTableRow() {

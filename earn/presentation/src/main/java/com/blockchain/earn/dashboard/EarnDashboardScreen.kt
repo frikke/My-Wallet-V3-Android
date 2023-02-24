@@ -203,6 +203,7 @@ fun EarnDashboard(
                 queryFilter = discoverTabQueryFilter,
                 filterAction = discoverTabFilterAction,
                 filterBy = state.discoverTabFilterBy,
+                filtersAvailable = s.filterList,
                 discoverAssetList = s.discover.toImmutableList(),
                 onItemClicked = onDiscoverItemClicked,
                 discoverTabQueryBy = discoverTabQueryBy,
@@ -253,6 +254,7 @@ fun EarningAndDiscover(
                     queryFilter = earningTabQueryFilter,
                     filterAction = earningTabFilterAction,
                     filterBy = earningTabFilterBy,
+                    filtersAvailable = state.filterList,
                     earningAssetList = state.earning.toImmutableList(),
                     onItemClicked = onEarningItemClicked,
                     earningTabQueryBy = earningTabQueryBy,
@@ -266,6 +268,7 @@ fun EarningAndDiscover(
                     queryFilter = discoverTabQueryFilter,
                     filterAction = discoverTabFilterAction,
                     filterBy = discoverTabFilterBy,
+                    filtersAvailable = state.filterList,
                     discoverAssetList = state.discover.toImmutableList(),
                     onItemClicked = onDiscoverItemClicked,
                     discoverTabQueryBy = discoverTabQueryBy,
@@ -282,6 +285,7 @@ private fun DiscoverScreen(
     queryFilter: (String) -> Unit,
     filterAction: (EarnDashboardListFilter) -> Unit,
     filterBy: EarnDashboardListFilter,
+    filtersAvailable: List<EarnDashboardListFilter>,
     discoverAssetList: List<EarnAsset>,
     onItemClicked: (EarnAsset) -> Unit,
     discoverTabQueryBy: String,
@@ -318,7 +322,7 @@ private fun DiscoverScreen(
                 }
 
                 LabeledFiltersGroup(
-                    filters = EarnDashboardListFilter.values().map { filter ->
+                    filters = filtersAvailable.map { filter ->
                         LabeledFilterState(
                             text = stringResource(id = filter.title()),
                             onSelected = { filterAction(filter) },
@@ -536,6 +540,7 @@ private fun EarningScreen(
     queryFilter: (String) -> Unit,
     filterAction: (EarnDashboardListFilter) -> Unit,
     filterBy: EarnDashboardListFilter,
+    filtersAvailable: List<EarnDashboardListFilter>,
     earningAssetList: List<EarnAsset>,
     onItemClicked: (EarnAsset) -> Unit,
     earningTabQueryBy: String,
@@ -556,7 +561,7 @@ private fun EarningScreen(
         }
 
         LabeledFiltersGroup(
-            filters = EarnDashboardListFilter.values().map { filter ->
+            filters = filtersAvailable.map { filter ->
                 LabeledFilterState(
                     text = stringResource(id = filter.title()),
                     onSelected = { filterAction(filter) },
@@ -604,6 +609,7 @@ private fun EarningScreen(
         } else {
             Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
                 LazyRoundedCornersColumnIndexed(
+                    modifier = Modifier.fillMaxSize(),
                     items = earningAssetList,
                     rowContent = { asset, index ->
                         Column {

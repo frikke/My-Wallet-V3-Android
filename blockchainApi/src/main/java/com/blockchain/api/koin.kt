@@ -30,6 +30,8 @@ import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.experiments.ExperimentsApi
+import com.blockchain.api.fees.FeesApi
+import com.blockchain.api.fees.WithdrawFeesService
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.fraud.FraudApi
 import com.blockchain.api.kyc.KycApiInterface
@@ -409,6 +411,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
         TxLimitsService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(FeesApi::class.java)
+        WithdrawFeesService(
+            feesApi = api
         )
     }
 

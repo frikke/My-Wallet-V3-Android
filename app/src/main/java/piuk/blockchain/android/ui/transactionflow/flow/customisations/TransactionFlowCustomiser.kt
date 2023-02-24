@@ -23,6 +23,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialActiveRewardsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
@@ -337,10 +338,13 @@ class TransactionFlowCustomiserImpl(
             else -> throw java.lang.IllegalStateException("Max network fee label not configured for ${state.action}")
         }
 
-    override fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean =
-        state.action == AssetAction.Swap &&
-            state.sendingAccount is NonCustodialAccount && state.selectedTarget is NonCustodialAccount
-
+    override fun shouldDisplayNetworkFee(state: TransactionState): Boolean =
+        !state.isCustodialWithdrawal() && state.pendingTx?.hasFees() == true
+    override fun shouldDisplayTotalBalance(state: TransactionState): Boolean =
+        !state.isCustodialWithdrawal() && state.amount.isPositive
+    private fun TransactionState.isCustodialWithdrawal(): Boolean =
+        action == AssetAction.Send && sendingAccount is CustodialTradingAccount &&
+            selectedTarget is NonCustodialAccount
     override fun enterAmountGetNoBalanceMessage(state: TransactionState): String =
         when (state.action) {
             AssetAction.Send -> resources.getString(R.string.enter_amount_not_enough_balance)

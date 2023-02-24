@@ -17,6 +17,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
+import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.interest.InterestSummarySheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -62,7 +64,8 @@ class CoinViewActivity :
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
     KycUpgradeNowSheet.Host,
-    StakingSummaryBottomSheet.Host {
+    StakingSummaryBottomSheet.Host,
+    ActiveRewardsSummaryBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -244,6 +247,13 @@ class CoinViewActivity :
             is CoinviewNavigationEvent.NavigateToStakingStatement ->
                 showBottomSheet(
                     StakingSummaryBottomSheet.newInstance(
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
+                    )
+                )
+
+            is CoinviewNavigationEvent.NavigateToActiveRewardsStatement ->
+                showBottomSheet(
+                    ActiveRewardsSummaryBottomSheet.newInstance(
                         (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
                     )
                 )
@@ -463,15 +473,37 @@ class CoinViewActivity :
         viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(account))
     }
 
+    override fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active) {
+        viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsDepositFlow(account))
+    }
+
+    override fun launchActiveRewardsWithdrawal(account: EarnRewardsAccount.Active) {
+        // TODO(EARN) - Active rewards - not yet implemented
+    }
+
     override fun showStakingLoadingError(error: StakingError) =
         BlockchainSnackbar.make(
             view = window.decorView.rootView,
             message = when (error) {
                 is StakingError.UnknownAsset -> getString(
-                    R.string.staking_summary_sheet_error_unknown_asset, error.assetTicker
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
                 )
-                StakingError.Other -> getString(R.string.staking_summary_sheet_error_other)
+                StakingError.Other -> getString(R.string.earn_summary_sheet_error_other)
                 StakingError.None -> getString(R.string.empty)
+            },
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
+
+    override fun showActiveRewardsLoadingError(error: ActiveRewardsError) =
+        BlockchainSnackbar.make(
+            view = window.decorView.rootView,
+            message = when (error) {
+                is ActiveRewardsError.UnknownAsset -> getString(
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                )
+                ActiveRewardsError.Other -> getString(R.string.earn_summary_sheet_error_other)
+                ActiveRewardsError.None -> getString(R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error

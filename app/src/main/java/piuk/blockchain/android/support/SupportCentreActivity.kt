@@ -139,7 +139,6 @@ class SupportCentreActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.contact_support),
             backAction = { onBackPressedDispatcher.onBackPressed() }

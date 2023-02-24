@@ -13,6 +13,10 @@ data class ActiveRewardsRatesDto(
 data class ActiveRewardsTokenRateDto(
     @SerialName("rate")
     val rate: Double,
+
     @SerialName("commission")
-    val commission: Double
+    val commission: Double,
+
+    @SerialName("triggerPrice")
+    val triggerPrice: String,
 )

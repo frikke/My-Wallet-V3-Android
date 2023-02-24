@@ -9,6 +9,7 @@ import info.blockchain.balance.AssetInfo
 sealed class EarnDashboardNavigationEvent : NavigationEvent {
     class OpenRewardsSummarySheet(val account: CryptoAccount) : EarnDashboardNavigationEvent()
     class OpenStakingSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
+    class OpenActiveRewardsSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenBlockedForRegionSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()
     class OpenBuyOrReceiveSheet(val assetAction: AssetAction, val availableToBuy: Boolean, val account: SingleAccount) :
         EarnDashboardNavigationEvent()

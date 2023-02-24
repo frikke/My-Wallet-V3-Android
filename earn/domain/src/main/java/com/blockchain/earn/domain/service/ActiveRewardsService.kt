@@ -4,8 +4,8 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
+import com.blockchain.earn.domain.models.ActiveRewardsRates
 import com.blockchain.earn.domain.models.EarnRewardsActivity
-import com.blockchain.earn.domain.models.EarnRewardsRates
 import com.blockchain.earn.domain.models.active.ActiveRewardsAccountBalance
 import com.blockchain.earn.domain.models.active.ActiveRewardsLimits
 import com.blockchain.outcome.Outcome
@@ -36,7 +36,7 @@ interface ActiveRewardsService {
     fun getRatesForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
-    ): Flow<DataResource<EarnRewardsRates>>
+    ): Flow<DataResource<ActiveRewardsRates>>
 
     fun getRatesForAllAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)

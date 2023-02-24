@@ -5,7 +5,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.EarnRewardsActivity
-import com.blockchain.earn.domain.models.EarnRewardsRates
+import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.outcome.Outcome
@@ -47,7 +47,7 @@ interface StakingService {
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
             RefreshStrategy.RefreshIfOlderThan(10, TimeUnit.MINUTES)
         )
-    ): Flow<DataResource<EarnRewardsRates>>
+    ): Flow<DataResource<StakingRewardsRates>>
 
     fun getRatesForAllAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(

@@ -17,6 +17,7 @@ data class EarnDashboardModelState(
     val earningTabFilterBy: EarnDashboardListFilter = EarnDashboardListFilter.All,
     val discoverTabQueryBy: String = "",
     val discoverTabFilterBy: EarnDashboardListFilter = EarnDashboardListFilter.All,
+    val filterList: List<EarnDashboardListFilter> = emptyList(),
     val hasSeenEarnIntro: Boolean = false
 ) : ModelState
 

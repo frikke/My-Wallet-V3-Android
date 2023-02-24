@@ -62,25 +62,28 @@ class FiatCustodialAccount internal constructor(
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
-        return simpleBuyService.getFiatTransactions(
-            freshnessStrategy = freshnessStrategy,
-            fiatCurrency = currency,
-            product = Product.BUY
-        ).mapData {
-            it.map { fiatTransaction ->
-                FiatActivitySummaryItem(
-                    currency = currency,
-                    exchangeRates = exchangeRates,
-                    txId = fiatTransaction.id,
-                    timeStampMs = fiatTransaction.date.time,
-                    value = fiatTransaction.amount,
-                    account = this,
-                    state = fiatTransaction.state,
-                    type = fiatTransaction.type,
-                    paymentMethodId = fiatTransaction.paymentId
-                )
-            }
-        }.asObservable()
+        return exchangeRates.exchangeRateToUserFiat(currency).flatMap { exchangeRate ->
+            simpleBuyService.getFiatTransactions(
+                freshnessStrategy = freshnessStrategy,
+                fiatCurrency = currency,
+                product = Product.BUY
+            ).mapData {
+                it.map { fiatTransaction ->
+                    FiatActivitySummaryItem(
+                        currency = currency,
+                        exchangeRates = exchangeRates,
+                        txId = fiatTransaction.id,
+                        fiat = exchangeRate.convert(fiatTransaction.amount),
+                        timeStampMs = fiatTransaction.date.time,
+                        value = fiatTransaction.amount,
+                        account = this,
+                        state = fiatTransaction.state,
+                        type = fiatTransaction.type,
+                        paymentMethodId = fiatTransaction.paymentId
+                    )
+                }
+            }.asObservable()
+        }
     }
 
     override fun canWithdrawFunds(): Flow<DataResource<Boolean>> =
