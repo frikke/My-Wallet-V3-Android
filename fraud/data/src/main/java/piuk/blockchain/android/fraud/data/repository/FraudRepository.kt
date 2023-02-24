@@ -149,8 +149,8 @@ internal class FraudRepository(
             if (currentFlow.get() == flow || flow == null) {
                 currentFlow.set(null)
 
-                if (!MobileIntelligence.options.flow.isNullOrEmpty()) {
-                    Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.options.flow}].")
+                if (!MobileIntelligence.getOptions().flow.isNullOrEmpty()) {
+                    Timber.i("Stop tracking fraud flow: ${flow?.name}[${MobileIntelligence.getOptions().flow}].")
                     MobileIntelligence.submitData(onDataSubmittedCallback(flow, onDataSubmitted))
                 }
             }
@@ -163,14 +163,14 @@ internal class FraudRepository(
         object : MobileIntelligence.Callback<SubmitResponse> {
             override fun onSuccess(response: SubmitResponse) {
                 onDataSubmitted?.invoke()
-                Timber.i("Fraud data sent for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}].")
+                Timber.i("Fraud data sent for: ${flow?.name ?: ""}[${MobileIntelligence.getOptions().flow}].")
             }
 
             override fun onError(exception: Exception) {
                 onDataSubmitted?.invoke()
                 Timber.e(
                     exception,
-                    "Error sending fraud data for: ${flow?.name ?: ""}[${MobileIntelligence.options.flow}]."
+                    "Error sending fraud data for: ${flow?.name ?: ""}[${MobileIntelligence.getOptions().flow}]."
                 )
             }
         }

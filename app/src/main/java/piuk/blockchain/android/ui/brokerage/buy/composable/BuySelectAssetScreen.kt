@@ -138,6 +138,7 @@ fun BuySelectAssetScreen(
                     }
                     is BlockedReason.TooManyInFlightTransactions,
                     is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+                    BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                     null -> {
                         Assets(
                             onErrorContactSupportClicked = onErrorContactSupportClicked,

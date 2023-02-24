@@ -115,7 +115,8 @@ class ActiveRewardsDepositOnChainTxEngine(
     override fun doOptionUpdateRequest(pendingTx: PendingTx, newConfirmation: TxConfirmationValue): Single<PendingTx> =
         if (newConfirmation.confirmation in setOf(
                 TxConfirmation.AGREEMENT_BLOCKCHAIN_T_AND_C,
-                TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER
+                TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER,
+                TxConfirmation.AGREEMENT_ACTIVE_REWARDS_WITHDRAWAL_DISABLED
             )
         ) {
             Single.just(pendingTx.addOrReplaceOption(newConfirmation))

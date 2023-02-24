@@ -514,7 +514,7 @@ class TransactionModel(
         val shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
         process(TransactionIntent.UpdatePrivateKeyAccountsFilterState(shouldShowPkwOnTrading))
 
-        return if (action == AssetAction.StakingDeposit) {
+        return if (action == AssetAction.StakingDeposit || action == AssetAction.ActiveRewardsDeposit) {
             checkWithdrawalNoticeAndProceed(
                 action = action,
                 transactionTarget = transactionTarget,

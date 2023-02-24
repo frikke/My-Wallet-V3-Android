@@ -122,6 +122,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
     is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
     is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> ActionState.Unavailable
+    is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning -> ActionState.Unavailable
 }
 
 interface Asset {
