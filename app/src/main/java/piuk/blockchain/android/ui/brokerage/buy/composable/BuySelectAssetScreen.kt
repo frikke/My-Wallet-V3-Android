@@ -24,7 +24,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.coincore.NullCryptoAddress
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies

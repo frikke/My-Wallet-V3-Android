@@ -23,7 +23,7 @@ internal fun LazyListScope.homeTopMovers(
 ) {
     (data as? DataResource.Data)?.data?.let {
         if (it.isEmpty()) return
-        
+
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {

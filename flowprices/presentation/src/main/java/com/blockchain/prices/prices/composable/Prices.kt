@@ -199,7 +199,7 @@ fun ColumnScope.PricesScreenData(
             item {
                 TopMoversScreen(
                     data = topMovers,
-                    assetOnClick = {asset ->
+                    assetOnClick = { asset ->
                         onAssetClick(asset)
 
                         topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
