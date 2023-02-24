@@ -202,32 +202,7 @@ fun ActiveRewardsSummarySheet(
 
                 LargeVerticalSpacer()
 
-                Card(
-                    backgroundColor = AppTheme.colors.background,
-                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(AppTheme.dimensions.smallSpacing)
-                    ) {
-                        SimpleText(
-                            text = stringResource(R.string.common_important),
-                            style = ComposeTypographies.Paragraph2,
-                            color = ComposeColors.Warning,
-                            gravity = ComposeGravities.Start
-                        )
-
-                        TinyVerticalSpacer()
-
-                        SimpleText(
-                            text = stringResource(R.string.earn_active_rewards_withdrawal_blocked),
-                            style = ComposeTypographies.Caption1, color = ComposeColors.Title,
-                            gravity = ComposeGravities.Start
-                        )
-                    }
-                }
+                ActiveRewardsWithdrawalNotice()
 
                 LargeVerticalSpacer()
 

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
 import com.blockchain.coincore.toFiat
@@ -222,6 +223,81 @@ private class AgreementTextItemViewHolder(
             introToHolding.length + amountInBold.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
+        return sb
+    }
+}
+
+class ConfirmAgreementToWithdrawalBlockedItemDelegate<in T>(
+    private val model: TransactionModel,
+) : AdapterDelegate<T> {
+    override fun isForViewType(items: List<T>, position: Int): Boolean =
+        (items[position] as? TxConfirmationValue.TxBooleanConfirmation<*>)?.let {
+            it.data is TransferData.ActiveRewards &&
+                it.confirmation == TxConfirmation.AGREEMENT_ACTIVE_REWARDS_WITHDRAWAL_DISABLED
+        } ?: false
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        AgreementWithdrawalBlockedTextItemViewHolder(
+            ItemSendConfirmAgreementCheckboxBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
+
+    override fun onBindViewHolder(
+        items: List<T>,
+        position: Int,
+        holder: RecyclerView.ViewHolder
+    ) = (holder as AgreementWithdrawalBlockedTextItemViewHolder).bind(
+        items[position] as TxConfirmationValue.TxBooleanConfirmation<TransferData.ActiveRewards>,
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
+    )
+}
+private class AgreementWithdrawalBlockedTextItemViewHolder(
+    private val binding: ItemSendConfirmAgreementCheckboxBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: TxConfirmationValue.TxBooleanConfirmation<TransferData.ActiveRewards>,
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
+        with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
+            item.data?.let { data ->
+                val text = activeRewardsText(
+                    data,
+                    context.resources
+                )
+
+                confirmDetailsCheckboxText.setText(
+                    text, TextView.BufferType.SPANNABLE
+                )
+            }
+
+            confirmDetailsCheckbox.setOnCheckedChangeListener { _, isChecked ->
+                model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
+            }
+        }
+    }
+
+    private fun activeRewardsText(
+        data: TransferData.ActiveRewards,
+        resources: Resources
+    ): SpannableStringBuilder {
+        val agree = resources.getString(
+            R.string.active_rewards_agreement_withdrawal_blocked,
+            data.amount.currency.displayTicker
+        )
+        val sb = SpannableStringBuilder().run {
+            append(agree)
+        }
+
         return sb
     }
 }

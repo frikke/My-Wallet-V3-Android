@@ -120,7 +120,7 @@ class QuickFillRowView @JvmOverloads constructor(
 
         quickFillButtonData = QuickFillButtonData(
             maxAmount = state.maxSpendable,
-            quickFillButtons = listOfAmounts.map { amount ->
+            quickFillButtons = listOfAmounts.distinct().map { amount ->
                 QuickFillDisplayAndAmount(
                     displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
                     amount = amount,
@@ -179,7 +179,7 @@ class QuickFillRowView @JvmOverloads constructor(
 
         quickFillButtonData = QuickFillButtonData(
             maxAmount = state.maxSpendable,
-            quickFillButtons = listOfAmounts
+            quickFillButtons = listOfAmounts.distinct()
         )
 
         onQuickFillItemClick = { quickFillData ->

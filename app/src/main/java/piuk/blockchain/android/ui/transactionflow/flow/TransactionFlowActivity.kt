@@ -27,6 +27,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.earn.activeRewards.ActiveRewardsWithdrawalWarningSheet
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -72,7 +73,8 @@ class TransactionFlowActivity :
     SlidingModalBottomDialog.Host,
     QuestionnaireSheetHost,
     KycUpgradeNowSheet.Host,
-    StakingAccountWithdrawWarning.Host {
+    StakingAccountWithdrawWarning.Host,
+    ActiveRewardsWithdrawalWarningSheet.Host {
 
     private val scopeId: String by lazy {
         "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
@@ -291,6 +293,8 @@ class TransactionFlowActivity :
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
                     featureBlockedReason.assetIconUrl
                 )
+                is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning ->
+                    ActiveRewardsWithdrawalWarningSheet.newInstance()
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )

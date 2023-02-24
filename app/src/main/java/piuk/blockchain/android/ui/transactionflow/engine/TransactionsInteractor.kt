@@ -34,6 +34,7 @@ import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
@@ -97,7 +98,8 @@ class TransactionInteractor(
     private val improvedPaymentUxFF: FeatureFlag,
     private val dynamicAssetRepository: UniversalDynamicAssetRepository,
     private val stakingService: StakingService,
-    private val transactionPrefs: TransactionPrefs
+    private val transactionPrefs: TransactionPrefs,
+    private val activeRewardsService: ActiveRewardsService,
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -483,7 +485,15 @@ class TransactionInteractor(
                         identity.userAccessForFeature(Feature.DepositStaking)
                     }
                 }
-                // TODO (labreu): add active rewards interstitial
+                AssetAction.ActiveRewardsDeposit -> {
+                    activeRewardsService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                        if (accountBalance.totalBalance.isZero) {
+                            FeatureAccess.Blocked(
+                                BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning
+                            )
+                        } else FeatureAccess.Granted()
+                    }
+                }
                 else -> Single.just(FeatureAccess.Granted())
             }
         }

@@ -366,6 +366,9 @@ class SimpleBuyActivity :
             is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
                 // do nothing
             }
+            is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning -> {
+                // do nothing
+            }
         }
     }
 

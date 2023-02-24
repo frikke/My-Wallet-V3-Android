@@ -42,6 +42,11 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(ConfirmXlmMemoItemDelegate(model))
             addAdapterDelegate(ConfirmAgreementWithTAndCsItemDelegate(model))
             addAdapterDelegate(
+                ConfirmAgreementToWithdrawalBlockedItemDelegate(
+                    model,
+                )
+            )
+            addAdapterDelegate(
                 ConfirmAgreementToTransferItemDelegate(
                     model,
                     exchangeRates,

@@ -56,8 +56,8 @@ class ActiveRewardsSummaryBottomSheet :
     private val viewModel by viewModel<ActiveRewardsSummaryViewModel>()
 
     private val cryptoTicker by lazy {
-        arguments?.getString(ActiveRewardsSummaryBottomSheet.ASSET_TICKER) ?: throw IllegalStateException(
-            "StakingSummaryBottomSheet requires a ticker to start"
+        arguments?.getString(ASSET_TICKER) ?: throw IllegalStateException(
+            "ActiveRewardsSummaryBottomSheet requires a ticker to start"
         )
     }
 

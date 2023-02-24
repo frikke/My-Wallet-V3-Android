@@ -32,7 +32,7 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import com.dex.presentation.DexIntroScreen
+import com.dex.presentation.DexEnterAmountScreen
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.get
 
@@ -158,7 +158,7 @@ fun MultiAppBottomNavigationHost(
                 isRefreshing = isRefreshing,
                 swipeRefreshState = swipeRefreshState,
                 content = {
-                    DexIntroScreen()
+                    DexEnterAmountScreen(listState)
                 },
                 refreshStarted = {
                     isRefreshing = true

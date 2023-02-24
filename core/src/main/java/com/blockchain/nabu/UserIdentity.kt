@@ -101,6 +101,7 @@ sealed class BlockedReason : Serializable {
 
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
     class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String) : BlockedReason()
+    object ShouldAcknowledgeActiveRewardsWithdrawalWarning : BlockedReason()
 }
 
 data class LinkedError(val linkError: String)
