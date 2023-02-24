@@ -575,7 +575,6 @@ class SimpleBuyCryptoFragment :
             )
 
             inputView?.run {
-                println("-- reques")
                 requestFocus()
                 imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
             }
