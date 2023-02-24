@@ -93,7 +93,7 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete,
-                getStatesInfo = { listStateInfo ->
+                updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
                             ChromeBottomNavigationItem.Home,
@@ -130,7 +130,7 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete,
-                getStatesInfo = { listStateInfo ->
+                updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
                             ChromeBottomNavigationItem.Dex,
@@ -150,7 +150,7 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete,
-                getStatesInfo = { listStateInfo ->
+                updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
                             ChromeBottomNavigationItem.Prices,
@@ -177,7 +177,7 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete,
-                getStatesInfo = { listStateInfo ->
+                updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
                             ChromeBottomNavigationItem.Nft,
@@ -207,7 +207,7 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete,
-                getStatesInfo = { listStateInfo ->
+                updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
                             ChromeBottomNavigationItem.Home,

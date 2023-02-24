@@ -33,7 +33,7 @@ fun ChromeListScreen(
     isPullToRefreshEnabled: Boolean,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    getStatesInfo: (ListStateInfo) -> Unit,
+    updateStatesInfo: (ListStateInfo) -> Unit,
     content: @Composable (listState: LazyListState, shouldTriggerRefresh: Boolean) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -44,7 +44,7 @@ fun ChromeListScreen(
         isPullToRefreshEnabled = isPullToRefreshEnabled,
         refreshStarted = refreshStarted,
         refreshComplete = refreshComplete,
-        getStatesInfo = getStatesInfo,
+        updateStatesInfo = updateStatesInfo,
         contentList = content
     )
 }
@@ -55,7 +55,7 @@ fun ChromeGridScreen(
     isPullToRefreshEnabled: Boolean,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    getStatesInfo: (ListStateInfo) -> Unit,
+    updateStatesInfo: (ListStateInfo) -> Unit,
     content: @Composable (listState: LazyGridState, shouldTriggerRefresh: Boolean) -> Unit
 ) {
     val gridState = rememberLazyGridState()
@@ -66,7 +66,7 @@ fun ChromeGridScreen(
         isPullToRefreshEnabled = isPullToRefreshEnabled,
         refreshStarted = refreshStarted,
         refreshComplete = refreshComplete,
-        getStatesInfo = getStatesInfo,
+        updateStatesInfo = updateStatesInfo,
         contentGrid = content
     )
 }
@@ -79,7 +79,7 @@ private fun ChromeScreen(
     isPullToRefreshEnabled: Boolean,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    getStatesInfo: (ListStateInfo) -> Unit,
+    updateStatesInfo: (ListStateInfo) -> Unit,
     contentList: @Composable ((listState: LazyListState, shouldTriggerRefresh: Boolean) -> Unit)? = null,
     contentGrid: @Composable ((listState: LazyGridState, shouldTriggerRefresh: Boolean) -> Unit)? = null
 ) {
@@ -114,7 +114,7 @@ private fun ChromeScreen(
         }
     )
 
-    getStatesInfo(extractStatesInfo(state, pullRefreshState))
+    updateStatesInfo(extractStatesInfo(state, pullRefreshState))
 
     Box(
         Modifier.pullRefresh(
