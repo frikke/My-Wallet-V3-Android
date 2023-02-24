@@ -1457,6 +1457,7 @@ class TransactionFlowCustomiserImpl(
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.NotEligible,
                 is BlockedReason.Sanctions,
+                is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> selectTargetAddressTitle(state)
                 is BlockedReason.InsufficientTier -> resources.getString(R.string.kyc_upgrade_now_toolbar)
                 null -> throw IllegalStateException(

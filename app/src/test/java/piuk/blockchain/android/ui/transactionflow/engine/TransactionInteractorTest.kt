@@ -10,6 +10,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
@@ -63,6 +64,7 @@ class TransactionInteractorTest {
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
     private val dynamicRepository: UniversalDynamicAssetRepository = mock()
     private val stakingService: StakingService = mock()
+    private val activeRewardsService: ActiveRewardsService = mock()
     private val transactionPrefs: TransactionPrefs = mock()
 
     private lateinit var subject: TransactionInteractor
@@ -90,6 +92,7 @@ class TransactionInteractorTest {
             dynamicAssetRepository = dynamicRepository,
             improvedPaymentUxFF = improvedPaymentUxFF,
             stakingService = stakingService,
+            activeRewardsService = activeRewardsService,
             transactionPrefs = transactionPrefs
         )
     }

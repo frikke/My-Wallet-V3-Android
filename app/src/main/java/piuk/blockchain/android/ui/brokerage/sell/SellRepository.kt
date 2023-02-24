@@ -99,6 +99,7 @@ class SellRepository(
             is BlockedReason.Sanctions -> flowOf(DataResource.Data(SellEligibility.NotEligible(reason)))
             is BlockedReason.TooManyInFlightTransactions,
             is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+            is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
             null -> {
                 loadSellEligibility(freshnessStrategy).flatMapData { data ->
                     when (data) {

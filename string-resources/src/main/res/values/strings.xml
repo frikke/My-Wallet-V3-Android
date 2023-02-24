@@ -1746,6 +1746,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="active_rewards_confirmation_bonding_period_2">&#160;%1$s&#160;</string>
     <string name="active_rewards_confirmation_bonding_period_3">to my Active Rewards Account.</string>
     <string name="active_rewards_confirmation_bonding_period_4">&#160;I understand that price movements may result in a reduction of my %1$s balance, and that my transfer will be placed in next week\'s strategy.</string>
+    <string name="active_rewards_agreement_withdrawal_blocked">I understand that withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, %1$s assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy.</string>
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="staking_confirmation_progress_title">Staking %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
@@ -3523,5 +3524,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_trigger_price">Trigger price</string>
     <string name="common_important">Important</string>
     <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
 
 </resources>

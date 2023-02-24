@@ -131,6 +131,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
                             is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+                            is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                             null -> loadBuyDetails(showLoading)
                         }
 

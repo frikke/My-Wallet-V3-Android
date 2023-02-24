@@ -230,7 +230,8 @@ class SwapFragment :
                                     is BlockedReason.InsufficientTier -> showKycUpgradeNow()
                                     is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
                                     is BlockedReason.TooManyInFlightTransactions,
-                                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> {
+                                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+                                    is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning -> {
                                         // noop
                                     }
                                 }.exhaustive

@@ -42,6 +42,13 @@ abstract class ActiveRewardsBaseEngine(
                     value = agreementChecked
                 )
             )
+            .addOrReplaceOption(
+                TxConfirmationValue.TxBooleanConfirmation(
+                    confirmation = TxConfirmation.AGREEMENT_ACTIVE_REWARDS_WITHDRAWAL_DISABLED,
+                    data = TransferData.ActiveRewards(pendingTx.amount),
+                    value = agreementChecked
+                )
+            )
 
     protected fun getLimits(): Single<Pair<AssetInfo, ActiveRewardsLimits>> =
         activeRewardsService.getLimitsForAsset(sourceAssetInfo).asSingle().map { arLimits ->
@@ -51,7 +58,8 @@ abstract class ActiveRewardsBaseEngine(
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
         val terms = getTermsOptionValue(pendingTx)
         val agreement = getAgreementOptionValue(pendingTx)
-        return (terms && agreement)
+        val withdrawalDisabledAgreement = getWithdrawalDisabledAgreementOptionValue(pendingTx)
+        return (terms && agreement && withdrawalDisabledAgreement)
     }
 
     private fun getTermsOptionValue(pendingTx: PendingTx): Boolean =
@@ -62,6 +70,11 @@ abstract class ActiveRewardsBaseEngine(
     private fun getAgreementOptionValue(pendingTx: PendingTx): Boolean =
         pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Money>>(
             TxConfirmation.AGREEMENT_ACTIVE_REWARDS_TRANSFER
+        )?.value ?: false
+
+    private fun getWithdrawalDisabledAgreementOptionValue(pendingTx: PendingTx): Boolean =
+        pendingTx.getOption<TxConfirmationValue.TxBooleanConfirmation<Money>>(
+            TxConfirmation.AGREEMENT_ACTIVE_REWARDS_WITHDRAWAL_DISABLED
         )?.value ?: false
 
     protected fun TxConfirmation.isInterestAgreement(): Boolean = this in setOf(
