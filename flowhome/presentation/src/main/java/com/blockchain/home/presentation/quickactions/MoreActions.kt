@@ -27,6 +27,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
@@ -41,36 +42,30 @@ fun MoreActions(
     assetActionsNavigation: AssetActionsNavigation,
     dismiss: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: QuickActionsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    viewState?.moreActions?.let { actions ->
-        MoreActionsScreen(
-            actions = actions,
-            onActionClick = { action ->
-                when (action) {
-                    AssetAction.Send,
-                    AssetAction.Sell,
-                    AssetAction.Receive,
-                    AssetAction.Buy,
-                    AssetAction.Swap -> assetActionsNavigation.navigate(action)
-                    AssetAction.FiatDeposit -> {
-                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
-                    }
-                    AssetAction.FiatWithdraw -> {
-                        viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
-                    }
-                    else -> {
-                        // n/a
-                    }
+    MoreActionsScreen(
+        actions = viewState.moreActions,
+        onActionClick = { action ->
+            when (action) {
+                AssetAction.Send,
+                AssetAction.Sell,
+                AssetAction.Receive,
+                AssetAction.Buy,
+                AssetAction.Swap -> assetActionsNavigation.navigate(action)
+                AssetAction.FiatDeposit -> {
+                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatDeposit))
                 }
-            },
-            dismiss = dismiss
-        )
-    }
+                AssetAction.FiatWithdraw -> {
+                    viewModel.onIntent(QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw))
+                }
+                else -> {
+                    // n/a
+                }
+            }
+        },
+        dismiss = dismiss
+    )
 }
 
 @Composable
