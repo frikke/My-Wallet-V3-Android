@@ -117,6 +117,7 @@ class SimpleBuyCryptoFragment :
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
+    private var keyboardShown = false
 
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
@@ -569,7 +570,7 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun FiatCryptoInputView.showKeyboard() {
-        if (configured) {
+        if (configured && !keyboardShown) {
             val inputView = findViewById<PrefixedOrSuffixedEditText>(
                 R.id.enter_amount
             )
@@ -577,6 +578,7 @@ class SimpleBuyCryptoFragment :
             inputView?.run {
                 requestFocus()
                 imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+                keyboardShown = true
             }
         }
     }
