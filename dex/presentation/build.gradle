@@ -29,6 +29,8 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':common:interface')
     implementation project(':common:presentation')
+    implementation project(':string-resources')
+    implementation project(':componentlib')
 
     // koin
     implementation Libraries.koinAndroid

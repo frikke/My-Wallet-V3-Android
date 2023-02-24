@@ -51,6 +51,7 @@
     <string name="common_continue">Continue</string>
     <string name="common_try_again">Try Again</string>
     <string name="common_sell">Sell</string>
+    <string name="common_select">Select</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_balance">Balance</string>
@@ -70,6 +71,7 @@
     <string name="common_copy">Copy</string>
     <string name="common_copied">Copied</string>
     <string name="common_share">Share</string>
+    <string name="common_max">Max</string>
     <string name="common_launch">Launch</string>
     <string name="common_maybe_later">Maybe Later</string>
     <string name="common_i_understand">I Understand</string>
