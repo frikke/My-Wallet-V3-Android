@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,6 +82,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEME
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
+import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -111,6 +113,10 @@ class SimpleBuyCryptoFragment :
     TransactionFlowInfoHost,
     PaymentMethodChooserBottomSheet.Host,
     KycUpgradeNowSheet.Host {
+
+    private val imm: InputMethodManager by lazy {
+        requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
 
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
@@ -480,6 +486,7 @@ class SimpleBuyCryptoFragment :
                     predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
                     showExchangeRate = newState.featureFlagSet.feynmanEnterAmountFF
                 )
+                inputAmount.showKeyboard()
 
                 buyIcon.setAssetIconColoursWithTint(it)
                 assetResources.loadAssetIcon(cryptoIcon, it)
@@ -558,6 +565,20 @@ class SimpleBuyCryptoFragment :
                 ),
                 BankAuthActivity.LINK_BANK_REQUEST_CODE
             )
+        }
+    }
+
+    private fun FiatCryptoInputView.showKeyboard() {
+        if (configured) {
+            val inputView = findViewById<PrefixedOrSuffixedEditText>(
+                R.id.enter_amount
+            )
+
+            inputView?.run {
+                println("-- reques")
+                requestFocus()
+                imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+            }
         }
     }
 
